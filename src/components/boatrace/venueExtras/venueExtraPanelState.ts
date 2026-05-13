@@ -118,6 +118,13 @@ export type ResolvePreferredVenueExtraPanelInput = VenueExtraVenueFlags & VenueE
 	hasBiwakoSeriesResultsData: boolean;
 };
 
+export type ResolveInitialVenueExtraPanelInput = Pick<
+	VenueExtraVenueFlags,
+	"isOmuraVenue" | "isTamagawaVenue" | "isKojimaVenue" | "isFukuokaVenue"
+> & {
+	preferredVenueExtraPanel: VenueExtraPanelKey;
+};
+
 export function createVenueExtraPanelFlags(input: CreateVenueExtraPanelFlagsInput): VenueExtraPanelFlags {
 	const hasOfficialPanelData = input.hasOfficialBeforeInfoDetail || input.shouldShowOfficialBeforeInfoWaiting;
 	const hasStartPanelData = input.hasOfficialStartExhibition || input.hasStartExhibitionData;
@@ -466,4 +473,24 @@ export function resolvePreferredVenueExtraPanel(input: ResolvePreferredVenueExtr
 	}
 
 	return "official";
+}
+
+export function resolveInitialVenueExtraPanel(input: ResolveInitialVenueExtraPanelInput): VenueExtraPanelKey {
+	if (input.isOmuraVenue) {
+		return "omura-overview";
+	}
+
+	if (input.isTamagawaVenue) {
+		return "tamagawa-overview";
+	}
+
+	if (input.isKojimaVenue) {
+		return "kojima-before";
+	}
+
+	if (input.isFukuokaVenue) {
+		return "fukuoka-before";
+	}
+
+	return input.preferredVenueExtraPanel;
 }

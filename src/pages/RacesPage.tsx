@@ -6,6 +6,7 @@ import { BoatVenueSpotlight } from "../components/boatrace/BoatVenueSpotlight";
 import { buildVenueExtraPanelOptions } from "../components/boatrace/venueExtras/venueExtraPanelOptions";
 import {
 	createVenueExtraPanelFlags,
+	resolveInitialVenueExtraPanel,
 	resolvePreferredVenueExtraPanel,
 } from "../components/boatrace/venueExtras/venueExtraPanelState";
 import {
@@ -5320,19 +5321,20 @@ const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(
 	],
 );
 
+const initialVenueExtraPanel = useMemo<VenueExtraPanelKey>(
+	() => resolveInitialVenueExtraPanel({
+		isOmuraVenue,
+		isTamagawaVenue,
+		isKojimaVenue,
+		isFukuokaVenue,
+		preferredVenueExtraPanel,
+	}),
+	[isOmuraVenue, isTamagawaVenue, isKojimaVenue, isFukuokaVenue, preferredVenueExtraPanel],
+);
+
 useEffect(() => {
-	setSelectedVenueExtraPanel(
-		isOmuraVenue
-			? "omura-overview"
-			: isTamagawaVenue
-				? "tamagawa-overview"
-			: isKojimaVenue
-				? "kojima-before"
-				: isFukuokaVenue
-					? "fukuoka-before"
-				: preferredVenueExtraPanel,
-	);
-}, [selectedVenueId, isOmuraVenue, isTamagawaVenue, isKojimaVenue, isFukuokaVenue, preferredVenueExtraPanel]);
+	setSelectedVenueExtraPanel(initialVenueExtraPanel);
+}, [selectedVenueId, initialVenueExtraPanel]);
 
 useEffect(() => {
 	setSelectedNarutoStatsTab("score");
