@@ -53,5 +53,17 @@ jobs:
             echo "No generated data changes."
           else
             git commit -m "Update boat race generated data"
-            git push
+              for i in 1 2 3; do
+                git pull --rebase origin main
+                if git push; then
+                  break
+                fi
+
+                if [ "$i" -eq 3 ]; then
+                  echo "git push failed after $i attempts."
+                  exit 1
+                fi
+
+                sleep 5
+              done
           fi
