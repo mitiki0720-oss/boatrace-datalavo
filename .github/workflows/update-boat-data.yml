@@ -45,25 +45,36 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add public/data/boatrace/today.generated.json
-          git add public/data/boatrace/today-race-details.generated.json
-          git add public/data/boatrace/venue-extras.generated.json
+          git add public/data
+
+          echo "=== git status before commit ==="
+          git status --short
 
           if git diff --cached --quiet; then
             echo "No generated data changes."
           else
             git commit -m "Update boat race generated data"
-              for i in 1 2 3; do
-                git pull --rebase origin main
-                if git push; then
-                  break
-                fi
 
-                if [ "$i" -eq 3 ]; then
-                  echo "git push failed after $i attempts."
-                  exit 1
-                fi
+            echo "=== git status after commit ==="
+            git status --short
 
-                sleep 5
-              done
+            if ! git diff --quiet || ! git diff --cached --quiet; then
+              echo "::error::Uncommitted changes remain after generated data commit"
+              git status --short
+              exit 1
+            fi
+
+            for i in 1 2 3; do
+              git pull --rebase origin main
+              if git push; then
+                break
+              fi
+
+              if [ "$i" -eq 3 ]; then
+                echo "::error::git push failed after 3 attempts"
+                exit 1
+              fi
+
+              sleep 5
+            done
           fi
