@@ -9,6 +9,7 @@ import { PageShell } from "../components/layout/PageShell";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import type { BoatOddsPreviewGroup, BoatRacerItem } from "../lib/boatraceTypes";
 import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
+import { buildCommonRaceFallbackRacers, isRaceEntryMissingOrThin } from "../lib/boatRaceRacerNormalizer";
 import { boatTheme } from "../lib/theme";
 
 
@@ -4932,41 +4933,6 @@ const hasKojimaMotorStatsData = selectedKojimaMotorStats.length > 0;
 const hasKojimaFrameStatsData = selectedKojimaFrameStats.length > 0;
 const hasTamagawaEntryData = selectedTamagawaEntryTable.length > 0;
 
-const isRaceEntryMissingOrThin = (racers?: BoatRacerItem[]) => {
-	if (!racers || racers.length === 0) {
-		return true;
-	}
-
-	return racers.every((racer) => {
-		const hasName = Boolean((racer.name || "").trim());
-		const hasClass = Boolean((racer.class || "").trim() && racer.class !== "-");
-		const hasAverageStart = Boolean((racer.averageStart || "").trim() && racer.averageStart !== "-");
-		const hasWinRate = Boolean((racer.winRate || "").trim() && racer.winRate !== "-");
-		const hasSecondRate = Boolean((racer.secondRate || "").trim() && racer.secondRate !== "-");
-		const hasMotorNo = Boolean((racer.motorNo || "").trim() && racer.motorNo !== "-");
-
-		return !hasName && !hasClass && !hasAverageStart && !hasWinRate && !hasSecondRate && !hasMotorNo;
-	});
-};
-
-const hasFallbackPlayerName = (playerName: string | undefined, frameNo: number) => {
-	if (!playerName) {
-		return false;
-	}
-
-	const normalizedName = playerName.replace(/\s+/g, "").trim();
-
-	if (!normalizedName) {
-		return false;
-	}
-
-	if (normalizedName === "-") {
-		return false;
-	}
-
-	return normalizedName !== `枠${frameNo}`;
-};
-
 // 多摩川は公式由来の出走表データが取れている場合、メイン出走表にもそちらを使う。
 // 公式データがあるのに通常の出走表を使うと、選手情報が不足して空欄表示になる場合があるため。
 const shouldUseTamagawaOfficialEntry = isTamagawaVenue && hasTamagawaEntryData;
@@ -5220,156 +5186,45 @@ const kojimaFallbackRacers = useMemo<BoatRacerItem[]>(() => {
 		});
 }, [kojimaScoreRows, selectedKojimaBeforeInfo, selectedKojimaMotorStats, selectedOriginalExhibitionRows]);
 
-const officialBeforeInfoFallbackRacers = useMemo<BoatRacerItem[]>(() => {
-	const officialRows = selectedOfficialBeforeInfo?.scoreQuickLook ?? [];
-	const officialByFrameNo = new Map(officialRows.map((row) => [row.frameNo, row] as const));
-	const exhibitionByFrameNo = new Map(selectedOriginalExhibitionRows.map((row) => [row.frameNo, row] as const));
-	const frameNumbers = new Set<BoatRacerItem["frameNo"]>();
-
-	for (const row of officialRows) {
-		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
-	}
-
-	if (officialRows.length < 6) {
-		for (const row of selectedOriginalExhibitionRows) {
-			frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
-		}
-	}
-
-	return Array.from(frameNumbers)
-		.sort((left, right) => left - right)
-		.map((frameNo) => {
-			const officialRow = officialByFrameNo.get(frameNo);
-			const exhibitionRow = exhibitionByFrameNo.get(frameNo);
-			const playerName = hasFallbackPlayerName(officialRow?.playerName, frameNo)
-				? officialRow?.playerName
-				: hasFallbackPlayerName(exhibitionRow?.playerName, frameNo)
-					? exhibitionRow?.playerName
-					: "";
-
-			return {
-				frameNo,
-				boatNo: "-",
-				name: playerName || `枠${frameNo}`,
-				branch: "-",
-				class: officialRow?.className || exhibitionRow?.className || "-",
-				age: "-",
-				weight: exhibitionRow?.weight || "-",
-				averageStart: officialRow?.averageStart || "-",
-				winRate: officialRow?.winRate || "-",
-				secondRate: officialRow?.secondRate || "-",
-				motorNo: officialRow?.motorNo || exhibitionRow?.motorNo || "-",
-				motorSecondRate: officialRow?.motorSecondRate || "-",
-				boatMotorNo: "-",
-				boatSecondRate: "-",
-			};
-		})
-		.filter((row) => hasFallbackPlayerName(row.name, row.frameNo) || row.averageStart !== "-" || row.winRate !== "-" || row.secondRate !== "-" || row.motorNo !== "-");
-}, [selectedOfficialBeforeInfo, selectedOriginalExhibitionRows]);
-
-const venueExtrasFallbackRacers = useMemo<BoatRacerItem[]>(() => {
-	const exhibitionByFrameNo = new Map(selectedOriginalExhibitionRows.map((row) => [row.frameNo, row] as const));
-	const motorByFrameNo = new Map(
-		selectedMotorSummaryDisplay.items.map((row) => [row.displayFrameNo ?? row.frameNo, row] as const),
-	);
-	const commentByFrameNo = new Map(selectedRacerComments.map((row) => [row.frameNo, row] as const));
-	const startByFrameNo = new Map(selectedStartExhibition.map((row) => [row.frameNo, row] as const));
-	const frameNumbers = new Set<BoatRacerItem["frameNo"]>();
-	const hasBaseSource =
-		selectedOriginalExhibitionRows.length > 0 ||
-		selectedMotorSummaryDisplay.items.length > 0 ||
-		selectedRacerComments.length > 0;
-
-	if (!hasBaseSource) {
-		return [];
-	}
-
-	for (const row of selectedOriginalExhibitionRows) {
-		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
-	}
-
-	for (const row of selectedMotorSummaryDisplay.items) {
-		frameNumbers.add((row.displayFrameNo ?? row.frameNo) as BoatRacerItem["frameNo"]);
-	}
-
-	for (const row of selectedRacerComments) {
-		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
-	}
-
-	for (const row of selectedStartExhibition) {
-		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
-	}
-
-	return Array.from(frameNumbers)
-		.sort((left, right) => left - right)
-		.map((frameNo) => {
-			const exhibitionRow = exhibitionByFrameNo.get(frameNo);
-			const motorRow = motorByFrameNo.get(frameNo);
-			const commentRow = commentByFrameNo.get(frameNo);
-			const startRow = startByFrameNo.get(frameNo);
-			const playerName = hasFallbackPlayerName(exhibitionRow?.playerName, frameNo)
-				? (exhibitionRow?.playerName || "-")
-				: hasFallbackPlayerName(startRow?.playerName, frameNo)
-					? (startRow?.playerName || "-")
-					: "-";
-
-			return {
-				frameNo,
-				boatNo: "-",
-				name: playerName,
-				branch: "-",
-				class: exhibitionRow?.className || startRow?.className || "-",
-				age: "-",
-				weight: exhibitionRow?.weight || "-",
-				averageStart: startRow?.currentAverageStart || "-",
-				winRate: "-",
-				secondRate: "-",
-				motorNo: exhibitionRow?.motorNo || motorRow?.motorNo || "-",
-				motorSecondRate: "-",
-				boatMotorNo: "-",
-				boatSecondRate: "-",
-				comment: commentRow?.comment || motorRow?.comment || exhibitionRow?.memo || "",
-			};
-		})
-		.filter((row) => row.name !== "-" || row.averageStart !== "-" || row.motorNo !== "-" || Boolean(row.comment));
-}, [selectedOriginalExhibitionRows, selectedMotorSummaryDisplay.items, selectedRacerComments, selectedStartExhibition]);
+const commonRaceFallback = useMemo(
+	() => buildCommonRaceFallbackRacers({
+		racers: selectedRace?.racers,
+		officialBeforeInfoScoreRows: selectedOfficialBeforeInfo?.scoreQuickLook ?? [],
+		originalExhibitionRows: selectedOriginalExhibitionRows,
+		startExhibitionRows: selectedStartExhibition,
+		motorSummaryRows: selectedMotorSummaryDisplay.items,
+		racerCommentRows: selectedRacerComments,
+	}),
+	[selectedRace?.racers, selectedOfficialBeforeInfo, selectedOriginalExhibitionRows, selectedStartExhibition, selectedMotorSummaryDisplay.items, selectedRacerComments],
+);
 
 const shouldUseKojimaOfficialEntry =
 	isKojimaVenue &&
 	isRaceEntryMissingOrThin(selectedRace?.racers) &&
 	kojimaFallbackRacers.length > 0;
 
-const shouldUseOfficialBeforeInfoFallback =
+const shouldUseCommonRaceFallback =
 	isRaceEntryMissingOrThin(selectedRace?.racers) &&
 	!shouldUseTamagawaOfficialEntry &&
 	!shouldUseKojimaOfficialEntry &&
-	officialBeforeInfoFallbackRacers.length > 0;
-
-const shouldUseVenueExtrasFallback =
-	isRaceEntryMissingOrThin(selectedRace?.racers) &&
-	!shouldUseTamagawaOfficialEntry &&
-	!shouldUseKojimaOfficialEntry &&
-	!shouldUseOfficialBeforeInfoFallback &&
-	venueExtrasFallbackRacers.length > 0;
+	commonRaceFallback.racers.length > 0;
 
 const selectedRaceDisplayRacers = shouldUseTamagawaOfficialEntry
 	? tamagawaFallbackRacers
 	: shouldUseKojimaOfficialEntry
 		? kojimaFallbackRacers
-		: shouldUseOfficialBeforeInfoFallback
-			? officialBeforeInfoFallbackRacers
-			: shouldUseVenueExtrasFallback
-				? venueExtrasFallbackRacers
+		: shouldUseCommonRaceFallback
+			? commonRaceFallback.racers
 				: (selectedRace?.racers ?? []);
 
 const selectedRaceEntryNote = shouldUseTamagawaOfficialEntry
 	? "多摩川公式の出走表をメイン表示しています。"
 	: shouldUseKojimaOfficialEntry
 		? "児島公式の直前情報・得点率早見・モーター成績・展示情報をもとに出走表を補完表示しています。"
-		: shouldUseOfficialBeforeInfoFallback
-			? "BOATRACE公式の直前データをもとに出走表を補完表示しています。"
-			: shouldUseVenueExtrasFallback
-				? "会場公式の展示情報・モーター情報・コメントをもとに出走表を補完表示しています。"
+		: shouldUseCommonRaceFallback
+			? commonRaceFallback.reason === "official-before-info"
+				? "BOATRACE公式の直前データをもとに出走表を補完表示しています。"
+				: "会場公式の展示情報・モーター情報・コメントをもとに出走表を補完表示しています。"
 		: undefined;
 
 const selectedRaceForDetail = useMemo(() => {
