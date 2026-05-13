@@ -1,4 +1,4 @@
-import type { VenueExtraPanelKey, VenueExtraVenueFlags } from "./venueExtraTypes";
+import type { VenueExtraPanelKey, VenueExtraPanelOption, VenueExtraVenueFlags } from "./venueExtraTypes";
 
 export type VenueExtraPanelFlags = {
 	hasSelectedVenueExtrasDetail: boolean;
@@ -123,6 +123,12 @@ export type ResolveInitialVenueExtraPanelInput = Pick<
 	"isOmuraVenue" | "isTamagawaVenue" | "isKojimaVenue" | "isFukuokaVenue"
 > & {
 	preferredVenueExtraPanel: VenueExtraPanelKey;
+};
+
+export type ResolveValidVenueExtraPanelInput = {
+	selectedVenueExtraPanel: VenueExtraPanelKey;
+	initialVenueExtraPanel: VenueExtraPanelKey;
+	venueExtraPanelOptions: VenueExtraPanelOption[];
 };
 
 export function createVenueExtraPanelFlags(input: CreateVenueExtraPanelFlagsInput): VenueExtraPanelFlags {
@@ -493,4 +499,16 @@ export function resolveInitialVenueExtraPanel(input: ResolveInitialVenueExtraPan
 	}
 
 	return input.preferredVenueExtraPanel;
+}
+
+export function resolveValidVenueExtraPanel(input: ResolveValidVenueExtraPanelInput): VenueExtraPanelKey {
+	if (input.venueExtraPanelOptions.some((option) => option.key === input.selectedVenueExtraPanel)) {
+		return input.selectedVenueExtraPanel;
+	}
+
+	if (input.venueExtraPanelOptions.some((option) => option.key === input.initialVenueExtraPanel)) {
+		return input.initialVenueExtraPanel;
+	}
+
+	return input.venueExtraPanelOptions[0]?.key ?? "official";
 }

@@ -8,6 +8,7 @@ import {
 	createVenueExtraPanelFlags,
 	resolveInitialVenueExtraPanel,
 	resolvePreferredVenueExtraPanel,
+	resolveValidVenueExtraPanel,
 } from "../components/boatrace/venueExtras/venueExtraPanelState";
 import {
 	venueExtrasBodyCellStyle,
@@ -5455,6 +5456,21 @@ const venueExtraPanelOptions = useMemo(
 		selectedOfficialBeforeInfo?.scoreQuickLook.length,
 	],
 );
+
+const validVenueExtraPanel = useMemo<VenueExtraPanelKey>(
+	() => resolveValidVenueExtraPanel({
+		selectedVenueExtraPanel,
+		initialVenueExtraPanel,
+		venueExtraPanelOptions,
+	}),
+	[selectedVenueExtraPanel, initialVenueExtraPanel, venueExtraPanelOptions],
+);
+
+useEffect(() => {
+	if (selectedVenueExtraPanel !== validVenueExtraPanel) {
+		setSelectedVenueExtraPanel(validVenueExtraPanel);
+	}
+}, [selectedVenueExtraPanel, validVenueExtraPanel]);
 
 const narutoStatsTabOptions = useMemo(
 	() => [
