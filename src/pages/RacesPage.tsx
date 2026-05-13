@@ -4932,6 +4932,41 @@ const hasKojimaMotorStatsData = selectedKojimaMotorStats.length > 0;
 const hasKojimaFrameStatsData = selectedKojimaFrameStats.length > 0;
 const hasTamagawaEntryData = selectedTamagawaEntryTable.length > 0;
 
+const isRaceEntryMissingOrThin = (racers?: BoatRacerItem[]) => {
+	if (!racers || racers.length === 0) {
+		return true;
+	}
+
+	return racers.every((racer) => {
+		const hasName = Boolean((racer.name || "").trim());
+		const hasClass = Boolean((racer.class || "").trim() && racer.class !== "-");
+		const hasAverageStart = Boolean((racer.averageStart || "").trim() && racer.averageStart !== "-");
+		const hasWinRate = Boolean((racer.winRate || "").trim() && racer.winRate !== "-");
+		const hasSecondRate = Boolean((racer.secondRate || "").trim() && racer.secondRate !== "-");
+		const hasMotorNo = Boolean((racer.motorNo || "").trim() && racer.motorNo !== "-");
+
+		return !hasName && !hasClass && !hasAverageStart && !hasWinRate && !hasSecondRate && !hasMotorNo;
+	});
+};
+
+const hasFallbackPlayerName = (playerName: string | undefined, frameNo: number) => {
+	if (!playerName) {
+		return false;
+	}
+
+	const normalizedName = playerName.replace(/\s+/g, "").trim();
+
+	if (!normalizedName) {
+		return false;
+	}
+
+	if (normalizedName === "-") {
+		return false;
+	}
+
+	return normalizedName !== `枠${frameNo}`;
+};
+
 // 多摩川は公式由来の出走表データが取れている場合、メイン出走表にもそちらを使う。
 // 公式データがあるのに通常の出走表を使うと、選手情報が不足して空欄表示になる場合があるため。
 const shouldUseTamagawaOfficialEntry = isTamagawaVenue && hasTamagawaEntryData;
@@ -4960,18 +4995,6 @@ const tamagawaFallbackRacers = useMemo<BoatRacerItem[]>(() => {
 		};
 	});
 }, [selectedTamagawaEntryTable]);
-
-const selectedRaceDisplayRacers = shouldUseTamagawaOfficialEntry ? tamagawaFallbackRacers : (selectedRace?.racers ?? []);
-const selectedRaceForDetail = useMemo(() => {
-	if (!selectedRace) {
-		return selectedRace;
-	}
-
-	return {
-		...selectedRace,
-		racers: selectedRaceDisplayRacers,
-	};
-}, [selectedRace, selectedRaceDisplayRacers]);
 const hasTamagawaBeforeInfoData = selectedTamagawaBeforeInfo.length > 0;
 const hasTamagawaMotorHistoryData = selectedTamagawaMotorHistory.length > 0;
 const hasTamagawaSeriesResultsData = selectedTamagawaSeriesResults.length > 0;
@@ -5145,6 +5168,220 @@ const kojimaScoreRows = useMemo(() => {
 		};
 	}).sort((left, right) => left.frameNo - right.frameNo);
 }, [selectedOfficialBeforeInfo, selectedKojimaScoreRateGuide]);
+
+const kojimaFallbackRacers = useMemo<BoatRacerItem[]>(() => {
+	const scoreByFrameNo = new Map(kojimaScoreRows.map((row) => [row.frameNo, row] as const));
+	const beforeByFrameNo = new Map(selectedKojimaBeforeInfo.map((row) => [row.frameNo, row] as const));
+	const motorByFrameNo = new Map(selectedKojimaMotorStats.map((row) => [row.frameNo, row] as const));
+	const exhibitionByFrameNo = new Map(selectedOriginalExhibitionRows.map((row) => [row.frameNo, row] as const));
+	const frameNumbers = new Set<BoatRacerItem["frameNo"]>();
+
+	for (const row of kojimaScoreRows) {
+		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
+	}
+
+	for (const row of selectedKojimaBeforeInfo) {
+		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
+	}
+
+	for (const row of selectedKojimaMotorStats) {
+		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
+	}
+
+	for (const row of selectedOriginalExhibitionRows) {
+		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
+	}
+
+	return Array.from(frameNumbers)
+		.sort((left, right) => left - right)
+		.map((frameNo) => {
+			const scoreRow = scoreByFrameNo.get(frameNo);
+			const beforeRow = beforeByFrameNo.get(frameNo);
+			const motorRow = motorByFrameNo.get(frameNo);
+			const exhibitionRow = exhibitionByFrameNo.get(frameNo);
+
+			return {
+				frameNo,
+				boatNo: "-",
+				name: scoreRow?.playerName || beforeRow?.playerName || motorRow?.playerName || exhibitionRow?.playerName || `枠${frameNo}`,
+				branch: "-",
+				class: scoreRow?.className || beforeRow?.className || motorRow?.className || exhibitionRow?.className || "-",
+				age: "-",
+				weight: exhibitionRow?.weight || beforeRow?.weight || "-",
+				averageStart: scoreRow?.averageStart || "-",
+				winRate: scoreRow?.winRate || motorRow?.motorWinRate || "-",
+				secondRate: scoreRow?.secondRate || "-",
+				motorNo: scoreRow?.motorNo || beforeRow?.motorNo || motorRow?.motorNo || exhibitionRow?.motorNo || "-",
+				motorSecondRate: scoreRow?.motorSecondRate || beforeRow?.motorSecondRate || motorRow?.motorSecondRate || "-",
+				boatMotorNo: "-",
+				boatSecondRate: "-",
+				comment: motorRow?.comment || "",
+			};
+		});
+}, [kojimaScoreRows, selectedKojimaBeforeInfo, selectedKojimaMotorStats, selectedOriginalExhibitionRows]);
+
+const officialBeforeInfoFallbackRacers = useMemo<BoatRacerItem[]>(() => {
+	const officialRows = selectedOfficialBeforeInfo?.scoreQuickLook ?? [];
+	const officialByFrameNo = new Map(officialRows.map((row) => [row.frameNo, row] as const));
+	const exhibitionByFrameNo = new Map(selectedOriginalExhibitionRows.map((row) => [row.frameNo, row] as const));
+	const frameNumbers = new Set<BoatRacerItem["frameNo"]>();
+
+	for (const row of officialRows) {
+		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
+	}
+
+	if (officialRows.length < 6) {
+		for (const row of selectedOriginalExhibitionRows) {
+			frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
+		}
+	}
+
+	return Array.from(frameNumbers)
+		.sort((left, right) => left - right)
+		.map((frameNo) => {
+			const officialRow = officialByFrameNo.get(frameNo);
+			const exhibitionRow = exhibitionByFrameNo.get(frameNo);
+			const playerName = hasFallbackPlayerName(officialRow?.playerName, frameNo)
+				? officialRow?.playerName
+				: hasFallbackPlayerName(exhibitionRow?.playerName, frameNo)
+					? exhibitionRow?.playerName
+					: "";
+
+			return {
+				frameNo,
+				boatNo: "-",
+				name: playerName || `枠${frameNo}`,
+				branch: "-",
+				class: officialRow?.className || exhibitionRow?.className || "-",
+				age: "-",
+				weight: exhibitionRow?.weight || "-",
+				averageStart: officialRow?.averageStart || "-",
+				winRate: officialRow?.winRate || "-",
+				secondRate: officialRow?.secondRate || "-",
+				motorNo: officialRow?.motorNo || exhibitionRow?.motorNo || "-",
+				motorSecondRate: officialRow?.motorSecondRate || "-",
+				boatMotorNo: "-",
+				boatSecondRate: "-",
+			};
+		})
+		.filter((row) => hasFallbackPlayerName(row.name, row.frameNo) || row.averageStart !== "-" || row.winRate !== "-" || row.secondRate !== "-" || row.motorNo !== "-");
+}, [selectedOfficialBeforeInfo, selectedOriginalExhibitionRows]);
+
+const venueExtrasFallbackRacers = useMemo<BoatRacerItem[]>(() => {
+	const exhibitionByFrameNo = new Map(selectedOriginalExhibitionRows.map((row) => [row.frameNo, row] as const));
+	const motorByFrameNo = new Map(
+		selectedMotorSummaryDisplay.items.map((row) => [row.displayFrameNo ?? row.frameNo, row] as const),
+	);
+	const commentByFrameNo = new Map(selectedRacerComments.map((row) => [row.frameNo, row] as const));
+	const startByFrameNo = new Map(selectedStartExhibition.map((row) => [row.frameNo, row] as const));
+	const frameNumbers = new Set<BoatRacerItem["frameNo"]>();
+	const hasBaseSource =
+		selectedOriginalExhibitionRows.length > 0 ||
+		selectedMotorSummaryDisplay.items.length > 0 ||
+		selectedRacerComments.length > 0;
+
+	if (!hasBaseSource) {
+		return [];
+	}
+
+	for (const row of selectedOriginalExhibitionRows) {
+		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
+	}
+
+	for (const row of selectedMotorSummaryDisplay.items) {
+		frameNumbers.add((row.displayFrameNo ?? row.frameNo) as BoatRacerItem["frameNo"]);
+	}
+
+	for (const row of selectedRacerComments) {
+		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
+	}
+
+	for (const row of selectedStartExhibition) {
+		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
+	}
+
+	return Array.from(frameNumbers)
+		.sort((left, right) => left - right)
+		.map((frameNo) => {
+			const exhibitionRow = exhibitionByFrameNo.get(frameNo);
+			const motorRow = motorByFrameNo.get(frameNo);
+			const commentRow = commentByFrameNo.get(frameNo);
+			const startRow = startByFrameNo.get(frameNo);
+			const playerName = hasFallbackPlayerName(exhibitionRow?.playerName, frameNo)
+				? (exhibitionRow?.playerName || "-")
+				: hasFallbackPlayerName(startRow?.playerName, frameNo)
+					? (startRow?.playerName || "-")
+					: "-";
+
+			return {
+				frameNo,
+				boatNo: "-",
+				name: playerName,
+				branch: "-",
+				class: exhibitionRow?.className || startRow?.className || "-",
+				age: "-",
+				weight: exhibitionRow?.weight || "-",
+				averageStart: startRow?.currentAverageStart || "-",
+				winRate: "-",
+				secondRate: "-",
+				motorNo: exhibitionRow?.motorNo || motorRow?.motorNo || "-",
+				motorSecondRate: "-",
+				boatMotorNo: "-",
+				boatSecondRate: "-",
+				comment: commentRow?.comment || motorRow?.comment || exhibitionRow?.memo || "",
+			};
+		})
+		.filter((row) => row.name !== "-" || row.averageStart !== "-" || row.motorNo !== "-" || Boolean(row.comment));
+}, [selectedOriginalExhibitionRows, selectedMotorSummaryDisplay.items, selectedRacerComments, selectedStartExhibition]);
+
+const shouldUseKojimaOfficialEntry =
+	isKojimaVenue &&
+	isRaceEntryMissingOrThin(selectedRace?.racers) &&
+	kojimaFallbackRacers.length > 0;
+
+const shouldUseOfficialBeforeInfoFallback =
+	isRaceEntryMissingOrThin(selectedRace?.racers) &&
+	!shouldUseTamagawaOfficialEntry &&
+	!shouldUseKojimaOfficialEntry &&
+	officialBeforeInfoFallbackRacers.length > 0;
+
+const shouldUseVenueExtrasFallback =
+	isRaceEntryMissingOrThin(selectedRace?.racers) &&
+	!shouldUseTamagawaOfficialEntry &&
+	!shouldUseKojimaOfficialEntry &&
+	!shouldUseOfficialBeforeInfoFallback &&
+	venueExtrasFallbackRacers.length > 0;
+
+const selectedRaceDisplayRacers = shouldUseTamagawaOfficialEntry
+	? tamagawaFallbackRacers
+	: shouldUseKojimaOfficialEntry
+		? kojimaFallbackRacers
+		: shouldUseOfficialBeforeInfoFallback
+			? officialBeforeInfoFallbackRacers
+			: shouldUseVenueExtrasFallback
+				? venueExtrasFallbackRacers
+				: (selectedRace?.racers ?? []);
+
+const selectedRaceEntryNote = shouldUseTamagawaOfficialEntry
+	? "多摩川公式の出走表をメイン表示しています。"
+	: shouldUseKojimaOfficialEntry
+		? "児島公式の直前情報・得点率早見・モーター成績・展示情報をもとに出走表を補完表示しています。"
+		: shouldUseOfficialBeforeInfoFallback
+			? "BOATRACE公式の直前データをもとに出走表を補完表示しています。"
+			: shouldUseVenueExtrasFallback
+				? "会場公式の展示情報・モーター情報・コメントをもとに出走表を補完表示しています。"
+		: undefined;
+
+const selectedRaceForDetail = useMemo(() => {
+	if (!selectedRace) {
+		return selectedRace;
+	}
+
+	return {
+		...selectedRace,
+		racers: selectedRaceDisplayRacers,
+	};
+}, [selectedRace, selectedRaceDisplayRacers]);
 
 const hasFukuokaScoreRateGuideData = fukuokaScoreRows.length > 0;
 const hasKojimaScoreRateGuideData = kojimaScoreRows.length > 0;
@@ -5897,7 +6134,7 @@ const venueExtrasDisplayText = useMemo(() => {
 						venueName={selectedVenue?.venueName ?? "-"}
 						venueWeatherActual={selectedVenue?.weatherActual}
 						race={selectedRaceForDetail}
-						entryNote={shouldUseTamagawaOfficialEntry ? "多摩川公式の出走表をメイン表示しています。" : undefined}
+						entryNote={selectedRaceEntryNote}
 						
 						afterEntryContent={
 							<section style={venueExtrasSectionStyle}>
@@ -6928,319 +7165,6 @@ const venueExtrasDisplayText = useMemo(() => {
 				<p style={venueExtrasEmptyStyle}>このカテゴリのデータはまだ取得できていません。展示公開後、または対象会場の公式データ更新後に表示される可能性があります。</p>
 			)
 		) : null}
-
-			{isKojimaVenue && selectedVenueExtraPanel === "kojima-before" ? (
-														hasKojimaBeforeInfoData ? (
-															<div style={venueExtrasDataGridStyle}>
-																<section style={venueExtrasPanelStyle}>
-																	<h4 style={venueExtrasPanelTitleStyle}>直前情報</h4>
-																	<div style={venueExtrasTableWrapStyle}>
-																		<table style={{ ...venueExtrasTableStyle, minWidth: "1340px" }}>
-																			<thead>
-																				<tr>
-																					<th style={venueExtrasHeadCellStyle}>枠</th>
-																					<th style={venueExtrasHeadCellStyle}>選手</th>
-																					<th style={venueExtrasHeadCellStyle}>展示T</th>
-																					<th style={venueExtrasHeadCellStyle}>体重</th>
-																					<th style={venueExtrasHeadCellStyle}>調整</th>
-																					<th style={venueExtrasHeadCellStyle}>チルト</th>
-																					<th style={venueExtrasHeadCellStyle}>前走情報</th>
-																					<th style={venueExtrasHeadCellStyle}>部品交換</th>
-																					<th style={venueExtrasHeadCellStyle}>モーター</th>
-																				</tr>
-																			</thead>
-																			<tbody>
-																				{selectedKojimaBeforeInfo.map((item) => (
-																					<tr key={`kojima-before-${item.frameNo}`}>
-																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-																						<td style={venueExtrasBodyCellStyle}>
-																							<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
-																								<strong>{item.playerName || `枠${item.frameNo}`}</strong>
-																								<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
-																							</div>
-																						</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.weight || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.adjustment || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.partsExchange || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.previousRaceInfo || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"} / {item.motorSecondRate || "-"}</td>
-																					</tr>
-																				))}
-																			</tbody>
-																		</table>
-																	</div>
-																</section>
-															</div>
-														) : (
-															<p style={venueExtrasEmptyStyle}>児島公式の直前情報は未取得待ちです。</p>
-														)
-													) : null}
-
-													{isKojimaVenue && selectedVenueExtraPanel === "kojima-series" ? (
-														hasKojimaSeriesResultsData ? (
-															<div style={venueExtrasDataGridStyle}>
-																<section style={venueExtrasPanelStyle}>
-																	<h4 style={venueExtrasPanelTitleStyle}>今節成績</h4>
-																	<div style={venueExtrasTableWrapStyle}>
-																		<table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}>
-																			<thead>
-																				<tr>
-																					<th style={venueExtrasHeadCellStyle}>枠</th>
-																					<th style={venueExtrasHeadCellStyle}>選手</th>
-																					{Array.from({ length: 12 }, (_, index) => {
-																						const dayLabel = selectedKojimaSeriesResults.find((row) => row.dayLabels[index])?.dayLabels[index];
-																						return <th key={`kojima-series-head-${index}`} style={venueExtrasHeadCellStyle}>{dayLabel || `${index + 1}走`}</th>;
-																					})}
-																				</tr>
-																			</thead>
-																			<tbody>
-																				{selectedKojimaSeriesResults.map((item) => (
-																					<tr key={`kojima-series-${item.frameNo}`}>
-																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-																						<td style={venueExtrasBodyCellStyle}>
-																							<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
-																								<strong>{item.playerName || `枠${item.frameNo}`}</strong>
-																								<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
-																							</div>
-																						</td>
-																						{Array.from({ length: 12 }, (_, index) => {
-																							const raceNo = item.raceNumbers[index] || "";
-																							const course = item.courses[index] || "";
-																							const startTiming = item.startTimings[index] || "";
-																							const finishOrder = item.finishOrders[index] || "";
-																							const hasCellData = Boolean(raceNo || course || startTiming || finishOrder);
-
-																							return (
-																								<td key={`kojima-series-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
-																									{hasCellData ? (
-																										<div style={{ display: "grid", gap: "3px", minWidth: "58px", lineHeight: 1.35 }}>
-																											<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>R {raceNo || "-"}</span>
-																											<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入 {course || "-"}</span>
-																											<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>ST {startTiming || "-"}</span>
-																											<strong>{finishOrder || "-"}</strong>
-																										</div>
-																									) : "-"}
-																								</td>
-																							);
-																						})}
-																					</tr>
-																				))}
-																			</tbody>
-																		</table>
-																	</div>
-																</section>
-															</div>
-														) : (
-															<p style={venueExtrasEmptyStyle}>児島公式の今節成績は未取得待ちです。</p>
-														)
-													) : null}
-
-													{isKojimaVenue && selectedVenueExtraPanel === "kojima-course" ? (
-														hasKojimaCourseStatsData ? (
-															<div style={venueExtrasDataGridStyle}>
-																<section style={venueExtrasPanelStyle}>
-																	<h4 style={venueExtrasPanelTitleStyle}>進入コース別</h4>
-																	<div style={venueExtrasTableWrapStyle}>
-																		<table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}>
-																			<thead>
-																				<tr>
-																					<th style={venueExtrasHeadCellStyle}>枠</th>
-																					<th style={venueExtrasHeadCellStyle}>選手</th>
-																					{Array.from({ length: 6 }, (_, index) => (
-																						<th key={`kojima-course-head-${index}`} style={venueExtrasHeadCellStyle}>{index + 1}コース</th>
-																					))}
-																				</tr>
-																			</thead>
-																			<tbody>
-																				{selectedKojimaCourseStats.map((item) => (
-																					<tr key={`kojima-course-${item.frameNo}`}>
-																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-																						<td style={venueExtrasBodyCellStyle}>
-																							<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
-																								<strong>{item.playerName || `枠${item.frameNo}`}</strong>
-																								<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
-																							</div>
-																						</td>
-																						{Array.from({ length: 6 }, (_, index) => {
-																							const course = item.courseRows[index];
-																							return (
-																								<td key={`kojima-course-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
-																									{course ? (
-																										<div style={{ display: "grid", gap: "3px", minWidth: "96px" }}>
-																											<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入率{course.entryRate || "-"}</span>
-																											<span>1逹邇・{course.firstRate || "-"}</span>
-																											<span>2連率{sumVenueExtraRates(course.firstRate, course.secondRate) || "-"}</span>
-																											<span>3騾｣邇・{sumVenueExtraRates(course.firstRate, course.secondRate, course.thirdRate) || "-"}</span>
-																											<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>平均ST {course.averageStart || "-"}</span>
-																										</div>
-																									) : "-"}
-																								</td>
-																							);
-																						})}
-																					</tr>
-																				))}
-																			</tbody>
-																		</table>
-																	</div>
-																</section>
-															</div>
-														) : (
-															<p style={venueExtrasEmptyStyle}>児島公式の進入コース別成績は未取得待ちです。</p>
-														)
-													) : null}
-
-													{isKojimaVenue && selectedVenueExtraPanel === "kojima-motor" ? (
-														hasKojimaMotorStatsData ? (
-															<div style={venueExtrasDataGridStyle}>
-																<section style={venueExtrasPanelStyle}>
-																	<h4 style={venueExtrasPanelTitleStyle}>モーター成績</h4>
-																	<div style={venueExtrasTableWrapStyle}>
-																		<table style={{ ...venueExtrasTableStyle, minWidth: "1360px" }}>
-																			<thead>
-																				<tr>
-																					<th style={venueExtrasHeadCellStyle}>枠</th>
-																					<th style={venueExtrasHeadCellStyle}>選手</th>
-																					<th style={venueExtrasHeadCellStyle}>モーター</th>
-																					<th style={venueExtrasHeadCellStyle}>2連率</th>
-																					<th style={venueExtrasHeadCellStyle}>勝率</th>
-																					<th style={venueExtrasHeadCellStyle}>評価</th>
-																					<th style={venueExtrasHeadCellStyle}>コメント</th>
-																					<th style={venueExtrasHeadCellStyle}>ベスト展示</th>
-																					<th style={venueExtrasHeadCellStyle}>前検タイム</th>
-																				</tr>
-																			</thead>
-																			<tbody>
-																				{selectedKojimaMotorStats.map((item) => (
-																					<tr key={`kojima-motor-${item.frameNo}`}>
-																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-																						<td style={venueExtrasBodyCellStyle}>
-																							<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
-																								<strong>{item.playerName || `枠${item.frameNo}`}</strong>
-																								<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
-																							</div>
-																						</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.motorWinRate || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.motorRank ? `順位${item.motorRank}` : "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.comment || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.bestExhibitionTime || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.preInspectionTime || "-"}</td>
-																					</tr>
-																				))}
-																			</tbody>
-																		</table>
-																	</div>
-																</section>
-															</div>
-														) : (
-															<p style={venueExtrasEmptyStyle}>児島公式のモーター成績は未取得待ちです。</p>
-														)
-													) : null}
-
-													{isKojimaVenue && selectedVenueExtraPanel === "kojima-frame" ? (
-														hasKojimaFrameStatsData ? (
-															<div style={venueExtrasDataGridStyle}>
-																<section style={venueExtrasPanelStyle}>
-																	<h4 style={venueExtrasPanelTitleStyle}>枠番別成績</h4>
-																	<div style={venueExtrasTableWrapStyle}>
-																		<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
-																			<thead>
-																				<tr>
-																					<th style={venueExtrasHeadCellStyle}>枠</th>
-																					<th style={venueExtrasHeadCellStyle}>選手</th>
-																					{Array.from({ length: 10 }, (_, index) => (
-																						<th key={`kojima-frame-head-${index}`} style={venueExtrasHeadCellStyle}>{10 - index}走</th>
-																					))}
-																					<th style={venueExtrasHeadCellStyle}>枠番勝率</th>
-																					<th style={venueExtrasHeadCellStyle}>枠番平均ST</th>
-																					<th style={venueExtrasHeadCellStyle}>スタート順</th>
-																				</tr>
-																			</thead>
-																			<tbody>
-																				{selectedKojimaFrameStats.map((item) => (
-																					<tr key={`kojima-frame-${item.frameNo}`}>
-																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-																						<td style={venueExtrasBodyCellStyle}>
-																							<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
-																								<strong>{item.playerName || `枠${item.frameNo}`}</strong>
-																								<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
-																							</div>
-																						</td>
-																						{Array.from({ length: 10 }, (_, index) => (
-																							<td key={`kojima-frame-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
-																								<div style={narutoHistoryStackStyle}>
-																									<span style={narutoHistoryCourseStyle}>{item.courseHistory[index] || " "}</span>
-																									<span style={narutoHistoryFinishStyle}>{item.finishHistory[index] || "-"}</span>
-																									<span style={{ fontSize: "0.66rem", color: boatTheme.colors.muted }}>ST {item.startTimingHistory[index] || "-"}</span>
-																								</div>
-																							</td>
-																						))}
-																						<td style={venueExtrasBodyCellStyle}>{item.frameWinRate || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.frameAverageStart || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.frameStartOrder || "-"}</td>
-																					</tr>
-																				))}
-																			</tbody>
-																		</table>
-																	</div>
-																</section>
-															</div>
-														) : (
-															<p style={venueExtrasEmptyStyle}>児島公式の枠番別成績は未取得待ちです。</p>
-														)
-													) : null}
-
-													{isKojimaVenue && selectedVenueExtraPanel === "kojima-score" ? (
-														hasKojimaScoreRateGuideData ? (
-															<div style={venueExtrasDataGridStyle}>
-																<section style={venueExtrasPanelStyle}>
-																	<h4 style={venueExtrasPanelTitleStyle}>得点率早見</h4>
-																	{selectedKojimaScoreRateGuide.length === 0 ? <p style={venueExtrasEmptyStyle}>児島公式の得点率早見は未取得のため、BOATRACE公式の掲載を確認してから表示します。</p> : null}
-																	<div style={venueExtrasTableWrapStyle}>
-																		<table style={{ ...venueExtrasTableStyle, minWidth: "1420px" }}>
-																			<thead>
-																				<tr>
-																					<th style={venueExtrasHeadCellStyle}>枠</th>
-																					<th style={venueExtrasHeadCellStyle}>登録番号</th>
-																					<th style={venueExtrasHeadCellStyle}>選手</th>
-																					<th style={venueExtrasHeadCellStyle}>級別</th>
-																					<th style={venueExtrasHeadCellStyle}>平均ST</th>
-																					<th style={venueExtrasHeadCellStyle}>全国勝率</th>
-																					<th style={venueExtrasHeadCellStyle}>全国2連率</th>
-																					<th style={venueExtrasHeadCellStyle}>当地勝率</th>
-																					<th style={venueExtrasHeadCellStyle}>当地2連率</th>
-																					<th style={venueExtrasHeadCellStyle}>モーター2連率</th>
-																					<th style={venueExtrasHeadCellStyle}>得点率</th>
-																				</tr>
-																			</thead>
-																			<tbody>
-																				{kojimaScoreRows.map((item) => (
-																					<tr key={`kojima-score-${item.frameNo}`}>
-																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.registrationNo || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.className || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.averageStart || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.winRate || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.secondRate || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
-																						<td style={venueExtrasBodyCellStyle}>{item.scoreRate || "-"}</td>
-																					</tr>
-																				))}
-																			</tbody>
-																		</table>
-																	</div>
-																</section>
-															</div>
-														) : (
-															<p style={venueExtrasEmptyStyle}>児島公式の得点率早見は未取得待ちです。</p>
-														)
-													) : null}
 
 		{isWakamatsuVenue && selectedVenueExtraPanel === "wakamatsu-before" ? (
 			hasWakamatsuBeforeInfoData ? (
