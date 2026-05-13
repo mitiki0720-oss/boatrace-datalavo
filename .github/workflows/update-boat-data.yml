@@ -21,7 +21,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Update BOATRACE today race details
         run: node scripts/updateBoatTodayRaceDetails.mjs
@@ -44,6 +44,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          echo "=== restore non-generated lockfile changes ==="
+          git restore package-lock.json || true
 
           git add public/data
 
