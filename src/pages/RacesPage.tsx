@@ -5724,11 +5724,11 @@ const venueExtrasDisplayText = useMemo(() => {
 	}
 
 	if (hasOfficialBeforeInfoDetail && hasSelectedVenueExtrasDetail) {
-		return "BBOATRACE公式の直前情報と会場独自データを表示しています。";
+		return "BOATRACE公式の直前情報と会場独自データを表示しています。";
 	}
 
 	if (hasOfficialBeforeInfoDetail) {
-		return "BBOATRACE公式の直前情報を表示しています。";
+		return "BOATRACE公式の直前情報を表示しています。";
 	}
 
 	if (hasSelectedVenueExtrasDetail) {
