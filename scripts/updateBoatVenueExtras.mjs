@@ -33,6 +33,16 @@ const NARUTO_VENUE_NAME = "鳴門";
 const NARUTO_SOURCE = "n14.jp";
 const TAMAGAWA_VENUE_NAME = "多摩川";
 const TAMAGAWA_SOURCE = "boatrace-tamagawa.com";
+const TSU_VENUE_NAME = "津";
+const TSU_SOURCE = "boatrace-tsu.com";
+const WAKAMATSU_VENUE_NAME = "若松";
+const WAKAMATSU_SOURCE = "wmb.jp";
+const FUKUOKA_VENUE_NAME = "福岡";
+const FUKUOKA_SOURCE = "boatrace-fukuoka.com";
+const KOJIMA_VENUE_NAME = "児島";
+const KOJIMA_SOURCE = "kojimaboat.jp";
+const BIWAKO_VENUE_NAME = "びわこ";
+const BIWAKO_SOURCE = "boatrace-biwako.jp";
 const BOATRACE_OFFICIAL_SOURCE = "boatrace.jp";
 const NARUTO_MOTOR_DATA_URL = "https://www.n14.jp/modules/datafile/";
 const NARUTO_TIDE_URL = "https://www.n14.jp/modules/datafile/?page=index_tide_table";
@@ -360,11 +370,73 @@ function mergeVenueRaceRecords(baseRaces, overlayRaces) {
 		raceMap.set(raceNo, {
 			...existing,
 			...race,
-			officialBeforeInfo: race?.officialBeforeInfo ?? existing.officialBeforeInfo,
+			officialBeforeInfo: mergeOfficialBeforeInfo(existing.officialBeforeInfo, race?.officialBeforeInfo),
 		});
 	}
 
 	return Array.from(raceMap.values()).sort((left, right) => Number(left.raceNo) - Number(right.raceNo));
+}
+
+function mergeRowsByFrame(baseRows, overlayRows) {
+	const rowMap = new Map();
+
+	for (const row of Array.isArray(baseRows) ? baseRows : []) {
+		const frameNo = readRaceFrameNo(row?.frameNo);
+		if (frameNo) {
+			rowMap.set(frameNo, row);
+		}
+	}
+
+	for (const row of Array.isArray(overlayRows) ? overlayRows : []) {
+		const frameNo = readRaceFrameNo(row?.frameNo);
+		if (!frameNo) {
+			continue;
+		}
+
+		const existing = rowMap.get(frameNo) ?? { frameNo };
+		const merged = { ...existing };
+
+		for (const [key, value] of Object.entries(row ?? {})) {
+			if (value === undefined || value === null) {
+				continue;
+			}
+
+			if (Array.isArray(value)) {
+				merged[key] = value.length > 0 ? value : (Array.isArray(existing[key]) ? existing[key] : []);
+				continue;
+			}
+
+			if (typeof value === "string") {
+				merged[key] = value !== "" ? value : (typeof existing[key] === "string" ? existing[key] : "");
+				continue;
+			}
+
+			merged[key] = value;
+		}
+
+		rowMap.set(frameNo, merged);
+	}
+
+	return Array.from(rowMap.values()).sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function mergeOfficialBeforeInfo(baseInfo, overlayInfo) {
+	if (!baseInfo) {
+		return overlayInfo ?? null;
+	}
+
+	if (!overlayInfo) {
+		return baseInfo;
+	}
+
+	return {
+		...baseInfo,
+		...overlayInfo,
+		exhibitionRows: overlayInfo.exhibitionRows ?? baseInfo.exhibitionRows,
+		startExhibition: overlayInfo.startExhibition ?? baseInfo.startExhibition,
+		scoreQuickLook: mergeRowsByFrame(baseInfo.scoreQuickLook, overlayInfo.scoreQuickLook),
+		weatherActual: overlayInfo.weatherActual ?? baseInfo.weatherActual,
+	};
 }
 
 function mergeVenueRecord(baseVenue, overlayVenue) {
@@ -399,12 +471,141 @@ async function fetchHtml(url) {
 	return response.text();
 }
 
+async function fetchTsuHtml(url) {
+	const response = await fetch(url, {
+		headers: {
+			"user-agent": "Mozilla/5.0",
+			"accept-language": "ja,en;q=0.8",
+			"referer": "https://www.boatrace-tsu.com/sp/index.php?page=yosou-yosou",
+			"x-requested-with": "XMLHttpRequest",
+		},
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status} ${response.statusText}`);
+	}
+
+	return response.text();
+}
+
 function toTamagawaDay(date) {
 	return String(date ?? "").replaceAll("-", "");
 }
 
+function toBiwakoDay(date) {
+	return String(date ?? "").replaceAll("-", "");
+}
+
+function toTsuDay(date) {
+	return String(date ?? "").replaceAll("-", "");
+}
+
+function toWakamatsuDay(date) {
+	return String(date ?? "").replaceAll("-", "");
+}
+
+function toFukuokaDay(date) {
+	return String(date ?? "").replaceAll("-", "");
+}
+
+function toKojimaRaceNo(raceNo) {
+	return String(Number(raceNo) || "").padStart(2, "0");
+}
+
+function toBiwakoRaceInfoUrl({ date, raceNo, kind = 2 }) {
+	return `https://www.boatrace-biwako.jp/modules/yosou/cyokuzen.php?day=${toBiwakoDay(date)}&race=${Number(raceNo)}&if=1&kind=${Number(kind)}`;
+}
+
+function toBiwakoYosouTabUrl({ date, raceNo, type }) {
+	return `https://www.boatrace-biwako.jp/modules/yosou/${type}.php?day=${toBiwakoDay(date)}&race=${Number(raceNo)}&if=1`;
+}
+
 function toTamagawaYosouUrl({ day, raceNo, type }) {
 	return `https://www.boatrace-tamagawa.com/modules/yosou/${type}.php?day=${day}&race=${Number(raceNo)}&jo=05&if=1`;
+}
+
+function toTsuRaceTabUrl({ date, raceNo, req, run = 0 }) {
+	return `https://www.boatrace-tsu.com/sp/ajax/ajax_yosou.php?targetday=${toTsuDay(date)}&race=${Number(raceNo)}&req=${req}&run=${Number(run)}`;
+}
+
+function toWakamatsuRaceTabUrl({ date, raceNo, type, kind = null }) {
+	const url = new URL(`https://www.wmb.jp/modules/yosou/group-${type}.php`);
+	url.searchParams.set("day", toWakamatsuDay(date));
+	url.searchParams.set("race", String(Number(raceNo)));
+	url.searchParams.set("if", "1");
+	if (kind !== null && kind !== undefined) {
+		url.searchParams.set("kind", String(Number(kind)));
+	}
+	return url.toString();
+}
+
+function toWakamatsuMotorUrl(motorNo) {
+	return `https://info.wmb.jp/pc/motor.php?no=${String(motorNo ?? "").padStart(2, "0")}`;
+}
+
+function toFukuokaRaceTabUrl({ date, raceNo, type }) {
+	const url = new URL(`https://www.boatrace-fukuoka.com/modules/yosou/${type}.php`);
+	url.searchParams.set("day", toFukuokaDay(date));
+	url.searchParams.set("race", String(Number(raceNo)));
+	url.searchParams.set("if", "1");
+	url.searchParams.set("nowmode", "1");
+	return url.toString();
+}
+
+function toFukuokaScoreRankingUrl() {
+	return "https://www.boatrace-fukuoka.com/modules/raceinfo/?page=index_tokuten";
+}
+
+function toKojimaRaceTabUrl({ raceNo, type, mobile = false }) {
+	const device = mobile ? "sp" : "pc";
+	return `https://www.kojimaboat.jp/asp/kyogi/16/${device}/${type}${toKojimaRaceNo(raceNo)}.htm`;
+}
+
+function toKojimaScoreRankingUrl() {
+	return "https://www.kojimaboat.jp/asp/htmlmade/kojima/rank/rank.htm";
+}
+
+function toKojimaCourseUrl() {
+	return "https://www.kojimaboat.jp/asp/htmlmade/kojima/course/course.htm";
+}
+
+function toKojimaMotorInfoUrl() {
+	return "https://www.kojimaboat.jp/01motor/01motor.htm";
+}
+
+async function fetchFukuokaHtml(url) {
+	const response = await fetch(url, {
+		headers: {
+			"user-agent": "Mozilla/5.0",
+			"accept-language": "ja,en;q=0.8",
+			"referer": "https://www.boatrace-fukuoka.com/modules/yosou/",
+		},
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status} ${response.statusText}`);
+	}
+
+	return response.text();
+}
+
+async function fetchKojimaHtml(url) {
+	const response = await fetch(url, {
+		headers: {
+			"user-agent": "Mozilla/5.0",
+			"accept-language": "ja,en;q=0.8",
+			"referer": "https://www.kojimaboat.jp/",
+		},
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status} ${response.statusText}`);
+	}
+
+	return response.text();
 }
 
 function findTableByKeywords($, keywords) {
@@ -442,6 +643,1478 @@ function parseTamagawaIdentity($, cell) {
 		playerName: compactText(match?.[3] ?? ""),
 		profile: compactText(match?.[4] ?? ""),
 	};
+}
+
+function parseBiwakoIdentity($, cell) {
+	const registrationNo = readCellText($, $(cell).find(".com-toban").first());
+	const profile = readCellText($, $(cell).find(".com-subinfo").first());
+	const className = compactText(String(profile).split("/")[0] ?? "");
+
+	return {
+		registrationNo,
+		registerNo: registrationNo,
+		playerName: readCellText($, $(cell).find(".com-rname").first()),
+		profile,
+		className,
+	};
+}
+
+function parseBiwakoStartLaneOffset(value) {
+	const matched = String(value ?? "").match(/left:([\-\d.]+)px/);
+	const laneOffset = Number.parseFloat(matched?.[1] ?? "NaN");
+	return Number.isFinite(laneOffset) ? laneOffset : null;
+}
+
+function parseTsuIdentity($, cell) {
+	const lines = $(cell)
+		.find("li")
+		.toArray()
+		.map((item) => readCellText($, item))
+		.filter(Boolean);
+
+	if (lines.length >= 2) {
+		const profile = compactText(lines[1]);
+		const [registrationNo = "", branch = "", age = "", className = ""] = profile.split("/").map((value) => compactText(value));
+
+		return {
+			registrationNo,
+			registerNo: registrationNo,
+			playerName: compactText(lines[0]),
+			profile,
+			className,
+			branch,
+			age,
+		};
+	}
+
+	return {
+		registrationNo: "",
+		registerNo: "",
+		playerName: "",
+		profile: "",
+		className: "",
+		branch: "",
+		age: "",
+	};
+}
+
+function parseTsuPlayersInfoMap(html) {
+	const $ = load(html);
+	const table = $(".players_info_tbl").first().get(0);
+
+	if (!table) {
+		return new Map();
+	}
+
+	const rows = new Map();
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 7) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			rows.set(frameNo, {
+				frameNo,
+				registrationNo: readCellText($, cells[1]),
+				registerNo: readCellText($, cells[1]),
+				playerName: readCellText($, cells[2]),
+				className: readCellText($, cells[3]),
+				branch: readCellText($, cells[4]),
+				birthPlace: readCellText($, cells[5]),
+				age: readCellText($, cells[6]),
+				profile: [readCellText($, cells[1]), readCellText($, cells[4]), readCellText($, cells[6]), readCellText($, cells[3])].filter(Boolean).join("/"),
+			});
+		});
+
+	return rows;
+}
+
+function parseTsuBeforeInfo(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["展示評価", "前走成績", "部品交換"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = trList[1] ? $(trList[1]).children("td,th").toArray() : [];
+
+			if (firstCells.length < 6) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[1]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseTsuIdentity($, firstCells[2]);
+
+			rows.push({
+				frameNo,
+				...identity,
+				exhibitionEvaluation: readCellText($, firstCells[0]),
+				weight: readCellText($, firstCells[3]),
+				weightAdjustment: readCellText($, firstCells[4]),
+				tilt: readCellText($, firstCells[5]),
+				previousRaceNo: readCellText($, firstCells[6]),
+				previousRaceCourse: readCellText($, firstCells[7]),
+				previousRaceStartTiming: readCellText($, firstCells[8]),
+				previousRaceFinishOrder: readCellText($, firstCells[9]),
+				partsExchange: readCellText($, secondCells[0]),
+				source: TSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTsuStartExhibition(html) {
+	const $ = load(html);
+	const table = $("table.tenji").first().get(0) ?? findTableByKeywords($, ["展示タイム", "今節", "スタート展示"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const visualRows = [];
+	$(table)
+		.find("td.com-yosou-suimen .suimen_div")
+		.each((index, element) => {
+			const imageSrc = $(element).find("img.boat").attr("src") ?? "";
+			const frameNo = Number.parseInt(imageSrc.match(/img_boat-0?([1-6])\.png/)?.[1] ?? "", 10);
+			if (!Number.isFinite(frameNo)) {
+				return;
+			}
+
+			const leftValue = Number.parseFloat((($(element).find("img.boat").attr("style") ?? "").match(/left:([\-\d.]+)%/)?.[1]) ?? "NaN");
+			visualRows.push({
+				course: index + 1,
+				frameNo,
+				startTiming: compactText($(element).find(".st_area").text()),
+				startLaneOffset: Number.isFinite(leftValue) ? leftValue : null,
+			});
+		});
+
+	const visualMap = new Map(visualRows.map((row) => [row.frameNo, row]));
+	const rows = [];
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 4) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseTsuIdentity($, cells[1]);
+			const visual = visualMap.get(frameNo) ?? { course: rows.length + 1, startTiming: "", startLaneOffset: null };
+
+			rows.push({
+				course: visual.course,
+				frameNo,
+				playerName: identity.playerName,
+				className: identity.className,
+				registerNo: identity.registerNo,
+				exhibitionTime: readCellText($, cells[2]),
+				currentAverageStart: readCellText($, cells[3]),
+				startTiming: visual.startTiming,
+				startOrder: String(visual.course),
+				startLaneOffset: visual.startLaneOffset,
+				source: TSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.course - right.course);
+}
+
+function parseTsuOriginalExhibition(html) {
+	const $ = load(html);
+	const table = $(".tbl_oriten").first().get(0) ?? findTableByKeywords($, ["一周", "まわり", "直線"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const identityMap = parseTsuPlayersInfoMap(html);
+	const rows = [];
+	$(table)
+		.find("tbody tr")
+		.each((rowIndex, rowElement) => {
+			if (rowIndex % 2 !== 0) {
+				return;
+			}
+
+			const firstCells = $(rowElement).children("td,th").toArray();
+			const secondCells = $(rowElement).next("tr").children("td,th").toArray();
+			if (firstCells.length < 7) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = identityMap.get(frameNo) ?? { frameNo };
+			rows.push({
+				frameNo,
+				registrationNo: identity.registrationNo ?? "",
+				registerNo: identity.registerNo ?? "",
+				playerName: identity.playerName ?? "",
+				profile: identity.profile ?? "",
+				className: identity.className ?? "",
+				weight: readCellText($, firstCells[1]),
+				weightAdjustment: readCellText($, secondCells[0]),
+				tilt: readCellText($, firstCells[2]),
+				exhibitionTime: readCellText($, firstCells[3]),
+				oneLapTime: readCellText($, firstCells[4]),
+				turnTime: readCellText($, firstCells[5]),
+				straightTime: readCellText($, firstCells[6]),
+				exhibitionEvaluation: "",
+				memo: "津公式 オリジナル展示から取得",
+				source: TSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTsuRacerComments(html) {
+	const $ = load(html);
+	const table = $(".tbl_comment").first().get(0) ?? findTableByKeywords($, ["選手コメント", "過去コメント"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 3) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseTsuIdentity($, cells[1]);
+			rows.push({
+				frameNo,
+				registerNo: identity.registerNo,
+				className: identity.className,
+				playerName: identity.playerName,
+				profile: identity.profile,
+				comment: readCellText($, $(cells[2]).find(".z_comment").first() || cells[2]),
+				motorComment: "",
+				source: TSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTsuSeriesResults(html) {
+	const $ = load(html);
+	const table = $(".category-setsukan table").first().get(0) ?? findTableByKeywords($, ["初日", "ST", "着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const identityMap = parseTsuPlayersInfoMap(html);
+	const dayLabels = $(table)
+		.find("thead tr")
+		.first()
+		.children("th")
+		.toArray()
+		.slice(2)
+		.flatMap((cell) => {
+			const label = readCellText($, cell);
+			const spanCount = Number.parseInt($(cell).attr("colspan") ?? "1", 10);
+			if (!label) {
+				return [];
+			}
+			const repeatCount = Number.isFinite(spanCount) && spanCount > 0 ? spanCount : 1;
+			return Array.from({ length: repeatCount }, () => label);
+		})
+		.slice(0, 12);
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			if (firstCells.length < 4) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = identityMap.get(frameNo) ?? { registerNo: "", className: "", playerName: "", profile: "" };
+			const labeledRows = trList.map((rowElement, rowIndex) => {
+				const cells = $(rowElement).children("td,th").toArray();
+				const values = (rowIndex === 0 ? cells.slice(1) : cells).map((cell) => readCellText($, cell));
+				return {
+					label: values[0] ?? "",
+					values: values.slice(1, 13),
+				};
+			});
+			const rowMap = new Map(labeledRows.map((item) => [item.label, item.values]));
+
+			rows.push({
+				frameNo,
+				className: identity.className ?? "",
+				registerNo: identity.registerNo ?? "",
+				playerName: identity.playerName ?? "",
+				profile: identity.profile ?? "",
+				raceNumbers: rowMap.get("R") ?? [],
+				courses: rowMap.get("進") ?? [],
+				startTimings: rowMap.get("ST") ?? [],
+				finishOrders: rowMap.get("着") ?? [],
+				dayLabels,
+				source: TSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTsuRecent3(html, { local = false } = {}) {
+	const $ = load(html);
+	const selector = local ? ".tbl_touchi" : ".tbl_zenkoku";
+	const table = $(selector).first().get(0) ?? findTableByKeywords($, local ? ["近況成績", "前節", "2節前", "3節前"] : ["全国成績", "前節", "2節前", "3節前"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const identityMap = parseTsuPlayersInfoMap(html);
+	const labels = ["1節前", "2節前", "3節前"];
+	const rows = [];
+	const trList = $(table).find("tbody tr").toArray();
+
+	for (let rowIndex = 0; rowIndex + 1 < trList.length; rowIndex += 2) {
+		const mainCells = $(trList[rowIndex]).children("td,th").toArray();
+		const subCells = $(trList[rowIndex + 1]).children("td,th").toArray();
+		if (mainCells.length < 4 || subCells.length < 3) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, mainCells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const identity = identityMap.get(frameNo) ?? { registerNo: "", className: "", playerName: "", profile: "" };
+		const histories = mainCells.slice(1, 4).map((cell, historyIndex) => {
+			const cellScope = $(cell);
+			const grade = readCellText($, cellScope.find(".item_grade").first());
+			const venueName = local ? "津" : readCellText($, cellScope.find(".item_jo_name").first());
+			const dateRange = readCellText($, cellScope.find(".item_date").first());
+			const resultCell = subCells[historyIndex] ?? null;
+
+			return {
+				label: labels[historyIndex] ?? `${historyIndex + 1}節前`,
+				venueName,
+				grade,
+				dateRange,
+				results: readCellText($, resultCell),
+			};
+		});
+
+		rows.push({
+			frameNo,
+			className: identity.className ?? "",
+			registerNo: identity.registerNo ?? "",
+			playerName: identity.playerName ?? "",
+			profile: identity.profile ?? "",
+			histories,
+			source: TSU_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTsuNationalRecent3(html) {
+	return parseTsuRecent3(html, { local: false });
+}
+
+function parseTsuLocalRecent3(html) {
+	return parseTsuRecent3(html, { local: true });
+}
+
+function parseTsuFramePast10(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["枠番別データ", "平均ST"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = trList[1] ? $(trList[1]).children("td,th").toArray() : [];
+			if (firstCells.length < 14) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			rows.push({
+				frameNo,
+				courseHistory: firstCells.slice(2, 12).map((cell) => readCellText($, cell)).slice(0, 10),
+				finishHistory: secondCells.slice(1, 11).map((cell) => readCellText($, cell)).slice(0, 10),
+				startTimingHistory: [],
+				frameWinRate: readCellText($, firstCells[12]),
+				frameAverageStart: readCellText($, firstCells[13]),
+				frameStartOrder: readCellText($, secondCells[11]),
+				source: TSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTsuScoreRateGuide(html) {
+	const $ = load(html);
+	const table = $(".category-tokuten table").first().get(0) ?? findTableByKeywords($, ["得点率", "1着", "6着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 10) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			rows.push({
+				frameNo,
+				registrationNo: "",
+				playerName: "",
+				className: "",
+				averageStart: "",
+				winRate: "",
+				secondRate: "",
+				localWinRate: "",
+				localSecondRate: "",
+				motorNo: "",
+				motorSecondRate: "",
+				scoreRate: readCellText($, cells[1]),
+				scoreRank: readCellText($, cells[2]),
+				scoreAfterFirst: readCellText($, cells[3]),
+				scoreAfterSecond: readCellText($, cells[4]),
+				scoreAfterThird: readCellText($, cells[5]),
+				scoreAfterFourth: readCellText($, cells[6]),
+				scoreAfterFifth: readCellText($, cells[7]),
+				scoreAfterSixth: readCellText($, cells[8]),
+				scoreBorderMemo: readCellText($, cells[9]),
+				source: TSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseWakamatsuIdentity($, cell) {
+	const lines = $(cell)
+		.find("li")
+		.toArray()
+		.map((item) => readCellText($, item))
+		.filter(Boolean);
+
+	if (lines.length >= 3) {
+		const head = compactText(lines[0]);
+		const match = head.match(/^([AB][12])\s*(\d+)$/);
+		return {
+			className: match?.[1] ?? "",
+			registrationNo: match?.[2] ?? "",
+			registerNo: match?.[2] ?? "",
+			playerName: compactText(lines[1]),
+			profile: compactText(lines[2]),
+		};
+	}
+
+	return {
+		className: "",
+		registrationNo: "",
+		registerNo: "",
+		playerName: "",
+		profile: "",
+	};
+}
+
+function parseWakamatsuEntryTable(html) {
+	const $ = load(html);
+	const table = $(".category-syussou table").first().get(0) ?? findTableByKeywords($, ["平均 ST", "モーター", "ボート"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			if (firstCells.length < 13) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[2]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseWakamatsuIdentity($, firstCells[3]);
+			const national = readCellSegments($, firstCells[6]);
+			const local = readCellSegments($, firstCells[7]);
+			const motor = readCellSegments($, firstCells[8]);
+			const boat = readCellSegments($, firstCells[9]);
+			const commentTexts = $(firstCells[10])
+				.find(".comment_text")
+				.toArray()
+				.map((element) => readCellText($, element))
+				.filter(Boolean);
+			const motorEvaluationLines = trList
+				.map((rowElement) => readCellText($, $(rowElement).children("td,th").filter(".col11").first()))
+				.filter(Boolean);
+			const motorLink = $(firstCells[8]).find("a[data-url]").first().attr("data-url") ?? "";
+			const boatLink = $(firstCells[9]).find("a[data-url]").first().attr("data-url") ?? "";
+
+			rows.push({
+				frameNo,
+				...identity,
+				fl: readCellText($, firstCells[4]),
+				averageStart: readCellText($, firstCells[5]),
+				nationalWinRate: national[0] ?? "",
+				nationalSecondRate: national[1] ?? "",
+				localWinRate: local[0] ?? "",
+				localSecondRate: local[1] ?? "",
+				motorNo: motor[0] ?? "",
+				motorSecondRate: motor[1] ?? "",
+				boatNo: boat[0] ?? "",
+				boatSecondRate: boat[1] ?? "",
+				comment: commentTexts.join(" / "),
+				motorEvaluation: motorEvaluationLines.join(" / "),
+				motorEvaluationLines,
+				earlyGuide: readCellText($, firstCells[12]),
+				motorDetailUrl: motorLink ? new URL(motorLink, "https://www.wmb.jp/").toString() : "",
+				boatHistoryUrl: boatLink ? new URL(boatLink, "https://www.wmb.jp/").toString() : "",
+				source: WAKAMATSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseWakamatsuRacerComments(html) {
+	return parseWakamatsuEntryTable(html)
+		.map((row) => ({
+			frameNo: row.frameNo,
+			registerNo: row.registerNo,
+			className: row.className,
+			playerName: row.playerName,
+			profile: row.profile,
+			comment: row.comment,
+			motorComment: row.motorEvaluation,
+			source: WAKAMATSU_SOURCE,
+		}))
+		.filter((row) => row.comment || row.motorComment);
+}
+
+function parseWakamatsuBeforeInfo(html) {
+	const $ = load(html);
+	const table = $(".category-cyokuzen table").first().get(0) ?? findTableByKeywords($, ["展示タイム", "前走成績", "部品交換"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = trList[1] ? $(trList[1]).children("td,th").toArray() : [];
+			if (firstCells.length < 9) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseWakamatsuIdentity($, firstCells[1]);
+			const weightSegments = readCellSegments($, firstCells[3]);
+
+			rows.push({
+				frameNo,
+				...identity,
+				exhibitionTime: readCellText($, firstCells[2]),
+				weight: weightSegments[0] ?? "",
+				weightAdjustment: weightSegments[1] ?? "",
+				tilt: readCellText($, firstCells[4]),
+				previousRaceNo: readCellText($, firstCells[5]),
+				previousRaceCourse: readCellText($, firstCells[6]),
+				previousRaceStartTiming: readCellText($, firstCells[7]),
+				previousRaceFinishOrder: readCellText($, firstCells[8]),
+				previousRaceInfo: firstCells.slice(5, 9).map((cell) => readCellText($, cell)).filter(Boolean).join(" / "),
+				partsExchange: readCellText($, secondCells[0]),
+				source: WAKAMATSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseWakamatsuWeatherActual(html) {
+	const $ = load(html);
+	const table = $(".tbl_suimen").first().get(0);
+	if (!table) {
+		return null;
+	}
+
+	const bodyRows = $(table).find("tbody tr").toArray();
+	if (bodyRows.length < 2) {
+		return null;
+	}
+
+	const firstValues = $(bodyRows[0]).children("td,th").toArray().map((cell) => readCellText($, cell));
+	const secondValues = $(bodyRows[1]).children("td,th").toArray().map((cell) => readCellText($, cell));
+	const directionClass = $(".sumimen_direction_block .direction").first().attr("class") ?? "";
+	const directionCode = directionClass.match(/sumimen_direction(\d+)/)?.[1] ?? "";
+
+	if (!firstValues.length && !secondValues.length) {
+		return null;
+	}
+
+	return {
+		weather: firstValues[0] ?? "",
+		windDirectionText: firstValues[1] ?? "",
+		windSpeed: firstValues[2] ?? "",
+		waveHeight: secondValues[0] ?? "",
+		airTemperature: secondValues[1] ?? "",
+		waterTemperature: secondValues[2] ?? "",
+		windDirectionCode: directionCode,
+		source: WAKAMATSU_SOURCE,
+	};
+}
+
+function parseWakamatsuStartExhibition(html) {
+	const $ = load(html);
+	const table = $(".category-tenji table").first().get(0) ?? findTableByKeywords($, ["スタート展示", "今節平均", "スタート順"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const startVisualMap = new Map();
+	$(table)
+		.find("td.com-yosou-suimen .suimen_div")
+		.each((_, element) => {
+			const imageSrc = $(element).find("img.boat").attr("src") ?? "";
+			const frameNo = Number.parseInt(imageSrc.match(/img_boat_([1-6])\.png/)?.[1] ?? "", 10);
+			const leftValue = Number.parseFloat((($(element).find("img.boat").attr("style") ?? "").match(/left:([\-\d.]+)%/)?.[1]) ?? "NaN");
+
+			if (!Number.isFinite(frameNo)) {
+				return;
+			}
+
+			startVisualMap.set(frameNo, {
+				startType: readCellText($, $(element).find(".sd_area").first()),
+				startTiming: readCellText($, $(element).find(".st_area").first()),
+				startLaneOffset: Number.isFinite(leftValue) ? leftValue : null,
+			});
+		});
+
+	const rows = [];
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 5) {
+				return;
+			}
+
+			const course = parseFrameNo(readCellText($, cells[0]));
+			const frameNo = parseFrameNo(readCellText($, cells[1]));
+			if (!course || !frameNo) {
+				return;
+			}
+
+			const identity = parseWakamatsuIdentity($, cells[2]);
+			const visual = startVisualMap.get(frameNo) ?? { startType: "", startTiming: "", startLaneOffset: null };
+
+			rows.push({
+				course,
+				frameNo,
+				playerName: identity.playerName,
+				className: identity.className,
+				registerNo: identity.registerNo,
+				currentAverageStart: readCellText($, cells[3]),
+				startOrder: readCellText($, cells[4]),
+				startType: visual.startType,
+				startTiming: visual.startTiming,
+				startLaneOffset: visual.startLaneOffset,
+				source: WAKAMATSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.course - right.course);
+}
+
+function parseWakamatsuOriginalExhibition(html) {
+	const $ = load(html);
+	const table = $(".category-oriten table").first().get(0) ?? findTableByKeywords($, ["一周", "まわり足", "直線"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const bodyRows = $(table).find("tbody tr").toArray();
+	for (let rowIndex = 0; rowIndex + 1 < bodyRows.length; rowIndex += 2) {
+		const firstCells = $(bodyRows[rowIndex]).children("td,th").toArray();
+		const secondCells = $(bodyRows[rowIndex + 1]).children("td,th").toArray();
+		if (firstCells.length < 8) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const identity = parseWakamatsuIdentity($, firstCells[1]);
+		rows.push({
+			frameNo,
+			...identity,
+			weight: readCellText($, firstCells[2]),
+			weightAdjustment: readCellText($, secondCells[0]),
+			tilt: readCellText($, firstCells[3]),
+			exhibitionTime: readCellText($, firstCells[4]),
+			oneLapTime: readCellText($, firstCells[5]),
+			turnTime: readCellText($, firstCells[6]),
+			straightTime: readCellText($, firstCells[7]),
+			exhibitionEvaluation: "",
+			memo: "若松公式 オリジナル展示データから取得",
+			source: WAKAMATSU_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseWakamatsuSeriesResults(html) {
+	const $ = load(html);
+	const table = $(".category-setsukan table").first().get(0) ?? findTableByKeywords($, ["初日", "ST", "着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const dayLabels = $(table)
+		.find("thead .nichime")
+		.toArray()
+		.flatMap((cell) => {
+			const label = readCellText($, cell);
+			const spanCount = Number.parseInt($(cell).attr("colspan") ?? "1", 10);
+			if (!label) {
+				return [];
+			}
+			const repeatCount = Number.isFinite(spanCount) && spanCount > 0 ? spanCount : 1;
+			return Array.from({ length: repeatCount }, () => label);
+		})
+		.slice(0, 16);
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			if (firstCells.length < 5) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseWakamatsuIdentity($, firstCells[1]);
+			const labeledRows = trList.map((rowElement, rowIndex) => {
+				const cells = $(rowElement).children("td,th").toArray();
+				const values = (rowIndex === 0 ? cells.slice(2) : cells).map((cell) => readCellText($, cell));
+				return {
+					label: values[0] ?? "",
+					values: values.slice(1, 17),
+				};
+			});
+			const rowMap = new Map(labeledRows.map((item) => [item.label, item.values]));
+
+			rows.push({
+				frameNo,
+				className: identity.className,
+				registerNo: identity.registerNo,
+				playerName: identity.playerName,
+				profile: identity.profile,
+				raceNumbers: rowMap.get("R") ?? [],
+				courses: rowMap.get("進") ?? [],
+				startTimings: rowMap.get("ST") ?? [],
+				startOrders: rowMap.get("S順") ?? [],
+				finishOrders: rowMap.get("着") ?? [],
+				dayLabels,
+				source: WAKAMATSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseWakamatsuCourseStats(html) {
+	const $ = load(html);
+	const table = $(".category-racecourse table").first().get(0) ?? findTableByKeywords($, ["進入コース", "進入回数", "平均ST"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			if (firstCells.length < 8) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseWakamatsuIdentity($, firstCells[1]);
+			const courseRows = trList
+				.map((rowElement) => {
+					const cells = $(rowElement).children("td,th").toArray();
+					const values = cells.length >= 8 ? cells.slice(2) : cells;
+					return {
+						courseNo: parseFrameNo(readCellText($, values[0])) ?? null,
+						entryCount: readCellText($, values[1]),
+						averageStart: readCellText($, values[2]),
+						firstCount: readCellText($, values[3]),
+						secondCount: readCellText($, values[4]),
+						thirdCount: readCellText($, values[5]),
+					};
+				})
+				.filter((row) => row.courseNo);
+
+			rows.push({
+				frameNo,
+				className: identity.className,
+				registerNo: identity.registerNo,
+				playerName: identity.playerName,
+				profile: identity.profile,
+				courseRows,
+				source: WAKAMATSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseWakamatsuRecent3(html, { local = false } = {}) {
+	const $ = load(html);
+	const selector = local ? ".category-touchi table" : ".category-zenkoku table";
+	const table = $(selector).first().get(0) ?? findTableByKeywords($, ["前節", "2節前", "3節前"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tbody tr").toArray();
+	const labels = ["1節前", "2節前", "3節前"];
+
+	for (let rowIndex = 0; rowIndex + 1 < trList.length; rowIndex += 2) {
+		const mainCells = $(trList[rowIndex]).children("td,th").toArray();
+		const subCells = $(trList[rowIndex + 1]).children("td,th").toArray();
+		if (mainCells.length < 5 || subCells.length < 3) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, mainCells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const identity = parseWakamatsuIdentity($, mainCells[1]);
+		const histories = mainCells.slice(2, 5).map((cell, historyIndex) => {
+			const cellScope = $(cell);
+			return {
+				label: labels[historyIndex] ?? `${historyIndex + 1}節前`,
+				venueName: local ? WAKAMATSU_VENUE_NAME : readCellText($, cellScope.find(".item_jo_name").first()),
+				grade: readCellText($, cellScope.find(".item_grade").first()),
+				dateRange: readCellText($, cellScope.find(".item_date").first()),
+				results: readCellText($, subCells[historyIndex]),
+			};
+		});
+
+		rows.push({
+			frameNo,
+			className: identity.className,
+			registerNo: identity.registerNo,
+			playerName: identity.playerName,
+			profile: identity.profile,
+			histories,
+			source: WAKAMATSU_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseWakamatsuNationalRecent3(html) {
+	return parseWakamatsuRecent3(html, { local: false });
+}
+
+function parseWakamatsuLocalRecent3(html) {
+	return parseWakamatsuRecent3(html, { local: true });
+}
+
+function parseWakamatsuFramePast10(html) {
+	const $ = load(html);
+	const table = $(".category-waku10 table").first().get(0) ?? findTableByKeywords($, ["枠番別データ", "平均ST"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = trList[1] ? $(trList[1]).children("td,th").toArray() : [];
+			if (firstCells.length < 16) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			rows.push({
+				frameNo,
+				courseHistory: firstCells.slice(3, 13).map((cell) => readCellText($, cell)).slice(0, 10),
+				finishHistory: secondCells.slice(1, 11).map((cell) => readCellText($, cell)).slice(0, 10),
+				startTimingHistory: [],
+				frameWinRate: readCellText($, firstCells[13]),
+				frameAverageStart: readCellText($, firstCells[14]),
+				frameStartOrder: readCellText($, firstCells[15]),
+				source: WAKAMATSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseWakamatsuScoreRateGuide(html) {
+	const $ = load(html);
+	const table = $(".category-tokuhayami table").first().get(0) ?? findTableByKeywords($, ["得点率", "1着", "6着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 9) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = cells.length >= 11 ? parseWakamatsuIdentity($, cells[1]) : { registrationNo: "", playerName: "", className: "" };
+			const offset = cells.length >= 11 ? 2 : 1;
+
+			rows.push({
+				frameNo,
+				registrationNo: identity.registrationNo ?? "",
+				playerName: identity.playerName ?? "",
+				className: identity.className ?? "",
+				averageStart: "",
+				winRate: "",
+				secondRate: "",
+				localWinRate: "",
+				localSecondRate: "",
+				motorNo: "",
+				motorSecondRate: "",
+				scoreRate: readCellText($, cells[offset]),
+				scoreRank: readCellText($, cells[offset + 1]),
+				scoreAfterFirst: readCellText($, cells[offset + 2]),
+				scoreAfterSecond: readCellText($, cells[offset + 3]),
+				scoreAfterThird: readCellText($, cells[offset + 4]),
+				scoreAfterFourth: readCellText($, cells[offset + 5]),
+				scoreAfterFifth: readCellText($, cells[offset + 6]),
+				scoreAfterSixth: readCellText($, cells[offset + 7]),
+				scoreBorderMemo: readCellText($, cells[offset + 8]),
+				source: WAKAMATSU_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseWakamatsuMotorHistory(html, entryRow) {
+	const $ = load(html);
+	const summaryCells = $("#MotorSeiseki tr").eq(1).children("td,th").toArray();
+	const sectionEntries = [];
+
+	$(".motor_p")
+		.toArray()
+		.forEach((section) => {
+			const sectionScope = $(section);
+			const seriesTitle = readCellText($, sectionScope.find("h4").first());
+			if (!seriesTitle) {
+				return;
+			}
+
+			const usedText = readCellText($, sectionScope.find(".text-center").first());
+			if (usedText.includes("使用されていません")) {
+				sectionEntries.push({
+					seriesTitle,
+					registerNo: "",
+					playerName: "",
+					results: [],
+					note: usedText,
+				});
+				return;
+			}
+
+			const racerText = compactText(sectionScope.find(".msenshu .senshuwaku").text());
+			const racerMatch = racerText.match(/(\d+)\/(.+)$/);
+			const results = [];
+			sectionScope
+				.find("table.motor_table tr")
+				.slice(1)
+				.each((_, rowElement) => {
+					const cells = $(rowElement).children("td,th").toArray();
+					if (cells.length < 9) {
+						return;
+					}
+
+					results.push({
+						dayLabel: readCellText($, cells[0]),
+						raceNo: readCellText($, cells[1]),
+						raceName: readCellText($, cells[2]),
+						frameNo: readCellText($, cells[3]),
+						finishOrder: readCellText($, cells[4]),
+						course: readCellText($, cells[5]),
+						startTiming: readCellText($, cells[6]),
+						winningMove: readCellText($, cells[7]),
+						maintenance: readCellText($, cells[8]),
+					});
+				});
+
+			sectionEntries.push({
+				seriesTitle,
+				registerNo: racerMatch?.[1] ?? "",
+				playerName: compactText(racerMatch?.[2] ?? ""),
+				results,
+				note: "",
+			});
+		});
+
+	const firstUsed = sectionEntries.find((entry) => entry.playerName || entry.results.length > 0) ?? { playerName: "", results: [] };
+	const bestResults = summaryCells.map((cell) => readCellText($, cell));
+
+	return {
+		motorSummary: {
+			frameNo: entryRow.frameNo,
+			motorNo: entryRow.motorNo,
+			previousUser: firstUsed.playerName,
+			recentResults: firstUsed.results.slice(0, 3).map((result) => [result.dayLabel, result.raceNo, result.finishOrder].filter(Boolean).join(" ")).filter(Boolean).join(" / "),
+			motorGrade: bestResults[1] ?? "",
+			comment: `勝率 ${bestResults[0] ?? "-"} / 2連率 ${bestResults[1] ?? "-"} / 優出 ${bestResults[9] ?? "-"} / 優勝 ${bestResults[10] ?? "-"}`,
+			source: WAKAMATSU_SOURCE,
+		},
+		motorHistory: {
+			frameNo: entryRow.frameNo,
+			className: entryRow.className,
+			registerNo: entryRow.registerNo,
+			playerName: entryRow.playerName,
+			profile: entryRow.profile,
+			motorNo: entryRow.motorNo,
+			motorWinRate: bestResults[0] ?? "",
+			motorSecondRate: bestResults[1] ?? "",
+			firstCount: bestResults[2] ?? "",
+			secondCount: bestResults[3] ?? "",
+			thirdCount: bestResults[4] ?? "",
+			fourthCount: bestResults[5] ?? "",
+			fifthCount: bestResults[6] ?? "",
+			sixthCount: bestResults[7] ?? "",
+			starts: bestResults[8] ?? "",
+			finals: bestResults[9] ?? "",
+			championships: bestResults[10] ?? "",
+			bestExhibitionTime: bestResults[11] ?? "",
+			bestOneLapTime: bestResults[12] ?? "",
+			bestStraightTime: bestResults[13] ?? "",
+			bestTurnTime: bestResults[14] ?? "",
+			bestTime: bestResults[15] ?? "",
+			historyEntries: sectionEntries,
+			source: WAKAMATSU_SOURCE,
+		},
+	};
+}
+
+function parseBiwakoPartsExchangeMap(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["部品交換", "展示タイム", "体重"]);
+
+	if (!table) {
+		return new Map();
+	}
+
+	const rowMap = new Map();
+
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const rows = $(tbody).find("tr").toArray();
+			const firstCells = $(rows[0]).children("td,th").toArray();
+			const partsCell = rows[2] ? $(rows[2]).children("td,th").first() : null;
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+
+			if (!frameNo) {
+				return;
+			}
+
+			rowMap.set(frameNo, readCellText($, partsCell));
+		});
+
+	return rowMap;
+}
+
+function parseBiwakoOriginalExhibition(html) {
+	const $ = load(html);
+	const table =
+		$(".cyokuzen.oriten table")
+			.toArray()
+			.find((element) => {
+				const sectionText = compactText($(element).closest(".yosou, .cyokuzen, body").text()).replaceAll(" ", "");
+				return sectionText.includes("オリジナル展示") && sectionText.includes("一周") && sectionText.includes("まわり足") && sectionText.includes("直線");
+			}) ?? findTableByKeywords($, ["一周", "まわり足", "直線"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tbody tr").toArray();
+
+	for (let rowIndex = 0; rowIndex < trList.length; rowIndex += 2) {
+		const firstCells = $(trList[rowIndex]).children("td,th").toArray();
+		const secondCells = trList[rowIndex + 1] ? $(trList[rowIndex + 1]).children("td,th").toArray() : [];
+
+		if (firstCells.length < 8) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const identity = parseBiwakoIdentity($, firstCells[1]);
+
+		rows.push({
+			frameNo,
+			registrationNo: identity.registrationNo,
+			playerName: identity.playerName,
+			profile: identity.profile,
+			weight: readCellText($, firstCells[2]),
+			weightAdjustment: readCellText($, secondCells[0]),
+			tilt: readCellText($, firstCells[3]),
+			exhibitionTime: readCellText($, firstCells[4]),
+			oneLapTime: readCellText($, firstCells[5]),
+			turnTime: readCellText($, firstCells[6]),
+			straightTime: readCellText($, firstCells[7]),
+			exhibitionEvaluation: "",
+			memo: "びわこ公式 オリジナル展示から取得",
+			source: BIWAKO_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseBiwakoStartExhibition(html) {
+	const $ = load(html);
+	const table = $(".cyokuzen.st table").first().get(0) ?? findTableByKeywords($, ["スタート順", "ST"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+
+	$(table)
+		.find("tbody tr")
+		.each((rowIndex, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+
+			if (cells.length < 8) {
+				return;
+			}
+
+			const course = parseFrameNo(readCellText($, cells[0])) ?? rowIndex + 1;
+			const frameNo = parseFrameNo(readCellText($, cells[1]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseBiwakoIdentity($, cells[2]);
+			const laneOffset = parseBiwakoStartLaneOffset($(cells[5]).find(".stTen").attr("style"));
+
+			rows.push({
+				course,
+				frameNo,
+				playerName: identity.playerName,
+				className: identity.className,
+				registerNo: identity.registerNo,
+				currentAverageStart: readCellText($, cells[3]),
+				style: "",
+				startTiming: readCellText($, cells[7]),
+				startOrder: readCellText($, cells[4]),
+				startLaneOffset: laneOffset,
+				source: BIWAKO_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.course - right.course);
+}
+
+function parseBiwakoFramePast10(html) {
+	const $ = load(html);
+	const table = $(".category-waku10 table").first().get(0) ?? findTableByKeywords($, ["枠番別データ", "平均ST", "スタート順"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = trList[1] ? $(trList[1]).children("td,th").toArray() : [];
+
+			if (firstCells.length < 16) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseBiwakoIdentity($, firstCells[1]);
+
+			rows.push({
+				frameNo,
+				className: identity.className,
+				registerNo: identity.registerNo,
+				playerName: identity.playerName,
+				profile: identity.profile,
+				courseHistory: firstCells.slice(3, 13).map((cell) => readCellText($, cell)).slice(0, 10),
+				finishHistory: secondCells.slice(1, 11).map((cell) => readCellText($, cell)).slice(0, 10),
+				startTimingHistory: [],
+				frameWinRate: readCellText($, firstCells[13]),
+				frameAverageStart: readCellText($, firstCells[14]),
+				frameStartOrder: readCellText($, firstCells[15]),
+				source: BIWAKO_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseBiwakoScoreRateGuide(html) {
+	const $ = load(html);
+	const table = $(".category-tokuten table").first().get(0) ?? findTableByKeywords($, ["得点", "1着", "6着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+
+			if (cells.length < 11) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseBiwakoIdentity($, cells[1]);
+
+			rows.push({
+				frameNo,
+				registrationNo: identity.registrationNo,
+				playerName: identity.playerName,
+				className: identity.className,
+				averageStart: "",
+				winRate: "",
+				secondRate: "",
+				localWinRate: "",
+				localSecondRate: "",
+				motorNo: "",
+				motorSecondRate: "",
+				scoreRate: readCellText($, cells[2]),
+				scoreRank: readCellText($, cells[3]),
+				scoreAfterFirst: readCellText($, cells[4]),
+				scoreAfterSecond: readCellText($, cells[5]),
+				scoreAfterThird: readCellText($, cells[6]),
+				scoreAfterFourth: readCellText($, cells[7]),
+				scoreAfterFifth: readCellText($, cells[8]),
+				scoreAfterSixth: readCellText($, cells[9]),
+				scoreBorder: readCellText($, cells[10]),
+				source: BIWAKO_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseBiwakoSeriesResults(html) {
+	const $ = load(html);
+	const table = $(".category-setsukan table").first().get(0) ?? findTableByKeywords($, ["節間成績", "初日", "ST", "着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const dayLabels = $(table)
+		.find("thead tr")
+		.eq(1)
+		.children("th")
+		.toArray()
+		.slice(1)
+		.flatMap((cell) => {
+			const label = readCellText($, cell);
+			const spanCount = Number.parseInt($(cell).attr("colspan") ?? "1", 10);
+			if (!label) {
+				return [];
+			}
+
+			const repeatCount = Number.isFinite(spanCount) && spanCount > 0 ? spanCount : 1;
+			return Array.from({ length: repeatCount }, () => label);
+		})
+		.slice(0, 12);
+
+	const rows = [];
+	const tbodyRows = $(table).find("tbody tr").toArray();
+
+	for (let rowIndex = 0; rowIndex + 3 < tbodyRows.length; rowIndex += 4) {
+		const firstCells = $(tbodyRows[rowIndex]).children("td,th").toArray();
+		const secondCells = $(tbodyRows[rowIndex + 1]).children("td,th").toArray();
+		const thirdCells = $(tbodyRows[rowIndex + 2]).children("td,th").toArray();
+		const fourthCells = $(tbodyRows[rowIndex + 3]).children("td,th").toArray();
+
+		if (firstCells.length < 5) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const identity = parseBiwakoIdentity($, firstCells[1]);
+
+		rows.push({
+			frameNo,
+			className: identity.className,
+			registerNo: identity.registerNo,
+			playerName: identity.playerName,
+			profile: identity.profile,
+			raceNumbers: firstCells.slice(3).map((cell) => readCellText($, cell)).slice(0, 12),
+			courses: secondCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 12),
+			startTimings: thirdCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 12),
+			finishOrders: fourthCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 12),
+			dayLabels,
+			source: BIWAKO_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
 }
 
 function parseTamagawaEntryTable(html) {
@@ -1096,6 +2769,1819 @@ async function createTamagawaVenue(feed, date) {
 			isAvailable: false,
 			status: "fetch-failed",
 			note: `多摩川公式HPの取得に失敗しました: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
+async function fetchTsuRaceExtra({ date, raceNo }) {
+	const settled = await Promise.allSettled([
+		fetchTsuHtml(toTsuRaceTabUrl({ date, raceNo, req: "cyokuzen", run: 0 })),
+		fetchTsuHtml(toTsuRaceTabUrl({ date, raceNo, req: "sttenji", run: 0 })),
+		fetchTsuHtml(toTsuRaceTabUrl({ date, raceNo, req: "sttenji", run: 1 })),
+		fetchTsuHtml(toTsuRaceTabUrl({ date, raceNo, req: "waku10", run: 0 })),
+		fetchTsuHtml(toTsuRaceTabUrl({ date, raceNo, req: "tokuhayami", run: 0 })),
+		fetchTsuHtml(toTsuRaceTabUrl({ date, raceNo, req: "syussou", run: 0 })),
+	]);
+
+	const beforeHtml = settled[0]?.status === "fulfilled" ? settled[0].value : "";
+	const startHtml = settled[1]?.status === "fulfilled" ? settled[1].value : "";
+	const originalHtml = settled[2]?.status === "fulfilled" ? settled[2].value : startHtml;
+	const frame10Html = settled[3]?.status === "fulfilled" ? settled[3].value : "";
+	const scoreHtml = settled[4]?.status === "fulfilled" ? settled[4].value : "";
+	const syussouHtml = settled[5]?.status === "fulfilled" ? settled[5].value : "";
+
+	const tsuBeforeInfo = parseTsuBeforeInfo(beforeHtml);
+	const startExhibition = parseTsuStartExhibition(startHtml);
+	const originalExhibition = parseTsuOriginalExhibition(originalHtml);
+	const tsuFramePast10 = parseTsuFramePast10(frame10Html);
+	const tsuRacerComments = parseTsuRacerComments(syussouHtml);
+	const tsuSeriesResults = parseTsuSeriesResults(syussouHtml);
+	const tsuNationalRecent3 = parseTsuNationalRecent3(syussouHtml);
+	const tsuLocalRecent3 = parseTsuLocalRecent3(syussouHtml);
+	const racerComments = tsuRacerComments;
+	const tsuScoreRateGuide = parseTsuScoreRateGuide(scoreHtml);
+	const officialBeforeInfo = tsuScoreRateGuide.length
+		? {
+				status: "available",
+				source: TSU_SOURCE,
+				scoreQuickLook: tsuScoreRateGuide,
+			}
+		: null;
+
+	console.log(
+		`[venue-extras] tsu ${raceNo}R: before ${tsuBeforeInfo.length} / exhibition ${originalExhibition.length} / start ${startExhibition.length} / frame10 ${tsuFramePast10.length} / comments ${tsuRacerComments.length} / series ${tsuSeriesResults.length} / national3 ${tsuNationalRecent3.length} / local3 ${tsuLocalRecent3.length} / score ${tsuScoreRateGuide.length}`,
+	);
+
+	if (!tsuBeforeInfo.length && !startExhibition.length && !originalExhibition.length && !tsuFramePast10.length && !tsuRacerComments.length && !tsuSeriesResults.length && !tsuNationalRecent3.length && !tsuLocalRecent3.length && !tsuScoreRateGuide.length) {
+		return {
+			raceNo,
+			status: "waiting",
+			source: TSU_SOURCE,
+			sourceType: "official-venue-yosou-tabs",
+			tsuBeforeInfo: [],
+			startExhibition: [],
+			originalExhibition: [],
+			tsuFramePast10: [],
+			tsuRacerComments: [],
+			racerComments: [],
+			tsuSeriesResults: [],
+			tsuNationalRecent3: [],
+			tsuLocalRecent3: [],
+			tsuScoreRateGuide: [],
+		};
+	}
+
+	return {
+		raceNo,
+		status: "available",
+		source: TSU_SOURCE,
+		sourceType: "official-venue-yosou-tabs",
+		officialBeforeInfo,
+		tsuBeforeInfo,
+		startExhibition,
+		originalExhibition,
+		tsuFramePast10,
+		tsuRacerComments,
+		racerComments,
+		tsuSeriesResults,
+		tsuNationalRecent3,
+		tsuLocalRecent3,
+		tsuScoreRateGuide,
+	};
+}
+
+async function createTsuVenue(feed, date) {
+	const tsuVenue = findVenue(feed, TSU_VENUE_NAME);
+
+	if (!tsuVenue) {
+		console.log("[venue-extras] tsu: not held today");
+		return null;
+	}
+
+	try {
+		const races = getRaceList(tsuVenue);
+		const raceExtras = [];
+
+		for (const race of races) {
+			raceExtras.push(await fetchTsuRaceExtra({ date, raceNo: race.raceNo }));
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+
+		return {
+			venueCode: String(tsuVenue.venueCode ?? "09"),
+			venueName: TSU_VENUE_NAME,
+			source: TSU_SOURCE,
+			isAvailable: availableRaceCount > 0,
+			status: availableRaceCount > 0 ? "available" : "waiting-tsu-data",
+			note: "津公式HPの直前情報・展示情報・枠番別過去10走・得点率早見を取得",
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] tsu failed: ${error.message}`);
+
+		return {
+			venueCode: String(tsuVenue.venueCode ?? "09"),
+			venueName: TSU_VENUE_NAME,
+			source: TSU_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `津公式HPの取得に失敗しました: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
+async function fetchWakamatsuRaceExtra({ date, raceNo }) {
+	const urls = {
+		syussou: toWakamatsuRaceTabUrl({ date, raceNo, type: "syussou", kind: 0 }),
+		series: toWakamatsuRaceTabUrl({ date, raceNo, type: "syussou", kind: 1 }),
+		course: toWakamatsuRaceTabUrl({ date, raceNo, type: "syussou", kind: 2 }),
+		national3: toWakamatsuRaceTabUrl({ date, raceNo, type: "syussou", kind: 3 }),
+		local3: toWakamatsuRaceTabUrl({ date, raceNo, type: "syussou", kind: 4 }),
+		frame10: toWakamatsuRaceTabUrl({ date, raceNo, type: "syussou", kind: 5 }),
+		score: toWakamatsuRaceTabUrl({ date, raceNo, type: "syussou", kind: 6 }),
+		before: toWakamatsuRaceTabUrl({ date, raceNo, type: "cyokuzen", kind: 0 }),
+		start: toWakamatsuRaceTabUrl({ date, raceNo, type: "cyokuzen", kind: 1 }),
+		original: toWakamatsuRaceTabUrl({ date, raceNo, type: "cyokuzen", kind: 2 }),
+	};
+
+	const entries = Object.entries(urls);
+	const settled = await Promise.allSettled(entries.map(([, url]) => fetchHtml(url)));
+	const htmlByKey = Object.fromEntries(
+		entries.map(([key], index) => [key, settled[index]?.status === "fulfilled" ? settled[index].value : ""]),
+	);
+
+	const wakamatsuEntryTable = parseWakamatsuEntryTable(htmlByKey.syussou);
+	const wakamatsuRacerComments = parseWakamatsuRacerComments(htmlByKey.syussou);
+	const wakamatsuBeforeInfo = parseWakamatsuBeforeInfo(htmlByKey.before);
+	const startExhibition = parseWakamatsuStartExhibition(htmlByKey.start);
+	const originalExhibition = parseWakamatsuOriginalExhibition(htmlByKey.original);
+	const wakamatsuSeriesResults = parseWakamatsuSeriesResults(htmlByKey.series);
+	const wakamatsuCourseStats = parseWakamatsuCourseStats(htmlByKey.course);
+	const wakamatsuNationalRecent3 = parseWakamatsuNationalRecent3(htmlByKey.national3);
+	const wakamatsuLocalRecent3 = parseWakamatsuLocalRecent3(htmlByKey.local3);
+	const wakamatsuFramePast10 = parseWakamatsuFramePast10(htmlByKey.frame10);
+	const wakamatsuScoreRateGuide = parseWakamatsuScoreRateGuide(htmlByKey.score);
+	const weatherActual = parseWakamatsuWeatherActual(htmlByKey.start);
+
+	const motorTargets = wakamatsuEntryTable
+		.filter((row) => row.motorNo && row.motorDetailUrl)
+		.map((row) => ({
+			frameNo: row.frameNo,
+			motorNo: row.motorNo,
+			url: row.motorDetailUrl || toWakamatsuMotorUrl(row.motorNo),
+			entryRow: row,
+		}));
+	const motorSettled = await Promise.allSettled(motorTargets.map((target) => fetchHtml(target.url)));
+	const motorSummary = [];
+	const wakamatsuMotorHistory = [];
+
+	motorTargets.forEach((target, index) => {
+		const html = motorSettled[index]?.status === "fulfilled" ? motorSettled[index].value : "";
+		if (!html) {
+			return;
+		}
+
+		const parsed = parseWakamatsuMotorHistory(html, target.entryRow);
+		motorSummary.push(parsed.motorSummary);
+		wakamatsuMotorHistory.push(parsed.motorHistory);
+	});
+
+	const officialBeforeInfo = wakamatsuScoreRateGuide.length || weatherActual
+		? {
+				status: "available",
+				source: WAKAMATSU_SOURCE,
+				scoreQuickLook: wakamatsuScoreRateGuide,
+				weatherActual,
+			}
+		: null;
+
+	const hasAny =
+		wakamatsuEntryTable.length > 0 ||
+		wakamatsuBeforeInfo.length > 0 ||
+		startExhibition.length > 0 ||
+		originalExhibition.length > 0 ||
+		wakamatsuSeriesResults.length > 0 ||
+		wakamatsuCourseStats.length > 0 ||
+		wakamatsuNationalRecent3.length > 0 ||
+		wakamatsuLocalRecent3.length > 0 ||
+		wakamatsuFramePast10.length > 0 ||
+		wakamatsuScoreRateGuide.length > 0 ||
+		motorSummary.length > 0;
+
+	console.log(
+		`[venue-extras] wakamatsu ${raceNo}R: entry ${wakamatsuEntryTable.length} / before ${wakamatsuBeforeInfo.length} / start ${startExhibition.length} / exhibition ${originalExhibition.length} / series ${wakamatsuSeriesResults.length} / course ${wakamatsuCourseStats.length} / national3 ${wakamatsuNationalRecent3.length} / local3 ${wakamatsuLocalRecent3.length} / frame10 ${wakamatsuFramePast10.length} / score ${wakamatsuScoreRateGuide.length} / motor ${motorSummary.length}`,
+	);
+
+	if (!hasAny) {
+		return {
+			raceNo,
+			status: "waiting",
+			source: WAKAMATSU_SOURCE,
+			sourceType: "official-venue-yosou-tabs",
+			wakamatsuEntryTable: [],
+			wakamatsuBeforeInfo: [],
+			startExhibition: [],
+			originalExhibition: [],
+			motorSummary: [],
+			wakamatsuMotorHistory: [],
+			wakamatsuRacerComments: [],
+			racerComments: [],
+			wakamatsuSeriesResults: [],
+			wakamatsuCourseStats: [],
+			wakamatsuNationalRecent3: [],
+			wakamatsuLocalRecent3: [],
+			wakamatsuFramePast10: [],
+			wakamatsuScoreRateGuide: [],
+		};
+	}
+
+	return {
+		raceNo,
+		status: "available",
+		source: WAKAMATSU_SOURCE,
+		sourceType: "official-venue-yosou-tabs",
+		officialBeforeInfo,
+		wakamatsuEntryTable,
+		wakamatsuBeforeInfo,
+		startExhibition,
+		originalExhibition,
+		motorSummary,
+		wakamatsuMotorHistory,
+		wakamatsuRacerComments,
+		racerComments: wakamatsuRacerComments,
+		wakamatsuSeriesResults,
+		wakamatsuCourseStats,
+		wakamatsuNationalRecent3,
+		wakamatsuLocalRecent3,
+		wakamatsuFramePast10,
+		wakamatsuScoreRateGuide,
+	};
+}
+
+function parseFukuokaIdentity($, cell) {
+	const infoLines = $(cell)
+		.find(".com-subinfo")
+		.toArray()
+		.map((element) => readCellText($, element))
+		.filter(Boolean);
+	const playerName = readCellText($, $(cell).find(".com-rname").first());
+	const head = infoLines[0] ?? "";
+	const tail = infoLines[1] ?? "";
+	const [className = "", branch = ""] = head.split("/").map((value) => compactText(value));
+	const [registerNo = "", origin = "", age = ""] = tail.split("/").map((value) => compactText(value));
+
+	return {
+		className,
+		registerNo,
+		registrationNo: registerNo,
+		playerName,
+		profile: [branch, origin, age].filter(Boolean).join("/"),
+	};
+}
+
+function parseFukuokaMotorEvaluationCode($, cell) {
+	const imageSrc = $(cell).find("img").attr("src") ?? "";
+	return imageSrc.match(/icon_race(\d+)\.png/)?.[1] ?? "";
+}
+
+function formatFukuokaMotorEvaluation({ dash = "", turn = "", stretch = "" }) {
+	return [
+		dash ? `出足:${dash}` : "",
+		turn ? `まわり足:${turn}` : "",
+		stretch ? `伸び足:${stretch}` : "",
+	].filter(Boolean).join(" / ");
+}
+
+function parseFukuokaEntryRows(html) {
+	const $ = load(html);
+	const table = $(".category-syussou table").first().get(0) ?? findTableByKeywords($, ["平均ST", "モーター", "選手コメント"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tr").toArray();
+
+	for (let rowIndex = 2; rowIndex + 2 < trList.length; rowIndex += 3) {
+		const firstCells = $(trList[rowIndex]).children("td,th").toArray();
+		const secondCells = $(trList[rowIndex + 1]).children("td,th").toArray();
+		const thirdCells = $(trList[rowIndex + 2]).children("td,th").toArray();
+		if (firstCells.length < 13) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, firstCells[1]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const identity = parseFukuokaIdentity($, firstCells[2]);
+		const dashEvaluation = parseFukuokaMotorEvaluationCode($, firstCells[8]);
+		const stretchEvaluation = parseFukuokaMotorEvaluationCode($, firstCells[9]);
+		const turnEvaluation = parseFukuokaMotorEvaluationCode($, firstCells[10]);
+		const cellComment = readCellText($, thirdCells[0] ?? null)
+			.replace(/^選手コメント：?\s*/, "")
+			.trim();
+		const lightboxComment = readCellText($, $(firstCells[12]).find(".comment-table, .comment-list, dd.box.left").first())
+			.replace(/^選手コメント：?\s*/, "")
+			.trim();
+
+		rows.push({
+			frameNo,
+			className: identity.className,
+			registerNo: identity.registerNo,
+			playerName: identity.playerName,
+			profile: identity.profile,
+			averageStart: readCellText($, firstCells[4]),
+			nationalWinRate: readCellText($, firstCells[5]),
+			nationalSecondRate: readCellText($, secondCells[0]),
+			localWinRate: readCellText($, firstCells[6]),
+			localSecondRate: readCellText($, secondCells[1]),
+			motorNo: readCellText($, firstCells[7]),
+			motorSecondRate: readCellText($, secondCells[2]),
+			boatNo: "",
+			boatSecondRate: "",
+			comment: lightboxComment || cellComment,
+			motorEvaluation: formatFukuokaMotorEvaluation({
+				dash: dashEvaluation,
+				turn: turnEvaluation,
+				stretch: stretchEvaluation,
+			}),
+			earlyGuide: readCellText($, firstCells[11]),
+			source: FUKUOKA_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseFukuokaBeforeInfo(html) {
+	const $ = load(html);
+	const table = $(".category-cyokuzen table.cyokuzen").first().get(0) ?? findTableByKeywords($, ["展示タイム", "前走成績", "部品交換"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tr").toArray();
+
+	for (let rowIndex = 2; rowIndex + 2 < trList.length; rowIndex += 3) {
+		const firstCells = $(trList[rowIndex]).children("td,th").toArray();
+		const secondCells = $(trList[rowIndex + 1]).children("td,th").toArray();
+		const thirdCells = $(trList[rowIndex + 2]).children("td,th").toArray();
+		if (firstCells.length < 11) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const identity = parseFukuokaIdentity($, firstCells[1]);
+		const previousRaceInfo = [
+			readCellText($, firstCells[6]),
+			readCellText($, firstCells[7]),
+			readCellText($, firstCells[8]),
+		].filter(Boolean).join(" / ");
+
+		rows.push({
+			frameNo,
+			registerNo: identity.registerNo,
+			className: identity.className,
+			playerName: identity.playerName,
+			profile: identity.profile,
+			exhibitionTime: readCellText($, firstCells[3]),
+			weight: readCellText($, firstCells[2]),
+			weightAdjustment: readCellText($, secondCells[0]),
+			tilt: readCellText($, firstCells[4]),
+			partsExchange: readCellText($, $(thirdCells[0]).find("dd.box.left").first()) || readCellText($, thirdCells[0]),
+			previousRaceInfo,
+			motorNo: "",
+			motorSecondRate: "",
+			currentAverageStart: readCellText($, firstCells[9]),
+			startOrder: readCellText($, firstCells[10]),
+			source: FUKUOKA_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseFukuokaStartLaneOffset(styleText) {
+	const matched = String(styleText ?? "").match(/left:([\-\d.]+)px/);
+	const laneOffset = Number.parseFloat(matched?.[1] ?? "NaN");
+	return Number.isFinite(laneOffset) ? laneOffset : null;
+}
+
+function parseFukuokaStartExhibition(html, beforeInfoRows = []) {
+	const $ = load(html);
+	const table = $(".block.stTenji table.stTenji").first().get(0) ?? findTableByKeywords($, ["スタート展示", "S/D", "ST"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const beforeInfoByFrame = new Map(beforeInfoRows.map((row) => [row.frameNo, row]));
+	const rows = [];
+
+	$(table)
+		.find("tr")
+		.slice(1)
+		.each((rowIndex, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 5) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const beforeInfo = beforeInfoByFrame.get(frameNo) ?? null;
+			rows.push({
+				course: frameNo,
+				frameNo,
+				playerName: beforeInfo?.playerName ?? "",
+				className: beforeInfo?.className ?? "",
+				registerNo: beforeInfo?.registerNo ?? "",
+				currentAverageStart: beforeInfo?.currentAverageStart ?? "",
+				style: readCellText($, cells[1]),
+				startTiming: readCellText($, $(cells[4]).find(".st").first()) || readCellText($, cells[4]),
+				startOrder: beforeInfo?.startOrder ?? "",
+				startLaneOffset: parseFukuokaStartLaneOffset($(cells[2]).find(".stTen").attr("style")),
+				source: FUKUOKA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseFukuokaOriginalExhibition(html) {
+	const $ = load(html);
+	const table = $(".category-tenji table.tenji").first().get(0) ?? findTableByKeywords($, ["一周", "まわり足", "直線"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tr")
+		.slice(2)
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 10) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseFukuokaIdentity($, cells[1]);
+			rows.push({
+				frameNo,
+				className: identity.className,
+				playerName: identity.playerName,
+				registerNo: identity.registerNo,
+				weight: readCellText($, cells[2]),
+				weightAdjustment: readCellText($, cells[3]),
+				tilt: readCellText($, cells[4]),
+				exhibitionTime: readCellText($, cells[5]),
+				motorNo: "",
+				oneLapTime: readCellText($, cells[6]),
+				turnTime: readCellText($, cells[7]),
+				straightTime: readCellText($, cells[8]),
+				exhibitionEvaluation: readCellText($, cells[9]),
+				memo: "福岡公式 展示情報から取得",
+				source: FUKUOKA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseFukuokaMotorEvaluation(entryRows, beforeInfoRows = []) {
+	const beforeInfoByFrame = new Map(beforeInfoRows.map((row) => [row.frameNo, row]));
+
+	return entryRows.map((row) => {
+		const beforeInfo = beforeInfoByFrame.get(row.frameNo) ?? null;
+		return {
+			frameNo: row.frameNo,
+			className: row.className,
+			registerNo: row.registerNo,
+			playerName: row.playerName,
+			profile: row.profile,
+			motorNo: row.motorNo,
+			motorSecondRate: row.motorSecondRate,
+			motorEvaluation: row.motorEvaluation,
+			motorComment: row.comment,
+			bestExhibitionTime: "",
+			partsExchange: beforeInfo?.partsExchange ?? "",
+			source: FUKUOKA_SOURCE,
+		};
+	});
+}
+
+function parseFukuokaSeriesResults(html) {
+	const $ = load(html);
+	const table = $(".category-setsukan table.setukan").first().get(0) ?? findTableByKeywords($, ["節間成績", "ST", "着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const dayLabels = $(table)
+		.find("tr")
+		.eq(1)
+		.children("th")
+		.toArray()
+		.slice(1)
+		.flatMap((cell) => {
+			const label = readCellText($, cell);
+			const spanCount = Number.parseInt($(cell).attr("colspan") ?? "1", 10);
+			if (!label) {
+				return [];
+			}
+			const repeatCount = Number.isFinite(spanCount) && spanCount > 0 ? spanCount : 1;
+			return Array.from({ length: repeatCount }, () => label);
+		})
+		.slice(0, 16);
+
+	const rows = [];
+	const trList = $(table).find("tr").toArray();
+	for (let rowIndex = 2; rowIndex + 3 < trList.length; rowIndex += 4) {
+		const firstCells = $(trList[rowIndex]).children("td,th").toArray();
+		const secondCells = $(trList[rowIndex + 1]).children("td,th").toArray();
+		const thirdCells = $(trList[rowIndex + 2]).children("td,th").toArray();
+		const fourthCells = $(trList[rowIndex + 3]).children("td,th").toArray();
+		if (firstCells.length < 5) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const identity = parseFukuokaIdentity($, firstCells[1]);
+		rows.push({
+			frameNo,
+			className: identity.className,
+			registerNo: identity.registerNo,
+			playerName: identity.playerName,
+			profile: identity.profile,
+			raceNumbers: firstCells.slice(3).map((cell) => readCellText($, cell)).slice(0, 16),
+			courses: secondCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 16),
+			startTimings: thirdCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 16),
+			finishOrders: fourthCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 16),
+			dayLabels,
+			source: FUKUOKA_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseFukuokaRacerComments(html) {
+	return parseFukuokaEntryRows(html)
+		.map((row) => ({
+			frameNo: row.frameNo,
+			registerNo: row.registerNo,
+			className: row.className,
+			playerName: row.playerName,
+			profile: row.profile,
+			comment: row.comment,
+			motorComment: row.motorEvaluation,
+			source: FUKUOKA_SOURCE,
+		}))
+		.filter((row) => row.comment || row.motorComment);
+}
+
+function parseFukuokaFramePast10(html) {
+	const $ = load(html);
+	const table = $(".category-waku10 table.Waku10").first().get(0) ?? findTableByKeywords($, ["枠番別過去10走", "平均ST"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tr").toArray();
+	for (let rowIndex = 2; rowIndex + 1 < trList.length; rowIndex += 2) {
+		const firstCells = $(trList[rowIndex]).children("td,th").toArray();
+		const secondCells = $(trList[rowIndex + 1]).children("td,th").toArray();
+		if (firstCells.length < 15) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const identity = parseFukuokaIdentity($, firstCells[1]);
+		rows.push({
+			frameNo,
+			className: identity.className,
+			registerNo: identity.registerNo,
+			playerName: identity.playerName,
+			profile: identity.profile,
+			courseHistory: firstCells.slice(3, 13).map((cell) => readCellText($, cell)).slice(0, 10),
+			finishHistory: secondCells.slice(1, 11).map((cell) => readCellText($, cell)).slice(0, 10),
+			startTimingHistory: [],
+			frameWinRate: readCellText($, firstCells[13]),
+			frameAverageStart: readCellText($, firstCells[14]),
+			frameStartOrder: "",
+			source: FUKUOKA_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseFukuokaScoreRankingRows(html) {
+	const $ = load(html);
+	const table = $("table.table")
+		.toArray()
+		.find((element) => {
+			const text = compactText($(element).text()).replaceAll(" ", "");
+			return text.includes("得点率") && text.includes("選手名") && text.includes("登番");
+		}) ?? null;
+
+	if (!table) {
+		return [];
+	}
+
+	return $(table)
+		.find("tr")
+		.toArray()
+		.map((rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 11 || $(rowElement).find("th").length > 0) {
+				return null;
+			}
+
+			return {
+				scoreRank: readCellText($, cells[0]),
+				className: readCellText($, cells[1]),
+				registrationNo: readCellText($, cells[2]),
+				playerName: readCellText($, cells[3]),
+				scoreRate: readCellText($, cells[4]),
+				score: readCellText($, cells[5]),
+				penalty: readCellText($, cells[6]),
+				starts: readCellText($, cells[7]),
+				earlyGuide1: readCellText($, cells[9]),
+				earlyGuide2: readCellText($, cells[10]),
+			};
+		})
+		.filter(Boolean);
+}
+
+function parseFukuokaScoreRateGuide(html, entryRows, fallbackHtml = "") {
+	const rankingRows = parseFukuokaScoreRankingRows(fallbackHtml || html);
+	if (!rankingRows.length || !entryRows.length) {
+		return [];
+	}
+
+	const rankingByRegistrationNo = new Map(rankingRows.map((row) => [row.registrationNo, row]));
+
+	return entryRows
+		.map((row) => {
+			const ranking = rankingByRegistrationNo.get(row.registerNo);
+			if (!ranking) {
+				return null;
+			}
+
+			return {
+				frameNo: row.frameNo,
+				registrationNo: row.registerNo,
+				playerName: row.playerName,
+				className: row.className || ranking.className,
+				averageStart: row.averageStart,
+				winRate: row.nationalWinRate,
+				secondRate: row.nationalSecondRate,
+				localWinRate: row.localWinRate,
+				localSecondRate: row.localSecondRate,
+				motorNo: row.motorNo,
+				motorSecondRate: row.motorSecondRate,
+				scoreRate: ranking.scoreRate,
+				scoreRank: ranking.scoreRank,
+				earlyGuide1: ranking.earlyGuide1,
+				earlyGuide2: ranking.earlyGuide2,
+				source: FUKUOKA_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseFukuokaCourseStats() {
+	return [];
+}
+
+function parseFukuokaNationalRecent3() {
+	return [];
+}
+
+function parseFukuokaLocalRecent3() {
+	return [];
+}
+
+async function fetchFukuokaRaceExtra({ date, raceNo, sharedScoreHtml = "" }) {
+	const settled = await Promise.allSettled([
+		fetchFukuokaHtml(toFukuokaRaceTabUrl({ date, raceNo, type: "syussou" })),
+		fetchFukuokaHtml(toFukuokaRaceTabUrl({ date, raceNo, type: "cyokuzen" })),
+		fetchFukuokaHtml(toFukuokaRaceTabUrl({ date, raceNo, type: "tenji_info" })),
+		fetchFukuokaHtml(toFukuokaRaceTabUrl({ date, raceNo, type: "setsukan" })),
+		fetchFukuokaHtml(toFukuokaRaceTabUrl({ date, raceNo, type: "waku10" })),
+		fetchFukuokaHtml(toFukuokaRaceTabUrl({ date, raceNo, type: "tokuhayami" })),
+	]);
+
+	const syussouHtml = settled[0]?.status === "fulfilled" ? settled[0].value : "";
+	const beforeHtml = settled[1]?.status === "fulfilled" ? settled[1].value : "";
+	const originalHtml = settled[2]?.status === "fulfilled" ? settled[2].value : "";
+	const seriesHtml = settled[3]?.status === "fulfilled" ? settled[3].value : "";
+	const frame10Html = settled[4]?.status === "fulfilled" ? settled[4].value : "";
+	const scoreHtml = settled[5]?.status === "fulfilled" ? settled[5].value : "";
+
+	const fukuokaEntryRows = parseFukuokaEntryRows(syussouHtml);
+	const fukuokaBeforeInfo = parseFukuokaBeforeInfo(beforeHtml).map((row) => {
+		const entryRow = fukuokaEntryRows.find((entry) => entry.frameNo === row.frameNo);
+		return {
+			...row,
+			motorNo: entryRow?.motorNo ?? "",
+			motorSecondRate: entryRow?.motorSecondRate ?? "",
+		};
+	});
+	const startExhibition = parseFukuokaStartExhibition(beforeHtml, fukuokaBeforeInfo);
+	const originalExhibition = parseFukuokaOriginalExhibition(originalHtml).map((row) => {
+		const entryRow = fukuokaEntryRows.find((entry) => entry.frameNo === row.frameNo);
+		return {
+			...row,
+			motorNo: entryRow?.motorNo ?? "",
+		};
+	});
+	const fukuokaMotorEvaluation = parseFukuokaMotorEvaluation(fukuokaEntryRows, fukuokaBeforeInfo);
+	const fukuokaSeriesResults = parseFukuokaSeriesResults(seriesHtml);
+	const fukuokaRacerComments = parseFukuokaRacerComments(syussouHtml);
+	const fukuokaFramePast10 = parseFukuokaFramePast10(frame10Html);
+	const fukuokaScoreRateGuide = parseFukuokaScoreRateGuide(scoreHtml, fukuokaEntryRows, sharedScoreHtml);
+	const fukuokaCourseStats = parseFukuokaCourseStats();
+	const fukuokaNationalRecent3 = parseFukuokaNationalRecent3();
+	const fukuokaLocalRecent3 = parseFukuokaLocalRecent3();
+	const officialBeforeInfo = fukuokaScoreRateGuide.length
+		? {
+				status: "available",
+				source: FUKUOKA_SOURCE,
+				scoreQuickLook: fukuokaScoreRateGuide,
+			}
+		: null;
+
+	const hasAny =
+		fukuokaEntryRows.length > 0 ||
+		fukuokaBeforeInfo.length > 0 ||
+		startExhibition.length > 0 ||
+		originalExhibition.length > 0 ||
+		fukuokaMotorEvaluation.length > 0 ||
+		fukuokaSeriesResults.length > 0 ||
+		fukuokaRacerComments.length > 0 ||
+		fukuokaFramePast10.length > 0 ||
+		fukuokaScoreRateGuide.length > 0;
+
+	console.log(
+		`[venue-extras] fukuoka ${raceNo}R: entry ${fukuokaEntryRows.length} / before ${fukuokaBeforeInfo.length} / start ${startExhibition.length} / exhibition ${originalExhibition.length} / motor ${fukuokaMotorEvaluation.length} / series ${fukuokaSeriesResults.length} / comments ${fukuokaRacerComments.length} / frame10 ${fukuokaFramePast10.length} / score ${fukuokaScoreRateGuide.length} / course ${fukuokaCourseStats.length} / national3 ${fukuokaNationalRecent3.length} / local3 ${fukuokaLocalRecent3.length}`,
+	);
+
+	if (!hasAny) {
+		return {
+			raceNo,
+			status: "waiting",
+			source: FUKUOKA_SOURCE,
+			sourceType: "fukuoka-official-race-extra",
+			fukuokaEntryRows: [],
+			fukuokaBeforeInfo: [],
+			startExhibition: [],
+			originalExhibition: [],
+			fukuokaMotorEvaluation: [],
+			fukuokaSeriesResults: [],
+			fukuokaRacerComments: [],
+			racerComments: [],
+			fukuokaFramePast10: [],
+			fukuokaScoreRateGuide: [],
+			fukuokaCourseStats: [],
+			fukuokaNationalRecent3: [],
+			fukuokaLocalRecent3: [],
+			officialBeforeInfo: null,
+		};
+	}
+
+	return {
+		raceNo,
+		status: "available",
+		source: FUKUOKA_SOURCE,
+		sourceType: "fukuoka-official-race-extra",
+		fukuokaEntryRows,
+		fukuokaBeforeInfo,
+		startExhibition,
+		originalExhibition,
+		fukuokaMotorEvaluation,
+		fukuokaSeriesResults,
+		fukuokaRacerComments,
+		racerComments: fukuokaRacerComments,
+		fukuokaFramePast10,
+		fukuokaScoreRateGuide,
+		fukuokaCourseStats,
+		fukuokaNationalRecent3,
+		fukuokaLocalRecent3,
+		officialBeforeInfo,
+	};
+}
+
+async function createFukuokaVenue(feed, date) {
+	const fukuokaVenue = findVenue(feed, FUKUOKA_VENUE_NAME);
+
+	if (!fukuokaVenue) {
+		console.log("[venue-extras] fukuoka: not held today");
+		return null;
+	}
+
+	try {
+		const races = getRaceList(fukuokaVenue);
+		const sharedScoreHtml = await fetchFukuokaHtml(toFukuokaScoreRankingUrl()).catch(() => "");
+		const raceExtras = [];
+
+		for (const race of races) {
+			raceExtras.push(await fetchFukuokaRaceExtra({ date, raceNo: race.raceNo, sharedScoreHtml }));
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+
+		return {
+			venueCode: String(fukuokaVenue.venueCode ?? "22"),
+			venueName: FUKUOKA_VENUE_NAME,
+			source: FUKUOKA_SOURCE,
+			isAvailable: availableRaceCount > 0,
+			status: availableRaceCount > 0 ? "available" : "waiting-fukuoka-data",
+			note: "福岡公式HPの直前情報・展示・ST・モーター・節間成績・コメント・枠番別10走・得点率早見を取得",
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] fukuoka failed: ${error.message}`);
+
+		return {
+			venueCode: String(fukuokaVenue.venueCode ?? "22"),
+			venueName: FUKUOKA_VENUE_NAME,
+			source: FUKUOKA_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `福岡公式HPの取得に失敗しました: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
+function parseKojimaIdentity($, cell, className = "") {
+	const playerName = readCellText($, $(cell).find("a").first());
+	const profile = readCellText($, $(cell).find(".small, span").last());
+	const registerNo = compactText(String(profile).split("/")[0] ?? "");
+
+	return {
+		className: compactText(className),
+		registerNo,
+		playerName,
+		profile,
+	};
+}
+
+function parseKojimaRankingIdentity($, cell) {
+	const playerName = readCellText($, $(cell).find("a").first());
+	const registrationNo = readCellText($, $(cell).find(".no").first());
+	const className = readCellText($, $(cell).find(".no2").first()).replace(/[()]/g, "");
+	return {
+		playerName,
+		registrationNo,
+		className,
+	};
+}
+
+function parseKojimaEntryRows(html) {
+	const $ = load(html);
+	const table = $("table.table_yoso").first().get(0) ?? findTableByKeywords($, ["今節成績", "平均ST", "モーター", "ボート"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const dayLabels = $(table)
+		.find("thead tr.sub-head th.col9")
+		.toArray()
+		.flatMap((cell) => {
+			const label = readCellText($, cell);
+			return label ? [label, label] : [];
+		})
+		.slice(0, 12);
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			if (trList.length < 4) {
+				return;
+			}
+
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo || firstCells.length < 10) {
+				return;
+			}
+
+			const className = readCellText($, firstCells[2]);
+			const identity = parseKojimaIdentity($, firstCells[1], className);
+			const nationalLines = readCleanLines($(firstCells[5]));
+			const localLines = readCleanLines($(firstCells[6]));
+			const motorLines = readCleanLines($(firstCells[7]));
+			const boatLines = readCleanLines($(firstCells[8]));
+			const nextRace = readCellText($, firstCells[firstCells.length - 1]);
+
+			rows.push({
+				frameNo,
+				...identity,
+				averageStart: readCellText($, firstCells[4]),
+				nationalWinRate: nationalLines[0] ?? "",
+				nationalSecondRate: nationalLines[1] ?? "",
+				localWinRate: localLines[0] ?? "",
+				localSecondRate: localLines[1] ?? "",
+				motorNo: motorLines[0] ?? "",
+				motorSecondRate: motorLines[1] ?? "",
+				boatNo: boatLines[0] ?? "",
+				boatSecondRate: boatLines[1] ?? "",
+				nextRace,
+				dayLabels,
+				source: KOJIMA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseKojimaSeriesResults(html) {
+	const $ = load(html);
+	const table = $("table.table_yoso").first().get(0) ?? findTableByKeywords($, ["今節成績", "平均ST", "着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const dayLabels = $(table)
+		.find("thead tr.sub-head th.col9")
+		.toArray()
+		.flatMap((cell) => {
+			const label = readCellText($, cell);
+			return label ? [label, label] : [];
+		})
+		.slice(0, 12);
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			if (trList.length < 4) {
+				return;
+			}
+
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = $(trList[1]).children("td,th").toArray();
+			const thirdCells = $(trList[2]).children("td,th").toArray();
+			const fourthCells = $(trList[3]).children("td,th").toArray();
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo || firstCells.length < 10) {
+				return;
+			}
+
+			const identity = parseKojimaIdentity($, firstCells[1], readCellText($, firstCells[2]));
+			rows.push({
+				frameNo,
+				...identity,
+				averageStart: readCellText($, firstCells[4]),
+				raceNumbers: firstCells.slice(10, 22).map((cell) => readCellText($, cell)).slice(0, 12),
+				courses: secondCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 12),
+				startTimings: thirdCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 12),
+				finishOrders: fourthCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 12),
+				dayLabels,
+				source: KOJIMA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseKojimaRecentResults(html) {
+	const $ = load(html);
+	const table = $("table.table_yoso2").first().get(0) ?? findTableByKeywords($, ["前節", "2節前", "3節前"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const cells = $(tbody).find("tr").first().children("td,th").toArray();
+			if (cells.length < 8) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseKojimaIdentity($, cells[1], readCellText($, cells[2]));
+			const history = cells.slice(3).map((cell) => ({
+				seriesClass: $(cell).find("dt").first().attr("class") ?? "",
+				stadium: readCellText($, $(cell).find("dt").last()),
+				dateRange: readCellText($, $(cell).find("dd").first()),
+				results: compactText($(cell).clone().find("dl").remove().end().text()),
+			}));
+
+			rows.push({
+				frameNo,
+				...identity,
+				history,
+				source: KOJIMA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseKojimaMotorInfoMap(html) {
+	const $ = load(html);
+	const table = $("#ta_motor").first().get(0) ?? findTableByKeywords($, ["今節使用者", "前検", "2連率"]);
+	const map = new Map();
+
+	if (!table) {
+		return map;
+	}
+
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 10) {
+				return;
+			}
+
+			const current = parseKojimaRankingIdentity($, cells[2]);
+			if (!current.registrationNo) {
+				return;
+			}
+
+			map.set(current.registrationNo, {
+				motorRank: readCellText($, cells[0]),
+				motorNo: readCellText($, cells[1]),
+				preInspectionTime: readCellText($, cells[3]),
+				motorSecondRate: readCellText($, cells[4]).replace(/%$/u, ""),
+				finals: readCellText($, cells[5]),
+				championships: readCellText($, cells[6]),
+				source: KOJIMA_SOURCE,
+			});
+		});
+
+	return map;
+}
+
+function parseKojimaMotorStats(html, motorInfoMap = new Map()) {
+	const $ = load(html);
+	const table = $("table.table_yoso3").first().get(0) ?? findTableByKeywords($, ["No", "2連対率", "使用選手"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			if (trList.length < 3) {
+				return;
+			}
+
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = $(trList[1]).children("td,th").toArray();
+			const thirdCells = $(trList[2]).children("td,th").toArray();
+			if (firstCells.length < 9) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseKojimaIdentity($, firstCells[1], readCellText($, firstCells[2]));
+			const motorLines = readCleanLines($(firstCells[3]));
+			const motorInfo = motorInfoMap.get(identity.registerNo) ?? null;
+			const history = firstCells.slice(6, 9).map((cell) => ({
+				playerName: readCellText($, $(cell).find("dt").first()),
+				className: ($(cell).find("dt").first().attr("class") ?? "").toUpperCase(),
+				dateRange: readCellText($, $(cell).find("dd").first()),
+				results: compactText($(cell).clone().find("dl").remove().end().text()),
+			}));
+
+			rows.push({
+				frameNo,
+				...identity,
+				motorNo: motorLines[0] ?? motorInfo?.motorNo ?? "",
+				motorSecondRate: motorLines[1] ?? motorInfo?.motorSecondRate ?? "",
+				firstCount: readCellText($, firstCells[4]),
+				starts: readCellText($, firstCells[5]),
+				secondCount: readCellText($, secondCells[0]),
+				finals: readCellText($, secondCells[1]) || motorInfo?.finals || "",
+				thirdCount: readCellText($, thirdCells[0]),
+				championships: readCellText($, thirdCells[1]) || motorInfo?.championships || "",
+				preInspectionTime: motorInfo?.preInspectionTime ?? "",
+				motorRank: motorInfo?.motorRank ?? "",
+				history,
+				source: KOJIMA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseKojimaFrameStats(html) {
+	const $ = load(html);
+	const table = $("table.table_yoso1_2").first().get(0) ?? findTableByKeywords($, ["10走", "枠番別データ", "平均ST"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			if (trList.length < 3) {
+				return;
+			}
+
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = $(trList[1]).children("td,th").toArray();
+			const thirdCells = $(trList[2]).children("td,th").toArray();
+			if (firstCells.length < 17) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseKojimaIdentity($, firstCells[1], readCellText($, firstCells[2]));
+			rows.push({
+				frameNo,
+				...identity,
+				courseHistory: firstCells.slice(4, 14).map((cell) => readCellText($, cell)).slice(0, 10),
+				startTimingHistory: secondCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 10),
+				finishHistory: thirdCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 10),
+				frameWinRate: readCellText($, firstCells[14]),
+				frameAverageStart: readCellText($, firstCells[15]),
+				frameStartOrder: readCellText($, firstCells[16]),
+				source: KOJIMA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseKojimaScoreRankingRows(html) {
+	const $ = load(html);
+	const table = $("#ta_yosen").first().get(0) ?? findTableByKeywords($, ["得点率", "選手名", "本日の出走"]);
+
+	if (!table) {
+		return [];
+	}
+
+	return $(table)
+		.find("tbody tr")
+		.toArray()
+		.map((rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 10) {
+				return null;
+			}
+
+			const identity = parseKojimaRankingIdentity($, cells[1]);
+			if (!identity.registrationNo) {
+				return null;
+			}
+
+			return {
+				scoreRank: readCellText($, cells[0]),
+				...identity,
+				scoreRate: readCellText($, cells[2]),
+				starts: readCellText($, cells[3]),
+				score: readCellText($, cells[4]),
+				penalty: readCellText($, cells[5]),
+				totalScore: readCellText($, cells[6]),
+				bestTime: readCellText($, cells[7]),
+				todayRaces: $(cells[cells.length - 1])
+					.find("a")
+					.toArray()
+					.map((link) => readCellText($, link)),
+			};
+		})
+		.filter(Boolean);
+}
+
+function parseKojimaScoreRateGuide(html, entryRows) {
+	const rankingRows = parseKojimaScoreRankingRows(html);
+	if (!rankingRows.length || !entryRows.length) {
+		return [];
+	}
+
+	const rankingByRegistrationNo = new Map(rankingRows.map((row) => [row.registrationNo, row]));
+
+	return entryRows
+		.map((row) => {
+			const ranking = rankingByRegistrationNo.get(row.registerNo);
+			if (!ranking) {
+				return null;
+			}
+
+			return {
+				frameNo: row.frameNo,
+				registrationNo: row.registerNo,
+				playerName: row.playerName,
+				className: row.className || ranking.className,
+				averageStart: row.averageStart,
+				winRate: row.nationalWinRate,
+				secondRate: row.nationalSecondRate,
+				localWinRate: row.localWinRate,
+				localSecondRate: row.localSecondRate,
+				motorNo: row.motorNo,
+				motorSecondRate: row.motorSecondRate,
+				scoreRate: ranking.scoreRate,
+				scoreRank: ranking.scoreRank,
+				starts: ranking.starts,
+				todayRaces: ranking.todayRaces,
+				source: KOJIMA_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseKojimaBeforeInfo(html) {
+	const $ = load(html);
+	const table = $("#tenji02").first().get(0) ?? findTableByKeywords($, ["直前情報", "展示タイム", "部品交換"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.slice(1)
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			if (trList.length < 3) {
+				return;
+			}
+
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = $(trList[1]).children("td,th").toArray();
+			const thirdCells = $(trList[2]).children("td,th").toArray();
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo || firstCells.length < 6) {
+				return;
+			}
+
+			const identity = parseKojimaIdentity($, firstCells[1], readCellText($, firstCells[2]));
+			rows.push({
+				frameNo,
+				...identity,
+				exhibitionTime: readCellText($, firstCells[3]),
+				weight: readCellText($, firstCells[4]),
+				adjustment: readCellText($, secondCells[0]),
+				tilt: readCellText($, firstCells[5]),
+				partsExchange: readCellText($, thirdCells[0]),
+				source: KOJIMA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseKojimaStartExhibition(html, beforeInfoRows = []) {
+	const $ = load(html);
+	const table = $("#tenji01").first().get(0) ?? findTableByKeywords($, ["スタート展示", "コース", "スタート順"]);
+	const slipTable = $("#tenji01_2").first();
+
+	if (!table) {
+		return [];
+	}
+
+	const beforeMap = new Map(beforeInfoRows.map((row) => [row.frameNo, row]));
+	const slipMap = new Map(
+		slipTable
+			.find("dl")
+			.toArray()
+			.map((entry) => {
+				const boatClass = $(entry).find("dd").attr("class") ?? "";
+				const match = boatClass.match(/boat([1-6])/u);
+				const frameNo = parseFrameNo(match?.[1] ?? "");
+				if (!frameNo) {
+					return null;
+				}
+				return [
+					frameNo,
+					{
+						exhibitionStartTiming: readCellText($, $(entry).find("dt").first()),
+						startType: readCellText($, $(entry).find(".sd").first()),
+					},
+				];
+			})
+			.filter(Boolean),
+	);
+
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.slice(1)
+		.each((_, tbody) => {
+			const cells = $(tbody).find("tr").first().children("td,th").toArray();
+			if (cells.length < 4) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[1]));
+			if (!frameNo) {
+				return;
+			}
+
+			const beforeRow = beforeMap.get(frameNo) ?? null;
+			const slip = slipMap.get(frameNo) ?? null;
+			rows.push({
+				frameNo,
+				playerName: beforeRow?.playerName ?? "",
+				course: readCellText($, cells[0]),
+				averageStart: readCellText($, cells[2]),
+				startOrder: readCellText($, cells[3]),
+				exhibitionStartTiming: slip?.exhibitionStartTiming ?? "",
+				startType: slip?.startType ?? "",
+				source: KOJIMA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseKojimaOriginalExhibition(html, beforeInfoRows = []) {
+	const $ = load(html);
+	const table = $("#tenji04").first().get(0) ?? findTableByKeywords($, ["オリジナル展示データ", "一周", "まわり足", "直線"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const beforeMap = new Map(beforeInfoRows.map((row) => [row.frameNo, row]));
+	const rows = [];
+	$(table)
+		.find("tbody")
+		.slice(1)
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			if (trList.length < 2) {
+				return;
+			}
+
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = $(trList[1]).children("td,th").toArray();
+			if (firstCells.length < 7) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const beforeRow = beforeMap.get(frameNo) ?? null;
+			rows.push({
+				frameNo,
+				playerName: beforeRow?.playerName ?? "",
+				weight: readCellText($, firstCells[1]),
+				adjustment: readCellText($, secondCells[0]),
+				tilt: readCellText($, firstCells[2]),
+				exhibitionTime: readCellText($, firstCells[3]),
+				lapTime: readCellText($, firstCells[4]),
+				turnTime: readCellText($, firstCells[5]),
+				straightTime: readCellText($, firstCells[6]),
+				source: KOJIMA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseKojimaCourseStats(html, raceNo) {
+	const $ = load(html);
+	const scope = $(`#cour_${toKojimaRaceNo(raceNo)}`).first();
+	const table = scope.find("table#sin_ta").first();
+
+	if (!scope.length || !table.length) {
+		return [];
+	}
+
+	const rows = [];
+	table.children("tbody").each((_, tbody) => {
+		const rawRows = $(tbody).find("tr").toArray();
+		const trList = rawRows.length > 1 && readCellText($, $(rawRows[0]).children("td,th").first()) === "枠" ? rawRows.slice(1) : rawRows;
+		if (!trList.length) {
+			return;
+		}
+
+		const firstCells = $(trList[0]).children("td,th").toArray();
+		if (firstCells.length < 11) {
+			return;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+		if (!frameNo) {
+			return;
+		}
+
+		const identity = parseKojimaIdentity($, firstCells[1], "");
+		const courseRows = trList
+			.map((rowElement, rowIndex) => {
+				const cells = $(rowElement).children("td,th").toArray();
+				const offset = rowIndex === 0 ? 2 : 0;
+				if (cells.length < offset + 9) {
+					return null;
+				}
+
+				return {
+					course: readCellText($, cells[offset]),
+					entryRate: readCellText($, cells[offset + 1]),
+					averageStart: readCellText($, cells[offset + 2]),
+					firstRate: readCellText($, cells[offset + 3]),
+					secondRate: readCellText($, cells[offset + 4]),
+					thirdRate: readCellText($, cells[offset + 5]),
+					fourthRate: readCellText($, cells[offset + 6]),
+					fifthRate: readCellText($, cells[offset + 7]),
+					sixthRate: readCellText($, cells[offset + 8]),
+				};
+			})
+			.filter(Boolean);
+
+		rows.push({
+			frameNo,
+			...identity,
+			courseRows,
+			source: KOJIMA_SOURCE,
+		});
+	});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+async function fetchKojimaRaceExtra({ raceNo, sharedScoreHtml = "", sharedCourseHtml = "", sharedMotorHtml = "" }) {
+	const settled = await Promise.allSettled([
+		fetchKojimaHtml(toKojimaRaceTabUrl({ raceNo, type: "syusso08" })),
+		fetchKojimaHtml(toKojimaRaceTabUrl({ raceNo, type: "syusso02" })),
+		fetchKojimaHtml(toKojimaRaceTabUrl({ raceNo, type: "syusso05" })),
+		fetchKojimaHtml(toKojimaRaceTabUrl({ raceNo, type: "syusso06" })),
+		fetchKojimaHtml(toKojimaRaceTabUrl({ raceNo, type: "yoso05", mobile: true })),
+	]);
+
+	const seriesHtml = settled[0]?.status === "fulfilled" ? settled[0].value : "";
+	const recentHtml = settled[1]?.status === "fulfilled" ? settled[1].value : "";
+	const motorHtml = settled[2]?.status === "fulfilled" ? settled[2].value : "";
+	const frameHtml = settled[3]?.status === "fulfilled" ? settled[3].value : "";
+	const beforeHtml = settled[4]?.status === "fulfilled" ? settled[4].value : "";
+
+	const kojimaEntryRows = parseKojimaEntryRows(seriesHtml);
+	const sharedMotorMap = parseKojimaMotorInfoMap(sharedMotorHtml);
+	const kojimaSeriesResults = parseKojimaSeriesResults(seriesHtml);
+	const kojimaRecentResults = parseKojimaRecentResults(recentHtml);
+	const kojimaMotorStats = parseKojimaMotorStats(motorHtml, sharedMotorMap);
+	const kojimaFrameStats = parseKojimaFrameStats(frameHtml);
+	const kojimaScoreRateGuide = parseKojimaScoreRateGuide(sharedScoreHtml, kojimaEntryRows);
+	const kojimaBeforeInfo = parseKojimaBeforeInfo(beforeHtml).map((row) => {
+		const entryRow = kojimaEntryRows.find((entry) => entry.frameNo === row.frameNo);
+		const motorRow = kojimaMotorStats.find((entry) => entry.frameNo === row.frameNo);
+		return {
+			...row,
+			motorNo: entryRow?.motorNo ?? motorRow?.motorNo ?? "",
+			motorSecondRate: entryRow?.motorSecondRate ?? motorRow?.motorSecondRate ?? "",
+			preInspectionTime: motorRow?.preInspectionTime ?? "",
+		};
+	});
+	const startExhibition = parseKojimaStartExhibition(beforeHtml, kojimaBeforeInfo).map((row) => {
+		const beforeRow = kojimaBeforeInfo.find((entry) => entry.frameNo === row.frameNo);
+		return {
+			...row,
+			motorNo: beforeRow?.motorNo ?? "",
+		};
+	});
+	const originalExhibition = parseKojimaOriginalExhibition(beforeHtml, kojimaBeforeInfo).map((row) => {
+		const beforeRow = kojimaBeforeInfo.find((entry) => entry.frameNo === row.frameNo);
+		return {
+			...row,
+			motorNo: beforeRow?.motorNo ?? "",
+		};
+	});
+	const kojimaCourseStats = parseKojimaCourseStats(sharedCourseHtml, raceNo);
+	const kojimaRacerComments = [];
+	const officialBeforeInfo = kojimaScoreRateGuide.length
+		? {
+				status: "available",
+				source: KOJIMA_SOURCE,
+				scoreQuickLook: kojimaScoreRateGuide,
+			}
+		: null;
+
+	const hasAny =
+		kojimaSeriesResults.length > 0 ||
+		kojimaRecentResults.length > 0 ||
+		kojimaMotorStats.length > 0 ||
+		kojimaFrameStats.length > 0 ||
+		kojimaScoreRateGuide.length > 0 ||
+		kojimaBeforeInfo.length > 0 ||
+		startExhibition.length > 0 ||
+		originalExhibition.length > 0 ||
+		kojimaCourseStats.length > 0;
+
+	console.log(
+		`[venue-extras] kojima ${raceNo}R: series ${kojimaSeriesResults.length} / recent ${kojimaRecentResults.length} / motor ${kojimaMotorStats.length} / frame ${kojimaFrameStats.length} / score ${kojimaScoreRateGuide.length} / before ${kojimaBeforeInfo.length} / start ${startExhibition.length} / exhibition ${originalExhibition.length} / comments ${kojimaRacerComments.length} / course ${kojimaCourseStats.length}`,
+	);
+
+	if (!hasAny) {
+		return {
+			raceNo,
+			status: "waiting",
+			source: KOJIMA_SOURCE,
+			sourceType: "kojima-official-race-extra",
+			kojimaSeriesResults: [],
+			kojimaRecentResults: [],
+			kojimaMotorStats: [],
+			kojimaFrameStats: [],
+			kojimaScoreRateGuide: [],
+			kojimaBeforeInfo: [],
+			startExhibition: [],
+			originalExhibition: [],
+			kojimaRacerComments: [],
+			racerComments: [],
+			kojimaCourseStats: [],
+			officialBeforeInfo: null,
+		};
+	}
+
+	return {
+		raceNo,
+		status: "available",
+		source: KOJIMA_SOURCE,
+		sourceType: "kojima-official-race-extra",
+		kojimaSeriesResults,
+		kojimaRecentResults,
+		kojimaMotorStats,
+		kojimaFrameStats,
+		kojimaScoreRateGuide,
+		kojimaBeforeInfo,
+		startExhibition,
+		originalExhibition,
+		kojimaRacerComments,
+		racerComments: kojimaRacerComments,
+		kojimaCourseStats,
+		officialBeforeInfo,
+	};
+}
+
+async function createKojimaVenue(feed, date) {
+	const kojimaVenue = findVenue(feed, KOJIMA_VENUE_NAME);
+
+	if (!kojimaVenue) {
+		console.log("[venue-extras] kojima: not held today");
+		return null;
+	}
+
+	try {
+		const races = getRaceList(kojimaVenue);
+		const [sharedScoreHtml, sharedCourseHtml, sharedMotorHtml] = await Promise.all([
+			fetchKojimaHtml(toKojimaScoreRankingUrl()).catch(() => ""),
+			fetchKojimaHtml(toKojimaCourseUrl()).catch(() => ""),
+			fetchKojimaHtml(toKojimaMotorInfoUrl()).catch(() => ""),
+		]);
+		const raceExtras = [];
+
+		for (const race of races) {
+			raceExtras.push(
+				await fetchKojimaRaceExtra({
+					raceNo: race.raceNo,
+					sharedScoreHtml,
+					sharedCourseHtml,
+					sharedMotorHtml,
+				}),
+			);
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+
+		return {
+			venueCode: String(kojimaVenue.venueCode ?? "16"),
+			venueName: KOJIMA_VENUE_NAME,
+			source: KOJIMA_SOURCE,
+			isAvailable: availableRaceCount > 0,
+			status: availableRaceCount > 0 ? "available" : "waiting-kojima-data",
+			note: "児島公式HPの今節成績・近況成績・モーター成績・枠番別成績・得点ランキング・直前情報・スタート展示・オリジナル展示・進入コース別成績を取得",
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] kojima failed: ${error.message}`);
+
+		return {
+			venueCode: String(kojimaVenue.venueCode ?? "16"),
+			venueName: KOJIMA_VENUE_NAME,
+			source: KOJIMA_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `児島公式HPの取得に失敗しました: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
+async function createWakamatsuVenue(feed, date) {
+	const wakamatsuVenue = findVenue(feed, WAKAMATSU_VENUE_NAME);
+
+	if (!wakamatsuVenue) {
+		console.log("[venue-extras] wakamatsu: not held today");
+		return null;
+	}
+
+	try {
+		const races = getRaceList(wakamatsuVenue);
+		const raceExtras = [];
+
+		for (const race of races) {
+			raceExtras.push(await fetchWakamatsuRaceExtra({ date, raceNo: race.raceNo }));
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+
+		return {
+			venueCode: String(wakamatsuVenue.venueCode ?? "20"),
+			venueName: WAKAMATSU_VENUE_NAME,
+			source: WAKAMATSU_SOURCE,
+			isAvailable: availableRaceCount > 0,
+			status: availableRaceCount > 0 ? "available" : "waiting-wakamatsu-data",
+			note: "若松公式HPの出走表・直前情報・展示情報・近況成績・モーター履歴を取得",
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] wakamatsu failed: ${error.message}`);
+
+		return {
+			venueCode: String(wakamatsuVenue.venueCode ?? "20"),
+			venueName: WAKAMATSU_VENUE_NAME,
+			source: WAKAMATSU_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `若松公式HPの取得に失敗しました: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
+async function fetchBiwakoRaceExtra({ date, raceNo }) {
+	const originalUrl = toBiwakoRaceInfoUrl({ date, raceNo, kind: 2 });
+	const beforeInfoUrl = toBiwakoRaceInfoUrl({ date, raceNo, kind: 0 });
+	const startUrl = toBiwakoRaceInfoUrl({ date, raceNo, kind: 1 });
+	const seriesUrl = toBiwakoYosouTabUrl({ date, raceNo, type: "setsukan" });
+	const frame10Url = toBiwakoYosouTabUrl({ date, raceNo, type: "waku10" });
+	const scoreUrl = toBiwakoYosouTabUrl({ date, raceNo, type: "tokuhayami" });
+	const settled = await Promise.allSettled([
+		fetchHtml(originalUrl),
+		fetchHtml(beforeInfoUrl),
+		fetchHtml(startUrl),
+		fetchHtml(seriesUrl),
+		fetchHtml(frame10Url),
+		fetchHtml(scoreUrl),
+	]);
+	const originalHtml = settled[0]?.status === "fulfilled" ? settled[0].value : "";
+	const beforeInfoHtml = settled[1]?.status === "fulfilled" ? settled[1].value : "";
+	const startHtml = settled[2]?.status === "fulfilled" ? settled[2].value : "";
+	const seriesHtml = settled[3]?.status === "fulfilled" ? settled[3].value : "";
+	const frame10Html = settled[4]?.status === "fulfilled" ? settled[4].value : "";
+	const scoreHtml = settled[5]?.status === "fulfilled" ? settled[5].value : "";
+	const partsExchangeMap = parseBiwakoPartsExchangeMap(beforeInfoHtml);
+	const originalExhibition = parseBiwakoOriginalExhibition(originalHtml).map((row) => ({
+		...row,
+		partsExchange: partsExchangeMap.get(row.frameNo) ?? "",
+	}));
+	const startExhibition = parseBiwakoStartExhibition(startHtml);
+	const biwakoSeriesResults = parseBiwakoSeriesResults(seriesHtml);
+	const biwakoFramePast10 = parseBiwakoFramePast10(frame10Html);
+	const biwakoScoreRateGuide = parseBiwakoScoreRateGuide(scoreHtml);
+	const officialBeforeInfo = biwakoScoreRateGuide.length
+		? {
+				status: "available",
+				source: BIWAKO_SOURCE,
+				scoreQuickLook: biwakoScoreRateGuide,
+			}
+		: null;
+
+	console.log(
+		`[venue-extras] biwako ${raceNo}R: exhibition ${originalExhibition.length} / start ${startExhibition.length} / frame10 ${biwakoFramePast10.length} / series ${biwakoSeriesResults.length} / score ${biwakoScoreRateGuide.length}`,
+	);
+
+	if (!originalExhibition.length && !startExhibition.length && !biwakoFramePast10.length && !biwakoSeriesResults.length && !biwakoScoreRateGuide.length) {
+		return {
+			raceNo,
+			status: "waiting",
+			source: BIWAKO_SOURCE,
+			sourceType: "official-venue-yosou-tabs",
+			startExhibition: [],
+			originalExhibition: [],
+			biwakoSeriesResults: [],
+			biwakoFramePast10: [],
+			biwakoScoreRateGuide: [],
+		};
+	}
+
+	return {
+		raceNo,
+		status: "available",
+		source: BIWAKO_SOURCE,
+		sourceType: "official-venue-yosou-tabs",
+		officialBeforeInfo,
+		startExhibition,
+		originalExhibition,
+		biwakoSeriesResults,
+		biwakoFramePast10,
+		biwakoScoreRateGuide,
+	};
+}
+
+async function createBiwakoVenue(feed, date) {
+	const biwakoVenue = findVenue(feed, BIWAKO_VENUE_NAME);
+
+	if (!biwakoVenue) {
+		console.log("[venue-extras] biwako: not held today");
+		return null;
+	}
+
+	try {
+		const races = getRaceList(biwakoVenue);
+		const raceExtras = [];
+
+		for (const race of races) {
+			raceExtras.push(await fetchBiwakoRaceExtra({ date, raceNo: race.raceNo }));
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+
+		return {
+			venueCode: String(biwakoVenue.venueCode ?? "11"),
+			venueName: BIWAKO_VENUE_NAME,
+			source: BIWAKO_SOURCE,
+			isAvailable: availableRaceCount > 0,
+			status: availableRaceCount > 0 ? "available" : "waiting-biwako-data",
+			note: "びわこ公式HPのスタート展示・オリジナル展示・枠番別過去10走・得点率早見を取得",
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] biwako failed: ${error.message}`);
+
+		return {
+			venueCode: String(biwakoVenue.venueCode ?? "11"),
+			venueName: BIWAKO_VENUE_NAME,
+			source: BIWAKO_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `びわこ公式HPの取得に失敗しました: ${error.message}`,
 			races: [],
 		};
 	}
@@ -4044,6 +7530,31 @@ async function main() {
 	const tamagawaVenue = await createTamagawaVenue(feed, date);
 	if (tamagawaVenue) {
 		venueMap.set(tamagawaVenue.venueName, mergeVenueRecord(venueMap.get(tamagawaVenue.venueName) ?? null, tamagawaVenue));
+	}
+
+	const tsuVenue = await createTsuVenue(feed, date);
+	if (tsuVenue) {
+		venueMap.set(tsuVenue.venueName, mergeVenueRecord(venueMap.get(tsuVenue.venueName) ?? null, tsuVenue));
+	}
+
+	const wakamatsuVenue = await createWakamatsuVenue(feed, date);
+	if (wakamatsuVenue) {
+		venueMap.set(wakamatsuVenue.venueName, mergeVenueRecord(venueMap.get(wakamatsuVenue.venueName) ?? null, wakamatsuVenue));
+	}
+
+	const fukuokaVenue = await createFukuokaVenue(feed, date);
+	if (fukuokaVenue) {
+		venueMap.set(fukuokaVenue.venueName, mergeVenueRecord(venueMap.get(fukuokaVenue.venueName) ?? null, fukuokaVenue));
+	}
+
+	const kojimaVenue = await createKojimaVenue(feed, date);
+	if (kojimaVenue) {
+		venueMap.set(kojimaVenue.venueName, mergeVenueRecord(venueMap.get(kojimaVenue.venueName) ?? null, kojimaVenue));
+	}
+
+	const biwakoVenue = await createBiwakoVenue(feed, date);
+	if (biwakoVenue) {
+		venueMap.set(biwakoVenue.venueName, mergeVenueRecord(venueMap.get(biwakoVenue.venueName) ?? null, biwakoVenue));
 	}
 
 	const venues = Array.from(venueMap.values());

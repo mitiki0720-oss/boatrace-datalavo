@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { BoatRaceDetailPanel } from "../components/boatrace/BoatRaceDetailPanel";
 import { BoatRaceQuickSelector } from "../components/boatrace/BoatRaceQuickSelector";
 import { BoatVenueSelectorPanel } from "../components/boatrace/BoatVenueSelectorPanel";
 import { BoatVenueSpotlight } from "../components/boatrace/BoatVenueSpotlight";
+import { VENUE_EXTRA_LABELS } from "../components/boatrace/venueExtras/venueExtraLabels";
 import { SectionCard } from "../components/common/SectionCard";
 import { PageShell } from "../components/layout/PageShell";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
@@ -219,26 +220,11 @@ const venueExtrasPanelButtonBaseStyle = {
 	borderRadius: "18px",
 	border: `1px solid ${boatTheme.colors.line}`,
 	background: "rgba(255, 255, 255, 0.94)",
-	boxShadow: "0 10px 24px rgba(17, 64, 92, 0.05)",
+	boxShadow: "0 8px 20px rgba(17, 64, 92, 0.05)",
 	textAlign: "left" as const,
 	cursor: "pointer",
 	transition: "background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease",
-	minHeight: "84px",
-};
-
-const venueExtrasPanelButtonTitleStyle = {
-	margin: 0,
-	fontSize: "0.9rem",
-	lineHeight: 1.35,
-	fontWeight: 900,
-	color: boatTheme.colors.navy,
-};
-
-const venueExtrasPanelButtonHintStyle = {
-	margin: 0,
-	fontSize: "0.73rem",
-	lineHeight: 1.45,
-	color: boatTheme.colors.muted,
+	minHeight: "92px",
 };
 
 const venueExtrasPanelButtonBadgeStyle = {
@@ -248,24 +234,41 @@ const venueExtrasPanelButtonBadgeStyle = {
 	width: "fit-content",
 	padding: "4px 9px",
 	borderRadius: "999px",
-	fontSize: "0.68rem",
+	background: "rgba(221, 239, 247, 0.95)",
+	border: "1px solid rgba(93, 199, 232, 0.24)",
+	color: boatTheme.colors.aquaDeep,
+	fontSize: "0.7rem",
 	fontWeight: 900,
 	letterSpacing: "0.04em",
-	background: "rgba(235, 246, 253, 0.95)",
-	color: boatTheme.colors.aquaDeep,
-	border: "1px solid rgba(93, 199, 232, 0.16)",
+	whiteSpace: "nowrap" as const,
+};
+
+const venueExtrasPanelButtonTitleStyle = {
+	margin: 0,
+	fontSize: "0.84rem",
+	lineHeight: 1.35,
+	fontWeight: 900,
+	color: boatTheme.colors.navy,
+};
+
+const venueExtrasPanelButtonHintStyle = {
+	margin: 0,
+	fontSize: "0.72rem",
+	lineHeight: 1.5,
+	color: boatTheme.colors.muted,
 };
 
 const venueExtrasCategoryCaptionStyle = {
 	margin: 0,
 	fontSize: "0.76rem",
-	lineHeight: 1.5,
+	lineHeight: 1.65,
 	color: boatTheme.colors.muted,
+	fontWeight: 700,
 };
 
 const narutoStatsTabWrapStyle = {
 	display: "grid",
-	gap: "10px",
+	gap: "12px",
 };
 
 const narutoStatsTabScrollStyle = {
@@ -475,57 +478,50 @@ const venueExtrasRacerCommentFrameStyle = {
 
 const venueExtrasRacerCommentTextStyle = {
 	margin: 0,
-	fontSize: "0.84rem",
+	fontSize: "0.8rem",
 	lineHeight: 1.65,
 	color: boatTheme.colors.navy,
-	fontWeight: 800,
-};
-
-const narutoFramePalette: Record<number, { background: string; color: string; border: string }> = {
-	1: { background: "#f8fbff", color: "#16324a", border: "rgba(22, 50, 74, 0.18)" },
-	2: { background: "#1f2733", color: "#ffffff", border: "rgba(31, 39, 51, 0.28)" },
-	3: { background: "#df4747", color: "#ffffff", border: "rgba(183, 52, 52, 0.32)" },
-	4: { background: "#2d6be5", color: "#ffffff", border: "rgba(45, 107, 229, 0.28)" },
-	5: { background: "#f1cf46", color: "#3f3100", border: "rgba(206, 171, 33, 0.3)" },
-	6: { background: "#2aa45d", color: "#ffffff", border: "rgba(42, 164, 93, 0.3)" },
+	fontWeight: 700,
+	whiteSpace: "pre-wrap" as const,
 };
 
 const narutoStartScrollStyle = {
 	overflowX: "auto" as const,
 	paddingBottom: "4px",
+	marginInline: "-4px",
+	paddingInline: "4px",
+	WebkitOverflowScrolling: "touch" as const,
 };
 
 const narutoStartBoardStyle = {
-	minWidth: "860px",
 	display: "grid",
 	gap: "12px",
-	padding: "14px",
-	borderRadius: "22px",
-	background: "linear-gradient(180deg, rgba(239, 248, 252, 0.98), rgba(226, 243, 248, 0.94))",
-	border: `1px solid ${boatTheme.colors.line}`,
-	boxShadow: "inset 0 1px 0 rgba(255,255,255,0.78)",
+	minWidth: "720px",
+};
+
+const narutoFramePalette: Record<number, { background: string; color: string; border: string }> = {
+	1: { background: "linear-gradient(135deg, #f8fbff, #e6eef7)", color: "#20364a", border: "rgba(112, 138, 162, 0.58)" },
+	2: { background: "linear-gradient(135deg, #2b2b2b, #4a4a4a)", color: "#ffffff", border: "rgba(255, 255, 255, 0.36)" },
+	3: { background: "linear-gradient(135deg, #ef5350, #d32f2f)", color: "#ffffff", border: "rgba(255, 255, 255, 0.28)" },
+	4: { background: "linear-gradient(135deg, #3b82f6, #1d4ed8)", color: "#ffffff", border: "rgba(255, 255, 255, 0.28)" },
+	5: { background: "linear-gradient(135deg, #f7d54a, #e0a400)", color: "#3c2d00", border: "rgba(120, 89, 0, 0.34)" },
+	6: { background: "linear-gradient(135deg, #4caf50, #2e7d32)", color: "#ffffff", border: "rgba(255, 255, 255, 0.28)" },
 };
 
 const narutoStartRowStyle = {
 	display: "grid",
-	gridTemplateColumns: "minmax(250px, 280px) minmax(420px, 1fr)",
-	gap: "14px",
-	alignItems: "center",
-	padding: "12px 14px",
-	borderRadius: "18px",
-	background: "rgba(255, 255, 255, 0.88)",
-	border: `1px solid ${boatTheme.colors.line}`,
+	gap: "10px",
 };
 
 const narutoStartMetaStyle = {
 	display: "grid",
-	gap: "8px",
-	alignContent: "center",
+	gap: "6px",
 };
 
 const narutoStartMetaTopStyle = {
 	display: "flex",
 	alignItems: "center",
+	justifyContent: "space-between",
 	gap: "8px",
 	flexWrap: "wrap" as const,
 };
@@ -534,14 +530,15 @@ const narutoStartCourseBadgeStyle = {
 	display: "inline-flex",
 	alignItems: "center",
 	justifyContent: "center",
-	padding: "4px 9px",
+	minWidth: "72px",
+	padding: "5px 10px",
 	borderRadius: "999px",
 	background: "rgba(221, 239, 247, 0.95)",
+	border: "1px solid rgba(93, 199, 232, 0.24)",
 	color: boatTheme.colors.aquaDeep,
-	fontSize: "0.7rem",
+	fontSize: "0.72rem",
 	fontWeight: 900,
 	letterSpacing: "0.04em",
-	whiteSpace: "nowrap" as const,
 };
 
 const narutoStartPlayerStyle = {
@@ -958,6 +955,475 @@ type BoatNarutoRacerPerformance = {
 	nationalRecent: BoatNarutoRecentHistoryRow[];
 };
 
+type BoatBiwakoSeriesResultRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	raceNumbers: string[];
+	courses: string[];
+	startTimings: string[];
+	finishOrders: string[];
+	dayLabels: string[];
+	source?: string | undefined;
+};
+
+type BoatBiwakoFramePast10Row = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	courseHistory: string[];
+	finishHistory: string[];
+	startTimingHistory: string[];
+	frameWinRate: string;
+	frameAverageStart: string;
+	frameStartOrder: string;
+	source?: string | undefined;
+};
+
+type BoatTsuBeforeInfoRow = {
+	frameNo: number;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	className: string;
+	weight: string;
+	weightAdjustment: string;
+	tilt: string;
+	partsExchange: string;
+	previousRaceNo: string;
+	previousRaceCourse: string;
+	previousRaceStartTiming: string;
+	previousRaceFinishOrder: string;
+	motorComment: string;
+	source?: string | undefined;
+};
+
+type BoatTsuRacerCommentRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	comment: string;
+	motorComment: string;
+	source?: string | undefined;
+};
+
+type BoatTsuSeriesResultRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	raceNumbers: string[];
+	courses: string[];
+	startTimings: string[];
+	finishOrders: string[];
+	dayLabels: string[];
+	source?: string | undefined;
+};
+
+type BoatTsuRecent3History = {
+	label: string;
+	venueName: string;
+	grade: string;
+	dateRange: string;
+	results: string;
+};
+
+type BoatTsuRecent3Row = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	histories: BoatTsuRecent3History[];
+	source?: string | undefined;
+};
+
+type BoatTsuFramePast10Row = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	courseHistory: string[];
+	finishHistory: string[];
+	startTimingHistory: string[];
+	frameWinRate: string;
+	frameAverageStart: string;
+	frameStartOrder: string;
+	source?: string | undefined;
+};
+
+type BoatWakamatsuEntryRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	averageStart: string;
+	nationalWinRate: string;
+	nationalSecondRate: string;
+	localWinRate: string;
+	localSecondRate: string;
+	motorNo: string;
+	motorSecondRate: string;
+	boatNo: string;
+	boatSecondRate: string;
+	comment: string;
+	motorEvaluation: string;
+	earlyGuide: string;
+	source?: string | undefined;
+};
+
+type BoatWakamatsuBeforeInfoRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	exhibitionTime: string;
+	weight: string;
+	weightAdjustment: string;
+	tilt: string;
+	previousRaceNo: string;
+	previousRaceCourse: string;
+	previousRaceStartTiming: string;
+	previousRaceFinishOrder: string;
+	previousRaceInfo: string;
+	partsExchange: string;
+	source?: string | undefined;
+};
+
+type BoatWakamatsuSeriesResultRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	raceNumbers: string[];
+	courses: string[];
+	startTimings: string[];
+	startOrders: string[];
+	finishOrders: string[];
+	dayLabels: string[];
+	source?: string | undefined;
+};
+
+type BoatWakamatsuCourseStatsItem = {
+	courseNo: number;
+	entryCount: string;
+	averageStart: string;
+	firstCount: string;
+	secondCount: string;
+	thirdCount: string;
+};
+
+type BoatWakamatsuCourseStatsRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	courseRows: BoatWakamatsuCourseStatsItem[];
+	source?: string | undefined;
+};
+
+type BoatWakamatsuRecent3History = {
+	label: string;
+	venueName: string;
+	grade: string;
+	dateRange: string;
+	results: string;
+};
+
+type BoatWakamatsuRecent3Row = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	histories: BoatWakamatsuRecent3History[];
+	source?: string | undefined;
+};
+
+type BoatWakamatsuFramePast10Row = {
+	frameNo: number;
+	courseHistory: string[];
+	finishHistory: string[];
+	startTimingHistory: string[];
+	frameWinRate: string;
+	frameAverageStart: string;
+	frameStartOrder: string;
+	source?: string | undefined;
+};
+
+type BoatWakamatsuScoreRateGuideRow = {
+	frameNo: number;
+	registrationNo: string;
+	playerName: string;
+	className: string;
+	averageStart: string;
+	winRate: string;
+	secondRate: string;
+	localWinRate: string;
+	localSecondRate: string;
+	motorNo: string;
+	motorSecondRate: string;
+	source?: string | undefined;
+};
+
+type BoatWakamatsuMotorHistoryEntry = {
+	seriesTitle: string;
+	playerName: string;
+	results: string;
+};
+
+type BoatWakamatsuMotorHistoryRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	motorNo: string;
+	motorWinRate: string;
+	motorSecondRate: string;
+	bestExhibitionTime: string;
+	bestOneLapTime: string;
+	bestStraightTime: string;
+	bestTurnTime: string;
+	historyEntries: BoatWakamatsuMotorHistoryEntry[];
+	source?: string | undefined;
+};
+
+type BoatFukuokaEntryRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	averageStart: string;
+	nationalWinRate: string;
+	nationalSecondRate: string;
+	localWinRate: string;
+	localSecondRate: string;
+	motorNo: string;
+	motorSecondRate: string;
+	boatNo: string;
+	boatSecondRate: string;
+	comment: string;
+	motorEvaluation: string;
+	earlyGuide: string;
+	source?: string | undefined;
+};
+
+type BoatFukuokaBeforeInfoRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	exhibitionTime: string;
+	weight: string;
+	weightAdjustment: string;
+	tilt: string;
+	partsExchange: string;
+	previousRaceInfo: string;
+	motorNo: string;
+	motorSecondRate: string;
+	source?: string | undefined;
+};
+
+type BoatFukuokaMotorEvaluationRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	motorNo: string;
+	motorSecondRate: string;
+	motorEvaluation: string;
+	motorComment: string;
+	bestExhibitionTime: string;
+	partsExchange: string;
+	source?: string | undefined;
+};
+
+type BoatFukuokaSeriesResultRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	raceNumbers: string[];
+	courses: string[];
+	startTimings: string[];
+	finishOrders: string[];
+	dayLabels: string[];
+	source?: string | undefined;
+};
+
+type BoatFukuokaRacerCommentRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	comment: string;
+	motorComment: string;
+	source?: string | undefined;
+};
+
+type BoatFukuokaFramePast10Row = {
+	frameNo: number;
+	courseHistory: string[];
+	finishHistory: string[];
+	startTimingHistory: string[];
+	frameWinRate: string;
+	frameAverageStart: string;
+	frameStartOrder: string;
+	source?: string | undefined;
+};
+
+type BoatFukuokaScoreRateGuideRow = {
+	frameNo: number;
+	registrationNo: string;
+	playerName: string;
+	className: string;
+	averageStart: string;
+	winRate: string;
+	secondRate: string;
+	localWinRate: string;
+	localSecondRate: string;
+	motorNo: string;
+	motorSecondRate: string;
+	scoreRate: string;
+	source?: string | undefined;
+};
+
+type BoatKojimaBeforeInfoRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	exhibitionTime: string;
+	weight: string;
+	adjustment: string;
+	tilt: string;
+	partsExchange: string;
+	previousRaceInfo: string;
+	motorNo: string;
+	motorSecondRate: string;
+	preInspectionTime: string;
+	source?: string | undefined;
+};
+
+type BoatKojimaSeriesResultRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	raceNumbers: string[];
+	courses: string[];
+	startTimings: string[];
+	finishOrders: string[];
+	dayLabels: string[];
+	source?: string | undefined;
+};
+
+type BoatKojimaRecentHistory = {
+	venueName: string;
+	grade: string;
+	dateRange: string;
+	results: string;
+};
+
+type BoatKojimaRecentResultRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	histories: BoatKojimaRecentHistory[];
+	source?: string | undefined;
+};
+
+type BoatKojimaCourseStatsItem = {
+	courseNo: number;
+	entryRate: string;
+	averageStart: string;
+	firstRate: string;
+	secondRate: string;
+	thirdRate: string;
+	fourthRate: string;
+	fifthRate: string;
+	sixthRate: string;
+};
+
+type BoatKojimaCourseStatsRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	courseRows: BoatKojimaCourseStatsItem[];
+	source?: string | undefined;
+};
+
+type BoatKojimaMotorStatsRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	motorNo: string;
+	motorSecondRate: string;
+	motorWinRate: string;
+	motorRank: string;
+	comment: string;
+	bestExhibitionTime: string;
+	preInspectionTime: string;
+	source?: string | undefined;
+};
+
+type BoatKojimaFrameStatsRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	courseHistory: string[];
+	finishHistory: string[];
+	startTimingHistory: string[];
+	frameWinRate: string;
+	frameAverageStart: string;
+	frameStartOrder: string;
+	source?: string | undefined;
+};
+
+type BoatKojimaScoreRateGuideRow = {
+	frameNo: number;
+	registrationNo: string;
+	playerName: string;
+	className: string;
+	averageStart: string;
+	winRate: string;
+	secondRate: string;
+	localWinRate: string;
+	localSecondRate: string;
+	motorNo: string;
+	motorSecondRate: string;
+	scoreRate: string;
+	source?: string | undefined;
+};
+
 type BoatNarutoStartExhibitionDisplayRow = {
 	course: number;
 	frameNo: number;
@@ -983,6 +1449,8 @@ type VenueExtraPanelKey =
 	| "tamagawa-series"
 	| "tamagawa-cyokuzen"
 	| "tamagawa-frame10"
+	| "biwako-frame10"
+	| "biwako-series"
 	| "tamagawa-score"
 	| "omura-overview"
 	| "omura-prevday"
@@ -991,7 +1459,37 @@ type VenueExtraPanelKey =
 	| "omura-comments"
 	| "omura-exhibition"
 	| "tamagawa-odds"
-	| "tamagawa-entry";
+	| "tamagawa-entry"
+	| "tsu-before"
+	| "tsu-comments"
+	| "tsu-series"
+	| "tsu-national3"
+	| "tsu-local3"
+	| "tsu-frame10"
+	| "tsu-score"
+	| "wakamatsu-entry"
+	| "wakamatsu-before"
+	| "wakamatsu-series"
+	| "wakamatsu-course"
+	| "wakamatsu-national3"
+	| "wakamatsu-local3"
+	| "wakamatsu-frame10"
+	| "wakamatsu-score"
+	| "wakamatsu-motor"
+	| "fukuoka-entry"
+	| "fukuoka-before"
+	| "fukuoka-motor"
+	| "fukuoka-series"
+	| "fukuoka-comments"
+	| "fukuoka-frame10"
+	| "fukuoka-score"
+	| "kojima-before"
+	| "kojima-series"
+	| "kojima-recent"
+	| "kojima-course"
+	| "kojima-motor"
+	| "kojima-frame"
+	| "kojima-score";
 
 type BoatOmuraEntryRow = {
 	frameNo: number;
@@ -1342,6 +1840,33 @@ function readVenueExtraNumber(value: unknown): number | null {
 	return null;
 }
 
+function readVenueExtraStringArray(value: unknown, limit: number): string[] {
+	return Array.isArray(value)
+		? value.map((item) => readVenueExtraString(item)).slice(0, limit)
+		: [];
+}
+
+function readVenueExtraRate(count: string, total: string): string {
+	const countValue = Number.parseFloat(count);
+	const totalValue = Number.parseFloat(total);
+
+	if (!Number.isFinite(countValue) || !Number.isFinite(totalValue) || totalValue <= 0) {
+		return "";
+	}
+
+	return ((countValue / totalValue) * 100).toFixed(1);
+}
+
+function sumVenueExtraRates(...values: string[]): string {
+	const numbers = values.map((value) => Number.parseFloat(value));
+
+	if (numbers.some((value) => !Number.isFinite(value))) {
+		return "";
+	}
+
+	return numbers.reduce((total, value) => total + value, 0).toFixed(1);
+}
+
 function getOfficialBeforeInfoDisplay(raceExtra: BoatVenueExtraRace | null): BoatOfficialBeforeInfoDisplay | null {
 	if (!raceExtra || !isVenueExtraRecord(raceExtra.officialBeforeInfo)) {
 		return null;
@@ -1473,14 +1998,14 @@ function getVenueOriginalExhibitionRows(raceExtra: BoatVenueExtraRace | null): B
 		rows.push({
 			frameNo,
 			className: readVenueExtraString(item.className) || undefined,
-			playerName: readVenueExtraString(item.playerName) || undefined,
-			registerNo: readVenueExtraString(item.registerNo) || undefined,
+			playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || undefined,
+			registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo) || undefined,
 			weight: readVenueExtraString(item.weight) || undefined,
-			weightAdjustment: readVenueExtraString(item.weightAdjustment) || undefined,
+			weightAdjustment: readVenueExtraString(item.weightAdjustment) || readVenueExtraString(item.adjustment) || undefined,
 			tilt: readVenueExtraString(item.tilt) || undefined,
 			exhibitionTime: readVenueExtraString(item.exhibitionTime) || undefined,
 			motorNo: readVenueExtraString(item.motorNo),
-			oneLapTime: readVenueExtraString(item.oneLapTime),
+			oneLapTime: readVenueExtraString(item.oneLapTime) || readVenueExtraString(item.lapTime),
 			turnTime: readVenueExtraString(item.turnTime),
 			straightTime: readVenueExtraString(item.straightTime),
 			exhibitionEvaluation: readVenueExtraString(item.exhibitionEvaluation),
@@ -1663,16 +2188,20 @@ function getVenueStartExhibition(raceExtra: BoatVenueExtraRace | null): BoatVenu
 
 	const rows: BoatVenueStartExhibition[] = [];
 
-	for (const item of raceExtra.startExhibition) {
+	for (const [index, item] of raceExtra.startExhibition.entries()) {
 		if (!isVenueExtraRecord(item)) {
 			continue;
 		}
 
-		const course = readVenueExtraNumber(item.course);
 		const frameNo = readVenueExtraNumber(item.frameNo);
-		const currentAverageStart = readVenueExtraString(item.currentAverageStart);
-		const style = readVenueExtraString(item.style);
-		const startTiming = readVenueExtraString(item.startTiming);
+		const course =
+			readVenueExtraNumber(item.course) ??
+			readVenueExtraNumber(item.courseNo) ??
+			frameNo ??
+			index + 1;
+		const currentAverageStart = readVenueExtraString(item.currentAverageStart) || readVenueExtraString(item.averageStart);
+		const style = readVenueExtraString(item.style) || readVenueExtraString(item.startType);
+		const startTiming = readVenueExtraString(item.startTiming) || readVenueExtraString(item.exhibitionStartTiming);
 		const startOrder = readVenueExtraString(item.startOrder);
 		const source = readVenueExtraString(item.source);
 
@@ -1972,6 +2501,1256 @@ function getOmuraExhibitionInfo(raceExtra: BoatVenueExtraRace | null): BoatOmura
 				partsExchange: readVenueExtraString(item.partsExchange),
 				startType: readVenueExtraString(item.startType),
 				evaluation: readVenueExtraString(item.evaluation),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getBiwakoSeriesResults(raceExtra: BoatVenueExtraRace | null): BoatBiwakoSeriesResultRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.biwakoSeriesResults)) {
+		return [];
+	}
+
+	return raceExtra.biwakoSeriesResults
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			const playerName = readVenueExtraString(item.playerName);
+
+			if (!frameNo || !playerName) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo),
+				playerName,
+				profile: readVenueExtraString(item.profile),
+				raceNumbers: Array.isArray(item.raceNumbers)
+					? item.raceNumbers.map((value) => readVenueExtraString(value)).slice(0, 12)
+					: [],
+				courses: Array.isArray(item.courses)
+					? item.courses.map((value) => readVenueExtraString(value)).slice(0, 12)
+					: [],
+				startTimings: Array.isArray(item.startTimings)
+					? item.startTimings.map((value) => readVenueExtraString(value)).slice(0, 12)
+					: [],
+				finishOrders: Array.isArray(item.finishOrders)
+					? item.finishOrders.map((value) => readVenueExtraString(value)).slice(0, 12)
+					: [],
+				dayLabels: Array.isArray(item.dayLabels)
+					? item.dayLabels.map((value) => readVenueExtraString(value)).slice(0, 12)
+					: [],
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getBiwakoFramePast10(raceExtra: BoatVenueExtraRace | null): BoatBiwakoFramePast10Row[] {
+	if (!raceExtra || !Array.isArray(raceExtra.biwakoFramePast10)) {
+		return [];
+	}
+
+	return raceExtra.biwakoFramePast10
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			const playerName = readVenueExtraString(item.playerName);
+
+			if (!frameNo || !playerName) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo),
+				playerName,
+				profile: readVenueExtraString(item.profile),
+				courseHistory: Array.isArray(item.courseHistory)
+					? item.courseHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: [],
+				finishHistory: Array.isArray(item.finishHistory)
+					? item.finishHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: [],
+				startTimingHistory: Array.isArray(item.startTimingHistory)
+					? item.startTimingHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: [],
+				frameWinRate: readVenueExtraString(item.frameWinRate),
+				frameAverageStart: readVenueExtraString(item.frameAverageStart),
+				frameStartOrder: readVenueExtraString(item.frameStartOrder),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getTsuBeforeInfo(raceExtra: BoatVenueExtraRace | null): BoatTsuBeforeInfoRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.tsuBeforeInfo)) {
+		return [];
+	}
+
+	return raceExtra.tsuBeforeInfo
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			const playerName = readVenueExtraString(item.playerName);
+
+			if (!frameNo || !playerName) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName,
+				profile: readVenueExtraString(item.profile),
+				className: readVenueExtraString(item.className),
+				weight: readVenueExtraString(item.weight),
+				weightAdjustment: readVenueExtraString(item.weightAdjustment),
+				tilt: readVenueExtraString(item.tilt),
+				partsExchange: readVenueExtraString(item.partsExchange),
+				previousRaceNo: readVenueExtraString(item.previousRaceNo),
+				previousRaceCourse: readVenueExtraString(item.previousRaceCourse),
+				previousRaceStartTiming: readVenueExtraString(item.previousRaceStartTiming),
+				previousRaceFinishOrder: readVenueExtraString(item.previousRaceFinishOrder),
+				motorComment: readVenueExtraString(item.motorComment) || readVenueExtraString(item.motorEvaluation),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getTsuRacerComments(raceExtra: BoatVenueExtraRace | null): BoatTsuRacerCommentRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.tsuRacerComments)) {
+		return [];
+	}
+
+	return raceExtra.tsuRacerComments
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			const playerName = readVenueExtraString(item.playerName);
+
+			if (!frameNo || !playerName) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName,
+				profile: readVenueExtraString(item.profile),
+				comment: readVenueExtraString(item.comment),
+				motorComment: readVenueExtraString(item.motorComment),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getTsuSeriesResults(raceExtra: BoatVenueExtraRace | null): BoatTsuSeriesResultRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.tsuSeriesResults)) {
+		return [];
+	}
+
+	return raceExtra.tsuSeriesResults
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			const playerName = readVenueExtraString(item.playerName);
+
+			if (!frameNo || !playerName) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName,
+				profile: readVenueExtraString(item.profile),
+				raceNumbers: Array.isArray(item.raceNumbers)
+					? item.raceNumbers.map((value) => readVenueExtraString(value)).slice(0, 12)
+					: [],
+				courses: Array.isArray(item.courses)
+					? item.courses.map((value) => readVenueExtraString(value)).slice(0, 12)
+					: [],
+				startTimings: Array.isArray(item.startTimings)
+					? item.startTimings.map((value) => readVenueExtraString(value)).slice(0, 12)
+					: [],
+				finishOrders: Array.isArray(item.finishOrders)
+					? item.finishOrders.map((value) => readVenueExtraString(value)).slice(0, 12)
+					: [],
+				dayLabels: Array.isArray(item.dayLabels)
+					? item.dayLabels.map((value) => readVenueExtraString(value)).slice(0, 12)
+					: [],
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getTsuNationalRecent3(raceExtra: BoatVenueExtraRace | null): BoatTsuRecent3Row[] {
+	if (!raceExtra || !Array.isArray(raceExtra.tsuNationalRecent3)) {
+		return [];
+	}
+
+	return raceExtra.tsuNationalRecent3
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			const playerName = readVenueExtraString(item.playerName);
+
+			if (!frameNo || !playerName) {
+				return null;
+			}
+
+			const histories = Array.isArray(item.histories)
+				? item.histories
+					.filter(isVenueExtraRecord)
+					.map((entry) => ({
+						label: readVenueExtraString(entry.label),
+						venueName: readVenueExtraString(entry.venueName),
+						grade: readVenueExtraString(entry.grade),
+						dateRange: readVenueExtraString(entry.dateRange),
+						results: readVenueExtraString(entry.results),
+					}))
+					.filter((entry) => entry.label || entry.venueName || entry.grade || entry.dateRange || entry.results)
+					.slice(0, 3)
+				: [];
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName,
+				profile: readVenueExtraString(item.profile),
+				histories,
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getTsuLocalRecent3(raceExtra: BoatVenueExtraRace | null): BoatTsuRecent3Row[] {
+	if (!raceExtra || !Array.isArray(raceExtra.tsuLocalRecent3)) {
+		return [];
+	}
+
+	return raceExtra.tsuLocalRecent3
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			const playerName = readVenueExtraString(item.playerName);
+
+			if (!frameNo || !playerName) {
+				return null;
+			}
+
+			const histories = Array.isArray(item.histories)
+				? item.histories
+					.filter(isVenueExtraRecord)
+					.map((entry) => ({
+						label: readVenueExtraString(entry.label),
+						venueName: readVenueExtraString(entry.venueName),
+						grade: readVenueExtraString(entry.grade),
+						dateRange: readVenueExtraString(entry.dateRange),
+						results: readVenueExtraString(entry.results),
+					}))
+					.filter((entry) => entry.label || entry.venueName || entry.grade || entry.dateRange || entry.results)
+					.slice(0, 3)
+				: [];
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName,
+				profile: readVenueExtraString(item.profile),
+				histories,
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getTsuFramePast10(raceExtra: BoatVenueExtraRace | null): BoatTsuFramePast10Row[] {
+	if (!raceExtra || !Array.isArray(raceExtra.tsuFramePast10)) {
+		return [];
+	}
+
+	return raceExtra.tsuFramePast10
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			const playerName =
+				readVenueExtraString(item.playerName) ||
+				readVenueExtraString(item.racerName) ||
+				readVenueExtraString(item.name);
+
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName,
+				profile: readVenueExtraString(item.profile),
+				courseHistory: Array.isArray(item.courseHistory)
+					? item.courseHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: [],
+				finishHistory: Array.isArray(item.finishHistory)
+					? item.finishHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: [],
+				startTimingHistory: Array.isArray(item.startTimingHistory)
+					? item.startTimingHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: Array.isArray(item.startTimings)
+						? item.startTimings.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: [],
+				frameWinRate: readVenueExtraString(item.frameWinRate),
+				frameAverageStart: readVenueExtraString(item.frameAverageStart),
+				frameStartOrder: readVenueExtraString(item.frameStartOrder),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getTsuScoreRateGuide(raceExtra: BoatVenueExtraRace | null): BoatOfficialBeforeInfoScoreRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.tsuScoreRateGuide)) {
+		return [];
+	}
+
+	const rows: BoatOfficialBeforeInfoScoreRow[] = [];
+	for (const item of raceExtra.tsuScoreRateGuide) {
+		if (!isVenueExtraRecord(item)) {
+			continue;
+		}
+
+		const frameNo = readVenueExtraNumber(item.frameNo);
+		if (!frameNo) {
+			continue;
+		}
+
+		rows.push({
+			frameNo,
+			registrationNo: readVenueExtraString(item.registrationNo) || readVenueExtraString(item.registerNo),
+			playerName:
+				readVenueExtraString(item.playerName) ||
+				readVenueExtraString(item.racerName) ||
+				readVenueExtraString(item.name),
+			className: readVenueExtraString(item.className) || readVenueExtraString(item.gradeClass),
+			averageStart: readVenueExtraString(item.averageStart),
+			winRate: readVenueExtraString(item.winRate) || readVenueExtraString(item.nationalWinRate),
+			secondRate: readVenueExtraString(item.secondRate) || readVenueExtraString(item.nationalSecondRate),
+			localWinRate: readVenueExtraString(item.localWinRate) || readVenueExtraString(item.localWinningRate),
+			localSecondRate:
+				readVenueExtraString(item.localSecondRate) ||
+				readVenueExtraString(item.local2Rate) ||
+				readVenueExtraString(item.localSecondRatio),
+			motorNo: readVenueExtraString(item.motorNo),
+			motorSecondRate:
+				readVenueExtraString(item.motorSecondRate) ||
+				readVenueExtraString(item.motor2Rate) ||
+				readVenueExtraString(item.motorSecondRatio),
+			source: readVenueExtraString(item.source) || undefined,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getWakamatsuEntryRows(raceExtra: BoatVenueExtraRace | null): BoatWakamatsuEntryRow[] {
+	const sourceRows = !raceExtra
+		? null
+		: Array.isArray(raceExtra.wakamatsuEntryTable)
+			? raceExtra.wakamatsuEntryTable
+			: Array.isArray(raceExtra.wakamatsuEntryRows)
+				? raceExtra.wakamatsuEntryRows
+				: Array.isArray(raceExtra.wakamatsuRacerStats)
+					? raceExtra.wakamatsuRacerStats
+					: null;
+
+	if (!sourceRows) {
+		return [];
+	}
+
+	return sourceRows
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName:
+					readVenueExtraString(item.playerName) ||
+					readVenueExtraString(item.racerName) ||
+					readVenueExtraString(item.name) ||
+					`枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				averageStart: readVenueExtraString(item.averageStart),
+				nationalWinRate: readVenueExtraString(item.nationalWinRate) || readVenueExtraString(item.winRate),
+				nationalSecondRate: readVenueExtraString(item.nationalSecondRate) || readVenueExtraString(item.secondRate),
+				localWinRate: readVenueExtraString(item.localWinRate),
+				localSecondRate: readVenueExtraString(item.localSecondRate),
+				motorNo: readVenueExtraString(item.motorNo),
+				motorSecondRate: readVenueExtraString(item.motorSecondRate),
+				boatNo: readVenueExtraString(item.boatNo),
+				boatSecondRate: readVenueExtraString(item.boatSecondRate),
+				comment: readVenueExtraString(item.comment),
+				motorEvaluation: readVenueExtraString(item.motorEvaluation),
+				earlyGuide: readVenueExtraString(item.earlyGuide),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getWakamatsuBeforeInfo(raceExtra: BoatVenueExtraRace | null): BoatWakamatsuBeforeInfoRow[] {
+	const sourceRows = !raceExtra
+		? null
+		: Array.isArray(raceExtra.wakamatsuBeforeInfo)
+			? raceExtra.wakamatsuBeforeInfo
+			: Array.isArray(raceExtra.wakamatsuCyokuzen)
+				? raceExtra.wakamatsuCyokuzen
+				: null;
+
+	if (!sourceRows) {
+		return [];
+	}
+
+	return sourceRows
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				exhibitionTime: readVenueExtraString(item.exhibitionTime),
+				weight: readVenueExtraString(item.weight),
+				weightAdjustment: readVenueExtraString(item.weightAdjustment),
+				tilt: readVenueExtraString(item.tilt),
+				previousRaceNo: readVenueExtraString(item.previousRaceNo),
+				previousRaceCourse: readVenueExtraString(item.previousRaceCourse),
+				previousRaceStartTiming: readVenueExtraString(item.previousRaceStartTiming),
+				previousRaceFinishOrder: readVenueExtraString(item.previousRaceFinishOrder),
+				previousRaceInfo: readVenueExtraString(item.previousRaceInfo),
+				partsExchange: readVenueExtraString(item.partsExchange),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getWakamatsuSeriesResults(raceExtra: BoatVenueExtraRace | null): BoatWakamatsuSeriesResultRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.wakamatsuSeriesResults)) {
+		return [];
+	}
+
+	return raceExtra.wakamatsuSeriesResults
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				raceNumbers: Array.isArray(item.raceNumbers)
+					? item.raceNumbers.map((value) => readVenueExtraString(value)).slice(0, 16)
+					: [],
+				courses: Array.isArray(item.courses)
+					? item.courses.map((value) => readVenueExtraString(value)).slice(0, 16)
+					: [],
+				startTimings: Array.isArray(item.startTimings)
+					? item.startTimings.map((value) => readVenueExtraString(value)).slice(0, 16)
+					: [],
+				startOrders: Array.isArray(item.startOrders)
+					? item.startOrders.map((value) => readVenueExtraString(value)).slice(0, 16)
+					: [],
+				finishOrders: Array.isArray(item.finishOrders)
+					? item.finishOrders.map((value) => readVenueExtraString(value)).slice(0, 16)
+					: [],
+				dayLabels: Array.isArray(item.dayLabels)
+					? item.dayLabels.map((value) => readVenueExtraString(value)).slice(0, 16)
+					: [],
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getWakamatsuCourseStats(raceExtra: BoatVenueExtraRace | null): BoatWakamatsuCourseStatsRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.wakamatsuCourseStats)) {
+		return [];
+	}
+
+	return raceExtra.wakamatsuCourseStats
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			const courseRows = Array.isArray(item.courseRows)
+				? item.courseRows
+					.filter(isVenueExtraRecord)
+					.map((entry) => ({
+						courseNo: readVenueExtraNumber(entry.courseNo) ?? 0,
+						entryCount: readVenueExtraString(entry.entryCount),
+						averageStart: readVenueExtraString(entry.averageStart),
+						firstCount: readVenueExtraString(entry.firstCount),
+						secondCount: readVenueExtraString(entry.secondCount),
+						thirdCount: readVenueExtraString(entry.thirdCount),
+					}))
+					.filter((entry) => entry.courseNo > 0)
+					.slice(0, 6)
+				: [];
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				courseRows,
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getWakamatsuRecent3Rows(sourceRows: unknown): BoatWakamatsuRecent3Row[] {
+	if (!Array.isArray(sourceRows)) {
+		return [];
+	}
+
+	return sourceRows
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			const histories = Array.isArray(item.histories)
+				? item.histories
+					.filter(isVenueExtraRecord)
+					.map((entry) => ({
+						label: readVenueExtraString(entry.label),
+						venueName: readVenueExtraString(entry.venueName),
+						grade: readVenueExtraString(entry.grade),
+						dateRange: readVenueExtraString(entry.dateRange),
+						results: readVenueExtraString(entry.results),
+					}))
+					.filter((entry) => entry.label || entry.venueName || entry.grade || entry.dateRange || entry.results)
+					.slice(0, 3)
+				: [];
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				histories,
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getWakamatsuNationalRecent3(raceExtra: BoatVenueExtraRace | null): BoatWakamatsuRecent3Row[] {
+	return getWakamatsuRecent3Rows(raceExtra?.wakamatsuNationalRecent3);
+}
+
+function getWakamatsuLocalRecent3(raceExtra: BoatVenueExtraRace | null): BoatWakamatsuRecent3Row[] {
+	return getWakamatsuRecent3Rows(raceExtra?.wakamatsuLocalRecent3);
+}
+
+function getWakamatsuFramePast10(raceExtra: BoatVenueExtraRace | null): BoatWakamatsuFramePast10Row[] {
+	if (!raceExtra || !Array.isArray(raceExtra.wakamatsuFramePast10)) {
+		return [];
+	}
+
+	return raceExtra.wakamatsuFramePast10
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				courseHistory: Array.isArray(item.courseHistory)
+					? item.courseHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: [],
+				finishHistory: Array.isArray(item.finishHistory)
+					? item.finishHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: [],
+				startTimingHistory: Array.isArray(item.startTimingHistory)
+					? item.startTimingHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: Array.isArray(item.startTimings)
+						? item.startTimings.map((value) => readVenueExtraString(value)).slice(0, 10)
+						: [],
+				frameWinRate: readVenueExtraString(item.frameWinRate),
+				frameAverageStart: readVenueExtraString(item.frameAverageStart),
+				frameStartOrder: readVenueExtraString(item.frameStartOrder),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getWakamatsuScoreRateGuide(raceExtra: BoatVenueExtraRace | null): BoatWakamatsuScoreRateGuideRow[] {
+	const sourceRows = !raceExtra
+		? null
+		: Array.isArray(raceExtra.wakamatsuScoreRateGuide)
+			? raceExtra.wakamatsuScoreRateGuide
+			: Array.isArray(raceExtra.wakamatsuScoreGuide)
+				? raceExtra.wakamatsuScoreGuide
+				: null;
+
+	if (!sourceRows) {
+		return [];
+	}
+
+	const rows: BoatWakamatsuScoreRateGuideRow[] = [];
+	for (const item of sourceRows) {
+		if (!isVenueExtraRecord(item)) {
+			continue;
+		}
+
+		const frameNo = readVenueExtraNumber(item.frameNo);
+		if (!frameNo) {
+			continue;
+		}
+
+		rows.push({
+			frameNo,
+			registrationNo: readVenueExtraString(item.registrationNo) || readVenueExtraString(item.registerNo),
+			playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name),
+			className: readVenueExtraString(item.className),
+			averageStart: readVenueExtraString(item.averageStart),
+			winRate: readVenueExtraString(item.winRate) || readVenueExtraString(item.nationalWinRate),
+			secondRate: readVenueExtraString(item.secondRate) || readVenueExtraString(item.nationalSecondRate),
+			localWinRate: readVenueExtraString(item.localWinRate),
+			localSecondRate: readVenueExtraString(item.localSecondRate),
+			motorNo: readVenueExtraString(item.motorNo),
+			motorSecondRate: readVenueExtraString(item.motorSecondRate),
+			source: readVenueExtraString(item.source) || undefined,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getWakamatsuMotorHistory(raceExtra: BoatVenueExtraRace | null): BoatWakamatsuMotorHistoryRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.wakamatsuMotorHistory)) {
+		return [];
+	}
+
+	return raceExtra.wakamatsuMotorHistory
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			const historyEntries = Array.isArray(item.historyEntries)
+				? item.historyEntries
+					.filter(isVenueExtraRecord)
+					.map((entry) => {
+						const results = Array.isArray(entry.results)
+							? entry.results
+								.filter(isVenueExtraRecord)
+								.slice(0, 3)
+								.map((result) => {
+									const dayLabel = readVenueExtraString(result.dayLabel);
+									const raceNo = readVenueExtraString(result.raceNo);
+									const finishOrder = readVenueExtraString(result.finishOrder);
+									const course = readVenueExtraString(result.course);
+									const startTiming = readVenueExtraString(result.startTiming);
+									return [dayLabel, raceNo ? `${raceNo}` : "", finishOrder, course, startTiming ? `ST${startTiming}` : ""]
+										.filter(Boolean)
+										.join(" ");
+								})
+								.filter(Boolean)
+								.join(" / ")
+							: "";
+
+						return {
+							seriesTitle: readVenueExtraString(entry.seriesTitle),
+							playerName: readVenueExtraString(entry.playerName),
+							results,
+						};
+					})
+					.filter((entry) => entry.seriesTitle || entry.playerName || entry.results)
+					.slice(0, 6)
+				: [];
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				motorNo: readVenueExtraString(item.motorNo),
+				motorWinRate: readVenueExtraString(item.motorWinRate),
+				motorSecondRate: readVenueExtraString(item.motorSecondRate),
+				bestExhibitionTime: readVenueExtraString(item.bestExhibitionTime),
+				bestOneLapTime: readVenueExtraString(item.bestOneLapTime),
+				bestStraightTime: readVenueExtraString(item.bestStraightTime),
+				bestTurnTime: readVenueExtraString(item.bestTurnTime),
+				historyEntries,
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getFukuokaEntryRows(raceExtra: BoatVenueExtraRace | null): BoatFukuokaEntryRow[] {
+	const sourceRows = !raceExtra
+		? null
+		: Array.isArray(raceExtra.fukuokaEntryRows)
+			? raceExtra.fukuokaEntryRows
+			: Array.isArray(raceExtra.fukuokaRacerStats)
+				? raceExtra.fukuokaRacerStats
+				: null;
+
+	if (!sourceRows) {
+		return [];
+	}
+
+	return sourceRows
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				averageStart: readVenueExtraString(item.averageStart),
+				nationalWinRate: readVenueExtraString(item.nationalWinRate) || readVenueExtraString(item.winRate),
+				nationalSecondRate: readVenueExtraString(item.nationalSecondRate) || readVenueExtraString(item.secondRate),
+				localWinRate: readVenueExtraString(item.localWinRate),
+				localSecondRate: readVenueExtraString(item.localSecondRate),
+				motorNo: readVenueExtraString(item.motorNo),
+				motorSecondRate: readVenueExtraString(item.motorSecondRate),
+				boatNo: readVenueExtraString(item.boatNo),
+				boatSecondRate: readVenueExtraString(item.boatSecondRate),
+				comment: readVenueExtraString(item.comment),
+				motorEvaluation: readVenueExtraString(item.motorEvaluation),
+				earlyGuide: readVenueExtraString(item.earlyGuide),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getFukuokaBeforeInfo(raceExtra: BoatVenueExtraRace | null): BoatFukuokaBeforeInfoRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.fukuokaBeforeInfo)) {
+		return [];
+	}
+
+	return raceExtra.fukuokaBeforeInfo
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				exhibitionTime: readVenueExtraString(item.exhibitionTime),
+				weight: readVenueExtraString(item.weight),
+				weightAdjustment: readVenueExtraString(item.weightAdjustment),
+				tilt: readVenueExtraString(item.tilt),
+				partsExchange: readVenueExtraString(item.partsExchange),
+				previousRaceInfo: readVenueExtraString(item.previousRaceInfo),
+				motorNo: readVenueExtraString(item.motorNo),
+				motorSecondRate: readVenueExtraString(item.motorSecondRate),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getFukuokaMotorEvaluation(raceExtra: BoatVenueExtraRace | null): BoatFukuokaMotorEvaluationRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.fukuokaMotorEvaluation)) {
+		return [];
+	}
+
+	return raceExtra.fukuokaMotorEvaluation
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				motorNo: readVenueExtraString(item.motorNo),
+				motorSecondRate: readVenueExtraString(item.motorSecondRate),
+				motorEvaluation: readVenueExtraString(item.motorEvaluation),
+				motorComment: readVenueExtraString(item.motorComment) || readVenueExtraString(item.comment),
+				bestExhibitionTime: readVenueExtraString(item.bestExhibitionTime) || readVenueExtraString(item.exhibitionTime),
+				partsExchange: readVenueExtraString(item.partsExchange),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getFukuokaSeriesResults(raceExtra: BoatVenueExtraRace | null): BoatFukuokaSeriesResultRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.fukuokaSeriesResults)) {
+		return [];
+	}
+
+	return raceExtra.fukuokaSeriesResults
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				raceNumbers: Array.isArray(item.raceNumbers) ? item.raceNumbers.map((value) => readVenueExtraString(value)).slice(0, 12) : [],
+				courses: Array.isArray(item.courses) ? item.courses.map((value) => readVenueExtraString(value)).slice(0, 12) : [],
+				startTimings: Array.isArray(item.startTimings) ? item.startTimings.map((value) => readVenueExtraString(value)).slice(0, 12) : [],
+				finishOrders: Array.isArray(item.finishOrders) ? item.finishOrders.map((value) => readVenueExtraString(value)).slice(0, 12) : [],
+				dayLabels: Array.isArray(item.dayLabels) ? item.dayLabels.map((value) => readVenueExtraString(value)).slice(0, 12) : [],
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getFukuokaRacerComments(raceExtra: BoatVenueExtraRace | null): BoatFukuokaRacerCommentRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.fukuokaRacerComments)) {
+		return [];
+	}
+
+	return raceExtra.fukuokaRacerComments
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				comment: readVenueExtraString(item.comment),
+				motorComment: readVenueExtraString(item.motorComment),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getFukuokaFramePast10(raceExtra: BoatVenueExtraRace | null): BoatFukuokaFramePast10Row[] {
+	if (!raceExtra || !Array.isArray(raceExtra.fukuokaFramePast10)) {
+		return [];
+	}
+
+	return raceExtra.fukuokaFramePast10
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				courseHistory: Array.isArray(item.courseHistory) ? item.courseHistory.map((value) => readVenueExtraString(value)).slice(0, 10) : [],
+				finishHistory: Array.isArray(item.finishHistory) ? item.finishHistory.map((value) => readVenueExtraString(value)).slice(0, 10) : [],
+				startTimingHistory: Array.isArray(item.startTimingHistory)
+					? item.startTimingHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: Array.isArray(item.startTimings)
+						? item.startTimings.map((value) => readVenueExtraString(value)).slice(0, 10)
+						: [],
+				frameWinRate: readVenueExtraString(item.frameWinRate),
+				frameAverageStart: readVenueExtraString(item.frameAverageStart),
+				frameStartOrder: readVenueExtraString(item.frameStartOrder),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getFukuokaScoreRateGuide(raceExtra: BoatVenueExtraRace | null): BoatFukuokaScoreRateGuideRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.fukuokaScoreRateGuide)) {
+		return [];
+	}
+
+	const rows: BoatFukuokaScoreRateGuideRow[] = [];
+	for (const item of raceExtra.fukuokaScoreRateGuide) {
+		if (!isVenueExtraRecord(item)) {
+			continue;
+		}
+
+		const frameNo = readVenueExtraNumber(item.frameNo);
+		if (!frameNo) {
+			continue;
+		}
+
+		rows.push({
+			frameNo,
+			registrationNo: readVenueExtraString(item.registrationNo) || readVenueExtraString(item.registerNo),
+			playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name),
+			className: readVenueExtraString(item.className),
+			averageStart: readVenueExtraString(item.averageStart),
+			winRate: readVenueExtraString(item.winRate) || readVenueExtraString(item.nationalWinRate),
+			secondRate: readVenueExtraString(item.secondRate) || readVenueExtraString(item.nationalSecondRate),
+			localWinRate: readVenueExtraString(item.localWinRate),
+			localSecondRate: readVenueExtraString(item.localSecondRate),
+			motorNo: readVenueExtraString(item.motorNo),
+			motorSecondRate: readVenueExtraString(item.motorSecondRate),
+			scoreRate: readVenueExtraString(item.scoreRate),
+			source: readVenueExtraString(item.source) || undefined,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getKojimaBeforeInfo(raceExtra: BoatVenueExtraRace | null): BoatKojimaBeforeInfoRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.kojimaBeforeInfo)) {
+		return [];
+	}
+
+	return raceExtra.kojimaBeforeInfo
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				exhibitionTime: readVenueExtraString(item.exhibitionTime),
+				weight: readVenueExtraString(item.weight),
+				adjustment: readVenueExtraString(item.adjustment) || readVenueExtraString(item.weightAdjustment),
+				tilt: readVenueExtraString(item.tilt),
+				partsExchange: readVenueExtraString(item.partsExchange),
+				previousRaceInfo: readVenueExtraString(item.previousRaceInfo),
+				motorNo: readVenueExtraString(item.motorNo),
+				motorSecondRate: readVenueExtraString(item.motorSecondRate),
+				preInspectionTime: readVenueExtraString(item.preInspectionTime),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getKojimaSeriesResults(raceExtra: BoatVenueExtraRace | null): BoatKojimaSeriesResultRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.kojimaSeriesResults)) {
+		return [];
+	}
+
+	return raceExtra.kojimaSeriesResults
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				raceNumbers: readVenueExtraStringArray(item.raceNumbers, 12),
+				courses: readVenueExtraStringArray(item.courses, 12),
+				startTimings: readVenueExtraStringArray(item.startTimings, 12),
+				finishOrders: readVenueExtraStringArray(item.finishOrders, 12),
+				dayLabels: readVenueExtraStringArray(item.dayLabels, 12),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getKojimaRecentResults(raceExtra: BoatVenueExtraRace | null): BoatKojimaRecentResultRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.kojimaRecentResults)) {
+		return [];
+	}
+
+	return raceExtra.kojimaRecentResults
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			const sourceHistories = Array.isArray(item.histories)
+				? item.histories
+				: Array.isArray(item.history)
+					? item.history
+					: [];
+
+			const histories = sourceHistories
+				.filter(isVenueExtraRecord)
+				.map((entry) => ({
+					venueName: readVenueExtraString(entry.venueName) || readVenueExtraString(entry.stadium),
+					grade: readVenueExtraString(entry.grade) || readVenueExtraString(entry.seriesClass),
+					dateRange: readVenueExtraString(entry.dateRange),
+					results: readVenueExtraString(entry.results),
+				}))
+				.filter((entry) => entry.venueName || entry.grade || entry.dateRange || entry.results)
+				.slice(0, 5);
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				histories,
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getKojimaCourseStats(raceExtra: BoatVenueExtraRace | null): BoatKojimaCourseStatsRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.kojimaCourseStats)) {
+		return [];
+	}
+
+	return raceExtra.kojimaCourseStats
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			const courseRows = Array.isArray(item.courseRows)
+				? item.courseRows
+					.filter(isVenueExtraRecord)
+					.map((entry) => {
+						const courseNo = readVenueExtraNumber(entry.course) ?? readVenueExtraNumber(entry.courseNo);
+						if (!courseNo) {
+							return null;
+						}
+
+						return {
+							courseNo,
+							entryRate: readVenueExtraString(entry.entryRate),
+							averageStart: readVenueExtraString(entry.averageStart),
+							firstRate: readVenueExtraString(entry.firstRate),
+							secondRate: readVenueExtraString(entry.secondRate),
+							thirdRate: readVenueExtraString(entry.thirdRate),
+							fourthRate: readVenueExtraString(entry.fourthRate),
+							fifthRate: readVenueExtraString(entry.fifthRate),
+							sixthRate: readVenueExtraString(entry.sixthRate),
+						};
+					})
+					.filter(isPresent)
+					.sort((left, right) => left.courseNo - right.courseNo)
+				: [];
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				courseRows,
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getKojimaMotorStats(raceExtra: BoatVenueExtraRace | null): BoatKojimaMotorStatsRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.kojimaMotorStats)) {
+		return [];
+	}
+
+	return raceExtra.kojimaMotorStats
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			const motorWinRate = readVenueExtraRate(readVenueExtraString(item.firstCount), readVenueExtraString(item.starts));
+			const history = Array.isArray(item.history) ? item.history.filter(isVenueExtraRecord) : [];
+			const latestHistory = history[0];
+			const comment = latestHistory
+				? [readVenueExtraString(latestHistory.playerName), readVenueExtraString(latestHistory.dateRange), readVenueExtraString(latestHistory.results)].filter(Boolean).join(" / ")
+				: "";
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				motorNo: readVenueExtraString(item.motorNo),
+				motorSecondRate: readVenueExtraString(item.motorSecondRate),
+				motorWinRate,
+				motorRank: readVenueExtraString(item.motorRank),
+				comment,
+				bestExhibitionTime: readVenueExtraString(item.bestExhibitionTime),
+				preInspectionTime: readVenueExtraString(item.preInspectionTime),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getKojimaFrameStats(raceExtra: BoatVenueExtraRace | null): BoatKojimaFrameStatsRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.kojimaFrameStats)) {
+		return [];
+	}
+
+	return raceExtra.kojimaFrameStats
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				courseHistory: readVenueExtraStringArray(item.courseHistory, 10),
+				finishHistory: readVenueExtraStringArray(item.finishHistory, 10),
+				startTimingHistory: readVenueExtraStringArray(item.startTimingHistory, 10),
+				frameWinRate: readVenueExtraString(item.frameWinRate),
+				frameAverageStart: readVenueExtraString(item.frameAverageStart),
+				frameStartOrder: readVenueExtraString(item.frameStartOrder),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getKojimaScoreRateGuide(raceExtra: BoatVenueExtraRace | null): BoatKojimaScoreRateGuideRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.kojimaScoreRateGuide)) {
+		return [];
+	}
+
+	return raceExtra.kojimaScoreRateGuide
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				registrationNo: readVenueExtraString(item.registrationNo) || readVenueExtraString(item.registerNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				className: readVenueExtraString(item.className),
+				averageStart: readVenueExtraString(item.averageStart),
+				winRate: readVenueExtraString(item.winRate) || readVenueExtraString(item.nationalWinRate),
+				secondRate: readVenueExtraString(item.secondRate) || readVenueExtraString(item.nationalSecondRate),
+				localWinRate: readVenueExtraString(item.localWinRate),
+				localSecondRate: readVenueExtraString(item.localSecondRate),
+				motorNo: readVenueExtraString(item.motorNo),
+				motorSecondRate: readVenueExtraString(item.motorSecondRate),
+				scoreRate: readVenueExtraString(item.scoreRate),
 				source: readVenueExtraString(item.source) || undefined,
 			};
 		})
@@ -2465,126 +4244,30 @@ function getNarutoStartExhibitionDisplay(
 }
 
 const venueSpotlightCopy: Record<string, { summary: string; imageSrc?: string; imageAlt?: string }> = {
-	桐生: {
-		summary: "淡水で干満差がないぶん、水面の変化より足色の比較を先に見たい会場です。インの押し切りと、外のまくり差し気配を並べて確認したいです。",
-		imageSrc: "/races-page/venue-spotlights/kiryu-spotlight.png",
-		imageAlt: "桐生の会場イメージ",
-	},
-	戸田: {
-		summary: "淡水で干満差がなく、展示の気配差を素直に比べやすい会場です。内枠の安定感を土台にしつつ、差し筋があるかを先に見たいです。",
-		imageSrc: "/races-page/venue-spotlights/toda-spotlight.png",
-		imageAlt: "戸田の会場イメージ",
-	},
-	江戸川: {
-		summary: "汽水で干満差ありの水面なので、まず水面状況そのものを優先したい会場です。足色だけで決めず、風と潮の影響まで重ねて見たいです。",
-		imageSrc: "/races-page/venue-spotlights/edogawa-spotlight.png",
-		imageAlt: "江戸川の会場イメージ",
-	},
-	平和島: {
-		summary: "海水で干満差ありのぶん、水面の荒れ方と展示足をセットで見たい会場です。内の信頼度だけでなく、差し・まくり差しの届き方も先に確認したいです。",
-		imageSrc: "/races-page/venue-spotlights/heiwajima-spotlight.png",
-		imageAlt: "平和島の会場イメージ",
-	},
-	多摩川: {
-		summary: "淡水で干満差がなく、まず舟足の良し悪しを丁寧に見たい会場です。内枠の安定感を軸にしつつ、展示で上向いた艇を拾いたいです。",
-		imageSrc: "/races-page/venue-spotlights/tamagawa-spotlight.png",
-		imageAlt: "多摩川の会場イメージ",
-	},
-	浜名湖: {
-		summary: "海水で干満差ありなので、水面の影響と展示気配を一緒に見たい会場です。内外の力差より、直前の乗り味が変わっていないかを確認したいです。",
-		imageSrc: "/races-page/venue-spotlights/hamanako-spotlight.png",
-		imageAlt: "浜名湖の会場イメージ",
-	},
-	蒲郡: {
-		summary: "海水で干満差ありのナイター水面なので、時間帯ごとの気配変化を見たい会場です。展示足の上積みがある艇を、人気より先に拾いたいです。",
-		imageSrc: "/races-page/venue-spotlights/gamagori-spotlight.png",
-		imageAlt: "蒲郡の会場イメージ",
-	},
-	常滑: {
-		summary: "海水で干満差ありの水面なので、水面状況とコース取りを重ねて見たい会場です。内を信じ切る前に、センター勢の伸びも比べたいです。",
-		imageSrc: "/races-page/venue-spotlights/tokoname-spotlight.png",
-		imageAlt: "常滑の会場イメージ",
-	},
-	津: {
-		summary: "海水で干満差ありですが、まずは展示気配を素直に比べたい会場です。内枠の押し切りを本線にしつつ、差し筋の有無も先に見たいです。",
-		imageSrc: "/races-page/venue-spotlights/tsu-spotlight.png",
-		imageAlt: "津の会場イメージ",
-	},
-	三国: {
-		summary: "海水で干満差ありのモーニング水面なので、朝の風と水面の軽さを見たい会場です。内優勢を土台にしつつ、展示の伸び差を優先したいです。",
-		imageSrc: "/races-page/venue-spotlights/mikuni-spotlight.png",
-		imageAlt: "三国の会場イメージ",
-	},
-	びわこ: {
-		summary: "淡水で干満差がなく、展示足の差を見比べやすい会場です。内枠の安定感を意識しつつ、出足寄りの艇がどこまで残せるか見たいです。",
-		imageSrc: "/races-page/venue-spotlights/biwako-spotlight.png",
-		imageAlt: "びわこの会場イメージ",
-	},
-	住之江: {
-		summary: "淡水で干満差がなく、まずは舟足と展示気配の比較を優先したい会場です。ナイターらしい時間帯変化も踏まえて、インの信頼度を見極めたいです。",
-		imageSrc: "/races-page/venue-spotlights/suminoe-spotlight.png",
-		imageAlt: "住之江の会場イメージ",
-	},
-	尼崎: {
-		summary: "汽水で干満差ありのぶん、水面状況を軽視せずに入りたい会場です。展示の出足と回り足を見て、差しが届くかを先に確認したいです。",
-		imageSrc: "/races-page/venue-spotlights/amagasaki-spotlight.png",
-		imageAlt: "尼崎の会場イメージ",
-	},
-	鳴門: {
-		summary: "海水で干満差ありなので、潮と風の影響を前提に見たい会場です。展示足だけで決めず、枠なりが崩れそうかも一緒に確認したいです。",
-		imageSrc: "/races-page/venue-spotlights/naruto-spotlight.png",
-		imageAlt: "鳴門の会場イメージ",
-	},
-	丸亀: {
-		summary: "海水で干満差ありのナイター水面なので、時間帯での気配変化を意識したい会場です。内を軸にしつつ、外のまくり差し気配を丁寧に見たいです。",
-		imageSrc: "/races-page/venue-spotlights/marugame-spotlight.png",
-		imageAlt: "丸亀の会場イメージ",
-	},
-	児島: {
-		summary: "海水で干満差ありの水面なので、潮位と風を踏まえて見たい会場です。内枠の強さだけでなく、展示で上向いた艇の差し脚も確認したいです。",
-		imageSrc: "/races-page/venue-spotlights/kojima-spotlight.png",
-		imageAlt: "児島の会場イメージ",
-	},
-	宮島: {
-		summary: "海水で干満差ありの水面なので、水面状況の確認を優先したい会場です。イン有利に見える番組でも、直前気配が変わっていないか見たいです。",
-		imageSrc: "/races-page/venue-spotlights/miyajima-spotlight.png",
-		imageAlt: "宮島の会場イメージ",
-	},
-	徳山: {
-		summary: "海水で干満差ありのモーニング水面なので、朝の風と展示足を先に見たい会場です。内の安定感を軸にしつつ、センターの伸び差も確認したいです。",
-		imageSrc: "/races-page/venue-spotlights/tokuyama-spotlight.png",
-		imageAlt: "徳山の会場イメージ",
-	},
-	下関: {
-		summary: "海水で干満差ありのぶん、水面変化を軽視せずに見たい会場です。展示の回り足と差し気配を見て、内を崩せる艇がいるか確認したいです。",
-		imageSrc: "/races-page/venue-spotlights/shimonoseki-spotlight.png",
-		imageAlt: "下関の会場イメージ",
-	},
-	若松: {
-		summary: "海水で干満差ありのナイター水面なので、時間帯ごとの気配差を見たい会場です。インの押し切りと外の攻め脚を、展示で丁寧に比べたいです。",
-		imageSrc: "/races-page/venue-spotlights/wakamatsu-spotlight.png",
-		imageAlt: "若松の会場イメージ",
-	},
-	芦屋: {
-		summary: "海水で干満差ありのモーニング水面なので、まずは風向と波を先に見たい会場です。展示足を土台にしつつ、センター勢の攻め筋も確認したいです。",
-		imageSrc: "/races-page/venue-spotlights/ashiya-spotlight.png",
-		imageAlt: "芦屋の会場イメージ",
-	},
-	福岡: {
-		summary: "海水で干満差ありの都市型水面なので、水面状況と足色を一緒に見たい会場です。人気のインをそのまま信じる前に、差し筋の有無を確認したいです。",
-		imageSrc: "/races-page/venue-spotlights/fukuoka-spotlight.png",
-		imageAlt: "福岡の会場イメージ",
-	},
-	唐津: {
-		summary: "海水で干満差ありのモーニング水面なので、朝の水面の軽さを見ながら入りたい会場です。内枠中心で考えつつ、展示で伸びた艇を先に拾いたいです。",
-		imageSrc: "/races-page/venue-spotlights/karatsu-spotlight.png",
-		imageAlt: "唐津の会場イメージ",
-	},
-	大村: {
-		summary: "海水で干満差ありの水面ですが、まずは内の安定感を基準に見たい会場です。ホーム寄りの強さを踏まえつつ、外の仕掛けが届く気配も確認したいです。",
-		imageSrc: "/races-page/venue-spotlights/omura-spotlight.png",
-		imageAlt: "大村の会場イメージ",
-	},
+	桐生: { summary: "インの強さと水面特性を起点に組み立てやすい会場です。", imageSrc: "/races-page/venue-spotlights/kiryu-spotlight.png", imageAlt: "桐生の会場イメージ" },
+	戸田: { summary: "スタートと旋回精度の差が結果へ直結しやすい会場です。", imageSrc: "/races-page/venue-spotlights/toda-spotlight.png", imageAlt: "戸田の会場イメージ" },
+	江戸川: { summary: "風と水面状況の影響を強く受けやすく、波乱も出やすい会場です。", imageSrc: "/races-page/venue-spotlights/edogawa-spotlight.png", imageAlt: "江戸川の会場イメージ" },
+	平和島: { summary: "基本の足比較に加えて展示気配を重視したい会場です。", imageSrc: "/races-page/venue-spotlights/heiwajima-spotlight.png", imageAlt: "平和島の会場イメージ" },
+	多摩川: { summary: "水面の素直さを前提に、直前情報と展示の変化を見たい会場です。", imageSrc: "/races-page/venue-spotlights/tamagawa-spotlight.png", imageAlt: "多摩川の会場イメージ" },
+	浜名湖: { summary: "モーター評価とコース実績の両面から整理しやすい会場です。", imageSrc: "/races-page/venue-spotlights/hamanako-spotlight.png", imageAlt: "浜名湖の会場イメージ" },
+	蒲郡: { summary: "気配差とスタート精度を丁寧に見たいナイター会場です。", imageSrc: "/races-page/venue-spotlights/gamagori-spotlight.png", imageAlt: "蒲郡の会場イメージ" },
+	常滑: { summary: "機力比較と枠順の優位を素直に評価しやすい会場です。", imageSrc: "/races-page/venue-spotlights/tokoname-spotlight.png", imageAlt: "常滑の会場イメージ" },
+	津: { summary: "展示から本番までの足色変化を追う価値が高い会場です。", imageSrc: "/races-page/venue-spotlights/tsu-spotlight.png", imageAlt: "津の会場イメージ" },
+	三国: { summary: "コース取りと回り足の差が着順へ表れやすい会場です。", imageSrc: "/races-page/venue-spotlights/mikuni-spotlight.png", imageAlt: "三国の会場イメージ" },
+	びわこ: { summary: "節間成績と枠別の近走を並べて比較しやすい会場です。", imageSrc: "/races-page/venue-spotlights/biwako-spotlight.png", imageAlt: "びわこの会場イメージ" },
+	住之江: { summary: "イン信頼度と差し場の有無をセットで見たい会場です。", imageSrc: "/races-page/venue-spotlights/suminoe-spotlight.png", imageAlt: "住之江の会場イメージ" },
+	尼崎: { summary: "機力の底上げとターンの安定感が重要になりやすい会場です。", imageSrc: "/races-page/venue-spotlights/amagasaki-spotlight.png", imageAlt: "尼崎の会場イメージ" },
+	鳴門: { summary: "公式の直前情報や独自指数を横断して見たい会場です。", imageSrc: "/races-page/venue-spotlights/naruto-spotlight.png", imageAlt: "鳴門の会場イメージ" },
+	丸亀: { summary: "ナイターの気配変化とモーター比較が効きやすい会場です。", imageSrc: "/races-page/venue-spotlights/marugame-spotlight.png", imageAlt: "丸亀の会場イメージ" },
+	児島: { summary: "直前情報、今節成績、進入コース別の比較が有効な会場です。", imageSrc: "/races-page/venue-spotlights/kojima-spotlight.png", imageAlt: "児島の会場イメージ" },
+	宮島: { summary: "回り足と実戦足のバランスを見極めたい会場です。", imageSrc: "/races-page/venue-spotlights/miyajima-spotlight.png", imageAlt: "宮島の会場イメージ" },
+	徳山: { summary: "モーター気配と展示内容の一致を見たい会場です。", imageSrc: "/races-page/venue-spotlights/tokuyama-spotlight.png", imageAlt: "徳山の会場イメージ" },
+	下関: { summary: "スタートの踏み込みと機力差が結果へ出やすい会場です。", imageSrc: "/races-page/venue-spotlights/shimonoseki-spotlight.png", imageAlt: "下関の会場イメージ" },
+	若松: { summary: "ナイターの展示気配とモーター評価を重ねて見たい会場です。", imageSrc: "/races-page/venue-spotlights/wakamatsu-spotlight.png", imageAlt: "若松の会場イメージ" },
+	芦屋: { summary: "センター勢の攻めとイン残りの両方を比較したい会場です。", imageSrc: "/races-page/venue-spotlights/ashiya-spotlight.png", imageAlt: "芦屋の会場イメージ" },
+	福岡: { summary: "モーター評価と当地実績を重ねて判断しやすい会場です。", imageSrc: "/races-page/venue-spotlights/fukuoka-spotlight.png", imageAlt: "福岡の会場イメージ" },
+	唐津: { summary: "回り足と展示気配の良化を拾いたい会場です。", imageSrc: "/races-page/venue-spotlights/karatsu-spotlight.png", imageAlt: "唐津の会場イメージ" },
+	大村: { summary: "出足系の比較と展示タイムの裏付けを重視したい会場です。", imageSrc: "/races-page/venue-spotlights/omura-spotlight.png", imageAlt: "大村の会場イメージ" },
 };
 
 export function RacesPage() {
@@ -2603,7 +4286,7 @@ export function RacesPage() {
 	const refreshTodayFeed = async (options?: { silent?: boolean; cancelled?: () => boolean }) => {
 		if (!options?.silent) {
 			setIsRefreshingFeed(true);
-			setRefreshMessage("画面表示用の JSON を再読み込み中です...");
+			setRefreshMessage("画面表示用の JSON を読み込み中です...");
 		}
 
 		try {
@@ -2630,8 +4313,8 @@ export function RacesPage() {
 			if (!options?.silent) {
 				setRefreshMessage(
 					venueExtrasResult
-					? "画面表示用の最新 JSON を読み込みました。元データ更新にはスクリプト実行が必要です。"
-					: "画面表示用の最新 JSON を読み込みました。会場独自データはまだ未取得です。",
+						? "画面表示用の最新 JSON を読み込みました。元データ更新にはスクリプト実行が必要です。"
+						: "画面表示用の最新 JSON を読み込みました。会場独自データはまだ未取得です。",
 				);
 			}
 		} catch {
@@ -2733,14 +4416,14 @@ export function RacesPage() {
 	const spotlightContent = useMemo(() => {
 		if (!selectedVenue) {
 			return {
-				summary: "水面状況や風向に注意したい会場です。",
+				summary: "会場特性と直前情報を横断して確認できる画面です。",
 				imageSrc: undefined,
 				imageAlt: undefined,
 			};
 		}
 
 		return venueSpotlightCopy[selectedVenue.venueName] ?? {
-			summary: "直前気配と展示足を優先して見たい会場です。",
+			summary: "直前情報と展示気配を横断して確認したい会場です。",
 			imageSrc: undefined,
 			imageAlt: undefined,
 		};
@@ -2957,6 +4640,181 @@ const omuraExhibitionInfoDisplay = useMemo(
 	[selectedOmuraEntryTable, selectedOmuraExhibitionInfo],
 );
 
+const selectedBiwakoSeriesResults = useMemo(
+	() => getBiwakoSeriesResults(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedBiwakoFramePast10 = useMemo(
+	() => getBiwakoFramePast10(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedTsuBeforeInfo = useMemo(
+	() => getTsuBeforeInfo(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedTsuRacerComments = useMemo(
+	() => getTsuRacerComments(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedTsuSeriesResults = useMemo(
+	() => getTsuSeriesResults(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedTsuNationalRecent3 = useMemo(
+	() => getTsuNationalRecent3(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedTsuLocalRecent3 = useMemo(
+	() => getTsuLocalRecent3(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedTsuFramePast10 = useMemo(
+	() => getTsuFramePast10(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedTsuScoreRateGuide = useMemo(
+	() => getTsuScoreRateGuide(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedWakamatsuEntryRows = useMemo(
+	() => getWakamatsuEntryRows(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedWakamatsuBeforeInfo = useMemo(
+	() => getWakamatsuBeforeInfo(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedWakamatsuSeriesResults = useMemo(
+	() => getWakamatsuSeriesResults(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedWakamatsuCourseStats = useMemo(
+	() => getWakamatsuCourseStats(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedWakamatsuNationalRecent3 = useMemo(
+	() => getWakamatsuNationalRecent3(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedWakamatsuLocalRecent3 = useMemo(
+	() => getWakamatsuLocalRecent3(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedWakamatsuFramePast10 = useMemo(
+	() => getWakamatsuFramePast10(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedWakamatsuScoreRateGuide = useMemo(
+	() => getWakamatsuScoreRateGuide(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedWakamatsuMotorHistory = useMemo(
+	() => getWakamatsuMotorHistory(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedFukuokaEntryRows = useMemo(
+	() => getFukuokaEntryRows(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedFukuokaBeforeInfo = useMemo(
+	() => getFukuokaBeforeInfo(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedFukuokaMotorEvaluation = useMemo(
+	() => getFukuokaMotorEvaluation(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedFukuokaSeriesResults = useMemo(
+	() => getFukuokaSeriesResults(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedFukuokaRacerComments = useMemo(
+	() => getFukuokaRacerComments(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedFukuokaFramePast10 = useMemo(
+	() => getFukuokaFramePast10(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedFukuokaScoreRateGuide = useMemo(
+	() => getFukuokaScoreRateGuide(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedKojimaBeforeInfo = useMemo(
+	() => getKojimaBeforeInfo(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedKojimaSeriesResults = useMemo(
+	() => getKojimaSeriesResults(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedKojimaRecentResults = useMemo(
+	() => getKojimaRecentResults(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedKojimaCourseStats = useMemo(
+	() => getKojimaCourseStats(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedKojimaMotorStats = useMemo(
+	() => getKojimaMotorStats(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedKojimaFrameStats = useMemo(
+	() => getKojimaFrameStats(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedKojimaScoreRateGuide = useMemo(
+	() => getKojimaScoreRateGuide(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedTsuFramePast10Display = useMemo(
+	() => selectedTsuFramePast10.map((row) => {
+		const beforeInfo = selectedTsuBeforeInfo.find((item) => item.frameNo === row.frameNo);
+
+		return {
+			...row,
+			className: row.className || beforeInfo?.className || "",
+			registerNo: row.registerNo || beforeInfo?.registerNo || "",
+			playerName: row.playerName || beforeInfo?.playerName || `枠${row.frameNo}`,
+			profile: row.profile || beforeInfo?.profile || "",
+		};
+	}),
+	[selectedTsuFramePast10, selectedTsuBeforeInfo],
+);
+
 const selectedTamagawaEntryTable = useMemo(
 	() => getTamagawaEntryTable(selectedRaceExtra),
 	[selectedRaceExtra],
@@ -3028,7 +4886,12 @@ const tamagawaStartExhibitionDisplay = useMemo(() => {
 }, [selectedStartExhibition, selectedTamagawaBeforeInfo]);
 
 const isNarutoVenue = selectedVenue?.venueName === "鳴門";
+const isBiwakoVenue = selectedVenue?.venueName === "びわこ";
 const isTamagawaVenue = selectedVenue?.venueName === "多摩川";
+const isTsuVenue = selectedVenue?.venueName === "津";
+const isWakamatsuVenue = selectedVenue?.venueName === "若松";
+const isFukuokaVenue = selectedVenue?.venueName === "福岡";
+const isKojimaVenue = selectedVenue?.venueName === "児島";
 const isOmuraVenue = selectedVenue?.venueName === "大村";
 const isMarugameVenue = selectedVenue?.venueName === "丸亀";
 const hasOmuraEntryData = selectedOmuraEntryTable.length > 0;
@@ -3037,13 +4900,43 @@ const hasOmuraNationalFrameStatsData = selectedOmuraNationalFrameStats.length > 
 const hasOmuraFrameLast10Data = selectedOmuraFrameLast10.length > 0;
 const hasOmuraCommentsMotorData = selectedOmuraRacerCommentsMotor.length > 0;
 const hasOmuraExhibitionData = omuraExhibitionInfoDisplay.length >= 6;
+const hasBiwakoFramePast10Data = selectedBiwakoFramePast10.length > 0;
+const hasBiwakoSeriesResultsData = selectedBiwakoSeriesResults.length > 0;
+const hasTsuBeforeInfoData = selectedTsuBeforeInfo.length > 0;
+const hasTsuRacerCommentsData = selectedTsuRacerComments.length > 0;
+const hasTsuSeriesResultsData = selectedTsuSeriesResults.length > 0;
+const hasTsuNationalRecent3Data = selectedTsuNationalRecent3.length > 0;
+const hasTsuLocalRecent3Data = selectedTsuLocalRecent3.length > 0;
+const hasTsuFramePast10Data = selectedTsuFramePast10Display.length > 0;
+const hasTsuScoreRateGuideData = selectedTsuScoreRateGuide.length > 0;
+const hasWakamatsuEntryData = selectedWakamatsuEntryRows.length > 0;
+const hasWakamatsuBeforeInfoData = selectedWakamatsuBeforeInfo.length > 0;
+const hasWakamatsuSeriesResultsData = selectedWakamatsuSeriesResults.length > 0;
+const hasWakamatsuCourseStatsData = selectedWakamatsuCourseStats.length > 0;
+const hasWakamatsuNationalRecent3Data = selectedWakamatsuNationalRecent3.length > 0;
+const hasWakamatsuLocalRecent3Data = selectedWakamatsuLocalRecent3.length > 0;
+const hasWakamatsuFramePast10Data = selectedWakamatsuFramePast10.length > 0;
+const hasWakamatsuScoreRateGuideData = selectedWakamatsuScoreRateGuide.length > 0;
+const hasWakamatsuMotorHistoryData = selectedWakamatsuMotorHistory.length > 0;
+const hasFukuokaEntryData = selectedFukuokaEntryRows.length > 0;
+const hasFukuokaBeforeInfoData = selectedFukuokaBeforeInfo.length > 0;
+const hasFukuokaMotorEvaluationData = selectedFukuokaMotorEvaluation.length > 0;
+const hasFukuokaSeriesResultsData = selectedFukuokaSeriesResults.length > 0;
+const hasFukuokaRacerCommentsData = selectedFukuokaRacerComments.length > 0;
+const hasFukuokaFramePast10Data = selectedFukuokaFramePast10.length > 0;
+const hasKojimaBeforeInfoData = selectedKojimaBeforeInfo.length > 0;
+const hasKojimaSeriesResultsData = selectedKojimaSeriesResults.length > 0;
+const hasKojimaRecentResultsData = selectedKojimaRecentResults.length > 0;
+const hasKojimaCourseStatsData = selectedKojimaCourseStats.length > 0;
+const hasKojimaMotorStatsData = selectedKojimaMotorStats.length > 0;
+const hasKojimaFrameStatsData = selectedKojimaFrameStats.length > 0;
 const hasTamagawaEntryData = selectedTamagawaEntryTable.length > 0;
 
-// 多摩川は公式HP由来の出走表が取れている場合、メイン出走表にも必ずそちらを使う。
-// 旧判定の「人数が足りない時だけ fallback」だと、6人分はあるが中身が薄いレースで空欄表示になるため。
+// 多摩川は公式由来の出走表データが取れている場合、メイン出走表にもそちらを使う。
+// 公式データがあるのに通常の出走表を使うと、選手情報が不足して空欄表示になる場合があるため。
 const shouldUseTamagawaOfficialEntry = isTamagawaVenue && hasTamagawaEntryData;
 
-// Venue Official Extras 内の「公式出走表 補助表示」は重複表示になるので出さない。
+// Venue Official Extras内に「多摩川公式の出走表補完表示」を重複表示しないため false にしている
 const shouldShowTamagawaEntryFallback = false as boolean;
 
 const tamagawaFallbackRacers = useMemo<BoatRacerItem[]>(() => {
@@ -3095,9 +4988,17 @@ const hasOfficialBeforeInfoDetail = Boolean(
 const shouldShowOfficialBeforeInfoWaiting = Boolean(selectedOfficialBeforeInfo && !hasOfficialBeforeInfoDetail);
 const hasOriginalExhibitionData = selectedOriginalExhibitionRows.length > 0;
 const hasStartExhibitionData = selectedStartExhibition.length > 0;
-const hasVenuePredictionFocus = Boolean(selectedVenuePrediction && selectedVenuePrediction.mainFocus.length > 0);
+const hasVenuePredictionFocus = Boolean(
+	shouldShowVenuePrediction &&
+	selectedVenuePrediction &&
+	selectedVenuePrediction.mainFocus.length > 0,
+);
 const shouldShowOriginalExhibitionWaiting = Boolean(selectedRaceExtra && !hasOriginalExhibitionData);
-const shouldShowVenuePredictionWaiting = Boolean(hasVenuePredictionRecord && !hasVenuePredictionFocus);
+const shouldShowVenuePredictionWaiting = Boolean(
+	shouldShowVenuePrediction &&
+	hasVenuePredictionRecord &&
+	!hasVenuePredictionFocus,
+);
 const hasSelectedMotorSummaryData = selectedMotorSummaryDisplay.items.length > 0;
 const shouldShowMotorSummaryWaiting = selectedMotorSummaryDisplay.isAwaitingMatch;
 const hasNarutoPerformanceData = Boolean(
@@ -3131,6 +5032,123 @@ const tamagawaScoreRows = selectedTamagawaScoreRateGuide.length
 	? selectedTamagawaScoreRateGuide
 	: selectedOfficialBeforeInfo?.scoreQuickLook ?? [];
 
+const tsuScoreRows = useMemo(() => {
+	const officialRows = selectedOfficialBeforeInfo?.scoreQuickLook ?? [];
+	const officialByFrameNo = new Map(officialRows.map((row) => [row.frameNo, row] as const));
+
+	if (selectedTsuScoreRateGuide.length === 0) {
+		return officialRows;
+	}
+
+	return selectedTsuScoreRateGuide.map((row) => {
+		const officialRow = officialByFrameNo.get(row.frameNo);
+
+		return {
+			frameNo: row.frameNo,
+			registrationNo: row.registrationNo || officialRow?.registrationNo || "",
+			playerName: row.playerName || officialRow?.playerName || "",
+			className: row.className || officialRow?.className || "",
+			averageStart: row.averageStart || officialRow?.averageStart || "",
+			winRate: row.winRate || officialRow?.winRate || "",
+			secondRate: row.secondRate || officialRow?.secondRate || "",
+			localWinRate: row.localWinRate || officialRow?.localWinRate || "",
+			localSecondRate: row.localSecondRate || officialRow?.localSecondRate || "",
+			motorNo: row.motorNo || officialRow?.motorNo || "",
+			motorSecondRate: row.motorSecondRate || officialRow?.motorSecondRate || "",
+			source: row.source || officialRow?.source,
+		};
+	}).sort((left, right) => left.frameNo - right.frameNo);
+}, [selectedOfficialBeforeInfo, selectedTsuScoreRateGuide]);
+
+const fukuokaScoreRows = useMemo(() => {
+	const officialRows = selectedOfficialBeforeInfo?.scoreQuickLook ?? [];
+	const officialByFrameNo = new Map(officialRows.map((row) => [row.frameNo, row] as const));
+
+	if (selectedFukuokaScoreRateGuide.length === 0) {
+		return officialRows.map((row) => ({
+			frameNo: row.frameNo,
+			registrationNo: row.registrationNo,
+			playerName: row.playerName,
+			className: row.className,
+			averageStart: row.averageStart,
+			winRate: row.winRate,
+			secondRate: row.secondRate,
+			localWinRate: row.localWinRate,
+			localSecondRate: row.localSecondRate,
+			motorNo: row.motorNo,
+			motorSecondRate: row.motorSecondRate,
+			scoreRate: "",
+			source: row.source,
+		}));
+	}
+
+	return selectedFukuokaScoreRateGuide.map((row) => {
+		const officialRow = officialByFrameNo.get(row.frameNo);
+
+		return {
+			frameNo: row.frameNo,
+			registrationNo: row.registrationNo || officialRow?.registrationNo || "",
+			playerName: row.playerName || officialRow?.playerName || "",
+			className: row.className || officialRow?.className || "",
+			averageStart: row.averageStart || officialRow?.averageStart || "",
+			winRate: row.winRate || officialRow?.winRate || "",
+			secondRate: row.secondRate || officialRow?.secondRate || "",
+			localWinRate: row.localWinRate || officialRow?.localWinRate || "",
+			localSecondRate: row.localSecondRate || officialRow?.localSecondRate || "",
+			motorNo: row.motorNo || officialRow?.motorNo || "",
+			motorSecondRate: row.motorSecondRate || officialRow?.motorSecondRate || "",
+			scoreRate: row.scoreRate || "",
+			source: row.source || officialRow?.source,
+		};
+	}).sort((left, right) => left.frameNo - right.frameNo);
+}, [selectedOfficialBeforeInfo, selectedFukuokaScoreRateGuide]);
+
+const kojimaScoreRows = useMemo(() => {
+	const officialRows = selectedOfficialBeforeInfo?.scoreQuickLook ?? [];
+	const officialByFrameNo = new Map(officialRows.map((row) => [row.frameNo, row] as const));
+
+	if (selectedKojimaScoreRateGuide.length === 0) {
+		return officialRows.map((row) => ({
+			frameNo: row.frameNo,
+			registrationNo: row.registrationNo,
+			playerName: row.playerName,
+			className: row.className,
+			averageStart: row.averageStart,
+			winRate: row.winRate,
+			secondRate: row.secondRate,
+			localWinRate: row.localWinRate,
+			localSecondRate: row.localSecondRate,
+			motorNo: row.motorNo,
+			motorSecondRate: row.motorSecondRate,
+			scoreRate: "",
+			source: row.source,
+		}));
+	}
+
+	return selectedKojimaScoreRateGuide.map((row) => {
+		const officialRow = officialByFrameNo.get(row.frameNo);
+
+		return {
+			frameNo: row.frameNo,
+			registrationNo: row.registrationNo || officialRow?.registrationNo || "",
+			playerName: row.playerName || officialRow?.playerName || "",
+			className: row.className || officialRow?.className || "",
+			averageStart: row.averageStart || officialRow?.averageStart || "",
+			winRate: row.winRate || officialRow?.winRate || "",
+			secondRate: row.secondRate || officialRow?.secondRate || "",
+			localWinRate: row.localWinRate || officialRow?.localWinRate || "",
+			localSecondRate: row.localSecondRate || officialRow?.localSecondRate || "",
+			motorNo: row.motorNo || officialRow?.motorNo || "",
+			motorSecondRate: row.motorSecondRate || officialRow?.motorSecondRate || "",
+			scoreRate: row.scoreRate || "",
+			source: row.source || officialRow?.source,
+		};
+	}).sort((left, right) => left.frameNo - right.frameNo);
+}, [selectedOfficialBeforeInfo, selectedKojimaScoreRateGuide]);
+
+const hasFukuokaScoreRateGuideData = fukuokaScoreRows.length > 0;
+const hasKojimaScoreRateGuideData = kojimaScoreRows.length > 0;
+
 const hasSelectedVenueExtrasDetail =
 	hasOriginalExhibitionData ||
 	selectedRacerComments.length > 0 ||
@@ -3143,6 +5161,38 @@ const hasSelectedVenueExtrasDetail =
 	hasOmuraFrameLast10Data ||
 	hasOmuraCommentsMotorData ||
 	hasOmuraExhibitionData ||
+	hasBiwakoFramePast10Data ||
+	hasBiwakoSeriesResultsData ||
+	hasTsuBeforeInfoData ||
+	hasTsuRacerCommentsData ||
+	hasTsuSeriesResultsData ||
+	hasTsuNationalRecent3Data ||
+	hasTsuLocalRecent3Data ||
+	hasTsuFramePast10Data ||
+	hasTsuScoreRateGuideData ||
+	hasWakamatsuEntryData ||
+	hasWakamatsuBeforeInfoData ||
+	hasWakamatsuSeriesResultsData ||
+	hasWakamatsuCourseStatsData ||
+	hasWakamatsuNationalRecent3Data ||
+	hasWakamatsuLocalRecent3Data ||
+	hasWakamatsuFramePast10Data ||
+	hasWakamatsuScoreRateGuideData ||
+	hasWakamatsuMotorHistoryData ||
+	hasFukuokaEntryData ||
+	hasFukuokaBeforeInfoData ||
+	hasFukuokaMotorEvaluationData ||
+	hasFukuokaSeriesResultsData ||
+	hasFukuokaRacerCommentsData ||
+	hasFukuokaFramePast10Data ||
+	hasFukuokaScoreRateGuideData ||
+	hasKojimaBeforeInfoData ||
+	hasKojimaSeriesResultsData ||
+	hasKojimaRecentResultsData ||
+	hasKojimaCourseStatsData ||
+	hasKojimaMotorStatsData ||
+	hasKojimaFrameStatsData ||
+	hasKojimaScoreRateGuideData ||
 	hasTamagawaEntryData ||
 	hasTamagawaBeforeInfoData ||
 	hasTamagawaMotorHistoryData ||
@@ -3182,6 +5232,166 @@ const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(() => {
 		return "omura-overview";
 	}
 
+	if (isTsuVenue) {
+		if (hasTsuBeforeInfoData) {
+			return "tsu-before";
+		}
+
+		if (hasStartPanelData) {
+			return "start";
+		}
+
+		if (hasOriginalExhibitionData) {
+			return "exhibition";
+		}
+
+		if (hasTsuRacerCommentsData) {
+			return "tsu-comments";
+		}
+
+		if (hasTsuSeriesResultsData) {
+			return "tsu-series";
+		}
+
+		if (hasTsuFramePast10Data) {
+			return "tsu-frame10";
+		}
+
+		if (hasTsuScoreRateGuideData || selectedOfficialBeforeInfo?.scoreQuickLook.length) {
+			return "tsu-score";
+		}
+
+		if (hasTsuNationalRecent3Data) {
+			return "tsu-national3";
+		}
+
+		if (hasTsuLocalRecent3Data) {
+			return "tsu-local3";
+		}
+
+		return "tsu-before";
+	}
+
+	if (isWakamatsuVenue) {
+		if (hasWakamatsuBeforeInfoData) {
+			return "wakamatsu-before";
+		}
+
+		if (hasStartPanelData) {
+			return "start";
+		}
+
+		if (hasOriginalExhibitionData) {
+			return "exhibition";
+		}
+
+		if (hasWakamatsuSeriesResultsData) {
+			return "wakamatsu-series";
+		}
+
+		if (hasWakamatsuCourseStatsData) {
+			return "wakamatsu-course";
+		}
+
+		if (hasWakamatsuMotorHistoryData) {
+			return "wakamatsu-motor";
+		}
+
+		if (hasWakamatsuFramePast10Data) {
+			return "wakamatsu-frame10";
+		}
+
+		if (hasWakamatsuNationalRecent3Data) {
+			return "wakamatsu-national3";
+		}
+
+		if (hasWakamatsuLocalRecent3Data) {
+			return "wakamatsu-local3";
+		}
+
+		if (hasWakamatsuEntryData) {
+			return "wakamatsu-entry";
+		}
+
+		return "wakamatsu-score";
+	}
+
+	if (isFukuokaVenue) {
+		if (hasFukuokaBeforeInfoData) {
+			return "fukuoka-before";
+		}
+
+		if (hasStartPanelData) {
+			return "start";
+		}
+
+		if (hasOriginalExhibitionData) {
+			return "exhibition";
+		}
+
+		if (hasFukuokaMotorEvaluationData) {
+			return "fukuoka-motor";
+		}
+
+		if (hasFukuokaSeriesResultsData) {
+			return "fukuoka-series";
+		}
+
+		if (hasFukuokaRacerCommentsData) {
+			return "fukuoka-comments";
+		}
+
+		if (hasFukuokaFramePast10Data) {
+			return "fukuoka-frame10";
+		}
+
+		if (hasFukuokaEntryData) {
+			return "fukuoka-entry";
+		}
+
+		return "fukuoka-score";
+	}
+
+	if (isKojimaVenue) {
+		if (hasKojimaBeforeInfoData) {
+			return "kojima-before";
+		}
+
+		if (hasStartPanelData) {
+			return "start";
+		}
+
+		if (hasOriginalExhibitionData) {
+			return "exhibition";
+		}
+
+		if (hasKojimaSeriesResultsData) {
+			return "kojima-series";
+		}
+
+		if (hasKojimaCourseStatsData) {
+			return "kojima-course";
+		}
+
+		if (hasKojimaMotorStatsData) {
+			return "kojima-motor";
+		}
+
+		if (hasKojimaFrameStatsData) {
+			return "kojima-frame";
+		}
+
+		if (hasKojimaScoreRateGuideData || selectedOfficialBeforeInfo?.scoreQuickLook.length) {
+			return "kojima-score";
+		}
+
+		if (hasKojimaRecentResultsData) {
+			return "kojima-recent";
+		}
+
+		return "kojima-before";
+	}
+
 	if (isTamagawaVenue) {
 		if (hasTamagawaBeforeInfoData) {
 			return "tamagawa-cyokuzen";
@@ -3218,6 +5428,29 @@ const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(() => {
 		return "tamagawa-overview";
 	}
 
+			if (isBiwakoVenue) {
+		if (hasExhibitionPanelData) {
+			return "exhibition";
+		}
+
+		if (hasStartPanelData) {
+			return "start";
+		}
+
+		if (hasBiwakoFramePast10Data) {
+			return "biwako-frame10";
+		}
+
+		if (hasBiwakoSeriesResultsData) {
+			return "biwako-series";
+		}
+
+		if (hasRecordsPanelData) {
+			return "records";
+		}
+		return "exhibition";
+	}
+
 	if (hasOfficialPanelData) {
 		return "official";
 	}
@@ -3250,7 +5483,44 @@ const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(() => {
 	hasOmuraFrameLast10Data,
 	hasOmuraNationalFrameStatsData,
 	hasOmuraPreviousDayData,
+	isTsuVenue,
+	isWakamatsuVenue,
+	isFukuokaVenue,
+	isKojimaVenue,
+	hasTsuBeforeInfoData,
+	hasTsuRacerCommentsData,
+	hasTsuSeriesResultsData,
+	hasTsuNationalRecent3Data,
+	hasTsuLocalRecent3Data,
+	hasTsuFramePast10Data,
+	hasTsuScoreRateGuideData,
+	hasWakamatsuEntryData,
+	hasWakamatsuBeforeInfoData,
+	hasWakamatsuSeriesResultsData,
+	hasWakamatsuCourseStatsData,
+	hasWakamatsuNationalRecent3Data,
+	hasWakamatsuLocalRecent3Data,
+	hasWakamatsuFramePast10Data,
+	hasWakamatsuScoreRateGuideData,
+	hasWakamatsuMotorHistoryData,
+	hasFukuokaEntryData,
+	hasFukuokaBeforeInfoData,
+	hasFukuokaMotorEvaluationData,
+	hasFukuokaSeriesResultsData,
+	hasFukuokaRacerCommentsData,
+	hasFukuokaFramePast10Data,
+	hasFukuokaScoreRateGuideData,
+	hasKojimaBeforeInfoData,
+	hasKojimaSeriesResultsData,
+	hasKojimaRecentResultsData,
+	hasKojimaCourseStatsData,
+	hasKojimaMotorStatsData,
+	hasKojimaFrameStatsData,
+	hasKojimaScoreRateGuideData,
 	isTamagawaVenue,
+	isBiwakoVenue,
+	hasBiwakoFramePast10Data,
+	hasBiwakoSeriesResultsData,
 	hasTamagawaBeforeInfoData,
 	hasTamagawaMotorHistoryData,
 	hasTamagawaSeriesResultsData,
@@ -3269,47 +5539,144 @@ const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(() => {
 ]);
 
 useEffect(() => {
-	setSelectedVenueExtraPanel(isOmuraVenue ? "omura-overview" : isTamagawaVenue ? "tamagawa-overview" : preferredVenueExtraPanel);
-}, [selectedVenueId, isOmuraVenue, isTamagawaVenue, preferredVenueExtraPanel]);
+	setSelectedVenueExtraPanel(
+		isOmuraVenue
+			? "omura-overview"
+			: isTamagawaVenue
+				? "tamagawa-overview"
+			: isKojimaVenue
+				? "kojima-before"
+				: isFukuokaVenue
+					? "fukuoka-before"
+				: preferredVenueExtraPanel,
+	);
+}, [selectedVenueId, isOmuraVenue, isTamagawaVenue, isKojimaVenue, isFukuokaVenue, preferredVenueExtraPanel]);
 
 useEffect(() => {
 	setSelectedNarutoStatsTab("score");
 }, [selectedVenueId]);
 
+const venueExtraText = VENUE_EXTRA_LABELS;
+
 const venueExtraPanelOptions = useMemo(
 	() => isOmuraVenue ? [
-		{ key: "omura-overview", label: "全体", hint: "大村公式データの取得状況", badge: hasSelectedVenueExtrasDetail ? "全体" : "待ち" },
-		{ key: "omura-prevday", label: "前日", hint: "前日成績を確認", badge: hasOmuraPreviousDayData ? "前日" : "待ち" },
-		{ key: "omura-national", label: "全国枠", hint: "全国枠番別成績を確認", badge: hasOmuraNationalFrameStatsData ? "全国枠" : "待ち" },
-		{ key: "omura-last10", label: "10走", hint: "枠番別過去10走データ", badge: hasOmuraFrameLast10Data ? "10走" : "待ち" },
-		{ key: "omura-comments", label: "コメント・モーター", hint: "選手コメントとモーター評価", badge: hasOmuraCommentsMotorData ? "コメント" : "待ち" },
-		{ key: "omura-exhibition", label: "展示情報", hint: "大村公式の展示情報を確認", badge: hasOmuraExhibitionData ? "展示" : "待ち" },
+		{ key: "omura-overview", label: venueExtraText.labels.overview, hint: venueExtraText.hints.overview, badge: hasSelectedVenueExtrasDetail ? venueExtraText.labels.overviewShort : venueExtraText.waiting },
+		{ key: "omura-prevday", label: venueExtraText.labels.prevDay, hint: venueExtraText.hints.prevDay, badge: hasOmuraPreviousDayData ? venueExtraText.labels.prevDay : venueExtraText.waiting },
+		{ key: "omura-national", label: venueExtraText.labels.nationalFrame, hint: venueExtraText.hints.nationalFrame, badge: hasOmuraNationalFrameStatsData ? venueExtraText.labels.nationalFrameShort : venueExtraText.waiting },
+		{ key: "omura-last10", label: venueExtraText.labels.last10, hint: venueExtraText.hints.last10, badge: hasOmuraFrameLast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
+		{ key: "omura-comments", label: venueExtraText.labels.commentsAndMotor, hint: venueExtraText.hints.commentsAndMotor, badge: hasOmuraCommentsMotorData ? venueExtraText.labels.commentShort : venueExtraText.waiting },
+		{ key: "omura-exhibition", label: venueExtraText.labels.displayInfo, hint: venueExtraText.hints.displayInfo, badge: hasOmuraExhibitionData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
+	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isTsuVenue ? [
+		{ key: "tsu-before", label: venueExtraText.labels.before, hint: venueExtraText.hints.beforeFull, badge: hasTsuBeforeInfoData ? venueExtraText.labels.directBeforeShort : venueExtraText.waiting },
+		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startTsu, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
+		{ key: "exhibition", label: venueExtraText.labels.exhibition, hint: venueExtraText.hints.exhibitionFull, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
+		{ key: "tsu-comments", label: venueExtraText.labels.comments, hint: venueExtraText.hints.commentsTsu, badge: hasTsuRacerCommentsData ? venueExtraText.labels.commentShort : venueExtraText.waiting },
+		{ key: "tsu-series", label: venueExtraText.labels.series, hint: venueExtraText.hints.seriesGeneral, badge: hasTsuSeriesResultsData ? venueExtraText.labels.series : venueExtraText.waiting },
+		{ key: "tsu-national3", label: venueExtraText.labels.nationalRecent3, hint: venueExtraText.hints.nationalRecent3, badge: hasTsuNationalRecent3Data ? venueExtraText.labels.national3Short : venueExtraText.waiting },
+		{ key: "tsu-local3", label: venueExtraText.labels.localRecent3, hint: venueExtraText.hints.localRecent3Tsu, badge: hasTsuLocalRecent3Data ? venueExtraText.labels.local3Short : venueExtraText.waiting },
+		{ key: "tsu-frame10", label: venueExtraText.labels.framePast10, hint: venueExtraText.hints.framePast10, badge: hasTsuFramePast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
+		{ key: "tsu-score", label: venueExtraText.labels.score, hint: venueExtraText.hints.scoreTsu, badge: hasTsuScoreRateGuideData || selectedOfficialBeforeInfo?.scoreQuickLook.length ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
+	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isWakamatsuVenue ? [
+		{ key: "wakamatsu-before", label: venueExtraText.labels.before, hint: venueExtraText.hints.beforeWakamatsu, badge: hasWakamatsuBeforeInfoData ? venueExtraText.labels.directBeforeShort : venueExtraText.waiting },
+		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startWakamatsu, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
+		{ key: "exhibition", label: venueExtraText.labels.exhibition, hint: venueExtraText.hints.exhibitionFull, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
+		{ key: "wakamatsu-series", label: venueExtraText.labels.series, hint: venueExtraText.hints.seriesGeneral, badge: hasWakamatsuSeriesResultsData ? venueExtraText.labels.series : venueExtraText.waiting },
+		{ key: "wakamatsu-course", label: venueExtraText.labels.course, hint: venueExtraText.hints.courseWakamatsu, badge: hasWakamatsuCourseStatsData ? "進入" : venueExtraText.waiting },
+		{ key: "wakamatsu-motor", label: venueExtraText.labels.motorHistory, hint: venueExtraText.hints.motorHistory, badge: hasWakamatsuMotorHistoryData ? venueExtraText.labels.historyShort : venueExtraText.waiting },
+		{ key: "wakamatsu-frame10", label: venueExtraText.labels.framePast10, hint: venueExtraText.hints.framePast10, badge: hasWakamatsuFramePast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
+		{ key: "wakamatsu-national3", label: venueExtraText.labels.nationalRecent3, hint: venueExtraText.hints.nationalRecent3, badge: hasWakamatsuNationalRecent3Data ? venueExtraText.labels.national3Short : venueExtraText.waiting },
+		{ key: "wakamatsu-local3", label: venueExtraText.labels.localRecent3, hint: venueExtraText.hints.localRecent3Wakamatsu, badge: hasWakamatsuLocalRecent3Data ? venueExtraText.labels.local3Short : venueExtraText.waiting },
+		{ key: "wakamatsu-entry", label: venueExtraText.labels.entryTable, hint: venueExtraText.hints.entryTable, badge: hasWakamatsuEntryData ? venueExtraText.labels.entryTable : venueExtraText.waiting },
+		{ key: "wakamatsu-score", label: venueExtraText.labels.score, hint: venueExtraText.hints.scoreWakamatsu, badge: hasWakamatsuScoreRateGuideData ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
+	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isFukuokaVenue ? [
+		{ key: "fukuoka-entry", label: venueExtraText.labels.entry, hint: venueExtraText.hints.entryFukuoka, badge: hasFukuokaEntryData ? venueExtraText.labels.entryShort : venueExtraText.waiting },
+		{ key: "fukuoka-before", label: venueExtraText.labels.before, hint: venueExtraText.hints.beforeDisplay, badge: hasFukuokaBeforeInfoData ? venueExtraText.labels.directBeforeShort : venueExtraText.waiting },
+		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startFukuoka, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
+		{ key: "exhibition", label: venueExtraText.labels.displayInfo, hint: venueExtraText.hints.exhibitionDisplay, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
+		{ key: "fukuoka-motor", label: venueExtraText.labels.motorEvaluation, hint: venueExtraText.hints.motorEvaluation, badge: hasFukuokaMotorEvaluationData ? venueExtraText.labels.motorShort : venueExtraText.waiting },
+		{ key: "fukuoka-series", label: venueExtraText.labels.interval, hint: venueExtraText.hints.seriesGeneral, badge: hasFukuokaSeriesResultsData ? venueExtraText.labels.intervalShort : venueExtraText.waiting },
+		{ key: "fukuoka-comments", label: venueExtraText.labels.comments, hint: venueExtraText.hints.commentsTsu, badge: hasFukuokaRacerCommentsData ? venueExtraText.labels.commentShort : venueExtraText.waiting },
+		{ key: "fukuoka-frame10", label: venueExtraText.labels.framePast10, hint: venueExtraText.hints.framePast10, badge: hasFukuokaFramePast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
+		{ key: "fukuoka-score", label: venueExtraText.labels.score, hint: venueExtraText.hints.scoreFukuoka, badge: hasFukuokaScoreRateGuideData ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
+	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isKojimaVenue ? [
+		{ key: "kojima-before", label: venueExtraText.labels.before, hint: venueExtraText.hints.beforeDisplay, badge: hasKojimaBeforeInfoData ? venueExtraText.labels.directBeforeShort : venueExtraText.waiting },
+		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startKojima, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
+		{ key: "exhibition", label: venueExtraText.labels.exhibition, hint: venueExtraText.hints.exhibitionFull, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
+		{ key: "kojima-series", label: venueExtraText.labels.series, hint: venueExtraText.hints.seriesGeneral, badge: hasKojimaSeriesResultsData ? venueExtraText.labels.series : venueExtraText.waiting },
+		{ key: "kojima-recent", label: venueExtraText.labels.recent, hint: venueExtraText.hints.recent, badge: hasKojimaRecentResultsData ? venueExtraText.labels.recentShort : venueExtraText.waiting },
+		{ key: "kojima-course", label: venueExtraText.labels.course, hint: venueExtraText.hints.courseCompare, badge: hasKojimaCourseStatsData ? "進入" : venueExtraText.waiting },
+		{ key: "kojima-motor", label: venueExtraText.labels.motorStats, hint: venueExtraText.hints.motorStats, badge: hasKojimaMotorStatsData ? venueExtraText.labels.motorShort : venueExtraText.waiting },
+		{ key: "kojima-frame", label: venueExtraText.labels.frameStats, hint: venueExtraText.hints.frameStats, badge: hasKojimaFrameStatsData ? venueExtraText.labels.frameStats : venueExtraText.waiting },
+		{ key: "kojima-score", label: venueExtraText.labels.score, hint: venueExtraText.hints.scoreKojima, badge: hasKojimaScoreRateGuideData ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
 	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isTamagawaVenue ? [
-		{ key: "tamagawa-overview", label: "全体", hint: "多摩川公式タブの全体像", badge: hasSelectedVenueExtrasDetail ? "全体" : "待ち" },
-		{ key: "motor", label: "モーター", hint: "モーター履歴を確認", badge: hasTamagawaMotorHistoryData ? "機歴" : "待ち" },
-		{ key: "tamagawa-diagnosis", label: "診断", hint: "能力指数を確認", badge: selectedAbilityIndex.length > 0 ? "指数" : "待ち" },
-		{ key: "tamagawa-series", label: "節間", hint: "節間成績を確認", badge: hasTamagawaSeriesResultsData ? "節間" : "待ち" },
-		{ key: "tamagawa-cyokuzen", label: "直前", hint: "体重・調整・部品交換", badge: hasTamagawaBeforeInfoData ? "直前" : "待ち" },
-		{ key: "start", label: "ST", hint: "スタート展示を確認", badge: hasStartPanelData ? "ST" : "待ち" },
-		{ key: "exhibition", label: "展示", hint: "オリジナル展示データ", badge: hasOriginalExhibitionData ? "展示" : "待ち" },
-		{ key: "tamagawa-frame10", label: "枠番過去10走", hint: "枠別の直近10走", badge: hasTamagawaFramePast10Data ? "10走" : "待ち" },
-		{ key: "tamagawa-score", label: "得点率", hint: "得点率早見", badge: hasTamagawaScoreRateGuideData || selectedOfficialBeforeInfo?.scoreQuickLook.length ? "得点" : "待ち" },
+		{ key: "tamagawa-overview", label: venueExtraText.labels.overview, hint: venueExtraText.hints.overviewTamagawa, badge: hasSelectedVenueExtrasDetail ? venueExtraText.labels.overviewShort : venueExtraText.waiting },
+		{ key: "motor", label: venueExtraText.labels.motor, hint: venueExtraText.hints.motorTamagawa, badge: hasTamagawaMotorHistoryData ? venueExtraText.labels.historyShort : venueExtraText.waiting },
+		{ key: "tamagawa-diagnosis", label: venueExtraText.labels.diagnosis, hint: venueExtraText.hints.diagnosis, badge: selectedAbilityIndex.length > 0 ? venueExtraText.labels.indexShort : venueExtraText.waiting },
+		{ key: "tamagawa-series", label: venueExtraText.labels.interval, hint: venueExtraText.hints.interval, badge: hasTamagawaSeriesResultsData ? venueExtraText.labels.intervalShort : venueExtraText.waiting },
+		{ key: "tamagawa-cyokuzen", label: venueExtraText.labels.directBeforeShort, hint: venueExtraText.hints.beforeTamagawa, badge: hasTamagawaBeforeInfoData ? venueExtraText.labels.directBeforeShort : venueExtraText.waiting },
+		{ key: "start", label: venueExtraText.labels.startShort, hint: venueExtraText.hints.startTamagawa, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
+		{ key: "exhibition", label: venueExtraText.labels.exhibitionShort, hint: venueExtraText.hints.exhibitionTamagawa, badge: hasOriginalExhibitionData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
+		{ key: "tamagawa-frame10", label: venueExtraText.labels.framePast10, hint: venueExtraText.hints.framePast10Tamagawa, badge: hasTamagawaFramePast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
+		{ key: "tamagawa-score", label: venueExtraText.labels.scoreShort, hint: venueExtraText.hints.scoreTamagawa, badge: hasTamagawaScoreRateGuideData || selectedOfficialBeforeInfo?.scoreQuickLook.length ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
+	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isBiwakoVenue ? [
+		{ key: "exhibition", label: "会場独自展示", hint: venueExtraText.hints.exhibitionBiwako, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
+		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startBiwako, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
+		{ key: "biwako-frame10", label: venueExtraText.labels.framePast10, hint: venueExtraText.hints.framePast10, badge: hasBiwakoFramePast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
+		{ key: "biwako-series", label: venueExtraText.labels.interval, hint: venueExtraText.hints.seriesBiwako, badge: hasBiwakoSeriesResultsData ? venueExtraText.labels.intervalShort : venueExtraText.waiting },
+		{ key: "records", label: venueExtraText.labels.score, hint: venueExtraText.hints.scoreBiwako, badge: hasRecordsPanelData ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
 	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : [
-		{ key: "official", label: "公式直前", hint: "展示タイムと公式の直前基礎情報", badge: hasOfficialPanelData ? "公式" : "待ち" },
-		{ key: "start", label: "スタート展示", hint: "公式STと進入・展示STを確認", badge: hasStartPanelData ? "ST" : "待ち" },
-		{ key: "records", label: "成績・勝率", hint: "得点率早見と鳴門の成績系", badge: hasRecordsPanelData ? "成績" : "待ち" },
-		{ key: "exhibition", label: "会場独自展示", hint: "一周・回り足・直線の比較", badge: hasExhibitionPanelData ? "展示" : "待ち" },
-		{ key: "motor", label: "モーター", hint: "機歴やモーター総括を確認", badge: hasMotorPanelData ? "機力" : "待ち" },
-		{ key: "water", label: "水面・コメント", hint: "潮汐・水面傾向・コメント", badge: hasWaterPanelData ? "水面" : "待ち" },
+		{ key: "official", label: venueExtraText.labels.official, hint: venueExtraText.hints.official, badge: hasOfficialPanelData ? venueExtraText.labels.officialShort : venueExtraText.waiting },
+		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startGeneral, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
+		{ key: "records", label: venueExtraText.labels.records, hint: venueExtraText.hints.records, badge: hasRecordsPanelData ? venueExtraText.labels.recordsShort : venueExtraText.waiting },
+		{ key: "exhibition", label: "会場独自展示", hint: venueExtraText.hints.exhibitionGeneral, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
+		{ key: "motor", label: venueExtraText.labels.motor, hint: venueExtraText.hints.motorGeneral, badge: hasMotorPanelData ? venueExtraText.labels.motorHistoryShort : venueExtraText.waiting },
+		{ key: "water", label: venueExtraText.labels.waterComment, hint: venueExtraText.hints.waterComment, badge: hasWaterPanelData ? venueExtraText.labels.waterShort : venueExtraText.waiting },
 	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }>,
 	[
 		isOmuraVenue,
+		isTsuVenue,
+		isWakamatsuVenue,
+		isFukuokaVenue,
+		isKojimaVenue,
 		isTamagawaVenue,
-		hasOmuraPreviousDayData,
+		isBiwakoVenue,
+	    hasBiwakoFramePast10Data,
+		hasBiwakoSeriesResultsData,
+	    hasOmuraPreviousDayData,
 		hasOmuraNationalFrameStatsData,
 		hasOmuraFrameLast10Data,
 		hasOmuraCommentsMotorData,
 		hasOmuraExhibitionData,
+		hasTsuBeforeInfoData,
+		hasTsuRacerCommentsData,
+		hasTsuSeriesResultsData,
+		hasTsuNationalRecent3Data,
+		hasTsuLocalRecent3Data,
+		hasTsuFramePast10Data,
+		hasTsuScoreRateGuideData,
+		hasWakamatsuEntryData,
+		hasWakamatsuBeforeInfoData,
+		hasWakamatsuSeriesResultsData,
+		hasWakamatsuCourseStatsData,
+		hasWakamatsuNationalRecent3Data,
+		hasWakamatsuLocalRecent3Data,
+		hasWakamatsuFramePast10Data,
+		hasWakamatsuScoreRateGuideData,
+		hasWakamatsuMotorHistoryData,
+		hasFukuokaEntryData,
+		hasFukuokaBeforeInfoData,
+		hasFukuokaMotorEvaluationData,
+		hasFukuokaSeriesResultsData,
+		hasFukuokaRacerCommentsData,
+		hasFukuokaFramePast10Data,
+		hasFukuokaScoreRateGuideData,
+		hasKojimaBeforeInfoData,
+		hasKojimaSeriesResultsData,
+		hasKojimaRecentResultsData,
+		hasKojimaCourseStatsData,
+		hasKojimaMotorStatsData,
+		hasKojimaFrameStatsData,
+		hasKojimaScoreRateGuideData,
 		hasSelectedVenueExtrasDetail,
 		hasTamagawaMotorHistoryData,
 		selectedAbilityIndex.length,
@@ -3331,44 +5698,44 @@ const venueExtraPanelOptions = useMemo(
 
 const narutoStatsTabOptions = useMemo(
 	() => [
-		{ key: "score", label: "公式得点率", hint: "全国・当地・モーター2連率" },
-		{ key: "frameHistory", label: "枠番別10走", hint: "枠別の過去10走と平均ST" },
-		{ key: "narutoRecent", label: "鳴門近況", hint: "鳴門での直近3節を確認" },
-		{ key: "nationalRecent", label: "全国近況", hint: "全国の直近3節を確認" },
+		{ key: "score", label: "公式スコア", hint: "全国成績とモーター2連率を確認" },
+		{ key: "frameHistory", label: "枠番別10走", hint: "枠番別の直近10走を確認" },
+		{ key: "narutoRecent", label: "鳴門近況", hint: "鳴門での直近成績を確認" },
+		{ key: "nationalRecent", label: "全国近況", hint: "全国での直近成績を確認" },
 	] as Array<{ key: NarutoStatsTab; label: string; hint: string }>,
 	[],
 );
 
 const venueExtrasDisplayText = useMemo(() => {
 	if (!venueExtrasFeed) {
-		return "会場独自データと BOATRACE公式直前データはまだ読み込まれていません。上の「画面データを再読み込み」を押すと JSON の再取得を確認できます。";
+		return "会場独自データを読み込み中です。";
 	}
 
 	if ((venueExtrasFeed.venues?.length ?? 0) === 0) {
-		return "BOATRACE公式直前データの受け皿は準備済みです。会場独自データは対応会場分だけ追加表示されます。";
+		return "会場独自データはまだ取得されていません。";
 	}
 
 	if (!selectedVenueExtra) {
-		return "この会場の追加データはまだ取得していません。BOATRACE公式直前データまたは会場独自データが揃うと、ここに表示されます。";
+		return "この会場の独自データはまだ準備されていません。";
 	}
 
 	if (!selectedRaceExtra) {
-		return "この会場の追加データは見つかりましたが、選択中レースのデータはまだありません。";
+		return "選択中レースの独自データはまだありません。";
 	}
 
 	if (hasOfficialBeforeInfoDetail && hasSelectedVenueExtrasDetail) {
-		return "BOATRACE公式の直前データと会場独自データを表示できます。展示・ST・得点率早見と会場メモをあわせて確認できます。";
+		return "BBOATRACE公式の直前情報と会場独自データを表示しています。";
 	}
 
 	if (hasOfficialBeforeInfoDetail) {
-		return "BOATRACE公式の直前データを表示できます。会場独自データは対応会場分のみ追加されます。";
+		return "BBOATRACE公式の直前情報を表示しています。";
 	}
 
 	if (hasSelectedVenueExtrasDetail) {
-		return "会場独自データを表示できます。BOATRACE公式の直前データは更新待ちです。";
+		return "会場独自データを表示しています。";
 	}
 
-	return "選択中レースの追加データは更新待ちです。";
+	return "選択中レースの表示データは準備中です。";
 }, [venueExtrasFeed, selectedVenueExtra, selectedRaceExtra, hasOfficialBeforeInfoDetail, hasSelectedVenueExtrasDetail]);
 
 	const dataDateWarnings = useMemo(() => {
@@ -3378,15 +5745,15 @@ const venueExtrasDisplayText = useMemo(() => {
 		const jstToday = getJstTodayDate();
 
 		if (todayDate && venueDate && todayDate !== venueDate) {
-			warnings.push(`データ日付が一致していません。開催一覧: ${todayDate} / 直前情報: ${venueDate}。更新スクリプトの実行状況を確認してください。`);
+			warnings.push(`データ日付が一致していません。基本情報: ${todayDate} / 会場独自: ${venueDate}`);
 		}
 
 		if (todayDate && todayDate !== jstToday) {
-			warnings.push(`開催一覧データが今日ではありません。today.generated.json の date は ${todayDate} です。`);
+			warnings.push(`today.generated.json の date は ${todayDate} です。`);
 		}
 
 		if (venueDate && venueDate !== jstToday) {
-			warnings.push(`直前情報データが今日ではありません。venue-extras.generated.json の date は ${venueDate} です。`);
+			warnings.push(`venue-extras.generated.json の date は ${venueDate} です。`);
 		}
 
 		return warnings;
@@ -3408,7 +5775,7 @@ const venueExtrasDisplayText = useMemo(() => {
     <div style={heroImageAreaStyle}>
       <img
         src={raceHeroImageSrc}
-        alt="ボートレース場を背景にしたキャラクタービジュアル"
+		alt="ボートレース会場を象徴するキービジュアル"
         style={heroImageStyle}
       />
     </div>
@@ -3417,7 +5784,7 @@ const venueExtrasDisplayText = useMemo(() => {
       <span style={heroEyebrowStyle}>Today Races</span>
       <h2 style={heroTitleStyle}>今日のレース</h2>
       <p style={heroDescriptionStyle}>
-        会場とレースを素早く選び、天候・オッズ・結果まで一気に確認できる流れに整理しています。
+		会場とレースを選ぶと、展示オッズや直前情報まで一画面で比較しながら確認できます。
       </p>
     </div>
   </div>
@@ -3460,7 +5827,7 @@ const venueExtrasDisplayText = useMemo(() => {
 				void refreshTodayFeed();
 			}}
 		>
-			<span aria-hidden="true">🔄</span>
+			<span aria-hidden="true">↻</span>
 			画面データを再読み込み
 		</button>
 
@@ -3478,7 +5845,7 @@ const venueExtrasDisplayText = useMemo(() => {
 	</div>
 
 	<p style={{ margin: 0, fontSize: "0.78rem", lineHeight: 1.6, color: boatTheme.colors.muted, textAlign: "right" as const }}>
-		この操作は画面用 JSON の再取得です。元データを今日分へ更新するには Node スクリプトの実行が必要です。
+		この操作は画面用 JSON の再読込です。元データを更新するには Node スクリプトの実行が必要です。
 	</p>
 
 	{refreshMessage && refreshMessageStyle ? (
@@ -3530,16 +5897,16 @@ const venueExtrasDisplayText = useMemo(() => {
 						venueName={selectedVenue?.venueName ?? "-"}
 						venueWeatherActual={selectedVenue?.weatherActual}
 						race={selectedRaceForDetail}
-						entryNote={shouldUseTamagawaOfficialEntry ? "多摩川公式HP由来の出走表をメイン表示しています。" : undefined}
+						entryNote={shouldUseTamagawaOfficialEntry ? "多摩川公式の出走表をメイン表示しています。" : undefined}
 						
 						afterEntryContent={
 							<section style={venueExtrasSectionStyle}>
 		<div style={venueExtrasHeaderStyle}>
 			<div style={venueExtrasTitleWrapStyle}>
 				<p style={venueExtrasLabelStyle}>Venue Official Extras</p>
-				<h3 style={venueExtrasTitleStyle}>🏟️ BOATRACE公式 直前データ / 会場独自データ</h3>
+				<h3 style={venueExtrasTitleStyle}>BOATRACE公式直前データ / 会場独自データ</h3>
 				<p style={venueExtrasTextStyle}>
-					BOATRACE公式の直前情報と、唐津・鳴門・丸亀など会場公式HPの独自データを別枠で整理しています。
+					BOATRACE公式の直前情報と、体重・気配・一周など会場公式HPの独自データを横断して確認できます。
 				</p>
 			</div>
 
@@ -3621,49 +5988,49 @@ const venueExtrasDisplayText = useMemo(() => {
 					})}
 				</div>
 			</div>
-			<p style={venueExtrasCategoryCaptionStyle}>選択中のカテゴリだけ表示します。スマホでは横にスクロールして切り替えできます。</p>
+			<p style={venueExtrasCategoryCaptionStyle}>選択中のカテゴリだけを表示します。スマホでは横にスクロールして切り替えてください。</p>
 		</div>
 
 		{isOmuraVenue && selectedVenueExtraPanel === "omura-overview" ? (
 			<div style={venueExtrasDataGridStyle}>
 				<section style={venueExtrasPanelStyle}>
-					<h4 style={venueExtrasPanelTitleStyle}>🧭 大村公式タブの全体像</h4>
+					<h4 style={venueExtrasPanelTitleStyle}>大村公式タブの全体像</h4>
 					<div style={venueExtrasStatusGridStyle}>
 						<article style={venueExtrasStatusCardStyle}>
 							<p style={venueExtrasStatusLabelStyle}>前日成績</p>
-							<p style={venueExtrasStatusValueStyle}>{hasOmuraPreviousDayData ? "取得あり" : "取得なし"}</p>
+							<p style={venueExtrasStatusValueStyle}>{hasOmuraPreviousDayData ? "あり" : "なし"}</p>
 						</article>
 						<article style={venueExtrasStatusCardStyle}>
 							<p style={venueExtrasStatusLabelStyle}>全国枠番別成績</p>
-							<p style={venueExtrasStatusValueStyle}>{hasOmuraNationalFrameStatsData ? "取得あり" : "取得なし"}</p>
+							<p style={venueExtrasStatusValueStyle}>{hasOmuraNationalFrameStatsData ? "あり" : "なし"}</p>
 						</article>
 						<article style={venueExtrasStatusCardStyle}>
-							<p style={venueExtrasStatusLabelStyle}>枠番別過去10走</p>
-							<p style={venueExtrasStatusValueStyle}>{hasOmuraFrameLast10Data ? "取得あり" : "取得なし"}</p>
+							<p style={venueExtrasStatusLabelStyle}>枠番別直近10走</p>
+							<p style={venueExtrasStatusValueStyle}>{hasOmuraFrameLast10Data ? "あり" : "なし"}</p>
 						</article>
 						<article style={venueExtrasStatusCardStyle}>
-							<p style={venueExtrasStatusLabelStyle}>コメント・モーター</p>
-							<p style={venueExtrasStatusValueStyle}>{hasOmuraCommentsMotorData ? "取得あり" : "取得なし"}</p>
+							<p style={venueExtrasStatusLabelStyle}>コメント / モーター</p>
+							<p style={venueExtrasStatusValueStyle}>{hasOmuraCommentsMotorData ? "あり" : "なし"}</p>
 						</article>
 						<article style={venueExtrasStatusCardStyle}>
 							<p style={venueExtrasStatusLabelStyle}>展示情報</p>
-							<p style={venueExtrasStatusValueStyle}>{hasOmuraExhibitionData ? "取得あり" : "取得なし"}</p>
+							<p style={venueExtrasStatusValueStyle}>{hasOmuraExhibitionData ? "あり" : "なし"}</p>
 						</article>
 					</div>
-					<p style={venueExtrasEmptyStyle}>大村は 出走表 / 前日 / 全国枠 / 10走 / コメント・モーター / 展示情報 を race 単位で保持しています。オッズ・結果・リプレイは重複するためここでは出していません。</p>
+					<p style={venueExtrasEmptyStyle}>大村は出走表、前日成績、全国枠番、10走、コメント、モーター、展示情報を race 単位で表示します。</p>
 				</section>
 
 				{hasOmuraEntryData ? (
 					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>🚤 出走表サマリー</h4>
-						<p style={venueExtrasEmptyStyle}>既存の上部出走表と重複しない範囲で、F/L・事故率・独自評価だけを要約表示しています。</p>
+						<h4 style={venueExtrasPanelTitleStyle}>出走表サマリー</h4>
+						<p style={venueExtrasEmptyStyle}>前日時点の出走表と、F/L、事故率、評価を一覧表示しています。</p>
 						<div style={venueExtrasTableWrapStyle}>
 							<table style={{ ...venueExtrasTableStyle, minWidth: "1020px" }}>
 								<thead>
 									<tr>
 										<th style={venueExtrasHeadCellStyle}>枠</th>
 										<th style={venueExtrasHeadCellStyle}>選手</th>
-										<th style={venueExtrasHeadCellStyle}>級別 / 登番</th>
+										<th style={venueExtrasHeadCellStyle}>級別 / 登録番号</th>
 										<th style={venueExtrasHeadCellStyle}>F / L</th>
 										<th style={venueExtrasHeadCellStyle}>平均ST / 事故率</th>
 										<th style={venueExtrasHeadCellStyle}>評価</th>
@@ -3694,7 +6061,7 @@ const venueExtrasDisplayText = useMemo(() => {
 			hasOmuraPreviousDayData ? (
 				<div style={venueExtrasDataGridStyle}>
 					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>📚 前日成績</h4>
+						<h4 style={venueExtrasPanelTitleStyle}>前日成績</h4>
 						<div style={venueExtrasTableWrapStyle}>
 							<table style={{ ...venueExtrasTableStyle, minWidth: "980px" }}>
 								<thead>
@@ -3722,7 +6089,7 @@ const venueExtrasDisplayText = useMemo(() => {
 														{race ? (
 															<div style={{ display: "grid", gap: "3px", minWidth: "92px" }}>
 																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>{race.date || item.date || "-"}</span>
-																<span>R {race.raceNo || "-"} / 進 {race.course || "-"}</span>
+																<span>R {race.raceNo || "-"} / 進入 {race.course || "-"}</span>
 																<span>ST {race.startTiming || "-"}</span>
 																<strong>{race.finishOrder || "-"}</strong>
 															</div>
@@ -3738,7 +6105,7 @@ const venueExtrasDisplayText = useMemo(() => {
 					</section>
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>大村公式の前日成績は更新待ちです。</p>
+				<p style={venueExtrasEmptyStyle}>大村公式の前日成績は未取得待ちです。</p>
 			)
 		) : null}
 
@@ -3746,18 +6113,18 @@ const venueExtrasDisplayText = useMemo(() => {
 			hasOmuraNationalFrameStatsData ? (
 				<div style={venueExtrasDataGridStyle}>
 					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>🌐 全国枠番別成績</h4>
+						<h4 style={venueExtrasPanelTitleStyle}>全国枠番別成績</h4>
 						<div style={venueExtrasTableWrapStyle}>
 							<table style={venueExtrasTableStyle}>
 								<thead>
 									<tr>
 										<th style={venueExtrasHeadCellStyle}>枠</th>
 										<th style={venueExtrasHeadCellStyle}>選手</th>
-										<th style={venueExtrasHeadCellStyle}>1着率</th>
-										<th style={venueExtrasHeadCellStyle}>2着率</th>
-										<th style={venueExtrasHeadCellStyle}>3着率</th>
+										<th style={venueExtrasHeadCellStyle}>1逹邇・</th>
+										<th style={venueExtrasHeadCellStyle}>2逹邇・</th>
+										<th style={venueExtrasHeadCellStyle}>3逹邇・</th>
 										<th style={venueExtrasHeadCellStyle}>その他</th>
-										<th style={venueExtrasHeadCellStyle}>3連率</th>
+										<th style={venueExtrasHeadCellStyle}>3騾｣邇・</th>
 										<th style={venueExtrasHeadCellStyle}>平均ST</th>
 										<th style={venueExtrasHeadCellStyle}>ST順位</th>
 									</tr>
@@ -3782,7 +6149,7 @@ const venueExtrasDisplayText = useMemo(() => {
 					</section>
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>大村公式の全国枠番別成績は更新待ちです。</p>
+				<p style={venueExtrasEmptyStyle}>大村公式の全国枠番別成績は未取得待ちです。</p>
 			)
 		) : null}
 
@@ -3790,7 +6157,7 @@ const venueExtrasDisplayText = useMemo(() => {
 			hasOmuraFrameLast10Data ? (
 				<div style={venueExtrasDataGridStyle}>
 					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>📚 枠番別過去10走データ</h4>
+						<h4 style={venueExtrasPanelTitleStyle}>枠番別10走データ</h4>
 						<div style={venueExtrasTableWrapStyle}>
 							<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
 								<thead>
@@ -3828,7 +6195,7 @@ const venueExtrasDisplayText = useMemo(() => {
 					</section>
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>大村公式の枠番別過去10走データは更新待ちです。</p>
+				<p style={venueExtrasEmptyStyle}>大村公式の枠番別10走データは未取得待ちです。</p>
 			)
 		) : null}
 
@@ -3836,22 +6203,22 @@ const venueExtrasDisplayText = useMemo(() => {
 			hasOmuraCommentsMotorData ? (
 				<div style={venueExtrasDataGridStyle}>
 					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>💬 選手コメント / モーター評価</h4>
+						<h4 style={venueExtrasPanelTitleStyle}>選手コメント / モーター評価</h4>
 						<div style={venueExtrasCommentListStyle}>
 							{omuraCommentsMotorDisplay.map((item) => (
 								<article key={`omura-comment-${item.frameNo}`} style={venueExtrasRacerCommentCardStyle}>
 									<div style={venueExtrasRacerCommentHeaderStyle}>
-										<p style={venueExtrasRacerCommentFrameStyle}>{item.frameNo}号艇 / {item.playerName}</p>
+										<p style={venueExtrasRacerCommentFrameStyle}>{item.frameNo}号艇/ {item.playerName}</p>
 										<span style={venueExtrasFocusPillStyle}>M {item.motorEvaluation || "-"} / {item.motorNo || "-"}号機</span>
 									</div>
-									<p style={venueExtrasRacerCommentTextStyle}>{item.comment || "コメントは更新待ちです。"}</p>
+									<p style={venueExtrasRacerCommentTextStyle}>{item.comment || "-"}</p>
 								</article>
 							))}
 						</div>
 					</section>
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>大村公式の選手コメント / モーター評価は更新待ちです。</p>
+				<p style={venueExtrasEmptyStyle}>大村公式の選手コメント/ モーター評価は未取得待ちです。</p>
 			)
 		) : null}
 
@@ -3859,21 +6226,21 @@ const venueExtrasDisplayText = useMemo(() => {
 			hasOmuraExhibitionData ? (
 				<div style={venueExtrasDataGridStyle}>
 					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>🚤 展示情報</h4>
+						<h4 style={venueExtrasPanelTitleStyle}>展示情報</h4>
 						<div style={venueExtrasTableWrapStyle}>
 							<table style={{ ...venueExtrasTableStyle, minWidth: "1180px" }}>
 								<thead>
 									<tr>
 										<th style={venueExtrasHeadCellStyle}>進入</th>
-										<th style={venueExtrasHeadCellStyle}>名前</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
 										<th style={venueExtrasHeadCellStyle}>ST</th>
 										<th style={venueExtrasHeadCellStyle}>展示T</th>
 										<th style={venueExtrasHeadCellStyle}>一周</th>
 										<th style={venueExtrasHeadCellStyle}>回り足</th>
 										<th style={venueExtrasHeadCellStyle}>直線</th>
 										<th style={venueExtrasHeadCellStyle}>チルト</th>
-										<th style={venueExtrasHeadCellStyle}>部品交換</th>
-										<th style={venueExtrasHeadCellStyle}>スタート</th>
+										<th style={venueExtrasHeadCellStyle}>前走情報</th>
+										<th style={venueExtrasHeadCellStyle}>スタート種別</th>
 										<th style={venueExtrasHeadCellStyle}>評価</th>
 									</tr>
 								</thead>
@@ -3899,42 +6266,42 @@ const venueExtrasDisplayText = useMemo(() => {
 					</section>
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>展示情報はまだ取得できていません。展示航走後に更新される可能性があります。</p>
+				<p style={venueExtrasEmptyStyle}>展示情報はまだ取得できていません。公開後に表示される可能性があります。</p>
 			)
 		) : null}
 
 		{isTamagawaVenue && selectedVenueExtraPanel === "tamagawa-overview" ? (
 			<div style={venueExtrasDataGridStyle}>
 				<section style={venueExtrasPanelStyle}>
-					<h4 style={venueExtrasPanelTitleStyle}>🧭 多摩川公式タブの全体像</h4>
+					<h4 style={venueExtrasPanelTitleStyle}>多摩川データ全体像</h4>
 					<div style={venueExtrasStatusGridStyle}>
 						<article style={venueExtrasStatusCardStyle}>
 							<p style={venueExtrasStatusLabelStyle}>直前情報</p>
-							<p style={venueExtrasStatusValueStyle}>{hasTamagawaBeforeInfoData ? `${selectedTamagawaBeforeInfo.length}艇` : "更新待ち"}</p>
+							<p style={venueExtrasStatusValueStyle}>{hasTamagawaBeforeInfoData ? `${selectedTamagawaBeforeInfo.length}件` : "-"}</p>
 						</article>
 						<article style={venueExtrasStatusCardStyle}>
 							<p style={venueExtrasStatusLabelStyle}>スタート展示</p>
-							<p style={venueExtrasStatusValueStyle}>{tamagawaStartExhibitionDisplay.length ? `${tamagawaStartExhibitionDisplay.length}艇` : "更新待ち"}</p>
+							<p style={venueExtrasStatusValueStyle}>{tamagawaStartExhibitionDisplay.length ? `${tamagawaStartExhibitionDisplay.length}件` : "-"}</p>
 						</article>
 						<article style={venueExtrasStatusCardStyle}>
 							<p style={venueExtrasStatusLabelStyle}>オリジナル展示</p>
-							<p style={venueExtrasStatusValueStyle}>{hasOriginalExhibitionData ? `${selectedOriginalExhibitionRows.length}艇` : "更新待ち"}</p>
+							<p style={venueExtrasStatusValueStyle}>{hasOriginalExhibitionData ? `${selectedOriginalExhibitionRows.length}件` : "-"}</p>
 						</article>
 						<article style={venueExtrasStatusCardStyle}>
 							<p style={venueExtrasStatusLabelStyle}>モーター履歴</p>
-							<p style={venueExtrasStatusValueStyle}>{hasTamagawaMotorHistoryData ? `${selectedTamagawaMotorHistory.length}艇` : "更新待ち"}</p>
+							<p style={venueExtrasStatusValueStyle}>{hasTamagawaMotorHistoryData ? `${selectedTamagawaMotorHistory.length}件` : "-"}</p>
 						</article>
 						<article style={venueExtrasStatusCardStyle}>
 							<p style={venueExtrasStatusLabelStyle}>節間 / 枠番別10走</p>
-							<p style={venueExtrasStatusValueStyle}>{hasTamagawaSeriesResultsData || hasTamagawaFramePast10Data ? "表示可" : "更新待ち"}</p>
+							<p style={venueExtrasStatusValueStyle}>{hasTamagawaSeriesResultsData || hasTamagawaFramePast10Data ? "表示中" : "-"}</p>
 						</article>
 					</div>
-					<p style={venueExtrasEmptyStyle}>多摩川公式の優先タブを上から順に切り替えて確認できます。まずは 直前 / ST / 展示 を見る構成です。</p>
+					<p style={venueExtrasEmptyStyle}>多摩川の直前情報、スタート展示、オリジナル展示を横断して確認できます。</p>
 				</section>
 
 				{hasTamagawaBeforeInfoData ? (
 					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>📝 直前情報サマリー</h4>
+						<h4 style={venueExtrasPanelTitleStyle}>直前情報サマリー</h4>
 						<div style={venueExtrasTableWrapStyle}>
 							<table style={venueExtrasTableStyle}>
 								<thead>
@@ -3944,7 +6311,7 @@ const venueExtrasDisplayText = useMemo(() => {
 										<th style={venueExtrasHeadCellStyle}>体重 / 調整</th>
 										<th style={venueExtrasHeadCellStyle}>モーター</th>
 										<th style={venueExtrasHeadCellStyle}>チルト</th>
-										<th style={venueExtrasHeadCellStyle}>前走成績</th>
+										<th style={venueExtrasHeadCellStyle}>前走情報</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -3961,116 +6328,25 @@ const venueExtrasDisplayText = useMemo(() => {
 								</tbody>
 							</table>
 						</div>
-										</section>
-				) : null}
-
-				{shouldShowTamagawaEntryFallback ? (
-					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>🚤 公式出走表 補助表示</h4>
-						<p style={venueExtrasEmptyStyle}>
-							メインの出走表データが空のため、多摩川公式HP由来の出走表を補助表示しています。
-						</p>
-
-						<div style={venueExtrasTableWrapStyle}>
-							<table style={{ ...venueExtrasTableStyle, minWidth: "1180px" }}>
-								<thead>
-									<tr>
-										<th style={venueExtrasHeadCellStyle}>枠</th>
-										<th style={venueExtrasHeadCellStyle}>選手</th>
-										<th style={venueExtrasHeadCellStyle}>級別 / 登番</th>
-										<th style={venueExtrasHeadCellStyle}>F/L</th>
-										<th style={venueExtrasHeadCellStyle}>平均ST</th>
-										<th style={venueExtrasHeadCellStyle}>全国勝率</th>
-										<th style={venueExtrasHeadCellStyle}>全国2連率</th>
-										<th style={venueExtrasHeadCellStyle}>当地勝率</th>
-										<th style={venueExtrasHeadCellStyle}>当地2連率</th>
-										<th style={venueExtrasHeadCellStyle}>モーター</th>
-										<th style={venueExtrasHeadCellStyle}>ボート</th>
-									</tr>
-								</thead>
-								<tbody>
-									{selectedTamagawaEntryTable.map((item) => (
-										<tr key={`tamagawa-entry-fallback-${item.frameNo}`}>
-											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.className || "-"} / {item.registerNo || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.fl || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.averageStart || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.nationalWinRate || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.nationalSecondRate || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"} / {item.motorSecondRate || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.boatNo || "-"} / {item.boatSecondRate || "-"}</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
 					</section>
 				) : null}
+
+				{shouldShowTamagawaEntryFallback ? null : null}
 			</div>
-		) : null}
-
-		{isTamagawaVenue && selectedVenueExtraPanel === "tamagawa-cyokuzen" ? (
-			hasTamagawaBeforeInfoData ? (
-				<div style={venueExtrasDataGridStyle}>
-					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>📝 直前情報</h4>
-						<div style={venueExtrasTableWrapStyle}>
-							<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
-								<thead>
-									<tr>
-										<th style={venueExtrasHeadCellStyle}>枠</th>
-										<th style={venueExtrasHeadCellStyle}>選手</th>
-										<th style={venueExtrasHeadCellStyle}>体重</th>
-										<th style={venueExtrasHeadCellStyle}>調整</th>
-										<th style={venueExtrasHeadCellStyle}>モーター</th>
-										<th style={venueExtrasHeadCellStyle}>チルト</th>
-										<th style={venueExtrasHeadCellStyle}>前走成績</th>
-										<th style={venueExtrasHeadCellStyle}>部品交換</th>
-									</tr>
-								</thead>
-								<tbody>
-									{selectedTamagawaBeforeInfo.map((item) => (
-										<tr key={`tamagawa-cyokuzen-${item.frameNo}`}>
-											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-											<td style={venueExtrasBodyCellStyle}>
-												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
-													<strong>{item.playerName}</strong>
-													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
-												</div>
-											</td>
-											<td style={venueExtrasBodyCellStyle}>{item.weight || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.weightAdjustment || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"} / {item.motorSecondRate || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.previousRaceInfo || "-"}</td>
-											<td style={venueExtrasBodyCellStyle}>{item.partsExchange || "-"}</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
-					</section>
-				</div>
-			) : (
-				<p style={venueExtrasEmptyStyle}>多摩川公式の直前情報は更新待ちです。</p>
-			)
 		) : null}
 
 		{isTamagawaVenue && selectedVenueExtraPanel === "tamagawa-diagnosis" ? (
 			selectedAbilityIndex.length > 0 ? (
 				<div style={venueExtrasDataGridStyle}>
 					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>📊 診断指数</h4>
+						<h4 style={venueExtrasPanelTitleStyle}>診断指数</h4>
 						<div style={venueExtrasTableWrapStyle}>
 							<table style={venueExtrasTableStyle}>
 								<thead>
 									<tr>
 										<th style={venueExtrasHeadCellStyle}>枠</th>
 										<th style={venueExtrasHeadCellStyle}>能力値</th>
-										<th style={venueExtrasHeadCellStyle}>枠番相性</th>
+										<th style={venueExtrasHeadCellStyle}>枠番適性</th>
 										<th style={venueExtrasHeadCellStyle}>スタート力</th>
 									</tr>
 								</thead>
@@ -4089,7 +6365,138 @@ const venueExtrasDisplayText = useMemo(() => {
 					</section>
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>多摩川公式の診断指数は更新待ちです。</p>
+				<p style={venueExtrasEmptyStyle}>多摩川公式の診断指数は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isKojimaVenue && selectedVenueExtraPanel === "kojima-before" ? (
+			hasKojimaBeforeInfoData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>直前情報</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1340px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>展示T</th>
+										<th style={venueExtrasHeadCellStyle}>体重</th>
+										<th style={venueExtrasHeadCellStyle}>調整</th>
+										<th style={venueExtrasHeadCellStyle}>チルト</th>
+										<th style={venueExtrasHeadCellStyle}>前走情報</th>
+										<th style={venueExtrasHeadCellStyle}>部品交換</th>
+										<th style={venueExtrasHeadCellStyle}>モーター</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedKojimaBeforeInfo.map((item) => (
+										<tr key={`kojima-before-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
+												</div>
+											</td>
+											<td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.weight || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.adjustment || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.partsExchange || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.previousRaceInfo || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"} / {item.motorSecondRate || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>児島公式の直前情報は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isKojimaVenue && selectedVenueExtraPanel === "kojima-series" ? (
+			hasKojimaSeriesResultsData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>今節成績</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										{Array.from({ length: 12 }, (_, index) => {
+											const dayLabel = selectedKojimaSeriesResults.find((row) => row.dayLabels[index])?.dayLabels[index];
+											return <th key={`kojima-series-head-${index}`} style={venueExtrasHeadCellStyle}>{dayLabel || `${index + 1}走`}</th>;
+										})}
+									</tr>
+								</thead>
+								<tbody>
+									{selectedKojimaSeriesResults.map((item) => (
+										<tr key={`kojima-series-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}><div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}><strong>{item.playerName || `枠${item.frameNo}`}</strong><span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span></div></td>
+											{Array.from({ length: 12 }, (_, index) => {
+												const raceNo = item.raceNumbers[index] || "";
+												const course = item.courses[index] || "";
+												const startTiming = item.startTimings[index] || "";
+												const finishOrder = item.finishOrders[index] || "";
+												const hasCellData = Boolean(raceNo || course || startTiming || finishOrder);
+												return <td key={`kojima-series-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>{hasCellData ? <div style={{ display: "grid", gap: "3px", minWidth: "58px", lineHeight: 1.35 }}><span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>R {raceNo || "-"}</span><span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入 {course || "-"}</span><span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>ST {startTiming || "-"}</span><strong>{finishOrder || "-"}</strong></div> : "-"}</td>;
+											})}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>児島公式の今節成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isKojimaVenue && selectedVenueExtraPanel === "kojima-recent" ? (
+			hasKojimaRecentResultsData ? (
+				<div style={venueExtrasDataGridStyle}><section style={venueExtrasPanelStyle}><h4 style={venueExtrasPanelTitleStyle}>最近成績</h4><div style={venueExtrasTableWrapStyle}><table style={{ ...venueExtrasTableStyle, minWidth: "1080px" }}><thead><tr><th style={venueExtrasHeadCellStyle}>枠</th><th style={venueExtrasHeadCellStyle}>選手</th><th style={venueExtrasHeadCellStyle}>1節前</th><th style={venueExtrasHeadCellStyle}>2節前</th><th style={venueExtrasHeadCellStyle}>3節前</th><th style={venueExtrasHeadCellStyle}>4節前</th><th style={venueExtrasHeadCellStyle}>5節前</th></tr></thead><tbody>{selectedKojimaRecentResults.map((item) => (<tr key={`kojima-recent-${item.frameNo}`}><td style={venueExtrasBodyCellStyle}>{item.frameNo}</td><td style={venueExtrasBodyCellStyle}><div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}><strong>{item.playerName || `枠${item.frameNo}`}</strong><span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span></div></td>{Array.from({ length: 5 }, (_, index) => { const history = item.histories[index]; return <td key={`kojima-recent-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>{history ? <div style={{ ...narutoMeetCellStyle, alignItems: "flex-start" }}><span style={narutoMeetLabelStyle}>{history.venueName || "-"}</span><span style={{ fontSize: "0.68rem", color: boatTheme.colors.muted }}>{history.grade || "-"}</span><span style={{ fontSize: "0.68rem", color: boatTheme.colors.muted }}>{history.dateRange || "-"}</span><span style={narutoMeetResultStyle}>{history.results || "-"}</span></div> : "-"}</td>; })}</tr>))}</tbody></table></div></section></div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>児島公式の最近成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isKojimaVenue && selectedVenueExtraPanel === "kojima-course" ? (
+			hasKojimaCourseStatsData ? (
+				<div style={venueExtrasDataGridStyle}><section style={venueExtrasPanelStyle}><h4 style={venueExtrasPanelTitleStyle}>進入コース別</h4><div style={venueExtrasTableWrapStyle}><table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}><thead><tr><th style={venueExtrasHeadCellStyle}>枠</th><th style={venueExtrasHeadCellStyle}>選手</th>{Array.from({ length: 6 }, (_, index) => (<th key={`kojima-course-head-${index}`} style={venueExtrasHeadCellStyle}>{index + 1}コース</th>))}</tr></thead><tbody>{selectedKojimaCourseStats.map((item) => (<tr key={`kojima-course-${item.frameNo}`}><td style={venueExtrasBodyCellStyle}>{item.frameNo}</td><td style={venueExtrasBodyCellStyle}><div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}><strong>{item.playerName || `枠${item.frameNo}`}</strong><span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span></div></td>{Array.from({ length: 6 }, (_, index) => { const course = item.courseRows[index]; return <td key={`kojima-course-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>{course ? <div style={{ display: "grid", gap: "3px", minWidth: "96px" }}><span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入率{course.entryRate || "-"}</span><span>1逹邇・{course.firstRate || "-"}</span><span>2連率{sumVenueExtraRates(course.firstRate, course.secondRate) || "-"}</span><span>3騾｣邇・{sumVenueExtraRates(course.firstRate, course.secondRate, course.thirdRate) || "-"}</span><span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>平均ST {course.averageStart || "-"}</span></div> : "-"}</td>; })}</tr>))}</tbody></table></div></section></div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>児島公式の進入コース別成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isKojimaVenue && selectedVenueExtraPanel === "kojima-motor" ? (
+			hasKojimaMotorStatsData ? (
+				<div style={venueExtrasDataGridStyle}><section style={venueExtrasPanelStyle}><h4 style={venueExtrasPanelTitleStyle}>モーター成績</h4><div style={venueExtrasTableWrapStyle}><table style={{ ...venueExtrasTableStyle, minWidth: "1360px" }}><thead><tr><th style={venueExtrasHeadCellStyle}>枠</th><th style={venueExtrasHeadCellStyle}>選手</th><th style={venueExtrasHeadCellStyle}>モーター</th><th style={venueExtrasHeadCellStyle}>2連率</th><th style={venueExtrasHeadCellStyle}>勝率</th><th style={venueExtrasHeadCellStyle}>評価</th><th style={venueExtrasHeadCellStyle}>コメント</th><th style={venueExtrasHeadCellStyle}>ベスト展示</th><th style={venueExtrasHeadCellStyle}>前検タイム</th></tr></thead><tbody>{selectedKojimaMotorStats.map((item) => (<tr key={`kojima-motor-${item.frameNo}`}><td style={venueExtrasBodyCellStyle}>{item.frameNo}</td><td style={venueExtrasBodyCellStyle}><div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}><strong>{item.playerName || `枠${item.frameNo}`}</strong><span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span></div></td><td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.motorWinRate || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.motorRank ? `順位${item.motorRank}` : "-"}</td><td style={venueExtrasBodyCellStyle}>{item.comment || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.bestExhibitionTime || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.preInspectionTime || "-"}</td></tr>))}</tbody></table></div></section></div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>児島公式のモーター成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isKojimaVenue && selectedVenueExtraPanel === "kojima-frame" ? (
+			hasKojimaFrameStatsData ? (
+				<div style={venueExtrasDataGridStyle}><section style={venueExtrasPanelStyle}><h4 style={venueExtrasPanelTitleStyle}>枠番別成績</h4><div style={venueExtrasTableWrapStyle}><table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}><thead><tr><th style={venueExtrasHeadCellStyle}>枠</th><th style={venueExtrasHeadCellStyle}>選手</th>{Array.from({ length: 10 }, (_, index) => (<th key={`kojima-frame-head-${index}`} style={venueExtrasHeadCellStyle}>{10 - index}走</th>))}<th style={venueExtrasHeadCellStyle}>枠番勝率</th><th style={venueExtrasHeadCellStyle}>枠番平均ST</th><th style={venueExtrasHeadCellStyle}>スタート順</th></tr></thead><tbody>{selectedKojimaFrameStats.map((item) => (<tr key={`kojima-frame-${item.frameNo}`}><td style={venueExtrasBodyCellStyle}>{item.frameNo}</td><td style={venueExtrasBodyCellStyle}><div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}><strong>{item.playerName || `枠${item.frameNo}`}</strong><span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span></div></td>{Array.from({ length: 10 }, (_, index) => (<td key={`kojima-frame-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}><div style={narutoHistoryStackStyle}><span style={narutoHistoryCourseStyle}>{item.courseHistory[index] || " "}</span><span style={narutoHistoryFinishStyle}>{item.finishHistory[index] || "-"}</span><span style={{ fontSize: "0.66rem", color: boatTheme.colors.muted }}>ST {item.startTimingHistory[index] || "-"}</span></div></td>))}<td style={venueExtrasBodyCellStyle}>{item.frameWinRate || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.frameAverageStart || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.frameStartOrder || "-"}</td></tr>))}</tbody></table></div></section></div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>児島公式の枠番別成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isKojimaVenue && selectedVenueExtraPanel === "kojima-score" ? (
+			hasKojimaScoreRateGuideData ? (
+				<div style={venueExtrasDataGridStyle}><section style={venueExtrasPanelStyle}><h4 style={venueExtrasPanelTitleStyle}>得点率早見</h4>{selectedKojimaScoreRateGuide.length === 0 ? <p style={venueExtrasEmptyStyle}>児島公式の得点率早見は未取得のため、BOATRACE公式の掲載を確認してから表示します。</p> : null}<div style={venueExtrasTableWrapStyle}><table style={{ ...venueExtrasTableStyle, minWidth: "1420px" }}><thead><tr><th style={venueExtrasHeadCellStyle}>枠</th><th style={venueExtrasHeadCellStyle}>登録番号</th><th style={venueExtrasHeadCellStyle}>選手</th><th style={venueExtrasHeadCellStyle}>級別</th><th style={venueExtrasHeadCellStyle}>平均ST</th><th style={venueExtrasHeadCellStyle}>全国勝率</th><th style={venueExtrasHeadCellStyle}>全国2連率</th><th style={venueExtrasHeadCellStyle}>当地勝率</th><th style={venueExtrasHeadCellStyle}>当地2連率</th><th style={venueExtrasHeadCellStyle}>モーター2連率</th><th style={venueExtrasHeadCellStyle}>得点率</th></tr></thead><tbody>{kojimaScoreRows.map((item) => (<tr key={`kojima-score-${item.frameNo}`}><td style={venueExtrasBodyCellStyle}>{item.frameNo}</td><td style={venueExtrasBodyCellStyle}>{item.registrationNo || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.className || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.averageStart || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.winRate || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.secondRate || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td><td style={venueExtrasBodyCellStyle}>{item.scoreRate || "-"}</td></tr>))}</tbody></table></div></section></div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>児島公式の得点率早見は未取得待ちです。</p>
 			)
 		) : null}
 
@@ -4097,7 +6504,7 @@ const venueExtrasDisplayText = useMemo(() => {
 			hasTamagawaSeriesResultsData ? (
 				<div style={venueExtrasDataGridStyle}>
 					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>📚 節間成績</h4>
+						<h4 style={venueExtrasPanelTitleStyle}>節間成績</h4>
 						<div style={venueExtrasTableWrapStyle}>
 							<table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}>
 								<thead>
@@ -4123,7 +6530,7 @@ const venueExtrasDisplayText = useMemo(() => {
 												<td key={`tamagawa-series-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
 													<div style={{ display: "grid", gap: "3px", minWidth: "54px" }}>
 														<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>R {item.raceNumbers[index] || "-"}</span>
-														<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進 {item.courses[index] || "-"}</span>
+														<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入 {item.courses[index] || "-"}</span>
 														<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>ST {item.startTimings[index] || "-"}</span>
 														<strong>{item.finishOrders[index] || "-"}</strong>
 													</div>
@@ -4137,7 +6544,7 @@ const venueExtrasDisplayText = useMemo(() => {
 					</section>
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>多摩川公式の節間成績は更新待ちです。</p>
+				<p style={venueExtrasEmptyStyle}>多摩川公式の節間成績は未取得待ちです。</p>
 			)
 		) : null}
 
@@ -4145,7 +6552,7 @@ const venueExtrasDisplayText = useMemo(() => {
 			hasTamagawaFramePast10Data ? (
 				<div style={venueExtrasDataGridStyle}>
 					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>📚 枠番別 過去10走</h4>
+						<h4 style={venueExtrasPanelTitleStyle}>枠番別過去10走</h4>
 						<div style={venueExtrasTableWrapStyle}>
 							<table style={{ ...venueExtrasTableStyle, minWidth: "980px" }}>
 								<thead>
@@ -4193,7 +6600,7 @@ const venueExtrasDisplayText = useMemo(() => {
 					</section>
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>多摩川公式の枠番別 過去10走は更新待ちです。</p>
+				<p style={venueExtrasEmptyStyle}>多摩川公式の枠番別過去10走は未取得待ちです。</p>
 			)
 		) : null}
 
@@ -4201,14 +6608,14 @@ const venueExtrasDisplayText = useMemo(() => {
 			tamagawaScoreRows.length > 0 ? (
 				<div style={venueExtrasDataGridStyle}>
 					<section style={venueExtrasPanelStyle}>
-						<h4 style={venueExtrasPanelTitleStyle}>📈 得点率早見</h4>
-						{selectedTamagawaScoreRateGuide.length === 0 ? <p style={venueExtrasEmptyStyle}>多摩川公式の得点率早見は更新待ちのため、BOATRACE公式の早見を代替表示しています。</p> : null}
+						<h4 style={venueExtrasPanelTitleStyle}>得点率早見</h4>
+						{selectedTamagawaScoreRateGuide.length === 0 ? <p style={venueExtrasEmptyStyle}>多摩川公式の得点率早見は未取得のため、BOATRACE公式の掲載を確認してから表示します。</p> : null}
 						<div style={venueExtrasTableWrapStyle}>
 							<table style={venueExtrasTableStyle}>
 								<thead>
 									<tr>
 										<th style={venueExtrasHeadCellStyle}>枠</th>
-										<th style={venueExtrasHeadCellStyle}>登番</th>
+										<th style={venueExtrasHeadCellStyle}>登録番号</th>
 										<th style={venueExtrasHeadCellStyle}>選手</th>
 										<th style={venueExtrasHeadCellStyle}>級別</th>
 										<th style={venueExtrasHeadCellStyle}>平均ST</th>
@@ -4240,7 +6647,7 @@ const venueExtrasDisplayText = useMemo(() => {
 					</section>
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>多摩川公式の得点率早見はまだ更新されていません。</p>
+				<p style={venueExtrasEmptyStyle}>多摩川公式の得点率早見はまだ取得されていません。</p>
 			)
 		) : null}
 
@@ -4249,7 +6656,7 @@ const venueExtrasDisplayText = useMemo(() => {
 				<div style={venueExtrasDataGridStyle}>
 					{selectedOfficialBeforeInfo?.exhibitionRows.length ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>🚤 公式展示タイム</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>公式展示タイム</h4>
 							<div style={venueExtrasTableWrapStyle}>
 								<table style={venueExtrasTableStyle}>
 									<thead>
@@ -4276,7 +6683,7 @@ const venueExtrasDisplayText = useMemo(() => {
 					) : null}
 
 					{!hasOfficialBeforeInfoDetail ? (
-						<p style={venueExtrasEmptyStyle}>BOATRACE公式 直前データは更新待ちです。</p>
+						<p style={venueExtrasEmptyStyle}>BOATRACE公式直前データは未取得待ちです。</p>
 					) : null}
 				</div>
 			) : (
@@ -4289,7 +6696,7 @@ const venueExtrasDisplayText = useMemo(() => {
 				<div style={venueExtrasDataGridStyle}>
 					{!isTamagawaVenue && selectedOfficialBeforeInfo?.startExhibition.length ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>🚦 公式スタート展示</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>公式スタート展示</h4>
 
 							{isNarutoVenue ? (
 								<div style={narutoStartScrollStyle}>
@@ -4318,7 +6725,7 @@ const venueExtrasDisplayText = useMemo(() => {
 														<p style={narutoStartPlayerStyle}>{item.playerName}</p>
 														<div style={narutoStartMetaDetailStyle}>
 															<span>今節平均ST {item.currentAverageStart || "-"}</span>
-															<span>スタート順 {item.startOrder ?? "-"}</span>
+															<span>スタート順{item.startOrder ?? "-"}</span>
 															{item.style ? <span>{item.style === "S" ? "スロー" : item.style === "D" ? "ダッシュ" : item.style}</span> : null}
 														</div>
 													</div>
@@ -4334,7 +6741,7 @@ const venueExtrasDisplayText = useMemo(() => {
 																<span>START LINE</span>
 																<span>0.00</span>
 															</div>
-															<p style={narutoStartTrackHintStyle}>遅い ←</p>
+															<p style={narutoStartTrackHintStyle}>早い / 遅い</p>
 															<span
 																style={{
 																	...narutoStartBoatBaseStyle,
@@ -4362,9 +6769,9 @@ const venueExtrasDisplayText = useMemo(() => {
 															</span>
 														</div>
 														<div style={{ ...narutoStartMetaDetailStyle, justifyContent: "flex-end" as const, textAlign: "right" as const }}>
-															<span>今回ST {item.startTiming || "-"}</span>
+															<span>莉雁屓ST {item.startTiming || "-"}</span>
 															<span>今節平均ST {item.currentAverageStart || "-"}</span>
-															<span>スタート順 {item.startOrder ?? "-"}</span>
+															<span>スタート順{item.startOrder ?? "-"}</span>
 														</div>
 													</div>
 												</div>
@@ -4403,7 +6810,7 @@ const venueExtrasDisplayText = useMemo(() => {
 
 					{hasStartExhibitionData ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>🚦 スタート展示</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>スタート展示</h4>
 							{isTamagawaVenue && tamagawaStartExhibitionDisplay.length > 0 ? (
 								<div style={narutoStartScrollStyle}>
 									<div style={narutoStartBoardStyle}>
@@ -4431,7 +6838,7 @@ const venueExtrasDisplayText = useMemo(() => {
 														<p style={narutoStartPlayerStyle}>{item.playerName}</p>
 														<div style={narutoStartMetaDetailStyle}>
 															<span>今節平均ST {item.currentAverageStart || "-"}</span>
-															<span>スタート順 {item.startOrder ?? "-"}</span>
+															<span>スタート順{item.startOrder ?? "-"}</span>
 															{item.style ? <span>{item.style === "S" ? "スロー" : item.style === "D" ? "ダッシュ" : item.style}</span> : null}
 														</div>
 													</div>
@@ -4447,7 +6854,7 @@ const venueExtrasDisplayText = useMemo(() => {
 																<span>START LINE</span>
 																<span>0.00</span>
 															</div>
-															<p style={narutoStartTrackHintStyle}>遅い ←</p>
+															<p style={narutoStartTrackHintStyle}>早い / 遅い</p>
 															<span
 																style={{
 																	...narutoStartBoatBaseStyle,
@@ -4494,7 +6901,7 @@ const venueExtrasDisplayText = useMemo(() => {
 											<th style={venueExtrasHeadCellStyle}>展示ST</th>
 											<th style={venueExtrasHeadCellStyle}>今節平均ST</th>
 											<th style={venueExtrasHeadCellStyle}>スタート順</th>
-											{isTamagawaVenue ? <th style={venueExtrasHeadCellStyle}>選手</th> : null}
+											{(isTamagawaVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>選手</th> : null}
 										</tr>
 									</thead>
 									<tbody>
@@ -4508,7 +6915,7 @@ const venueExtrasDisplayText = useMemo(() => {
 												<td style={venueExtrasBodyCellStyle}>{item.startTiming || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.currentAverageStart || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.startOrder || "-"}</td>
-												{isTamagawaVenue ? <td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td> : null}
+												{(isTamagawaVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td> : null}
 											</tr>
 										))}
 									</tbody>
@@ -4522,18 +6929,1676 @@ const venueExtrasDisplayText = useMemo(() => {
 			)
 		) : null}
 
+			{isKojimaVenue && selectedVenueExtraPanel === "kojima-before" ? (
+														hasKojimaBeforeInfoData ? (
+															<div style={venueExtrasDataGridStyle}>
+																<section style={venueExtrasPanelStyle}>
+																	<h4 style={venueExtrasPanelTitleStyle}>直前情報</h4>
+																	<div style={venueExtrasTableWrapStyle}>
+																		<table style={{ ...venueExtrasTableStyle, minWidth: "1340px" }}>
+																			<thead>
+																				<tr>
+																					<th style={venueExtrasHeadCellStyle}>枠</th>
+																					<th style={venueExtrasHeadCellStyle}>選手</th>
+																					<th style={venueExtrasHeadCellStyle}>展示T</th>
+																					<th style={venueExtrasHeadCellStyle}>体重</th>
+																					<th style={venueExtrasHeadCellStyle}>調整</th>
+																					<th style={venueExtrasHeadCellStyle}>チルト</th>
+																					<th style={venueExtrasHeadCellStyle}>前走情報</th>
+																					<th style={venueExtrasHeadCellStyle}>部品交換</th>
+																					<th style={venueExtrasHeadCellStyle}>モーター</th>
+																				</tr>
+																			</thead>
+																			<tbody>
+																				{selectedKojimaBeforeInfo.map((item) => (
+																					<tr key={`kojima-before-${item.frameNo}`}>
+																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+																						<td style={venueExtrasBodyCellStyle}>
+																							<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+																								<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+																								<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
+																							</div>
+																						</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.weight || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.adjustment || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.partsExchange || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.previousRaceInfo || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"} / {item.motorSecondRate || "-"}</td>
+																					</tr>
+																				))}
+																			</tbody>
+																		</table>
+																	</div>
+																</section>
+															</div>
+														) : (
+															<p style={venueExtrasEmptyStyle}>児島公式の直前情報は未取得待ちです。</p>
+														)
+													) : null}
+
+													{isKojimaVenue && selectedVenueExtraPanel === "kojima-series" ? (
+														hasKojimaSeriesResultsData ? (
+															<div style={venueExtrasDataGridStyle}>
+																<section style={venueExtrasPanelStyle}>
+																	<h4 style={venueExtrasPanelTitleStyle}>今節成績</h4>
+																	<div style={venueExtrasTableWrapStyle}>
+																		<table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}>
+																			<thead>
+																				<tr>
+																					<th style={venueExtrasHeadCellStyle}>枠</th>
+																					<th style={venueExtrasHeadCellStyle}>選手</th>
+																					{Array.from({ length: 12 }, (_, index) => {
+																						const dayLabel = selectedKojimaSeriesResults.find((row) => row.dayLabels[index])?.dayLabels[index];
+																						return <th key={`kojima-series-head-${index}`} style={venueExtrasHeadCellStyle}>{dayLabel || `${index + 1}走`}</th>;
+																					})}
+																				</tr>
+																			</thead>
+																			<tbody>
+																				{selectedKojimaSeriesResults.map((item) => (
+																					<tr key={`kojima-series-${item.frameNo}`}>
+																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+																						<td style={venueExtrasBodyCellStyle}>
+																							<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+																								<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+																								<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
+																							</div>
+																						</td>
+																						{Array.from({ length: 12 }, (_, index) => {
+																							const raceNo = item.raceNumbers[index] || "";
+																							const course = item.courses[index] || "";
+																							const startTiming = item.startTimings[index] || "";
+																							const finishOrder = item.finishOrders[index] || "";
+																							const hasCellData = Boolean(raceNo || course || startTiming || finishOrder);
+
+																							return (
+																								<td key={`kojima-series-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+																									{hasCellData ? (
+																										<div style={{ display: "grid", gap: "3px", minWidth: "58px", lineHeight: 1.35 }}>
+																											<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>R {raceNo || "-"}</span>
+																											<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入 {course || "-"}</span>
+																											<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>ST {startTiming || "-"}</span>
+																											<strong>{finishOrder || "-"}</strong>
+																										</div>
+																									) : "-"}
+																								</td>
+																							);
+																						})}
+																					</tr>
+																				))}
+																			</tbody>
+																		</table>
+																	</div>
+																</section>
+															</div>
+														) : (
+															<p style={venueExtrasEmptyStyle}>児島公式の今節成績は未取得待ちです。</p>
+														)
+													) : null}
+
+													{isKojimaVenue && selectedVenueExtraPanel === "kojima-course" ? (
+														hasKojimaCourseStatsData ? (
+															<div style={venueExtrasDataGridStyle}>
+																<section style={venueExtrasPanelStyle}>
+																	<h4 style={venueExtrasPanelTitleStyle}>進入コース別</h4>
+																	<div style={venueExtrasTableWrapStyle}>
+																		<table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}>
+																			<thead>
+																				<tr>
+																					<th style={venueExtrasHeadCellStyle}>枠</th>
+																					<th style={venueExtrasHeadCellStyle}>選手</th>
+																					{Array.from({ length: 6 }, (_, index) => (
+																						<th key={`kojima-course-head-${index}`} style={venueExtrasHeadCellStyle}>{index + 1}コース</th>
+																					))}
+																				</tr>
+																			</thead>
+																			<tbody>
+																				{selectedKojimaCourseStats.map((item) => (
+																					<tr key={`kojima-course-${item.frameNo}`}>
+																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+																						<td style={venueExtrasBodyCellStyle}>
+																							<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+																								<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+																								<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
+																							</div>
+																						</td>
+																						{Array.from({ length: 6 }, (_, index) => {
+																							const course = item.courseRows[index];
+																							return (
+																								<td key={`kojima-course-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+																									{course ? (
+																										<div style={{ display: "grid", gap: "3px", minWidth: "96px" }}>
+																											<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入率{course.entryRate || "-"}</span>
+																											<span>1逹邇・{course.firstRate || "-"}</span>
+																											<span>2連率{sumVenueExtraRates(course.firstRate, course.secondRate) || "-"}</span>
+																											<span>3騾｣邇・{sumVenueExtraRates(course.firstRate, course.secondRate, course.thirdRate) || "-"}</span>
+																											<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>平均ST {course.averageStart || "-"}</span>
+																										</div>
+																									) : "-"}
+																								</td>
+																							);
+																						})}
+																					</tr>
+																				))}
+																			</tbody>
+																		</table>
+																	</div>
+																</section>
+															</div>
+														) : (
+															<p style={venueExtrasEmptyStyle}>児島公式の進入コース別成績は未取得待ちです。</p>
+														)
+													) : null}
+
+													{isKojimaVenue && selectedVenueExtraPanel === "kojima-motor" ? (
+														hasKojimaMotorStatsData ? (
+															<div style={venueExtrasDataGridStyle}>
+																<section style={venueExtrasPanelStyle}>
+																	<h4 style={venueExtrasPanelTitleStyle}>モーター成績</h4>
+																	<div style={venueExtrasTableWrapStyle}>
+																		<table style={{ ...venueExtrasTableStyle, minWidth: "1360px" }}>
+																			<thead>
+																				<tr>
+																					<th style={venueExtrasHeadCellStyle}>枠</th>
+																					<th style={venueExtrasHeadCellStyle}>選手</th>
+																					<th style={venueExtrasHeadCellStyle}>モーター</th>
+																					<th style={venueExtrasHeadCellStyle}>2連率</th>
+																					<th style={venueExtrasHeadCellStyle}>勝率</th>
+																					<th style={venueExtrasHeadCellStyle}>評価</th>
+																					<th style={venueExtrasHeadCellStyle}>コメント</th>
+																					<th style={venueExtrasHeadCellStyle}>ベスト展示</th>
+																					<th style={venueExtrasHeadCellStyle}>前検タイム</th>
+																				</tr>
+																			</thead>
+																			<tbody>
+																				{selectedKojimaMotorStats.map((item) => (
+																					<tr key={`kojima-motor-${item.frameNo}`}>
+																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+																						<td style={venueExtrasBodyCellStyle}>
+																							<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+																								<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+																								<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
+																							</div>
+																						</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.motorWinRate || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.motorRank ? `順位${item.motorRank}` : "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.comment || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.bestExhibitionTime || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.preInspectionTime || "-"}</td>
+																					</tr>
+																				))}
+																			</tbody>
+																		</table>
+																	</div>
+																</section>
+															</div>
+														) : (
+															<p style={venueExtrasEmptyStyle}>児島公式のモーター成績は未取得待ちです。</p>
+														)
+													) : null}
+
+													{isKojimaVenue && selectedVenueExtraPanel === "kojima-frame" ? (
+														hasKojimaFrameStatsData ? (
+															<div style={venueExtrasDataGridStyle}>
+																<section style={venueExtrasPanelStyle}>
+																	<h4 style={venueExtrasPanelTitleStyle}>枠番別成績</h4>
+																	<div style={venueExtrasTableWrapStyle}>
+																		<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
+																			<thead>
+																				<tr>
+																					<th style={venueExtrasHeadCellStyle}>枠</th>
+																					<th style={venueExtrasHeadCellStyle}>選手</th>
+																					{Array.from({ length: 10 }, (_, index) => (
+																						<th key={`kojima-frame-head-${index}`} style={venueExtrasHeadCellStyle}>{10 - index}走</th>
+																					))}
+																					<th style={venueExtrasHeadCellStyle}>枠番勝率</th>
+																					<th style={venueExtrasHeadCellStyle}>枠番平均ST</th>
+																					<th style={venueExtrasHeadCellStyle}>スタート順</th>
+																				</tr>
+																			</thead>
+																			<tbody>
+																				{selectedKojimaFrameStats.map((item) => (
+																					<tr key={`kojima-frame-${item.frameNo}`}>
+																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+																						<td style={venueExtrasBodyCellStyle}>
+																							<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+																								<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+																								<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
+																							</div>
+																						</td>
+																						{Array.from({ length: 10 }, (_, index) => (
+																							<td key={`kojima-frame-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+																								<div style={narutoHistoryStackStyle}>
+																									<span style={narutoHistoryCourseStyle}>{item.courseHistory[index] || " "}</span>
+																									<span style={narutoHistoryFinishStyle}>{item.finishHistory[index] || "-"}</span>
+																									<span style={{ fontSize: "0.66rem", color: boatTheme.colors.muted }}>ST {item.startTimingHistory[index] || "-"}</span>
+																								</div>
+																							</td>
+																						))}
+																						<td style={venueExtrasBodyCellStyle}>{item.frameWinRate || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.frameAverageStart || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.frameStartOrder || "-"}</td>
+																					</tr>
+																				))}
+																			</tbody>
+																		</table>
+																	</div>
+																</section>
+															</div>
+														) : (
+															<p style={venueExtrasEmptyStyle}>児島公式の枠番別成績は未取得待ちです。</p>
+														)
+													) : null}
+
+													{isKojimaVenue && selectedVenueExtraPanel === "kojima-score" ? (
+														hasKojimaScoreRateGuideData ? (
+															<div style={venueExtrasDataGridStyle}>
+																<section style={venueExtrasPanelStyle}>
+																	<h4 style={venueExtrasPanelTitleStyle}>得点率早見</h4>
+																	{selectedKojimaScoreRateGuide.length === 0 ? <p style={venueExtrasEmptyStyle}>児島公式の得点率早見は未取得のため、BOATRACE公式の掲載を確認してから表示します。</p> : null}
+																	<div style={venueExtrasTableWrapStyle}>
+																		<table style={{ ...venueExtrasTableStyle, minWidth: "1420px" }}>
+																			<thead>
+																				<tr>
+																					<th style={venueExtrasHeadCellStyle}>枠</th>
+																					<th style={venueExtrasHeadCellStyle}>登録番号</th>
+																					<th style={venueExtrasHeadCellStyle}>選手</th>
+																					<th style={venueExtrasHeadCellStyle}>級別</th>
+																					<th style={venueExtrasHeadCellStyle}>平均ST</th>
+																					<th style={venueExtrasHeadCellStyle}>全国勝率</th>
+																					<th style={venueExtrasHeadCellStyle}>全国2連率</th>
+																					<th style={venueExtrasHeadCellStyle}>当地勝率</th>
+																					<th style={venueExtrasHeadCellStyle}>当地2連率</th>
+																					<th style={venueExtrasHeadCellStyle}>モーター2連率</th>
+																					<th style={venueExtrasHeadCellStyle}>得点率</th>
+																				</tr>
+																			</thead>
+																			<tbody>
+																				{kojimaScoreRows.map((item) => (
+																					<tr key={`kojima-score-${item.frameNo}`}>
+																						<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.registrationNo || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.className || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.averageStart || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.winRate || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.secondRate || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
+																						<td style={venueExtrasBodyCellStyle}>{item.scoreRate || "-"}</td>
+																					</tr>
+																				))}
+																			</tbody>
+																		</table>
+																	</div>
+																</section>
+															</div>
+														) : (
+															<p style={venueExtrasEmptyStyle}>児島公式の得点率早見は未取得待ちです。</p>
+														)
+													) : null}
+
+		{isWakamatsuVenue && selectedVenueExtraPanel === "wakamatsu-before" ? (
+			hasWakamatsuBeforeInfoData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>直前情報</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1180px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>展示T</th>
+										<th style={venueExtrasHeadCellStyle}>体重</th>
+										<th style={venueExtrasHeadCellStyle}>調整</th>
+										<th style={venueExtrasHeadCellStyle}>チルト</th>
+										<th style={venueExtrasHeadCellStyle}>部品交換</th>
+										<th style={venueExtrasHeadCellStyle}>前走情報</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedWakamatsuBeforeInfo.map((item) => {
+										const previousRaceInfo = item.previousRaceInfo || [
+											item.previousRaceNo ? `${item.previousRaceNo}R` : "",
+											item.previousRaceCourse ? `${item.previousRaceCourse}コース` : "",
+											item.previousRaceStartTiming ? `ST ${item.previousRaceStartTiming}` : "",
+											item.previousRaceFinishOrder ? `${item.previousRaceFinishOrder}逹` : "",
+										].filter(Boolean).join(" / ");
+
+										return (
+											<tr key={`wakamatsu-before-${item.frameNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>
+													<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+														<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+														<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+															{item.className || "-"} / {item.registerNo || "-"}
+														</span>
+													</div>
+												</td>
+												<td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.weight || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.weightAdjustment || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{previousRaceInfo || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.partsExchange || "-"}</td>
+											</tr>
+										);
+									})}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>若松公式の直前情報は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isWakamatsuVenue && selectedVenueExtraPanel === "wakamatsu-entry" ? (
+			hasWakamatsuEntryData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>出走表</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1320px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>平均ST</th>
+										<th style={venueExtrasHeadCellStyle}>全国勝率</th>
+										<th style={venueExtrasHeadCellStyle}>全国2連率</th>
+										<th style={venueExtrasHeadCellStyle}>当地勝率</th>
+										<th style={venueExtrasHeadCellStyle}>当地2連率</th>
+										<th style={venueExtrasHeadCellStyle}>モーター</th>
+										<th style={venueExtrasHeadCellStyle}>ボート</th>
+										<th style={venueExtrasHeadCellStyle}>コメント</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedWakamatsuEntryRows.map((item) => (
+										<tr key={`wakamatsu-entry-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+														{item.className || "-"} / {item.registerNo || "-"}
+													</span>
+												</div>
+											</td>
+											<td style={venueExtrasBodyCellStyle}>{item.averageStart || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.nationalWinRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.nationalSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"} / {item.motorSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.boatNo || "-"} / {item.boatSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.comment || item.motorEvaluation || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>若松公式の出走表は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isWakamatsuVenue && selectedVenueExtraPanel === "wakamatsu-series" ? (
+			hasWakamatsuSeriesResultsData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>今節成績</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1560px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										{Array.from({ length: 16 }, (_, index) => {
+											const dayLabel = selectedWakamatsuSeriesResults.find((row) => row.dayLabels[index])?.dayLabels[index];
+
+											return <th key={`wakamatsu-series-head-${index}`} style={venueExtrasHeadCellStyle}>{dayLabel || `${index + 1}走`}</th>;
+										})}
+									</tr>
+								</thead>
+								<tbody>
+									{selectedWakamatsuSeriesResults.map((item) => (
+										<tr key={`wakamatsu-series-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+														{item.className || "-"} / {item.registerNo || "-"}
+													</span>
+												</div>
+											</td>
+											{Array.from({ length: 16 }, (_, index) => {
+												const raceNo = item.raceNumbers[index] || "";
+												const course = item.courses[index] || "";
+												const startTiming = item.startTimings[index] || "";
+												const finishOrder = item.finishOrders[index] || "";
+												const hasCellData = Boolean(raceNo || course || startTiming || finishOrder);
+
+												return (
+													<td key={`wakamatsu-series-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														{hasCellData ? (
+															<div style={{ display: "grid", gap: "3px", minWidth: "58px", lineHeight: 1.35 }}>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>R {raceNo || "-"}</span>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入 {course || "-"}</span>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>ST {startTiming || "-"}</span>
+																<strong>{finishOrder || "-"}</strong>
+															</div>
+														) : "-"}
+													</td>
+												);
+											})}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>若松公式の今節成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isWakamatsuVenue && selectedVenueExtraPanel === "wakamatsu-course" ? (
+			hasWakamatsuCourseStatsData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>進入コース別成績</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1240px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										{Array.from({ length: 6 }, (_, index) => (
+											<th key={`wakamatsu-course-head-${index}`} style={venueExtrasHeadCellStyle}>{index + 1}コース</th>
+										))}
+									</tr>
+								</thead>
+								<tbody>
+									{selectedWakamatsuCourseStats.map((item) => (
+										<tr key={`wakamatsu-course-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+														{item.className || "-"} / {item.registerNo || "-"}
+													</span>
+												</div>
+											</td>
+											{Array.from({ length: 6 }, (_, index) => {
+												const course = item.courseRows[index];
+												return (
+													<td key={`wakamatsu-course-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														{course ? (
+															<div style={{ display: "grid", gap: "3px", minWidth: "74px" }}>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>蝗樊焚 {course.entryCount || "-"}</span>
+																<span>1逹 {course.firstCount || "-"}</span>
+																<span>2逹 {course.secondCount || "-"}</span>
+																<span>3逹 {course.thirdCount || "-"}</span>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>ST {course.averageStart || "-"}</span>
+															</div>
+														) : "-"}
+													</td>
+												);
+											})}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>若松公式の進入コース別成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isWakamatsuVenue && selectedVenueExtraPanel === "wakamatsu-national3" ? (
+			hasWakamatsuNationalRecent3Data ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>全国過去3節</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "980px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>1節前</th>
+										<th style={venueExtrasHeadCellStyle}>2節前</th>
+										<th style={venueExtrasHeadCellStyle}>3節前</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedWakamatsuNationalRecent3.map((item) => (
+										<tr key={`wakamatsu-national3-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+														{item.className || "-"} / {item.registerNo || "-"}
+													</span>
+												</div>
+											</td>
+											{Array.from({ length: 3 }, (_, index) => {
+												const history = item.histories[index];
+												return (
+													<td key={`wakamatsu-national3-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														{history ? (
+															<div style={{ ...narutoMeetCellStyle, alignItems: "flex-start" }}>
+																<span style={narutoMeetLabelStyle}>{history.venueName || "-"}</span>
+																<span style={{ fontSize: "0.68rem", color: boatTheme.colors.muted }}>{history.grade || "-"}</span>
+																<span style={{ fontSize: "0.68rem", color: boatTheme.colors.muted }}>{history.dateRange || "-"}</span>
+																<span style={narutoMeetResultStyle}>{history.results || "-"}</span>
+															</div>
+														) : "-"}
+													</td>
+												);
+											})}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>若松公式の全国過去3節は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isWakamatsuVenue && selectedVenueExtraPanel === "wakamatsu-local3" ? (
+			hasWakamatsuLocalRecent3Data ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>当地過去3節</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "980px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>1節前</th>
+										<th style={venueExtrasHeadCellStyle}>2節前</th>
+										<th style={venueExtrasHeadCellStyle}>3節前</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedWakamatsuLocalRecent3.map((item) => (
+										<tr key={`wakamatsu-local3-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+														{item.className || "-"} / {item.registerNo || "-"}
+													</span>
+												</div>
+											</td>
+											{Array.from({ length: 3 }, (_, index) => {
+												const history = item.histories[index];
+												return (
+													<td key={`wakamatsu-local3-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														{history ? (
+															<div style={{ ...narutoMeetCellStyle, alignItems: "flex-start" }}>
+																<span style={narutoMeetLabelStyle}>{history.venueName || "-"}</span>
+																<span style={{ fontSize: "0.68rem", color: boatTheme.colors.muted }}>{history.grade || "-"}</span>
+																<span style={{ fontSize: "0.68rem", color: boatTheme.colors.muted }}>{history.dateRange || "-"}</span>
+																<span style={narutoMeetResultStyle}>{history.results || "-"}</span>
+															</div>
+														) : "-"}
+													</td>
+												);
+											})}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>若松公式の当地過去3節は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isWakamatsuVenue && selectedVenueExtraPanel === "wakamatsu-frame10" ? (
+			hasWakamatsuFramePast10Data ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>枠番別10走</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										{Array.from({ length: 10 }, (_, index) => (
+											<th key={`wakamatsu-frame10-head-${index}`} style={venueExtrasHeadCellStyle}>{10 - index}走</th>
+										))}
+										<th style={venueExtrasHeadCellStyle}>枠番勝率</th>
+										<th style={venueExtrasHeadCellStyle}>枠番平均ST</th>
+										<th style={venueExtrasHeadCellStyle}>スタート順</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedWakamatsuFramePast10.map((item) => {
+										const entry = selectedWakamatsuEntryRows.find((row) => row.frameNo === item.frameNo);
+
+										return (
+											<tr key={`wakamatsu-frame10-${item.frameNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>
+													<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+														<strong>{entry?.playerName || `枠${item.frameNo}`}</strong>
+														<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+															{entry?.className || "-"} / {entry?.registerNo || "-"}
+														</span>
+													</div>
+												</td>
+												{Array.from({ length: 10 }, (_, index) => (
+													<td key={`wakamatsu-frame10-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														<div style={narutoHistoryStackStyle}>
+															<span style={narutoHistoryCourseStyle}>{item.courseHistory[index] || " "}</span>
+															<span style={narutoHistoryFinishStyle}>{item.finishHistory[index] || "-"}</span>
+															<span style={{ fontSize: "0.66rem", color: boatTheme.colors.muted }}>ST {item.startTimingHistory[index] || "-"}</span>
+														</div>
+													</td>
+												))}
+												<td style={venueExtrasBodyCellStyle}>{item.frameWinRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.frameAverageStart || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.frameStartOrder || "-"}</td>
+											</tr>
+										);
+									})}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>若松公式の枠番別10走は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isWakamatsuVenue && selectedVenueExtraPanel === "wakamatsu-motor" ? (
+			hasWakamatsuMotorHistoryData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>モーター履歴</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1460px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手/ モーター</th>
+										<th style={venueExtrasHeadCellStyle}>勝率 / 2連率</th>
+										<th style={venueExtrasHeadCellStyle}>ベスト展示</th>
+										<th style={venueExtrasHeadCellStyle}>ベスト一周</th>
+										<th style={venueExtrasHeadCellStyle}>ベスト直線</th>
+										<th style={venueExtrasHeadCellStyle}>ベスト回り足</th>
+										{Array.from({ length: 3 }, (_, index) => (
+											<th key={`wakamatsu-motor-head-${index}`} style={venueExtrasHeadCellStyle}>履歴{index + 1}</th>
+										))}
+									</tr>
+								</thead>
+								<tbody>
+									{selectedWakamatsuMotorHistory.map((item) => (
+										<tr key={`wakamatsu-motor-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>モーター {item.motorNo || "-"}</span>
+												</div>
+											</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorWinRate || "-"} / {item.motorSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.bestExhibitionTime || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.bestOneLapTime || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.bestStraightTime || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.bestTurnTime || "-"}</td>
+											{Array.from({ length: 3 }, (_, index) => {
+												const history = item.historyEntries[index];
+												return (
+													<td key={`wakamatsu-motor-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														{history ? (
+															<div style={{ display: "grid", gap: "3px", minWidth: "126px" }}>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>{history.seriesTitle || "-"}</span>
+																<strong>{history.playerName || "-"}</strong>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>{history.results || "-"}</span>
+															</div>
+														) : "-"}
+													</td>
+												);
+											})}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>若松公式のモーター履歴は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isWakamatsuVenue && selectedVenueExtraPanel === "wakamatsu-score" ? (
+			hasWakamatsuScoreRateGuideData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>得点率早見</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={venueExtrasTableStyle}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>登録番号</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>級別</th>
+										<th style={venueExtrasHeadCellStyle}>平均ST</th>
+										<th style={venueExtrasHeadCellStyle}>全国勝率</th>
+										<th style={venueExtrasHeadCellStyle}>全国2連率</th>
+										<th style={venueExtrasHeadCellStyle}>当地勝率</th>
+										<th style={venueExtrasHeadCellStyle}>当地2連率</th>
+										<th style={venueExtrasHeadCellStyle}>モーター2連率</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedWakamatsuScoreRateGuide.map((item) => (
+										<tr key={`wakamatsu-score-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.registrationNo || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.className || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.averageStart || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.winRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.secondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>若松公式の得点率早見は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isTsuVenue && selectedVenueExtraPanel === "tsu-before" ? (
+			hasTsuBeforeInfoData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>直前情報</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1160px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>体重</th>
+										<th style={venueExtrasHeadCellStyle}>調整</th>
+										<th style={venueExtrasHeadCellStyle}>チルト</th>
+										<th style={venueExtrasHeadCellStyle}>前走情報</th>
+										<th style={venueExtrasHeadCellStyle}>部品交換</th>
+										<th style={venueExtrasHeadCellStyle}>モーター</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedTsuBeforeInfo.map((item) => {
+										const previousRaceInfo = [
+											item.previousRaceNo ? `${item.previousRaceNo}R` : "",
+											item.previousRaceCourse ? `${item.previousRaceCourse}コース` : "",
+											item.previousRaceStartTiming ? `ST ${item.previousRaceStartTiming}` : "",
+											item.previousRaceFinishOrder ? `${item.previousRaceFinishOrder}逹` : "",
+										].filter(Boolean).join(" / ");
+
+										return (
+											<tr key={`tsu-before-${item.frameNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>
+													<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+														<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+														<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+															{item.className || "-"} / {item.registerNo || "-"}
+														</span>
+													</div>
+												</td>
+												<td style={venueExtrasBodyCellStyle}>{item.weight || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.weightAdjustment || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.partsExchange || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{previousRaceInfo || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.motorComment || "-"}</td>
+											</tr>
+										);
+									})}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>津公式の直前情報は未取得待ちです。</p>
+			)
+		) : null}
+
+				{isBiwakoVenue && selectedVenueExtraPanel === "biwako-frame10" ? (
+			hasBiwakoFramePast10Data ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>枠番別10走</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										{Array.from({ length: 10 }, (_, index) => (
+											<th key={`biwako-frame10-head-${index}`} style={venueExtrasHeadCellStyle}>{10 - index}走</th>
+										))}
+										<th style={venueExtrasHeadCellStyle}>枠番勝率</th>
+										<th style={venueExtrasHeadCellStyle}>枠番平均ST</th>
+										<th style={venueExtrasHeadCellStyle}>スタート順</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedBiwakoFramePast10.map((item) => (
+										<tr key={`biwako-frame10-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+														{item.className || "-"} / {item.registerNo || "-"}
+													</span>
+												</div>
+											</td>
+											{Array.from({ length: 10 }, (_, index) => (
+												<td key={`biwako-frame10-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+													<div style={narutoHistoryStackStyle}>
+														<span style={narutoHistoryCourseStyle}>{item.courseHistory[index] || " "}</span>
+														<span style={narutoHistoryFinishStyle}>{item.finishHistory[index] || "-"}</span>
+														<span style={{ fontSize: "0.66rem", color: boatTheme.colors.muted }}>
+															ST {item.startTimingHistory[index] || "-"}
+														</span>
+													</div>
+												</td>
+											))}
+											<td style={venueExtrasBodyCellStyle}>{item.frameWinRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.frameAverageStart || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.frameStartOrder || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>びわこ公式の枠番別10走は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isTsuVenue && selectedVenueExtraPanel === "tsu-comments" ? (
+			hasTsuRacerCommentsData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>選手コメント</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "980px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>コメント</th>
+										<th style={venueExtrasHeadCellStyle}>モーターコメント</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedTsuRacerComments.map((item) => {
+										const hasComment = Boolean(item.comment || item.motorComment);
+
+										return (
+											<tr key={`tsu-comments-${item.frameNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>
+													<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+														<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+														<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+															{item.className || "-"} / {item.registerNo || "-"}
+														</span>
+													</div>
+												</td>
+												<td style={venueExtrasBodyCellStyle}>{hasComment ? (item.comment || "-") : "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{hasComment ? (item.motorComment || "-") : "-"}</td>
+											</tr>
+										);
+									})}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>津公式の選手コメントは未取得待ちです。</p>
+			)
+		) : null}
+
+		{isTsuVenue && selectedVenueExtraPanel === "tsu-series" ? (
+			hasTsuSeriesResultsData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>今節成績</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										{Array.from({ length: 12 }, (_, index) => {
+											const dayLabel = selectedTsuSeriesResults.find((row) => row.dayLabels[index])?.dayLabels[index];
+
+											return (
+												<th key={`tsu-series-head-${index}`} style={venueExtrasHeadCellStyle}>
+													{dayLabel || `${index + 1}走`}
+												</th>
+											);
+										})}
+									</tr>
+								</thead>
+								<tbody>
+									{selectedTsuSeriesResults.map((item) => (
+										<tr key={`tsu-series-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+														{item.className || "-"} / {item.registerNo || "-"}
+													</span>
+												</div>
+											</td>
+											{Array.from({ length: 12 }, (_, index) => {
+												const raceNo = item.raceNumbers[index] || "";
+												const course = item.courses[index] || "";
+												const startTiming = item.startTimings[index] || "";
+												const finishOrder = item.finishOrders[index] || "";
+												const hasCellData = Boolean(raceNo || course || startTiming || finishOrder);
+
+												return (
+													<td key={`tsu-series-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														{hasCellData ? (
+															<div style={{ display: "grid", gap: "3px", minWidth: "58px", lineHeight: 1.35 }}>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>R {raceNo || "-"}</span>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入 {course || "-"}</span>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>ST {startTiming || "-"}</span>
+																<strong>{finishOrder || "-"}</strong>
+															</div>
+														) : "-"}
+													</td>
+												);
+											})}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>津公式の今節成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isTsuVenue && selectedVenueExtraPanel === "tsu-national3" ? (
+			hasTsuNationalRecent3Data ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>全国過去3節</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "980px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>1節前</th>
+										<th style={venueExtrasHeadCellStyle}>2節前</th>
+										<th style={venueExtrasHeadCellStyle}>3節前</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedTsuNationalRecent3.map((item) => (
+										<tr key={`tsu-national3-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+														{item.className || "-"} / {item.registerNo || "-"}
+													</span>
+												</div>
+											</td>
+											{Array.from({ length: 3 }, (_, index) => {
+												const history = item.histories[index];
+
+												return (
+													<td key={`tsu-national3-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														{history ? (
+															<div style={{ ...narutoMeetCellStyle, alignItems: "flex-start" }}>
+																<span style={narutoMeetLabelStyle}>{history.venueName || "-"}</span>
+																<span style={{ fontSize: "0.68rem", color: boatTheme.colors.muted }}>{history.grade || "-"}</span>
+																<span style={{ fontSize: "0.68rem", color: boatTheme.colors.muted }}>{history.dateRange || "-"}</span>
+																<span style={narutoMeetResultStyle}>{history.results || "-"}</span>
+															</div>
+														) : "-"}
+													</td>
+												);
+											})}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>津公式の全国過去3節は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isTsuVenue && selectedVenueExtraPanel === "tsu-local3" ? (
+			hasTsuLocalRecent3Data ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>当地過去3節</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "980px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>1節前</th>
+										<th style={venueExtrasHeadCellStyle}>2節前</th>
+										<th style={venueExtrasHeadCellStyle}>3節前</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedTsuLocalRecent3.map((item) => (
+										<tr key={`tsu-local3-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+														{item.className || "-"} / {item.registerNo || "-"}
+													</span>
+												</div>
+											</td>
+											{Array.from({ length: 3 }, (_, index) => {
+												const history = item.histories[index];
+
+												return (
+													<td key={`tsu-local3-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														{history ? (
+															<div style={{ ...narutoMeetCellStyle, alignItems: "flex-start" }}>
+																<span style={narutoMeetLabelStyle}>{history.venueName || "-"}</span>
+																<span style={{ fontSize: "0.68rem", color: boatTheme.colors.muted }}>{history.grade || "-"}</span>
+																<span style={{ fontSize: "0.68rem", color: boatTheme.colors.muted }}>{history.dateRange || "-"}</span>
+																<span style={narutoMeetResultStyle}>{history.results || "-"}</span>
+															</div>
+														) : "-"}
+													</td>
+												);
+											})}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>津公式の当地過去3節は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isTsuVenue && selectedVenueExtraPanel === "tsu-frame10" ? (
+			hasTsuFramePast10Data ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>枠番別10走</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										{Array.from({ length: 10 }, (_, index) => (
+											<th key={`tsu-frame10-head-${index}`} style={venueExtrasHeadCellStyle}>{10 - index}走</th>
+										))}
+										<th style={venueExtrasHeadCellStyle}>枠番勝率</th>
+										<th style={venueExtrasHeadCellStyle}>枠番平均ST</th>
+										<th style={venueExtrasHeadCellStyle}>スタート順</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedTsuFramePast10Display.map((item) => (
+										<tr key={`tsu-frame10-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+														{item.className || "-"} / {item.registerNo || "-"}
+													</span>
+												</div>
+											</td>
+											{Array.from({ length: 10 }, (_, index) => (
+												<td key={`tsu-frame10-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+													<div style={narutoHistoryStackStyle}>
+														<span style={narutoHistoryCourseStyle}>{item.courseHistory[index] || " "}</span>
+														<span style={narutoHistoryFinishStyle}>{item.finishHistory[index] || "-"}</span>
+														<span style={{ fontSize: "0.66rem", color: boatTheme.colors.muted }}>
+															ST {item.startTimingHistory[index] || "-"}
+														</span>
+													</div>
+												</td>
+											))}
+											<td style={venueExtrasBodyCellStyle}>{item.frameWinRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.frameAverageStart || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.frameStartOrder || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>津公式の枠番別10走は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isTsuVenue && selectedVenueExtraPanel === "tsu-score" ? (
+			(tsuScoreRows.length > 0) ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>得点率早見</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={venueExtrasTableStyle}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>登録番号</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>級別</th>
+										<th style={venueExtrasHeadCellStyle}>平均ST</th>
+										<th style={venueExtrasHeadCellStyle}>全国勝率</th>
+										<th style={venueExtrasHeadCellStyle}>全国2連率</th>
+										<th style={venueExtrasHeadCellStyle}>当地勝率</th>
+										<th style={venueExtrasHeadCellStyle}>当地2連率</th>
+										<th style={venueExtrasHeadCellStyle}>モーター2連率</th>
+									</tr>
+								</thead>
+								<tbody>
+									{tsuScoreRows.map((item) => (
+										<tr key={`tsu-score-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.registrationNo || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.className || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.averageStart || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.winRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.secondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>津公式の得点率早見は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isFukuokaVenue && selectedVenueExtraPanel === "fukuoka-entry" ? (
+			hasFukuokaEntryData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>選手成績</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1460px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>級別 / 登録番号</th>
+										<th style={venueExtrasHeadCellStyle}>平均ST</th>
+										<th style={venueExtrasHeadCellStyle}>全国勝率</th>
+										<th style={venueExtrasHeadCellStyle}>全国2連率</th>
+										<th style={venueExtrasHeadCellStyle}>当地勝率</th>
+										<th style={venueExtrasHeadCellStyle}>当地2連率</th>
+										<th style={venueExtrasHeadCellStyle}>モーター2連率</th>
+										<th style={venueExtrasHeadCellStyle}>ボート2連率</th>
+										<th style={venueExtrasHeadCellStyle}>コメント</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedFukuokaEntryRows.map((item) => (
+										<tr key={`fukuoka-entry-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.className || "-"} / {item.registerNo || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.averageStart || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.nationalWinRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.nationalSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.boatSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.comment || item.motorEvaluation || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>福岡公式の選手成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isFukuokaVenue && selectedVenueExtraPanel === "fukuoka-before" ? (
+			hasFukuokaBeforeInfoData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>直前情報</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1320px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>展示T</th>
+										<th style={venueExtrasHeadCellStyle}>体重</th>
+										<th style={venueExtrasHeadCellStyle}>調整</th>
+										<th style={venueExtrasHeadCellStyle}>チルト</th>
+										<th style={venueExtrasHeadCellStyle}>前走情報</th>
+										<th style={venueExtrasHeadCellStyle}>部品交換</th>
+										<th style={venueExtrasHeadCellStyle}>モーター</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedFukuokaBeforeInfo.map((item) => (
+										<tr key={`fukuoka-before-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
+												</div>
+											</td>
+											<td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.weight || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.weightAdjustment || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.partsExchange || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.previousRaceInfo || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"} / {item.motorSecondRate || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>福岡公式の直前情報は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isFukuokaVenue && selectedVenueExtraPanel === "fukuoka-motor" ? (
+			hasFukuokaMotorEvaluationData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>モーター評価</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1360px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>モーター</th>
+										<th style={venueExtrasHeadCellStyle}>2連率</th>
+										<th style={venueExtrasHeadCellStyle}>モーター評価</th>
+										<th style={venueExtrasHeadCellStyle}>モーターコメント</th>
+										<th style={venueExtrasHeadCellStyle}>ベスト展示</th>
+										<th style={venueExtrasHeadCellStyle}>前走情報</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedFukuokaMotorEvaluation.map((item) => (
+										<tr key={`fukuoka-motor-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorEvaluation || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorComment || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.bestExhibitionTime || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.partsExchange || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>福岡公式のモーター評価は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isFukuokaVenue && selectedVenueExtraPanel === "fukuoka-series" ? (
+			hasFukuokaSeriesResultsData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>節間成績</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1340px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										{Array.from({ length: 12 }, (_, index) => {
+											const dayLabel = selectedFukuokaSeriesResults.find((row) => row.dayLabels[index])?.dayLabels[index];
+											return <th key={`fukuoka-series-head-${index}`} style={venueExtrasHeadCellStyle}>{dayLabel || `${index + 1}走`}</th>;
+										})}
+									</tr>
+								</thead>
+								<tbody>
+									{selectedFukuokaSeriesResults.map((item) => (
+										<tr key={`fukuoka-series-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
+												</div>
+											</td>
+											{Array.from({ length: 12 }, (_, index) => {
+												const raceNo = item.raceNumbers[index] || "";
+												const course = item.courses[index] || "";
+												const startTiming = item.startTimings[index] || "";
+												const finishOrder = item.finishOrders[index] || "";
+												const hasCellData = Boolean(raceNo || course || startTiming || finishOrder);
+
+												return (
+													<td key={`fukuoka-series-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														{hasCellData ? (
+															<div style={{ display: "grid", gap: "3px", minWidth: "58px", lineHeight: 1.35 }}>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>R {raceNo || "-"}</span>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入 {course || "-"}</span>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>ST {startTiming || "-"}</span>
+																<strong>{finishOrder || "-"}</strong>
+															</div>
+														) : "-"}
+													</td>
+												);
+											})}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>福岡公式の節間成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isFukuokaVenue && selectedVenueExtraPanel === "fukuoka-comments" ? (
+			hasFukuokaRacerCommentsData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>選手コメント</h4>
+						<div style={venueExtrasCommentListStyle}>
+							{selectedFukuokaRacerComments.map((item) => {
+								const commentText = item.comment || item.motorComment || "-";
+								return (
+									<article key={`fukuoka-comment-${item.frameNo}`} style={venueExtrasRacerCommentCardStyle}>
+										<div style={venueExtrasRacerCommentHeaderStyle}>
+											<p style={venueExtrasRacerCommentFrameStyle}>{item.frameNo}号艇/ {item.playerName || `枠${item.frameNo}`}</p>
+											<span style={venueExtrasFocusPillStyle}>{item.className || "-"} / {item.registerNo || "-"}</span>
+										</div>
+										<p style={venueExtrasRacerCommentTextStyle}>{commentText}</p>
+										<p style={venueExtrasCommentStyle}>{item.motorComment || item.comment || "-"}</p>
+									</article>
+								);
+							})}
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>福岡公式の選手コメントは未取得待ちです。</p>
+			)
+		) : null}
+
+		{isFukuokaVenue && selectedVenueExtraPanel === "fukuoka-frame10" ? (
+			hasFukuokaFramePast10Data ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>枠番別10走</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										{Array.from({ length: 10 }, (_, index) => (
+											<th key={`fukuoka-frame10-head-${index}`} style={venueExtrasHeadCellStyle}>{10 - index}走</th>
+										))}
+										<th style={venueExtrasHeadCellStyle}>枠番勝率</th>
+										<th style={venueExtrasHeadCellStyle}>枠番平均ST</th>
+										<th style={venueExtrasHeadCellStyle}>スタート順</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedFukuokaFramePast10.map((item) => {
+										const entry = selectedFukuokaEntryRows.find((row) => row.frameNo === item.frameNo);
+										return (
+											<tr key={`fukuoka-frame10-${item.frameNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>
+													<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+														<strong>{entry?.playerName || `枠${item.frameNo}`}</strong>
+														<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{entry?.className || "-"} / {entry?.registerNo || "-"}</span>
+													</div>
+												</td>
+												{Array.from({ length: 10 }, (_, index) => (
+													<td key={`fukuoka-frame10-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														<div style={narutoHistoryStackStyle}>
+															<span style={narutoHistoryCourseStyle}>{item.courseHistory[index] || " "}</span>
+															<span style={narutoHistoryFinishStyle}>{item.finishHistory[index] || "-"}</span>
+															<span style={{ fontSize: "0.66rem", color: boatTheme.colors.muted }}>ST {item.startTimingHistory[index] || "-"}</span>
+														</div>
+													</td>
+												))}
+												<td style={venueExtrasBodyCellStyle}>{item.frameWinRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.frameAverageStart || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.frameStartOrder || "-"}</td>
+											</tr>
+										);
+									})}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>福岡公式の枠番別10走は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isFukuokaVenue && selectedVenueExtraPanel === "fukuoka-score" ? (
+			hasFukuokaScoreRateGuideData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>得点率早見</h4>
+						{selectedFukuokaScoreRateGuide.length === 0 ? <p style={venueExtrasEmptyStyle}>福岡公式の得点率早見は未取得のため、BOATRACE公式の掲載を確認してから表示します。</p> : null}
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>登録番号</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>級別</th>
+										<th style={venueExtrasHeadCellStyle}>平均ST</th>
+										<th style={venueExtrasHeadCellStyle}>全国勝率</th>
+										<th style={venueExtrasHeadCellStyle}>全国2連率</th>
+										<th style={venueExtrasHeadCellStyle}>当地勝率</th>
+										<th style={venueExtrasHeadCellStyle}>当地2連率</th>
+										<th style={venueExtrasHeadCellStyle}>モーター2連率</th>
+										<th style={venueExtrasHeadCellStyle}>得点率</th>
+									</tr>
+								</thead>
+								<tbody>
+									{fukuokaScoreRows.map((item) => (
+										<tr key={`fukuoka-score-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.registrationNo || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.className || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.averageStart || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.winRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.secondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.scoreRate || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>福岡公式の得点率早見は未取得待ちです。</p>
+			)
+		) : null}
+
+				{isBiwakoVenue && selectedVenueExtraPanel === "biwako-series" ? (
+			hasBiwakoSeriesResultsData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>節間成績</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										{Array.from({ length: 12 }, (_, index) => {
+											const dayLabel = selectedBiwakoSeriesResults.find((row) => row.dayLabels[index])?.dayLabels[index];
+
+											return (
+												<th key={`biwako-series-head-${index}`} style={venueExtrasHeadCellStyle}>
+													{dayLabel || `${index + 1}走`}
+												</th>
+											);
+										})}
+									</tr>
+								</thead>
+								<tbody>
+									{selectedBiwakoSeriesResults.map((item) => (
+										<tr key={`biwako-series-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName}</strong>
+													{item.className || item.registerNo ? (
+														<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+															{item.className || "-"} / {item.registerNo || "-"}
+														</span>
+													) : null}
+												</div>
+											</td>
+											{Array.from({ length: 12 }, (_, index) => {
+												const raceNo = item.raceNumbers[index] || "";
+												const course = item.courses[index] || "";
+												const startTiming = item.startTimings[index] || "";
+												const finishOrder = item.finishOrders[index] || "";
+												const hasCellData = Boolean(raceNo || course || startTiming || finishOrder);
+
+												return (
+													<td key={`biwako-series-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														{hasCellData ? (
+															<div style={{ display: "grid", gap: "3px", minWidth: "58px", lineHeight: 1.35 }}>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>R {raceNo || "-"}</span>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入 {course || "-"}</span>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>ST {startTiming || "-"}</span>
+																<strong>{finishOrder || "-"}</strong>
+															</div>
+														) : "-"}
+													</td>
+												);
+											})}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>びわこ公式の節間成績は未取得待ちです。</p>
+			)
+		) : null}
+
 		{selectedVenueExtraPanel === "records" ? (
 			hasRecordsPanelData ? (
 				<div style={venueExtrasDataGridStyle}>
 					{!isNarutoVenue && selectedOfficialBeforeInfo?.scoreQuickLook.length ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>📈 公式得点率早見</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>公式得点率早見</h4>
 							<div style={venueExtrasTableWrapStyle}>
 								<table style={venueExtrasTableStyle}>
 									<thead>
 										<tr>
 											<th style={venueExtrasHeadCellStyle}>枠</th>
-											<th style={venueExtrasHeadCellStyle}>登番</th>
+											<th style={venueExtrasHeadCellStyle}>登録番号</th>
 											<th style={venueExtrasHeadCellStyle}>選手</th>
 											<th style={venueExtrasHeadCellStyle}>級別</th>
 											<th style={venueExtrasHeadCellStyle}>平均ST</th>
@@ -4568,7 +8633,7 @@ const venueExtrasDisplayText = useMemo(() => {
 					{isNarutoVenue && (hasNarutoPerformanceData || shouldShowNarutoPerformanceWaiting) ? (
 						<section style={{ ...venueExtrasPanelStyle, gap: "16px" }}>
 							<div style={narutoStatsTabWrapStyle}>
-								<h4 style={venueExtrasPanelTitleStyle}>📘 成績・脚勢</h4>
+								<h4 style={venueExtrasPanelTitleStyle}>成績・傾向</h4>
 								<div style={narutoStatsTabScrollStyle}>
 									<div style={narutoStatsTabGridStyle}>
 										{narutoStatsTabOptions.map((option) => {
@@ -4618,14 +8683,14 @@ const venueExtrasDisplayText = useMemo(() => {
 
 							{selectedNarutoStatsTab === "score" ? (
 							<section style={venueExtrasPanelStyle}>
-								<h4 style={venueExtrasPanelTitleStyle}>📈 公式得点率早見</h4>
+								<h4 style={venueExtrasPanelTitleStyle}>公式得点率早見</h4>
 								{selectedOfficialBeforeInfo?.scoreQuickLook.length ? (
 									<div style={venueExtrasTableWrapStyle}>
 										<table style={venueExtrasTableStyle}>
 											<thead>
 												<tr>
 													<th style={venueExtrasHeadCellStyle}>枠</th>
-													<th style={venueExtrasHeadCellStyle}>登番</th>
+													<th style={venueExtrasHeadCellStyle}>登録番号</th>
 													<th style={venueExtrasHeadCellStyle}>選手</th>
 													<th style={venueExtrasHeadCellStyle}>級別</th>
 													<th style={venueExtrasHeadCellStyle}>平均ST</th>
@@ -4655,14 +8720,14 @@ const venueExtrasDisplayText = useMemo(() => {
 										</table>
 									</div>
 								) : (
-									<p style={venueExtrasEmptyStyle}>この成績データはまだ取得できません。</p>
+									<p style={venueExtrasEmptyStyle}>この成績データはまだ取得できていません。</p>
 								)}
 							</section>
 							) : null}
 
 							{selectedNarutoStatsTab === "frameHistory" ? (
 							<section style={venueExtrasPanelStyle}>
-								<h4 style={venueExtrasPanelTitleStyle}>📚 枠番別 過去10走成績</h4>
+								<h4 style={venueExtrasPanelTitleStyle}>枠番別過去10走成績</h4>
 								{selectedNarutoRacerPerformance?.byFramePast10.length ? (
 									<div style={venueExtrasTableWrapStyle}>
 										<table style={{ ...venueExtrasTableStyle, minWidth: "980px" }}>
@@ -4709,14 +8774,14 @@ const venueExtrasDisplayText = useMemo(() => {
 										</table>
 									</div>
 								) : (
-									<p style={venueExtrasEmptyStyle}>この成績データはまだ取得できません。</p>
+									<p style={venueExtrasEmptyStyle}>この成績データはまだ取得できていません。</p>
 								)}
 							</section>
 							) : null}
 
 							{selectedNarutoStatsTab === "narutoRecent" ? (
 							<section style={venueExtrasPanelStyle}>
-								<h4 style={venueExtrasPanelTitleStyle}>🗂️ 鳴門近況成績</h4>
+								<h4 style={venueExtrasPanelTitleStyle}>当地最近成績</h4>
 								{selectedNarutoRacerPerformance?.narutoRecent.length ? (
 									<div style={venueExtrasTableWrapStyle}>
 										<table style={{ ...venueExtrasTableStyle, minWidth: "840px" }}>
@@ -4758,14 +8823,14 @@ const venueExtrasDisplayText = useMemo(() => {
 										</table>
 									</div>
 								) : (
-									<p style={venueExtrasEmptyStyle}>この成績データはまだ取得できません。</p>
+									<p style={venueExtrasEmptyStyle}>この成績データはまだ取得できていません。</p>
 								)}
 							</section>
 							) : null}
 
 							{selectedNarutoStatsTab === "nationalRecent" ? (
 							<section style={venueExtrasPanelStyle}>
-								<h4 style={venueExtrasPanelTitleStyle}>🌐 全国近況成績</h4>
+								<h4 style={venueExtrasPanelTitleStyle}>全国最近成績</h4>
 								{selectedNarutoRacerPerformance?.nationalRecent.length ? (
 									<div style={venueExtrasTableWrapStyle}>
 										<table style={{ ...venueExtrasTableStyle, minWidth: "900px" }}>
@@ -4807,7 +8872,7 @@ const venueExtrasDisplayText = useMemo(() => {
 										</table>
 									</div>
 								) : (
-									<p style={venueExtrasEmptyStyle}>この成績データはまだ取得できません。</p>
+									<p style={venueExtrasEmptyStyle}>この成績データはまだ取得できていません。</p>
 								)}
 							</section>
 							) : null}
@@ -4816,14 +8881,14 @@ const venueExtrasDisplayText = useMemo(() => {
 
 					{selectedAbilityIndex.length > 0 ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>📊 能力指数</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>能力指数</h4>
 							<div style={venueExtrasTableWrapStyle}>
 								<table style={venueExtrasTableStyle}>
 									<thead>
 										<tr>
 											<th style={venueExtrasHeadCellStyle}>枠</th>
 											<th style={venueExtrasHeadCellStyle}>能力値</th>
-											<th style={venueExtrasHeadCellStyle}>枠番相性</th>
+											<th style={venueExtrasHeadCellStyle}>枠番適性</th>
 											<th style={venueExtrasHeadCellStyle}>ST力</th>
 										</tr>
 									</thead>
@@ -4852,16 +8917,16 @@ const venueExtrasDisplayText = useMemo(() => {
 				<div style={venueExtrasDataGridStyle}>
 					{hasOriginalExhibitionData ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>🚤 会場独自展示</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>会場独自展示</h4>
 							<div style={venueExtrasTableWrapStyle}>
 								<table style={venueExtrasTableStyle}>
 									<thead>
 										<tr>
 											<th style={venueExtrasHeadCellStyle}>枠</th>
-											{isNarutoVenue ? <th style={venueExtrasHeadCellStyle}>選手</th> : null}
-											{isNarutoVenue ? <th style={venueExtrasHeadCellStyle}>体重 / 調整</th> : null}
-											{isNarutoVenue ? <th style={venueExtrasHeadCellStyle}>チルト</th> : null}
-											{isNarutoVenue ? <th style={venueExtrasHeadCellStyle}>展示</th> : null}
+											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>選手</th> : null}
+											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>体重 / 調整</th> : null}
+											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>チルト</th> : null}
+											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>展示</th> : null}
 											<th style={venueExtrasHeadCellStyle}>一周</th>
 											<th style={venueExtrasHeadCellStyle}>回り足</th>
 											<th style={venueExtrasHeadCellStyle}>直線</th>
@@ -4872,21 +8937,23 @@ const venueExtrasDisplayText = useMemo(() => {
 										{selectedOriginalExhibitionRows.map((item) => (
 											<tr key={`venue-extra-exhibition-${item.frameNo}`}>
 												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-												{isNarutoVenue ? (
+												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? (
 													<td style={venueExtrasBodyCellStyle}>
 														<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
 															<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+															{item.className || item.registerNo ? (
 															<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
 																{item.className || "-"} / {item.registerNo || "-"}
 															</span>
+														) : null}
 														</div>
 													</td>
 												) : null}
-												{isNarutoVenue ? (
+												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? (
 													<td style={venueExtrasBodyCellStyle}>{item.weight || "-"} / {item.weightAdjustment || "-"}</td>
 												) : null}
-												{isNarutoVenue ? <td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td> : null}
-												{isNarutoVenue ? <td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td> : null}
+												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td> : null}
+												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td> : null}
 												<td style={venueExtrasBodyCellStyle}>{item.oneLapTime || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.turnTime || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.straightTime || "-"}</td>
@@ -4899,11 +8966,11 @@ const venueExtrasDisplayText = useMemo(() => {
 						</section>
 					) : shouldShowOriginalExhibitionWaiting ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>{isMarugameVenue ? "🧭 モーター補助データ・水面特性" : "🚤 会場独自展示"}</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>{isMarugameVenue ? "モーター展示特性" : "展示情報"}</h4>
 							<p style={venueExtrasEmptyStyle}>
 								{isMarugameVenue
-									? "この会場は展示タイム中心ではなく、モーター補助データ・水面特性を中心に表示しています。直前展示はまだ未取得です。"
-									: "展示公開待ちです。直前展示はまだ未取得です。"}
+									? "この会場は独自タイム集計中のため、モーター展示特性を表示しています。"
+									: "展示情報は準備中です。"}
 							</p>
 						</section>
 					) : null}
@@ -4918,13 +8985,13 @@ const venueExtrasDisplayText = useMemo(() => {
 				<div style={venueExtrasDataGridStyle}>
 					{isTamagawaVenue && hasTamagawaMotorHistoryData ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>⚙️ モーター履歴</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>モーター履歴</h4>
 							<div style={venueExtrasTableWrapStyle}>
 								<table style={{ ...venueExtrasTableStyle, minWidth: "1160px" }}>
 									<thead>
 										<tr>
 											<th style={venueExtrasHeadCellStyle}>枠</th>
-											<th style={venueExtrasHeadCellStyle}>選手 / モーター</th>
+											<th style={venueExtrasHeadCellStyle}>選手/ モーター</th>
 											<th style={venueExtrasHeadCellStyle}>2連率</th>
 											{Array.from({ length: 6 }, (_, index) => (
 												<th key={`tamagawa-motor-head-${index}`} style={venueExtrasHeadCellStyle}>履歴{index + 1}</th>
@@ -4966,23 +9033,23 @@ const venueExtrasDisplayText = useMemo(() => {
 
 					{hasSelectedMotorSummaryData || shouldShowMotorSummaryWaiting ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>{isMarugameVenue ? "⚙️ モーター補助データ" : "⚙️ モーター総括"}</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>{isMarugameVenue ? "モーター参考データ" : "モーター概況"}</h4>
 							<div style={venueExtrasCommentListStyle}>
 								{selectedMotorSummaryDisplay.items.map((item) => (
 									<article key={`venue-extra-motor-summary-${item.frameNo}`} style={venueExtrasRacerCommentCardStyle}>
 										<div style={venueExtrasRacerCommentHeaderStyle}>
-											<p style={venueExtrasRacerCommentFrameStyle}>{item.displayFrameNo ?? item.frameNo}号艇 / モーター{item.motorNo}</p>
-											{item.motorGrade ? <span style={venueExtrasFocusPillStyle}>素性 {item.motorGrade}</span> : null}
+											<p style={venueExtrasRacerCommentFrameStyle}>{item.displayFrameNo ?? item.frameNo}号艇/ モーター{item.motorNo}</p>
+											{item.motorGrade ? <span style={venueExtrasFocusPillStyle}>評価 {item.motorGrade}</span> : null}
 										</div>
 										<p style={venueExtrasRacerCommentTextStyle}>
-											{item.previousUser ? `前回使用：${item.previousUser}` : "前回使用：-"}
-											{item.recentResults ? ` / 節間成績：${item.recentResults}` : ""}
+											{item.previousUser ? `前使用者: ${item.previousUser}` : "前使用者: "}
+											{item.recentResults ? ` / 節間成績: ${item.recentResults}` : ""}
 										</p>
 										{item.comment ? <p style={venueExtrasCommentStyle}>{item.comment}</p> : null}
 									</article>
 								))}
 								{shouldShowMotorSummaryWaiting ? (
-									<p style={venueExtrasEmptyStyle}>{isNarutoVenue ? "一部モーター番号の照合待ちです。照合できたものから表示しています。" : "モーター詳細は照合待ちです。"}</p>
+									<p style={venueExtrasEmptyStyle}>{isNarutoVenue ? "一部モーターの詳細は準備中です。" : "モーター詳細は準備中です。"}</p>
 								) : null}
 							</div>
 						</section>
@@ -4998,10 +9065,10 @@ const venueExtrasDisplayText = useMemo(() => {
 				<div style={venueExtrasDataGridStyle}>
 					{hasVenuePredictionFocus && selectedVenuePrediction ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>📝 公式直前予想</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>公式予想観点</h4>
 							<div style={venueExtrasStatusGridStyle}>
 								<article style={venueExtrasStatusCardStyle}>
-									<p style={venueExtrasStatusLabelStyle}>自信度</p>
+									<p style={venueExtrasStatusLabelStyle}>信頼度</p>
 									<p style={venueExtrasStatusValueStyle}>{selectedVenuePrediction.confidence || "-"}</p>
 								</article>
 								<article style={venueExtrasStatusCardStyle}>
@@ -5020,14 +9087,14 @@ const venueExtrasDisplayText = useMemo(() => {
 						</section>
 					) : shouldShowVenuePredictionWaiting ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>📝 公式直前予想</h4>
-							<p style={venueExtrasEmptyStyle}>公式直前予想は更新待ちです。</p>
+							<h4 style={venueExtrasPanelTitleStyle}>公式予想観点</h4>
+							<p style={venueExtrasEmptyStyle}>公式予想観点は未取得待ちです。</p>
 						</section>
 					) : null}
 
 					{selectedRacerComments.length > 0 ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>💬 選手コメント</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>選手コメント</h4>
 							<div style={venueExtrasCommentListStyle}>
 								{selectedRacerComments.map((item) => (
 									<article key={`venue-extra-racer-comment-${item.frameNo}`} style={venueExtrasRacerCommentCardStyle}>
@@ -5043,7 +9110,7 @@ const venueExtrasDisplayText = useMemo(() => {
 
 					{selectedWaterMemo ? (
 						<section style={venueExtrasPanelStyle}>
-							<h4 style={venueExtrasPanelTitleStyle}>{isMarugameVenue ? "🌊 水面特性" : "🌊 水面・潮メモ"}</h4>
+							<h4 style={venueExtrasPanelTitleStyle}>{isMarugameVenue ? "水面特性" : "水面・潮メモ"}</h4>
 							<div style={venueExtrasCommentListStyle}>
 								{selectedWaterMemo.tideInfo ? (
 									<article style={venueExtrasRacerCommentCardStyle}>
@@ -5062,7 +9129,7 @@ const venueExtrasDisplayText = useMemo(() => {
 								{selectedWaterMemo.waterSurfaceInfo?.surfaceSummary ? (
 									<article style={venueExtrasRacerCommentCardStyle}>
 										<div style={venueExtrasRacerCommentHeaderStyle}>
-											<p style={venueExtrasRacerCommentFrameStyle}>水面概要</p>
+											<p style={venueExtrasRacerCommentFrameStyle}>水面要約</p>
 										</div>
 										<p style={venueExtrasRacerCommentTextStyle}>{selectedWaterMemo.waterSurfaceInfo.surfaceSummary}</p>
 									</article>
@@ -5078,7 +9145,7 @@ const venueExtrasDisplayText = useMemo(() => {
 								{selectedWaterMemo.waterSurfaceInfo?.courseSummary ? (
 									<article style={venueExtrasRacerCommentCardStyle}>
 										<div style={venueExtrasRacerCommentHeaderStyle}>
-											<p style={venueExtrasRacerCommentFrameStyle}>コース傾向</p>
+											<p style={venueExtrasRacerCommentFrameStyle}>コース別傾向</p>
 										</div>
 										<p style={venueExtrasRacerCommentTextStyle}>{selectedWaterMemo.waterSurfaceInfo.courseSummary}</p>
 									</article>
