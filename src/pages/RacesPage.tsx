@@ -5,6 +5,10 @@ import { BoatVenueSelectorPanel } from "../components/boatrace/BoatVenueSelector
 import { BoatVenueSpotlight } from "../components/boatrace/BoatVenueSpotlight";
 import { buildVenueExtraPanelOptions } from "../components/boatrace/venueExtras/venueExtraPanelOptions";
 import {
+	createVenueExtraPanelFlags,
+	resolvePreferredVenueExtraPanel,
+} from "../components/boatrace/venueExtras/venueExtraPanelState";
+import {
 	venueExtrasBodyCellStyle,
 	venueExtrasHeadCellStyle,
 	venueExtrasTableStyle,
@@ -4852,25 +4856,144 @@ const hasNarutoPerformanceData = Boolean(
 	),
 );
 const shouldShowNarutoPerformanceWaiting = Boolean(isNarutoVenue && selectedRaceExtra && !hasNarutoPerformanceData);
-
-const hasOfficialPanelData = hasOfficialBeforeInfoDetail || shouldShowOfficialBeforeInfoWaiting;
-const hasStartPanelData = Boolean(
-	(selectedOfficialBeforeInfo && selectedOfficialBeforeInfo.startExhibition.length > 0) ||
-	hasStartExhibitionData,
+const hasFukuokaScoreRateGuideData = Boolean(selectedFukuokaScoreRateGuide.length || selectedOfficialBeforeInfo?.scoreQuickLook.length);
+const hasKojimaScoreRateGuideData = Boolean(selectedKojimaScoreRateGuide.length || selectedOfficialBeforeInfo?.scoreQuickLook.length);
+const venueExtraPanelFlags = useMemo(
+	() => createVenueExtraPanelFlags({
+		hasOfficialBeforeInfoDetail,
+		shouldShowOfficialBeforeInfoWaiting,
+		hasOfficialStartExhibition: Boolean(selectedOfficialBeforeInfo && selectedOfficialBeforeInfo.startExhibition.length > 0),
+		hasOfficialScoreRows: Boolean(selectedOfficialBeforeInfo && selectedOfficialBeforeInfo.scoreQuickLook.length > 0),
+		hasOriginalExhibitionData,
+		hasStartExhibitionData,
+		hasVenuePredictionFocus,
+		shouldShowOriginalExhibitionWaiting,
+		shouldShowVenuePredictionWaiting,
+		hasSelectedMotorSummaryData,
+		shouldShowMotorSummaryWaiting,
+		hasNarutoPerformanceData,
+		shouldShowNarutoPerformanceWaiting,
+		hasTamagawaMotorHistoryData,
+		hasRacerComments: selectedRacerComments.length > 0,
+		hasWaterMemo: Boolean(selectedWaterMemo),
+		hasAbilityIndex: selectedAbilityIndex.length > 0,
+		hasOmuraEntryData,
+		hasOmuraPreviousDayData,
+		hasOmuraNationalFrameStatsData,
+		hasOmuraFrameLast10Data,
+		hasOmuraCommentsMotorData,
+		hasOmuraExhibitionData,
+		hasBiwakoFramePast10Data,
+		hasBiwakoSeriesResultsData,
+		hasTsuBeforeInfoData,
+		hasTsuRacerCommentsData,
+		hasTsuSeriesResultsData,
+		hasTsuNationalRecent3Data,
+		hasTsuLocalRecent3Data,
+		hasTsuFramePast10Data,
+		hasTsuScoreRateGuideData,
+		hasWakamatsuEntryData,
+		hasWakamatsuBeforeInfoData,
+		hasWakamatsuSeriesResultsData,
+		hasWakamatsuCourseStatsData,
+		hasWakamatsuNationalRecent3Data,
+		hasWakamatsuLocalRecent3Data,
+		hasWakamatsuFramePast10Data,
+		hasWakamatsuScoreRateGuideData,
+		hasWakamatsuMotorHistoryData,
+		hasFukuokaEntryData,
+		hasFukuokaBeforeInfoData,
+		hasFukuokaMotorEvaluationData,
+		hasFukuokaSeriesResultsData,
+		hasFukuokaRacerCommentsData,
+		hasFukuokaFramePast10Data,
+		hasFukuokaScoreRateGuideData,
+		hasKojimaBeforeInfoData,
+		hasKojimaSeriesResultsData,
+		hasKojimaRecentResultsData,
+		hasKojimaCourseStatsData,
+		hasKojimaMotorStatsData,
+		hasKojimaFrameStatsData,
+		hasKojimaScoreRateGuideData,
+		hasTamagawaEntryData,
+		hasTamagawaBeforeInfoData,
+		hasTamagawaSeriesResultsData,
+		hasTamagawaFramePast10Data,
+		hasTamagawaScoreRateGuideData,
+		hasTamagawaOddsResultData,
+	}),
+	[
+		hasOfficialBeforeInfoDetail,
+		shouldShowOfficialBeforeInfoWaiting,
+		selectedOfficialBeforeInfo,
+		hasOriginalExhibitionData,
+		hasStartExhibitionData,
+		hasVenuePredictionFocus,
+		shouldShowOriginalExhibitionWaiting,
+		shouldShowVenuePredictionWaiting,
+		hasSelectedMotorSummaryData,
+		shouldShowMotorSummaryWaiting,
+		hasNarutoPerformanceData,
+		shouldShowNarutoPerformanceWaiting,
+		hasTamagawaMotorHistoryData,
+		selectedRacerComments.length,
+		selectedWaterMemo,
+		selectedAbilityIndex.length,
+		hasOmuraEntryData,
+		hasOmuraPreviousDayData,
+		hasOmuraNationalFrameStatsData,
+		hasOmuraFrameLast10Data,
+		hasOmuraCommentsMotorData,
+		hasOmuraExhibitionData,
+		hasBiwakoFramePast10Data,
+		hasBiwakoSeriesResultsData,
+		hasTsuBeforeInfoData,
+		hasTsuRacerCommentsData,
+		hasTsuSeriesResultsData,
+		hasTsuNationalRecent3Data,
+		hasTsuLocalRecent3Data,
+		hasTsuFramePast10Data,
+		hasTsuScoreRateGuideData,
+		hasWakamatsuEntryData,
+		hasWakamatsuBeforeInfoData,
+		hasWakamatsuSeriesResultsData,
+		hasWakamatsuCourseStatsData,
+		hasWakamatsuNationalRecent3Data,
+		hasWakamatsuLocalRecent3Data,
+		hasWakamatsuFramePast10Data,
+		hasWakamatsuScoreRateGuideData,
+		hasWakamatsuMotorHistoryData,
+		hasFukuokaEntryData,
+		hasFukuokaBeforeInfoData,
+		hasFukuokaMotorEvaluationData,
+		hasFukuokaSeriesResultsData,
+		hasFukuokaRacerCommentsData,
+		hasFukuokaFramePast10Data,
+		hasFukuokaScoreRateGuideData,
+		hasKojimaBeforeInfoData,
+		hasKojimaSeriesResultsData,
+		hasKojimaRecentResultsData,
+		hasKojimaCourseStatsData,
+		hasKojimaMotorStatsData,
+		hasKojimaFrameStatsData,
+		hasKojimaScoreRateGuideData,
+		hasTamagawaEntryData,
+		hasTamagawaBeforeInfoData,
+		hasTamagawaSeriesResultsData,
+		hasTamagawaFramePast10Data,
+		hasTamagawaScoreRateGuideData,
+		hasTamagawaOddsResultData,
+	],
 );
-const hasRecordsPanelData = Boolean(
-	(selectedOfficialBeforeInfo && selectedOfficialBeforeInfo.scoreQuickLook.length > 0) ||
-	hasNarutoPerformanceData ||
-	selectedAbilityIndex.length > 0,
-);
-const hasExhibitionPanelData = hasOriginalExhibitionData || shouldShowOriginalExhibitionWaiting;
-const hasMotorPanelData = hasSelectedMotorSummaryData || shouldShowMotorSummaryWaiting || hasTamagawaMotorHistoryData;
-const hasWaterPanelData = Boolean(
-	hasVenuePredictionFocus ||
-	shouldShowVenuePredictionWaiting ||
-	selectedRacerComments.length > 0 ||
-	selectedWaterMemo,
-);
+const {
+	hasSelectedVenueExtrasDetail,
+	hasOfficialPanelData,
+	hasStartPanelData,
+	hasRecordsPanelData,
+	hasExhibitionPanelData,
+	hasMotorPanelData,
+	hasWaterPanelData,
+} = venueExtraPanelFlags;
 const tamagawaScoreRows = selectedTamagawaScoreRateGuide.length
 	? selectedTamagawaScoreRateGuide
 	: selectedOfficialBeforeInfo?.scoreQuickLook ?? [];
@@ -5092,397 +5215,110 @@ const selectedRaceForDetail = useMemo(() => {
 	};
 }, [selectedRace, selectedRaceDisplayRacers]);
 
-const hasFukuokaScoreRateGuideData = fukuokaScoreRows.length > 0;
-const hasKojimaScoreRateGuideData = kojimaScoreRows.length > 0;
-
-const hasSelectedVenueExtrasDetail =
-	hasOriginalExhibitionData ||
-	selectedRacerComments.length > 0 ||
-	hasStartExhibitionData ||
-	hasSelectedMotorSummaryData ||
-	hasNarutoPerformanceData ||
-	hasOmuraEntryData ||
-	hasOmuraPreviousDayData ||
-	hasOmuraNationalFrameStatsData ||
-	hasOmuraFrameLast10Data ||
-	hasOmuraCommentsMotorData ||
-	hasOmuraExhibitionData ||
-	hasBiwakoFramePast10Data ||
-	hasBiwakoSeriesResultsData ||
-	hasTsuBeforeInfoData ||
-	hasTsuRacerCommentsData ||
-	hasTsuSeriesResultsData ||
-	hasTsuNationalRecent3Data ||
-	hasTsuLocalRecent3Data ||
-	hasTsuFramePast10Data ||
-	hasTsuScoreRateGuideData ||
-	hasWakamatsuEntryData ||
-	hasWakamatsuBeforeInfoData ||
-	hasWakamatsuSeriesResultsData ||
-	hasWakamatsuCourseStatsData ||
-	hasWakamatsuNationalRecent3Data ||
-	hasWakamatsuLocalRecent3Data ||
-	hasWakamatsuFramePast10Data ||
-	hasWakamatsuScoreRateGuideData ||
-	hasWakamatsuMotorHistoryData ||
-	hasFukuokaEntryData ||
-	hasFukuokaBeforeInfoData ||
-	hasFukuokaMotorEvaluationData ||
-	hasFukuokaSeriesResultsData ||
-	hasFukuokaRacerCommentsData ||
-	hasFukuokaFramePast10Data ||
-	hasFukuokaScoreRateGuideData ||
-	hasKojimaBeforeInfoData ||
-	hasKojimaSeriesResultsData ||
-	hasKojimaRecentResultsData ||
-	hasKojimaCourseStatsData ||
-	hasKojimaMotorStatsData ||
-	hasKojimaFrameStatsData ||
-	hasKojimaScoreRateGuideData ||
-	hasTamagawaEntryData ||
-	hasTamagawaBeforeInfoData ||
-	hasTamagawaMotorHistoryData ||
-	hasTamagawaSeriesResultsData ||
-	hasTamagawaFramePast10Data ||
-	hasTamagawaScoreRateGuideData ||
-	hasTamagawaOddsResultData ||
-	shouldShowOriginalExhibitionWaiting ||
-	shouldShowVenuePredictionWaiting ||
-	shouldShowMotorSummaryWaiting ||
-	shouldShowNarutoPerformanceWaiting ||
-	selectedAbilityIndex.length > 0 ||
-	Boolean(selectedWaterMemo);
-
-const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(() => {
-	if (isOmuraVenue) {
-		if (hasOmuraCommentsMotorData) {
-			return "omura-comments";
-		}
-
-		if (hasOmuraExhibitionData) {
-			return "omura-exhibition";
-		}
-
-		if (hasOmuraFrameLast10Data) {
-			return "omura-last10";
-		}
-
-		if (hasOmuraNationalFrameStatsData) {
-			return "omura-national";
-		}
-
-		if (hasOmuraPreviousDayData) {
-			return "omura-prevday";
-		}
-
-		return "omura-overview";
-	}
-
-	if (isTsuVenue) {
-		if (hasTsuBeforeInfoData) {
-			return "tsu-before";
-		}
-
-		if (hasStartPanelData) {
-			return "start";
-		}
-
-		if (hasOriginalExhibitionData) {
-			return "exhibition";
-		}
-
-		if (hasTsuRacerCommentsData) {
-			return "tsu-comments";
-		}
-
-		if (hasTsuSeriesResultsData) {
-			return "tsu-series";
-		}
-
-		if (hasTsuFramePast10Data) {
-			return "tsu-frame10";
-		}
-
-		if (hasTsuScoreRateGuideData || selectedOfficialBeforeInfo?.scoreQuickLook.length) {
-			return "tsu-score";
-		}
-
-		if (hasTsuNationalRecent3Data) {
-			return "tsu-national3";
-		}
-
-		if (hasTsuLocalRecent3Data) {
-			return "tsu-local3";
-		}
-
-		return "tsu-before";
-	}
-
-	if (isWakamatsuVenue) {
-		if (hasWakamatsuBeforeInfoData) {
-			return "wakamatsu-before";
-		}
-
-		if (hasStartPanelData) {
-			return "start";
-		}
-
-		if (hasOriginalExhibitionData) {
-			return "exhibition";
-		}
-
-		if (hasWakamatsuSeriesResultsData) {
-			return "wakamatsu-series";
-		}
-
-		if (hasWakamatsuCourseStatsData) {
-			return "wakamatsu-course";
-		}
-
-		if (hasWakamatsuMotorHistoryData) {
-			return "wakamatsu-motor";
-		}
-
-		if (hasWakamatsuFramePast10Data) {
-			return "wakamatsu-frame10";
-		}
-
-		if (hasWakamatsuNationalRecent3Data) {
-			return "wakamatsu-national3";
-		}
-
-		if (hasWakamatsuLocalRecent3Data) {
-			return "wakamatsu-local3";
-		}
-
-		if (hasWakamatsuEntryData) {
-			return "wakamatsu-entry";
-		}
-
-		return "wakamatsu-score";
-	}
-
-	if (isFukuokaVenue) {
-		if (hasFukuokaBeforeInfoData) {
-			return "fukuoka-before";
-		}
-
-		if (hasStartPanelData) {
-			return "start";
-		}
-
-		if (hasOriginalExhibitionData) {
-			return "exhibition";
-		}
-
-		if (hasFukuokaMotorEvaluationData) {
-			return "fukuoka-motor";
-		}
-
-		if (hasFukuokaSeriesResultsData) {
-			return "fukuoka-series";
-		}
-
-		if (hasFukuokaRacerCommentsData) {
-			return "fukuoka-comments";
-		}
-
-		if (hasFukuokaFramePast10Data) {
-			return "fukuoka-frame10";
-		}
-
-		if (hasFukuokaEntryData) {
-			return "fukuoka-entry";
-		}
-
-		return "fukuoka-score";
-	}
-
-	if (isKojimaVenue) {
-		if (hasKojimaBeforeInfoData) {
-			return "kojima-before";
-		}
-
-		if (hasStartPanelData) {
-			return "start";
-		}
-
-		if (hasOriginalExhibitionData) {
-			return "exhibition";
-		}
-
-		if (hasKojimaSeriesResultsData) {
-			return "kojima-series";
-		}
-
-		if (hasKojimaCourseStatsData) {
-			return "kojima-course";
-		}
-
-		if (hasKojimaMotorStatsData) {
-			return "kojima-motor";
-		}
-
-		if (hasKojimaFrameStatsData) {
-			return "kojima-frame";
-		}
-
-		if (hasKojimaScoreRateGuideData || selectedOfficialBeforeInfo?.scoreQuickLook.length) {
-			return "kojima-score";
-		}
-
-		if (hasKojimaRecentResultsData) {
-			return "kojima-recent";
-		}
-
-		return "kojima-before";
-	}
-
-	if (isTamagawaVenue) {
-		if (hasTamagawaBeforeInfoData) {
-			return "tamagawa-cyokuzen";
-		}
-
-		if (hasStartPanelData) {
-			return "start";
-		}
-
-		if (hasOriginalExhibitionData) {
-			return "exhibition";
-		}
-
-		if (hasTamagawaMotorHistoryData) {
-			return "motor";
-		}
-
-		if (selectedAbilityIndex.length > 0) {
-			return "tamagawa-diagnosis";
-		}
-
-		if (hasTamagawaSeriesResultsData) {
-			return "tamagawa-series";
-		}
-
-		if (hasTamagawaFramePast10Data) {
-			return "tamagawa-frame10";
-		}
-
-		if (hasTamagawaScoreRateGuideData || selectedOfficialBeforeInfo?.scoreQuickLook.length) {
-			return "tamagawa-score";
-		}
-
-		return "tamagawa-overview";
-	}
-
-			if (isBiwakoVenue) {
-		if (hasExhibitionPanelData) {
-			return "exhibition";
-		}
-
-		if (hasStartPanelData) {
-			return "start";
-		}
-
-		if (hasBiwakoFramePast10Data) {
-			return "biwako-frame10";
-		}
-
-		if (hasBiwakoSeriesResultsData) {
-			return "biwako-series";
-		}
-
-		if (hasRecordsPanelData) {
-			return "records";
-		}
-		return "exhibition";
-	}
-
-	if (hasOfficialPanelData) {
-		return "official";
-	}
-
-	if (hasExhibitionPanelData) {
-		return "exhibition";
-	}
-
-	if (hasStartPanelData) {
-		return "start";
-	}
-
-	if (hasRecordsPanelData) {
-		return "records";
-	}
-
-	if (hasMotorPanelData) {
-		return "motor";
-	}
-
-	if (hasWaterPanelData) {
-		return "water";
-	}
-
-	return "official";
-}, [
-	isOmuraVenue,
-	hasOmuraCommentsMotorData,
-	hasOmuraExhibitionData,
-	hasOmuraFrameLast10Data,
-	hasOmuraNationalFrameStatsData,
-	hasOmuraPreviousDayData,
-	isTsuVenue,
-	isWakamatsuVenue,
-	isFukuokaVenue,
-	isKojimaVenue,
-	hasTsuBeforeInfoData,
-	hasTsuRacerCommentsData,
-	hasTsuSeriesResultsData,
-	hasTsuNationalRecent3Data,
-	hasTsuLocalRecent3Data,
-	hasTsuFramePast10Data,
-	hasTsuScoreRateGuideData,
-	hasWakamatsuEntryData,
-	hasWakamatsuBeforeInfoData,
-	hasWakamatsuSeriesResultsData,
-	hasWakamatsuCourseStatsData,
-	hasWakamatsuNationalRecent3Data,
-	hasWakamatsuLocalRecent3Data,
-	hasWakamatsuFramePast10Data,
-	hasWakamatsuScoreRateGuideData,
-	hasWakamatsuMotorHistoryData,
-	hasFukuokaEntryData,
-	hasFukuokaBeforeInfoData,
-	hasFukuokaMotorEvaluationData,
-	hasFukuokaSeriesResultsData,
-	hasFukuokaRacerCommentsData,
-	hasFukuokaFramePast10Data,
-	hasFukuokaScoreRateGuideData,
-	hasKojimaBeforeInfoData,
-	hasKojimaSeriesResultsData,
-	hasKojimaRecentResultsData,
-	hasKojimaCourseStatsData,
-	hasKojimaMotorStatsData,
-	hasKojimaFrameStatsData,
-	hasKojimaScoreRateGuideData,
-	isTamagawaVenue,
-	isBiwakoVenue,
-	hasBiwakoFramePast10Data,
-	hasBiwakoSeriesResultsData,
-	hasTamagawaBeforeInfoData,
-	hasTamagawaMotorHistoryData,
-	hasTamagawaSeriesResultsData,
-	hasTamagawaFramePast10Data,
-	hasTamagawaScoreRateGuideData,
-	hasTamagawaOddsResultData,
-	hasTamagawaEntryData,
-	selectedOfficialBeforeInfo,
-	selectedAbilityIndex.length,
-	hasOfficialPanelData,
-	hasExhibitionPanelData,
-	hasStartPanelData,
-	hasRecordsPanelData,
-	hasMotorPanelData,
-	hasWaterPanelData,
-]);
+const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(
+	() => resolvePreferredVenueExtraPanel({
+		isNarutoVenue,
+		isBiwakoVenue,
+		isTamagawaVenue,
+		isTsuVenue,
+		isWakamatsuVenue,
+		isFukuokaVenue,
+		isKojimaVenue,
+		isOmuraVenue,
+		isMarugameVenue,
+		...venueExtraPanelFlags,
+		hasOmuraPreviousDayData,
+		hasOmuraNationalFrameStatsData,
+		hasOmuraFrameLast10Data,
+		hasOmuraCommentsMotorData,
+		hasOmuraExhibitionData,
+		hasTsuBeforeInfoData,
+		hasTsuRacerCommentsData,
+		hasTsuSeriesResultsData,
+		hasTsuNationalRecent3Data,
+		hasTsuLocalRecent3Data,
+		hasTsuFramePast10Data,
+		hasTsuScoreRateGuideData,
+		hasWakamatsuEntryData,
+		hasWakamatsuBeforeInfoData,
+		hasWakamatsuSeriesResultsData,
+		hasWakamatsuCourseStatsData,
+		hasWakamatsuNationalRecent3Data,
+		hasWakamatsuLocalRecent3Data,
+		hasWakamatsuFramePast10Data,
+		hasWakamatsuMotorHistoryData,
+		hasFukuokaEntryData,
+		hasFukuokaBeforeInfoData,
+		hasFukuokaMotorEvaluationData,
+		hasFukuokaSeriesResultsData,
+		hasFukuokaRacerCommentsData,
+		hasFukuokaFramePast10Data,
+		hasKojimaBeforeInfoData,
+		hasKojimaSeriesResultsData,
+		hasKojimaRecentResultsData,
+		hasKojimaCourseStatsData,
+		hasKojimaMotorStatsData,
+		hasKojimaFrameStatsData,
+		hasKojimaScoreRateGuideData,
+		hasTamagawaBeforeInfoData,
+		hasTamagawaSeriesResultsData,
+		hasTamagawaFramePast10Data,
+		hasTamagawaScoreRateGuideData,
+		hasBiwakoFramePast10Data,
+		hasBiwakoSeriesResultsData,
+	}),
+	[
+		isNarutoVenue,
+		isBiwakoVenue,
+		isTamagawaVenue,
+		isTsuVenue,
+		isWakamatsuVenue,
+		isFukuokaVenue,
+		isKojimaVenue,
+		isOmuraVenue,
+		isMarugameVenue,
+		venueExtraPanelFlags,
+		hasOmuraPreviousDayData,
+		hasOmuraNationalFrameStatsData,
+		hasOmuraFrameLast10Data,
+		hasOmuraCommentsMotorData,
+		hasOmuraExhibitionData,
+		hasTsuBeforeInfoData,
+		hasTsuRacerCommentsData,
+		hasTsuSeriesResultsData,
+		hasTsuNationalRecent3Data,
+		hasTsuLocalRecent3Data,
+		hasTsuFramePast10Data,
+		hasTsuScoreRateGuideData,
+		hasWakamatsuEntryData,
+		hasWakamatsuBeforeInfoData,
+		hasWakamatsuSeriesResultsData,
+		hasWakamatsuCourseStatsData,
+		hasWakamatsuNationalRecent3Data,
+		hasWakamatsuLocalRecent3Data,
+		hasWakamatsuFramePast10Data,
+		hasWakamatsuMotorHistoryData,
+		hasFukuokaEntryData,
+		hasFukuokaBeforeInfoData,
+		hasFukuokaMotorEvaluationData,
+		hasFukuokaSeriesResultsData,
+		hasFukuokaRacerCommentsData,
+		hasFukuokaFramePast10Data,
+		hasKojimaBeforeInfoData,
+		hasKojimaSeriesResultsData,
+		hasKojimaRecentResultsData,
+		hasKojimaCourseStatsData,
+		hasKojimaMotorStatsData,
+		hasKojimaFrameStatsData,
+		hasKojimaScoreRateGuideData,
+		hasTamagawaBeforeInfoData,
+		hasTamagawaSeriesResultsData,
+		hasTamagawaFramePast10Data,
+		hasTamagawaScoreRateGuideData,
+		hasBiwakoFramePast10Data,
+		hasBiwakoSeriesResultsData,
+	],
+);
 
 useEffect(() => {
 	setSelectedVenueExtraPanel(
@@ -5513,7 +5349,7 @@ const venueExtraPanelOptions = useMemo(
 		isKojimaVenue,
 		isOmuraVenue,
 		isMarugameVenue,
-		hasSelectedVenueExtrasDetail,
+		...venueExtraPanelFlags,
 		hasOmuraPreviousDayData,
 		hasOmuraNationalFrameStatsData,
 		hasOmuraFrameLast10Data,
@@ -5557,12 +5393,6 @@ const venueExtraPanelOptions = useMemo(
 		hasTamagawaFramePast10Data,
 		hasTamagawaScoreRateGuideData,
 		hasTamagawaEntryData,
-		hasOfficialPanelData,
-		hasStartPanelData,
-		hasRecordsPanelData,
-		hasExhibitionPanelData,
-		hasMotorPanelData,
-		hasWaterPanelData,
 		officialScoreRowsCount: selectedOfficialBeforeInfo?.scoreQuickLook.length ?? 0,
 		abilityIndexCount: selectedAbilityIndex.length,
 	}),
@@ -5611,7 +5441,7 @@ const venueExtraPanelOptions = useMemo(
 		hasKojimaMotorStatsData,
 		hasKojimaFrameStatsData,
 		hasKojimaScoreRateGuideData,
-		hasSelectedVenueExtrasDetail,
+		venueExtraPanelFlags,
 		hasTamagawaMotorHistoryData,
 		selectedAbilityIndex.length,
 		hasTamagawaSeriesResultsData,
@@ -5621,12 +5451,6 @@ const venueExtraPanelOptions = useMemo(
 		hasTamagawaOddsResultData,
 		hasTamagawaEntryData,
 		selectedOfficialBeforeInfo?.scoreQuickLook.length,
-		hasOfficialPanelData,
-		hasStartPanelData,
-		hasRecordsPanelData,
-		hasExhibitionPanelData,
-		hasMotorPanelData,
-		hasWaterPanelData,
 	],
 );
 
