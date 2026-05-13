@@ -3,7 +3,26 @@ import { BoatRaceDetailPanel } from "../components/boatrace/BoatRaceDetailPanel"
 import { BoatRaceQuickSelector } from "../components/boatrace/BoatRaceQuickSelector";
 import { BoatVenueSelectorPanel } from "../components/boatrace/BoatVenueSelectorPanel";
 import { BoatVenueSpotlight } from "../components/boatrace/BoatVenueSpotlight";
-import { VENUE_EXTRA_LABELS } from "../components/boatrace/venueExtras/venueExtraLabels";
+import { buildVenueExtraPanelOptions } from "../components/boatrace/venueExtras/venueExtraPanelOptions";
+import {
+	venueExtrasBodyCellStyle,
+	venueExtrasHeadCellStyle,
+	venueExtrasTableStyle,
+	venueExtrasTableWrapStyle,
+} from "../components/boatrace/venueExtras/venueExtraStyles";
+import type { VenueExtraPanelKey } from "../components/boatrace/venueExtras/venueExtraTypes";
+import {
+	getOfficialStartFlag,
+	getOfficialStartTimingValue,
+	getVenueExtraVenueFlags,
+	isVenueExtraRecord,
+	normalizeVenueExtraPlayerName,
+	readVenueExtraNumber,
+	readVenueExtraRate,
+	readVenueExtraString,
+	readVenueExtraStringArray,
+	sumVenueExtraRates,
+} from "../components/boatrace/venueExtras/venueExtraUtils";
 import { SectionCard } from "../components/common/SectionCard";
 import { PageShell } from "../components/layout/PageShell";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
@@ -375,42 +394,6 @@ const venueExtrasPanelTitleStyle = {
 	fontSize: "0.95rem",
 	fontWeight: 900,
 	color: boatTheme.colors.navy,
-};
-
-const venueExtrasTableWrapStyle = {
-	overflowX: "auto" as const,
-	borderRadius: "20px",
-	border: "1px solid rgba(93, 199, 232, 0.22)",
-	background: "rgba(255, 255, 255, 0.98)",
-	boxShadow: "0 10px 26px rgba(17, 64, 92, 0.045), inset 0 1px 0 rgba(255, 255, 255, 0.9)",
-};
-
-const venueExtrasTableStyle = {
-	width: "100%",
-	minWidth: "520px",
-	borderCollapse: "collapse" as const,
-	color: boatTheme.colors.navy,
-	fontSize: "0.84rem",
-};
-
-const venueExtrasHeadCellStyle = {
-	padding: "11px 12px",
-	background: "linear-gradient(180deg, rgba(225, 243, 250, 0.98), rgba(214, 236, 246, 0.92))",
-	borderBottom: `1px solid ${boatTheme.colors.line}`,
-	textAlign: "left" as const,
-	whiteSpace: "nowrap" as const,
-	color: boatTheme.colors.navy,
-	fontSize: "0.76rem",
-	fontWeight: 900,
-};
-
-const venueExtrasBodyCellStyle = {
-	padding: "11px 12px",
-	borderBottom: `1px solid ${boatTheme.colors.line}`,
-	whiteSpace: "nowrap" as const,
-	color: boatTheme.colors.navy,
-	fontSize: "0.82rem",
-	fontWeight: 800,
 };
 
 const venueExtrasFocusListStyle = {
@@ -1438,60 +1421,6 @@ type BoatNarutoStartExhibitionDisplayRow = {
 
 type NarutoStatsTab = "score" | "frameHistory" | "narutoRecent" | "nationalRecent";
 
-type VenueExtraPanelKey =
-	| "official"
-	| "start"
-	| "records"
-	| "exhibition"
-	| "motor"
-	| "water"
-	| "tamagawa-overview"
-	| "tamagawa-diagnosis"
-	| "tamagawa-series"
-	| "tamagawa-cyokuzen"
-	| "tamagawa-frame10"
-	| "biwako-frame10"
-	| "biwako-series"
-	| "tamagawa-score"
-	| "omura-overview"
-	| "omura-prevday"
-	| "omura-national"
-	| "omura-last10"
-	| "omura-comments"
-	| "omura-exhibition"
-	| "tamagawa-odds"
-	| "tamagawa-entry"
-	| "tsu-before"
-	| "tsu-comments"
-	| "tsu-series"
-	| "tsu-national3"
-	| "tsu-local3"
-	| "tsu-frame10"
-	| "tsu-score"
-	| "wakamatsu-entry"
-	| "wakamatsu-before"
-	| "wakamatsu-series"
-	| "wakamatsu-course"
-	| "wakamatsu-national3"
-	| "wakamatsu-local3"
-	| "wakamatsu-frame10"
-	| "wakamatsu-score"
-	| "wakamatsu-motor"
-	| "fukuoka-entry"
-	| "fukuoka-before"
-	| "fukuoka-motor"
-	| "fukuoka-series"
-	| "fukuoka-comments"
-	| "fukuoka-frame10"
-	| "fukuoka-score"
-	| "kojima-before"
-	| "kojima-series"
-	| "kojima-recent"
-	| "kojima-course"
-	| "kojima-motor"
-	| "kojima-frame"
-	| "kojima-score";
-
 type BoatOmuraEntryRow = {
 	frameNo: number;
 	className: string;
@@ -1816,56 +1745,8 @@ function getJstTodayDate(): string {
 	}).format(new Date());
 }
 
-function isVenueExtraRecord(value: unknown): value is Record<string, unknown> {
-	return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
 function isPresent<T>(value: T | null | undefined): value is T {
 	return value !== null && value !== undefined;
-}
-
-function readVenueExtraString(value: unknown): string {
-	return typeof value === "string" ? value.trim() : "";
-}
-
-function readVenueExtraNumber(value: unknown): number | null {
-	if (typeof value === "number" && Number.isFinite(value)) {
-		return value;
-	}
-
-	if (typeof value === "string") {
-		const parsed = Number.parseInt(value, 10);
-		return Number.isFinite(parsed) ? parsed : null;
-	}
-
-	return null;
-}
-
-function readVenueExtraStringArray(value: unknown, limit: number): string[] {
-	return Array.isArray(value)
-		? value.map((item) => readVenueExtraString(item)).slice(0, limit)
-		: [];
-}
-
-function readVenueExtraRate(count: string, total: string): string {
-	const countValue = Number.parseFloat(count);
-	const totalValue = Number.parseFloat(total);
-
-	if (!Number.isFinite(countValue) || !Number.isFinite(totalValue) || totalValue <= 0) {
-		return "";
-	}
-
-	return ((countValue / totalValue) * 100).toFixed(1);
-}
-
-function sumVenueExtraRates(...values: string[]): string {
-	const numbers = values.map((value) => Number.parseFloat(value));
-
-	if (numbers.some((value) => !Number.isFinite(value))) {
-		return "";
-	}
-
-	return numbers.reduce((total, value) => total + value, 0).toFixed(1);
 }
 
 function getOfficialBeforeInfoDisplay(raceExtra: BoatVenueExtraRace | null): BoatOfficialBeforeInfoDisplay | null {
@@ -1962,24 +1843,6 @@ function getOfficialBeforeInfoDisplay(raceExtra: BoatVenueExtraRace | null): Boa
 		startExhibition,
 		scoreQuickLook,
 	};
-}
-
-function getOfficialStartTimingValue(startTiming: string): string {
-	const normalized = startTiming.trim();
-	return normalized.replace(/^[FL]/i, "") || "-";
-}
-
-function getOfficialStartFlag(startTiming: string): string {
-	const normalized = startTiming.trim().toUpperCase();
-	if (normalized.startsWith("F")) {
-		return "F";
-	}
-
-	if (normalized.startsWith("L")) {
-		return "L";
-	}
-
-	return "-";
 }
 
 function getVenueOriginalExhibitionRows(raceExtra: BoatVenueExtraRace | null): BoatVenueOriginalExhibition[] {
@@ -4859,7 +4722,7 @@ const narutoStartExhibitionDisplay = useMemo(
 const tamagawaStartExhibitionDisplay = useMemo(() => {
 	const frameNoByPlayerName = new Map(
 		selectedTamagawaBeforeInfo
-			.map((row) => [row.playerName.replace(/\s+/g, ""), row.frameNo] as const)
+			.map((row) => [normalizeVenueExtraPlayerName(row.playerName), row.frameNo] as const)
 			.filter(([playerName]) => Boolean(playerName)),
 	);
 
@@ -4869,7 +4732,7 @@ const tamagawaStartExhibitionDisplay = useMemo(() => {
 
 	return selectedStartExhibition
 		.map((row) => {
-			const normalizedPlayerName = (row.playerName || "").replace(/\s+/g, "");
+			const normalizedPlayerName = normalizeVenueExtraPlayerName(row.playerName);
 			const correctedFrameNo = frameNoByPlayerName.get(normalizedPlayerName) ?? row.frameNo;
 
 			return {
@@ -4885,16 +4748,7 @@ const tamagawaStartExhibitionDisplay = useMemo(() => {
 		})
 		.sort((left, right) => left.course - right.course);
 }, [selectedStartExhibition, selectedTamagawaBeforeInfo]);
-
-const isNarutoVenue = selectedVenue?.venueName === "鳴門";
-const isBiwakoVenue = selectedVenue?.venueName === "びわこ";
-const isTamagawaVenue = selectedVenue?.venueName === "多摩川";
-const isTsuVenue = selectedVenue?.venueName === "津";
-const isWakamatsuVenue = selectedVenue?.venueName === "若松";
-const isFukuokaVenue = selectedVenue?.venueName === "福岡";
-const isKojimaVenue = selectedVenue?.venueName === "児島";
-const isOmuraVenue = selectedVenue?.venueName === "大村";
-const isMarugameVenue = selectedVenue?.venueName === "丸亀";
+const { isNarutoVenue, isBiwakoVenue, isTamagawaVenue, isTsuVenue, isWakamatsuVenue, isFukuokaVenue, isKojimaVenue, isOmuraVenue, isMarugameVenue } = getVenueExtraVenueFlags(selectedVenue?.venueName);
 const hasOmuraEntryData = selectedOmuraEntryTable.length > 0;
 const hasOmuraPreviousDayData = selectedOmuraPreviousDayResults.some((row) => row.items.length > 0);
 const hasOmuraNationalFrameStatsData = selectedOmuraNationalFrameStats.length > 0;
@@ -5648,82 +5502,70 @@ useEffect(() => {
 	setSelectedNarutoStatsTab("score");
 }, [selectedVenueId]);
 
-const venueExtraText = VENUE_EXTRA_LABELS;
-
 const venueExtraPanelOptions = useMemo(
-	() => isOmuraVenue ? [
-		{ key: "omura-overview", label: venueExtraText.labels.overview, hint: venueExtraText.hints.overview, badge: hasSelectedVenueExtrasDetail ? venueExtraText.labels.overviewShort : venueExtraText.waiting },
-		{ key: "omura-prevday", label: venueExtraText.labels.prevDay, hint: venueExtraText.hints.prevDay, badge: hasOmuraPreviousDayData ? venueExtraText.labels.prevDay : venueExtraText.waiting },
-		{ key: "omura-national", label: venueExtraText.labels.nationalFrame, hint: venueExtraText.hints.nationalFrame, badge: hasOmuraNationalFrameStatsData ? venueExtraText.labels.nationalFrameShort : venueExtraText.waiting },
-		{ key: "omura-last10", label: venueExtraText.labels.last10, hint: venueExtraText.hints.last10, badge: hasOmuraFrameLast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
-		{ key: "omura-comments", label: venueExtraText.labels.commentsAndMotor, hint: venueExtraText.hints.commentsAndMotor, badge: hasOmuraCommentsMotorData ? venueExtraText.labels.commentShort : venueExtraText.waiting },
-		{ key: "omura-exhibition", label: venueExtraText.labels.displayInfo, hint: venueExtraText.hints.displayInfo, badge: hasOmuraExhibitionData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
-	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isTsuVenue ? [
-		{ key: "tsu-before", label: venueExtraText.labels.before, hint: venueExtraText.hints.beforeFull, badge: hasTsuBeforeInfoData ? venueExtraText.labels.directBeforeShort : venueExtraText.waiting },
-		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startTsu, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
-		{ key: "exhibition", label: venueExtraText.labels.exhibition, hint: venueExtraText.hints.exhibitionFull, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
-		{ key: "tsu-comments", label: venueExtraText.labels.comments, hint: venueExtraText.hints.commentsTsu, badge: hasTsuRacerCommentsData ? venueExtraText.labels.commentShort : venueExtraText.waiting },
-		{ key: "tsu-series", label: venueExtraText.labels.series, hint: venueExtraText.hints.seriesGeneral, badge: hasTsuSeriesResultsData ? venueExtraText.labels.series : venueExtraText.waiting },
-		{ key: "tsu-national3", label: venueExtraText.labels.nationalRecent3, hint: venueExtraText.hints.nationalRecent3, badge: hasTsuNationalRecent3Data ? venueExtraText.labels.national3Short : venueExtraText.waiting },
-		{ key: "tsu-local3", label: venueExtraText.labels.localRecent3, hint: venueExtraText.hints.localRecent3Tsu, badge: hasTsuLocalRecent3Data ? venueExtraText.labels.local3Short : venueExtraText.waiting },
-		{ key: "tsu-frame10", label: venueExtraText.labels.framePast10, hint: venueExtraText.hints.framePast10, badge: hasTsuFramePast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
-		{ key: "tsu-score", label: venueExtraText.labels.score, hint: venueExtraText.hints.scoreTsu, badge: hasTsuScoreRateGuideData || selectedOfficialBeforeInfo?.scoreQuickLook.length ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
-	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isWakamatsuVenue ? [
-		{ key: "wakamatsu-before", label: venueExtraText.labels.before, hint: venueExtraText.hints.beforeWakamatsu, badge: hasWakamatsuBeforeInfoData ? venueExtraText.labels.directBeforeShort : venueExtraText.waiting },
-		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startWakamatsu, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
-		{ key: "exhibition", label: venueExtraText.labels.exhibition, hint: venueExtraText.hints.exhibitionFull, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
-		{ key: "wakamatsu-series", label: venueExtraText.labels.series, hint: venueExtraText.hints.seriesGeneral, badge: hasWakamatsuSeriesResultsData ? venueExtraText.labels.series : venueExtraText.waiting },
-		{ key: "wakamatsu-course", label: venueExtraText.labels.course, hint: venueExtraText.hints.courseWakamatsu, badge: hasWakamatsuCourseStatsData ? "進入" : venueExtraText.waiting },
-		{ key: "wakamatsu-motor", label: venueExtraText.labels.motorHistory, hint: venueExtraText.hints.motorHistory, badge: hasWakamatsuMotorHistoryData ? venueExtraText.labels.historyShort : venueExtraText.waiting },
-		{ key: "wakamatsu-frame10", label: venueExtraText.labels.framePast10, hint: venueExtraText.hints.framePast10, badge: hasWakamatsuFramePast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
-		{ key: "wakamatsu-national3", label: venueExtraText.labels.nationalRecent3, hint: venueExtraText.hints.nationalRecent3, badge: hasWakamatsuNationalRecent3Data ? venueExtraText.labels.national3Short : venueExtraText.waiting },
-		{ key: "wakamatsu-local3", label: venueExtraText.labels.localRecent3, hint: venueExtraText.hints.localRecent3Wakamatsu, badge: hasWakamatsuLocalRecent3Data ? venueExtraText.labels.local3Short : venueExtraText.waiting },
-		{ key: "wakamatsu-entry", label: venueExtraText.labels.entryTable, hint: venueExtraText.hints.entryTable, badge: hasWakamatsuEntryData ? venueExtraText.labels.entryTable : venueExtraText.waiting },
-		{ key: "wakamatsu-score", label: venueExtraText.labels.score, hint: venueExtraText.hints.scoreWakamatsu, badge: hasWakamatsuScoreRateGuideData ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
-	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isFukuokaVenue ? [
-		{ key: "fukuoka-entry", label: venueExtraText.labels.entry, hint: venueExtraText.hints.entryFukuoka, badge: hasFukuokaEntryData ? venueExtraText.labels.entryShort : venueExtraText.waiting },
-		{ key: "fukuoka-before", label: venueExtraText.labels.before, hint: venueExtraText.hints.beforeDisplay, badge: hasFukuokaBeforeInfoData ? venueExtraText.labels.directBeforeShort : venueExtraText.waiting },
-		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startFukuoka, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
-		{ key: "exhibition", label: venueExtraText.labels.displayInfo, hint: venueExtraText.hints.exhibitionDisplay, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
-		{ key: "fukuoka-motor", label: venueExtraText.labels.motorEvaluation, hint: venueExtraText.hints.motorEvaluation, badge: hasFukuokaMotorEvaluationData ? venueExtraText.labels.motorShort : venueExtraText.waiting },
-		{ key: "fukuoka-series", label: venueExtraText.labels.interval, hint: venueExtraText.hints.seriesGeneral, badge: hasFukuokaSeriesResultsData ? venueExtraText.labels.intervalShort : venueExtraText.waiting },
-		{ key: "fukuoka-comments", label: venueExtraText.labels.comments, hint: venueExtraText.hints.commentsTsu, badge: hasFukuokaRacerCommentsData ? venueExtraText.labels.commentShort : venueExtraText.waiting },
-		{ key: "fukuoka-frame10", label: venueExtraText.labels.framePast10, hint: venueExtraText.hints.framePast10, badge: hasFukuokaFramePast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
-		{ key: "fukuoka-score", label: venueExtraText.labels.score, hint: venueExtraText.hints.scoreFukuoka, badge: hasFukuokaScoreRateGuideData ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
-	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isKojimaVenue ? [
-		{ key: "kojima-before", label: venueExtraText.labels.before, hint: venueExtraText.hints.beforeDisplay, badge: hasKojimaBeforeInfoData ? venueExtraText.labels.directBeforeShort : venueExtraText.waiting },
-		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startKojima, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
-		{ key: "exhibition", label: venueExtraText.labels.exhibition, hint: venueExtraText.hints.exhibitionFull, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
-		{ key: "kojima-series", label: venueExtraText.labels.series, hint: venueExtraText.hints.seriesGeneral, badge: hasKojimaSeriesResultsData ? venueExtraText.labels.series : venueExtraText.waiting },
-		{ key: "kojima-recent", label: venueExtraText.labels.recent, hint: venueExtraText.hints.recent, badge: hasKojimaRecentResultsData ? venueExtraText.labels.recentShort : venueExtraText.waiting },
-		{ key: "kojima-course", label: venueExtraText.labels.course, hint: venueExtraText.hints.courseCompare, badge: hasKojimaCourseStatsData ? "進入" : venueExtraText.waiting },
-		{ key: "kojima-motor", label: venueExtraText.labels.motorStats, hint: venueExtraText.hints.motorStats, badge: hasKojimaMotorStatsData ? venueExtraText.labels.motorShort : venueExtraText.waiting },
-		{ key: "kojima-frame", label: venueExtraText.labels.frameStats, hint: venueExtraText.hints.frameStats, badge: hasKojimaFrameStatsData ? venueExtraText.labels.frameStats : venueExtraText.waiting },
-		{ key: "kojima-score", label: venueExtraText.labels.score, hint: venueExtraText.hints.scoreKojima, badge: hasKojimaScoreRateGuideData ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
-	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isTamagawaVenue ? [
-		{ key: "tamagawa-overview", label: venueExtraText.labels.overview, hint: venueExtraText.hints.overviewTamagawa, badge: hasSelectedVenueExtrasDetail ? venueExtraText.labels.overviewShort : venueExtraText.waiting },
-		{ key: "motor", label: venueExtraText.labels.motor, hint: venueExtraText.hints.motorTamagawa, badge: hasTamagawaMotorHistoryData ? venueExtraText.labels.historyShort : venueExtraText.waiting },
-		{ key: "tamagawa-diagnosis", label: venueExtraText.labels.diagnosis, hint: venueExtraText.hints.diagnosis, badge: selectedAbilityIndex.length > 0 ? venueExtraText.labels.indexShort : venueExtraText.waiting },
-		{ key: "tamagawa-series", label: venueExtraText.labels.interval, hint: venueExtraText.hints.interval, badge: hasTamagawaSeriesResultsData ? venueExtraText.labels.intervalShort : venueExtraText.waiting },
-		{ key: "tamagawa-cyokuzen", label: venueExtraText.labels.directBeforeShort, hint: venueExtraText.hints.beforeTamagawa, badge: hasTamagawaBeforeInfoData ? venueExtraText.labels.directBeforeShort : venueExtraText.waiting },
-		{ key: "start", label: venueExtraText.labels.startShort, hint: venueExtraText.hints.startTamagawa, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
-		{ key: "exhibition", label: venueExtraText.labels.exhibitionShort, hint: venueExtraText.hints.exhibitionTamagawa, badge: hasOriginalExhibitionData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
-		{ key: "tamagawa-frame10", label: venueExtraText.labels.framePast10, hint: venueExtraText.hints.framePast10Tamagawa, badge: hasTamagawaFramePast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
-		{ key: "tamagawa-score", label: venueExtraText.labels.scoreShort, hint: venueExtraText.hints.scoreTamagawa, badge: hasTamagawaScoreRateGuideData || selectedOfficialBeforeInfo?.scoreQuickLook.length ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
-	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : isBiwakoVenue ? [
-		{ key: "exhibition", label: "会場独自展示", hint: venueExtraText.hints.exhibitionBiwako, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
-		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startBiwako, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
-		{ key: "biwako-frame10", label: venueExtraText.labels.framePast10, hint: venueExtraText.hints.framePast10, badge: hasBiwakoFramePast10Data ? venueExtraText.labels.last10Short : venueExtraText.waiting },
-		{ key: "biwako-series", label: venueExtraText.labels.interval, hint: venueExtraText.hints.seriesBiwako, badge: hasBiwakoSeriesResultsData ? venueExtraText.labels.intervalShort : venueExtraText.waiting },
-		{ key: "records", label: venueExtraText.labels.score, hint: venueExtraText.hints.scoreBiwako, badge: hasRecordsPanelData ? venueExtraText.labels.scoreShort : venueExtraText.waiting },
-	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }> : [
-		{ key: "official", label: venueExtraText.labels.official, hint: venueExtraText.hints.official, badge: hasOfficialPanelData ? venueExtraText.labels.officialShort : venueExtraText.waiting },
-		{ key: "start", label: venueExtraText.labels.start, hint: venueExtraText.hints.startGeneral, badge: hasStartPanelData ? venueExtraText.labels.startShort : venueExtraText.waiting },
-		{ key: "records", label: venueExtraText.labels.records, hint: venueExtraText.hints.records, badge: hasRecordsPanelData ? venueExtraText.labels.recordsShort : venueExtraText.waiting },
-		{ key: "exhibition", label: "会場独自展示", hint: venueExtraText.hints.exhibitionGeneral, badge: hasExhibitionPanelData ? venueExtraText.labels.exhibitionShort : venueExtraText.waiting },
-		{ key: "motor", label: venueExtraText.labels.motor, hint: venueExtraText.hints.motorGeneral, badge: hasMotorPanelData ? venueExtraText.labels.motorHistoryShort : venueExtraText.waiting },
-		{ key: "water", label: venueExtraText.labels.waterComment, hint: venueExtraText.hints.waterComment, badge: hasWaterPanelData ? venueExtraText.labels.waterShort : venueExtraText.waiting },
-	] as Array<{ key: VenueExtraPanelKey; label: string; hint: string; badge: string }>,
+	() => buildVenueExtraPanelOptions({
+		isNarutoVenue,
+		isBiwakoVenue,
+		isTamagawaVenue,
+		isTsuVenue,
+		isWakamatsuVenue,
+		isFukuokaVenue,
+		isKojimaVenue,
+		isOmuraVenue,
+		isMarugameVenue,
+		hasSelectedVenueExtrasDetail,
+		hasOmuraPreviousDayData,
+		hasOmuraNationalFrameStatsData,
+		hasOmuraFrameLast10Data,
+		hasOmuraCommentsMotorData,
+		hasOmuraExhibitionData,
+		hasBiwakoFramePast10Data,
+		hasBiwakoSeriesResultsData,
+		hasTsuBeforeInfoData,
+		hasTsuRacerCommentsData,
+		hasTsuSeriesResultsData,
+		hasTsuNationalRecent3Data,
+		hasTsuLocalRecent3Data,
+		hasTsuFramePast10Data,
+		hasTsuScoreRateGuideData,
+		hasWakamatsuEntryData,
+		hasWakamatsuBeforeInfoData,
+		hasWakamatsuSeriesResultsData,
+		hasWakamatsuCourseStatsData,
+		hasWakamatsuNationalRecent3Data,
+		hasWakamatsuLocalRecent3Data,
+		hasWakamatsuFramePast10Data,
+		hasWakamatsuScoreRateGuideData,
+		hasWakamatsuMotorHistoryData,
+		hasFukuokaEntryData,
+		hasFukuokaBeforeInfoData,
+		hasFukuokaMotorEvaluationData,
+		hasFukuokaSeriesResultsData,
+		hasFukuokaRacerCommentsData,
+		hasFukuokaFramePast10Data,
+		hasFukuokaScoreRateGuideData,
+		hasKojimaBeforeInfoData,
+		hasKojimaSeriesResultsData,
+		hasKojimaRecentResultsData,
+		hasKojimaCourseStatsData,
+		hasKojimaMotorStatsData,
+		hasKojimaFrameStatsData,
+		hasKojimaScoreRateGuideData,
+		hasTamagawaMotorHistoryData,
+		hasTamagawaSeriesResultsData,
+		hasTamagawaBeforeInfoData,
+		hasTamagawaFramePast10Data,
+		hasTamagawaScoreRateGuideData,
+		hasTamagawaEntryData,
+		hasOfficialPanelData,
+		hasStartPanelData,
+		hasRecordsPanelData,
+		hasExhibitionPanelData,
+		hasMotorPanelData,
+		hasWaterPanelData,
+		officialScoreRowsCount: selectedOfficialBeforeInfo?.scoreQuickLook.length ?? 0,
+		abilityIndexCount: selectedAbilityIndex.length,
+	}),
 	[
 		isOmuraVenue,
 		isTsuVenue,
@@ -5778,7 +5620,7 @@ const venueExtraPanelOptions = useMemo(
 		hasTamagawaScoreRateGuideData,
 		hasTamagawaOddsResultData,
 		hasTamagawaEntryData,
-		selectedOfficialBeforeInfo,
+		selectedOfficialBeforeInfo?.scoreQuickLook.length,
 		hasOfficialPanelData,
 		hasStartPanelData,
 		hasRecordsPanelData,
