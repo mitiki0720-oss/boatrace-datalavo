@@ -602,6 +602,24 @@ function readNumericTokens(value) {
 	return compactText(value).match(/\d+(?:\.\d+)?/g) ?? [];
 }
 
+function readSpaceSeparatedTokens(value) {
+	return compactText(value).split(/\s+/).filter(Boolean);
+}
+
+function normalizeOfficialAverageStart(value) {
+	const text = compactText(value);
+
+	if (!text || text === "-" || text === "--") {
+		return "-";
+	}
+
+	if (/^\.\d{2}$/.test(text)) {
+		return `0${text}`;
+	}
+
+	return text;
+}
+
 function findFrameNumber(row, fallbackIndex) {
 	const firstCellText = compactInlineValue(row.children("td,th").first().text());
 	const firstCellMatch = firstCellText.match(/^[1-6]$/);
@@ -661,28 +679,36 @@ function parseRacerRowsFromTextLines(lines) {
 		const blockEnd = nextMatch?.index ?? scopedText.length;
 		const block = compactText(scopedText.slice(blockStart, blockEnd));
 
-		const profileMatch = block.match(/^(.+?)\s+([^\/\s]+)\/([^\/\s]+)\s+\d+歳\/[\d.]+kg\s+F(\d+)\s+L(\d+)\s+(.+)$/);
-		if (!profileMatch) {
+		const statsMatch = block.match(/\s+\d+歳\/[\d.]+kg\s+F(\d+)\s+L(\d+)\s+(.+)$/);
+		if (!statsMatch) {
+			continue;
+		}
+
+		const headerText = compactText(block.slice(0, statsMatch.index ?? 0));
+		const branchOriginMatch = headerText.match(/([^\s/]+\s*\/\s*[^\s/]+)$/);
+		if (!branchOriginMatch) {
 			continue;
 		}
 
 		const frame = rows.length + 1;
-		const name = compactText(profileMatch[1]) || `枠${frame}`;
-		const branch = compactText(profileMatch[2]);
-		const hometown = compactText(profileMatch[3]);
-		const fCount = Number.parseInt(profileMatch[4], 10) || 0;
-		const lCount = Number.parseInt(profileMatch[5], 10) || 0;
-		const numericTokens = readNumericTokens(profileMatch[6]);
+		const branchOriginText = compactText(branchOriginMatch[1]);
+		const name = compactText(headerText.slice(0, Math.max(0, headerText.length - branchOriginText.length))) || `枠${frame}`;
+		const branchOrigin = parseBranchOrigin(branchOriginText);
+		const branch = compactText(branchOrigin.branch);
+		const hometown = compactText(branchOrigin.hometown);
+		const fCount = Number.parseInt(statsMatch[1], 10) || 0;
+		const lCount = Number.parseInt(statsMatch[2], 10) || 0;
+		const statTokens = readSpaceSeparatedTokens(statsMatch[3]);
 
-		const averageStart = numericTokens[0] ?? "";
-		const winRate = numericTokens[1] ?? "";
-		const nationalSecondRate = numericTokens[2] ?? "";
-		const localWinRate = numericTokens[4] ?? "";
-		const localSecondRate = numericTokens[5] ?? "";
-		const motorNo = numericTokens[7] ?? "";
-		const motorSecondRate = numericTokens[8] ?? "";
-		const boatNo = numericTokens[10] ?? "";
-		const boatSecondRate = numericTokens[11] ?? "";
+		const averageStart = normalizeOfficialAverageStart(statTokens[0] ?? "");
+		const winRate = statTokens[1] ?? "";
+		const nationalSecondRate = statTokens[2] ?? "";
+		const localWinRate = statTokens[4] ?? "";
+		const localSecondRate = statTokens[5] ?? "";
+		const motorNo = statTokens[7] ?? "";
+		const motorSecondRate = statTokens[8] ?? "";
+		const boatNo = statTokens[10] ?? "";
+		const boatSecondRate = statTokens[11] ?? "";
 
 		rows.push({
 			frame,
@@ -1904,18 +1930,16 @@ function hasValidRacerRows(racers) {
 		return false;
 	}
 
-	return racers.every((racer) => {
+	return racers.length >= 6 && racers.every((racer) => {
 		const frameNo = Number(racer?.frameNo ?? racer?.frame);
 		const name = compactText(racer?.name ?? racer?.playerName ?? racer?.boatRacerName);
 		const registrationNo = compactText(racer?.registrationNo ?? racer?.racerId);
-		const averageStart = compactText(racer?.averageStart ?? racer?.averageSt ?? racer?.st);
 
 		return (
 			frameNo >= 1 &&
 			frameNo <= 6 &&
 			!/^\s*枠\d+\s*$/.test(name) &&
-			/^\d{4}$/.test(registrationNo) &&
-			/^0\.\d{2}$/.test(averageStart)
+			/^\d{4}$/.test(registrationNo)
 		);
 	});
 }
