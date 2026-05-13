@@ -1,4 +1,5 @@
 import type { BoatRaceItem, BoatTodayFeed } from "./boatraceTypes";
+import { withBasePath } from "./assetPath";
 
 export type BoatUpcomingScheduleItem = {
 	id: string;
@@ -19,9 +20,9 @@ export type BoatUpcomingScheduleFeed = {
 	items: BoatUpcomingScheduleItem[];
 };
 
-export const BOAT_TODAY_FEED_URL = "/data/boatrace/today.generated.json";
-export const BOAT_UPCOMING_SCHEDULE_URL = "/data/boatrace/upcoming-schedule.generated.json";
-export const BOAT_TODAY_RACE_DETAILS_URL = "/data/boatrace/today-race-details.generated.json";
+export const BOAT_TODAY_FEED_URL = withBasePath("data/boatrace/today.generated.json");
+export const BOAT_UPCOMING_SCHEDULE_URL = withBasePath("data/boatrace/upcoming-schedule.generated.json");
+export const BOAT_TODAY_RACE_DETAILS_URL = withBasePath("data/boatrace/today-race-details.generated.json");
 
 function buildNoCacheFeedUrl(url: string): string {
 	const separator = url.includes("?") ? "&" : "?";

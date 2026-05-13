@@ -32,6 +32,7 @@ import {
 import { SectionCard } from "../components/common/SectionCard";
 import { PageShell } from "../components/layout/PageShell";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
+import { withBasePath } from "../lib/assetPath";
 import type { BoatOddsPreviewGroup, BoatRacerItem } from "../lib/boatraceTypes";
 import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
 import { buildCommonRaceFallbackRacers, isRaceEntryMissingOrThin } from "../lib/boatRaceRacerNormalizer";
@@ -752,7 +753,9 @@ const narutoMeetResultStyle = {
 	color: boatTheme.colors.navy,
 };
 
-const raceHeroImageSrc = "/races-page/races-hero-boat-team.png";
+const raceHeroImageSrc = withBasePath("races-page/races-hero-boat-team.png");
+
+const getVenueSpotlightImageSrc = (fileName: string) => withBasePath(`races-page/venue-spotlights/${fileName}`);
 
 const heroShellStyle = {
   marginTop: "270px",
@@ -1722,7 +1725,7 @@ type BoatOfficialBeforeInfoDisplay = {
 
 async function loadBoatVenueExtrasFeed(): Promise<BoatVenueExtrasFeed | null> {
 	try {
-		const response = await fetch(`/data/boatrace/venue-extras.generated.json?ts=${Date.now()}`, {
+		const response = await fetch(`${withBasePath("data/boatrace/venue-extras.generated.json")}?ts=${Date.now()}`, {
 			cache: "no-store",
 		});
 
@@ -4114,30 +4117,30 @@ function getNarutoStartExhibitionDisplay(
 }
 
 const venueSpotlightCopy: Record<string, { summary: string; imageSrc?: string; imageAlt?: string }> = {
-	桐生: { summary: "インの強さと水面特性を起点に組み立てやすい会場です。", imageSrc: "/races-page/venue-spotlights/kiryu-spotlight.png", imageAlt: "桐生の会場イメージ" },
-	戸田: { summary: "スタートと旋回精度の差が結果へ直結しやすい会場です。", imageSrc: "/races-page/venue-spotlights/toda-spotlight.png", imageAlt: "戸田の会場イメージ" },
-	江戸川: { summary: "風と水面状況の影響を強く受けやすく、波乱も出やすい会場です。", imageSrc: "/races-page/venue-spotlights/edogawa-spotlight.png", imageAlt: "江戸川の会場イメージ" },
-	平和島: { summary: "基本の足比較に加えて展示気配を重視したい会場です。", imageSrc: "/races-page/venue-spotlights/heiwajima-spotlight.png", imageAlt: "平和島の会場イメージ" },
-	多摩川: { summary: "水面の素直さを前提に、直前情報と展示の変化を見たい会場です。", imageSrc: "/races-page/venue-spotlights/tamagawa-spotlight.png", imageAlt: "多摩川の会場イメージ" },
-	浜名湖: { summary: "モーター評価とコース実績の両面から整理しやすい会場です。", imageSrc: "/races-page/venue-spotlights/hamanako-spotlight.png", imageAlt: "浜名湖の会場イメージ" },
-	蒲郡: { summary: "気配差とスタート精度を丁寧に見たいナイター会場です。", imageSrc: "/races-page/venue-spotlights/gamagori-spotlight.png", imageAlt: "蒲郡の会場イメージ" },
-	常滑: { summary: "機力比較と枠順の優位を素直に評価しやすい会場です。", imageSrc: "/races-page/venue-spotlights/tokoname-spotlight.png", imageAlt: "常滑の会場イメージ" },
-	津: { summary: "展示から本番までの足色変化を追う価値が高い会場です。", imageSrc: "/races-page/venue-spotlights/tsu-spotlight.png", imageAlt: "津の会場イメージ" },
-	三国: { summary: "コース取りと回り足の差が着順へ表れやすい会場です。", imageSrc: "/races-page/venue-spotlights/mikuni-spotlight.png", imageAlt: "三国の会場イメージ" },
-	びわこ: { summary: "節間成績と枠別の近走を並べて比較しやすい会場です。", imageSrc: "/races-page/venue-spotlights/biwako-spotlight.png", imageAlt: "びわこの会場イメージ" },
-	住之江: { summary: "イン信頼度と差し場の有無をセットで見たい会場です。", imageSrc: "/races-page/venue-spotlights/suminoe-spotlight.png", imageAlt: "住之江の会場イメージ" },
-	尼崎: { summary: "機力の底上げとターンの安定感が重要になりやすい会場です。", imageSrc: "/races-page/venue-spotlights/amagasaki-spotlight.png", imageAlt: "尼崎の会場イメージ" },
-	鳴門: { summary: "公式の直前情報や独自指数を横断して見たい会場です。", imageSrc: "/races-page/venue-spotlights/naruto-spotlight.png", imageAlt: "鳴門の会場イメージ" },
-	丸亀: { summary: "ナイターの気配変化とモーター比較が効きやすい会場です。", imageSrc: "/races-page/venue-spotlights/marugame-spotlight.png", imageAlt: "丸亀の会場イメージ" },
-	児島: { summary: "直前情報、今節成績、進入コース別の比較が有効な会場です。", imageSrc: "/races-page/venue-spotlights/kojima-spotlight.png", imageAlt: "児島の会場イメージ" },
-	宮島: { summary: "回り足と実戦足のバランスを見極めたい会場です。", imageSrc: "/races-page/venue-spotlights/miyajima-spotlight.png", imageAlt: "宮島の会場イメージ" },
-	徳山: { summary: "モーター気配と展示内容の一致を見たい会場です。", imageSrc: "/races-page/venue-spotlights/tokuyama-spotlight.png", imageAlt: "徳山の会場イメージ" },
-	下関: { summary: "スタートの踏み込みと機力差が結果へ出やすい会場です。", imageSrc: "/races-page/venue-spotlights/shimonoseki-spotlight.png", imageAlt: "下関の会場イメージ" },
-	若松: { summary: "ナイターの展示気配とモーター評価を重ねて見たい会場です。", imageSrc: "/races-page/venue-spotlights/wakamatsu-spotlight.png", imageAlt: "若松の会場イメージ" },
-	芦屋: { summary: "センター勢の攻めとイン残りの両方を比較したい会場です。", imageSrc: "/races-page/venue-spotlights/ashiya-spotlight.png", imageAlt: "芦屋の会場イメージ" },
-	福岡: { summary: "モーター評価と当地実績を重ねて判断しやすい会場です。", imageSrc: "/races-page/venue-spotlights/fukuoka-spotlight.png", imageAlt: "福岡の会場イメージ" },
-	唐津: { summary: "回り足と展示気配の良化を拾いたい会場です。", imageSrc: "/races-page/venue-spotlights/karatsu-spotlight.png", imageAlt: "唐津の会場イメージ" },
-	大村: { summary: "出足系の比較と展示タイムの裏付けを重視したい会場です。", imageSrc: "/races-page/venue-spotlights/omura-spotlight.png", imageAlt: "大村の会場イメージ" },
+	桐生: { summary: "インの強さと水面特性を起点に組み立てやすい会場です。", imageSrc: getVenueSpotlightImageSrc("kiryu-spotlight.png"), imageAlt: "桐生の会場イメージ" },
+	戸田: { summary: "スタートと旋回精度の差が結果へ直結しやすい会場です。", imageSrc: getVenueSpotlightImageSrc("toda-spotlight.png"), imageAlt: "戸田の会場イメージ" },
+	江戸川: { summary: "風と水面状況の影響を強く受けやすく、波乱も出やすい会場です。", imageSrc: getVenueSpotlightImageSrc("edogawa-spotlight.png"), imageAlt: "江戸川の会場イメージ" },
+	平和島: { summary: "基本の足比較に加えて展示気配を重視したい会場です。", imageSrc: getVenueSpotlightImageSrc("heiwajima-spotlight.png"), imageAlt: "平和島の会場イメージ" },
+	多摩川: { summary: "水面の素直さを前提に、直前情報と展示の変化を見たい会場です。", imageSrc: getVenueSpotlightImageSrc("tamagawa-spotlight.png"), imageAlt: "多摩川の会場イメージ" },
+	浜名湖: { summary: "モーター評価とコース実績の両面から整理しやすい会場です。", imageSrc: getVenueSpotlightImageSrc("hamanako-spotlight.png"), imageAlt: "浜名湖の会場イメージ" },
+	蒲郡: { summary: "気配差とスタート精度を丁寧に見たいナイター会場です。", imageSrc: getVenueSpotlightImageSrc("gamagori-spotlight.png"), imageAlt: "蒲郡の会場イメージ" },
+	常滑: { summary: "機力比較と枠順の優位を素直に評価しやすい会場です。", imageSrc: getVenueSpotlightImageSrc("tokoname-spotlight.png"), imageAlt: "常滑の会場イメージ" },
+	津: { summary: "展示から本番までの足色変化を追う価値が高い会場です。", imageSrc: getVenueSpotlightImageSrc("tsu-spotlight.png"), imageAlt: "津の会場イメージ" },
+	三国: { summary: "コース取りと回り足の差が着順へ表れやすい会場です。", imageSrc: getVenueSpotlightImageSrc("mikuni-spotlight.png"), imageAlt: "三国の会場イメージ" },
+	びわこ: { summary: "節間成績と枠別の近走を並べて比較しやすい会場です。", imageSrc: getVenueSpotlightImageSrc("biwako-spotlight.png"), imageAlt: "びわこの会場イメージ" },
+	住之江: { summary: "イン信頼度と差し場の有無をセットで見たい会場です。", imageSrc: getVenueSpotlightImageSrc("suminoe-spotlight.png"), imageAlt: "住之江の会場イメージ" },
+	尼崎: { summary: "機力の底上げとターンの安定感が重要になりやすい会場です。", imageSrc: getVenueSpotlightImageSrc("amagasaki-spotlight.png"), imageAlt: "尼崎の会場イメージ" },
+	鳴門: { summary: "公式の直前情報や独自指数を横断して見たい会場です。", imageSrc: getVenueSpotlightImageSrc("naruto-spotlight.png"), imageAlt: "鳴門の会場イメージ" },
+	丸亀: { summary: "ナイターの気配変化とモーター比較が効きやすい会場です。", imageSrc: getVenueSpotlightImageSrc("marugame-spotlight.png"), imageAlt: "丸亀の会場イメージ" },
+	児島: { summary: "直前情報、今節成績、進入コース別の比較が有効な会場です。", imageSrc: getVenueSpotlightImageSrc("kojima-spotlight.png"), imageAlt: "児島の会場イメージ" },
+	宮島: { summary: "回り足と実戦足のバランスを見極めたい会場です。", imageSrc: getVenueSpotlightImageSrc("miyajima-spotlight.png"), imageAlt: "宮島の会場イメージ" },
+	徳山: { summary: "モーター気配と展示内容の一致を見たい会場です。", imageSrc: getVenueSpotlightImageSrc("tokuyama-spotlight.png"), imageAlt: "徳山の会場イメージ" },
+	下関: { summary: "スタートの踏み込みと機力差が結果へ出やすい会場です。", imageSrc: getVenueSpotlightImageSrc("shimonoseki-spotlight.png"), imageAlt: "下関の会場イメージ" },
+	若松: { summary: "ナイターの展示気配とモーター評価を重ねて見たい会場です。", imageSrc: getVenueSpotlightImageSrc("wakamatsu-spotlight.png"), imageAlt: "若松の会場イメージ" },
+	芦屋: { summary: "センター勢の攻めとイン残りの両方を比較したい会場です。", imageSrc: getVenueSpotlightImageSrc("ashiya-spotlight.png"), imageAlt: "芦屋の会場イメージ" },
+	福岡: { summary: "モーター評価と当地実績を重ねて判断しやすい会場です。", imageSrc: getVenueSpotlightImageSrc("fukuoka-spotlight.png"), imageAlt: "福岡の会場イメージ" },
+	唐津: { summary: "回り足と展示気配の良化を拾いたい会場です。", imageSrc: getVenueSpotlightImageSrc("karatsu-spotlight.png"), imageAlt: "唐津の会場イメージ" },
+	大村: { summary: "出足系の比較と展示タイムの裏付けを重視したい会場です。", imageSrc: getVenueSpotlightImageSrc("omura-spotlight.png"), imageAlt: "大村の会場イメージ" },
 };
 
 export function RacesPage() {

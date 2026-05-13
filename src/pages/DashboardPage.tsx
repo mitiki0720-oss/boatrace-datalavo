@@ -5,6 +5,7 @@ import {
 	loadBoatUpcomingSchedule,
 	type BoatUpcomingScheduleItem,
 } from "../lib/boatDataFeed";
+import { withBasePath } from "../lib/assetPath";
 import { boatTheme } from "../lib/theme";
 
 type PulseMetric = {
@@ -621,7 +622,7 @@ export function DashboardPage() {
 							}}
 						>
 							<img
-								src="/dashboard/dashboard-hero-funako-kurari.png"
+								src={withBasePath("dashboard/dashboard-hero-funako-kurari.png")}
 								alt="ダッシュボードのヒーローセクションを彩る funako kurari のビジュアル"
 								style={{ ...dashboardImageStyle, maxWidth: "clamp(460px, 48vw, 580px)", maxHeight: "420px" }}
 								onError={(event) => {
@@ -914,7 +915,7 @@ export function DashboardPage() {
 
 						<div style={{ ...sectionVisualStyle, minHeight: "132px", padding: "14px 16px" ,marginTop: "50px",}}>
 							<img
-								src="/dashboard/dashboard-upcoming-schedule-funako.png"
+								src={withBasePath("dashboard/dashboard-upcoming-schedule-funako.png")}
 								alt="Upcoming Race Schedule セクションに添える funako のスケジュール案内ビジュアル"
 								style={{ ...dashboardImageStyle, maxWidth: "min(100%, 220px)", maxHeight: "164px" }}
 								onError={(event) => {
@@ -1146,7 +1147,7 @@ export function DashboardPage() {
 
 					<div style={{ ...sectionVisualStyle, minHeight: "220px", padding: "18px" }}>
 						<img
-							src="/dashboard/dashboard-mobile-view-funako.png"
+							src={withBasePath("dashboard/dashboard-mobile-view-funako.png")}
 							alt="Mobile View ページへの導線を示す funako のモバイルビジュアル"
 							style={{ ...dashboardImageStyle, maxWidth: "min(100%, 280px)", maxHeight: "240px" }}
 							onError={(event) => {
