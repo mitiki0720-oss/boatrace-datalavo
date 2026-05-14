@@ -40,6 +40,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Sync latest main before generating data
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
