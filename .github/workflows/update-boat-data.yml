@@ -24,6 +24,11 @@ on:
           - day
           - night
 
+concurrency:
+  group: boat-data-update-main
+  cancel-in-progress: false
+  queue: max
+
 permissions:
   contents: write
 
