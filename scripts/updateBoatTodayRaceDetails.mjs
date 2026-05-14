@@ -480,6 +480,14 @@ function selectResultsRaceNumbers({ raceTitles, resultListRaces, fallbackVenue, 
 		.map((item) => item.raceNo);
 }
 
+function getBeforeInfoTargetRaceNumbers(targetRaceNumbers, options) {
+	if (options.mode === "final") {
+		return [...RACE_NUMBERS];
+	}
+
+	return targetRaceNumbers;
+}
+
 function shouldFetchVenueForOptions(venue, fallbackVenue, options) {
 	const matchesTargetVenue = venueMatchesTarget(venue, fallbackVenue, options.targetVenues);
 	if (!matchesTargetVenue) {
@@ -2535,6 +2543,7 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 			: options.mode === "results" || options.mode === "final"
 				? selectResultsRaceNumbers({ raceTitles, resultListRaces, fallbackVenue, timestamps, mode: options.mode })
 			: RACE_NUMBERS;
+	const beforeInfoTargetRaceNumbers = getBeforeInfoTargetRaceNumbers(targetRaceNumbers, options);
 	const detailedTargets = options.fetchSections.detailedResults
 		? (options.mode === "results" || options.mode === "final"
 			? targetRaceNumbers
@@ -2578,7 +2587,7 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 	const raceOddsMap = new Map(raceOddsResults.filter(Boolean).map((item) => [item.raceNo, item]));
 	const raceBeforeInfoResults = options.fetchSections.beforeInfo
 		? await Promise.all(
-			targetRaceNumbers.map((raceNo) =>
+			beforeInfoTargetRaceNumbers.map((raceNo) =>
 			fetchRaceBeforeInfo(venue, raceNo, {
 				timestamps,
 				deadlineTime:

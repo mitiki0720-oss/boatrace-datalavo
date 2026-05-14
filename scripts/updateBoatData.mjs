@@ -63,14 +63,14 @@ function buildTodayDetailsArgs({ mode, targetSession }) {
 	}
 
 	if (mode === "final") {
-		args.push("--fetch-sections", "raceTitles,resultList,detailedResults,odds");
+		args.push("--fetch-sections", "raceTitles,resultList,detailedResults,odds,beforeInfo,venueWeather");
 	}
 
 	return args;
 }
 
 function buildVenueExtrasArgs({ mode }) {
-	if (mode !== "initial") {
+	if (mode !== "initial" && mode !== "final") {
 		return null;
 	}
 
@@ -118,7 +118,7 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 	}
 
 	if (options.mode === "final") {
-		console.log("[update-boat-data] final mode is scaffolded. This pass reuses the current full update path.");
+		console.log("[update-boat-data] final mode runs all-race result completion, beforeinfo backfill, and a final venue-extras refresh.");
 	}
 
 	await runNodeScript(buildTodayDetailsArgs(options));
