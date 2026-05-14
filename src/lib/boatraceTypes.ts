@@ -14,7 +14,7 @@ export type BoatRaceStatus =
 
 export type BoatExhibitionEvaluation = "good" | "normal" | "bad" | "unknown";
 
-export type BoatResultStatus = "pending" | "confirmed";
+export type BoatResultStatus = "pending" | "confirmed" | "finished" | "unavailable" | "empty";
 
 export type BoatOddsBetType = "3連単" | "3連複" | "2連単" | "2連複" | "単勝" | "複勝" | "拡連複" | string;
 
@@ -131,22 +131,79 @@ export type BoatPayoutItem = {
 	betType: BoatOddsBetType;
 	combination: string;
 	payout: string;
-	popularity?: string;
+	popularity?: number | string;
+};
+
+export type BoatRaceResultFinisher = {
+	rank?: number | string;
+	frameNo?: BoatFrameDisplay;
+	frame?: BoatFrameDisplay;
+	lane?: number | string;
+	boatNumber?: number | string;
+	registrationNo?: string;
+	racerId?: string;
+	name?: string;
+	playerName?: string;
+	boatRacerName?: string;
+	raceTime?: string;
+	st?: string;
+	course?: number | string;
+	startTiming?: string;
+	decision?: string;
+	isFlying?: boolean;
+	isLate?: boolean;
+};
+
+export type BoatRaceResultStartInfo = {
+	course?: number | string;
+	frameNo?: BoatFrameDisplay;
+	frame?: BoatFrameDisplay;
+	lane?: number | string;
+	boatNumber?: number | string;
+	st?: string;
+	flag?: string;
+	stDisplay?: string;
+	startTiming?: string;
+	entryCourse?: number | string;
+	approachCourse?: number | string;
+	note?: string;
+};
+
+export type BoatRaceFinalOdds = {
+	trifectaTop?: BoatOddsTopItem[];
+	exactaTop?: BoatOddsTopItem[];
+	quinellaTop?: BoatOddsTopItem[];
+	trifectaAll?: BoatOddsItem[];
+	exactaAll?: BoatOddsItem[];
+	quinellaAll?: BoatOddsItem[];
+	updatedAt?: string;
 };
 
 export type BoatRaceResult = {
 	status?: BoatResultStatus;
 	finishOrder?: string[];
+	finishers?: BoatRaceResultFinisher[];
+	startInfo?: BoatRaceResultStartInfo[];
+	startInfos?: BoatRaceResultStartInfo[];
 	kimarite?: string;
 	winningMethod?: string;
+	winningMove?: string;
 	payout3tan?: BoatPayoutItem | null;
 	payout3fuku?: BoatPayoutItem | null;
 	payout2tan?: BoatPayoutItem | null;
 	payout2fuku?: BoatPayoutItem | null;
-	payoutWide?: BoatPayoutItem | BoatPayoutItem[] | null;
+	payoutWide?: BoatPayoutItem[] | null;
+	payoutWin?: BoatPayoutItem | null;
+	payoutPlace?: BoatPayoutItem[] | null;
+	payouts?: BoatPayoutItem[];
+	payoutsFull?: BoatPayoutItem[];
+	refunds?: string[];
+	refundText?: string;
+	remarks?: string;
 	notes?: string;
 	finalizedAt?: string;
 	weatherActual?: BoatWeatherActual;
+	finalOdds?: BoatRaceFinalOdds | null;
 };
 
 export type BoatRaceItem = {

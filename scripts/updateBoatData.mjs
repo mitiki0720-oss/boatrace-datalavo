@@ -59,7 +59,11 @@ function buildTodayDetailsArgs({ mode, targetSession }) {
 	}
 
 	if (mode === "results") {
-		args.push("--fetch-sections", "raceTitles,resultList,detailedResults");
+		args.push("--fetch-sections", "raceTitles,resultList,detailedResults,odds");
+	}
+
+	if (mode === "final") {
+		args.push("--fetch-sections", "raceTitles,resultList,detailedResults,odds");
 	}
 
 	return args;
@@ -125,7 +129,7 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 	} else {
 		console.log(`[update-boat-data] skipping venue extras for mode=${options.mode}`);
 	}
-	}
+}
 
 const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
 

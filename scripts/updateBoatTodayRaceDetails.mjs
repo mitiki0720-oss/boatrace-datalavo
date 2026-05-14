@@ -366,13 +366,127 @@ function selectActiveRaceNumbers({ raceTitles, fallbackVenue, timestamps }) {
 	return selected.length ? selected.sort((left, right) => left - right) : [];
 }
 
+function isFinalizedResultStatus(status) {
+	return status === "confirmed" || status === "finished";
+}
+
+function getResultStartInfos(result) {
+	if (Array.isArray(result?.startInfos)) {
+		return result.startInfos;
+	}
+
+	if (Array.isArray(result?.startInfo)) {
+		return result.startInfo;
+	}
+
+	return [];
+}
+
+function hasResultFinishers(result) {
+	return Array.isArray(result?.finishers) && result.finishers.length > 0;
+}
+
+function hasResultPayouts(result) {
+	return Boolean(
+		(Array.isArray(result?.payoutsFull) && result.payoutsFull.length > 0) ||
+		(Array.isArray(result?.payouts) && result.payouts.length > 0) ||
+		result?.payout3tan ||
+		result?.payout2tan ||
+		result?.payout3fuku ||
+		result?.payout2fuku ||
+		(Array.isArray(result?.payoutWide) && result.payoutWide.length > 0) ||
+		result?.payoutWin ||
+		(Array.isArray(result?.payoutPlace) && result.payoutPlace.length > 0),
+	);
+}
+
+function hasResultFinalOdds(result) {
+	if (!result?.finalOdds || typeof result.finalOdds !== "object") {
+		return false;
+	}
+
+	return ["trifectaTop", "exactaTop", "quinellaTop", "trifectaAll", "exactaAll", "quinellaAll"].some((key) => {
+		const value = result.finalOdds[key];
+		return Array.isArray(value) && value.length > 0;
+	});
+}
+
+function hasResultWeather(result) {
+	return hasResolvedWeatherActual(result?.weatherActual);
+}
+
+function resultNeedsCompletion(result) {
+	if (!result || typeof result !== "object") {
+		return true;
+	}
+
+	const status = String(result.status ?? "");
+	if (!status || status === "pending" || status === "unavailable" || status === "empty") {
+		return true;
+	}
+
+	if (!isFinalizedResultStatus(status)) {
+		return false;
+	}
+
+	return !hasResultFinishers(result) || !getResultStartInfos(result).length || !hasResultPayouts(result) || !hasResultWeather(result) || !hasResultFinalOdds(result);
+}
+
+function selectResultsRaceNumbers({ raceTitles, resultListRaces, fallbackVenue, timestamps, mode }) {
+	if (mode === "final") {
+		return [...RACE_NUMBERS];
+	}
+
+	const nowMinutes = timestamps.hour * 60 + timestamps.minute;
+	const fallbackRaceMap = new Map((fallbackVenue?.races ?? []).map((race) => [race.raceNo, race]));
+	const resultListRaceMap = new Map((resultListRaces ?? []).map((race) => [race.raceNo, race]));
+	const titleMap = new Map((raceTitles ?? []).map((race) => [race.raceNo, race]));
+	const candidateRaceNos = new Set([...RACE_NUMBERS, ...Array.from(fallbackRaceMap.keys()), ...Array.from(resultListRaceMap.keys()), ...Array.from(titleMap.keys())]);
+	const candidates = [];
+
+	for (const raceNo of candidateRaceNos) {
+		const fallbackRace = fallbackRaceMap.get(raceNo) ?? null;
+		const resultListRace = resultListRaceMap.get(raceNo) ?? null;
+		const deadlineTime = titleMap.get(raceNo)?.deadlineTime ?? fallbackRace?.deadlineTime ?? resultListRace?.deadlineTime ?? "";
+		const deadlineMinutes = timeToMinutes(deadlineTime);
+		const mergedResult = mergeRaceResult(fallbackRace?.result, resultListRace?.result);
+		const needsCompletion = resultNeedsCompletion(mergedResult);
+		const finalized = isFinalizedResultStatus(resultListRace?.result?.status ?? mergedResult?.status);
+		const recentClosed = Number.isInteger(deadlineMinutes) && deadlineMinutes <= nowMinutes && deadlineMinutes >= nowMinutes - 60;
+		const pastDue = Number.isInteger(deadlineMinutes) && deadlineMinutes <= nowMinutes;
+
+		if (recentClosed && (needsCompletion || finalized)) {
+			candidates.push({ raceNo, priority: 0, deadlineMinutes: deadlineMinutes ?? -1 });
+			continue;
+		}
+
+		if (finalized && needsCompletion) {
+			candidates.push({ raceNo, priority: 1, deadlineMinutes: deadlineMinutes ?? -1 });
+			continue;
+		}
+
+		if (pastDue && needsCompletion) {
+			candidates.push({ raceNo, priority: 2, deadlineMinutes: deadlineMinutes ?? -1 });
+		}
+	}
+
+	if (!candidates.length) {
+		return chooseDetailedRaceTargets(resultListRaces);
+	}
+
+	return candidates
+		.sort((left, right) => left.priority - right.priority || right.deadlineMinutes - left.deadlineMinutes || right.raceNo - left.raceNo)
+		.slice(0, Number.isFinite(MAX_DETAILED_RESULTS_PER_VENUE) ? MAX_DETAILED_RESULTS_PER_VENUE : 12)
+		.map((item) => item.raceNo);
+}
+
 function shouldFetchVenueForOptions(venue, fallbackVenue, options) {
 	const matchesTargetVenue = venueMatchesTarget(venue, fallbackVenue, options.targetVenues);
 	if (!matchesTargetVenue) {
 		return false;
 	}
 
-	if (options.mode !== "active") {
+	if (options.mode === "initial") {
 		return true;
 	}
 
@@ -386,6 +500,10 @@ function shouldFetchVenueForOptions(venue, fallbackVenue, options) {
 	}
 
 	const session = venue?.session ?? fallbackVenue?.session ?? "unknown";
+	if (options.mode === "active" || options.mode === "results" || options.mode === "final") {
+		return session === targetSession;
+	}
+
 	return session === targetSession;
 }
 
@@ -729,13 +847,27 @@ function normalizeResult(result, generatedAt) {
 		};
 	}
 
+	const payoutsFull = Array.isArray(result.payoutsFull)
+		? result.payoutsFull
+		: Array.isArray(result.payouts)
+			? result.payouts
+			: [];
+	const startInfos = Array.isArray(result.startInfos)
+		? result.startInfos
+		: Array.isArray(result.startInfo)
+			? result.startInfo
+			: [];
+	const status = result.status ?? (Array.isArray(result.finishOrder) && result.finishOrder.length >= 3 ? "confirmed" : "pending");
+
 	return {
-		status: result.status ?? "pending",
+		status,
 		finishOrder: Array.isArray(result.finishOrder) ? result.finishOrder : [],
 		finishers: Array.isArray(result.finishers) ? result.finishers : [],
-		startInfo: Array.isArray(result.startInfo) ? result.startInfo : [],
+		startInfo: startInfos,
+		startInfos,
 		kimarite: result.kimarite ?? result.winningMethod,
 		winningMethod: result.winningMethod ?? result.kimarite,
+		winningMove: result.winningMove ?? result.winningMethod ?? result.kimarite,
 		payout3tan: result.payout3tan ?? null,
 		payout2tan: result.payout2tan ?? null,
 		payout3fuku: result.payout3fuku ?? null,
@@ -743,13 +875,15 @@ function normalizeResult(result, generatedAt) {
 		payoutWide: Array.isArray(result.payoutWide) ? result.payoutWide : result.payoutWide ? [result.payoutWide] : null,
 		payoutWin: result.payoutWin ?? null,
 		payoutPlace: Array.isArray(result.payoutPlace) ? result.payoutPlace : result.payoutPlace ? [result.payoutPlace] : null,
-		payoutsFull: Array.isArray(result.payoutsFull) ? result.payoutsFull : [],
+		payouts: Array.isArray(result.payouts) ? result.payouts : payoutsFull,
+		payoutsFull,
 		refunds: Array.isArray(result.refunds) ? result.refunds : [],
 		refundText: result.refundText,
 		remarks: result.remarks,
 		notes: result.notes ?? result.remarks,
 		weatherActual: result.weatherActual,
-		finalizedAt: result.finalizedAt ?? generatedAt,
+		finalizedAt: result.finalizedAt ?? (isFinalizedResultStatus(status) ? generatedAt : undefined),
+		finalOdds: result.finalOdds ?? null,
 	};
 }
 
@@ -1205,6 +1339,7 @@ function parseFinishersFromDetailedResult($) {
 		}
 
 		const parsedRacer = parseRacerNameFromResultText(racerText);
+		const decision = /^[1-6]$/.test(String(rank)) ? "" : String(rank);
 
 		finishers.push({
 			rank,
@@ -1218,6 +1353,9 @@ function parseFinishersFromDetailedResult($) {
 			playerName: parsedRacer.name,
 			boatRacerName: parsedRacer.name,
 			raceTime,
+			decision,
+			isFlying: decision === "F",
+			isLate: decision === "L",
 		});
 	});
 
@@ -1279,6 +1417,9 @@ function parseStartInfoFromDetailedResult($) {
 			continue;
 		}
 
+		const flag = startTiming.startsWith("F") ? "F" : startTiming.startsWith("L") ? "L" : "";
+		const st = startTiming.replace(/^[FL]/, "");
+
 		startInfo.push({
 			frameNo,
 			frame: frameNo,
@@ -1287,6 +1428,8 @@ function parseStartInfoFromDetailedResult($) {
 			course: String(frameNo),
 			entryCourse: String(frameNo),
 			approachCourse: String(frameNo),
+			st,
+			flag,
 			stDisplay: startTiming,
 			startTiming,
 			note,
@@ -1386,8 +1529,22 @@ function parseDetailedResultPage(html) {
 	const remarksText = parseSimpleResultValue($, "備考");
 	const winningMethodFromTable = parseSimpleResultValue($, "決まり手");
 
+	const startInfoMap = new Map(startInfo.map((item) => [item.frameNo, item]));
+
 	if (finishers.length) {
-		detailedResult.finishers = finishers;
+		detailedResult.finishers = finishers.map((item) => {
+			const relatedStartInfo = startInfoMap.get(item.frameNo) ?? null;
+			const decision = item.decision ?? (/^[1-6]$/.test(String(item.rank)) ? "" : String(item.rank));
+			return {
+				...item,
+				course: relatedStartInfo?.course ? Number(relatedStartInfo.course) : item.course ?? item.frameNo,
+				st: relatedStartInfo?.st ?? item.st ?? "",
+				startTiming: relatedStartInfo?.startTiming ?? item.startTiming ?? "",
+				decision,
+				isFlying: decision === "F",
+				isLate: decision === "L",
+			};
+		});
 		detailedResult.finishOrder = finishers
 			.filter((item) => /^[1-3]$/.test(String(item.rank)))
 			.sort((left, right) => Number(left.rank) - Number(right.rank))
@@ -1397,6 +1554,7 @@ function parseDetailedResultPage(html) {
 
 	if (startInfo.length) {
 		detailedResult.startInfo = startInfo;
+		detailedResult.startInfos = startInfo;
 	}
 
 	if (resultWeatherActual) {
@@ -1406,6 +1564,7 @@ function parseDetailedResultPage(html) {
 	if (winningMethodFromTable) {
 		detailedResult.kimarite = winningMethodFromTable;
 		detailedResult.winningMethod = winningMethodFromTable;
+		detailedResult.winningMove = winningMethodFromTable;
 	}
 
 	if (refundsText) {
@@ -1499,10 +1658,43 @@ function parseDetailedResultPage(html) {
 	});
 
 	if (payoutsFull.length) {
+		detailedResult.payouts = payoutsFull;
 		detailedResult.payoutsFull = payoutsFull;
 	}
 
 	return detailedResult;
+}
+
+function createFinalOddsSnapshot(oddsPreview) {
+	if (!oddsPreview) {
+		return null;
+	}
+
+	const normalized = normalizeOddsPreview(oddsPreview, oddsPreview?.updatedAt ?? "");
+	const hasOdds = (normalized.trifectaTop?.length ?? 0) > 0 || (normalized.exactaTop?.length ?? 0) > 0 || (normalized.quinellaTop?.length ?? 0) > 0 || (normalized.trifectaAll?.length ?? 0) > 0;
+
+	if (!hasOdds) {
+		return null;
+	}
+
+	return {
+		trifectaTop: normalized.trifectaTop,
+		exactaTop: normalized.exactaTop,
+		quinellaTop: normalized.quinellaTop,
+		trifectaAll: normalized.trifectaAll,
+		exactaAll: normalized.exactaAll,
+		quinellaAll: normalized.quinellaAll,
+		updatedAt: normalized.updatedAt,
+	};
+}
+
+function attachFinalOddsToResult(result, oddsPreview) {
+	if (!result || !isFinalizedResultStatus(result.status) || hasResultFinalOdds(result)) {
+		return result;
+	}
+
+	const finalOdds = createFinalOddsSnapshot(oddsPreview);
+	return finalOdds ? { ...result, finalOdds } : result;
 }
 
 function parseOddsPreviewPage(html, date) {
@@ -2160,12 +2352,28 @@ function mergeRaceResult(baseResult, officialResult) {
 		return baseResult ?? null;
 	}
 
+	const startInfos = officialResult.startInfos?.length
+		? officialResult.startInfos
+		: officialResult.startInfo?.length
+			? officialResult.startInfo
+			: baseResult?.startInfos?.length
+				? baseResult.startInfos
+				: baseResult?.startInfo ?? [];
+	const payouts = officialResult.payouts?.length
+		? officialResult.payouts
+		: officialResult.payoutsFull?.length
+			? officialResult.payoutsFull
+			: baseResult?.payouts?.length
+				? baseResult.payouts
+				: baseResult?.payoutsFull ?? [];
+
 	return {
 		...(baseResult ?? {}),
 		...officialResult,
 		finishOrder: officialResult.finishOrder?.length ? officialResult.finishOrder : baseResult?.finishOrder ?? [],
 		finishers: officialResult.finishers?.length ? officialResult.finishers : baseResult?.finishers ?? [],
-		startInfo: officialResult.startInfo?.length ? officialResult.startInfo : baseResult?.startInfo ?? [],
+		startInfo: startInfos,
+		startInfos,
 		payout3tan: officialResult.payout3tan ?? baseResult?.payout3tan ?? null,
 		payout2tan: officialResult.payout2tan ?? baseResult?.payout2tan ?? null,
 		payout3fuku: officialResult.payout3fuku ?? baseResult?.payout3fuku ?? null,
@@ -2173,12 +2381,16 @@ function mergeRaceResult(baseResult, officialResult) {
 		payoutWide: officialResult.payoutWide ?? baseResult?.payoutWide ?? null,
 		payoutWin: officialResult.payoutWin ?? baseResult?.payoutWin ?? null,
 		payoutPlace: officialResult.payoutPlace ?? baseResult?.payoutPlace ?? null,
+		payouts,
 		payoutsFull: officialResult.payoutsFull?.length ? officialResult.payoutsFull : baseResult?.payoutsFull ?? [],
 		refunds: officialResult.refunds?.length ? officialResult.refunds : baseResult?.refunds ?? [],
 		refundText: officialResult.refundText ?? baseResult?.refundText,
 		remarks: officialResult.remarks ?? baseResult?.remarks,
 		notes: officialResult.notes ?? officialResult.remarks ?? baseResult?.notes,
+		winningMove: officialResult.winningMove ?? officialResult.winningMethod ?? officialResult.kimarite ?? baseResult?.winningMove ?? baseResult?.winningMethod ?? baseResult?.kimarite,
 		weatherActual: officialResult.weatherActual ?? baseResult?.weatherActual,
+		finalizedAt: officialResult.finalizedAt ?? baseResult?.finalizedAt,
+		finalOdds: officialResult.finalOdds ?? baseResult?.finalOdds ?? null,
 	};
 }
 
@@ -2249,6 +2461,7 @@ function mergeVenueRaces(venue, fallbackVenue, raceTitles, resultListRaces, race
 		const officialRacers = Array.isArray(officialRace?.racers) ? officialRace.racers : [];
 		const officialExhibitions = Array.isArray(officialBeforeInfo?.exhibitions) ? officialBeforeInfo.exhibitions : [];
 		const oddsPreview = mergeOddsIntoRace(fallbackRace?.oddsPreview, officialOdds, generatedAt);
+		const mergedResult = attachFinalOddsToResult(mergeRaceResult(fallbackRace?.result, officialRace?.result), oddsPreview);
 
 		return {
 			raceNo,
@@ -2264,7 +2477,7 @@ function mergeVenueRaces(venue, fallbackVenue, raceTitles, resultListRaces, race
                  : [],
 			exhibitions: officialExhibitions.length ? officialExhibitions : fallbackRace?.exhibitions ?? [],
 			oddsPreview,
-			result: mergeRaceResult(fallbackRace?.result, officialRace?.result),
+			result: mergedResult,
 			weatherActual: officialBeforeInfo?.weatherActual ?? fallbackRace?.weatherActual,
 		};
 	});
@@ -2319,9 +2532,13 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 		? options.targetRaceNumbers
 		: options.mode === "active"
 			? selectActiveRaceNumbers({ raceTitles, fallbackVenue, timestamps })
+			: options.mode === "results" || options.mode === "final"
+				? selectResultsRaceNumbers({ raceTitles, resultListRaces, fallbackVenue, timestamps, mode: options.mode })
 			: RACE_NUMBERS;
 	const detailedTargets = options.fetchSections.detailedResults
-		? chooseDetailedRaceTargets(resultListRaces).filter((raceNo) => targetRaceNumbers.includes(raceNo))
+		? (options.mode === "results" || options.mode === "final"
+			? targetRaceNumbers
+			: chooseDetailedRaceTargets(resultListRaces).filter((raceNo) => targetRaceNumbers.includes(raceNo)))
 		: [];
 	const detailedRaceResults = [];
 
@@ -2331,7 +2548,13 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 			continue;
 		}
 
-		detailedRaceResults.push({ raceNo, result: parseDetailedResultPage(detailedHtml) });
+		const detailedResult = parseDetailedResultPage(detailedHtml);
+		if (Object.keys(detailedResult).length > 0) {
+			detailedResult.status = detailedResult.status ?? "confirmed";
+			detailedResult.finalizedAt = detailedResult.finalizedAt ?? timestamps.generatedAt;
+		}
+
+		detailedRaceResults.push({ raceNo, result: detailedResult });
 	}
 
 	if (detailedRaceResults.length) {
@@ -2456,7 +2679,10 @@ export async function main(rawOptions = {}) {
 	const baseOptions = normalizeUpdateOptions(rawOptions);
 	const updateOptions = normalizeUpdateOptions({
 		...baseOptions,
-		effectiveTargetSession: resolveActiveTargetSession(baseOptions.targetSession, raceIndex, existingFeed, timestamps),
+		effectiveTargetSession:
+			baseOptions.mode === "active"
+				? resolveActiveTargetSession(baseOptions.targetSession, raceIndex, existingFeed, timestamps)
+				: baseOptions.targetSession,
 	});
 	const fallbackVenueByCode = new Map((existingFeed?.venues ?? []).map((venue) => [venue.venueCode, venue]));
 	const normalizedVenueDetails = [];

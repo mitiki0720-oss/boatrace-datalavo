@@ -35,6 +35,8 @@ const labelMap: Record<BoatDisplayValue, string> = {
 	canceled: "中止",
 	pending: "pending",
 	confirmed: "confirmed",
+	unavailable: "unavailable",
+	empty: "empty",
 };
 
 export const getBoatDisplayLabel = (value?: BoatDisplayValue) => {
