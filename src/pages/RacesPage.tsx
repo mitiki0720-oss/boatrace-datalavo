@@ -33,7 +33,7 @@ import { SectionCard } from "../components/common/SectionCard";
 import { PageShell } from "../components/layout/PageShell";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import { withBasePath } from "../lib/assetPath";
-import type { BoatOddsPreviewGroup, BoatRacerItem } from "../lib/boatraceTypes";
+import type { BoatOddsPreviewGroup, BoatRacerItem, BoatTodayVenueItem } from "../lib/boatraceTypes";
 import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
 import { buildCommonRaceFallbackRacers, isRaceEntryMissingOrThin } from "../lib/boatRaceRacerNormalizer";
 import { boatTheme } from "../lib/theme";
@@ -58,6 +58,69 @@ const venueActionRowStyle = {
 	gap: "10px",
 	justifyItems: "end" as const,
 };
+
+function getVenueTimeBandPriority(venue: BoatTodayVenueItem) {
+	const normalizedSession = String(venue.session ?? "").trim().toLowerCase();
+	const normalizedTitle = String(venue.title ?? "").replace(/\s+/g, "").toLowerCase();
+
+	if (normalizedSession === "morning" || normalizedTitle.includes("モーニング")) {
+		return 0;
+	}
+
+	if (normalizedSession === "day") {
+		return 1;
+	}
+
+	if (normalizedSession === "night" || normalizedTitle.includes("ナイター")) {
+		return 2;
+	}
+
+	if (normalizedSession === "midnight" || normalizedTitle.includes("ミッドナイト")) {
+		return 3;
+	}
+
+	return 9;
+}
+
+function getVenueFirstRaceSortableTime(venue: BoatTodayVenueItem) {
+	const firstRace = venue.races.find((race) => race.raceNo === 1) ?? venue.races[0];
+	const rawValue = firstRace?.deadlineTime?.trim() || firstRace?.startTime?.trim() || "";
+	const match = rawValue.match(/^(\d{1,2}):(\d{2})$/);
+
+	if (!match) {
+		return null;
+	}
+
+	return Number(match[1]) * 60 + Number(match[2]);
+}
+
+function sortTodayVenues(venues: BoatTodayVenueItem[]) {
+	return venues
+		.map((venue, index) => ({
+			venue,
+			index,
+			priority: getVenueTimeBandPriority(venue),
+			firstRaceTime: getVenueFirstRaceSortableTime(venue),
+			stableKey: (venue.venueCode || venue.venueName || "").toString(),
+		}))
+		.sort((left, right) => {
+			if (left.priority !== right.priority) {
+				return left.priority - right.priority;
+			}
+
+			if (left.firstRaceTime !== null && right.firstRaceTime !== null && left.firstRaceTime !== right.firstRaceTime) {
+				return left.firstRaceTime - right.firstRaceTime;
+			}
+
+			const stableKeyCompare = left.stableKey.localeCompare(right.stableKey, "ja");
+			if (stableKeyCompare !== 0) {
+				return stableKeyCompare;
+			}
+
+			return left.index - right.index;
+		})
+		.map((item) => item.venue);
+}
 
 const venueActionGroupStyle = {
 	display: "flex",
@@ -4151,7 +4214,8 @@ export function RacesPage() {
 	const [refreshMessage, setRefreshMessage] = useState("");
 	const [selectedVenueExtraPanel, setSelectedVenueExtraPanel] = useState<VenueExtraPanelKey>("official");
 	const [selectedNarutoStatsTab, setSelectedNarutoStatsTab] = useState<NarutoStatsTab>("score");
-	const initialVenue = todayFeed.venues[0];
+	const sortedTodayVenues = useMemo(() => sortTodayVenues(todayFeed.venues), [todayFeed]);
+	const initialVenue = sortedTodayVenues[0];
 	const initialRace = initialVenue ? getFirstSelectableRace(initialVenue.races) : undefined;
 	const [selectedVenueId, setSelectedVenueId] = useState<string>(initialVenue?.id ?? "");
 	const [selectedRaceId, setSelectedRaceId] = useState<string>(getRaceKey(initialVenue?.id ?? "", initialRace?.raceId, initialRace?.raceNo ?? 0));
@@ -4215,7 +4279,7 @@ export function RacesPage() {
 	}, []);
 
 	useEffect(() => {
-		const firstVenue = todayFeed.venues[0];
+		const firstVenue = sortedTodayVenues[0];
 		const firstRace = firstVenue ? getFirstSelectableRace(firstVenue.races) : undefined;
 
 		if (!firstVenue || !firstRace) {
@@ -4232,7 +4296,7 @@ export function RacesPage() {
 			setSelectedVenueId(firstVenue.id);
 			setSelectedRaceId(firstRace.raceId || `${firstVenue.id}-${firstRace.raceNo}`);
 		}
-	}, [todayFeed, selectedVenueId, selectedRaceId]);
+	}, [todayFeed, sortedTodayVenues, selectedVenueId, selectedRaceId]);
 
 	const selectedVenue = useMemo(
 		() => todayFeed.venues.find((venue) => venue.id === selectedVenueId) ?? initialVenue,
@@ -5646,7 +5710,7 @@ const venueExtrasDisplayText = useMemo(() => {
 
 				<div style={openSectionStyle}>
 					<BoatVenueSelectorPanel
-						venues={todayFeed.venues}
+						venues={sortedTodayVenues}
 						selectedVenueId={selectedVenueId}
 						onSelectVenue={handleSelectVenue}
 					/>

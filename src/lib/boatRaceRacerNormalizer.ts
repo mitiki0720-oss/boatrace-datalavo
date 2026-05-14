@@ -64,13 +64,27 @@ export function isRaceEntryMissingOrThin(racers?: BoatRacerItem[]) {
 		return true;
 	}
 
+	if (racers.length < 6) {
+		return true;
+	}
+
+	const nameCount = racers.filter((racer) => isMeaningfulPlayerName(racer.name, racer.frameNo)).length;
+	const classCount = racers.filter((racer) => isMeaningfulValue(racer.class)).length;
+	const averageStartCount = racers.filter((racer) => isMeaningfulValue(racer.averageStart)).length;
+	const winRateCount = racers.filter((racer) => isMeaningfulValue(racer.winRate) || isMeaningfulValue(racer.secondRate)).length;
+	const motorCount = racers.filter((racer) => isMeaningfulValue(racer.motorNo) || isMeaningfulValue(racer.motorSecondRate)).length;
+
+	if (nameCount < 3 || classCount < 3 || averageStartCount < 3 || motorCount < 3) {
+		return true;
+	}
+
 	return racers.every((racer) => {
 		const hasName = isMeaningfulPlayerName(racer.name, racer.frameNo);
-		const hasClass = Boolean((racer.class || "").trim() && racer.class !== "-");
-		const hasAverageStart = Boolean((racer.averageStart || "").trim() && racer.averageStart !== "-");
-		const hasWinRate = Boolean((racer.winRate || "").trim() && racer.winRate !== "-");
-		const hasSecondRate = Boolean((racer.secondRate || "").trim() && racer.secondRate !== "-");
-		const hasMotorNo = Boolean((racer.motorNo || "").trim() && racer.motorNo !== "-");
+		const hasClass = isMeaningfulValue(racer.class);
+		const hasAverageStart = isMeaningfulValue(racer.averageStart);
+		const hasWinRate = isMeaningfulValue(racer.winRate);
+		const hasSecondRate = isMeaningfulValue(racer.secondRate);
+		const hasMotorNo = isMeaningfulValue(racer.motorNo);
 
 		return !hasName && !hasClass && !hasAverageStart && !hasWinRate && !hasSecondRate && !hasMotorNo;
 	});
@@ -88,6 +102,7 @@ export function buildCommonRaceFallbackRacers(input: CommonRaceFallbackInput): C
 	}
 
 	const officialBeforeInfoRacers = buildOfficialBeforeInfoFallback({
+		baseRacers: input.racers ?? [],
 		officialBeforeInfoScoreRows,
 		originalExhibitionRows,
 	});
@@ -100,6 +115,7 @@ export function buildCommonRaceFallbackRacers(input: CommonRaceFallbackInput): C
 	}
 
 	const venueExtrasRacers = buildVenueExtrasFallback({
+		baseRacers: input.racers ?? [],
 		originalExhibitionRows,
 		startExhibitionRows,
 		motorSummaryRows,
@@ -117,12 +133,18 @@ export function buildCommonRaceFallbackRacers(input: CommonRaceFallbackInput): C
 }
 
 function buildOfficialBeforeInfoFallback(input: {
+	baseRacers: BoatRacerItem[];
 	officialBeforeInfoScoreRows: OfficialBeforeInfoScoreRow[];
 	originalExhibitionRows: VenueOriginalExhibitionRow[];
 }) {
+	const baseRacersByFrameNo = new Map(input.baseRacers.map((row) => [row.frameNo, row] as const));
 	const officialByFrameNo = new Map(input.officialBeforeInfoScoreRows.map((row) => [row.frameNo, row] as const));
 	const exhibitionByFrameNo = new Map(input.originalExhibitionRows.map((row) => [row.frameNo, row] as const));
 	const frameNumbers = new Set<BoatRacerItem["frameNo"]>();
+
+	for (const row of input.baseRacers) {
+		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
+	}
 
 	for (const row of input.officialBeforeInfoScoreRows) {
 		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
@@ -137,45 +159,49 @@ function buildOfficialBeforeInfoFallback(input: {
 	return Array.from(frameNumbers)
 		.sort((left, right) => left - right)
 		.map((frameNo) => {
+			const baseRacer = baseRacersByFrameNo.get(frameNo);
 			const officialRow = officialByFrameNo.get(frameNo);
 			const exhibitionRow = exhibitionByFrameNo.get(frameNo);
-			const playerName = isMeaningfulPlayerName(officialRow?.playerName, frameNo)
-				? officialRow?.playerName || `枠${frameNo}`
-				: isMeaningfulPlayerName(exhibitionRow?.playerName, frameNo)
-					? exhibitionRow?.playerName || `枠${frameNo}`
-					: `枠${frameNo}`;
+			const playerName = firstMeaningfulPlayerName(frameNo, baseRacer?.name, officialRow?.playerName, exhibitionRow?.playerName) || `枠${frameNo}`;
 
 			return {
 				frameNo,
-				boatNo: "-",
+				boatNo: baseRacer?.boatNo || "-",
 				name: playerName,
-				branch: parseProfilePart(exhibitionRow?.profile, 1),
-				class: officialRow?.className || exhibitionRow?.className || parseProfilePart(exhibitionRow?.profile, 0) || "-",
-				age: parseProfilePart(exhibitionRow?.profile, 3),
-				weight: exhibitionRow?.weight || "-",
-				averageStart: officialRow?.averageStart || "-",
-				winRate: officialRow?.winRate || "-",
-				secondRate: officialRow?.secondRate || "-",
-				motorNo: officialRow?.motorNo || exhibitionRow?.motorNo || "-",
-				motorSecondRate: officialRow?.motorSecondRate || "-",
-				boatMotorNo: "-",
-				boatSecondRate: "-",
+				branch: firstMeaningfulValue(baseRacer?.branch, parseProfilePart(exhibitionRow?.profile, 1)) || "-",
+				class: firstMeaningfulValue(baseRacer?.class, officialRow?.className, exhibitionRow?.className, parseProfilePart(exhibitionRow?.profile, 0)) || "-",
+				age: firstMeaningfulValue(baseRacer?.age, parseProfilePart(exhibitionRow?.profile, 3)) || "-",
+				weight: firstMeaningfulValue(baseRacer?.weight, exhibitionRow?.weight) || "-",
+				averageStart: firstMeaningfulValue(baseRacer?.averageStart, officialRow?.averageStart) || "-",
+				winRate: firstMeaningfulValue(baseRacer?.winRate, officialRow?.winRate) || "-",
+				secondRate: firstMeaningfulValue(baseRacer?.secondRate, officialRow?.secondRate) || "-",
+				motorNo: firstMeaningfulValue(baseRacer?.motorNo, officialRow?.motorNo, exhibitionRow?.motorNo) || "-",
+				motorSecondRate: firstMeaningfulValue(baseRacer?.motorSecondRate, officialRow?.motorSecondRate) || "-",
+				boatMotorNo: firstMeaningfulValue(baseRacer?.boatMotorNo) || "-",
+				boatSecondRate: firstMeaningfulValue(baseRacer?.boatSecondRate) || "-",
+				comment: firstMeaningfulValue(baseRacer?.comment) || "",
 			};
 		})
 		.filter((row) => isMeaningfulPlayerName(row.name, row.frameNo) || row.averageStart !== "-" || row.winRate !== "-" || row.secondRate !== "-" || row.motorNo !== "-");
 }
 
 function buildVenueExtrasFallback(input: {
+	baseRacers: BoatRacerItem[];
 	originalExhibitionRows: VenueOriginalExhibitionRow[];
 	startExhibitionRows: VenueStartExhibitionRow[];
 	motorSummaryRows: VenueMotorSummaryRow[];
 	racerCommentRows: VenueRacerCommentRow[];
 }) {
+	const baseRacersByFrameNo = new Map(input.baseRacers.map((row) => [row.frameNo, row] as const));
 	const exhibitionByFrameNo = new Map(input.originalExhibitionRows.map((row) => [row.frameNo, row] as const));
 	const startByFrameNo = new Map(input.startExhibitionRows.map((row) => [row.frameNo, row] as const));
 	const motorByFrameNo = new Map(input.motorSummaryRows.map((row) => [row.displayFrameNo ?? row.frameNo, row] as const));
 	const commentByFrameNo = new Map(input.racerCommentRows.map((row) => [row.frameNo, row] as const));
 	const frameNumbers = new Set<BoatRacerItem["frameNo"]>();
+
+	for (const row of input.baseRacers) {
+		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
+	}
 
 	for (const row of input.originalExhibitionRows) {
 		frameNumbers.add(row.frameNo as BoatRacerItem["frameNo"]);
@@ -196,35 +222,66 @@ function buildVenueExtrasFallback(input: {
 	return Array.from(frameNumbers)
 		.sort((left, right) => left - right)
 		.map((frameNo) => {
+			const baseRacer = baseRacersByFrameNo.get(frameNo);
 			const exhibitionRow = exhibitionByFrameNo.get(frameNo);
 			const startRow = startByFrameNo.get(frameNo);
 			const motorRow = motorByFrameNo.get(frameNo);
 			const commentRow = commentByFrameNo.get(frameNo);
-			const playerName = isMeaningfulPlayerName(exhibitionRow?.playerName, frameNo)
-				? exhibitionRow?.playerName || "-"
-				: isMeaningfulPlayerName(startRow?.playerName, frameNo)
-					? startRow?.playerName || "-"
-					: "-";
+			const playerName = firstMeaningfulPlayerName(frameNo, baseRacer?.name, exhibitionRow?.playerName, startRow?.playerName) || "-";
 
 			return {
 				frameNo,
-				boatNo: "-",
+				boatNo: baseRacer?.boatNo || "-",
 				name: playerName,
-				branch: parseProfilePart(exhibitionRow?.profile, 1),
-				class: exhibitionRow?.className || startRow?.className || parseProfilePart(exhibitionRow?.profile, 0) || "-",
-				age: parseProfilePart(exhibitionRow?.profile, 3),
-				weight: exhibitionRow?.weight || "-",
-				averageStart: startRow?.currentAverageStart || "-",
-				winRate: "-",
-				secondRate: "-",
-				motorNo: exhibitionRow?.motorNo || motorRow?.motorNo || "-",
-				motorSecondRate: "-",
-				boatMotorNo: "-",
-				boatSecondRate: "-",
-				comment: commentRow?.comment || motorRow?.comment || exhibitionRow?.memo || "",
+				branch: firstMeaningfulValue(baseRacer?.branch, parseProfilePart(exhibitionRow?.profile, 1)) || "-",
+				class: firstMeaningfulValue(baseRacer?.class, exhibitionRow?.className, startRow?.className, parseProfilePart(exhibitionRow?.profile, 0)) || "-",
+				age: firstMeaningfulValue(baseRacer?.age, parseProfilePart(exhibitionRow?.profile, 3)) || "-",
+				weight: firstMeaningfulValue(baseRacer?.weight, exhibitionRow?.weight) || "-",
+				averageStart: firstMeaningfulValue(baseRacer?.averageStart, startRow?.currentAverageStart) || "-",
+				winRate: firstMeaningfulValue(baseRacer?.winRate) || "-",
+				secondRate: firstMeaningfulValue(baseRacer?.secondRate) || "-",
+				motorNo: firstMeaningfulValue(baseRacer?.motorNo, exhibitionRow?.motorNo, motorRow?.motorNo) || "-",
+				motorSecondRate: firstMeaningfulValue(baseRacer?.motorSecondRate) || "-",
+				boatMotorNo: firstMeaningfulValue(baseRacer?.boatMotorNo) || "-",
+				boatSecondRate: firstMeaningfulValue(baseRacer?.boatSecondRate) || "-",
+				comment: firstMeaningfulValue(baseRacer?.comment, commentRow?.comment, motorRow?.comment, exhibitionRow?.memo) || "",
 			};
 		})
 		.filter((row) => row.name !== "-" || row.averageStart !== "-" || row.motorNo !== "-" || Boolean(row.comment));
+}
+
+function firstMeaningfulPlayerName(frameNo: number, ...values: Array<string | undefined>) {
+	for (const value of values) {
+		if (isMeaningfulPlayerName(value, frameNo)) {
+			return value?.trim();
+		}
+	}
+
+	return undefined;
+}
+
+function firstMeaningfulValue(...values: Array<string | number | undefined>) {
+	for (const value of values) {
+		if (isMeaningfulValue(value)) {
+			return String(value).trim();
+		}
+	}
+
+	return undefined;
+}
+
+function isMeaningfulValue(value: string | number | undefined) {
+	if (value === undefined || value === null) {
+		return false;
+	}
+
+	const normalizedValue = String(value).replace(/\s+/g, "").trim();
+
+	if (!normalizedValue) {
+		return false;
+	}
+
+	return normalizedValue !== "-" && normalizedValue !== "--";
 }
 
 function parseProfilePart(profile: string | undefined, index: number) {
@@ -247,5 +304,5 @@ function isMeaningfulPlayerName(playerName: string | undefined, frameNo: number)
 		return false;
 	}
 
-	return normalizedName !== `枠${frameNo}`;
+	return normalizedName !== `枠${frameNo}` && normalizedName !== `${frameNo}号艇`;
 }

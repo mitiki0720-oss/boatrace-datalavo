@@ -12,6 +12,119 @@ const extrasPath = path.join(projectRoot, "public", "data", "boatrace", "venue-e
 
 const strictMode = process.env.BOAT_RACER_CHECK_STRICT === "1";
 
+function isMeaningfulValue(value) {
+	if (value === undefined || value === null) {
+		return false;
+	}
+
+	const normalizedValue = String(value).replace(/\s+/g, "").trim();
+	return normalizedValue !== "" && normalizedValue !== "-" && normalizedValue !== "--";
+}
+
+function isPlaceholderName(value, frameNo) {
+	if (!isMeaningfulValue(value)) {
+		return true;
+	}
+
+	const normalizedValue = String(value).replace(/\s+/g, "").trim();
+	return normalizedValue === `枠${frameNo}` || normalizedValue === `${frameNo}号艇`;
+}
+
+function countValidRacerFields(racers) {
+	return (racers ?? []).reduce((accumulator, racer, index) => {
+		const frameNo = racer?.frameNo ?? index + 1;
+		const name = racer?.name ?? racer?.playerName ?? racer?.racerName;
+		const registrationNo = racer?.registrationNo ?? racer?.registerNo ?? racer?.racerNo;
+		const className = racer?.className ?? racer?.class ?? racer?.grade;
+		const branch = racer?.branch;
+		const averageStart = racer?.averageStart ?? racer?.currentAverageStart;
+		const winRate = racer?.winRate;
+		const secondRate = racer?.secondRate;
+		const motorNo = racer?.motorNo;
+		const motorSecondRate = racer?.motorSecondRate;
+		const boatNo = racer?.boatNo ?? racer?.boatMotorNo;
+		const boatSecondRate = racer?.boatSecondRate;
+
+		if (!isPlaceholderName(name, frameNo)) {
+			accumulator.name += 1;
+		}
+
+		if (isMeaningfulValue(registrationNo)) {
+			accumulator.registrationNo += 1;
+		}
+
+		if (isMeaningfulValue(className)) {
+			accumulator.className += 1;
+		}
+
+		if (isMeaningfulValue(branch)) {
+			accumulator.branch += 1;
+		}
+
+		if (isMeaningfulValue(averageStart)) {
+			accumulator.averageStart += 1;
+		}
+
+		if (isMeaningfulValue(winRate) || isMeaningfulValue(secondRate)) {
+			accumulator.rate += 1;
+		}
+
+		if (isMeaningfulValue(motorNo) || isMeaningfulValue(motorSecondRate)) {
+			accumulator.motor += 1;
+		}
+
+		if (isMeaningfulValue(boatNo) || isMeaningfulValue(boatSecondRate)) {
+			accumulator.boat += 1;
+		}
+
+		if (isPlaceholderName(name, frameNo)) {
+			accumulator.placeholderName += 1;
+		}
+
+		return accumulator;
+	}, {
+		name: 0,
+		registrationNo: 0,
+		className: 0,
+		branch: 0,
+		averageStart: 0,
+		rate: 0,
+		motor: 0,
+		boat: 0,
+		placeholderName: 0,
+	});
+}
+
+function formatThinFields(label, stats, totalCount) {
+	const fields = [];
+
+	if (stats.name < 3) {
+		fields.push(`name ${stats.name}/${totalCount}`);
+	}
+
+	if (stats.registrationNo < 3) {
+		fields.push(`registerNo ${stats.registrationNo}/${totalCount}`);
+	}
+
+	if (stats.className < 3) {
+		fields.push(`className ${stats.className}/${totalCount}`);
+	}
+
+	if (stats.averageStart < 3) {
+		fields.push(`averageStart ${stats.averageStart}/${totalCount}`);
+	}
+
+	if (stats.motor < 3) {
+		fields.push(`motorNo ${stats.motor}/${totalCount}`);
+	}
+
+	if (stats.placeholderName >= 4) {
+		fields.push(`placeholderName ${stats.placeholderName}/${totalCount}`);
+	}
+
+	return fields.length > 0 ? `[thin-racers] ${label}: ${fields.join(", ")}` : null;
+}
+
 function getArrayLength(value) {
 	return Array.isArray(value) ? value.length : 0;
 }
@@ -84,6 +197,7 @@ async function main() {
 	);
 
 	const allRows = [];
+	const thinWarnings = [];
 
 	for (const venue of today.venues ?? []) {
 		for (const race of venue.races ?? []) {
@@ -106,6 +220,20 @@ async function main() {
 			const cause = classifyRace(row);
 			const status = classifyStatus({ ...row, cause });
 			allRows.push({ ...row, cause, status });
+
+			if (row.todayRacersLen >= 6) {
+				const thinMessage = formatThinFields(`${venue.venueName} ${race.raceNo}R today`, countValidRacerFields(race.racers), row.todayRacersLen);
+				if (thinMessage) {
+					thinWarnings.push(thinMessage);
+				}
+			}
+
+			if (row.detailRacersLen >= 6) {
+				const thinMessage = formatThinFields(`${venue.venueName} ${race.raceNo}R details`, countValidRacerFields(detailRace?.racers), row.detailRacersLen);
+				if (thinMessage) {
+					thinWarnings.push(thinMessage);
+				}
+			}
 		}
 	}
 
@@ -128,6 +256,13 @@ async function main() {
 		console.warn(`[check:boatrace-racers] 補完素材なしの unresolved レース: ${unresolvedRows.length}件`);
 		for (const row of unresolvedRows) {
 			console.warn(`WARN ${formatRow(row)}`);
+		}
+	}
+
+	if (thinWarnings.length > 0) {
+		console.warn(`[check:boatrace-racers] thin-racers warnings: ${thinWarnings.length}件`);
+		for (const warning of thinWarnings) {
+			console.warn(warning);
 		}
 	}
 
