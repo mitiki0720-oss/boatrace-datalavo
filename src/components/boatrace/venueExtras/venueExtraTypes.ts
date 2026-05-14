@@ -61,6 +61,7 @@ export type VenueExtraPanelOption = {
 
 export type VenueExtraVenueFlags = {
 	isNarutoVenue: boolean;
+	isKaratsuVenue: boolean;
 	isBiwakoVenue: boolean;
 	isTamagawaVenue: boolean;
 	isTsuVenue: boolean;

@@ -120,7 +120,7 @@ export type ResolvePreferredVenueExtraPanelInput = VenueExtraVenueFlags & VenueE
 
 export type ResolveInitialVenueExtraPanelInput = Pick<
 	VenueExtraVenueFlags,
-	"isOmuraVenue" | "isTamagawaVenue" | "isKojimaVenue" | "isFukuokaVenue"
+	"isOmuraVenue" | "isTamagawaVenue" | "isKojimaVenue" | "isFukuokaVenue" | "isKaratsuVenue"
 > & {
 	preferredVenueExtraPanel: VenueExtraPanelKey;
 };
@@ -210,6 +210,34 @@ export function createVenueExtraPanelFlags(input: CreateVenueExtraPanelFlagsInpu
 }
 
 export function resolvePreferredVenueExtraPanel(input: ResolvePreferredVenueExtraPanelInput): VenueExtraPanelKey {
+	if (input.isKaratsuVenue) {
+		if (input.hasOfficialPanelData) {
+			return "official";
+		}
+
+		if (input.hasExhibitionPanelData) {
+			return "exhibition";
+		}
+
+		if (input.hasStartPanelData) {
+			return "start";
+		}
+
+		if (input.hasMotorPanelData) {
+			return "motor";
+		}
+
+		if (input.hasRecordsPanelData) {
+			return "records";
+		}
+
+		if (input.hasWaterPanelData) {
+			return "water";
+		}
+
+		return "official";
+	}
+
 	if (input.isOmuraVenue) {
 		if (input.hasOmuraCommentsMotorData) {
 			return "omura-comments";
@@ -482,6 +510,10 @@ export function resolvePreferredVenueExtraPanel(input: ResolvePreferredVenueExtr
 }
 
 export function resolveInitialVenueExtraPanel(input: ResolveInitialVenueExtraPanelInput): VenueExtraPanelKey {
+	if (input.isKaratsuVenue) {
+		return input.preferredVenueExtraPanel;
+	}
+
 	if (input.isOmuraVenue) {
 		return "omura-overview";
 	}

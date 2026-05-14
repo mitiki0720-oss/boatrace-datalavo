@@ -4821,7 +4821,7 @@ const tamagawaStartExhibitionDisplay = useMemo(() => {
 		})
 		.sort((left, right) => left.course - right.course);
 }, [selectedStartExhibition, selectedTamagawaBeforeInfo]);
-const { isNarutoVenue, isBiwakoVenue, isTamagawaVenue, isTsuVenue, isWakamatsuVenue, isFukuokaVenue, isKojimaVenue, isOmuraVenue, isMarugameVenue } = getVenueExtraVenueFlags(selectedVenue?.venueName);
+const { isNarutoVenue, isKaratsuVenue, isBiwakoVenue, isTamagawaVenue, isTsuVenue, isWakamatsuVenue, isFukuokaVenue, isKojimaVenue, isOmuraVenue, isMarugameVenue } = getVenueExtraVenueFlags(selectedVenue?.venueName);
 const hasOmuraEntryData = selectedOmuraEntryTable.length > 0;
 const hasOmuraPreviousDayData = selectedOmuraPreviousDayResults.some((row) => row.items.length > 0);
 const hasOmuraNationalFrameStatsData = selectedOmuraNationalFrameStats.length > 0;
@@ -5287,6 +5287,7 @@ const selectedRaceForDetail = useMemo(() => {
 const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(
 	() => resolvePreferredVenueExtraPanel({
 		isNarutoVenue,
+		isKaratsuVenue,
 		isBiwakoVenue,
 		isTamagawaVenue,
 		isTsuVenue,
@@ -5338,6 +5339,7 @@ const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(
 	}),
 	[
 		isNarutoVenue,
+		isKaratsuVenue,
 		isBiwakoVenue,
 		isTamagawaVenue,
 		isTsuVenue,
@@ -5391,13 +5393,14 @@ const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(
 
 const initialVenueExtraPanel = useMemo<VenueExtraPanelKey>(
 	() => resolveInitialVenueExtraPanel({
+		isKaratsuVenue,
 		isOmuraVenue,
 		isTamagawaVenue,
 		isKojimaVenue,
 		isFukuokaVenue,
 		preferredVenueExtraPanel,
 	}),
-	[isOmuraVenue, isTamagawaVenue, isKojimaVenue, isFukuokaVenue, preferredVenueExtraPanel],
+	[isKaratsuVenue, isOmuraVenue, isTamagawaVenue, isKojimaVenue, isFukuokaVenue, preferredVenueExtraPanel],
 );
 
 useEffect(() => {
@@ -5411,6 +5414,7 @@ useEffect(() => {
 const venueExtraPanelOptions = useMemo(
 	() => buildVenueExtraPanelOptions({
 		isNarutoVenue,
+		isKaratsuVenue,
 		isBiwakoVenue,
 		isTamagawaVenue,
 		isTsuVenue,

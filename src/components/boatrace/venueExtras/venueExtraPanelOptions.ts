@@ -61,6 +61,17 @@ export function buildVenueExtraPanelOptions(input: BuildVenueExtraPanelOptionsIn
 	const hasOfficialScoreRows = input.officialScoreRowsCount > 0;
 	const hasAbilityIndex = input.abilityIndexCount > 0;
 
+	if (input.isKaratsuVenue) {
+		return [
+			{ key: "official", label: text.labels.official, hint: text.hints.official, badge: input.hasOfficialPanelData ? text.labels.officialShort : text.waiting },
+			{ key: "exhibition", label: "会場独自展示", hint: text.hints.exhibitionGeneral, badge: input.hasExhibitionPanelData ? text.labels.exhibitionShort : text.waiting },
+			{ key: "start", label: text.labels.start, hint: text.hints.startGeneral, badge: input.hasStartPanelData ? text.labels.startShort : text.waiting },
+			{ key: "motor", label: text.labels.motor, hint: text.hints.motorGeneral, badge: input.hasMotorPanelData ? text.labels.motorHistoryShort : text.waiting },
+			{ key: "records", label: text.labels.records, hint: text.hints.records, badge: input.hasRecordsPanelData ? text.labels.recordsShort : text.waiting },
+			{ key: "water", label: text.labels.waterComment, hint: text.hints.waterComment, badge: input.hasWaterPanelData ? text.labels.waterShort : text.waiting },
+		];
+	}
+
 	if (input.isOmuraVenue) {
 		return [
 			{ key: "omura-overview", label: text.labels.overview, hint: text.hints.overview, badge: input.hasSelectedVenueExtrasDetail ? text.labels.overviewShort : text.waiting },

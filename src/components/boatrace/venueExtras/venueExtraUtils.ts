@@ -1,5 +1,9 @@
 import type { VenueExtraVenueFlags } from "./venueExtraTypes";
 
+function normalizeVenueName(value: string | null | undefined): string {
+	return typeof value === "string" ? value.replace(/\s+/g, "").trim() : "";
+}
+
 export function isVenueExtraRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
@@ -71,15 +75,19 @@ export function normalizeVenueExtraPlayerName(value: string | null | undefined):
 }
 
 export function getVenueExtraVenueFlags(venueName: string | null | undefined): VenueExtraVenueFlags {
+	const normalizedVenueName = normalizeVenueName(venueName);
+	const isKaratsuVenue = normalizedVenueName.includes("唐津") || normalizedVenueName.includes("からつ");
+
 	return {
-		isNarutoVenue: venueName === "鳴門",
-		isBiwakoVenue: venueName === "びわこ",
-		isTamagawaVenue: venueName === "多摩川",
-		isTsuVenue: venueName === "津",
-		isWakamatsuVenue: venueName === "若松",
-		isFukuokaVenue: venueName === "福岡",
-		isKojimaVenue: venueName === "児島",
-		isOmuraVenue: venueName === "大村",
-		isMarugameVenue: venueName === "丸亀",
+		isNarutoVenue: normalizedVenueName === "鳴門",
+		isKaratsuVenue,
+		isBiwakoVenue: normalizedVenueName === "びわこ",
+		isTamagawaVenue: normalizedVenueName === "多摩川",
+		isTsuVenue: normalizedVenueName === "津",
+		isWakamatsuVenue: normalizedVenueName === "若松",
+		isFukuokaVenue: normalizedVenueName === "福岡",
+		isKojimaVenue: normalizedVenueName === "児島",
+		isOmuraVenue: normalizedVenueName === "大村",
+		isMarugameVenue: normalizedVenueName === "丸亀",
 	};
 }
