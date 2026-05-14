@@ -44,6 +44,140 @@ const WIND_DIRECTION_LABELS = {
 };
 
 const RACE_NUMBERS = Array.from({ length: 12 }, (_, index) => index + 1);
+const UPDATE_MODES = new Set(["initial", "active", "results", "final"]);
+const TARGET_SESSIONS = new Set(["auto", "morning", "day", "night"]);
+const FETCH_SECTION_KEYS = ["raceTitles", "resultList", "detailedResults", "odds", "beforeInfo", "venueWeather"];
+
+function createDefaultFetchSections() {
+	return {
+		raceTitles: true,
+		resultList: true,
+		detailedResults: true,
+		odds: true,
+		beforeInfo: true,
+		venueWeather: true,
+	};
+}
+
+function parseCliArgs(argv = process.argv.slice(2)) {
+	const parsed = {};
+
+	for (let index = 0; index < argv.length; index += 1) {
+		const token = argv[index];
+		if (!token.startsWith("--")) {
+			continue;
+		}
+
+		const trimmed = token.slice(2);
+		const separatorIndex = trimmed.indexOf("=");
+		const key = separatorIndex >= 0 ? trimmed.slice(0, separatorIndex) : trimmed;
+		const value = separatorIndex >= 0 ? trimmed.slice(separatorIndex + 1) : argv[index + 1];
+
+		switch (key) {
+			case "mode":
+			case "target-session":
+			case "target-venues":
+			case "target-races":
+			case "fetch-sections":
+			case "skip-sections":
+				parsed[key] = value;
+				if (separatorIndex < 0) {
+					index += 1;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
+	return parsed;
+}
+
+function parseCsvList(value) {
+	return String(value ?? "")
+		.split(",")
+		.map((item) => item.trim())
+		.filter(Boolean);
+}
+
+function normalizeMode(value) {
+	return UPDATE_MODES.has(value) ? value : "initial";
+}
+
+function normalizeTargetSession(value) {
+	return TARGET_SESSIONS.has(value) ? value : "auto";
+}
+
+function normalizeTargetRaceNumbers(values) {
+	return Array.from(
+		new Set(
+			values
+				.map((value) => Number.parseInt(String(value), 10))
+				.filter((value) => Number.isInteger(value) && value >= 1 && value <= 12),
+		),
+	).sort((left, right) => left - right);
+}
+
+function normalizeFetchSections(value) {
+	const sections = createDefaultFetchSections();
+	if (!value || typeof value !== "object") {
+		return sections;
+	}
+
+	for (const key of FETCH_SECTION_KEYS) {
+		if (typeof value[key] === "boolean") {
+			sections[key] = value[key];
+		}
+	}
+
+	return sections;
+}
+
+function parseFetchSectionOptions(includeText, skipText) {
+	const includeList = parseCsvList(includeText).filter((key) => FETCH_SECTION_KEYS.includes(key));
+	const skipList = parseCsvList(skipText).filter((key) => FETCH_SECTION_KEYS.includes(key));
+
+	if (!includeList.length && !skipList.length) {
+		return null;
+	}
+
+	const sections = includeList.length
+		? Object.fromEntries(FETCH_SECTION_KEYS.map((key) => [key, false]))
+		: createDefaultFetchSections();
+
+	for (const key of includeList) {
+		sections[key] = true;
+	}
+
+	for (const key of skipList) {
+		sections[key] = false;
+	}
+
+	return sections;
+}
+
+function normalizeUpdateOptions(rawOptions = {}) {
+	const fetchSections = normalizeFetchSections(rawOptions.fetchSections);
+	return {
+		mode: normalizeMode(rawOptions.mode),
+		targetSession: normalizeTargetSession(rawOptions.targetSession),
+		effectiveTargetSession: normalizeTargetSession(rawOptions.effectiveTargetSession ?? rawOptions.targetSession),
+		targetVenues: Array.from(new Set(parseCsvList(rawOptions.targetVenues).map((item) => item.toLowerCase()))),
+		targetRaceNumbers: normalizeTargetRaceNumbers(Array.isArray(rawOptions.targetRaceNumbers) ? rawOptions.targetRaceNumbers : parseCsvList(rawOptions.targetRaceNumbers)),
+		fetchSections,
+	};
+}
+
+export function parseUpdateOptionsFromArgv(argv = process.argv.slice(2), env = process.env) {
+	const cliArgs = parseCliArgs(argv);
+	return normalizeUpdateOptions({
+		mode: cliArgs.mode ?? env.BOAT_RACE_MODE,
+		targetSession: cliArgs["target-session"] ?? env.BOAT_RACE_TARGET_SESSION,
+		targetVenues: cliArgs["target-venues"] ?? env.BOAT_RACE_TARGET_VENUES,
+		targetRaceNumbers: cliArgs["target-races"] ?? env.BOAT_RACE_TARGET_RACES,
+		fetchSections: parseFetchSectionOptions(cliArgs["fetch-sections"] ?? env.BOAT_RACE_FETCH_SECTIONS, cliArgs["skip-sections"] ?? env.BOAT_RACE_SKIP_SECTIONS),
+	});
+}
 
 function formatJstDateParts(date = new Date()) {
 	const formatter = new Intl.DateTimeFormat("sv-SE", {
@@ -62,6 +196,8 @@ function formatJstDateParts(date = new Date()) {
 	return {
 		date: `${parts.year}-${parts.month}-${parts.day}`,
 		dateKey: `${parts.year}${parts.month}${parts.day}`,
+		hour: Number.parseInt(parts.hour, 10),
+		minute: Number.parseInt(parts.minute, 10),
 		generatedAt: `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}+09:00`,
 	};
 }
@@ -149,6 +285,143 @@ function parseTime(value) {
 function buildJstTimestamp(date, time) {
 	const normalizedTime = parseTime(time);
 	return normalizedTime ? `${date}T${normalizedTime}:00+09:00` : null;
+}
+
+function timeToMinutes(time) {
+	const normalized = parseTime(time);
+	if (!normalized) {
+		return null;
+	}
+
+	const [hours, minutes] = normalized.split(":").map((value) => Number.parseInt(value, 10));
+	return hours * 60 + minutes;
+}
+
+function venueMatchesTarget(venue, fallbackVenue, targetVenues) {
+	if (!targetVenues.length) {
+		return true;
+	}
+
+	const candidates = [venue?.venueCode, venue?.venueName, fallbackVenue?.venueCode, fallbackVenue?.venueName]
+		.filter(Boolean)
+		.map((value) => String(value).toLowerCase());
+
+	return targetVenues.some((target) => candidates.includes(target));
+}
+
+function resolveActiveTargetSession(targetSession, raceIndex, existingFeed, timestamps) {
+	if (targetSession !== "auto") {
+		return targetSession;
+	}
+
+	const activeVenue = (raceIndex?.venues ?? []).find((venue) => venue?.status === "selling" || venue?.status === "in-progress");
+	if (activeVenue?.session && activeVenue.session !== "unknown") {
+		return activeVenue.session;
+	}
+
+	const sessionSet = new Set(
+		[...(raceIndex?.venues ?? []), ...(existingFeed?.venues ?? [])]
+			.map((venue) => venue?.session)
+			.filter((session) => TARGET_SESSIONS.has(session) && session !== "auto"),
+	);
+
+	if (timestamps.hour < 12 && sessionSet.has("morning")) {
+		return "morning";
+	}
+
+	if (timestamps.hour < 18 && sessionSet.has("day")) {
+		return "day";
+	}
+
+	if (sessionSet.has("night")) {
+		return "night";
+	}
+
+	if (sessionSet.has("day")) {
+		return "day";
+	}
+
+	if (sessionSet.has("morning")) {
+		return "morning";
+	}
+
+	return "auto";
+}
+
+function selectActiveRaceNumbers({ raceTitles, fallbackVenue, timestamps }) {
+	const nowMinutes = timestamps.hour * 60 + timestamps.minute;
+	const candidateRaces = dedupeByRaceNo([...(raceTitles ?? []), ...((fallbackVenue?.races ?? []).map((race) => ({ raceNo: race.raceNo, deadlineTime: race.deadlineTime })))]);
+	const nearRaceNumbers = candidateRaces
+		.map((race) => ({ raceNo: race.raceNo, deadlineMinutes: timeToMinutes(race.deadlineTime) }))
+		.filter((race) => Number.isInteger(race.deadlineMinutes))
+		.filter((race) => race.deadlineMinutes >= nowMinutes - 20 && race.deadlineMinutes <= nowMinutes + 25)
+		.map((race) => race.raceNo);
+
+	const nextRace = candidateRaces
+		.map((race) => ({ raceNo: race.raceNo, deadlineMinutes: timeToMinutes(race.deadlineTime) }))
+		.filter((race) => Number.isInteger(race.deadlineMinutes) && race.deadlineMinutes > nowMinutes)
+		.sort((left, right) => left.deadlineMinutes - right.deadlineMinutes)[0]?.raceNo;
+
+	const selected = Array.from(new Set([...nearRaceNumbers, ...(nextRace ? [nextRace] : [])]));
+	return selected.length ? selected.sort((left, right) => left - right) : [];
+}
+
+function shouldFetchVenueForOptions(venue, fallbackVenue, options) {
+	const matchesTargetVenue = venueMatchesTarget(venue, fallbackVenue, options.targetVenues);
+	if (!matchesTargetVenue) {
+		return false;
+	}
+
+	if (options.mode !== "active") {
+		return true;
+	}
+
+	if (!fallbackVenue) {
+		return true;
+	}
+
+	const targetSession = options.effectiveTargetSession;
+	if (targetSession === "auto") {
+		return true;
+	}
+
+	const session = venue?.session ?? fallbackVenue?.session ?? "unknown";
+	return session === targetSession;
+}
+
+function buildFilteredFallbackVenue(venue, fallbackVenue, timestamps, source) {
+	if (!fallbackVenue) {
+		return {
+			id: venue.id ?? `venue-${venue.venueCode}`,
+			venueCode: venue.venueCode,
+			venueName: venue.venueName,
+			title: venue.title ?? "",
+			date: timestamps.date,
+			session: venue.session ?? "unknown",
+			status: venue.status ?? "scheduled",
+			dayText: venue.dayText ?? "",
+			statusText: venue.statusText ?? "",
+			currentRaceNo: venue.currentRaceNo ?? null,
+			source,
+			weatherActual: undefined,
+			races: [],
+		};
+	}
+
+	return {
+		...fallbackVenue,
+		id: venue.id ?? fallbackVenue.id,
+		venueCode: venue.venueCode ?? fallbackVenue.venueCode,
+		venueName: venue.venueName ?? fallbackVenue.venueName,
+		title: venue.title ?? fallbackVenue.title,
+		date: timestamps.date,
+		session: venue.session ?? fallbackVenue.session,
+		status: venue.status ?? fallbackVenue.status,
+		dayText: venue.dayText ?? fallbackVenue.dayText,
+		statusText: venue.statusText ?? fallbackVenue.statusText,
+		currentRaceNo: venue.currentRaceNo ?? fallbackVenue.currentRaceNo,
+		source: fallbackVenue.source ?? source,
+	};
 }
 
 function extractQueryParam(url, key) {
@@ -2030,14 +2303,26 @@ export async function fetchTodayRaceIndex({ existingFeed, timestamps }) {
 	};
 }
 
-export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timestamps }) {
+export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timestamps, updateOptions = {} }) {
+	const options = normalizeUpdateOptions(updateOptions);
 	const foundFallbackVenue = fallbackVenueByCode.get(venue.venueCode) ?? null;
 	const fallbackVenue = foundFallbackVenue?.date === timestamps.date ? foundFallbackVenue : null;
-	const resultListUrl = venue?.links?.resultListUrl ?? OFFICIAL_ENDPOINTS.venueResultList(venue.venueCode, timestamps.dateKey);
+	if (!shouldFetchVenueForOptions(venue, fallbackVenue, options)) {
+		return buildFilteredFallbackVenue(venue, fallbackVenue, timestamps, fallbackVenue?.source ?? "fallback:filtered-venue");
+	}
 
-	const [raceTitles, resultListHtml] = await Promise.all([fetchRaceTitles(venue, timestamps), fetchOfficialHtml(resultListUrl)]);
+	const resultListUrl = venue?.links?.resultListUrl ?? OFFICIAL_ENDPOINTS.venueResultList(venue.venueCode, timestamps.dateKey);
+	const raceTitles = options.fetchSections.raceTitles ? await fetchRaceTitles(venue, timestamps) : [];
+	const resultListHtml = options.fetchSections.resultList ? await fetchOfficialHtml(resultListUrl) : null;
 	let resultListRaces = resultListHtml ? parseResultListPage(resultListHtml) : [];
-	const detailedTargets = chooseDetailedRaceTargets(resultListRaces);
+	const targetRaceNumbers = options.targetRaceNumbers.length
+		? options.targetRaceNumbers
+		: options.mode === "active"
+			? selectActiveRaceNumbers({ raceTitles, fallbackVenue, timestamps })
+			: RACE_NUMBERS;
+	const detailedTargets = options.fetchSections.detailedResults
+		? chooseDetailedRaceTargets(resultListRaces).filter((raceNo) => targetRaceNumbers.includes(raceNo))
+		: [];
 	const detailedRaceResults = [];
 
 	for (const raceNo of detailedTargets) {
@@ -2054,8 +2339,9 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 	}
 
 	const titleMap = new Map(raceTitles.map((race) => [race.raceNo, race]));
-	const raceOddsResults = await Promise.all(
-		RACE_NUMBERS.map((raceNo) =>
+	const raceOddsResults = options.fetchSections.odds
+		? await Promise.all(
+			targetRaceNumbers.map((raceNo) =>
 			fetchRaceOdds(venue, raceNo, {
 				timestamps,
 				deadlineTime:
@@ -2063,11 +2349,13 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 					fallbackVenue?.races?.find((race) => race.raceNo === raceNo)?.deadlineTime ??
 					null,
 			}),
-		),
-	);
+			),
+		)
+		: [];
 	const raceOddsMap = new Map(raceOddsResults.filter(Boolean).map((item) => [item.raceNo, item]));
-	const raceBeforeInfoResults = await Promise.all(
-		RACE_NUMBERS.map((raceNo) =>
+	const raceBeforeInfoResults = options.fetchSections.beforeInfo
+		? await Promise.all(
+			targetRaceNumbers.map((raceNo) =>
 			fetchRaceBeforeInfo(venue, raceNo, {
 				timestamps,
 				deadlineTime:
@@ -2076,13 +2364,14 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 					null,
 				fallbackUpdatedAt: fallbackVenue?.weatherActual?.updatedAt ?? timestamps.generatedAt,
 			}),
-		),
-	);
+			),
+		)
+		: [];
 	const raceBeforeInfoMap = new Map(raceBeforeInfoResults.filter(Boolean).map((item) => [item.raceNo, item]));
 	const mergedRaces = mergeVenueRaces(venue, fallbackVenue, raceTitles, resultListRaces, raceOddsMap, raceBeforeInfoMap, timestamps.date, timestamps.generatedAt);
 	const officialVenueWeather =
 		Array.from(raceBeforeInfoMap.values()).find((item) => hasResolvedWeatherActual(item.weatherActual))?.weatherActual ??
-		(await fetchVenueWeather(venue, { timestamps, raceTitles, fallbackVenue }));
+		(options.fetchSections.venueWeather ? await fetchVenueWeather(venue, { timestamps, raceTitles, fallbackVenue }) : null);
 	const mergedVenueWeather = mergeVenueWeather(
 		fallbackVenue?.weatherActual,
 		officialVenueWeather,
@@ -2097,17 +2386,17 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 	const hasVenueWeather = hasResolvedWeatherActual(mergedVenueWeather);
 
 	return {
-	id: venue.id ?? venueIdFrom(venue.venueCode, fallbackVenue, venue.venueName),
-	venueCode: venue.venueCode,
-	venueName: venue.venueName ?? fallbackVenue?.venueName ?? "不明会場",
-	title: venue.title ?? fallbackVenue?.title ?? "",
-	date: timestamps.date,
-	session: venue.session ?? fallbackVenue?.session ?? "unknown",
-	status: venue.status ?? fallbackVenue?.status ?? "scheduled",
-	dayText: venue.dayText ?? fallbackVenue?.dayText ?? "",
-	statusText: venue.statusText ?? fallbackVenue?.statusText ?? "",
-	currentRaceNo: venue.currentRaceNo ?? fallbackVenue?.currentRaceNo ?? null,
-	source: usedOfficial
+		id: venue.id ?? venueIdFrom(venue.venueCode, fallbackVenue, venue.venueName),
+		venueCode: venue.venueCode,
+		venueName: venue.venueName ?? fallbackVenue?.venueName ?? "不明会場",
+		title: venue.title ?? fallbackVenue?.title ?? "",
+		date: timestamps.date,
+		session: venue.session ?? fallbackVenue?.session ?? "unknown",
+		status: venue.status ?? fallbackVenue?.status ?? "scheduled",
+		dayText: venue.dayText ?? fallbackVenue?.dayText ?? "",
+		statusText: venue.statusText ?? fallbackVenue?.statusText ?? "",
+		currentRaceNo: venue.currentRaceNo ?? fallbackVenue?.currentRaceNo ?? null,
+		source: usedOfficial
 			? hasVenueWeather
 				? oddsRaceCount > 0
 					? "official:owpc-html+odds+venue-weather"
@@ -2160,15 +2449,20 @@ export async function writeTodayRaceDetailsJson(feed) {
 	return [outputPath, todayOutputPath];
 }
 
-export async function main() {
+export async function main(rawOptions = {}) {
 	const timestamps = formatJstDateParts();
 	const existingFeed = await readExistingFeed();
 	const raceIndex = await fetchTodayRaceIndex({ existingFeed, timestamps });
+	const baseOptions = normalizeUpdateOptions(rawOptions);
+	const updateOptions = normalizeUpdateOptions({
+		...baseOptions,
+		effectiveTargetSession: resolveActiveTargetSession(baseOptions.targetSession, raceIndex, existingFeed, timestamps),
+	});
 	const fallbackVenueByCode = new Map((existingFeed?.venues ?? []).map((venue) => [venue.venueCode, venue]));
 	const normalizedVenueDetails = [];
 
 	for (const venue of raceIndex.venues ?? []) {
-		const rawVenue = await fetchVenueRaceDetails(venue, { fallbackVenueByCode, timestamps });
+		const rawVenue = await fetchVenueRaceDetails(venue, { fallbackVenueByCode, timestamps, updateOptions });
 		normalizedVenueDetails.push(normalizeVenueData(rawVenue, timestamps.generatedAt, raceIndex.source));
 	}
 
@@ -2179,13 +2473,15 @@ export async function main() {
 	}
 	console.log(`source: ${feed.source}`);
 	console.log(`venues: ${feed.venues.length}`);
+	console.log(`mode: ${updateOptions.mode}`);
+	console.log(`targetSession: ${updateOptions.effectiveTargetSession}`);
 	return feed;
 }
 
 const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
 
 if (isDirectRun) {
-	main().catch((error) => {
+	main(parseUpdateOptionsFromArgv()).catch((error) => {
 		console.error("failed to update today race details feed");
 		console.error(error);
 		process.exitCode = 1;
