@@ -130,22 +130,6 @@ const venueActionGroupStyle = {
 	flexWrap: "wrap" as const,
 };
 
-const refreshButtonStyle = {
-	display: "inline-flex",
-	alignItems: "center",
-	justifyContent: "center",
-	gap: "8px",
-	padding: "11px 18px",
-	borderRadius: "999px",
-	border: `1px solid rgba(93, 199, 232, 0.2)`,
-	background: "rgba(255, 255, 255, 0.98)",
-	color: boatTheme.colors.navy,
-	fontSize: "0.86rem",
-	fontWeight: 700,
-	boxShadow: "0 10px 22px rgba(17, 64, 92, 0.08)",
-	cursor: "pointer",
-};
-
 const updatedChipStyle = {
 	display: "inline-flex",
 	alignItems: "center",
@@ -5662,22 +5646,6 @@ const venueExtrasDisplayText = useMemo(() => {
 
 <div style={venueActionRowStyle}>
 	<div style={venueActionGroupStyle}>
-		<button
-			type="button"
-			style={{
-				...refreshButtonStyle,
-				opacity: isRefreshingFeed ? 0.7 : 1,
-				cursor: isRefreshingFeed ? "wait" : "pointer",
-			}}
-			disabled={isRefreshingFeed}
-			onClick={() => {
-				void refreshTodayFeed();
-			}}
-		>
-			<span aria-hidden="true">↻</span>
-			画面データを再読み込み
-		</button>
-
 		{dataUpdatedAt ? (
 			<p style={{ ...updatedChipStyle, margin: 0 }}>
 				Data updated: {dataUpdatedAt}
@@ -5685,31 +5653,11 @@ const venueExtrasDisplayText = useMemo(() => {
 		) : null}
 
 		{venueExtrasStatusText ? (
-	        <p style={{ ...updatedChipStyle, margin: 0 }}>
-		        {venueExtrasStatusText}
-	        </p>
-        ) : null}
+			<p style={{ ...updatedChipStyle, margin: 0 }}>
+				{venueExtrasStatusText}
+			</p>
+		) : null}
 	</div>
-
-	<p style={{ margin: 0, fontSize: "0.78rem", lineHeight: 1.6, color: boatTheme.colors.muted, textAlign: "right" as const }}>
-		この操作は画面用 JSON の再読込です。元データを更新するには Node スクリプトの実行が必要です。
-	</p>
-
-	{refreshMessage && refreshMessageStyle ? (
-		<p
-			style={{
-				margin: 0,
-				padding: "10px 13px",
-				borderRadius: "14px",
-				fontSize: "0.8rem",
-				fontWeight: 700,
-				lineHeight: 1.55,
-				...refreshMessageStyle,
-			}}
-		>
-			{refreshMessage}
-		</p>
-	) : null}
 </div>
 
 				<div style={openSectionStyle}>
