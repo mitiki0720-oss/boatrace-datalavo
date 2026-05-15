@@ -1801,6 +1801,28 @@ function getJstTodayDate(): string {
 	}).format(new Date());
 }
 
+function formatJstDateTimeLabel(value: string | undefined): string {
+	if (!value) {
+		return "未取得";
+	}
+
+	const date = new Date(value);
+
+	if (Number.isNaN(date.getTime())) {
+		return value;
+	}
+
+	return new Intl.DateTimeFormat("ja-JP", {
+		timeZone: "Asia/Tokyo",
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+	}).format(date);
+}
+
 function isPresent<T>(value: T | null | undefined): value is T {
 	return value !== null && value !== undefined;
 }
@@ -4379,7 +4401,7 @@ export function RacesPage() {
 	const venueCount = venueExtrasFeed.venues?.length ?? 0;
 	const updatedAt = venueExtrasFeed.generatedAt?.trim() || "準備中";
 
-	return `Venue extras: ${updatedAt} / ${venueCount} venues`;
+	return `会場独自データ更新：${formatJstDateTimeLabel(updatedAt)} / ${venueCount}会場`;
 }, [venueExtrasFeed]);
 
 const selectedVenueExtra = useMemo(() => {
@@ -5648,7 +5670,7 @@ const venueExtrasDisplayText = useMemo(() => {
 	<div style={venueActionGroupStyle}>
 		{dataUpdatedAt ? (
 			<p style={{ ...updatedChipStyle, margin: 0 }}>
-				Data updated: {dataUpdatedAt}
+				基本データ更新：{formatJstDateTimeLabel(dataUpdatedAt)}
 			</p>
 		) : null}
 
