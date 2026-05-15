@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { load } from "cheerio";
+import { getJstTimestampParts, normalizeTargetDate } from "./boatRaceDate.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -76,6 +77,9 @@ function parseCliArgs(argv = process.argv.slice(2)) {
 		switch (key) {
 			case "mode":
 			case "target-session":
+			case "targetSession":
+			case "target-date":
+			case "targetDate":
 			case "target-venues":
 			case "target-races":
 			case "fetch-sections":
@@ -162,6 +166,7 @@ function normalizeUpdateOptions(rawOptions = {}) {
 		mode: normalizeMode(rawOptions.mode),
 		targetSession: normalizeTargetSession(rawOptions.targetSession),
 		effectiveTargetSession: normalizeTargetSession(rawOptions.effectiveTargetSession ?? rawOptions.targetSession),
+		targetDate: normalizeTargetDate(rawOptions.targetDate),
 		targetVenues: Array.from(new Set(parseCsvList(rawOptions.targetVenues).map((item) => item.toLowerCase()))),
 		targetRaceNumbers: normalizeTargetRaceNumbers(Array.isArray(rawOptions.targetRaceNumbers) ? rawOptions.targetRaceNumbers : parseCsvList(rawOptions.targetRaceNumbers)),
 		fetchSections,
@@ -173,33 +178,11 @@ export function parseUpdateOptionsFromArgv(argv = process.argv.slice(2), env = p
 	return normalizeUpdateOptions({
 		mode: cliArgs.mode ?? env.BOAT_RACE_MODE,
 		targetSession: cliArgs["target-session"] ?? env.BOAT_RACE_TARGET_SESSION,
+		targetDate: cliArgs["target-date"] ?? env.BOAT_RACE_TARGET_DATE,
 		targetVenues: cliArgs["target-venues"] ?? env.BOAT_RACE_TARGET_VENUES,
 		targetRaceNumbers: cliArgs["target-races"] ?? env.BOAT_RACE_TARGET_RACES,
 		fetchSections: parseFetchSectionOptions(cliArgs["fetch-sections"] ?? env.BOAT_RACE_FETCH_SECTIONS, cliArgs["skip-sections"] ?? env.BOAT_RACE_SKIP_SECTIONS),
 	});
-}
-
-function formatJstDateParts(date = new Date()) {
-	const formatter = new Intl.DateTimeFormat("sv-SE", {
-		timeZone: "Asia/Tokyo",
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-		hour: "2-digit",
-		minute: "2-digit",
-		second: "2-digit",
-		hour12: false,
-	});
-
-	const parts = Object.fromEntries(formatter.formatToParts(date).map((part) => [part.type, part.value]));
-
-	return {
-		date: `${parts.year}-${parts.month}-${parts.day}`,
-		dateKey: `${parts.year}${parts.month}${parts.day}`,
-		hour: Number.parseInt(parts.hour, 10),
-		minute: Number.parseInt(parts.minute, 10),
-		generatedAt: `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}+09:00`,
-	};
 }
 
 function createEmbeddedFallbackFeed({ date, generatedAt }) {
@@ -233,8 +216,9 @@ function createEmbeddedFallbackFeed({ date, generatedAt }) {
 	};
 }
 
-async function readExistingFeed() {
-	const { date, generatedAt } = formatJstDateParts();
+async function readExistingFeed(timestamps) {
+	const date = timestamps?.date ?? getJstTimestampParts().date;
+	const generatedAt = timestamps?.generatedAt ?? getJstTimestampParts().generatedAt;
 
 	try {
 		const raw = await readFile(outputPath, "utf8");
@@ -913,7 +897,7 @@ function normalizeRaceData(rawRace, venue, generatedAt, source) {
 
 function normalizeVenueData(rawVenue, generatedAt, source) {
 	const venueId = rawVenue?.id ?? `venue-${rawVenue?.venueCode ?? "unknown"}`;
-	const venueDate = rawVenue?.date ?? formatJstDateParts().date;
+	const venueDate = normalizeTargetDate(rawVenue?.date);
 
 	return {
 	id: venueId,
@@ -2682,10 +2666,14 @@ export async function writeTodayRaceDetailsJson(feed) {
 }
 
 export async function main(rawOptions = {}) {
-	const timestamps = formatJstDateParts();
-	const existingFeed = await readExistingFeed();
-	const raceIndex = await fetchTodayRaceIndex({ existingFeed, timestamps });
 	const baseOptions = normalizeUpdateOptions(rawOptions);
+	const timestamps = getJstTimestampParts(baseOptions.targetDate);
+	const existingFeedRaw = await readExistingFeed(timestamps);
+	const existingFeed = existingFeedRaw?.date === timestamps.date ? existingFeedRaw : null;
+	if (existingFeedRaw?.date && existingFeedRaw.date !== timestamps.date) {
+		console.log(`[update-today-race-details] ignore existing feed for ${existingFeedRaw.date}; targetDate is ${timestamps.date}`);
+	}
+	const raceIndex = await fetchTodayRaceIndex({ existingFeed, timestamps });
 	const updateOptions = normalizeUpdateOptions({
 		...baseOptions,
 		effectiveTargetSession:
@@ -2710,6 +2698,7 @@ export async function main(rawOptions = {}) {
 	console.log(`venues: ${feed.venues.length}`);
 	console.log(`mode: ${updateOptions.mode}`);
 	console.log(`targetSession: ${updateOptions.effectiveTargetSession}`);
+	console.log(`targetDate: ${timestamps.date}`);
 	return feed;
 }
 

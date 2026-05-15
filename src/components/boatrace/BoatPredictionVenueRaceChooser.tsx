@@ -10,13 +10,18 @@ type BoatPredictionVenueRaceChooserProps = {
 };
 
 const wrapStyle = {
-	padding: "24px",
-	borderRadius: "30px",
+	padding: "20px",
+	borderRadius: "28px",
 	background: "rgba(255, 255, 255, 0.98)",
 	border: `1px solid ${boatTheme.colors.line}`,
 	boxShadow: boatTheme.shadow.soft,
 	display: "grid",
-	gap: "18px",
+	gap: "16px",
+	width: "100%",
+	maxWidth: "100%",
+	minWidth: 0,
+	boxSizing: "border-box" as const,
+	overflow: "hidden",
 };
 
 const sectionLabelStyle = {
@@ -30,15 +35,16 @@ const sectionLabelStyle = {
 
 const venueRowStyle = {
 	display: "grid",
-	gridAutoFlow: "column" as const,
-	gridAutoColumns: "minmax(220px, 240px)",
-	gap: "14px",
-	overflowX: "auto" as const,
-	paddingBottom: "4px",
+	gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+	gap: "12px",
+	width: "100%",
+	maxWidth: "100%",
+	minWidth: 0,
+	boxSizing: "border-box" as const,
 };
 
 const venueCardBaseStyle = {
-	padding: "18px",
+	padding: "15px",
 	borderRadius: "22px",
 	border: `1px solid rgba(176, 198, 214, 0.42)`,
 	background: "rgba(255, 255, 255, 0.96)",
@@ -50,6 +56,7 @@ const venueCardBaseStyle = {
 	WebkitAppearance: "none" as const,
 	width: "100%",
 	boxSizing: "border-box" as const,
+	minWidth: 0,
 };
 
 const venueTitleStyle = {
@@ -80,32 +87,36 @@ const chipStyle = {
 const raceWrapStyle = {
 	display: "grid",
 	gap: "12px",
+	width: "100%",
+	maxWidth: "100%",
+	minWidth: 0,
+	boxSizing: "border-box" as const,
 };
 
 const raceGridStyle = {
-	display: "flex",
-	flexWrap: "nowrap" as const,
-	gap: "10px",
-	overflowX: "auto" as const,
-	paddingBottom: "8px",
-	WebkitOverflowScrolling: "touch" as const,
+	display: "grid",
+	gridTemplateColumns: "repeat(auto-fit, minmax(64px, 1fr))",
+	gap: "9px",
+	width: "100%",
+	maxWidth: "100%",
+	minWidth: 0,
+	boxSizing: "border-box" as const,
 };
 
 const raceCardBaseStyle = {
-	padding: "10px 8px",
-	borderRadius: "18px",
+	padding: "9px 6px",
+	borderRadius: "16px",
 	border: `1px solid rgba(176, 198, 214, 0.42)`,
 	background: "rgba(255, 255, 255, 0.96)",
 	display: "grid",
 	gap: "4px",
-	minHeight: "56px",
+	minHeight: "54px",
 	textAlign: "center" as const,
 	cursor: "pointer",
 	appearance: "none" as const,
 	WebkitAppearance: "none" as const,
-	flex: "0 0 auto",
-	width: "84px",
-	minWidth: "84px",
+	width: "100%",
+	minWidth: 0,
 	boxSizing: "border-box" as const,
 };
 
@@ -130,6 +141,10 @@ const summaryCardStyle = {
 	gap: "10px",
 	color: boatTheme.colors.muted,
 	lineHeight: 1.7,
+	width: "100%",
+	maxWidth: "100%",
+	minWidth: 0,
+	boxSizing: "border-box" as const,
 };
 
 const summaryTitleStyle = {

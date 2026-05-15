@@ -6,6 +6,18 @@ import type {
 	BoatTodayVenueItem,
 } from "./boatraceTypes";
 
+const toMaterialArray = <T,>(value: unknown): T[] => {
+	if (Array.isArray(value)) {
+		return value as T[];
+	}
+
+	if (value && typeof value === "object") {
+		return Object.values(value as Record<string, T>);
+	}
+
+	return [];
+};
+
 const toDisplay = (value: string | number | undefined | null, fallback = "未取得") => {
 	if (value === undefined || value === null || value === "") {
 		return fallback;
@@ -53,30 +65,39 @@ const buildExhibitionBlock = (item: BoatExhibitionItem) => [
 	`- メモ: ${toDisplay(item.memo)}`,
 ].join("\n");
 
-const buildOddsBlock = (odds: BoatOddsItem[]) => {
-	if (odds.length === 0) {
+const buildOddsBlock = (odds: unknown) => {
+	const oddsRows = toMaterialArray<BoatOddsItem>(odds);
+
+	if (oddsRows.length === 0) {
 		return "オッズサンプルなし";
 	}
 
-	return odds.map((item) => `- ${item.betType} ${item.combination} ${item.odds}倍 人気:${toDisplay(item.popularity)}`).join("\n");
+	return oddsRows
+		.map((item) => `- ${item.betType} ${item.combination} ${item.odds}倍 人気:${toDisplay(item.popularity)}`)
+		.join("\n");
 };
 
 const buildStartExhibitionBlock = (race: BoatRaceItem) => {
-	if (race.startExhibition && race.startExhibition.length > 0) {
-		const slow = race.startExhibition.filter((item) => Number(item.course) <= 3).map((item) => item.frameNo).join("-") || "未取得";
-		const dash = race.startExhibition.filter((item) => Number(item.course) > 3).map((item) => item.frameNo).join("-") || "未取得";
-		const formation = race.startExhibition.map((item) => item.course).join("-") || "未取得";
+	const startExhibition = toMaterialArray<NonNullable<BoatRaceItem["startExhibition"]>[number]>(
+		(race as { startExhibition?: unknown }).startExhibition,
+	);
+
+	if (startExhibition.length > 0) {
+		const slow = startExhibition.filter((item) => Number(item.course) <= 3).map((item) => item.frameNo).join("-") || "未取得";
+		const dash = startExhibition.filter((item) => Number(item.course) > 3).map((item) => item.frameNo).join("-") || "未取得";
+		const formation = startExhibition.map((item) => item.course).join("-") || "未取得";
 
 		return [
 			`進入想定: ${formation}`,
 			`スロー候補: ${slow}`,
 			`ダッシュ候補: ${dash}`,
 			"スタート展示:",
-			...race.startExhibition.map((item) => `- ${item.frameNo}号艇 コース${item.course} ST ${toDisplay(item.startTiming)}`),
+			...startExhibition.map((item) => `- ${item.frameNo}号艇 コース${item.course} ST ${toDisplay(item.startTiming)}`),
 		].join("\n");
 	}
 
-	const exhibitions = race.exhibitions ?? [];
+	const exhibitions = toMaterialArray<BoatExhibitionItem>((race as { exhibitions?: unknown }).exhibitions);
+
 	if (exhibitions.length === 0) {
 		return "進入想定: 未取得\nスロー候補: 未取得\nダッシュ候補: 未取得\nスタート展示:\n- 未取得";
 	}
@@ -101,10 +122,11 @@ export function buildBoatPredictionMaterial(params: {
 }): string {
 	const { venue, race } = params;
 	const weather = race.result?.weatherActual ?? venue.weatherActual;
-	const racers = race.racers ?? [];
-	const exhibitions = race.exhibitions ?? [];
-	const odds = race.oddsPreview ?? [];
-	const result = race.result;
+	const racers = toMaterialArray<BoatRacerItem>((race as { racers?: unknown }).racers);
+    const exhibitions = toMaterialArray<BoatExhibitionItem>((race as { exhibitions?: unknown }).exhibitions);
+    const odds = toMaterialArray<BoatOddsItem>((race as { oddsPreview?: unknown }).oddsPreview);
+    const result = race.result;
+    const finishOrder = toMaterialArray<string | number>((result as { finishOrder?: unknown } | undefined)?.finishOrder);
 
 	const sections = [
 		[
@@ -168,7 +190,7 @@ export function buildBoatPredictionMaterial(params: {
 			"[I. 結果情報]",
 			result?.status === "confirmed"
 				? [
-						`- 結果: ${toDisplay(result.finishOrder?.slice(0, 3).join("-"))}`,
+						`- 結果: ${toDisplay(finishOrder.slice(0, 3).join("-"))}`,
 						`- 決まり手: ${toDisplay(result.winningMethod)}`,
 						`- 3連単: ${toDisplay(result.payout3tan?.combination)} ${toDisplay(result.payout3tan?.payout)}`,
 						`- 2連単: ${toDisplay(result.payout2tan?.combination)} ${toDisplay(result.payout2tan?.payout)}`,

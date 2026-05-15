@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { getTodayIsoJst, normalizeTargetDate } from "./boatRaceDate.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,8 +30,16 @@ function parseCliArgs(argv = process.argv.slice(2)) {
 					index += 1;
 				}
 				break;
+			case "targetSession":
 			case "target-session":
 				parsed.targetSession = value;
+				if (separatorIndex < 0) {
+					index += 1;
+				}
+				break;
+			case "targetDate":
+			case "target-date":
+				parsed.targetDate = value;
 				if (separatorIndex < 0) {
 					index += 1;
 				}
@@ -51,8 +60,16 @@ function normalizeTargetSession(value) {
 	return VALID_TARGET_SESSIONS.has(value) ? value : "auto";
 }
 
-function buildTodayDetailsArgs({ mode, targetSession }) {
-	const args = ["scripts/updateBoatTodayRaceDetails.mjs", "--mode", mode, "--target-session", targetSession];
+function buildTodayDetailsArgs({ mode, targetSession, targetDate }) {
+	const args = [
+		"scripts/updateBoatTodayRaceDetails.mjs",
+		"--mode",
+		mode,
+		"--target-session",
+		targetSession,
+		"--target-date",
+		targetDate,
+	];
 
 	if (mode === "active") {
 		args.push("--fetch-sections", "raceTitles,odds,beforeInfo");
@@ -69,12 +86,12 @@ function buildTodayDetailsArgs({ mode, targetSession }) {
 	return args;
 }
 
-function buildVenueExtrasArgs({ mode }) {
+function buildVenueExtrasArgs({ mode, targetDate }) {
 	if (mode !== "initial" && mode !== "final") {
 		return null;
 	}
 
-	return ["scripts/updateBoatVenueExtras.mjs"];
+	return ["scripts/updateBoatVenueExtras.mjs", "--target-date", targetDate];
 }
 
 function runNodeScript(args) {
@@ -99,9 +116,11 @@ function runNodeScript(args) {
 
 export function parseUpdateBoatDataOptions(argv = process.argv.slice(2), env = process.env) {
 	const cliArgs = parseCliArgs(argv);
+	const fallbackTargetDate = getTodayIsoJst();
 	return {
 		mode: normalizeMode(cliArgs.mode ?? env.BOAT_RACE_MODE),
 		targetSession: normalizeTargetSession(cliArgs.targetSession ?? env.BOAT_RACE_TARGET_SESSION),
+		targetDate: normalizeTargetDate(cliArgs.targetDate ?? env.BOAT_RACE_TARGET_DATE, fallbackTargetDate),
 	};
 }
 
@@ -109,9 +128,10 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 	const options = {
 		mode: normalizeMode(rawOptions.mode),
 		targetSession: normalizeTargetSession(rawOptions.targetSession),
+		targetDate: normalizeTargetDate(rawOptions.targetDate, getTodayIsoJst()),
 	};
 
-	console.log(`[update-boat-data] mode=${options.mode} targetSession=${options.targetSession}`);
+	console.log(`[update-boat-data] mode=${options.mode} targetSession=${options.targetSession} targetDate=${options.targetDate}`);
 
 	if (options.mode === "results") {
 		console.log("[update-boat-data] results mode is scaffolded. This pass only narrows fetch sections for today race details.");

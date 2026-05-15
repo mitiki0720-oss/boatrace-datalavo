@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { load } from "cheerio";
+import { getJstTimestamp as getSharedJstTimestamp, getJstTimestampParts, normalizeTargetDate } from "./boatRaceDate.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,23 +53,49 @@ const MARUGAME_TIDE_URL = "https://www.marugameboat.jp/01shiomi/shiomi.htm";
 const MARUGAME_WATER_SURFACE_URL = "https://www.marugameboat.jp/01suimen/01suimen.htm";
 const REQUEST_INTERVAL_MS = 250;
 
+function parseCliArgs(argv = process.argv.slice(2)) {
+	const parsed = {};
+
+	for (let index = 0; index < argv.length; index += 1) {
+		const token = argv[index];
+		if (!token.startsWith("--")) {
+			continue;
+		}
+
+		const trimmed = token.slice(2);
+		const separatorIndex = trimmed.indexOf("=");
+		const key = separatorIndex >= 0 ? trimmed.slice(0, separatorIndex) : trimmed;
+		const value = separatorIndex >= 0 ? trimmed.slice(separatorIndex + 1) : argv[index + 1];
+
+		switch (key) {
+			case "target-date":
+			case "targetDate":
+				parsed.targetDate = value;
+				if (separatorIndex < 0) {
+					index += 1;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
+	return parsed;
+}
+
+function parseUpdateBoatVenueExtrasOptions(argv = process.argv.slice(2), env = process.env) {
+	const cliArgs = parseCliArgs(argv);
+	return {
+		targetDate: normalizeTargetDate(cliArgs.targetDate ?? env.BOAT_RACE_TARGET_DATE),
+	};
+}
+
 function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function getJstTimestamp() {
-	const formatter = new Intl.DateTimeFormat("sv-SE", {
-		timeZone: "Asia/Tokyo",
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-		hour: "2-digit",
-		minute: "2-digit",
-		second: "2-digit",
-		hour12: false,
-	});
-
-	return `${formatter.format(new Date()).replace(" ", "T")}+09:00`;
+	return getSharedJstTimestamp();
 }
 
 function getJstDate(timestamp) {
@@ -7499,10 +7526,11 @@ console.log(
 	}
 }
 
-async function main() {
+async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
+	const timestamps = getJstTimestampParts(rawOptions.targetDate);
 	const generatedAt = getJstTimestamp();
 	const feed = await readTodayRaceDetails();
-	const date = feed?.date ?? getJstDate(generatedAt);
+	const date = normalizeTargetDate(rawOptions.targetDate ?? feed?.date, timestamps.date);
 	const venueMap = new Map(
 		createOfficialBeforeInfoVenues(feed).map((venue) => [venue.venueName, venue]),
 	);

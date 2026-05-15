@@ -87,14 +87,42 @@ const refreshMessageStyle = {
 
 const getRaceKey = (venueId: string, raceId: string | undefined, raceNo: number) => raceId ?? `${venueId}-${raceNo}`;
 
+type BoatPredictionTodayFeed = typeof sampleBoatTodayFeed;
+type BoatPredictionVenue = BoatPredictionTodayFeed["venues"][number];
+type BoatPredictionRace = BoatPredictionVenue["races"][number];
+
+const toArray = <T,>(value: unknown): T[] => {
+	if (Array.isArray(value)) {
+		return value as T[];
+	}
+
+	if (value && typeof value === "object") {
+		return Object.values(value as Record<string, T>);
+	}
+
+	return [];
+};
+
+const getVenueRaces = (venue: BoatPredictionVenue | undefined): BoatPredictionRace[] =>
+	toArray<BoatPredictionRace>((venue as { races?: unknown } | undefined)?.races);
+
 export function PredictionPage() {
 	const [todayFeed, setTodayFeed] = useState(sampleBoatTodayFeed);
 	const [dataUpdatedAt, setDataUpdatedAt] = useState("");
 	const [isRefreshingFeed, setIsRefreshingFeed] = useState(false);
 	const [refreshMessage, setRefreshMessage] = useState("");
-	const races = todayFeed.venues.flatMap((venue) => venue.races);
-	const initialVenue = todayFeed.venues[0];
-	const initialRace = initialVenue?.races[0];
+	const venues = useMemo<BoatPredictionVenue[]>(
+	() =>
+		toArray<BoatPredictionVenue>((todayFeed as { venues?: unknown }).venues).map((venue) => ({
+			...venue,
+			races: getVenueRaces(venue),
+		})),
+	[todayFeed],
+);
+
+    const races = useMemo<BoatPredictionRace[]>(() => venues.flatMap((venue) => getVenueRaces(venue)), [venues]);
+    const initialVenue = venues[0];
+    const initialRace = getVenueRaces(initialVenue)[0];
 	const [selectedVenueId, setSelectedVenueId] = useState<string>(initialVenue?.id ?? "");
 	const [selectedRaceId, setSelectedRaceId] = useState<string>(getRaceKey(initialVenue?.id ?? "", initialRace?.raceId, initialRace?.raceNo ?? 0));
 	const [predictionText, setPredictionText] = useState<string>("");
@@ -106,8 +134,11 @@ export function PredictionPage() {
 	const [investmentAmount, setInvestmentAmount] = useState<number>(1000);
 	const [payoutAmount, setPayoutAmount] = useState<number>(0);
 	const [practiceMemo, setPracticeMemo] = useState<string>("");
-	const selectedVenue = todayFeed.venues.find((venue) => venue.id === selectedVenueId) ?? initialVenue;
-	const selectedRace = selectedVenue?.races.find((race) => getRaceKey(selectedVenue.id, race.raceId, race.raceNo) === selectedRaceId) ?? selectedVenue?.races[0];
+	const selectedVenue = venues.find((venue) => venue.id === selectedVenueId) ?? initialVenue;
+    const selectedVenueRaces = useMemo(() => getVenueRaces(selectedVenue), [selectedVenue]);
+    const selectedRace =
+	      selectedVenueRaces.find((race) => getRaceKey(selectedVenue?.id ?? "", race.raceId, race.raceNo) === selectedRaceId) ??
+	      selectedVenueRaces[0];
 	const parsedTickets = useMemo(() => parseBoatPredictionTickets(predictionText), [predictionText]);
 	const selectedRaceKey = useMemo(() => {
 		if (!selectedVenue || !selectedRace) {
@@ -125,7 +156,7 @@ export function PredictionPage() {
 		? buildBoatPredictionMaterial({ venue: selectedVenue, race: selectedRace })
 		: "レース情報が選択されていません。";
 	const raceLabel = `${selectedVenue?.venueName ?? "-"} ${selectedRace ? `${selectedRace.raceNo}R` : "-"}`;
-	const venueCount = todayFeed.venues.length;
+	const venueCount = venues.length;
 	const raceCount = races.length;
 	const racesWithRacers = races.filter((race) => (race.racers?.length ?? 0) > 0).length;
 	const racesWithExhibitions = races.filter((race) => (race.exhibitions?.length ?? 0) > 0).length;
@@ -186,32 +217,34 @@ export function PredictionPage() {
 	}, []);
 
 	useEffect(() => {
-		const firstVenue = todayFeed.venues[0];
-		const firstRace = firstVenue?.races[0];
+	const firstVenue = venues[0];
+	const firstRace = getVenueRaces(firstVenue)[0];
 
-		if (!firstVenue || !firstRace) {
-			return;
-		}
+	if (!firstVenue || !firstRace) {
+		return;
+	}
 
-		const currentVenue = todayFeed.venues.find((venue) => venue.id === selectedVenueId);
-		const currentRace = currentVenue?.races.find((race) => {
-			const raceId = race.raceId || `${currentVenue.id}-${race.raceNo}`;
-			return raceId === selectedRaceId;
-		});
+	const currentVenue = venues.find((venue) => venue.id === selectedVenueId);
+	const currentRace = currentVenue
+		? getVenueRaces(currentVenue).find((race) => {
+				const raceId = race.raceId || `${currentVenue.id}-${race.raceNo}`;
+				return raceId === selectedRaceId;
+			})
+		: undefined;
 
-		if (!currentVenue || !currentRace) {
-			setSelectedVenueId(firstVenue.id);
-			setSelectedRaceId(firstRace.raceId || `${firstVenue.id}-${firstRace.raceNo}`);
-		}
-	}, [todayFeed, selectedVenueId, selectedRaceId]);
+	if (!currentVenue || !currentRace) {
+		setSelectedVenueId(firstVenue.id);
+		setSelectedRaceId(firstRace.raceId || `${firstVenue.id}-${firstRace.raceNo}`);
+	}
+}, [venues, selectedVenueId, selectedRaceId]);
 
 	const handleSelectVenue = (venueId: string) => {
-		const venue = todayFeed.venues.find((item) => item.id === venueId);
-		const firstRace = venue?.races[0];
+	const venue = venues.find((item) => item.id === venueId);
+	const firstRace = getVenueRaces(venue)[0];
 
-		setSelectedVenueId(venueId);
-		setSelectedRaceId(getRaceKey(venueId, firstRace?.raceId, firstRace?.raceNo ?? 0));
-	};
+	setSelectedVenueId(venueId);
+	setSelectedRaceId(getRaceKey(venueId, firstRace?.raceId, firstRace?.raceNo ?? 0));
+};
 
 	const handleSelectRace = (raceId: string) => {
 		setSelectedRaceId(raceId);
@@ -354,9 +387,41 @@ export function PredictionPage() {
 			description="GPTへ渡す素材と、返ってきた予想を整理するためのページです。"
 		>
 			<style>
-				{`.${panelGridClassName} { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 18px; align-items: start; }
-				@media (max-width: 900px) { .${panelGridClassName} { grid-template-columns: 1fr; } }`}
-			</style>
+	{`
+		.prediction-page-wide-frame {
+			--prediction-page-width: min(1760px, calc(100vw - 80px));
+			width: var(--prediction-page-width);
+			margin-left: calc(50% - var(--prediction-page-width) / 2);
+			margin-right: calc(50% - var(--prediction-page-width) / 2);
+			display: grid;
+			gap: 24px;
+			box-sizing: border-box;
+		}
+
+		.${panelGridClassName} {
+			display: grid;
+			grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+			gap: 18px;
+			align-items: start;
+			width: 100%;
+			max-width: 100%;
+			min-width: 0;
+			box-sizing: border-box;
+		}
+
+		@media (max-width: 900px) {
+			.prediction-page-wide-frame {
+				--prediction-page-width: calc(100vw - 28px);
+				gap: 18px;
+			}
+
+			.${panelGridClassName} {
+				grid-template-columns: 1fr;
+			}
+		}
+	`}
+</style>
+<div className="prediction-page-wide-frame">
 			<div style={refreshPanelStyle}>
 				<div style={{ display: "grid", gap: "4px" }}>
 					<p style={refreshHintStyle}>展示・天気・オッズが更新された generated JSON を再取得します。</p>
@@ -389,7 +454,7 @@ export function PredictionPage() {
 				/>
 
 				<BoatPredictionVenueRaceChooser
-					venues={todayFeed.venues}
+					venues={venues}
 					selectedVenueId={selectedVenueId}
 					selectedRaceId={selectedRaceId}
 					onSelectVenue={handleSelectVenue}
@@ -432,6 +497,7 @@ export function PredictionPage() {
 					onChangePayoutAmount={setPayoutAmount}
 					onChangePracticeMemo={setPracticeMemo}
 				/>
-		</PageShell>
+		</div>
+	</PageShell>
 	);
 }
