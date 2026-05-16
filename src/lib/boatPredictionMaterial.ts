@@ -1,6 +1,5 @@
 import type {
 	BoatExhibitionItem,
-	BoatOddsItem,
 	BoatRaceItem,
 	BoatRacerItem,
 	BoatTodayVenueItem,
@@ -354,6 +353,213 @@ const buildWaterAndCommentsBlock = (
 	].join("\n");
 };
 
+const extraKeyLabels: Record<string, string> = {
+	biwakoSeriesResults: "びわこ節間成績",
+	biwakoFramePast10: "びわこ枠別過去10走",
+
+	tsuSeriesResults: "津節間成績",
+	tsuNationalRecent3: "津全国直近3節",
+	tsuLocalRecent3: "津当地直近3節",
+	tsuFramePast10: "津枠別過去10走",
+	tsuScoreRateGuide: "津得点率早見",
+
+	wakamatsuSeriesResults: "若松節間成績",
+	wakamatsuCourseStats: "若松コース成績",
+	wakamatsuNationalRecent3: "若松全国直近3節",
+	wakamatsuLocalRecent3: "若松当地直近3節",
+	wakamatsuFramePast10: "若松枠別過去10走",
+	wakamatsuScoreRateGuide: "若松得点率早見",
+	wakamatsuMotorHistory: "若松モーター履歴",
+
+	fukuokaSeriesResults: "福岡節間成績",
+	fukuokaRacerComments: "福岡選手コメント",
+	fukuokaFramePast10: "福岡枠別過去10走",
+	fukuokaScoreRateGuide: "福岡得点率早見",
+	fukuokaMotorEvaluation: "福岡モーター評価",
+
+	kojimaSeriesResults: "児島節間成績",
+	kojimaRecentResults: "児島直近成績",
+	kojimaCourseStats: "児島コース成績",
+	kojimaMotorStats: "児島モーター成績",
+	kojimaFrameStats: "児島枠別成績",
+	kojimaScoreRateGuide: "児島得点率早見",
+
+	tamagawaSeriesResults: "多摩川節間成績",
+	tamagawaFramePast10: "多摩川枠別過去10走",
+	tamagawaMotorHistory: "多摩川モーター履歴",
+	tamagawaScoreRateGuide: "多摩川得点率早見",
+
+	omuraPreviousDayResults: "大村前日成績",
+	omuraNationalFrameStats: "大村全国枠別成績",
+	omuraFrameLast10: "大村枠別直近10走",
+	omuraRacerCommentsMotor: "大村コメント・モーター",
+
+	narutoRacerPerformance: "鳴門選手成績",
+
+	originalExhibition: "会場独自展示",
+	motorSummary: "モーター概要",
+	abilityIndex: "能力指数",
+	racerComments: "選手コメント",
+	venuePrediction: "会場予想コメント",
+	waterSurfaceInfo: "水面情報",
+	tideInfo: "潮汐情報",
+};
+
+const recentPerformanceExtraKeys = [
+	"biwakoSeriesResults",
+	"tsuSeriesResults",
+	"tsuNationalRecent3",
+	"tsuLocalRecent3",
+	"tsuScoreRateGuide",
+	"wakamatsuSeriesResults",
+	"wakamatsuNationalRecent3",
+	"wakamatsuLocalRecent3",
+	"wakamatsuScoreRateGuide",
+	"fukuokaSeriesResults",
+	"fukuokaScoreRateGuide",
+	"kojimaSeriesResults",
+	"kojimaRecentResults",
+	"kojimaScoreRateGuide",
+	"tamagawaSeriesResults",
+	"tamagawaScoreRateGuide",
+	"omuraPreviousDayResults",
+	"narutoRacerPerformance",
+];
+
+const frameCourseExtraKeys = [
+	"biwakoFramePast10",
+	"tsuFramePast10",
+	"wakamatsuCourseStats",
+	"wakamatsuFramePast10",
+	"fukuokaFramePast10",
+	"kojimaCourseStats",
+	"kojimaFrameStats",
+	"tamagawaFramePast10",
+	"omuraNationalFrameStats",
+	"omuraFrameLast10",
+];
+
+const motorExtraKeys = [
+	"wakamatsuMotorHistory",
+	"fukuokaMotorEvaluation",
+	"kojimaMotorStats",
+	"tamagawaMotorHistory",
+	"omuraRacerCommentsMotor",
+	"motorSummary",
+	"abilityIndex",
+];
+
+const isScalarMaterialValue = (value: unknown): value is string | number | boolean => {
+	return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
+};
+
+const formatGenericExtraRow = (row: MaterialRecord, racerNameMap: Map<number, string>): string => {
+	const frameNo = readMaterialNumber(row.frameNo ?? row.frame ?? row.lane ?? row.boatNumber);
+	const playerName = resolvePlayerName(frameNo, racerNameMap, row.playerName, row.name, row.racerName, row.boatRacerName);
+
+	const preferredPairs = [
+		["成績", row.result ?? row.results ?? row.seriesResult ?? row.finish],
+		["着順", row.rank ?? row.order ?? row.finishOrder],
+		["ST", row.startTiming ?? row.st ?? row.averageStart ?? row.avgSt],
+		["勝率", row.winRate ?? row.localWinRate],
+		["2連率", row.secondRate ?? row.twoRate ?? row.localSecondRate],
+		["コース", row.course ?? row.entryCourse ?? row.approachCourse],
+		["モーター", row.motorNo ?? row.motorNumber],
+		["M2連率", row.motorSecondRate ?? row.motorTwoRate],
+		["展示", row.exhibitionTime ?? row.displayTime],
+		["一周", row.lapTime ?? row.oneLapTime],
+		["回り足", row.turnTime ?? row.turningTime],
+		["直線", row.straightTime],
+		["評価", row.evaluation ?? row.rankText ?? row.mark],
+		["コメント", row.comment ?? row.memo ?? row.motorComment],
+	];
+
+	const parts = preferredPairs
+		.map(([label, value]) => {
+			const text = readMaterialString(value);
+			return text ? `${label}:${text}` : "";
+		})
+		.filter(Boolean);
+
+	if (parts.length === 0) {
+		const genericParts = Object.entries(row)
+			.filter(([key, value]) => {
+				if (["source", "status", "sourceType", "raceNo", "frameNo", "frame", "lane", "boatNumber", "playerName", "name", "racerName", "boatRacerName"].includes(key)) {
+					return false;
+				}
+
+				return isScalarMaterialValue(value) && Boolean(readMaterialString(value));
+			})
+			.slice(0, 7)
+			.map(([key, value]) => `${key}:${readMaterialString(value)}`);
+
+		parts.push(...genericParts);
+	}
+
+	const label = frameNo ? `${getFrameLabel(frameNo)} ${playerName}` : playerName;
+
+	return `- ${label}: ${parts.length > 0 ? parts.join(" / ") : "詳細未取得"}`;
+};
+
+const readExtraValueRows = (value: unknown): MaterialRecord[] => {
+	if (Array.isArray(value)) {
+		return value.filter(isMaterialRecord);
+	}
+
+	if (isMaterialRecord(value)) {
+		return Object.values(value).filter(isMaterialRecord);
+	}
+
+	return [];
+};
+
+const buildExtraCollectionBlock = (
+	racers: BoatRacerItem[],
+	venueExtra: BoatVenueExtraVenue | null | undefined,
+	raceExtra: BoatVenueExtraRace | null | undefined,
+	keys: string[],
+) => {
+	const racerNameMap = buildRacerNameMap(racers);
+	const lines: string[] = [];
+
+	for (const key of keys) {
+		const raceRows = readExtraValueRows((raceExtra as MaterialRecord | null | undefined)?.[key]);
+		const venueRows = readExtraValueRows((venueExtra as MaterialRecord | null | undefined)?.[key]);
+		const rows = raceRows.length > 0 ? raceRows : venueRows;
+
+		if (rows.length === 0) {
+			continue;
+		}
+
+		lines.push(`■ ${extraKeyLabels[key] ?? key}`);
+		lines.push(...rows.slice(0, 8).map((row) => formatGenericExtraRow(row, racerNameMap)));
+	}
+
+	if (lines.length === 0) {
+		return buildMissingBlock();
+	}
+
+	return lines.join("\n");
+};
+
+const buildRecentPerformanceBlock = (
+	racers: BoatRacerItem[],
+	venueExtra?: BoatVenueExtraVenue | null,
+	raceExtra?: BoatVenueExtraRace | null,
+) => buildExtraCollectionBlock(racers, venueExtra, raceExtra, recentPerformanceExtraKeys);
+
+const buildFrameCourseTrendBlock = (
+	racers: BoatRacerItem[],
+	venueExtra?: BoatVenueExtraVenue | null,
+	raceExtra?: BoatVenueExtraRace | null,
+) => buildExtraCollectionBlock(racers, venueExtra, raceExtra, frameCourseExtraKeys);
+
+const buildMotorHistoryBlock = (
+	racers: BoatRacerItem[],
+	venueExtra?: BoatVenueExtraVenue | null,
+	raceExtra?: BoatVenueExtraRace | null,
+) => buildExtraCollectionBlock(racers, venueExtra, raceExtra, motorExtraKeys);
+
 const evaluationMap: Record<string, string> = {
 	good: "良",
 	normal: "普通",
@@ -393,21 +599,49 @@ const buildExhibitionBlock = (item: BoatExhibitionItem) => [
 	`- メモ: ${toDisplay(item.memo)}`,
 ].join("\n");
 
-const buildOddsBlock = (odds: unknown) => {
-	const oddsRows = toMaterialArray<BoatOddsItem>(odds).filter(
-		(item) => Boolean(readMaterialString(item.betType)) && Boolean(readMaterialString(item.combination)) && Boolean(readMaterialString(item.odds)),
-	);
+const readFirstRecord = (...values: unknown[]): MaterialRecord | null => {
+	for (const value of values) {
+		if (isMaterialRecord(value)) {
+			return value;
+		}
+	}
 
-	if (oddsRows.length === 0) {
+	return null;
+};
+
+const formatOddsRows = (title: string, rows: MaterialRecord[], limit = 5): string[] => {
+	const validRows = rows
+		.filter((row) => Boolean(readMaterialString(row.combination)) && Boolean(readMaterialString(row.odds)))
+		.slice(0, limit);
+
+	if (validRows.length === 0) {
+		return [];
+	}
+
+	return [
+		`${title}:`,
+		...validRows.map((row) => {
+			const popularity = readMaterialString(row.popularity);
+			return `- ${toDisplay(readMaterialString(row.combination), "-")} ${toDisplay(readMaterialString(row.odds), "-")}倍${popularity ? ` 人気:${popularity}` : ""}`;
+		}),
+	];
+};
+
+const buildOddsBlock = (race: BoatRaceItem) => {
+	const raceRecord = race as MaterialRecord;
+	const oddsRecord = readFirstRecord(raceRecord.oddsPreview);
+
+	const lines = [
+		...formatOddsRows("3連単上位", toMaterialRecordArray(oddsRecord?.trifectaTop)),
+		...formatOddsRows("2連単上位", toMaterialRecordArray(oddsRecord?.exactaTop)),
+		...formatOddsRows("2連複上位", toMaterialRecordArray(oddsRecord?.quinellaTop)),
+	];
+
+	if (lines.length === 0) {
 		return "オッズ情報は未取得";
 	}
 
-	return oddsRows
-		.map(
-			(item) =>
-				`- ${toDisplay(item.betType, "-")} ${toDisplay(item.combination, "-")} ${toDisplay(item.odds, "-")}倍 人気:${toDisplay(item.popularity, "未取得")}`,
-		)
-		.join("\n");
+	return lines.join("\n");
 };
 
 const buildStartExhibitionBlock = (race: BoatRaceItem) => {
@@ -416,16 +650,30 @@ const buildStartExhibitionBlock = (race: BoatRaceItem) => {
 	);
 
 	if (startExhibition.length > 0) {
-		const slow = startExhibition.filter((item) => Number(item.course) <= 3).map((item) => item.frameNo).join("-") || "未取得";
-		const dash = startExhibition.filter((item) => Number(item.course) > 3).map((item) => item.frameNo).join("-") || "未取得";
-		const formation = startExhibition.map((item) => item.course).join("-") || "未取得";
+		const sortedStartExhibition = [...startExhibition].sort(
+			(left, right) => Number(left.course ?? 99) - Number(right.course ?? 99),
+		);
+
+		const formation = sortedStartExhibition.map((item) => item.frameNo).join("-") || "未取得";
+
+		const slow =
+			sortedStartExhibition
+				.filter((item) => Number(item.course) <= 3)
+				.map((item) => item.frameNo)
+				.join("-") || "未取得";
+
+		const dash =
+			sortedStartExhibition
+				.filter((item) => Number(item.course) > 3)
+				.map((item) => item.frameNo)
+				.join("-") || "未取得";
 
 		return [
 			`進入想定: ${formation}`,
 			`スロー候補: ${slow}`,
 			`ダッシュ候補: ${dash}`,
 			"スタート展示:",
-			...startExhibition.map((item) => `- ${item.frameNo}号艇 コース${item.course} ST ${toDisplay(item.startTiming)}`),
+			...sortedStartExhibition.map((item) => `- ${item.frameNo}号艇 コース${item.course} ST ${toDisplay(item.startTiming)}`),
 		].join("\n");
 	}
 
@@ -435,17 +683,30 @@ const buildStartExhibitionBlock = (race: BoatRaceItem) => {
 		return "進入想定: 未取得\nスロー候補: 未取得\nダッシュ候補: 未取得\nスタート展示:\n- 未取得";
 	}
 
-	const sorted = [...exhibitions].sort((left, right) => Number(left.course ?? 99) - Number(right.course ?? 99));
-	const formation = sorted.map((item) => item.course ?? "-").join("-");
-	const slow = sorted.filter((item) => Number(item.course ?? 99) <= 3).map((item) => item.frameNo).join("-") || "未取得";
-	const dash = sorted.filter((item) => Number(item.course ?? 99) > 3).map((item) => item.frameNo).join("-") || "未取得";
+	const sortedExhibitions = [...exhibitions].sort(
+		(left, right) => Number(left.course ?? 99) - Number(right.course ?? 99),
+	);
+
+	const formation = sortedExhibitions.map((item) => item.frameNo).join("-") || "未取得";
+
+	const slow =
+		sortedExhibitions
+			.filter((item) => Number(item.course ?? 99) <= 3)
+			.map((item) => item.frameNo)
+			.join("-") || "未取得";
+
+	const dash =
+		sortedExhibitions
+			.filter((item) => Number(item.course ?? 99) > 3)
+			.map((item) => item.frameNo)
+			.join("-") || "未取得";
 
 	return [
-		`進入想定: ${formation || "未取得"}`,
+		`進入想定: ${formation}`,
 		`スロー候補: ${slow}`,
 		`ダッシュ候補: ${dash}`,
 		"スタート展示:",
-		...sorted.map((item) => `- ${item.frameNo}号艇 コース${toDisplay(item.course)} ST ${toDisplay(item.startTiming)}`),
+		...sortedExhibitions.map((item) => `- ${item.frameNo}号艇 コース${toDisplay(item.course)} ST ${toDisplay(item.startTiming)}`),
 	].join("\n");
 };
 
@@ -456,12 +717,15 @@ export function buildBoatPredictionMaterial(params: {
 	raceExtra?: BoatVenueExtraRace | null;
 }): string {
 	const { venue, race, venueExtra, raceExtra } = params;
-	const weather = race.result?.weatherActual ?? venue.weatherActual;
-	const racers = toMaterialArray<BoatRacerItem>((race as { racers?: unknown }).racers);
-	const exhibitions = toMaterialArray<BoatExhibitionItem>((race as { exhibitions?: unknown }).exhibitions);
-	const odds = toMaterialArray<BoatOddsItem>((race as { oddsPreview?: unknown }).oddsPreview);
-	const result = race.result;
-	const finishOrder = toMaterialArray<string | number>((result as { finishOrder?: unknown } | undefined)?.finishOrder);
+	const raceExtraRecord = isMaterialRecord(raceExtra) ? raceExtra : null;
+    const officialBeforeInfo = isMaterialRecord(raceExtraRecord?.officialBeforeInfo) ? raceExtraRecord.officialBeforeInfo : null;
+    const weatherRecord = isMaterialRecord(officialBeforeInfo?.weatherActual)
+	? officialBeforeInfo.weatherActual
+	: isMaterialRecord(venue.weatherActual)
+		? venue.weatherActual
+		: null;
+    const racers = toMaterialArray<BoatRacerItem>((race as { racers?: unknown }).racers);
+    const exhibitions = toMaterialArray<BoatExhibitionItem>((race as { exhibitions?: unknown }).exhibitions);
 
 	const sections = [
 		[
@@ -485,15 +749,15 @@ export function buildBoatPredictionMaterial(params: {
 			"会場メモ: サンプル未登録",
 		].join("\n"),
 		[
-			"[C. 天気 / 風 / 波]",
-			`天候: ${toDisplay(weather?.weather)}`,
-			`気温: ${toDisplay(weather?.temperature)}`,
-			`水温: ${toDisplay(weather?.waterTemperature)}`,
-			`風向: ${toDisplay(weather?.windDirection)}`,
-			`風速: ${toDisplay(weather?.windSpeed)}`,
-			`波高: ${toDisplay(weather?.waveHeight)}`,
-			`データソース: ${toDisplay(weather?.source ?? venue.source)}`,
-		].join("\n"),
+	        "[C. 天気 / 風 / 波]",
+	        `天候: ${toDisplay(readMaterialString(weatherRecord?.weather))}`,
+	        `気温: ${toDisplay(readMaterialString(weatherRecord?.temperature))}`,
+	        `水温: ${toDisplay(readMaterialString(weatherRecord?.waterTemperature))}`,
+	        `風向: ${toDisplay(readMaterialString(weatherRecord?.windDirection))}`,
+	        `風速: ${toDisplay(readMaterialString(weatherRecord?.windSpeed))}`,
+	        `波高: ${toDisplay(readMaterialString(weatherRecord?.waveHeight))}`,
+	        `データソース: ${toDisplay(readMaterialString(weatherRecord?.source) || venue.source)}`,
+        ].join("\n"),
 		[
 			"[D. 出走表 基本データ]",
 			racers.length > 0 ? racers.map((racer) => buildRacerBlock(racer)).join("\n\n") : "出走表サンプルなし",
@@ -519,18 +783,11 @@ export function buildBoatPredictionMaterial(params: {
 		].join("\n"),
 		[
 			"[H. オッズ]",
-			buildOddsBlock(odds),
+			buildOddsBlock(race),
 		].join("\n"),
 		[
-			"[I. 結果情報]",
-			result?.status === "confirmed"
-				? [
-						`- 結果: ${toDisplay(finishOrder.slice(0, 3).join("-"))}`,
-						`- 決まり手: ${toDisplay(result.winningMethod)}`,
-						`- 3連単: ${toDisplay(result.payout3tan?.combination)} ${toDisplay(result.payout3tan?.payout)}`,
-						`- 2連単: ${toDisplay(result.payout2tan?.combination)} ${toDisplay(result.payout2tan?.payout)}`,
-					].join("\n")
-				: "結果はまだ確定していません。",
+			"[I. 予想時点チェック]",
+			"この素材は予想用のため、着順・払戻・決まり手などの結果情報は含めません。",
 		].join("\n"),
 		[
 			"[J. GPTへの予想依頼メモ]",
@@ -563,6 +820,18 @@ export function buildBoatPredictionMaterial(params: {
 		[
 			"[P. 水面・コメント]",
 			buildWaterAndCommentsBlock(racers, venueExtra, raceExtra),
+		].join("\n"),
+		[
+			"[Q. 直近成績・節間成績]",
+			buildRecentPerformanceBlock(racers, venueExtra, raceExtra),
+		].join("\n"),
+		[
+			"[R. 枠別 / コース別傾向]",
+			buildFrameCourseTrendBlock(racers, venueExtra, raceExtra),
+		].join("\n"),
+		[
+			"[S. 会場別モーター履歴・気配]",
+			buildMotorHistoryBlock(racers, venueExtra, raceExtra),
 		].join("\n"),
 	];
 
