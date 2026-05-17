@@ -13,6 +13,9 @@ type PulseMetric = {
 	value: string;
 };
 
+type DashboardVenue = typeof sampleBoatTodayFeed.venues[number];
+type DashboardVenueTimeBand = "morning" | "day" | "night" | "midnight" | "unknown";
+
 const venueNotes = [
 	"戸田は追い風時のイン残り率だけでなく、2コース差しの連対率も同時確認。",
 	"平和島は波高が上がるほど展示順位より直前気配を優先。",
@@ -269,6 +272,53 @@ function getNormalizedSession(session?: string): string {
 	return normalized === "summer" ? "day" : normalized;
 }
 
+function getVenueSearchText(venue: DashboardVenue): string {
+	const record = venue as Record<string, unknown>;
+	return [
+		record.title,
+		record.raceTitle,
+		record.seriesName,
+		record.eventName,
+		record.gradeName,
+		record.grade,
+	]
+		.map((value) => String(value ?? ""))
+		.join(" ")
+		.normalize("NFKC")
+		.toLowerCase();
+}
+
+function getDashboardVenueTimeBand(venue: DashboardVenue): DashboardVenueTimeBand {
+	const titleText = getVenueSearchText(venue);
+	const normalizedSession = getNormalizedSession(venue.session).normalize("NFKC").toLowerCase();
+
+	if (titleText.includes("mnb") || titleText.includes("ミッドナイト")) {
+		return "midnight";
+	}
+
+	if (normalizedSession === "morning" || normalizedSession === "モーニング" || titleText.includes("モーニング")) {
+		return "morning";
+	}
+
+	if (normalizedSession === "night" || normalizedSession === "ナイター" || titleText.includes("ナイター")) {
+		return "night";
+	}
+
+	if (normalizedSession === "day" || normalizedSession === "デイ") {
+		return "day";
+	}
+
+	return "unknown";
+}
+
+function getVenueTimeBandSortOrder(timeBand: DashboardVenueTimeBand): number {
+	if (timeBand === "morning") return 0;
+	if (timeBand === "day") return 1;
+	if (timeBand === "night") return 2;
+	if (timeBand === "midnight") return 3;
+	return 4;
+}
+
 function getVenueAccentColor(session?: string): string {
 	const normalized = getNormalizedSession(session);
 
@@ -514,15 +564,27 @@ export function DashboardPage() {
 
 	const featuredVenueNames = useMemo(() => new Set(["丸亀", "大村"]), []);
 
-	const featuredVenues = useMemo(
-		() => todayFeed.venues.filter((venue) => featuredVenueNames.has(venue.venueName)),
-		[todayFeed.venues, featuredVenueNames],
+	const sortedTodayVenues = useMemo(
+		() =>
+			todayFeed.venues
+				.map((venue, index) => ({ venue, index }))
+				.sort((left, right) => {
+					const timeBandDiff =
+						getVenueTimeBandSortOrder(getDashboardVenueTimeBand(left.venue)) -
+						getVenueTimeBandSortOrder(getDashboardVenueTimeBand(right.venue));
+					if (timeBandDiff !== 0) {
+						return timeBandDiff;
+					}
+
+					return left.index - right.index;
+				})
+				.map(({ venue }) => venue),
+		[todayFeed.venues],
 	);
 
-	const standardVenues = useMemo(
-		() => todayFeed.venues.filter((venue) => !featuredVenueNames.has(venue.venueName)),
-		[todayFeed.venues, featuredVenueNames],
-	);
+	const featuredVenues: DashboardVenue[] = [];
+
+	const standardVenues = sortedTodayVenues;
 
 	const featuredScheduleIds = useMemo(() => {
 		const sortedSchedules = [...upcomingSchedules]
@@ -834,29 +896,31 @@ export function DashboardPage() {
 				>
 					{standardVenues.map((venue) => (
 						(() => {
-							const venueTone = getVenueCardTone(venue.session);
-							const accentColor = getVenueAccentColor(venue.session);
+							const timeBand = getDashboardVenueTimeBand(venue);
+							const isFeaturedVenue = featuredVenueNames.has(venue.venueName);
+							const venueTone = getVenueCardTone(timeBand);
+							const accentColor = getVenueAccentColor(timeBand);
 							const weatherSummary = getVenueWeatherSummary(venue.weatherActual);
 							return (
 						<article
 							key={venue.id}
 							style={{
-								...compactVenueCardStyle,
+								...(isFeaturedVenue ? featuredVenueCardStyle : compactVenueCardStyle),
 								...venueTone,
-								boxShadow: "0 14px 28px rgba(17, 64, 92, 0.07)",
+								boxShadow: isFeaturedVenue ? "0 24px 52px rgba(17, 64, 92, 0.12)" : "0 14px 28px rgba(17, 64, 92, 0.07)",
 								position: "relative",
 								overflow: "hidden",
 							}}
 							onMouseEnter={(event) => {
 								elevateCard(event.currentTarget, true, {
 									borderColor: typeof venueTone.border === "string" ? venueTone.border : undefined,
-									boxShadow: "0 14px 28px rgba(17, 64, 92, 0.07)",
+									boxShadow: isFeaturedVenue ? "0 24px 52px rgba(17, 64, 92, 0.12)" : "0 14px 28px rgba(17, 64, 92, 0.07)",
 								});
 							}}
 							onMouseLeave={(event) => {
 								elevateCard(event.currentTarget, false, {
 									borderColor: typeof venueTone.border === "string" ? venueTone.border : undefined,
-									boxShadow: "0 14px 28px rgba(17, 64, 92, 0.07)",
+									boxShadow: isFeaturedVenue ? "0 24px 52px rgba(17, 64, 92, 0.12)" : "0 14px 28px rgba(17, 64, 92, 0.07)",
 								});
 							}}
 						>
@@ -888,10 +952,10 @@ export function DashboardPage() {
 											textTransform: "uppercase",
 											whiteSpace: "nowrap",
 											flexShrink: 0,
-											...getVenueSessionStyle(venue.session),
+											...getVenueSessionStyle(timeBand),
 										}}
 									>
-										{getVenueSessionLabel(venue.session)}
+										{getVenueSessionLabel(timeBand)}
 									</span>
 
 								<div style={{ display: "grid", gap: "6px" }}>
