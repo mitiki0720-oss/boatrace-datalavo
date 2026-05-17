@@ -38,6 +38,8 @@ const TSU_VENUE_NAME = "津";
 const TSU_SOURCE = "boatrace-tsu.com";
 const WAKAMATSU_VENUE_NAME = "若松";
 const WAKAMATSU_SOURCE = "wmb.jp";
+const WAKAMATSU_TIDE_URL = "https://www.wmb.jp/modules/datafile/?page=index_tide_table";
+const WAKAMATSU_WATER_SURFACE_URL = "https://www.wmb.jp/modules/datafile/?page=index_suimen";
 const FUKUOKA_VENUE_NAME = "福岡";
 const FUKUOKA_SOURCE = "boatrace-fukuoka.com";
 const KOJIMA_VENUE_NAME = "児島";
@@ -1370,6 +1372,95 @@ function parseWakamatsuWeatherActual(html) {
 		airTemperature: secondValues[1] ?? "",
 		waterTemperature: secondValues[2] ?? "",
 		windDirectionCode: directionCode,
+		source: WAKAMATSU_SOURCE,
+	};
+}
+
+function parseWakamatsuTideInfo(html, date) {
+	const $ = load(html);
+	const lines = readCleanLines($("body"));
+	const targetDate = String(date ?? "").replaceAll("-", "/");
+	const targetDateShort = targetDate.replace(/\/0/g, "/");
+
+	for (let index = 0; index < lines.length; index += 1) {
+		const line = lines[index];
+		const text = compactText(line);
+		const normalizedText = text.replace(/\/0/g, "/");
+
+		if (!text.startsWith(targetDate) && !normalizedText.startsWith(targetDateShort)) {
+			continue;
+		}
+
+		const match = text.match(/^(\d{4}\/\d{1,2}\/\d{1,2})\s+(\d{1,2}:\d{2})\s+([+-]?\d+(?:\.\d+)?m)\s+(\d{1,2}:\d{2})\s+([+-]?\d+(?:\.\d+)?m)$/);
+
+		if (match) {
+			return {
+				date: match[1],
+				dayLabel: "",
+				lowTideTime: match[2],
+				lowTideLevel: match[3],
+				highTideTime: match[4],
+				highTideLevel: match[5],
+				tideType: "",
+				source: WAKAMATSU_SOURCE,
+			};
+		}
+
+		const lowTideTime = compactText(lines[index + 1] ?? "");
+		const lowTideLevel = compactText(lines[index + 2] ?? "");
+		const highTideTime = compactText(lines[index + 3] ?? "");
+		const highTideLevel = compactText(lines[index + 4] ?? "");
+
+		if (
+			/^\d{1,2}:\d{2}$/.test(lowTideTime) &&
+			/^[+-]?\d+(?:\.\d+)?m$/.test(lowTideLevel) &&
+			/^\d{1,2}:\d{2}$/.test(highTideTime) &&
+			/^[+-]?\d+(?:\.\d+)?m$/.test(highTideLevel)
+		) {
+			return {
+				date: text,
+				dayLabel: "",
+				lowTideTime,
+				lowTideLevel,
+				highTideTime,
+				highTideLevel,
+				tideType: "",
+				source: WAKAMATSU_SOURCE,
+			};
+		}
+	}
+
+	return null;
+}
+
+function parseWakamatsuWaterSurfaceInfo(html) {
+	const $ = load(html);
+	const lines = readCleanLines($("body")).map((line) => compactText(line));
+	const surfaceIndex = lines.findIndex((line, index) =>
+		line === "水質" && lines[index + 1] === "流れ・水位変化" && lines[index + 2] === "チルト",
+	);
+	const surfaceSummary = surfaceIndex >= 0
+		? [
+				lines[surfaceIndex + 3] ? `水質 ${lines[surfaceIndex + 3]}` : "",
+				lines[surfaceIndex + 4] ? `流れ・水位変化 ${lines[surfaceIndex + 4]}` : "",
+				lines[surfaceIndex + 5] ? `チルト ${lines[surfaceIndex + 5]}` : "",
+			].filter(Boolean).join(" / ")
+		: "";
+
+	const featureHeadingIndex = lines.findIndex((line, index) =>
+		line === "水面特性" && lines[index + 1] === "レースの特徴",
+	);
+	const featureSummary = featureHeadingIndex >= 0 ? lines[featureHeadingIndex + 2] ?? "" : "";
+	const courseSummary = featureHeadingIndex >= 0 ? lines[featureHeadingIndex + 3] ?? "" : "";
+
+	if (!surfaceSummary && !featureSummary && !courseSummary) {
+		return null;
+	}
+
+	return {
+		surfaceSummary,
+		featureSummary,
+		courseSummary,
 		source: WAKAMATSU_SOURCE,
 	};
 }
@@ -4468,6 +4559,12 @@ async function createWakamatsuVenue(feed, date) {
 
 	try {
 		const races = getRaceList(wakamatsuVenue);
+		const [tideHtml, waterSurfaceHtml] = await Promise.all([
+			fetchHtml(WAKAMATSU_TIDE_URL).catch(() => ""),
+			fetchHtml(WAKAMATSU_WATER_SURFACE_URL).catch(() => ""),
+		]);
+		const tideInfo = tideHtml ? parseWakamatsuTideInfo(tideHtml, date) : null;
+		const waterSurfaceInfo = waterSurfaceHtml ? parseWakamatsuWaterSurfaceInfo(waterSurfaceHtml) : null;
 		const raceExtras = [];
 
 		for (const race of races) {
@@ -4476,6 +4573,9 @@ async function createWakamatsuVenue(feed, date) {
 		}
 
 		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+		console.log(
+			`[venue-extras] wakamatsu: ${availableRaceCount}/${raceExtras.length} races${tideInfo ? " + tide" : ""}${waterSurfaceInfo ? " + water surface" : ""}`,
+		);
 
 		return {
 			venueCode: String(wakamatsuVenue.venueCode ?? "20"),
@@ -4484,6 +4584,8 @@ async function createWakamatsuVenue(feed, date) {
 			isAvailable: availableRaceCount > 0,
 			status: availableRaceCount > 0 ? "available" : "waiting-wakamatsu-data",
 			note: "若松公式HPの出走表・直前情報・展示情報・近況成績・モーター履歴を取得",
+			tideInfo,
+			waterSurfaceInfo,
 			races: raceExtras,
 		};
 	} catch (error) {

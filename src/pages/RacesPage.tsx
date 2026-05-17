@@ -5595,6 +5595,70 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 	const startRows = Math.max(selectedOfficialBeforeInfo?.startExhibition.length ?? 0, selectedStartExhibition.length);
 	const scoreRows = Math.max(officialScores, selectedWakamatsuScoreRateGuide.length, selectedTsuScoreRateGuide.length, selectedFukuokaScoreRateGuide.length, selectedKojimaScoreRateGuide.length);
 	const weather = selectedVenue?.weatherActual;
+	const wakamatsuRecordsLabels = [
+		selectedWakamatsuScoreRateGuide.length > 0 ? `得点率 ${selectedWakamatsuScoreRateGuide.length}件` : "",
+		selectedWakamatsuSeriesResults.length > 0 ? "節間成績あり" : "",
+		selectedWakamatsuCourseStats.length > 0 ? "進入別あり" : "",
+		(selectedWakamatsuNationalRecent3.length > 0 || selectedWakamatsuLocalRecent3.length > 0) ? "過去3節あり" : "",
+		selectedWakamatsuFramePast10.length > 0 ? "10走あり" : "",
+	].filter(Boolean);
+
+	if (isWakamatsuVenue) {
+		if (option.key === "official" || option.key === "wakamatsu-before") {
+			return selectedWakamatsuBeforeInfo.length > 0 ? `展示 ${selectedWakamatsuBeforeInfo.length}艇` : "若松公式データ未取得";
+		}
+
+		if (option.key === "start") {
+			return selectedStartExhibition.length > 0 ? `進入・ST ${selectedStartExhibition.length}艇` : "スタート展示待ち";
+		}
+
+		if (option.key === "records" || option.key === "wakamatsu-score") {
+			return wakamatsuRecordsLabels.length > 0 ? wakamatsuRecordsLabels.slice(0, 3).join(" / ") : "成績データ待ち";
+		}
+
+		if (option.key === "exhibition") {
+			return selectedOriginalExhibitionRows.length > 0 ? `独自展示 ${selectedOriginalExhibitionRows.length}艇` : "展示公開待ち";
+		}
+
+		if (option.key === "motor" || option.key === "wakamatsu-motor") {
+			const motorCount = Math.max(selectedMotorSummaryDisplay.items.length, selectedWakamatsuMotorHistory.length);
+			return motorCount > 0 ? `モーター ${motorCount}件` : "モーター情報待ち";
+		}
+
+		if (option.key === "water") {
+			const waterLabels = [
+				selectedWaterMemo?.tideInfo ? "潮汐" : "",
+				selectedWaterMemo?.waterSurfaceInfo ? "水面" : "",
+				weather?.windSpeed ? `風 ${weather.windSpeed}` : "",
+				weather?.waveHeight ? `波 ${weather.waveHeight}` : "",
+			].filter(Boolean);
+			return waterLabels.length > 0 ? waterLabels.join(" / ") : "水面情報確認中";
+		}
+
+		if (option.key === "wakamatsu-series") {
+			return selectedWakamatsuSeriesResults.length > 0 ? `節間成績 ${selectedWakamatsuSeriesResults.length}艇` : "成績データ待ち";
+		}
+
+		if (option.key === "wakamatsu-course") {
+			return selectedWakamatsuCourseStats.length > 0 ? `進入コース別 ${selectedWakamatsuCourseStats.length}艇` : "進入別データ待ち";
+		}
+
+		if (option.key === "wakamatsu-national3") {
+			return selectedWakamatsuNationalRecent3.length > 0 ? `全国過去3節 ${selectedWakamatsuNationalRecent3.length}艇` : "全国成績待ち";
+		}
+
+		if (option.key === "wakamatsu-local3") {
+			return selectedWakamatsuLocalRecent3.length > 0 ? `当地過去3節 ${selectedWakamatsuLocalRecent3.length}艇` : "当地成績待ち";
+		}
+
+		if (option.key === "wakamatsu-frame10") {
+			return selectedWakamatsuFramePast10.length > 0 ? `枠番別10走 ${selectedWakamatsuFramePast10.length}艇` : "10走データ待ち";
+		}
+
+		if (option.key === "wakamatsu-entry") {
+			return selectedWakamatsuEntryRows.length > 0 ? `出走表 ${selectedWakamatsuEntryRows.length}艇` : "出走表待ち";
+		}
+	}
 
 	if (option.key === "official" || option.key.endsWith("-before") || option.key === "tamagawa-cyokuzen") {
 		return officialRows > 0 ? `展示 ${officialRows}艇 / 成績 ${officialScores}件` : "公式データ待ち";
