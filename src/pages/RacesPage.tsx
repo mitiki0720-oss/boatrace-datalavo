@@ -197,14 +197,14 @@ const detailIntroTextStyle = {
 
 const venueExtrasSectionStyle = {
 	position: "relative" as const,
-	padding: "26px",
-	borderRadius: "32px",
+	padding: "30px",
+	borderRadius: "34px",
 	background:
-		"linear-gradient(135deg, rgba(249, 254, 255, 0.99), rgba(235, 249, 247, 0.97) 56%, rgba(226, 244, 250, 0.96))",
-	border: "1px solid rgba(93, 199, 232, 0.25)",
-	boxShadow: "0 26px 64px rgba(17, 64, 92, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.9)",
+		"radial-gradient(circle at 12% 0%, rgba(206, 243, 255, 0.72), transparent 30%), radial-gradient(circle at 92% 12%, rgba(231, 224, 255, 0.72), transparent 28%), linear-gradient(135deg, rgba(250, 254, 255, 0.99), rgba(235, 250, 247, 0.98) 48%, rgba(236, 243, 255, 0.96))",
+	border: "1px solid rgba(104, 203, 227, 0.3)",
+	boxShadow: "0 26px 60px rgba(17, 64, 92, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.92)",
 	display: "grid",
-	gap: "20px",
+	gap: "22px",
 	overflow: "hidden" as const,
 };
 
@@ -212,13 +212,14 @@ const venueExtrasHeaderStyle = {
 	display: "flex",
 	alignItems: "flex-start",
 	justifyContent: "space-between",
-	gap: "14px",
+	gap: "18px",
 	flexWrap: "wrap" as const,
 };
 
 const venueExtrasTitleWrapStyle = {
 	display: "grid",
-	gap: "5px",
+	gap: "7px",
+	maxWidth: "760px",
 };
 
 const venueExtrasLabelStyle = {
@@ -232,7 +233,7 @@ const venueExtrasLabelStyle = {
 
 const venueExtrasTitleStyle = {
 	margin: 0,
-	fontSize: "1.08rem",
+	fontSize: "1.2rem",
 	lineHeight: 1.3,
 	color: boatTheme.colors.navy,
 	fontWeight: 900,
@@ -250,14 +251,23 @@ const venueExtrasBadgeStyle = {
 	alignItems: "center",
 	justifyContent: "center",
 	width: "fit-content",
-	padding: "8px 12px",
+	padding: "8px 13px",
 	borderRadius: "999px",
-	background: "rgba(255, 255, 255, 0.94)",
-	border: `1px solid ${boatTheme.colors.line}`,
+	background: "rgba(255, 255, 255, 0.86)",
+	border: "1px solid rgba(93, 199, 232, 0.24)",
 	color: boatTheme.colors.aquaDeep,
 	fontSize: "0.76rem",
 	fontWeight: 900,
 	whiteSpace: "nowrap" as const,
+};
+
+const venueExtrasHeaderMetaStyle = {
+	display: "flex",
+	flexWrap: "wrap" as const,
+	gap: "8px",
+	justifyContent: "flex-end",
+	alignItems: "center",
+	maxWidth: "560px",
 };
 
 const venueExtrasStatusGridStyle = {
@@ -281,24 +291,30 @@ const venueExtrasPanelSelectorScrollStyle = {
 
 const venueExtrasPanelSelectorGridStyle = {
 	display: "grid",
-	gridAutoFlow: "column" as const,
-	gridAutoColumns: "minmax(168px, 1fr)",
-	gap: "10px",
-	minWidth: "max-content",
+	gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+	gap: "12px",
+	minWidth: 0,
 };
 
 const venueExtrasPanelButtonBaseStyle = {
 	display: "grid",
-	gap: "7px",
-	padding: "14px 15px",
-	borderRadius: "18px",
-	border: `1px solid ${boatTheme.colors.line}`,
-	background: "rgba(255, 255, 255, 0.94)",
-	boxShadow: "0 8px 20px rgba(17, 64, 92, 0.05)",
+	gap: "9px",
+	padding: "16px",
+	borderRadius: "22px",
+	border: "1px solid rgba(93, 199, 232, 0.18)",
+	background: "linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(247, 253, 255, 0.82))",
+	boxShadow: "0 12px 26px rgba(17, 64, 92, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.82)",
 	textAlign: "left" as const,
 	cursor: "pointer",
 	transition: "background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease",
-	minHeight: "92px",
+	minHeight: "146px",
+};
+
+const venueExtrasPanelButtonTopStyle = {
+	display: "flex",
+	justifyContent: "space-between",
+	alignItems: "center",
+	gap: "8px",
 };
 
 const venueExtrasPanelButtonBadgeStyle = {
@@ -306,9 +322,9 @@ const venueExtrasPanelButtonBadgeStyle = {
 	alignItems: "center",
 	justifyContent: "center",
 	width: "fit-content",
-	padding: "4px 9px",
+	padding: "5px 9px",
 	borderRadius: "999px",
-	background: "rgba(221, 239, 247, 0.95)",
+	background: "rgba(225, 247, 253, 0.92)",
 	border: "1px solid rgba(93, 199, 232, 0.24)",
 	color: boatTheme.colors.aquaDeep,
 	fontSize: "0.7rem",
@@ -317,9 +333,17 @@ const venueExtrasPanelButtonBadgeStyle = {
 	whiteSpace: "nowrap" as const,
 };
 
+const venueExtrasPanelStatusDotStyle = {
+	width: "9px",
+	height: "9px",
+	borderRadius: "999px",
+	background: "#64d7ba",
+	boxShadow: "0 0 0 4px rgba(100, 215, 186, 0.14)",
+};
+
 const venueExtrasPanelButtonTitleStyle = {
 	margin: 0,
-	fontSize: "0.84rem",
+	fontSize: "0.9rem",
 	lineHeight: 1.35,
 	fontWeight: 900,
 	color: boatTheme.colors.navy,
@@ -330,6 +354,19 @@ const venueExtrasPanelButtonHintStyle = {
 	fontSize: "0.72rem",
 	lineHeight: 1.5,
 	color: boatTheme.colors.muted,
+};
+
+const venueExtrasPanelButtonSummaryStyle = {
+	margin: 0,
+	alignSelf: "end",
+	padding: "9px 10px",
+	borderRadius: "15px",
+	background: "rgba(238, 249, 252, 0.72)",
+	border: "1px solid rgba(93, 199, 232, 0.18)",
+	color: boatTheme.colors.navy,
+	fontSize: "0.74rem",
+	lineHeight: 1.45,
+	fontWeight: 800,
 };
 
 const venueExtrasCategoryCaptionStyle = {
@@ -391,12 +428,13 @@ const narutoStatsTabHintStyle = {
 };
 
 const venueExtrasStatusCardStyle = {
-	padding: "13px 14px",
-	borderRadius: "18px",
-	background: "rgba(255, 255, 255, 0.92)",
-	border: `1px solid ${boatTheme.colors.line}`,
+	padding: "14px 16px",
+	borderRadius: "20px",
+	background: "linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(246, 253, 255, 0.86))",
+	border: "1px solid rgba(93, 199, 232, 0.2)",
 	display: "grid",
 	gap: "4px",
+	boxShadow: "0 10px 24px rgba(17, 64, 92, 0.045)",
 };
 
 const venueExtrasStatusLabelStyle = {
@@ -417,10 +455,10 @@ const venueExtrasStatusValueStyle = {
 
 const venueExtrasEmptyStyle = {
 	margin: 0,
-	padding: "15px 16px",
-	borderRadius: "18px",
-	background: "rgba(247, 252, 255, 0.94)",
-	border: `1px dashed rgba(93, 199, 232, 0.35)`,
+	padding: "16px 17px",
+	borderRadius: "20px",
+	background: "linear-gradient(180deg, rgba(250, 253, 255, 0.9), rgba(242, 250, 253, 0.86))",
+	border: "1px dashed rgba(93, 199, 232, 0.42)",
 	color: boatTheme.colors.muted,
 	fontSize: "0.86rem",
 	lineHeight: 1.75,
@@ -434,11 +472,11 @@ const venueExtrasDataGridStyle = {
 };
 
 const venueExtrasPanelStyle = {
-	padding: "20px",
-	borderRadius: "26px",
-	background: "linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 253, 255, 0.94))",
-	border: "1px solid rgba(93, 199, 232, 0.22)",
-	boxShadow: "0 14px 32px rgba(17, 64, 92, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.86)",
+	padding: "21px",
+	borderRadius: "28px",
+	background: "linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(246, 253, 255, 0.9))",
+	border: "1px solid rgba(93, 199, 232, 0.2)",
+	boxShadow: "0 14px 30px rgba(17, 64, 92, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.86)",
 	display: "grid",
 	gap: "15px",
 };
@@ -5549,6 +5587,52 @@ useEffect(() => {
 	}
 }, [selectedVenueExtraPanel, validVenueExtraPanel]);
 
+const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: string }): string => {
+	const isWaiting = option.badge === "待機中";
+	const officialRows = selectedOfficialBeforeInfo?.exhibitionRows.length ?? 0;
+	const officialScores = selectedOfficialBeforeInfo?.scoreQuickLook.length ?? 0;
+	const startRows = Math.max(selectedOfficialBeforeInfo?.startExhibition.length ?? 0, selectedStartExhibition.length);
+	const scoreRows = Math.max(officialScores, selectedWakamatsuScoreRateGuide.length, selectedTsuScoreRateGuide.length, selectedFukuokaScoreRateGuide.length, selectedKojimaScoreRateGuide.length);
+	const weather = selectedVenue?.weatherActual;
+
+	if (option.key === "official" || option.key.endsWith("-before") || option.key === "tamagawa-cyokuzen") {
+		return officialRows > 0 ? `展示 ${officialRows}艇 / 成績 ${officialScores}件` : "公式データ待ち";
+	}
+
+	if (option.key === "start") {
+		return startRows > 0 ? `進入・ST ${startRows}艇` : "スタート展示待ち";
+	}
+
+	if (option.key === "records" || option.key.endsWith("-score")) {
+		return scoreRows > 0 ? `勝率・得点率 ${scoreRows}件` : "成績データ待ち";
+	}
+
+	if (option.key === "exhibition") {
+		return selectedOriginalExhibitionRows.length > 0 ? `一周・回り足 ${selectedOriginalExhibitionRows.length}艇` : "展示公開待ち";
+	}
+
+	if (option.key === "motor" || option.key.endsWith("-motor")) {
+		const motorCount = Math.max(selectedMotorSummaryDisplay.items.length, selectedWakamatsuMotorHistory.length, selectedKojimaMotorStats.length, selectedTamagawaMotorHistory.length);
+		return motorCount > 0 ? `モーター ${motorCount}件` : "モーター情報待ち";
+	}
+
+	if (option.key === "water") {
+		const waterLabels = [
+			selectedWaterMemo?.tideInfo ? "潮汐" : "",
+			selectedWaterMemo?.waterSurfaceInfo ? "水面" : "",
+			weather?.windSpeed ? `風 ${weather.windSpeed}` : "",
+			weather?.waveHeight ? `波 ${weather.waveHeight}` : "",
+		].filter(Boolean);
+		return waterLabels.length > 0 ? waterLabels.join(" / ") : "水面情報確認中";
+	}
+
+	if (isWaiting) {
+		return "この会場の独自データは準備中";
+	}
+
+	return "会場公式データを表示中";
+};
+
 const narutoStatsTabOptions = useMemo(
 	() => [
 		{ key: "score", label: "公式スコア", hint: "全国成績とモーター2連率を確認" },
@@ -5727,9 +5811,11 @@ const venueExtrasDisplayText = useMemo(() => {
 				</p>
 			</div>
 
-			<span style={venueExtrasBadgeStyle}>
-				{selectedVenue?.venueName ?? "会場未選択"} / {selectedRace?.raceNo ? `${selectedRace.raceNo}R` : "R未選択"}
-			</span>
+			<div style={venueExtrasHeaderMetaStyle}>
+				<span style={venueExtrasBadgeStyle}>{selectedVenue?.venueName ?? "会場未選択"}</span>
+				<span style={venueExtrasBadgeStyle}>{selectedRace?.raceNo ? `${selectedRace.raceNo}R` : "R未選択"}</span>
+				<span style={venueExtrasBadgeStyle}>{venueExtrasFeed?.venues?.length ?? 0}会場取得</span>
+			</div>
 		</div>
 
 		<div style={venueExtrasStatusGridStyle}>
@@ -5754,6 +5840,8 @@ const venueExtrasDisplayText = useMemo(() => {
 				<div style={venueExtrasPanelSelectorGridStyle}>
 					{venueExtraPanelOptions.map((option) => {
 						const isActive = selectedVenueExtraPanel === option.key;
+						const isWaiting = option.badge === "待機中";
+						const panelSummary = getVenueExtraPanelSummary(option);
 
 						return (
 							<button
@@ -5774,16 +5862,33 @@ const venueExtrasDisplayText = useMemo(() => {
 									transform: isActive ? "translateY(-1px)" : "none",
 								}}
 							>
-								<span
-									style={{
-										...venueExtrasPanelButtonBadgeStyle,
-										background: isActive ? "rgba(255, 255, 255, 0.14)" : venueExtrasPanelButtonBadgeStyle.background,
-										color: isActive ? "#f4fbff" : venueExtrasPanelButtonBadgeStyle.color,
-										border: isActive ? "1px solid rgba(255, 255, 255, 0.18)" : venueExtrasPanelButtonBadgeStyle.border,
-									}}
-								>
-									{option.badge}
-								</span>
+								<div style={venueExtrasPanelButtonTopStyle}>
+									<span
+										style={{
+											...venueExtrasPanelButtonBadgeStyle,
+											background: isActive
+												? "rgba(255, 255, 255, 0.14)"
+												: isWaiting
+													? "rgba(244, 248, 252, 0.92)"
+													: venueExtrasPanelButtonBadgeStyle.background,
+											color: isActive
+												? "#f4fbff"
+												: isWaiting
+													? boatTheme.colors.muted
+													: venueExtrasPanelButtonBadgeStyle.color,
+											border: isActive ? "1px solid rgba(255, 255, 255, 0.18)" : venueExtrasPanelButtonBadgeStyle.border,
+										}}
+									>
+										{isWaiting ? "準備中" : option.badge}
+									</span>
+									<span
+										style={{
+											...venueExtrasPanelStatusDotStyle,
+											background: isWaiting ? "#b8c7d3" : venueExtrasPanelStatusDotStyle.background,
+											boxShadow: isWaiting ? "0 0 0 4px rgba(184, 199, 211, 0.14)" : venueExtrasPanelStatusDotStyle.boxShadow,
+										}}
+									/>
+								</div>
 								<p
 									style={{
 										...venueExtrasPanelButtonTitleStyle,
@@ -5799,6 +5904,16 @@ const venueExtrasDisplayText = useMemo(() => {
 									}}
 								>
 									{option.hint}
+								</p>
+								<p
+									style={{
+										...venueExtrasPanelButtonSummaryStyle,
+										background: isActive ? "rgba(255, 255, 255, 0.13)" : venueExtrasPanelButtonSummaryStyle.background,
+										border: isActive ? "1px solid rgba(255, 255, 255, 0.14)" : venueExtrasPanelButtonSummaryStyle.border,
+										color: isActive ? "rgba(245, 252, 255, 0.9)" : venueExtrasPanelButtonSummaryStyle.color,
+									}}
+								>
+									{panelSummary}
 								</p>
 							</button>
 						);
