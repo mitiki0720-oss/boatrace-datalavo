@@ -229,11 +229,15 @@ const getSessionTone = (session?: string): SessionTone => {
 	};
 };
 
+const normalizeSession = (session?: string) => String(session ?? "").trim().toLowerCase();
+
 const getSessionSortOrder = (session?: string) => {
-	if (session === "morning") return 0;
-	if (session === "day") return 1;
-	if (session === "night") return 2;
-	if (session === "midnight") return 3;
+	const normalizedSession = normalizeSession(session);
+
+	if (normalizedSession === "morning" || normalizedSession === "モーニング") return 0;
+	if (normalizedSession === "day" || normalizedSession === "デイ") return 1;
+	if (normalizedSession === "night" || normalizedSession === "ナイター") return 2;
+	if (normalizedSession === "midnight" || normalizedSession === "ミッドナイト") return 3;
 	return 9;
 };
 
@@ -350,11 +354,14 @@ export function BoatPredictionVenueRaceChooser({
 	onSelectRace,
 }: BoatPredictionVenueRaceChooserProps) {
 	const selectedVenue = venues.find((venue) => venue.id === selectedVenueId) ?? venues[0];
-	const sortedVenues = [...venues].sort((a, b) => {
-	const sessionDiff = getSessionSortOrder(a.session) - getSessionSortOrder(b.session);
-	if (sessionDiff !== 0) return sessionDiff;
-	return a.venueName.localeCompare(b.venueName, "ja");
-});
+	const sortedVenues = venues
+		.map((venue, index) => ({ venue, index }))
+		.sort((a, b) => {
+			const sessionDiff = getSessionSortOrder(a.venue.session) - getSessionSortOrder(b.venue.session);
+			if (sessionDiff !== 0) return sessionDiff;
+			return a.index - b.index;
+		})
+		.map(({ venue }) => venue);
 	const races = getVenueRaces(selectedVenue);
 	const venueWeather = getVenueWeather(selectedVenue);
 

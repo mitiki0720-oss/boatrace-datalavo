@@ -19,6 +19,8 @@ const venueNotes = [
 	"住之江ナイターは気温低下で出足型モーターの体感差が出やすい。",
 ];
 
+const dashboardPageBackgroundImageSrc = withBasePath("dashboard/dashboard-bg-water-sky-sparkle.png");
+
 const upcomingBoatSchedules: BoatUpcomingScheduleItem[] = [
 	{ id: "kiryu-20260505", venueName: "桐生", title: "ナイター一般戦", grade: "一般", startDate: "2026-05-05", endDate: "2026-05-08", dateRange: "05.05 - 05.08", session: "Night" },
 	{ id: "toda-20260507", venueName: "戸田", title: "ヴィーナスシリーズ", grade: "GIII", startDate: "2026-05-07", endDate: "2026-05-12", dateRange: "05.07 - 05.12", session: "Day" },
@@ -544,8 +546,45 @@ export function DashboardPage() {
 	);
 
 	return (
-		<div style={{ display: "grid", gap: "16px" }}>
+		<div className="dashboard-page-root" style={{ display: "grid", gap: "16px" }}>
 			<style>{`
+				body:has(.dashboard-page-root) {
+					background: #eefbff;
+				}
+
+				#root:has(.dashboard-page-root) {
+					position: relative;
+					min-height: 100vh;
+					background: #eefbff;
+				}
+
+				#root:has(.dashboard-page-root)::before {
+					content: "";
+					position: fixed;
+					inset: 0;
+					z-index: 0;
+					pointer-events: none;
+					background-color: #eefbff;
+					background-image:
+						linear-gradient(180deg, rgba(248, 253, 255, 0.2) 0%, rgba(238, 250, 253, 0.16) 48%, rgba(226, 248, 250, 0.22) 100%),
+						url("${dashboardPageBackgroundImageSrc}");
+					background-size: cover;
+					background-position: center;
+					background-repeat: no-repeat;
+				}
+
+				#root:has(.dashboard-page-root) > div {
+					position: relative;
+					z-index: 1;
+					background: transparent !important;
+				}
+
+				#root:has(.dashboard-page-root) main,
+				.dashboard-page-root {
+					position: relative;
+					z-index: 1;
+				}
+
 				@keyframes boatScheduleRail {
 					from {
 						transform: translateX(0);
