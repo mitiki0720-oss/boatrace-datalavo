@@ -838,6 +838,7 @@ const narutoMeetResultStyle = {
 	color: boatTheme.colors.navy,
 };
 
+const racePageBackgroundImageSrc = withBasePath("races-page/races-page-bg-water-sky-sparkle.png");
 const raceHeroImageSrc = withBasePath("races-page/races-hero-boat-team.png");
 
 const getVenueSpotlightImageSrc = (fileName: string) => withBasePath(`races-page/venue-spotlights/${fileName}`);
@@ -5706,7 +5707,56 @@ const venueExtrasDisplayText = useMemo(() => {
   contentPaddingInline="24px"
   heroMaxWidth="1680px"
 >
-			<div style={pageContentStyle}>
+			<style>
+				{`
+body:has(.races-page-root) {
+	background: #eefbff;
+}
+
+#root:has(.races-page-root) {
+	position: relative;
+	min-height: 100vh;
+	background: #eefbff;
+}
+
+#root:has(.races-page-root)::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background-color: #eefbff;
+	background-image:
+		linear-gradient(180deg, rgba(248, 253, 255, 0.24) 0%, rgba(238, 250, 253, 0.18) 46%, rgba(226, 248, 250, 0.28) 100%),
+		url("${racePageBackgroundImageSrc}");
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+#root:has(.races-page-root) > div {
+	position: relative;
+	z-index: 1;
+	background: transparent !important;
+}
+
+#root:has(.races-page-root) main,
+.races-page-root {
+	position: relative;
+	z-index: 1;
+}
+
+#root:has(.races-page-root) main > section {
+	background: transparent !important;
+}
+
+.races-page-root > * {
+	position: relative;
+	z-index: 1;
+}
+				`}
+			</style>
+			<div className="races-page-root" style={pageContentStyle}>
 <section style={heroShellStyle}>
   <div style={heroInnerStyle}>
     <div style={heroImageAreaStyle}>
