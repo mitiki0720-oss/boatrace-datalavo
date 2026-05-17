@@ -163,8 +163,11 @@ const featuredVenueCardStyle: CSSProperties = {
 
 const compactVenueCardStyle: CSSProperties = {
 	...venueCardStyle,
-	padding: "20px 18px",
-	minHeight: "118px",
+	width: "180px",
+	height: "180px",
+	boxSizing: "border-box",
+	padding: "14px",
+	minHeight: 0,
 	borderRadius: "24px",
 	boxShadow: "0 16px 34px rgba(17, 64, 92, 0.08)",
 };
@@ -889,15 +892,16 @@ export function DashboardPage() {
 				<div
 					style={{
 						display: "grid",
-						gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+						gridTemplateColumns: "repeat(auto-fill, 180px)",
+						gridAutoRows: "180px",
 						gap: "18px",
-						alignItems: "stretch",
+						alignItems: "start",
+						justifyContent: "start",
 					}}
 				>
 					{standardVenues.map((venue) => (
 						(() => {
 							const timeBand = getDashboardVenueTimeBand(venue);
-							const isFeaturedVenue = featuredVenueNames.has(venue.venueName);
 							const venueTone = getVenueCardTone(timeBand);
 							const accentColor = getVenueAccentColor(timeBand);
 							const weatherSummary = getVenueWeatherSummary(venue.weatherActual);
@@ -905,22 +909,22 @@ export function DashboardPage() {
 						<article
 							key={venue.id}
 							style={{
-								...(isFeaturedVenue ? featuredVenueCardStyle : compactVenueCardStyle),
+								...compactVenueCardStyle,
 								...venueTone,
-								boxShadow: isFeaturedVenue ? "0 24px 52px rgba(17, 64, 92, 0.12)" : "0 14px 28px rgba(17, 64, 92, 0.07)",
+								boxShadow: "0 14px 28px rgba(17, 64, 92, 0.07)",
 								position: "relative",
 								overflow: "hidden",
 							}}
 							onMouseEnter={(event) => {
 								elevateCard(event.currentTarget, true, {
 									borderColor: typeof venueTone.border === "string" ? venueTone.border : undefined,
-									boxShadow: isFeaturedVenue ? "0 24px 52px rgba(17, 64, 92, 0.12)" : "0 14px 28px rgba(17, 64, 92, 0.07)",
+									boxShadow: "0 14px 28px rgba(17, 64, 92, 0.07)",
 								});
 							}}
 							onMouseLeave={(event) => {
 								elevateCard(event.currentTarget, false, {
 									borderColor: typeof venueTone.border === "string" ? venueTone.border : undefined,
-									boxShadow: isFeaturedVenue ? "0 24px 52px rgba(17, 64, 92, 0.12)" : "0 14px 28px rgba(17, 64, 92, 0.07)",
+									boxShadow: "0 14px 28px rgba(17, 64, 92, 0.07)",
 								});
 							}}
 						>
@@ -936,7 +940,7 @@ export function DashboardPage() {
 									boxShadow: `0 8px 18px ${accentColor}22`,
 								}}
 							/>
-							<div style={{ display: "grid", gap: "12px", height: "100%" }}>
+							<div style={{ display: "grid", gridTemplateRows: "auto minmax(0, 1fr) auto", gap: "8px", height: "100%", minHeight: 0 }}>
 								<span
 										style={{
 											display: "inline-flex",
@@ -958,12 +962,12 @@ export function DashboardPage() {
 										{getVenueSessionLabel(timeBand)}
 									</span>
 
-								<div style={{ display: "grid", gap: "6px" }}>
+								<div style={{ display: "grid", gap: "5px", minHeight: 0, overflow: "hidden" }}>
 									<h4 style={{ margin: 0, fontSize: "1.32rem", fontWeight: 800, color: boatTheme.colors.navy }}>{venue.venueName}</h4>
 									<p style={{ margin: 0, color: boatTheme.colors.muted, fontWeight: 700, fontSize: "0.94rem" }}>{venue.title || "開催情報確認中"}</p>
 								</div>
 
-								<p style={{ margin: "auto 0 0", color: boatTheme.colors.muted, lineHeight: 1.5, fontSize: "0.82rem" }}>
+								<p style={{ margin: "auto 0 0", color: boatTheme.colors.muted, lineHeight: 1.35, fontSize: "0.74rem", fontWeight: 700 }}>
 									{weatherSummary}
 								</p>
 
