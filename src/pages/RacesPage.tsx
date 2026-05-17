@@ -60,26 +60,69 @@ const venueActionRowStyle = {
 };
 
 function getVenueTimeBandPriority(venue: BoatTodayVenueItem) {
-	const normalizedSession = String(venue.session ?? "").trim().toLowerCase();
-	const normalizedTitle = String(venue.title ?? "").replace(/\s+/g, "").toLowerCase();
+	const timeBand = getVenueTimeBand(venue);
 
-	if (normalizedSession === "morning" || normalizedTitle.includes("モーニング")) {
+	if (timeBand === "morning") {
 		return 0;
 	}
 
-	if (normalizedSession === "day") {
+	if (timeBand === "day") {
 		return 1;
 	}
 
-	if (normalizedSession === "night" || normalizedTitle.includes("ナイター")) {
+	if (timeBand === "night") {
 		return 2;
 	}
 
-	if (normalizedSession === "midnight" || normalizedTitle.includes("ミッドナイト")) {
+	if (timeBand === "midnight") {
 		return 3;
 	}
 
 	return 9;
+}
+
+function getVenueTimeBand(venue: BoatTodayVenueItem): "morning" | "day" | "night" | "midnight" | "unknown" {
+	const venueRecord = venue as BoatTodayVenueItem & Record<string, unknown>;
+	const normalizedSession = String(venue.session ?? "").trim().normalize("NFKC").toLowerCase();
+	const titleText = [
+		venue.title,
+		venueRecord.seriesName,
+		venueRecord.eventName,
+		venueRecord.raceTitle,
+		venueRecord.gradeName,
+	]
+		.map((value) => String(value ?? "").trim())
+		.filter(Boolean)
+		.join(" ");
+	const normalizedTitle = titleText.replace(/\s+/g, "").normalize("NFKC").toLowerCase();
+
+	if (
+		normalizedSession === "midnight" ||
+		normalizedTitle.includes("mnb") ||
+		normalizedTitle.includes("ミッドナイト")
+	) {
+		return "midnight";
+	}
+
+	if (normalizedSession === "morning" || normalizedTitle.includes("morning") || normalizedTitle.includes("モーニング")) {
+		return "morning";
+	}
+
+	if (normalizedSession === "night" || normalizedTitle.includes("night") || normalizedTitle.includes("ナイター")) {
+		return "night";
+	}
+
+	if (normalizedSession === "day" || normalizedTitle.includes("day") || normalizedTitle.includes("デイ")) {
+		return "day";
+	}
+
+	return "unknown";
+}
+
+function getVenueDisplaySession(venue: BoatTodayVenueItem): BoatTodayVenueItem["session"] {
+	const timeBand = getVenueTimeBand(venue);
+
+	return timeBand === "unknown" ? venue.session : timeBand as BoatTodayVenueItem["session"];
 }
 
 function getVenueFirstRaceSortableTime(venue: BoatTodayVenueItem) {
@@ -283,22 +326,28 @@ const venueExtrasPanelSelectorWrapStyle = {
 
 const venueExtrasPanelSelectorScrollStyle = {
 	overflowX: "auto" as const,
+	overflowY: "hidden" as const,
 	paddingBottom: "4px",
 	marginInline: "-4px",
 	paddingInline: "4px",
 	WebkitOverflowScrolling: "touch" as const,
+	scrollbarColor: "rgba(93, 199, 232, 0.34) rgba(255, 255, 255, 0.42)",
+	scrollbarWidth: "thin" as const,
 };
 
 const venueExtrasPanelSelectorGridStyle = {
-	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+	display: "flex",
+	flexWrap: "nowrap" as const,
 	gap: "12px",
-	minWidth: 0,
+	minWidth: "max-content",
+	alignItems: "stretch" as const,
+	scrollSnapType: "x proximity" as const,
 };
 
 const venueExtrasPanelButtonBaseStyle = {
 	display: "grid",
 	gap: "9px",
+	flex: "0 0 240px",
 	padding: "16px",
 	borderRadius: "22px",
 	border: "1px solid rgba(93, 199, 232, 0.18)",
@@ -308,6 +357,8 @@ const venueExtrasPanelButtonBaseStyle = {
 	cursor: "pointer",
 	transition: "background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease",
 	minHeight: "146px",
+	height: "100%",
+	scrollSnapAlign: "start" as const,
 };
 
 const venueExtrasPanelButtonTopStyle = {
@@ -4260,6 +4311,13 @@ export function RacesPage() {
 	const [selectedVenueExtraPanel, setSelectedVenueExtraPanel] = useState<VenueExtraPanelKey>("official");
 	const [selectedNarutoStatsTab, setSelectedNarutoStatsTab] = useState<NarutoStatsTab>("score");
 	const sortedTodayVenues = useMemo(() => sortTodayVenues(todayFeed.venues), [todayFeed]);
+	const venueSelectorVenues = useMemo(
+		() => sortedTodayVenues.map((venue) => ({
+			...venue,
+			session: getVenueDisplaySession(venue),
+		})),
+		[sortedTodayVenues],
+	);
 	const initialVenue = sortedTodayVenues[0];
 	const initialRace = initialVenue ? getFirstSelectableRace(initialVenue.races) : undefined;
 	const [selectedVenueId, setSelectedVenueId] = useState<string>(initialVenue?.id ?? "");
@@ -5882,7 +5940,7 @@ body:has(.races-page-root) {
 
 				<div style={openSectionStyle}>
 					<BoatVenueSelectorPanel
-						venues={sortedTodayVenues}
+						venues={venueSelectorVenues}
 						selectedVenueId={selectedVenueId}
 						onSelectVenue={handleSelectVenue}
 					/>
