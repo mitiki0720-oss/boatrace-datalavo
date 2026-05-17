@@ -30,6 +30,15 @@ type PastReviewIndex = {
 	reviews?: PastReviewFile[];
 };
 
+type ReviewMonthCell = {
+	isoDate: string;
+	dayNumber: number;
+	inCurrentMonth: boolean;
+	isSelected: boolean;
+	isToday: boolean;
+	isDisabled: boolean;
+};
+
 type ReviewRaceEntry = {
 	raceKey: string;
 	venue: BoatTodayVenueItem | null;
@@ -51,6 +60,7 @@ type ReviewVenueGroup = {
 
 const REVIEW_REPORT_STORAGE_KEY = "kurari-boat-data-labo-review-reports";
 const PAST_REVIEW_INDEX_URL = withBasePath("data/reviews/index.json");
+const REVIEW_CALENDAR_WEEKDAY_LABELS = ["月", "火", "水", "木", "金", "土", "日"];
 
 const modeLabels: Record<ReviewMode, string> = {
 	today: "今日",
@@ -224,6 +234,73 @@ const modeButtonBaseStyle = {
 	color: boatTheme.colors.navy,
 	fontWeight: 900,
 	cursor: "pointer",
+};
+
+const calendarMonthHeaderStyle = {
+	display: "grid",
+	gridTemplateColumns: "42px minmax(0, 1fr) 42px",
+	alignItems: "center",
+	gap: "10px",
+	padding: "8px",
+	borderRadius: "22px",
+	background: "rgba(255, 255, 255, 0.7)",
+	border: "1px solid rgba(93, 199, 232, 0.18)",
+};
+
+const calendarMonthButtonStyle = {
+	width: "42px",
+	height: "42px",
+	borderRadius: "15px",
+	border: "1px solid rgba(93, 199, 232, 0.24)",
+	background: "rgba(255, 255, 255, 0.96)",
+	color: boatTheme.colors.navy,
+	fontWeight: 950,
+	cursor: "pointer",
+};
+
+const calendarMonthLabelStyle = {
+	margin: 0,
+	textAlign: "center" as const,
+	color: boatTheme.colors.navy,
+	fontSize: "1.18rem",
+	fontWeight: 950,
+};
+
+const calendarGridStyle = {
+	display: "grid",
+	gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+	gap: "7px",
+};
+
+const calendarWeekdayStyle = {
+	textAlign: "center" as const,
+	color: boatTheme.colors.aquaDeep,
+	fontSize: "0.72rem",
+	fontWeight: 950,
+};
+
+const calendarDayButtonStyle = {
+	position: "relative" as const,
+	minHeight: "42px",
+	borderRadius: "15px",
+	border: "1px solid rgba(93, 199, 232, 0.16)",
+	background: "rgba(255, 255, 255, 0.9)",
+	color: boatTheme.colors.navy,
+	fontSize: "0.86rem",
+	fontWeight: 950,
+	cursor: "pointer",
+};
+
+const calendarDotStyle = {
+	position: "absolute" as const,
+	left: "50%",
+	bottom: "6px",
+	width: "5px",
+	height: "5px",
+	borderRadius: "999px",
+	background: "#f27aa9",
+	transform: "translateX(-50%)",
+	boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.82)",
 };
 
 const fieldGridStyle = {
@@ -457,6 +534,51 @@ const shiftDate = (dateText: string, days: number): string => {
 };
 
 const formatYen = (value: number): string => `${value.toLocaleString("ja-JP")}円`;
+
+const formatCalendarMonthLabel = (isoMonth: string): string => {
+	const [year, month] = isoMonth.split("-").map(Number);
+	return `${year}年${month}月`;
+};
+
+const shiftCalendarMonth = (isoMonth: string, months: number): string => {
+	const [year, month] = isoMonth.split("-").map(Number);
+	const date = new Date(Date.UTC(year, month - 1 + months, 1));
+	const nextYear = date.getUTCFullYear();
+	const nextMonth = String(date.getUTCMonth() + 1).padStart(2, "0");
+	return `${nextYear}-${nextMonth}`;
+};
+
+const formatUtcIsoDate = (date: Date): string => {
+	const year = date.getUTCFullYear();
+	const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+	const day = String(date.getUTCDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
+};
+
+const buildReviewCalendarWeeks = (isoMonth: string, selectedDate: string, todayDate: string): ReviewMonthCell[][] => {
+	const [year, month] = isoMonth.split("-").map(Number);
+	const firstDate = new Date(Date.UTC(year, month - 1, 1));
+	const mondayOffset = (firstDate.getUTCDay() + 6) % 7;
+	const startDate = new Date(firstDate);
+	startDate.setUTCDate(firstDate.getUTCDate() - mondayOffset);
+
+	return Array.from({ length: 6 }, (_, weekIndex) =>
+		Array.from({ length: 7 }, (_, dayIndex) => {
+			const date = new Date(startDate);
+			date.setUTCDate(startDate.getUTCDate() + weekIndex * 7 + dayIndex);
+			const isoDate = formatUtcIsoDate(date);
+
+			return {
+				isoDate,
+				dayNumber: date.getUTCDate(),
+				inCurrentMonth: date.getUTCMonth() === month - 1,
+				isSelected: isoDate === selectedDate,
+				isToday: isoDate === todayDate,
+				isDisabled: isoDate > todayDate,
+			};
+		})
+	);
+};
 
 const formatPercent = (value: number): string => `${value.toFixed(1)}%`;
 
@@ -765,6 +887,7 @@ export function ReviewPage() {
 	const operationalYesterday = useMemo(() => shiftDate(operationalToday, -1), [operationalToday]);
 	const [mode, setMode] = useState<ReviewMode>("today");
 	const [selectedDate, setSelectedDate] = useState(operationalToday);
+	const [calendarMonth, setCalendarMonth] = useState(operationalToday.slice(0, 7));
 	const [todayFeed, setTodayFeed] = useState<BoatTodayFeed | null>(null);
 	const [venueExtrasFeed, setVenueExtrasFeed] = useState<BoatVenueExtrasFeed | null>(null);
 	const [pastReviewItems, setPastReviewItems] = useState<PastReviewFile[]>([]);
@@ -826,16 +949,6 @@ export function ReviewPage() {
 			active = false;
 		};
 	}, []);
-
-	useEffect(() => {
-		if (mode === "today") {
-			setSelectedDate(operationalToday);
-		}
-
-		if (mode === "yesterday") {
-			setSelectedDate(operationalYesterday);
-		}
-	}, [mode, operationalToday, operationalYesterday]);
 
 	const venueMap = useMemo(() => new Map((todayFeed?.venues ?? []).map((venue) => [venue.venueName, venue])), [todayFeed]);
 
@@ -964,21 +1077,40 @@ export function ReviewPage() {
 		};
 	}, [groups]);
 
-	const handleModeChange = (nextMode: ReviewMode) => {
-		setMode(nextMode);
-		setStatusMessage("");
-	};
+	const reviewFileDateSet = useMemo(
+		() => new Set(pastReviewItems.map((item) => item.date).filter((date): date is string => Boolean(date))),
+		[pastReviewItems]
+	);
+	const calendarWeeks = useMemo(() => buildReviewCalendarWeeks(calendarMonth, selectedDate, operationalToday), [calendarMonth, selectedDate, operationalToday]);
+	const nextCalendarMonth = shiftCalendarMonth(calendarMonth, 1);
+	const isNextCalendarMonthDisabled = nextCalendarMonth > operationalToday.slice(0, 7);
 
-	const handleDateChange = (event: ChangeEvent<HTMLInputElement>) => {
-		const nextDate = event.target.value;
+	const selectReviewDate = (nextDate: string) => {
 		if (nextDate > operationalToday) {
 			return;
 		}
 
 		setSelectedDate(nextDate);
+		setCalendarMonth(nextDate.slice(0, 7));
 		if (nextDate === operationalToday) setMode("today");
 		else if (nextDate === operationalYesterday) setMode("yesterday");
 		else setMode("archive");
+		setStatusMessage("");
+	};
+
+	const handleModeChange = (nextMode: ReviewMode) => {
+		if (nextMode === "today") {
+			selectReviewDate(operationalToday);
+			return;
+		}
+
+		if (nextMode === "yesterday") {
+			selectReviewDate(operationalYesterday);
+			return;
+		}
+
+		setMode("archive");
+		setStatusMessage("");
 	};
 
 	const handleRefreshStorage = () => {
@@ -1084,7 +1216,8 @@ export function ReviewPage() {
 				</section>
 
 					<section style={calendarPanelStyle}>
-						<h3 style={panelTitleStyle}>レビュー日付カレンダー</h3>
+						<p style={eyebrowStyle}>REVIEW CALENDAR</p>
+						<h3 style={panelTitleStyle}>レビュー日付を選ぶ</h3>
 						<div style={modeButtonRowStyle}>
 							{(["today", "yesterday", "archive"] as ReviewMode[]).map((item) => (
 								<button
@@ -1102,11 +1235,75 @@ export function ReviewPage() {
 							))}
 							<button type="button" style={secondaryButtonStyle} onClick={handleRefreshStorage}>再読み込み</button>
 						</div>
-						<label style={fieldStyle}>
-							<span style={labelStyle}>対象日</span>
-							<input type="date" style={inputStyle} value={selectedDate} max={operationalToday} onChange={handleDateChange} />
-						</label>
+						<div style={calendarMonthHeaderStyle}>
+							<button
+								type="button"
+								style={calendarMonthButtonStyle}
+								onClick={() => setCalendarMonth((current) => shiftCalendarMonth(current, -1))}
+								aria-label="前月"
+							>
+								&lt;
+							</button>
+							<p style={calendarMonthLabelStyle}>{formatCalendarMonthLabel(calendarMonth)}</p>
+							<button
+								type="button"
+								style={{
+									...calendarMonthButtonStyle,
+									opacity: isNextCalendarMonthDisabled ? 0.38 : 1,
+									cursor: isNextCalendarMonthDisabled ? "not-allowed" : "pointer",
+								}}
+								onClick={() => {
+									if (!isNextCalendarMonthDisabled) {
+										setCalendarMonth(nextCalendarMonth);
+									}
+								}}
+								disabled={isNextCalendarMonthDisabled}
+								aria-label="次月"
+							>
+								&gt;
+							</button>
+						</div>
+						<div style={calendarGridStyle}>
+							{REVIEW_CALENDAR_WEEKDAY_LABELS.map((label) => (
+								<div key={label} style={calendarWeekdayStyle}>{label}</div>
+							))}
+							{calendarWeeks.flat().map((cell) => {
+								const hasReviewFile = reviewFileDateSet.has(cell.isoDate);
+
+								return (
+									<button
+										key={cell.isoDate}
+										type="button"
+										onClick={() => selectReviewDate(cell.isoDate)}
+										disabled={cell.isDisabled}
+										style={{
+											...calendarDayButtonStyle,
+											opacity: cell.isDisabled ? 0.34 : cell.inCurrentMonth ? 1 : 0.48,
+											cursor: cell.isDisabled ? "not-allowed" : "pointer",
+											border: cell.isSelected
+												? "1px solid rgba(124, 128, 255, 0.46)"
+												: cell.isToday
+													? "1px solid rgba(34, 197, 178, 0.5)"
+													: calendarDayButtonStyle.border,
+											background: cell.isSelected
+												? "linear-gradient(135deg, rgba(233, 226, 255, 0.96), rgba(201, 241, 255, 0.96))"
+												: cell.isToday
+													? "linear-gradient(135deg, rgba(217, 255, 246, 0.96), rgba(232, 250, 255, 0.96))"
+													: calendarDayButtonStyle.background,
+											boxShadow: cell.isSelected ? "0 10px 20px rgba(93, 199, 232, 0.16)" : "none",
+										}}
+									>
+										{cell.dayNumber}
+										{hasReviewFile ? <span style={calendarDotStyle} /> : null}
+									</button>
+								);
+							})}
+						</div>
 						<div style={summaryGridStyle}>
+							<article style={summaryCardStyle}>
+								<p style={summaryLabelStyle}>対象日</p>
+								<p style={summaryValueStyle}>{selectedDate}</p>
+							</article>
 							<article style={summaryCardStyle}>
 								<p style={summaryLabelStyle}>モード</p>
 								<p style={summaryValueStyle}>{modeLabels[mode]}</p>
