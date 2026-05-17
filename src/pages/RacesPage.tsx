@@ -5937,11 +5937,11 @@ const venueExtrasDisplayText = useMemo(() => {
 									<tr>
 										<th style={venueExtrasHeadCellStyle}>枠</th>
 										<th style={venueExtrasHeadCellStyle}>選手</th>
-										<th style={venueExtrasHeadCellStyle}>1逹邇・</th>
-										<th style={venueExtrasHeadCellStyle}>2逹邇・</th>
-										<th style={venueExtrasHeadCellStyle}>3逹邇・</th>
+										<th style={venueExtrasHeadCellStyle}>1着率</th>
+										<th style={venueExtrasHeadCellStyle}>2着率</th>
+										<th style={venueExtrasHeadCellStyle}>3着率</th>
 										<th style={venueExtrasHeadCellStyle}>その他</th>
-										<th style={venueExtrasHeadCellStyle}>3騾｣邇・</th>
+										<th style={venueExtrasHeadCellStyle}>3連率</th>
 										<th style={venueExtrasHeadCellStyle}>平均ST</th>
 										<th style={venueExtrasHeadCellStyle}>ST順位</th>
 									</tr>
@@ -6287,7 +6287,7 @@ const venueExtrasDisplayText = useMemo(() => {
 
 		{isKojimaVenue && selectedVenueExtraPanel === "kojima-course" ? (
 			hasKojimaCourseStatsData ? (
-				<div style={venueExtrasDataGridStyle}><section style={venueExtrasPanelStyle}><h4 style={venueExtrasPanelTitleStyle}>進入コース別</h4><div style={venueExtrasTableWrapStyle}><table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}><thead><tr><th style={venueExtrasHeadCellStyle}>枠</th><th style={venueExtrasHeadCellStyle}>選手</th>{Array.from({ length: 6 }, (_, index) => (<th key={`kojima-course-head-${index}`} style={venueExtrasHeadCellStyle}>{index + 1}コース</th>))}</tr></thead><tbody>{selectedKojimaCourseStats.map((item) => (<tr key={`kojima-course-${item.frameNo}`}><td style={venueExtrasBodyCellStyle}>{item.frameNo}</td><td style={venueExtrasBodyCellStyle}><div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}><strong>{item.playerName || `枠${item.frameNo}`}</strong><span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span></div></td>{Array.from({ length: 6 }, (_, index) => { const course = item.courseRows[index]; return <td key={`kojima-course-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>{course ? <div style={{ display: "grid", gap: "3px", minWidth: "96px" }}><span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入率{course.entryRate || "-"}</span><span>1逹邇・{course.firstRate || "-"}</span><span>2連率{sumVenueExtraRates(course.firstRate, course.secondRate) || "-"}</span><span>3騾｣邇・{sumVenueExtraRates(course.firstRate, course.secondRate, course.thirdRate) || "-"}</span><span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>平均ST {course.averageStart || "-"}</span></div> : "-"}</td>; })}</tr>))}</tbody></table></div></section></div>
+				<div style={venueExtrasDataGridStyle}><section style={venueExtrasPanelStyle}><h4 style={venueExtrasPanelTitleStyle}>進入コース別</h4><div style={venueExtrasTableWrapStyle}><table style={{ ...venueExtrasTableStyle, minWidth: "1380px" }}><thead><tr><th style={venueExtrasHeadCellStyle}>枠</th><th style={venueExtrasHeadCellStyle}>選手</th>{Array.from({ length: 6 }, (_, index) => (<th key={`kojima-course-head-${index}`} style={venueExtrasHeadCellStyle}>{index + 1}コース</th>))}</tr></thead><tbody>{selectedKojimaCourseStats.map((item) => (<tr key={`kojima-course-${item.frameNo}`}><td style={venueExtrasBodyCellStyle}>{item.frameNo}</td><td style={venueExtrasBodyCellStyle}><div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}><strong>{item.playerName || `枠${item.frameNo}`}</strong><span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span></div></td>{Array.from({ length: 6 }, (_, index) => { const course = item.courseRows[index]; return <td key={`kojima-course-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>{course ? <div style={{ display: "grid", gap: "3px", minWidth: "96px" }}><span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入率{course.entryRate || "-"}</span><span>1着率{course.firstRate || "-"}</span><span>2連率{sumVenueExtraRates(course.firstRate, course.secondRate) || "-"}</span><span>3連率{sumVenueExtraRates(course.firstRate, course.secondRate, course.thirdRate) || "-"}</span><span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>平均ST {course.averageStart || "-"}</span></div> : "-"}</td>; })}</tr>))}</tbody></table></div></section></div>
 			) : (
 				<p style={venueExtrasEmptyStyle}>児島公式の進入コース別成績は未取得待ちです。</p>
 			)
@@ -6586,7 +6586,7 @@ const venueExtrasDisplayText = useMemo(() => {
 															</span>
 														</div>
 														<div style={{ ...narutoStartMetaDetailStyle, justifyContent: "flex-end" as const, textAlign: "right" as const }}>
-															<span>莉雁屓ST {item.startTiming || "-"}</span>
+															<span>今回ST {item.startTiming || "-"}</span>
 															<span>今節平均ST {item.currentAverageStart || "-"}</span>
 															<span>スタート順{item.startOrder ?? "-"}</span>
 														</div>
@@ -6953,10 +6953,10 @@ const venueExtrasDisplayText = useMemo(() => {
 													<td key={`wakamatsu-course-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
 														{course ? (
 															<div style={{ display: "grid", gap: "3px", minWidth: "74px" }}>
-																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>蝗樊焚 {course.entryCount || "-"}</span>
-																<span>1逹 {course.firstCount || "-"}</span>
-																<span>2逹 {course.secondCount || "-"}</span>
-																<span>3逹 {course.thirdCount || "-"}</span>
+																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入回数 {course.entryCount || "-"}</span>
+																<span>1着 {course.firstCount || "-"}</span>
+																<span>2着 {course.secondCount || "-"}</span>
+																<span>3着 {course.thirdCount || "-"}</span>
 																<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>ST {course.averageStart || "-"}</span>
 															</div>
 														) : "-"}

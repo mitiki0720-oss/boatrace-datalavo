@@ -1,5 +1,5 @@
 import { VENUE_EXTRA_LABELS } from "./venueExtraLabels";
-import type { VenueExtraPanelOption, VenueExtraVenueFlags } from "./venueExtraTypes";
+import type { VenueExtraPanelKey, VenueExtraPanelOption, VenueExtraVenueFlags } from "./venueExtraTypes";
 
 export type BuildVenueExtraPanelOptionsInput = VenueExtraVenueFlags & {
 	hasSelectedVenueExtrasDetail: boolean;
@@ -56,121 +56,90 @@ export type BuildVenueExtraPanelOptionsInput = VenueExtraVenueFlags & {
 	abilityIndexCount: number;
 };
 
+function createPanel(
+	key: VenueExtraPanelKey,
+	label: string,
+	hint: string,
+	hasData: boolean,
+	badgeWhenReady: string,
+): VenueExtraPanelOption {
+	return {
+		key,
+		label,
+		hint,
+		badge: hasData ? badgeWhenReady : VENUE_EXTRA_LABELS.waiting,
+	};
+}
+
+function appendIf(options: VenueExtraPanelOption[], condition: boolean, option: VenueExtraPanelOption): void {
+	if (condition) {
+		options.push(option);
+	}
+}
+
 export function buildVenueExtraPanelOptions(input: BuildVenueExtraPanelOptionsInput): VenueExtraPanelOption[] {
 	const text = VENUE_EXTRA_LABELS;
 	const hasOfficialScoreRows = input.officialScoreRowsCount > 0;
 	const hasAbilityIndex = input.abilityIndexCount > 0;
-
-	if (input.isKaratsuVenue) {
-		return [
-			{ key: "official", label: text.labels.official, hint: text.hints.official, badge: input.hasOfficialPanelData ? text.labels.officialShort : text.waiting },
-			{ key: "exhibition", label: "会場独自展示", hint: text.hints.exhibitionGeneral, badge: input.hasExhibitionPanelData ? text.labels.exhibitionShort : text.waiting },
-			{ key: "start", label: text.labels.start, hint: text.hints.startGeneral, badge: input.hasStartPanelData ? text.labels.startShort : text.waiting },
-			{ key: "motor", label: text.labels.motor, hint: text.hints.motorGeneral, badge: input.hasMotorPanelData ? text.labels.motorHistoryShort : text.waiting },
-			{ key: "records", label: text.labels.records, hint: text.hints.records, badge: input.hasRecordsPanelData ? text.labels.recordsShort : text.waiting },
-			{ key: "water", label: text.labels.waterComment, hint: text.hints.waterComment, badge: input.hasWaterPanelData ? text.labels.waterShort : text.waiting },
-		];
-	}
-
-	if (input.isOmuraVenue) {
-		return [
-			{ key: "omura-overview", label: text.labels.overview, hint: text.hints.overview, badge: input.hasSelectedVenueExtrasDetail ? text.labels.overviewShort : text.waiting },
-			{ key: "omura-prevday", label: text.labels.prevDay, hint: text.hints.prevDay, badge: input.hasOmuraPreviousDayData ? text.labels.prevDay : text.waiting },
-			{ key: "omura-national", label: text.labels.nationalFrame, hint: text.hints.nationalFrame, badge: input.hasOmuraNationalFrameStatsData ? text.labels.nationalFrameShort : text.waiting },
-			{ key: "omura-last10", label: text.labels.last10, hint: text.hints.last10, badge: input.hasOmuraFrameLast10Data ? text.labels.last10Short : text.waiting },
-			{ key: "omura-comments", label: text.labels.commentsAndMotor, hint: text.hints.commentsAndMotor, badge: input.hasOmuraCommentsMotorData ? text.labels.commentShort : text.waiting },
-			{ key: "omura-exhibition", label: text.labels.displayInfo, hint: text.hints.displayInfo, badge: input.hasOmuraExhibitionData ? text.labels.exhibitionShort : text.waiting },
-		];
-	}
-
-	if (input.isTsuVenue) {
-		return [
-			{ key: "tsu-before", label: text.labels.before, hint: text.hints.beforeFull, badge: input.hasTsuBeforeInfoData ? text.labels.directBeforeShort : text.waiting },
-			{ key: "start", label: text.labels.start, hint: text.hints.startTsu, badge: input.hasStartPanelData ? text.labels.startShort : text.waiting },
-			{ key: "exhibition", label: text.labels.exhibition, hint: text.hints.exhibitionFull, badge: input.hasExhibitionPanelData ? text.labels.exhibitionShort : text.waiting },
-			{ key: "tsu-comments", label: text.labels.comments, hint: text.hints.commentsTsu, badge: input.hasTsuRacerCommentsData ? text.labels.commentShort : text.waiting },
-			{ key: "tsu-series", label: text.labels.series, hint: text.hints.seriesGeneral, badge: input.hasTsuSeriesResultsData ? text.labels.series : text.waiting },
-			{ key: "tsu-national3", label: text.labels.nationalRecent3, hint: text.hints.nationalRecent3, badge: input.hasTsuNationalRecent3Data ? text.labels.national3Short : text.waiting },
-			{ key: "tsu-local3", label: text.labels.localRecent3, hint: text.hints.localRecent3Tsu, badge: input.hasTsuLocalRecent3Data ? text.labels.local3Short : text.waiting },
-			{ key: "tsu-frame10", label: text.labels.framePast10, hint: text.hints.framePast10, badge: input.hasTsuFramePast10Data ? text.labels.last10Short : text.waiting },
-			{ key: "tsu-score", label: text.labels.score, hint: text.hints.scoreTsu, badge: input.hasTsuScoreRateGuideData || hasOfficialScoreRows ? text.labels.scoreShort : text.waiting },
-		];
-	}
-
-	if (input.isWakamatsuVenue) {
-		return [
-			{ key: "wakamatsu-before", label: text.labels.before, hint: text.hints.beforeWakamatsu, badge: input.hasWakamatsuBeforeInfoData ? text.labels.directBeforeShort : text.waiting },
-			{ key: "start", label: text.labels.start, hint: text.hints.startWakamatsu, badge: input.hasStartPanelData ? text.labels.startShort : text.waiting },
-			{ key: "exhibition", label: text.labels.exhibition, hint: text.hints.exhibitionFull, badge: input.hasExhibitionPanelData ? text.labels.exhibitionShort : text.waiting },
-			{ key: "wakamatsu-series", label: text.labels.series, hint: text.hints.seriesGeneral, badge: input.hasWakamatsuSeriesResultsData ? text.labels.series : text.waiting },
-			{ key: "wakamatsu-course", label: text.labels.course, hint: text.hints.courseWakamatsu, badge: input.hasWakamatsuCourseStatsData ? "進入" : text.waiting },
-			{ key: "wakamatsu-motor", label: text.labels.motorHistory, hint: text.hints.motorHistory, badge: input.hasWakamatsuMotorHistoryData ? text.labels.historyShort : text.waiting },
-			{ key: "wakamatsu-frame10", label: text.labels.framePast10, hint: text.hints.framePast10, badge: input.hasWakamatsuFramePast10Data ? text.labels.last10Short : text.waiting },
-			{ key: "wakamatsu-national3", label: text.labels.nationalRecent3, hint: text.hints.nationalRecent3, badge: input.hasWakamatsuNationalRecent3Data ? text.labels.national3Short : text.waiting },
-			{ key: "wakamatsu-local3", label: text.labels.localRecent3, hint: text.hints.localRecent3Wakamatsu, badge: input.hasWakamatsuLocalRecent3Data ? text.labels.local3Short : text.waiting },
-			{ key: "wakamatsu-entry", label: text.labels.entryTable, hint: text.hints.entryTable, badge: input.hasWakamatsuEntryData ? text.labels.entryTable : text.waiting },
-			{ key: "wakamatsu-score", label: text.labels.score, hint: text.hints.scoreWakamatsu, badge: input.hasWakamatsuScoreRateGuideData ? text.labels.scoreShort : text.waiting },
-		];
-	}
-
-	if (input.isFukuokaVenue) {
-		return [
-			{ key: "fukuoka-entry", label: text.labels.entry, hint: text.hints.entryFukuoka, badge: input.hasFukuokaEntryData ? text.labels.entryShort : text.waiting },
-			{ key: "fukuoka-before", label: text.labels.before, hint: text.hints.beforeDisplay, badge: input.hasFukuokaBeforeInfoData ? text.labels.directBeforeShort : text.waiting },
-			{ key: "start", label: text.labels.start, hint: text.hints.startFukuoka, badge: input.hasStartPanelData ? text.labels.startShort : text.waiting },
-			{ key: "exhibition", label: text.labels.displayInfo, hint: text.hints.exhibitionDisplay, badge: input.hasExhibitionPanelData ? text.labels.exhibitionShort : text.waiting },
-			{ key: "fukuoka-motor", label: text.labels.motorEvaluation, hint: text.hints.motorEvaluation, badge: input.hasFukuokaMotorEvaluationData ? text.labels.motorShort : text.waiting },
-			{ key: "fukuoka-series", label: text.labels.interval, hint: text.hints.seriesGeneral, badge: input.hasFukuokaSeriesResultsData ? text.labels.intervalShort : text.waiting },
-			{ key: "fukuoka-comments", label: text.labels.comments, hint: text.hints.commentsTsu, badge: input.hasFukuokaRacerCommentsData ? text.labels.commentShort : text.waiting },
-			{ key: "fukuoka-frame10", label: text.labels.framePast10, hint: text.hints.framePast10, badge: input.hasFukuokaFramePast10Data ? text.labels.last10Short : text.waiting },
-			{ key: "fukuoka-score", label: text.labels.score, hint: text.hints.scoreFukuoka, badge: input.hasFukuokaScoreRateGuideData ? text.labels.scoreShort : text.waiting },
-		];
-	}
-
-	if (input.isKojimaVenue) {
-		return [
-			{ key: "kojima-before", label: text.labels.before, hint: text.hints.beforeDisplay, badge: input.hasKojimaBeforeInfoData ? text.labels.directBeforeShort : text.waiting },
-			{ key: "start", label: text.labels.start, hint: text.hints.startKojima, badge: input.hasStartPanelData ? text.labels.startShort : text.waiting },
-			{ key: "exhibition", label: text.labels.exhibition, hint: text.hints.exhibitionFull, badge: input.hasExhibitionPanelData ? text.labels.exhibitionShort : text.waiting },
-			{ key: "kojima-series", label: text.labels.series, hint: text.hints.seriesGeneral, badge: input.hasKojimaSeriesResultsData ? text.labels.series : text.waiting },
-			{ key: "kojima-recent", label: text.labels.recent, hint: text.hints.recent, badge: input.hasKojimaRecentResultsData ? text.labels.recentShort : text.waiting },
-			{ key: "kojima-course", label: text.labels.course, hint: text.hints.courseCompare, badge: input.hasKojimaCourseStatsData ? "進入" : text.waiting },
-			{ key: "kojima-motor", label: text.labels.motorStats, hint: text.hints.motorStats, badge: input.hasKojimaMotorStatsData ? text.labels.motorShort : text.waiting },
-			{ key: "kojima-frame", label: text.labels.frameStats, hint: text.hints.frameStats, badge: input.hasKojimaFrameStatsData ? text.labels.frameStats : text.waiting },
-			{ key: "kojima-score", label: text.labels.score, hint: text.hints.scoreKojima, badge: input.hasKojimaScoreRateGuideData ? text.labels.scoreShort : text.waiting },
-		];
-	}
-
-	if (input.isTamagawaVenue) {
-		return [
-			{ key: "tamagawa-overview", label: text.labels.overview, hint: text.hints.overviewTamagawa, badge: input.hasSelectedVenueExtrasDetail ? text.labels.overviewShort : text.waiting },
-			{ key: "motor", label: text.labels.motor, hint: text.hints.motorTamagawa, badge: input.hasTamagawaMotorHistoryData ? text.labels.historyShort : text.waiting },
-			{ key: "tamagawa-diagnosis", label: text.labels.diagnosis, hint: text.hints.diagnosis, badge: hasAbilityIndex ? text.labels.indexShort : text.waiting },
-			{ key: "tamagawa-series", label: text.labels.interval, hint: text.hints.interval, badge: input.hasTamagawaSeriesResultsData ? text.labels.intervalShort : text.waiting },
-			{ key: "tamagawa-cyokuzen", label: text.labels.directBeforeShort, hint: text.hints.beforeTamagawa, badge: input.hasTamagawaBeforeInfoData ? text.labels.directBeforeShort : text.waiting },
-			{ key: "start", label: text.labels.startShort, hint: text.hints.startTamagawa, badge: input.hasStartPanelData ? text.labels.startShort : text.waiting },
-			{ key: "exhibition", label: text.labels.exhibitionShort, hint: text.hints.exhibitionTamagawa, badge: input.hasExhibitionPanelData ? text.labels.exhibitionShort : text.waiting },
-			{ key: "tamagawa-frame10", label: text.labels.framePast10, hint: text.hints.framePast10Tamagawa, badge: input.hasTamagawaFramePast10Data ? text.labels.last10Short : text.waiting },
-			{ key: "tamagawa-score", label: text.labels.scoreShort, hint: text.hints.scoreTamagawa, badge: input.hasTamagawaScoreRateGuideData || hasOfficialScoreRows ? text.labels.scoreShort : text.waiting },
-		];
-	}
-
-	if (input.isBiwakoVenue) {
-		return [
-			{ key: "exhibition", label: "会場独自展示", hint: text.hints.exhibitionBiwako, badge: input.hasExhibitionPanelData ? text.labels.exhibitionShort : text.waiting },
-			{ key: "start", label: text.labels.start, hint: text.hints.startBiwako, badge: input.hasStartPanelData ? text.labels.startShort : text.waiting },
-			{ key: "biwako-frame10", label: text.labels.framePast10, hint: text.hints.framePast10, badge: input.hasBiwakoFramePast10Data ? text.labels.last10Short : text.waiting },
-			{ key: "biwako-series", label: text.labels.interval, hint: text.hints.seriesBiwako, badge: input.hasBiwakoSeriesResultsData ? text.labels.intervalShort : text.waiting },
-			{ key: "records", label: text.labels.score, hint: text.hints.scoreBiwako, badge: input.hasRecordsPanelData ? text.labels.scoreShort : text.waiting },
-		];
-	}
-
-	return [
-		{ key: "official", label: text.labels.official, hint: text.hints.official, badge: input.hasOfficialPanelData ? text.labels.officialShort : text.waiting },
-		{ key: "start", label: text.labels.start, hint: text.hints.startGeneral, badge: input.hasStartPanelData ? text.labels.startShort : text.waiting },
-		{ key: "records", label: text.labels.records, hint: text.hints.records, badge: input.hasRecordsPanelData ? text.labels.recordsShort : text.waiting },
-		{ key: "exhibition", label: "会場独自展示", hint: text.hints.exhibitionGeneral, badge: input.hasExhibitionPanelData ? text.labels.exhibitionShort : text.waiting },
-		{ key: "motor", label: text.labels.motor, hint: text.hints.motorGeneral, badge: input.hasMotorPanelData ? text.labels.motorHistoryShort : text.waiting },
-		{ key: "water", label: text.labels.waterComment, hint: text.hints.waterComment, badge: input.hasWaterPanelData ? text.labels.waterShort : text.waiting },
+	const options: VenueExtraPanelOption[] = [
+		createPanel("official", text.labels.official, text.hints.official, input.hasOfficialPanelData, text.labels.officialShort),
+		createPanel("start", text.labels.start, text.hints.startGeneral, input.hasStartPanelData, text.labels.startShort),
+		createPanel("records", text.labels.records, text.hints.records, input.hasRecordsPanelData, text.labels.recordsShort),
+		createPanel("exhibition", text.labels.exhibition, text.hints.exhibitionGeneral, input.hasExhibitionPanelData, text.labels.exhibitionShort),
+		createPanel("motor", text.labels.motor, text.hints.motorGeneral, input.hasMotorPanelData, text.labels.motorShort),
+		createPanel("water", text.labels.waterComment, text.hints.waterComment, input.hasWaterPanelData, text.labels.waterShort),
 	];
+
+	appendIf(options, input.isOmuraVenue, createPanel("omura-overview", text.labels.overview, text.hints.overview, input.hasSelectedVenueExtrasDetail, text.labels.overviewShort));
+	appendIf(options, input.isOmuraVenue, createPanel("omura-prevday", text.labels.prevDay, text.hints.prevDay, input.hasOmuraPreviousDayData, text.labels.prevDay));
+	appendIf(options, input.isOmuraVenue, createPanel("omura-national", text.labels.nationalFrame, text.hints.nationalFrame, input.hasOmuraNationalFrameStatsData, text.labels.nationalFrameShort));
+	appendIf(options, input.isOmuraVenue, createPanel("omura-last10", text.labels.last10, text.hints.last10, input.hasOmuraFrameLast10Data, text.labels.last10Short));
+	appendIf(options, input.isOmuraVenue, createPanel("omura-comments", text.labels.commentsAndMotor, text.hints.commentsAndMotor, input.hasOmuraCommentsMotorData, text.labels.commentShort));
+	appendIf(options, input.isOmuraVenue, createPanel("omura-exhibition", text.labels.displayInfo, text.hints.displayInfo, input.hasOmuraExhibitionData, text.labels.exhibitionShort));
+
+	appendIf(options, input.isTsuVenue, createPanel("tsu-before", text.labels.before, text.hints.beforeFull, input.hasTsuBeforeInfoData, text.labels.directBeforeShort));
+	appendIf(options, input.isTsuVenue, createPanel("tsu-comments", text.labels.comments, text.hints.commentsTsu, input.hasTsuRacerCommentsData, text.labels.commentShort));
+	appendIf(options, input.isTsuVenue, createPanel("tsu-series", text.labels.series, text.hints.seriesGeneral, input.hasTsuSeriesResultsData, text.labels.series));
+	appendIf(options, input.isTsuVenue, createPanel("tsu-national3", text.labels.nationalRecent3, text.hints.nationalRecent3, input.hasTsuNationalRecent3Data, text.labels.national3Short));
+	appendIf(options, input.isTsuVenue, createPanel("tsu-local3", text.labels.localRecent3, text.hints.localRecent3Tsu, input.hasTsuLocalRecent3Data, text.labels.local3Short));
+	appendIf(options, input.isTsuVenue, createPanel("tsu-frame10", text.labels.framePast10, text.hints.framePast10, input.hasTsuFramePast10Data, text.labels.last10Short));
+	appendIf(options, input.isTsuVenue, createPanel("tsu-score", text.labels.score, text.hints.scoreTsu, input.hasTsuScoreRateGuideData || hasOfficialScoreRows, text.labels.scoreShort));
+
+	appendIf(options, input.isWakamatsuVenue, createPanel("wakamatsu-before", text.labels.before, text.hints.beforeWakamatsu, input.hasWakamatsuBeforeInfoData, text.labels.directBeforeShort));
+	appendIf(options, input.isWakamatsuVenue, createPanel("wakamatsu-series", text.labels.series, text.hints.seriesGeneral, input.hasWakamatsuSeriesResultsData, text.labels.series));
+	appendIf(options, input.isWakamatsuVenue, createPanel("wakamatsu-course", text.labels.course, text.hints.courseWakamatsu, input.hasWakamatsuCourseStatsData, "進入"));
+	appendIf(options, input.isWakamatsuVenue, createPanel("wakamatsu-motor", text.labels.motorHistory, text.hints.motorHistory, input.hasWakamatsuMotorHistoryData, text.labels.historyShort));
+	appendIf(options, input.isWakamatsuVenue, createPanel("wakamatsu-frame10", text.labels.framePast10, text.hints.framePast10, input.hasWakamatsuFramePast10Data, text.labels.last10Short));
+	appendIf(options, input.isWakamatsuVenue, createPanel("wakamatsu-national3", text.labels.nationalRecent3, text.hints.nationalRecent3, input.hasWakamatsuNationalRecent3Data, text.labels.national3Short));
+	appendIf(options, input.isWakamatsuVenue, createPanel("wakamatsu-local3", text.labels.localRecent3, text.hints.localRecent3Wakamatsu, input.hasWakamatsuLocalRecent3Data, text.labels.local3Short));
+	appendIf(options, input.isWakamatsuVenue, createPanel("wakamatsu-entry", text.labels.entryTable, text.hints.entryTable, input.hasWakamatsuEntryData, text.labels.entryTable));
+	appendIf(options, input.isWakamatsuVenue, createPanel("wakamatsu-score", text.labels.score, text.hints.scoreWakamatsu, input.hasWakamatsuScoreRateGuideData, text.labels.scoreShort));
+
+	appendIf(options, input.isFukuokaVenue, createPanel("fukuoka-entry", text.labels.entry, text.hints.entryFukuoka, input.hasFukuokaEntryData, text.labels.entryShort));
+	appendIf(options, input.isFukuokaVenue, createPanel("fukuoka-before", text.labels.before, text.hints.beforeDisplay, input.hasFukuokaBeforeInfoData, text.labels.directBeforeShort));
+	appendIf(options, input.isFukuokaVenue, createPanel("fukuoka-motor", text.labels.motorEvaluation, text.hints.motorEvaluation, input.hasFukuokaMotorEvaluationData, text.labels.motorShort));
+	appendIf(options, input.isFukuokaVenue, createPanel("fukuoka-series", text.labels.interval, text.hints.seriesGeneral, input.hasFukuokaSeriesResultsData, text.labels.intervalShort));
+	appendIf(options, input.isFukuokaVenue, createPanel("fukuoka-comments", text.labels.comments, text.hints.commentsTsu, input.hasFukuokaRacerCommentsData, text.labels.commentShort));
+	appendIf(options, input.isFukuokaVenue, createPanel("fukuoka-frame10", text.labels.framePast10, text.hints.framePast10, input.hasFukuokaFramePast10Data, text.labels.last10Short));
+	appendIf(options, input.isFukuokaVenue, createPanel("fukuoka-score", text.labels.score, text.hints.scoreFukuoka, input.hasFukuokaScoreRateGuideData, text.labels.scoreShort));
+
+	appendIf(options, input.isKojimaVenue, createPanel("kojima-before", text.labels.before, text.hints.beforeDisplay, input.hasKojimaBeforeInfoData, text.labels.directBeforeShort));
+	appendIf(options, input.isKojimaVenue, createPanel("kojima-series", text.labels.series, text.hints.seriesGeneral, input.hasKojimaSeriesResultsData, text.labels.series));
+	appendIf(options, input.isKojimaVenue, createPanel("kojima-recent", text.labels.recent, text.hints.recent, input.hasKojimaRecentResultsData, text.labels.recentShort));
+	appendIf(options, input.isKojimaVenue, createPanel("kojima-course", text.labels.course, text.hints.courseCompare, input.hasKojimaCourseStatsData, "進入"));
+	appendIf(options, input.isKojimaVenue, createPanel("kojima-motor", text.labels.motorStats, text.hints.motorStats, input.hasKojimaMotorStatsData, text.labels.motorShort));
+	appendIf(options, input.isKojimaVenue, createPanel("kojima-frame", text.labels.frameStats, text.hints.frameStats, input.hasKojimaFrameStatsData, text.labels.frameStats));
+	appendIf(options, input.isKojimaVenue, createPanel("kojima-score", text.labels.score, text.hints.scoreKojima, input.hasKojimaScoreRateGuideData, text.labels.scoreShort));
+
+	appendIf(options, input.isTamagawaVenue, createPanel("tamagawa-overview", text.labels.overview, text.hints.overviewTamagawa, input.hasSelectedVenueExtrasDetail, text.labels.overviewShort));
+	appendIf(options, input.isTamagawaVenue, createPanel("tamagawa-diagnosis", text.labels.diagnosis, text.hints.diagnosis, hasAbilityIndex, text.labels.indexShort));
+	appendIf(options, input.isTamagawaVenue, createPanel("tamagawa-series", text.labels.interval, text.hints.interval, input.hasTamagawaSeriesResultsData, text.labels.intervalShort));
+	appendIf(options, input.isTamagawaVenue, createPanel("tamagawa-cyokuzen", text.labels.directBeforeShort, text.hints.beforeTamagawa, input.hasTamagawaBeforeInfoData, text.labels.directBeforeShort));
+	appendIf(options, input.isTamagawaVenue, createPanel("tamagawa-frame10", text.labels.framePast10, text.hints.framePast10Tamagawa, input.hasTamagawaFramePast10Data, text.labels.last10Short));
+	appendIf(options, input.isTamagawaVenue, createPanel("tamagawa-score", text.labels.score, text.hints.scoreTamagawa, input.hasTamagawaScoreRateGuideData || hasOfficialScoreRows, text.labels.scoreShort));
+
+	appendIf(options, input.isBiwakoVenue, createPanel("biwako-frame10", text.labels.framePast10, text.hints.framePast10, input.hasBiwakoFramePast10Data, text.labels.last10Short));
+	appendIf(options, input.isBiwakoVenue, createPanel("biwako-series", text.labels.interval, text.hints.seriesBiwako, input.hasBiwakoSeriesResultsData, text.labels.intervalShort));
+
+	return options;
 }

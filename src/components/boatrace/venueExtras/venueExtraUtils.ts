@@ -1,7 +1,7 @@
 import type { VenueExtraVenueFlags } from "./venueExtraTypes";
 
 function normalizeVenueName(value: string | null | undefined): string {
-	return typeof value === "string" ? value.replace(/\s+/g, "").trim() : "";
+	return typeof value === "string" ? value.normalize("NFKC").replace(/\s+/g, "").trim() : "";
 }
 
 export function isVenueExtraRecord(value: unknown): value is Record<string, unknown> {
@@ -81,7 +81,7 @@ export function getVenueExtraVenueFlags(venueName: string | null | undefined): V
 	return {
 		isNarutoVenue: normalizedVenueName === "鳴門",
 		isKaratsuVenue,
-		isBiwakoVenue: normalizedVenueName === "びわこ",
+		isBiwakoVenue: normalizedVenueName === "びわこ" || normalizedVenueName === "琵琶湖",
 		isTamagawaVenue: normalizedVenueName === "多摩川",
 		isTsuVenue: normalizedVenueName === "津",
 		isWakamatsuVenue: normalizedVenueName === "若松",
