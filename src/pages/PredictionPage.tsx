@@ -527,7 +527,6 @@ export function PredictionPage() {
 			contentPaddingInline="24px"
 			heroMaxWidth="1680px"
 		>
-			<div className="prediction-page-background-layer" aria-hidden="true" />
 			<style>
 				{`
 
@@ -535,7 +534,14 @@ body:has(.prediction-page-root) {
 	background: #eefbff;
 }
 
-.prediction-page-background-layer {
+#root:has(.prediction-page-root) {
+	position: relative;
+	min-height: 100vh;
+	background: #eefbff;
+}
+
+#root:has(.prediction-page-root)::before {
+	content: "";
 	position: fixed;
 	inset: 0;
 	z-index: 0;
@@ -559,24 +565,14 @@ body:has(.prediction-page-root) {
 	padding-bottom: 36px;
 }
 
-#root:has(.prediction-page-root) {
-	position: relative;
+#root:has(.prediction-page-root) > div {
 	z-index: 1;
 	background: transparent !important;
 }
 
-#root:has(.prediction-page-root) > * {
+#root:has(.prediction-page-root) main {
 	position: relative;
 	z-index: 1;
-}
-
-.prediction-page-root {
-	position: relative;
-	isolation: auto;
-	display: grid;
-	gap: 22px;
-	padding-top: 22px;
-	padding-bottom: 36px;
 }
 
 .prediction-page-root > * {
