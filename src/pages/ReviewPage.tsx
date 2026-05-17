@@ -60,18 +60,29 @@ const modeLabels: Record<ReviewMode, string> = {
 
 const shellStyle = {
 	display: "grid",
-	gap: "22px",
+	gap: "28px",
+	width: "100%",
+	padding: "18px 24px 96px",
+	boxSizing: "border-box" as const,
+};
+
+const heroCalendarGridStyle = {
+	display: "grid",
+	gridTemplateColumns: "minmax(0, 1.18fr) minmax(360px, 460px)",
+	gap: "24px",
+	alignItems: "stretch",
 };
 
 const heroStyle = {
-	padding: "30px",
-	borderRadius: "34px",
+	padding: "42px",
+	borderRadius: "38px",
 	background:
 		"radial-gradient(circle at 10% 0%, rgba(197, 241, 255, 0.8), transparent 32%), radial-gradient(circle at 88% 8%, rgba(233, 226, 255, 0.72), transparent 30%), linear-gradient(135deg, rgba(255,255,255,0.98), rgba(235,250,247,0.96) 52%, rgba(239,246,255,0.96))",
 	border: "1px solid rgba(93, 199, 232, 0.28)",
 	boxShadow: "0 28px 68px rgba(17, 64, 92, 0.1)",
 	display: "grid",
-	gap: "22px",
+	gap: "30px",
+	alignContent: "space-between",
 	overflow: "hidden",
 };
 
@@ -85,8 +96,8 @@ const heroTopStyle = {
 
 const heroTitleWrapStyle = {
 	display: "grid",
-	gap: "8px",
-	maxWidth: "760px",
+	gap: "12px",
+	maxWidth: "980px",
 };
 
 const eyebrowStyle = {
@@ -101,7 +112,7 @@ const eyebrowStyle = {
 const heroTitleStyle = {
 	margin: 0,
 	color: boatTheme.colors.navy,
-	fontSize: "clamp(1.7rem, 3vw, 2.55rem)",
+	fontSize: "clamp(2.2rem, 3.2vw, 4rem)",
 	lineHeight: 1.12,
 	fontWeight: 950,
 };
@@ -109,7 +120,7 @@ const heroTitleStyle = {
 const heroTextStyle = {
 	margin: 0,
 	color: boatTheme.colors.muted,
-	fontSize: "0.94rem",
+	fontSize: "1rem",
 	lineHeight: 1.8,
 };
 
@@ -137,13 +148,13 @@ const chipStyle = {
 
 const summaryGridStyle = {
 	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-	gap: "12px",
+	gridTemplateColumns: "repeat(auto-fit, minmax(172px, 1fr))",
+	gap: "14px",
 };
 
 const summaryCardStyle = {
-	padding: "16px 17px",
-	borderRadius: "22px",
+	padding: "20px 21px",
+	borderRadius: "24px",
 	background: "rgba(255, 255, 255, 0.82)",
 	border: "1px solid rgba(93, 199, 232, 0.2)",
 	display: "grid",
@@ -162,26 +173,34 @@ const summaryLabelStyle = {
 const summaryValueStyle = {
 	margin: 0,
 	color: boatTheme.colors.navy,
-	fontSize: "1.15rem",
+	fontSize: "1.32rem",
 	fontWeight: 950,
 	lineHeight: 1.25,
 };
 
 const controlsGridStyle = {
 	display: "grid",
-	gridTemplateColumns: "minmax(0, 1fr) minmax(260px, 0.7fr)",
-	gap: "16px",
+	gridTemplateColumns: "minmax(0, 1.2fr) minmax(360px, 0.8fr)",
+	gap: "20px",
 	alignItems: "start",
 };
 
 const panelStyle = {
-	padding: "22px",
-	borderRadius: "28px",
+	padding: "28px",
+	borderRadius: "30px",
 	background: "rgba(255, 255, 255, 0.94)",
 	border: `1px solid ${boatTheme.colors.line}`,
 	boxShadow: boatTheme.shadow.soft,
 	display: "grid",
 	gap: "16px",
+};
+
+const calendarPanelStyle = {
+	...panelStyle,
+	minHeight: "100%",
+	alignContent: "start",
+	background:
+		"radial-gradient(circle at 100% 0%, rgba(233, 226, 255, 0.58), transparent 34%), linear-gradient(180deg, rgba(255,255,255,0.97), rgba(240,251,253,0.93))",
 };
 
 const panelTitleStyle = {
@@ -209,8 +228,8 @@ const modeButtonBaseStyle = {
 
 const fieldGridStyle = {
 	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-	gap: "12px",
+	gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+	gap: "14px",
 };
 
 const fieldStyle = {
@@ -228,8 +247,8 @@ const labelStyle = {
 const inputStyle = {
 	width: "100%",
 	boxSizing: "border-box" as const,
-	padding: "12px 13px",
-	borderRadius: "15px",
+	padding: "14px 15px",
+	borderRadius: "17px",
 	border: `1px solid ${boatTheme.colors.line}`,
 	background: "rgba(250, 254, 255, 0.96)",
 	color: boatTheme.colors.navy,
@@ -238,27 +257,27 @@ const inputStyle = {
 
 const contentGridStyle = {
 	display: "grid",
-	gridTemplateColumns: "310px minmax(0, 1fr)",
-	gap: "18px",
+	gap: "22px",
 	alignItems: "start",
 };
 
 const venueListStyle = {
 	display: "grid",
-	gap: "12px",
+	gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
+	gap: "16px",
 };
 
 const venueCardBaseStyle = {
 	width: "100%",
-	padding: "16px",
-	borderRadius: "22px",
+	padding: "22px",
+	borderRadius: "26px",
 	border: "1px solid rgba(93, 199, 232, 0.18)",
 	background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(244,252,255,0.9))",
 	boxShadow: "0 10px 24px rgba(17, 64, 92, 0.05)",
 	textAlign: "left" as const,
 	cursor: "pointer",
 	display: "grid",
-	gap: "11px",
+	gap: "14px",
 };
 
 const venueCardTitleStyle = {
@@ -270,13 +289,13 @@ const venueCardTitleStyle = {
 
 const metricGridStyle = {
 	display: "grid",
-	gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-	gap: "8px",
+	gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+	gap: "10px",
 };
 
 const metricBoxStyle = {
-	padding: "9px 10px",
-	borderRadius: "14px",
+	padding: "12px 13px",
+	borderRadius: "16px",
 	background: "rgba(238, 249, 252, 0.74)",
 	border: "1px solid rgba(93, 199, 232, 0.16)",
 	display: "grid",
@@ -299,8 +318,15 @@ const metricValueStyle = {
 
 const workbenchGridStyle = {
 	display: "grid",
-	gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-	gap: "16px",
+	gridTemplateColumns: "minmax(0, 1.16fr) minmax(380px, 0.84fr)",
+	gap: "22px",
+	alignItems: "start",
+};
+
+const copyColumnStyle = {
+	display: "grid",
+	gap: "18px",
+	minWidth: 0,
 };
 
 const textPanelStyle = {
@@ -310,7 +336,7 @@ const textPanelStyle = {
 
 const textareaStyle = {
 	...inputStyle,
-	minHeight: "280px",
+	minHeight: "300px",
 	resize: "vertical" as const,
 	lineHeight: 1.65,
 	fontFamily: "ui-monospace, SFMono-Regular, Consolas, monospace",
@@ -319,7 +345,7 @@ const textareaStyle = {
 
 const reviewTextareaStyle = {
 	...textareaStyle,
-	minHeight: "260px",
+	minHeight: "420px",
 	fontFamily: "inherit",
 };
 
@@ -352,8 +378,8 @@ const secondaryButtonStyle = {
 
 const emptyStateStyle = {
 	margin: 0,
-	padding: "20px",
-	borderRadius: "22px",
+	padding: "30px",
+	borderRadius: "28px",
 	background: "linear-gradient(180deg, rgba(250,254,255,0.94), rgba(240,249,252,0.9))",
 	border: "1px dashed rgba(93, 199, 232, 0.42)",
 	color: boatTheme.colors.muted,
@@ -1018,8 +1044,13 @@ export function ReviewPage() {
 			eyebrow="BOAT REVIEW"
 			title="BOAT REVIEW WORKBENCH"
 			description="今日の予想と結果を、次の一手につなげるための競艇レビュー画面です。"
+			contentMaxWidth="2040px"
+			contentPaddingInline="24px"
+			heroMaxWidth="2040px"
+			hideHero
 		>
 			<div style={shellStyle}>
+				<div style={heroCalendarGridStyle}>
 				<section style={heroStyle}>
 					<div style={heroTopStyle}>
 						<div style={heroTitleWrapStyle}>
@@ -1052,9 +1083,8 @@ export function ReviewPage() {
 					</div>
 				</section>
 
-				<div style={controlsGridStyle}>
-					<section style={panelStyle}>
-						<h3 style={panelTitleStyle}>レビュー日付</h3>
+					<section style={calendarPanelStyle}>
+						<h3 style={panelTitleStyle}>レビュー日付カレンダー</h3>
 						<div style={modeButtonRowStyle}>
 							{(["today", "yesterday", "archive"] as ReviewMode[]).map((item) => (
 								<button
@@ -1072,11 +1102,30 @@ export function ReviewPage() {
 							))}
 							<button type="button" style={secondaryButtonStyle} onClick={handleRefreshStorage}>再読み込み</button>
 						</div>
+						<label style={fieldStyle}>
+							<span style={labelStyle}>対象日</span>
+							<input type="date" style={inputStyle} value={selectedDate} max={operationalToday} onChange={handleDateChange} />
+						</label>
+						<div style={summaryGridStyle}>
+							<article style={summaryCardStyle}>
+								<p style={summaryLabelStyle}>モード</p>
+								<p style={summaryValueStyle}>{modeLabels[mode]}</p>
+							</article>
+							<article style={summaryCardStyle}>
+								<p style={summaryLabelStyle}>対象R</p>
+								<p style={summaryValueStyle}>{summary.raceCount}R</p>
+							</article>
+						</div>
+						<p style={{ ...heroTextStyle, fontSize: "0.84rem" }}>
+							今日/昨日はlocalStorageの予想・実践結果を読み、過去ファイルは登録済みTXTの参照に使います。
+						</p>
+					</section>
+				</div>
+
+				<div style={controlsGridStyle}>
+					<section style={panelStyle}>
+						<h3 style={panelTitleStyle}>検索・絞り込み</h3>
 						<div style={fieldGridStyle}>
-							<label style={fieldStyle}>
-								<span style={labelStyle}>対象日</span>
-								<input type="date" style={inputStyle} value={selectedDate} max={operationalToday} onChange={handleDateChange} />
-							</label>
 							<label style={fieldStyle}>
 								<span style={labelStyle}>会場検索</span>
 								<input style={inputStyle} value={venueQuery} onChange={(event) => setVenueQuery(event.target.value)} placeholder="若松 / 丸亀 / 鳴門" />
@@ -1190,6 +1239,7 @@ export function ReviewPage() {
 						) : null}
 
 						<div style={workbenchGridStyle}>
+							<div style={copyColumnStyle}>
 							<section style={textPanelStyle}>
 								<h3 style={panelTitleStyle}>予想まとめコピー</h3>
 								<textarea style={textareaStyle} value={predictionCopyText} readOnly />
@@ -1234,6 +1284,7 @@ export function ReviewPage() {
 								{statusMessage ? <span style={chipStyle}>{statusMessage}</span> : null}
 							</div>
 						</section>
+						</div>
 					</div>
 				</div>
 			</div>
