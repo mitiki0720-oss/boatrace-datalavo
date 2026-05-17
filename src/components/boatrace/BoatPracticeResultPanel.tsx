@@ -1,4 +1,4 @@
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, CSSProperties } from "react";
 import type { BoatPredictionTicket } from "../../lib/boatraceTypes";
 import { countBoatPredictionTicketsByType } from "../../lib/boatPredictionParser";
 import { boatTheme } from "../../lib/theme";
@@ -101,34 +101,21 @@ const rankRowStyle = {
 	gap: "10px",
 };
 
-const getRankChipStyle = (index: number) => {
-	if (index === 0) {
-		return {
-			padding: "10px 14px",
-			borderRadius: "16px",
-			background: "#2452a3",
-			color: "#ffffff",
-			fontWeight: 700,
-		};
-	}
-
-	if (index === 1) {
-		return {
-			padding: "10px 14px",
-			borderRadius: "16px",
-			background: "#ffffff",
-			color: boatTheme.colors.navy,
-			fontWeight: 700,
-			border: `1px solid ${boatTheme.colors.line}`,
-		};
-	}
+const getRankChipStyle = (value: string | number): CSSProperties => {
+	const palette = getBoatNumberChipStyle(value);
 
 	return {
-		padding: "10px 14px",
-		borderRadius: "16px",
-		background: "#1f2430",
-		color: "#ffffff",
-		fontWeight: 700,
+		width: "42px",
+		height: "42px",
+		borderRadius: "15px",
+		display: "inline-flex",
+		alignItems: "center",
+		justifyContent: "center",
+		background: palette.background,
+		color: palette.color,
+		border: `1px solid ${palette.border}`,
+		fontWeight: 950,
+		boxShadow: palette.shadow,
 	};
 };
 
@@ -286,6 +273,63 @@ const footerCardStyle = {
 };
 
 const formatYen = (value: number) => `${value.toLocaleString("ja-JP")}円`;
+const BOAT_NUMBER_COLOR_MAP: Record<
+	number,
+	{ background: string; color: string; border: string; shadow: string }
+> = {
+	1: {
+		background: "#ffffff",
+		color: "#111827",
+		border: "#cfd8e3",
+		shadow: "0 8px 18px rgba(15, 23, 42, 0.08)",
+	},
+	2: {
+		background: "#111827",
+		color: "#ffffff",
+		border: "#111827",
+		shadow: "0 8px 18px rgba(17, 24, 39, 0.22)",
+	},
+	3: {
+		background: "#ef4444",
+		color: "#ffffff",
+		border: "#ef4444",
+		shadow: "0 8px 18px rgba(239, 68, 68, 0.2)",
+	},
+	4: {
+		background: "#2563eb",
+		color: "#ffffff",
+		border: "#2563eb",
+		shadow: "0 8px 18px rgba(37, 99, 235, 0.2)",
+	},
+	5: {
+		background: "#facc15",
+		color: "#111827",
+		border: "#eab308",
+		shadow: "0 8px 18px rgba(234, 179, 8, 0.2)",
+	},
+	6: {
+		background: "#22c55e",
+		color: "#ffffff",
+		border: "#22c55e",
+		shadow: "0 8px 18px rgba(34, 197, 94, 0.2)",
+	},
+};
+
+const getBoatNumberChipStyle = (value: string | number) => {
+	const boatNo = Number(value);
+	const palette = BOAT_NUMBER_COLOR_MAP[boatNo];
+
+	if (!palette) {
+		return {
+			background: "#eef4f8",
+			color: "#16324f",
+			border: "#d6dee8",
+			shadow: "0 8px 18px rgba(15, 23, 42, 0.08)",
+		};
+	}
+
+	return palette;
+};
 
 export function BoatPracticeResultPanel({
 	venueName,
@@ -305,7 +349,13 @@ export function BoatPracticeResultPanel({
 	onChangePayoutAmount,
 	onChangePracticeMemo,
 }: BoatPracticeResultPanelProps) {
-	const finishParts = actualFinishOrderText.split("-").slice(0, 3);
+	const finishParts = actualFinishOrderText
+		.trim()
+		.replace(/[＝=]/g, "-")
+		.split("-")
+		.map((part) => part.trim())
+		.filter(Boolean)
+		.slice(0, 3);
 	const profitLoss = payoutAmount - investmentAmount;
 	const roi = investmentAmount > 0 ? (payoutAmount / investmentAmount) * 100 : 0;
 	const ticketCounts = countBoatPredictionTicketsByType(tickets);
@@ -343,7 +393,7 @@ export function BoatPracticeResultPanel({
 					<p style={resultValueStyle}>{actualFinishOrderText || "-"}</p>
 					<div style={rankRowStyle}>
 						{[0, 1, 2].map((index) => (
-							<span key={index} style={getRankChipStyle(index)}>
+							<span key={index} style={getRankChipStyle(finishParts[index] || "-")}>
 								{finishParts[index] || "-"}
 							</span>
 						))}

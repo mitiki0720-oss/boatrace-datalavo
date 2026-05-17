@@ -75,6 +75,10 @@ const predictionHeroImageSrcMap: Record<PredictionHeroTimeBand, string> = {
 	night: withBasePath("prediction-page/hero/prediction-hero-night-kurari-funako-naughty.png"),
 };
 
+const predictionPageBackgroundImageSrc = withBasePath(
+	"prediction-page/backgrounds/prediction-bg-water-sparkle.png",
+);
+
 const getPredictionHeroTimeBand = (venue: BoatPredictionVenue | undefined): PredictionHeroTimeBand => {
 	const session = String((venue as { session?: unknown } | undefined)?.session ?? "").trim().toLowerCase();
 	const title = String((venue as { title?: unknown } | undefined)?.title ?? "").replace(/\s+/g, "").toLowerCase();
@@ -523,14 +527,62 @@ export function PredictionPage() {
 			contentPaddingInline="24px"
 			heroMaxWidth="1680px"
 		>
+			<div className="prediction-page-background-layer" aria-hidden="true" />
 			<style>
 				{`
-					.prediction-page-root {
-						display: grid;
-						gap: 22px;
-						padding-top: 22px;
-						padding-bottom: 36px;
-					}
+
+body:has(.prediction-page-root) {
+	background: #eefbff;
+}
+
+.prediction-page-background-layer {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background-color: #eefbff;
+	background-image:
+		linear-gradient(180deg, rgba(238, 250, 253, 0.08) 0%, rgba(246, 252, 255, 0.12) 46%, rgba(230, 248, 247, 0.18) 100%),
+		url("${predictionPageBackgroundImageSrc}");
+	background-size: cover;
+	background-position: center top;
+	background-repeat: no-repeat;
+}
+
+.prediction-page-root {
+	position: relative;
+	z-index: 1;
+	isolation: auto;
+	display: grid;
+	gap: 22px;
+	padding-top: 22px;
+	padding-bottom: 36px;
+}
+
+#root:has(.prediction-page-root) {
+	position: relative;
+	z-index: 1;
+	background: transparent !important;
+}
+
+#root:has(.prediction-page-root) > * {
+	position: relative;
+	z-index: 1;
+}
+
+.prediction-page-root {
+	position: relative;
+	isolation: auto;
+	display: grid;
+	gap: 22px;
+	padding-top: 22px;
+	padding-bottom: 36px;
+}
+
+.prediction-page-root > * {
+	position: relative;
+	z-index: 1;
+}
 
 					.prediction-page-main-panels {
 						display: grid;
@@ -787,6 +839,8 @@ export function PredictionPage() {
 					}
 
 					@media (max-width: 900px) {
+
+
 						.prediction-page-root {
 							padding-top: 14px;
 						}
