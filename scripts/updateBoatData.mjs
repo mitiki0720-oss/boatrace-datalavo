@@ -87,7 +87,7 @@ function buildTodayDetailsArgs({ mode, targetSession, targetDate }) {
 }
 
 function buildVenueExtrasArgs({ mode, targetDate }) {
-	if (mode !== "initial" && mode !== "final") {
+	if (mode !== "initial" && mode !== "active" && mode !== "final") {
 		return null;
 	}
 
@@ -145,6 +145,7 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 
 	const venueExtrasArgs = buildVenueExtrasArgs(options);
 	if (venueExtrasArgs) {
+		console.log(`[update-boat-data] venue extras update enabled for mode=${options.mode}`);
 		await runNodeScript(venueExtrasArgs);
 	} else {
 		console.log(`[update-boat-data] skipping venue extras for mode=${options.mode}`);
