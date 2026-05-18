@@ -57,6 +57,8 @@ const NARUTO_WATER_SURFACE_URL = "https://www.n14.jp/modules/datafile/?page=inde
 const MARUGAME_MOTOR_DATA_URL = "https://www.marugameboat.jp/asp/htmlmade/marugame/motor/motor02.htm";
 const MARUGAME_TIDE_URL = "https://www.marugameboat.jp/01shiomi/shiomi.htm";
 const MARUGAME_WATER_SURFACE_URL = "https://www.marugameboat.jp/01suimen/01suimen.htm";
+const MARUGAME_SCORE_RATE_URL = "https://www.marugameboat.jp/asp/htmlmade/marugame/rank/rank.htm";
+const MARUGAME_PRECHECK_URL = "https://www.marugameboat.jp/asp/marugame/kyogi/kyogihtml/zenken/zenken1505.htm";
 const TOKUYAMA_TIDE_URL = "https://www.boatrace-tokuyama.jp/modules/datafile/?page=index_tide_table";
 const TOKUYAMA_WATER_SURFACE_URL = "https://www.boatrace-tokuyama.jp/modules/datafile/?page=index_suimen";
 const MIKUNI_SCORE_RATE_URL = "https://www.boatrace-mikuni.jp/modules/raceinfo/?page=index_tokutenrank";
@@ -7600,14 +7602,244 @@ function parseMarugameOriginalExhibition(html) {
 		match = rowPattern.exec(sectionText);
 	}
 
-	if (rows.length === 0) {
-		console.log("[venue-extras debug] marugame original exhibition section sample:", sectionText.slice(0, 800));
-	}
-
 	return rows
 		.filter((row) => row.frameNo >= 1 && row.frameNo <= 6)
 		.slice(0, 6)
 		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function readMarugameYosoLines(html) {
+	const $ = load(html);
+
+	return readCleanLines($("body"))
+		.map((line) => compactText(line))
+		.filter(Boolean);
+}
+
+function isMarugameFrameLine(line) {
+	return /^[1-6]$/.test(String(line ?? "").trim());
+}
+
+function parseMarugameProfileCell(value) {
+	const text = compactText(value);
+	const match = text.match(/^([AB]\d)(\d{4})\s+(.+?)\s+(\d+\/.+\/\d+)$/);
+
+	if (!match) {
+		return null;
+	}
+
+	return {
+		className: match[1],
+		registerNo: match[2],
+		playerName: compactText(match[3]),
+		profile: match[4],
+	};
+}
+
+function parseMarugameYosoBeforeInfo(html) {
+	const $ = load(html);
+	const rows = [];
+	const seenFrames = new Set();
+
+	$("tr").each((_, row) => {
+		const cells = $(row)
+			.find("th, td")
+			.map((__, cell) => compactText($(cell).text()))
+			.get()
+			.filter(Boolean);
+		const frameNo = Number.parseInt(cells[0], 10);
+		const profile = parseMarugameProfileCell(cells[1]);
+
+		if (
+			!isMarugameFrameLine(cells[0]) ||
+			!profile ||
+			seenFrames.has(frameNo) ||
+			cells.length < 5 ||
+			!isMarugameDecimal(cells[2]) ||
+			!isMarugameDecimal(cells[3]) ||
+			!isMarugameTiltValue(cells[4])
+		) {
+			return;
+		}
+
+		rows.push({
+			frameNo,
+			playerName: profile.playerName,
+			className: profile.className,
+			registerNo: profile.registerNo,
+			profile: profile.profile,
+			exhibitionTime: cells[2],
+			weight: cells[3],
+			weightAdjustment: "",
+			tilt: cells[4],
+			partsExchange: "",
+			memo: "丸亀公式HP 直前情報から取得",
+			source: MARUGAME_SOURCE,
+		});
+		seenFrames.add(frameNo);
+
+		if (seenFrames.size >= 6) {
+			return false;
+		}
+	});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseMarugameYosoStartExhibition(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("tr").each((_, row) => {
+		const cells = $(row)
+			.find("th, td")
+			.map((__, cell) => compactText($(cell).text()))
+			.get()
+			.filter(Boolean);
+		const course = Number.parseInt(cells[0], 10);
+		const frameNo = Number.parseInt(cells[1], 10);
+		const profile = parseMarugameProfileCell(cells[2]);
+
+		if (
+			course >= 1 &&
+			course <= 6 &&
+			frameNo >= 1 &&
+			frameNo <= 6 &&
+			profile &&
+			/^\.[0-9]{2}$/.test(cells[3] ?? "") &&
+			isMarugameDecimal(cells[4] ?? "")
+		) {
+			rows.push({
+				course,
+				frameNo,
+				playerName: profile.playerName,
+				className: profile.className,
+				registerNo: profile.registerNo,
+				profile: profile.profile,
+				currentAverageStart: cells[3],
+				startOrder: cells[4],
+				source: MARUGAME_SOURCE,
+			});
+		}
+	});
+
+	const slitText = $("tr")
+		.map((_, row) => compactText($(row).text()))
+		.get()
+		.find((text) => text.includes("スタート展示スリット") && text.includes("ST")) ?? "";
+	const timings = slitText.match(/F?\.[0-9]{2}/g) ?? [];
+	for (const [timingIndex, timing] of timings.slice(0, 6).entries()) {
+		if (rows[timingIndex]) {
+			rows[timingIndex].startTiming = timing;
+			rows[timingIndex].exhibitionStartTiming = timing;
+		}
+	}
+
+	return rows.sort((left, right) => left.course - right.course);
+}
+
+function parseMarugameRacerComments(html) {
+	const $ = load(html);
+	const comments = [];
+
+	$("tr").each((_, row) => {
+		const cells = $(row)
+			.find("th, td")
+			.map((__, cell) => compactText($(cell).text()))
+			.get()
+			.filter(Boolean);
+		const frameNo = Number.parseInt(cells[0], 10);
+		const profile = parseMarugameProfileCell(cells[1]);
+		const comment = cells[2] ?? "";
+
+		if (frameNo >= 1 && frameNo <= 6 && profile && comment && !comment.includes("選手コメント")) {
+			comments.push({
+				frameNo,
+				playerName: profile.playerName,
+				className: profile.className,
+				registerNo: profile.registerNo,
+				profile: profile.profile,
+				comment: comment.replace(/\s*(当日|前日)/g, " / $1").replace(/^ \/ /, ""),
+				source: MARUGAME_SOURCE,
+			});
+		}
+	});
+
+	return Array.from(new Map(comments.map((row) => [row.frameNo, row])).values())
+		.sort((left, right) => left.frameNo - right.frameNo)
+		.slice(0, 6);
+}
+
+function parseMarugameScoreRateGuide(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("tr").each((_, row) => {
+		const cells = $(row)
+			.find("th, td")
+			.map((__, cell) => compactText($(cell).text()))
+			.get()
+			.filter(Boolean);
+
+		if (cells.length < 8 || !/^\d+$/.test(cells[0]) || !/^\d{4}/.test(cells[1] ?? "")) {
+			return;
+		}
+
+		const playerMatch = cells[1].match(/^(\d{4})(.+?)\s+([^\s]+)$/);
+		if (!playerMatch) {
+			return;
+		}
+
+		rows.push({
+			rank: cells[0],
+			registrationNo: playerMatch[1],
+			playerName: compactText(playerMatch[2]),
+			branch: playerMatch[3],
+			className: cells[2] ?? "",
+			scoreRate: cells[3] ?? "",
+			score: cells[4] ?? "",
+			pointTotal: cells[5] ?? "",
+			startCount: cells[6] ?? "",
+			sectionResults: cells[7] ?? "",
+			todayRaces: cells[8] ?? "",
+			source: MARUGAME_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseMarugamePrecheckData(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("tr").each((_, row) => {
+		const cells = $(row)
+			.find("th, td")
+			.map((__, cell) => compactText($(cell).text()))
+			.get()
+			.filter(Boolean);
+
+		if (cells.length < 9 || !/^\d+$/.test(cells[0]) || !/^\d{4}$/.test(cells[1])) {
+			return;
+		}
+
+		rows.push({
+			rank: cells[0],
+			registrationNo: cells[1],
+			playerName: cells[2] ?? "",
+			branch: cells[3] ?? "",
+			className: cells[4] ?? "",
+			motorNo: normalizeMarugameMotorNo(cells[5]),
+			motorSecondRate: cells[6] ?? "",
+			boatNo: normalizeMarugameMotorNo(cells[7]),
+			boatSecondRate: cells[8] ?? "",
+			preinspectionTime: cells[9] ?? "",
+			source: MARUGAME_SOURCE,
+		});
+	});
+
+	return rows;
 }
 
 async function fetchMarugameRaceExtra({ date, raceNo }) {
@@ -7615,40 +7847,63 @@ async function fetchMarugameRaceExtra({ date, raceNo }) {
 
 	try {
 		const html = await fetchHtml(url);
+		const beforeInfo = parseMarugameYosoBeforeInfo(html);
+		const startExhibition = parseMarugameYosoStartExhibition(html);
 		const originalExhibition = parseMarugameOriginalExhibition(html);
+		const racerComments = parseMarugameRacerComments(html);
 
-		if (!originalExhibition.length) {
-			console.log(`[venue-extras] marugame ${raceNo}R: no original exhibition rows yet`);
+		if (!beforeInfo.length && !startExhibition.length && !originalExhibition.length && !racerComments.length) {
+			console.log(`[venue-extras] marugame ${raceNo}R: no yoso rows yet`);
 			return {
 				raceNo,
+				beforeInfo: [],
+				startExhibition: [],
 				originalExhibition: [],
+				racerComments: [],
 			};
 		}
 
-		console.log(`[venue-extras] marugame ${raceNo}R: ${originalExhibition.length} original exhibition rows`);
+		console.log(
+			`[venue-extras] marugame ${raceNo}R: before ${beforeInfo.length} / start ${startExhibition.length} / original ${originalExhibition.length} / comments ${racerComments.length}`,
+		);
 
 		return {
 			raceNo,
+			beforeInfo,
+			startExhibition,
+			officialBeforeInfo: {
+				status: beforeInfo.length || startExhibition.length ? "available" : "waiting",
+				source: MARUGAME_SOURCE,
+				exhibitionRows: beforeInfo,
+				startExhibition,
+				scoreQuickLook: [],
+			},
 			originalExhibition,
+			racerComments,
 		};
 	} catch (error) {
-		console.warn(`[venue-extras] marugame ${raceNo}R original exhibition failed: ${error.message}`);
+		console.warn(`[venue-extras] marugame ${raceNo}R yoso failed: ${error.message}`);
 
 		return {
 			raceNo,
+			beforeInfo: [],
+			startExhibition: [],
 			originalExhibition: [],
+			racerComments: [],
 		};
 	}
 }
 
-function createMarugameRaceMotorSummary(race, motorData) {
+function createMarugameRaceMotorSummary(race, motorData, precheckData = []) {
 	const racers = Array.isArray(race?.racers) ? race.racers : [];
 
 	return racers
 		.map((racer) => {
 			const frameNo = Number(racer?.frameNo ?? racer?.frame ?? racer?.boatNumber);
+			const registrationNo = String(racer?.registrationNo ?? racer?.racerId ?? "").trim();
 			const motorNo = normalizeMarugameMotorNo(racer?.motorNo ?? racer?.motorNumber);
 			const motor = motorData.find((item) => item.motorNo === motorNo);
+			const precheck = precheckData.find((item) => item.registrationNo === registrationNo || item.motorNo === motorNo);
 
 			if (!frameNo || !motorNo || !motor) {
 				return null;
@@ -7657,10 +7912,42 @@ function createMarugameRaceMotorSummary(race, motorData) {
 			return {
 				frameNo,
 				motorNo,
-				previousUser: `モーター${motor.motorNo}`,
+				boatNo: precheck?.boatNo || normalizeMarugameMotorNo(racer?.boatNo ?? racer?.boatEquipmentNo),
+				motorSecondRate: motor.twoRate,
+				motorWinRate: motor.winRate,
+				boatSecondRate: precheck?.boatSecondRate || String(racer?.boatSecondRate ?? racer?.boatTwoRate ?? ""),
+				preinspectionTime: precheck?.preinspectionTime || "",
+				previousUser: precheck?.playerName ? `${precheck.playerName}（前検）` : `モーター${motor.motorNo}`,
 				recentResults: `2連率 ${motor.twoRate}% / 勝率 ${motor.winRate}`,
 				motorGrade: normalizeMarugameMotorGrade(motor.twoRate),
-				comment: `丸亀公式モーターデータ：1着${motor.firstCount} / 2着${motor.secondCount} / 3着${motor.thirdCount} / 出走${motor.starts} / 優出${motor.finals} / 優勝${motor.championships} / 最高${motor.bestTime}`,
+				comment: [
+					`丸亀公式モーターデータ：1着${motor.firstCount} / 2着${motor.secondCount} / 3着${motor.thirdCount} / 出走${motor.starts} / 優出${motor.finals} / 優勝${motor.championships} / 最高${motor.bestTime}`,
+					precheck?.boatNo ? `ボート${precheck.boatNo} 2連率${precheck.boatSecondRate}%` : "",
+					precheck?.preinspectionTime ? `前検${precheck.preinspectionTime}` : "",
+				].filter(Boolean).join(" / "),
+				source: MARUGAME_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function createMarugameRaceScoreRateGuide(race, scoreRateRows) {
+	const racers = Array.isArray(race?.racers) ? race.racers : [];
+
+	return racers
+		.map((racer) => {
+			const frameNo = Number(racer?.frameNo ?? racer?.frame ?? racer?.boatNumber);
+			const registrationNo = String(racer?.registrationNo ?? racer?.racerId ?? "").trim();
+			const score = scoreRateRows.find((item) => item.registrationNo === registrationNo);
+
+			if (!frameNo || !score) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				...score,
 				source: MARUGAME_SOURCE,
 			};
 		})
@@ -7677,44 +7964,87 @@ async function createMarugameVenue(feed, date) {
 	}
 
 	try {
-		const [motorHtml, tideHtml, waterSurfaceHtml] = await Promise.all([
+		const [motorHtml, tideHtml, waterSurfaceHtml, scoreRateHtml, precheckHtml] = await Promise.all([
 			fetchHtml(MARUGAME_MOTOR_DATA_URL),
 			fetchHtml(MARUGAME_TIDE_URL),
 			fetchHtml(MARUGAME_WATER_SURFACE_URL),
+			fetchHtml(MARUGAME_SCORE_RATE_URL),
+			fetchHtml(MARUGAME_PRECHECK_URL),
 		]);
 
 		const motorData = parseMarugameMotorData(motorHtml);
+		const scoreRateRows = parseMarugameScoreRateGuide(scoreRateHtml);
+		const precheckData = parseMarugamePrecheckData(precheckHtml);
 		const tideInfo = parseMarugameTideInfo(tideHtml, date);
 		const waterSurfaceInfo = parseMarugameWaterSurfaceInfo(waterSurfaceHtml);
 		const races = getRaceList(marugameVenue);
 		const raceExtras = [];
 
 		for (const race of races) {
-	const motorSummary = createMarugameRaceMotorSummary(race, motorData);
-	const raceOfficialExtra = await fetchMarugameRaceExtra({
-		date,
-		raceNo: race.raceNo,
-	});
+			const motorSummary = createMarugameRaceMotorSummary(race, motorData, precheckData);
+			const marugameScoreRateGuide = createMarugameRaceScoreRateGuide(race, scoreRateRows);
+			const raceOfficialExtra = await fetchMarugameRaceExtra({
+				date,
+				raceNo: race.raceNo,
+			});
 
-	const originalExhibition = raceOfficialExtra?.originalExhibition ?? [];
+			const beforeInfo = raceOfficialExtra?.beforeInfo ?? [];
+			const startExhibition = raceOfficialExtra?.startExhibition ?? [];
+			const originalExhibition = (raceOfficialExtra?.originalExhibition ?? []).map((row) => ({
+				...row,
+				motorNo: motorSummary.find((item) => item.frameNo === row.frameNo)?.motorNo ?? row.motorNo ?? "",
+			}));
+			const racerComments = raceOfficialExtra?.racerComments ?? [];
+			const scoreQuickLook = marugameScoreRateGuide.map((row) => ({
+				frameNo: row.frameNo,
+				registrationNo: row.registrationNo,
+				playerName: row.playerName,
+				className: row.className,
+				scoreRate: row.scoreRate,
+				score: row.score,
+				sectionResults: row.sectionResults,
+				source: MARUGAME_SOURCE,
+			}));
+			const officialBeforeInfo = raceOfficialExtra?.officialBeforeInfo
+				? {
+					...raceOfficialExtra.officialBeforeInfo,
+					scoreQuickLook,
+				}
+				: null;
 
-	if (!motorSummary.length && !originalExhibition.length && !waterSurfaceInfo && !tideInfo) {
-		continue;
-	}
+			if (
+				!beforeInfo.length &&
+				!startExhibition.length &&
+				!motorSummary.length &&
+				!originalExhibition.length &&
+				!marugameScoreRateGuide.length &&
+				!racerComments.length &&
+				!waterSurfaceInfo &&
+				!tideInfo
+			) {
+				continue;
+			}
 
-	raceExtras.push({
-		raceNo: race.raceNo,
-		status: "available",
-		source: MARUGAME_SOURCE,
-		sourceType: "official-venue-motor-tide-original-exhibition",
-		originalExhibition,
-		motorSummary,
-		tideInfo,
-		waterSurfaceInfo,
-	});
+			raceExtras.push({
+				raceNo: race.raceNo,
+				status: "available",
+				source: MARUGAME_SOURCE,
+				sourceType: "official-venue-before-start-motor-tide-original-exhibition-score",
+				beforeInfo,
+				startExhibition,
+				officialBeforeInfo,
+				originalExhibition,
+				motorSummary,
+				marugameMotorBoatData: motorSummary,
+				scoreRateGuide: marugameScoreRateGuide,
+				marugameScoreRateGuide,
+				racerComments,
+				tideInfo,
+				waterSurfaceInfo,
+			});
 
-	await sleep(REQUEST_INTERVAL_MS);
-}
+			await sleep(REQUEST_INTERVAL_MS);
+		}
 
 		if (!raceExtras.length) {
 			console.log("[venue-extras] marugame: held today, but no motor summary rows are available yet");
@@ -7731,7 +8061,7 @@ async function createMarugameVenue(feed, date) {
 		}
 
 		console.log(
-			`[venue-extras] marugame: ${raceExtras.length} races + ${motorData.length} motor rows${tideInfo ? " + tide" : ""}${waterSurfaceInfo ? " + water surface" : ""}`,
+			`[marugame extras] before=${raceExtras[0]?.beforeInfo?.length ?? 0} start=${raceExtras[0]?.startExhibition?.length ?? 0} original=${raceExtras[0]?.originalExhibition?.length ?? 0} motor=${raceExtras[0]?.motorSummary?.length ?? 0} scoreRate=${raceExtras[0]?.marugameScoreRateGuide?.length ?? 0} weather=${raceExtras[0]?.officialBeforeInfo?.weatherActual ? "ok" : "feed"} tide=${tideInfo ? "ok" : "none"}`,
 		);
 
 		return {
