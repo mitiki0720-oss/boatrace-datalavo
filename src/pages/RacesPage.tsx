@@ -1452,6 +1452,21 @@ type BoatFukuokaFramePast10Row = {
 	source?: string | undefined;
 };
 
+type BoatTokuyamaFramePast10Row = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	courseHistory: string[];
+	finishHistory: string[];
+	startTimingHistory: string[];
+	frameWinRate: string;
+	frameAverageStart: string;
+	frameStartOrder: string;
+	source?: string | undefined;
+};
+
 type BoatFukuokaScoreRateGuideRow = {
 	frameNo: number;
 	registrationNo: string;
@@ -3831,6 +3846,42 @@ function getFukuokaFramePast10(raceExtra: BoatVenueExtraRace | null): BoatFukuok
 		.sort((left, right) => left.frameNo - right.frameNo);
 }
 
+function getTokuyamaFramePast10(raceExtra: BoatVenueExtraRace | null): BoatTokuyamaFramePast10Row[] {
+	if (!raceExtra || !Array.isArray(raceExtra.tokuyamaFramePast10)) {
+		return [];
+	}
+
+	return raceExtra.tokuyamaFramePast10
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				courseHistory: Array.isArray(item.courseHistory) ? item.courseHistory.map((value) => readVenueExtraString(value)).slice(0, 10) : [],
+				finishHistory: Array.isArray(item.finishHistory) ? item.finishHistory.map((value) => readVenueExtraString(value)).slice(0, 10) : [],
+				startTimingHistory: Array.isArray(item.startTimingHistory)
+					? item.startTimingHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: Array.isArray(item.startTimings)
+						? item.startTimings.map((value) => readVenueExtraString(value)).slice(0, 10)
+						: [],
+				frameWinRate: readVenueExtraString(item.frameWinRate),
+				frameAverageStart: readVenueExtraString(item.frameAverageStart),
+				frameStartOrder: readVenueExtraString(item.frameStartOrder),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
 function getFukuokaScoreRateGuide(raceExtra: BoatVenueExtraRace | null): BoatFukuokaScoreRateGuideRow[] {
 	if (!raceExtra || !Array.isArray(raceExtra.fukuokaScoreRateGuide)) {
 		return [];
@@ -4653,6 +4704,7 @@ const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
 	三国: "complete",
 	鳴門: "partial",
 	丸亀: "partial",
+	徳山: "complete",
 };
 
 const venueOfficialLinkStatusMeta: Record<
@@ -5226,6 +5278,11 @@ const selectedFukuokaFramePast10 = useMemo(
 	[selectedRaceExtra],
 );
 
+const selectedTokuyamaFramePast10 = useMemo(
+	() => getTokuyamaFramePast10(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
 const selectedFukuokaScoreRateGuide = useMemo(
 	() => getFukuokaScoreRateGuide(selectedRaceExtra),
 	[selectedRaceExtra],
@@ -5352,6 +5409,7 @@ const tamagawaStartExhibitionDisplay = useMemo(() => {
 }, [selectedStartExhibition, selectedTamagawaBeforeInfo]);
 const { isNarutoVenue, isKaratsuVenue, isBiwakoVenue, isTamagawaVenue, isTsuVenue, isWakamatsuVenue, isFukuokaVenue, isKojimaVenue, isOmuraVenue, isMarugameVenue } = getVenueExtraVenueFlags(selectedVenue?.venueName);
 const isMikuniVenue = selectedVenue?.venueName === "三国";
+const isTokuyamaVenue = selectedVenue?.venueName === "徳山";
 const selectedVenueOfficialLinkStatus = getVenueOfficialLinkStatus(selectedVenue?.venueName);
 const selectedVenueOfficialLinkStatusMeta = venueOfficialLinkStatusMeta[selectedVenueOfficialLinkStatus];
 const hasOmuraEntryData = selectedOmuraEntryTable.length > 0;
@@ -5384,6 +5442,7 @@ const hasFukuokaMotorEvaluationData = selectedFukuokaMotorEvaluation.length > 0;
 const hasFukuokaSeriesResultsData = selectedFukuokaSeriesResults.length > 0;
 const hasFukuokaRacerCommentsData = selectedFukuokaRacerComments.length > 0;
 const hasFukuokaFramePast10Data = selectedFukuokaFramePast10.length > 0;
+const hasTokuyamaFramePast10Data = selectedTokuyamaFramePast10.length > 0;
 const hasKojimaBeforeInfoData = selectedKojimaBeforeInfo.length > 0;
 const hasKojimaSeriesResultsData = selectedKojimaSeriesResults.length > 0;
 const hasKojimaRecentResultsData = selectedKojimaRecentResults.length > 0;
@@ -6094,6 +6153,11 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 		(selectedWakamatsuNationalRecent3.length > 0 || selectedWakamatsuLocalRecent3.length > 0) ? "過去3節あり" : "",
 		selectedWakamatsuFramePast10.length > 0 ? "10走あり" : "",
 	].filter(Boolean);
+	const tokuyamaRecordsLabels = [
+		officialScores > 0 ? `得点率 ${officialScores}件` : "",
+		selectedAbilityIndex.length > 0 ? "能力指数あり" : "",
+		selectedTokuyamaFramePast10.length > 0 ? "枠番別10走あり" : "",
+	].filter(Boolean);
 
 	if (isWakamatsuVenue) {
 		if (option.key === "official" || option.key === "wakamatsu-before") {
@@ -6199,6 +6263,10 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 			].filter(Boolean);
 			return waterLabels.length > 0 ? waterLabels.join(" / ") : "水面情報確認中";
 		}
+	}
+
+	if (isTokuyamaVenue && option.key === "records") {
+		return tokuyamaRecordsLabels.length > 0 ? tokuyamaRecordsLabels.join(" / ") : "成績データ待ち";
 	}
 
 	if (option.key === "official" || option.key.endsWith("-before") || option.key === "tamagawa-cyokuzen") {
@@ -9281,6 +9349,53 @@ body:has(.races-page-root) {
 						</section>
 					) : null}
 
+					{isTokuyamaVenue && hasTokuyamaFramePast10Data ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>徳山枠番別10走</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>枠</th>
+											<th style={venueExtrasHeadCellStyle}>選手</th>
+											{Array.from({ length: 10 }, (_, index) => (
+												<th key={`tokuyama-frame10-head-${index}`} style={venueExtrasHeadCellStyle}>{10 - index}走</th>
+											))}
+											<th style={venueExtrasHeadCellStyle}>枠番勝率</th>
+											<th style={venueExtrasHeadCellStyle}>枠番平均ST</th>
+											<th style={venueExtrasHeadCellStyle}>スタート順</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedTokuyamaFramePast10.map((item) => (
+											<tr key={`tokuyama-frame10-${item.frameNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>
+													<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+														<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+														<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registerNo || "-"}</span>
+													</div>
+												</td>
+												{Array.from({ length: 10 }, (_, index) => (
+													<td key={`tokuyama-frame10-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														<div style={narutoHistoryStackStyle}>
+															<span style={narutoHistoryCourseStyle}>{item.courseHistory[index] || " "}</span>
+															<span style={narutoHistoryFinishStyle}>{item.finishHistory[index] || "-"}</span>
+															<span style={{ fontSize: "0.66rem", color: boatTheme.colors.muted }}>ST {item.startTimingHistory[index] || "-"}</span>
+														</div>
+													</td>
+												))}
+												<td style={venueExtrasBodyCellStyle}>{item.frameWinRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.frameAverageStart || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.frameStartOrder || "-"}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
 					{selectedAbilityIndex.length > 0 ? (
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>能力指数</h4>
@@ -9328,11 +9443,11 @@ body:has(.races-page-root) {
 									<thead>
 										<tr>
 											<th style={venueExtrasHeadCellStyle}>枠</th>
-											{(isMikuniVenue || isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>選手</th> : null}
+											{(isMikuniVenue || isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue) ? <th style={venueExtrasHeadCellStyle}>選手</th> : null}
 											{isMikuniVenue ? <th style={venueExtrasHeadCellStyle}>モーター</th> : null}
-											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>体重 / 調整</th> : null}
-											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>チルト</th> : null}
-											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>展示</th> : null}
+											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue) ? <th style={venueExtrasHeadCellStyle}>体重 / 調整</th> : null}
+											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue) ? <th style={venueExtrasHeadCellStyle}>チルト</th> : null}
+											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue) ? <th style={venueExtrasHeadCellStyle}>展示</th> : null}
 											<th style={venueExtrasHeadCellStyle}>{isMikuniVenue ? "半周" : "一周"}</th>
 											<th style={venueExtrasHeadCellStyle}>回り足</th>
 											<th style={venueExtrasHeadCellStyle}>直線</th>
@@ -9343,7 +9458,7 @@ body:has(.races-page-root) {
 										{selectedOriginalExhibitionRows.map((item) => (
 											<tr key={`venue-extra-exhibition-${item.frameNo}`}>
 												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-												{(isMikuniVenue || isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? (
+												{(isMikuniVenue || isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue) ? (
 													<td style={venueExtrasBodyCellStyle}>
 														<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
 															<strong>{item.playerName || `枠${item.frameNo}`}</strong>
@@ -9356,11 +9471,11 @@ body:has(.races-page-root) {
 													</td>
 												) : null}
 												{isMikuniVenue ? <td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"}</td> : null}
-												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? (
+												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue) ? (
 													<td style={venueExtrasBodyCellStyle}>{item.weight || "-"} / {item.weightAdjustment || "-"}</td>
 												) : null}
-												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td> : null}
-												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td> : null}
+												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue) ? <td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td> : null}
+												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue) ? <td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td> : null}
 												<td style={venueExtrasBodyCellStyle}>{item.oneLapTime || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.turnTime || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.straightTime || "-"}</td>

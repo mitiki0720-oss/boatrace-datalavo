@@ -30,6 +30,8 @@ const KARATSU_VENUE_NAME = "唐津";
 const KARATSU_SOURCE = "boatrace-karatsu.jp";
 const MARUGAME_VENUE_NAME = "丸亀";
 const MARUGAME_SOURCE = "marugameboat.jp";
+const TOKUYAMA_VENUE_NAME = "徳山";
+const TOKUYAMA_SOURCE = "boatrace-tokuyama.jp";
 const MIKUNI_VENUE_NAME = "三国";
 const MIKUNI_SOURCE = "boatrace-mikuni.jp";
 const NARUTO_VENUE_NAME = "鳴門";
@@ -55,6 +57,8 @@ const NARUTO_WATER_SURFACE_URL = "https://www.n14.jp/modules/datafile/?page=inde
 const MARUGAME_MOTOR_DATA_URL = "https://www.marugameboat.jp/asp/htmlmade/marugame/motor/motor02.htm";
 const MARUGAME_TIDE_URL = "https://www.marugameboat.jp/01shiomi/shiomi.htm";
 const MARUGAME_WATER_SURFACE_URL = "https://www.marugameboat.jp/01suimen/01suimen.htm";
+const TOKUYAMA_TIDE_URL = "https://www.boatrace-tokuyama.jp/modules/datafile/?page=index_tide_table";
+const TOKUYAMA_WATER_SURFACE_URL = "https://www.boatrace-tokuyama.jp/modules/datafile/?page=index_suimen";
 const MIKUNI_SCORE_RATE_URL = "https://www.boatrace-mikuni.jp/modules/raceinfo/?page=index_tokutenrank";
 const MIKUNI_TIMERANK_URL = "https://www.boatrace-mikuni.jp/modules/raceinfo/?page=index_timerank";
 const MIKUNI_MOTOR_DATA_URL = "https://www.boatrace-mikuni.jp/modules/datafile/";
@@ -113,6 +117,10 @@ function getJstDate(timestamp) {
 }
 
 function toOmuraDay(date) {
+	return String(date ?? "").replaceAll("-", "");
+}
+
+function toTokuyamaDay(date) {
 	return String(date ?? "").replaceAll("-", "");
 }
 
@@ -544,6 +552,10 @@ function toWakamatsuDay(date) {
 
 function toFukuokaDay(date) {
 	return String(date ?? "").replaceAll("-", "");
+}
+
+function toTokuyamaYosouUrl({ date, raceNo, type }) {
+	return `https://www.boatrace-tokuyama.jp/modules/yosou/${type}.php?day=${toTokuyamaDay(date)}&race=${Number(raceNo)}&if=1`;
 }
 
 function toKojimaRaceNo(raceNo) {
@@ -1241,6 +1253,52 @@ function parseWakamatsuIdentity($, cell) {
 		playerName: "",
 		profile: "",
 	};
+}
+
+function parseTokuyamaIdentity($, cell) {
+	const lines = $(cell)
+		.find("li")
+		.toArray()
+		.map((item) => readCellText($, item))
+		.filter(Boolean);
+
+	if (lines.length >= 3) {
+		const head = compactText(lines[0]);
+		const match = head.match(/^([AB][12])\/?(\d+)$/);
+		return {
+			className: match?.[1] ?? "",
+			registrationNo: match?.[2] ?? "",
+			registerNo: match?.[2] ?? "",
+			playerName: compactText(lines[1]),
+			profile: compactText(lines[2]),
+		};
+	}
+
+	return {
+		className: "",
+		registrationNo: "",
+		registerNo: "",
+		playerName: "",
+		profile: "",
+	};
+}
+
+function parseTokuyamaMotorMark($, cell) {
+	const src = $(cell).find("img").attr("src") ?? "";
+
+	if (src.includes("ico-mark-01")) {
+		return "◎";
+	}
+
+	if (src.includes("ico-mark-02")) {
+		return "○";
+	}
+
+	if (src.includes("ico-mark-03")) {
+		return "△";
+	}
+
+	return readCellText($, cell).replace(/^.*[:：]/, "").trim();
 }
 
 function parseWakamatsuEntryTable(html) {
@@ -1968,6 +2026,490 @@ function parseWakamatsuMotorHistory(html, entryRow) {
 			source: WAKAMATSU_SOURCE,
 		},
 	};
+}
+
+function parseTokuyamaOriginalExhibition(html) {
+	const $ = load(html);
+	const table = $("table.c_table.group.cyokuzen").first().get(0) ?? findTableByKeywords($, ["展示タイム", "一周", "まわり足"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const bodyRows = $(table).find("tbody tr").toArray();
+
+	for (let rowIndex = 0; rowIndex + 1 < bodyRows.length; rowIndex += 2) {
+		const firstRow = $(bodyRows[rowIndex]);
+		const secondRow = $(bodyRows[rowIndex + 1]);
+		const frameNo = parseFrameNo(readCellText($, firstRow.find("td.waku,th.waku").first()));
+
+		if (!frameNo) {
+			continue;
+		}
+
+		const identity = parseTokuyamaIdentity($, firstRow.find("td.com-racer-data, td[class*='tei_sub_color']").first());
+		const partsExchange = readCellText($, secondRow.find("td.col-buhin").first());
+		const previousRaceInfo = [
+			readCellText($, firstRow.find("td.col13").first()),
+			readCellText($, firstRow.find("td.col14").first()),
+			readCellText($, firstRow.find("td.col15").first()),
+			readCellText($, firstRow.find("td.col16").first()),
+		].filter(Boolean).join(" / ");
+
+		rows.push({
+			frameNo,
+			...identity,
+			weight: readCellText($, firstRow.find("td.col5").first()),
+			weightAdjustment: readCellText($, firstRow.find("td.col6").first()),
+			motorNo: readCellText($, firstRow.find("td.col7").first()),
+			motorSecondRate: readCellText($, firstRow.find("td.col8").first()),
+			tilt: readCellText($, firstRow.find("td.col9").first()),
+			exhibitionTime: readCellText($, firstRow.find("td.col10").first()),
+			oneLapTime: readCellText($, firstRow.find("td.col11").first()),
+			turnTime: readCellText($, firstRow.find("td.col12").first()),
+			straightTime: "",
+			exhibitionEvaluation: readCellText($, firstRow.find("td.col1").first()),
+			memo: [
+				partsExchange ? `部品交換 ${partsExchange}` : "",
+				previousRaceInfo ? `前走 ${previousRaceInfo}` : "",
+			].filter(Boolean).join(" / "),
+			source: TOKUYAMA_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTokuyamaMotorSummary(html) {
+	const $ = load(html);
+	const table = $("table.c_table.motor_history").first().get(0) ?? findTableByKeywords($, ["モーター履歴", "使用選手", "節間成績"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const bodyRows = $(table).find("tbody tr").toArray();
+
+	for (let rowIndex = 0; rowIndex + 2 < bodyRows.length; rowIndex += 3) {
+		const firstRow = $(bodyRows[rowIndex]);
+		const secondRow = $(bodyRows[rowIndex + 1]);
+		const thirdRow = $(bodyRows[rowIndex + 2]);
+		const frameNo = parseFrameNo(readCellText($, firstRow.find("td.col1,th.col1").first()));
+
+		if (!frameNo) {
+			continue;
+		}
+
+		const identity = parseTokuyamaIdentity($, firstRow.find("td.col2").first());
+		const motorSegments = readCellSegments($, firstRow.find("td.col3").first());
+		const historyEntries = [firstRow, secondRow, thirdRow]
+			.map((row) => ({
+				label: readCellText($, row.find("td.col6").first()),
+				playerName: readCellText($, row.find("td.col7").first()),
+				results: readCellText($, row.find("td.col8").first()),
+			}))
+			.filter((item) => item.label || item.playerName || item.results);
+		const motorGrade = [
+			`出${parseTokuyamaMotorMark($, firstRow.find("td[class^='col4']").first()) || "-"}`,
+			`伸${parseTokuyamaMotorMark($, secondRow.find("td[class^='col4']").first()) || "-"}`,
+			`回${parseTokuyamaMotorMark($, thirdRow.find("td[class^='col4']").first()) || "-"}`,
+		].join(" / ");
+
+		rows.push({
+			frameNo,
+			...identity,
+			motorNo: motorSegments[0] ?? "",
+			motorSecondRate: motorSegments[1] ?? "",
+			previousUser: historyEntries[0]?.playerName ?? "",
+			recentResults: historyEntries[0]?.results ?? "",
+			motorGrade,
+			comment: historyEntries
+				.map((item) => [item.label, item.playerName, item.results].filter(Boolean).join(" "))
+				.filter(Boolean)
+				.join(" / "),
+			source: TOKUYAMA_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTokuyamaAbilityIndex(html) {
+	const $ = load(html);
+	const table = $("table.c_table").first().get(0) ?? findTableByKeywords($, ["能力指数", "枠相性", "ST力"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 5) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			rows.push({
+				frameNo,
+				abilityValue: readCellText($, cells[2]),
+				frameCompatibility: readCellText($, cells[3]),
+				startPower: readCellText($, cells[4]),
+				source: TOKUYAMA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTokuyamaFramePast10(html) {
+	const $ = load(html);
+	const table = $("table.c_table.group").first().get(0) ?? findTableByKeywords($, ["枠番別データ", "平均ST", "前走"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.children("tbody")
+		.each((_, bodyElement) => {
+			const trList = $(bodyElement).children("tr").toArray();
+			if (trList.length < 2) {
+				return;
+			}
+
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = $(trList[1]).children("td,th").toArray();
+			if (firstCells.length < 16 || secondCells.length < 11) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseTokuyamaIdentity($, firstCells[1]);
+			rows.push({
+				frameNo,
+				className: identity.className,
+				registrationNo: identity.registrationNo,
+				registerNo: identity.registerNo,
+				playerName: identity.playerName,
+				profile: identity.profile,
+				courseHistory: firstCells.slice(3, 13).map((cell) => readCellText($, cell)).slice(0, 10),
+				finishHistory: secondCells.slice(1, 11).map((cell) => readCellText($, cell)).slice(0, 10),
+				startTimingHistory: [],
+				frameWinRate: readCellText($, firstCells[13]),
+				frameAverageStart: readCellText($, firstCells[14]),
+				frameStartOrder: readCellText($, firstCells[15]),
+				source: TOKUYAMA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTokuyamaScoreRateGuide(html) {
+	const $ = load(html);
+	const table = $("table.c_table").first().get(0) ?? findTableByKeywords($, ["得点率", "順位", "1着", "6着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 11) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseTokuyamaIdentity($, cells[1]);
+			rows.push({
+				frameNo,
+				registrationNo: identity.registrationNo,
+				registerNo: identity.registerNo,
+				playerName: identity.playerName,
+				className: identity.className,
+				scoreRate: readCellText($, cells[2]),
+				source: TOKUYAMA_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTokuyamaSectionResults(html) {
+	const $ = load(html);
+	const table = $("table.c_table").first().get(0) ?? findTableByKeywords($, ["ST", "着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tbody tr").toArray();
+
+	for (let rowIndex = 0; rowIndex + 3 < trList.length; rowIndex += 4) {
+		const firstCells = $(trList[rowIndex]).children("td,th").toArray();
+		const secondCells = $(trList[rowIndex + 1]).children("td,th").toArray();
+		const thirdCells = $(trList[rowIndex + 2]).children("td,th").toArray();
+		const fourthCells = $(trList[rowIndex + 3]).children("td,th").toArray();
+		const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+
+		if (!frameNo) {
+			continue;
+		}
+
+		const raceNumbers = firstCells.slice(3).map((cell) => readCellText($, cell)).slice(0, 12);
+		const courses = secondCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 12);
+		const startTimings = thirdCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 12);
+		const finishOrders = fourthCells.slice(1).map((cell) => readCellText($, cell)).slice(0, 12);
+		const sectionResults = raceNumbers
+			.map((raceNo, index) => ({
+				raceNo,
+				course: courses[index] ?? "",
+				startTiming: startTimings[index] ?? "",
+				finishOrder: finishOrders[index] ?? "",
+			}))
+			.filter((item) => item.raceNo && item.raceNo !== "-")
+			.map((item) => `${item.raceNo}R ${item.course && item.course !== "-" ? `${item.course}コース` : ""} ${item.startTiming && item.startTiming !== "-" ? `ST${item.startTiming}` : ""} ${item.finishOrder && item.finishOrder !== "-" ? `${item.finishOrder}着` : ""}`.replace(/\s+/g, " ").trim())
+			.join(" / ");
+
+		rows.push({
+			frameNo,
+			sectionResults,
+			source: TOKUYAMA_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTokuyamaTideInfo(html, date) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["日付", "干潮", "満潮"]);
+
+	if (!table) {
+		return null;
+	}
+
+	const targetDate = String(date ?? "").replaceAll("-", "/");
+	let matchedRow = null;
+
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			if (matchedRow) {
+				return;
+			}
+
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 5) {
+				return;
+			}
+
+			const rowDate = readCellText($, cells[0]);
+			if (rowDate !== targetDate) {
+				return;
+			}
+
+			matchedRow = {
+				date: rowDate,
+				lowTideTime: readCellText($, cells[1]),
+				lowTideLevel: readCellText($, cells[2]),
+				highTideTime: readCellText($, cells[3]),
+				highTideLevel: readCellText($, cells[4]),
+			};
+		});
+
+	if (!matchedRow) {
+		return null;
+	}
+
+	return {
+		...matchedRow,
+		dayLabel: "",
+		tideType: "",
+		source: TOKUYAMA_SOURCE,
+	};
+}
+
+function parseTokuyamaWaterSurfaceInfo(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["水質", "干満の差", "チルト角度", "水面特性"]);
+
+	if (!table) {
+		return null;
+	}
+
+	const valueMap = new Map();
+	$(table)
+		.find("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 2) {
+				return;
+			}
+
+			valueMap.set(readCellText($, cells[0]), readCellText($, cells[1]));
+		});
+
+	const surfaceSummary = [
+		valueMap.get("水質") ? `水質 ${valueMap.get("水質")}` : "",
+		valueMap.get("干満の差") ? `干満の差 ${valueMap.get("干満の差")}` : "",
+		valueMap.get("チルト角度") ? `チルト角度 ${valueMap.get("チルト角度")}` : "",
+	].filter(Boolean).join(" / ");
+	const featureSummary = compactText(valueMap.get("水面特性") ?? "");
+	const courseSummary = compactText(valueMap.get("レース特徴") ?? "");
+
+	if (!surfaceSummary && !featureSummary && !courseSummary) {
+		return null;
+	}
+
+	return {
+		surfaceSummary,
+		featureSummary,
+		courseSummary,
+		source: TOKUYAMA_SOURCE,
+	};
+}
+
+async function fetchTokuyamaRaceExtra({ date, raceNo }) {
+	const settled = await Promise.allSettled([
+		fetchHtml(toTokuyamaYosouUrl({ date, raceNo, type: "tenji" })),
+		fetchHtml(toTokuyamaYosouUrl({ date, raceNo, type: "motor_history" })),
+		fetchHtml(toTokuyamaYosouUrl({ date, raceNo, type: "capability_index" })),
+		fetchHtml(toTokuyamaYosouUrl({ date, raceNo, type: "waku10" })),
+		fetchHtml(toTokuyamaYosouUrl({ date, raceNo, type: "tokuhayami" })),
+		fetchHtml(toTokuyamaYosouUrl({ date, raceNo, type: "setsukan" })),
+	]);
+	const tenjiHtml = settled[0]?.status === "fulfilled" ? settled[0].value : "";
+	const motorHistoryHtml = settled[1]?.status === "fulfilled" ? settled[1].value : "";
+	const capabilityHtml = settled[2]?.status === "fulfilled" ? settled[2].value : "";
+	const framePast10Html = settled[3]?.status === "fulfilled" ? settled[3].value : "";
+	const scoreHtml = settled[4]?.status === "fulfilled" ? settled[4].value : "";
+	const sectionHtml = settled[5]?.status === "fulfilled" ? settled[5].value : "";
+	const originalExhibition = tenjiHtml ? parseTokuyamaOriginalExhibition(tenjiHtml) : [];
+	const motorSummary = motorHistoryHtml ? parseTokuyamaMotorSummary(motorHistoryHtml) : [];
+	const abilityIndex = capabilityHtml ? parseTokuyamaAbilityIndex(capabilityHtml) : [];
+	const tokuyamaFramePast10 = framePast10Html ? parseTokuyamaFramePast10(framePast10Html) : [];
+	const sectionResultsByFrame = new Map(
+		(sectionHtml ? parseTokuyamaSectionResults(sectionHtml) : []).map((row) => [row.frameNo, row.sectionResults]),
+	);
+	const scoreQuickLook = scoreHtml
+		? parseTokuyamaScoreRateGuide(scoreHtml).map((row) => ({
+			...row,
+			sectionResults: sectionResultsByFrame.get(row.frameNo) ?? "",
+		}))
+		: [];
+	const officialBeforeInfo = scoreQuickLook.length > 0
+		? {
+			status: "available",
+			source: TOKUYAMA_SOURCE,
+			scoreQuickLook,
+		}
+		: null;
+
+	console.log(
+		`[venue-extras] tokuyama ${raceNo}R: exhibition ${originalExhibition.length} / motor ${motorSummary.length} / ability ${abilityIndex.length} / frame10 ${tokuyamaFramePast10.length} / score ${scoreQuickLook.length}`,
+	);
+
+	if (!originalExhibition.length && !motorSummary.length && !abilityIndex.length && !tokuyamaFramePast10.length && !scoreQuickLook.length) {
+		return {
+			raceNo,
+			status: "waiting",
+			source: TOKUYAMA_SOURCE,
+			sourceType: "official-venue-yosou-tabs",
+			originalExhibition: [],
+			motorSummary: [],
+			abilityIndex: [],
+			tokuyamaFramePast10: [],
+		};
+	}
+
+	return {
+		raceNo,
+		status: "available",
+		source: TOKUYAMA_SOURCE,
+		sourceType: "official-venue-yosou-tabs",
+		officialBeforeInfo,
+		originalExhibition,
+		motorSummary,
+		abilityIndex,
+		tokuyamaFramePast10,
+	};
+}
+
+async function createTokuyamaVenue(feed, date) {
+	const tokuyamaVenue = findVenue(feed, TOKUYAMA_VENUE_NAME);
+
+	if (!tokuyamaVenue) {
+		console.log("[venue-extras] tokuyama: not held today");
+		return null;
+	}
+
+	try {
+		const races = getRaceList(tokuyamaVenue);
+		const [tideHtml, waterSurfaceHtml] = await Promise.all([
+			fetchHtml(TOKUYAMA_TIDE_URL).catch(() => ""),
+			fetchHtml(TOKUYAMA_WATER_SURFACE_URL).catch(() => ""),
+		]);
+		const tideInfo = tideHtml ? parseTokuyamaTideInfo(tideHtml, date) : null;
+		const waterSurfaceInfo = waterSurfaceHtml ? parseTokuyamaWaterSurfaceInfo(waterSurfaceHtml) : null;
+		const raceExtras = [];
+
+		for (const race of races) {
+			raceExtras.push(await fetchTokuyamaRaceExtra({ date, raceNo: race.raceNo }));
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+		console.log(
+			`[venue-extras] tokuyama: ${availableRaceCount}/${raceExtras.length} races${tideInfo ? " + tide" : ""}${waterSurfaceInfo ? " + water surface" : ""}`,
+		);
+
+		return {
+			venueCode: String(tokuyamaVenue.venueCode ?? "18"),
+			venueName: TOKUYAMA_VENUE_NAME,
+			source: TOKUYAMA_SOURCE,
+			isAvailable: availableRaceCount > 0 || Boolean(tideInfo || waterSurfaceInfo),
+			status: availableRaceCount > 0 || tideInfo || waterSurfaceInfo ? "available" : "waiting-tokuyama-data",
+			note: "徳山公式HPの展示情報・モーター履歴・能力指数・得点率早見・潮見表・水面特性を取得",
+			tideInfo,
+			waterSurfaceInfo,
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] tokuyama failed: ${error.message}`);
+
+		return {
+			venueCode: String(tokuyamaVenue.venueCode ?? "18"),
+			venueName: TOKUYAMA_VENUE_NAME,
+			source: TOKUYAMA_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `徳山公式HPの取得に失敗しました: ${error.message}`,
+			races: [],
+		};
+	}
 }
 
 function parseBiwakoPartsExchangeMap(html) {
@@ -8219,6 +8761,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const marugameVenue = await createMarugameVenue(feed, date);
 	if (marugameVenue) {
 		venueMap.set(marugameVenue.venueName, mergeVenueRecord(venueMap.get(marugameVenue.venueName) ?? null, marugameVenue));
+	}
+
+	const tokuyamaVenue = await createTokuyamaVenue(feed, date);
+	if (tokuyamaVenue) {
+		venueMap.set(tokuyamaVenue.venueName, mergeVenueRecord(venueMap.get(tokuyamaVenue.venueName) ?? null, tokuyamaVenue));
 	}
 
 	const mikuniVenue = await createMikuniVenue(feed);
