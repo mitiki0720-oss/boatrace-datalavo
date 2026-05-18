@@ -4650,7 +4650,7 @@ type VenueOfficialLinkStatus = "complete" | "partial" | "checking";
 
 const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
 	若松: "complete",
-	三国: "partial",
+	三国: "complete",
 	鳴門: "partial",
 	丸亀: "partial",
 };
@@ -6172,7 +6172,18 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 		}
 
 		if (option.key === "exhibition") {
-			return selectedOriginalExhibitionRows.length > 0 ? `独自展示 ${selectedOriginalExhibitionRows.length}艇` : "独自展示ページ確認中";
+			if (selectedOriginalExhibitionRows.length > 0) {
+				const labels = [
+					`独自展示 ${selectedOriginalExhibitionRows.length}艇`,
+					selectedOriginalExhibitionRows.some((row) => Boolean(row.oneLapTime)) ? "半周ラップあり" : "",
+					selectedOriginalExhibitionRows.some((row) => Boolean(row.turnTime)) ? "まわり足あり" : "",
+					selectedOriginalExhibitionRows.some((row) => Boolean(row.straightTime)) ? "直線あり" : "",
+				].filter(Boolean);
+
+				return labels.join(" / ");
+			}
+
+			return "独自展示ページ確認中";
 		}
 
 		if (option.key === "motor") {
@@ -9339,26 +9350,30 @@ body:has(.races-page-root) {
 					{hasOriginalExhibitionData ? (
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>会場独自展示</h4>
+							{isMikuniVenue && selectedOriginalExhibitionRows[0]?.source ? (
+								<p style={venueExtrasTextStyle}>三国オリジナルデータ / {selectedOriginalExhibitionRows[0].source}</p>
+							) : null}
 							<div style={venueExtrasTableWrapStyle}>
 								<table style={venueExtrasTableStyle}>
 									<thead>
 										<tr>
 											<th style={venueExtrasHeadCellStyle}>枠</th>
-											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>選手</th> : null}
+											{(isMikuniVenue || isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>選手</th> : null}
+											{isMikuniVenue ? <th style={venueExtrasHeadCellStyle}>モーター</th> : null}
 											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>体重 / 調整</th> : null}
 											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>チルト</th> : null}
 											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? <th style={venueExtrasHeadCellStyle}>展示</th> : null}
-											<th style={venueExtrasHeadCellStyle}>一周</th>
+											<th style={venueExtrasHeadCellStyle}>{isMikuniVenue ? "半周" : "一周"}</th>
 											<th style={venueExtrasHeadCellStyle}>回り足</th>
 											<th style={venueExtrasHeadCellStyle}>直線</th>
-											<th style={venueExtrasHeadCellStyle}>展示評価</th>
+											<th style={venueExtrasHeadCellStyle}>{isMikuniVenue ? "メモ" : "展示評価"}</th>
 										</tr>
 									</thead>
 									<tbody>
 										{selectedOriginalExhibitionRows.map((item) => (
 											<tr key={`venue-extra-exhibition-${item.frameNo}`}>
 												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? (
+												{(isMikuniVenue || isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? (
 													<td style={venueExtrasBodyCellStyle}>
 														<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
 															<strong>{item.playerName || `枠${item.frameNo}`}</strong>
@@ -9370,6 +9385,7 @@ body:has(.races-page-root) {
 														</div>
 													</td>
 												) : null}
+												{isMikuniVenue ? <td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"}</td> : null}
 												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue) ? (
 													<td style={venueExtrasBodyCellStyle}>{item.weight || "-"} / {item.weightAdjustment || "-"}</td>
 												) : null}
@@ -9378,7 +9394,7 @@ body:has(.races-page-root) {
 												<td style={venueExtrasBodyCellStyle}>{item.oneLapTime || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.turnTime || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.straightTime || "-"}</td>
-												<td style={venueExtrasBodyCellStyle}>{item.exhibitionEvaluation || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{isMikuniVenue ? (item.memo || "-") : (item.exhibitionEvaluation || "-")}</td>
 											</tr>
 										))}
 									</tbody>

@@ -59,6 +59,8 @@ const MIKUNI_SCORE_RATE_URL = "https://www.boatrace-mikuni.jp/modules/raceinfo/?
 const MIKUNI_TIMERANK_URL = "https://www.boatrace-mikuni.jp/modules/raceinfo/?page=index_timerank";
 const MIKUNI_MOTOR_DATA_URL = "https://www.boatrace-mikuni.jp/modules/datafile/";
 const MIKUNI_WATER_SURFACE_URL = "https://www.boatrace-mikuni.jp/modules/datafile/?page=index_suimen";
+const MIKUNIKS_RACES_BASE_URL = "https://www.mikuniks-web.jp/races/";
+const MIKUNIKS_SOURCE = "mikuniks-web.jp/races";
 const REQUEST_INTERVAL_MS = 250;
 
 function parseCliArgs(argv = process.argv.slice(2)) {
@@ -622,6 +624,10 @@ function toMikuniMotorHistoryUrl(motorNo) {
 	url.searchParams.set("motor_no", String(motorNo ?? ""));
 	url.searchParams.set("select", "7");
 	return url.toString();
+}
+
+function toMikuniksRaceUrl(raceNo) {
+	return new URL(String(Number(raceNo)), MIKUNIKS_RACES_BASE_URL).toString();
 }
 
 async function fetchFukuokaHtml(url) {
@@ -3279,6 +3285,95 @@ function parseMikuniWaterSurfaceInfo(html) {
 	};
 }
 
+function parseMikuniOriginalPlayerCell(value) {
+	const normalized = compactText(value);
+	const match = normalized.match(/^(.*?)\s+([^\s/]+)\/(\d+)\s+([AB]\d)$/);
+
+	if (!match) {
+		return {
+			playerName: normalized,
+			branch: "",
+			className: "",
+		};
+	}
+
+	return {
+		playerName: compactText(match[1]),
+		branch: compactText(match[2]),
+		className: compactText(match[4]),
+	};
+}
+
+function parseMikuniOriginalExhibition(html, raceNo) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["半周", "まわり足", "直線", "選手名"]);
+	const slitImageSrc = $("img[alt*='スタート展示']").first().attr("src");
+	const slitImageUrl = slitImageSrc ? new URL(slitImageSrc, toMikuniksRaceUrl(raceNo)).toString() : "";
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+
+	$(table).find("tr").each((_, tr) => {
+		const cells = $(tr).children("th, td").toArray().map((cell) => readCellText($, cell));
+		const frameNo = parseFrameNo(cells[0]) ?? parseFrameNo(cells[1]);
+
+		if (!frameNo || cells.length < 12) {
+			return;
+		}
+
+		const player = parseMikuniOriginalPlayerCell(cells[2]);
+		const registrationNo = cells[7];
+		const motorNo = cells[11];
+		const noteParts = ["三国オリジナルデータ", slitImageUrl ? "スリット画像あり" : ""].filter(Boolean);
+
+		rows.push({
+			frameNo,
+			playerName: player.playerName,
+			className: player.className,
+			branch: player.branch,
+			registrationNo,
+			motorNo,
+			halfLapTime: cells[3],
+			turnTime: cells[4],
+			straightTime: cells[5],
+			weight: cells[6],
+			note: noteParts.join(" / "),
+			slitImageUrl,
+			source: toMikuniksRaceUrl(raceNo),
+		});
+	});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function createMikuniOriginalExhibitionForRace(race, originalRows) {
+	const racerByFrame = new Map(getRaceRacerRows(race).map((racer) => [getRacerFrameNo(racer), racer]));
+
+	return originalRows.map((row) => {
+		const racer = racerByFrame.get(row.frameNo);
+		const motorNo = row.motorNo || readRaceString(racer?.motorNo ?? racer?.motorNumber);
+
+		return {
+			frameNo: row.frameNo,
+			playerName: row.playerName || getRacerPlayerName(racer),
+			className: row.className || readRaceString(racer?.class ?? racer?.grade ?? racer?.rank),
+			registerNo: row.registrationNo || getRacerRegistrationNo(racer),
+			weight: row.weight || "",
+			motorNo,
+			oneLapTime: row.halfLapTime || "",
+			turnTime: row.turnTime || "",
+			straightTime: row.straightTime || "",
+			exhibitionEvaluation: "三国オリジナルデータ",
+			memo: row.note || "",
+			slitImageUrl: row.slitImageUrl || "",
+			source: row.source || MIKUNIKS_SOURCE,
+		};
+	});
+}
+
 function createMikuniScoreRowsForRace(race, scoreRows) {
 	return getRaceRacerRows(race)
 		.map((racer) => {
@@ -3424,6 +3519,7 @@ async function createMikuniVenue(feed) {
 					: null,
 				beforeInfo: officialBeforeInfo?.exhibitionRows ?? [],
 				startExhibition: officialBeforeInfo?.startExhibition ?? [],
+				originalExhibition: [],
 				mikuniScoreRateGuide,
 				mikuniCourseResults,
 				mikuniMotorHistory: motorSummary,
@@ -3434,17 +3530,25 @@ async function createMikuniVenue(feed) {
 
 		for (const race of raceExtras) {
 			try {
-				const courseHtml = await fetchHtml(toMikuniRaceCourseUrl(race.raceNo));
+				const raceSource = getRaceList(mikuniVenue).find((item) => item.raceNo === race.raceNo);
+				const [courseHtml, originalHtml] = await Promise.all([
+					fetchHtml(toMikuniRaceCourseUrl(race.raceNo)),
+					fetchHtml(toMikuniksRaceUrl(race.raceNo)),
+				]);
 				race.mikuniCourseResults = parseMikuniCourseResults(courseHtml, getRaceList(mikuniVenue).find((item) => item.raceNo === race.raceNo));
+				race.originalExhibition = createMikuniOriginalExhibitionForRace(raceSource, parseMikuniOriginalExhibition(originalHtml, race.raceNo));
+				if (race.originalExhibition.length > 0) {
+					race.sourceType = "official-venue-score-course-motor-water+original-exhibition";
+				}
 			} catch (error) {
-				console.warn(`[venue-extras] mikuni ${race.raceNo}R course failed: ${error.message}`);
+				console.warn(`[venue-extras] mikuni ${race.raceNo}R extras failed: ${error.message}`);
 			}
 			await sleep(REQUEST_INTERVAL_MS);
 		}
 
 		const firstRace = raceExtras[0] ?? null;
 		console.log(
-			`[mikuni extras] before=${firstRace?.beforeInfo?.length ?? 0} start=${firstRace?.startExhibition?.length ?? 0} original=0 motor=${firstRace?.motorSummary?.length ?? 0} scoreRate=${firstRace?.mikuniScoreRateGuide?.length ?? 0} course=${firstRace?.mikuniCourseResults?.length ?? 0} weather=${waterSurfaceInfo ? "ok" : "none"}`,
+			`[mikuni extras] before=${firstRace?.beforeInfo?.length ?? 0} start=${firstRace?.startExhibition?.length ?? 0} original=${firstRace?.originalExhibition?.length ?? 0} source=${firstRace?.originalExhibition?.[0]?.source ? "mikuniks" : "none"} motor=${firstRace?.motorSummary?.length ?? 0} scoreRate=${firstRace?.mikuniScoreRateGuide?.length ?? 0} course=${firstRace?.mikuniCourseResults?.length ?? 0} weather=${waterSurfaceInfo ? "ok" : "none"}`,
 		);
 
 		return {
@@ -3458,7 +3562,7 @@ async function createMikuniVenue(feed) {
 				Boolean(waterSurfaceInfo)
 			),
 			status: "available",
-			note: "三国公式HPの得点率ランキング、進入コース別選手成績、モーター成績・履歴、水面特性を取得",
+			note: "三国公式HPの得点率ランキング、進入コース別選手成績、モーター成績・履歴、水面特性と、公式導線の mikuniks オリジナル展示データを取得",
 			waterSurfaceInfo,
 			races: raceExtras,
 		};
