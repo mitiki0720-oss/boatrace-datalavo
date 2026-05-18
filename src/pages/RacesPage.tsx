@@ -7335,18 +7335,27 @@ body:has(.races-page-root) {
 							<h4 style={venueExtrasPanelTitleStyle}>公式スタート展示</h4>
 
 							{isNarutoVenue ? (
-								<div style={narutoStartScrollStyle}>
-									<div style={narutoStartBoardStyle}>
-										{narutoStartExhibitionDisplay.map((item) => {
-											const frameTone = narutoFramePalette[item.frameNo] ?? narutoFramePalette[1];
-											const startFlag = getOfficialStartFlag(item.startTiming);
-											const isFlaggedStart = startFlag !== "-";
+								<div style={venueExtrasTableWrapStyle}>
+									<table style={venueExtrasTableStyle}>
+										<thead>
+											<tr>
+												<th style={venueExtrasHeadCellStyle}>艇番</th>
+												<th style={venueExtrasHeadCellStyle}>選手</th>
+												<th style={venueExtrasHeadCellStyle}>進入</th>
+												<th style={venueExtrasHeadCellStyle}>ST</th>
+												<th style={venueExtrasHeadCellStyle}>展示ST</th>
+												<th style={venueExtrasHeadCellStyle}>S/D</th>
+												<th style={venueExtrasHeadCellStyle}>備考</th>
+											</tr>
+										</thead>
+										<tbody>
+											{narutoStartExhibitionDisplay.map((item) => {
+												const frameTone = narutoFramePalette[item.frameNo] ?? narutoFramePalette[1];
+												const startFlag = getOfficialStartFlag(item.startTiming);
 
-											return (
-												<div key={`official-beforeinfo-start-visual-${item.course}-${item.frameNo}`} style={narutoStartRowStyle}>
-													<div style={narutoStartMetaStyle}>
-														<div style={narutoStartMetaTopStyle}>
-															<span style={narutoStartCourseBadgeStyle}>{item.course}コース</span>
+												return (
+													<tr key={`official-beforeinfo-start-naruto-${item.course}-${item.frameNo}`}>
+														<td style={venueExtrasBodyCellStyle}>
 															<span
 																style={{
 																	...narutoStartCourseBadgeStyle,
@@ -7357,63 +7366,24 @@ body:has(.races-page-root) {
 															>
 																{item.frameNo}号艇
 															</span>
-														</div>
-														<p style={narutoStartPlayerStyle}>{item.playerName}</p>
-														<div style={narutoStartMetaDetailStyle}>
-															<span>今節平均ST {item.currentAverageStart || "-"}</span>
-															<span>スタート順{item.startOrder ?? "-"}</span>
-															{item.style ? <span>{item.style === "S" ? "スロー" : item.style === "D" ? "ダッシュ" : item.style}</span> : null}
-														</div>
-													</div>
-													<div style={narutoStartWaterStyle}>
-														<div style={narutoStartLaneLabelStyle}>
-															<p style={narutoStartLaneTextStyle}>Water Lane</p>
-															<p style={narutoStartLaneSubTextStyle}>{item.course}コース進入</p>
-														</div>
-														<div style={narutoStartTrackStyle}>
-															<div style={narutoStartTrackWaveStyle} />
-															<div style={narutoStartLineStyle} />
-															<div style={narutoStartLineLabelStyle}>
-																<span>START LINE</span>
-																<span>0.00</span>
-															</div>
-															<p style={narutoStartTrackHintStyle}>早い / 遅い</p>
-															<span
-																style={{
-																	...narutoStartBoatBaseStyle,
-																	background: frameTone.background,
-																	color: frameTone.color,
-																	left: `${item.startLanePosition}%`,
-																	backgroundImage: undefined,
-																	borderColor: frameTone.border,
-																	boxShadow: isFlaggedStart
-																		? "0 0 0 3px rgba(225, 67, 67, 0.28), 0 12px 22px rgba(17, 64, 92, 0.16)"
-																		: "0 10px 20px rgba(17, 64, 92, 0.12)",
-																	}}
-															>
-																<span>{item.frameNo}号艇</span>
-																<span
-																	style={{
-																		...narutoStartTimingBaseStyle,
-																		color: boatTheme.colors.navy,
-																		background: "rgba(255, 255, 255, 0.78)",
-																		border: narutoStartTimingBaseStyle.border,
-																	}}
-																>
-																	{item.startTiming || "-"}
-																</span>
-															</span>
-														</div>
-														<div style={{ ...narutoStartMetaDetailStyle, justifyContent: "flex-end" as const, textAlign: "right" as const }}>
-															<span>今回ST {item.startTiming || "-"}</span>
-															<span>今節平均ST {item.currentAverageStart || "-"}</span>
-															<span>スタート順{item.startOrder ?? "-"}</span>
-														</div>
-													</div>
-												</div>
-											);
-										})}
-									</div>
+														</td>
+														<td style={venueExtrasBodyCellStyle}>{item.playerName || `枠${item.frameNo}`}</td>
+														<td style={venueExtrasBodyCellStyle}>{item.course}コース</td>
+														<td style={venueExtrasBodyCellStyle}>{getOfficialStartTimingValue(item.startTiming)}</td>
+														<td style={venueExtrasBodyCellStyle}>{item.startTiming || "-"}</td>
+														<td style={venueExtrasBodyCellStyle}>{item.style === "S" ? "スロー" : item.style === "D" ? "ダッシュ" : item.style || "-"}</td>
+														<td style={venueExtrasBodyCellStyle}>
+															{[
+																startFlag !== "-" ? `F表示 ${startFlag}` : "",
+																item.currentAverageStart ? `今節平均ST ${item.currentAverageStart}` : "",
+																item.startOrder ? `スタート順 ${item.startOrder}` : "",
+															].filter(Boolean).join(" / ") || "-"}
+														</td>
+													</tr>
+												);
+											})}
+										</tbody>
+									</table>
 								</div>
 							) : (
 								<div style={venueExtrasTableWrapStyle}>
