@@ -4702,7 +4702,7 @@ type VenueOfficialLinkStatus = "complete" | "partial" | "checking";
 const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
 	若松: "complete",
 	三国: "complete",
-	鳴門: "partial",
+	鳴門: "complete",
 	丸亀: "partial",
 	徳山: "complete",
 };
@@ -5010,6 +5010,11 @@ const selectedMotorSummaryDisplay = useMemo(
 const selectedAbilityIndex = useMemo(
 	() => getVenueAbilityIndex(selectedRaceExtra),
 	[selectedRaceExtra],
+);
+
+const selectedAbilityIndexByFrame = useMemo(
+	() => new Map(selectedAbilityIndex.map((item) => [item.frameNo, item])),
+	[selectedAbilityIndex],
 );
 
 const selectedStartExhibition = useMemo(
@@ -9167,10 +9172,16 @@ body:has(.races-page-root) {
 													<th style={venueExtrasHeadCellStyle}>モーター2連率</th>
 													<th style={venueExtrasHeadCellStyle}>得点率</th>
 													<th style={venueExtrasHeadCellStyle}>節間成績</th>
+													<th style={venueExtrasHeadCellStyle}>能力値</th>
+													<th style={venueExtrasHeadCellStyle}>枠番適性</th>
+													<th style={venueExtrasHeadCellStyle}>ST力</th>
 												</tr>
 											</thead>
 											<tbody>
-												{selectedOfficialBeforeInfo.scoreQuickLook.map((item) => (
+												{selectedOfficialBeforeInfo.scoreQuickLook.map((item) => {
+													const abilityRow = selectedAbilityIndexByFrame.get(item.frameNo);
+
+													return (
 													<tr key={`official-beforeinfo-score-${item.frameNo}`}>
 														<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
 														<td style={venueExtrasBodyCellStyle}>{item.registrationNo || "-"}</td>
@@ -9184,8 +9195,12 @@ body:has(.races-page-root) {
 														<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
 														<td style={venueExtrasBodyCellStyle}>{item.scoreRate || "-"}</td>
 														<td style={venueExtrasBodyCellStyle}>{item.sectionResults || "-"}</td>
+														<td style={venueExtrasBodyCellStyle}>{abilityRow?.abilityValue || "-"}</td>
+														<td style={venueExtrasBodyCellStyle}>{abilityRow?.frameCompatibility || "-"}</td>
+														<td style={venueExtrasBodyCellStyle}>{abilityRow?.startPower || "-"}</td>
 													</tr>
-												))}
+													);
+												})}
 											</tbody>
 										</table>
 									</div>
@@ -9396,7 +9411,7 @@ body:has(.races-page-root) {
 						</section>
 					) : null}
 
-					{selectedAbilityIndex.length > 0 ? (
+					{selectedAbilityIndex.length > 0 && !isNarutoVenue ? (
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>能力指数</h4>
 							<div style={venueExtrasTableWrapStyle}>

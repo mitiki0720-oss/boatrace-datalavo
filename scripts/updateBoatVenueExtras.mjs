@@ -7940,6 +7940,7 @@ function parseNarutoMotorData(html) {
 function parseNarutoTideInfo(html, date) {
 	const $ = load(html);
 	const lines = readCleanLines($("body"));
+	const bodyText = normalizeNarutoCell($("body").text()).replace(/\s+/g, " ");
 
 	const targetDate = String(date ?? "")
 		.replace(/^\d{4}-/, "")
@@ -7950,6 +7951,22 @@ function parseNarutoTideInfo(html, date) {
 	const targetDateWithZero = String(date ?? "")
 		.replace(/^\d{4}-/, "")
 		.replace("-", "/");
+
+	const tideTableStart = bodyText.indexOf("日付 潮 干潮 満潮");
+	const searchableText = tideTableStart >= 0 ? bodyText.slice(tideTableStart) : bodyText;
+	const tideRows = Array.from(searchableText.matchAll(/(\d{1,2}\/\d{1,2})([月火水木金土日])([若中小長大]潮)(\d{1,2}:\d{2})(\d{1,2}:\d{2})/g));
+	const bodyMatch = tideRows.find((match) => match[1] === targetDate || match[1] === targetDateWithZero);
+
+	if (bodyMatch) {
+		return {
+			date: bodyMatch[1],
+			dayLabel: bodyMatch[2],
+			tideType: bodyMatch[3],
+			lowTideTime: bodyMatch[4],
+			highTideTime: bodyMatch[5],
+			source: NARUTO_SOURCE,
+		};
+	}
 
 	for (const line of lines) {
 		const text = normalizeNarutoCell(line);
@@ -8518,6 +8535,138 @@ function parseNarutoRecentPerformance(html) {
 	return rows.sort((left, right) => left.frameNo - right.frameNo);
 }
 
+function parseNarutoScoreRateGuide(html) {
+	const $ = load(html);
+	const table = $("table.par-table01").first().get(0) ?? findTableByKeywords($, ["得点率", "順位", "1着", "6着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tbody tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 11) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(normalizeNarutoCell($(cells[0]).text()));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseNarutoRacerIdentity($, cells[1]);
+			rows.push({
+				frameNo,
+				registrationNo: identity.registerNo,
+				playerName: identity.playerName,
+				className: identity.className,
+				averageStart: "",
+				winRate: "",
+				secondRate: "",
+				localWinRate: "",
+				localSecondRate: "",
+				motorNo: "",
+				motorSecondRate: "",
+				scoreRate: normalizeNarutoCell($(cells[2]).text()),
+				scoreRank: normalizeNarutoCell($(cells[3]).text()),
+				scoreAfterFirst: normalizeNarutoCell($(cells[4]).text()),
+				scoreAfterSecond: normalizeNarutoCell($(cells[5]).text()),
+				scoreAfterThird: normalizeNarutoCell($(cells[6]).text()),
+				scoreAfterFourth: normalizeNarutoCell($(cells[7]).text()),
+				scoreAfterFifth: normalizeNarutoCell($(cells[8]).text()),
+				scoreAfterSixth: normalizeNarutoCell($(cells[9]).text()),
+				scoreBorderMemo: normalizeNarutoCell($(cells[10]).text()),
+				source: NARUTO_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseNarutoSectionResults(html) {
+	const $ = load(html);
+	const table = $("table.par-table01.table1.group").first().get(0) ?? findTableByKeywords($, ["節間成績", "ST", "着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tbody tr").toArray();
+
+	for (let rowIndex = 0; rowIndex + 3 < trList.length; rowIndex += 4) {
+		const firstCells = $(trList[rowIndex]).children("td,th").toArray();
+		const secondCells = $(trList[rowIndex + 1]).children("td,th").toArray();
+		const thirdCells = $(trList[rowIndex + 2]).children("td,th").toArray();
+		const fourthCells = $(trList[rowIndex + 3]).children("td,th").toArray();
+		const frameNo = parseFrameNo(normalizeNarutoCell($(firstCells[0]).text()));
+
+		if (!frameNo) {
+			continue;
+		}
+
+		const raceNumbers = firstCells.slice(3).map((cell) => normalizeNarutoCell($(cell).text())).slice(0, 12);
+		const courses = secondCells.slice(1).map((cell) => normalizeNarutoCell($(cell).text())).slice(0, 12);
+		const startTimings = thirdCells.slice(1).map((cell) => normalizeNarutoCell($(cell).text())).slice(0, 12);
+		const finishOrders = fourthCells.slice(1).map((cell) => normalizeNarutoCell($(cell).text())).slice(0, 12);
+		const sectionResults = raceNumbers
+			.map((raceNo, index) => ({
+				raceNo,
+				course: courses[index] ?? "",
+				startTiming: startTimings[index] ?? "",
+				finishOrder: finishOrders[index] ?? "",
+			}))
+			.filter((item) => item.raceNo && item.raceNo !== "-")
+			.map((item) => `${item.raceNo}R ${item.course && item.course !== "-" ? `${item.course}コース` : ""} ${item.startTiming && item.startTiming !== "-" ? `ST${item.startTiming}` : ""} ${item.finishOrder && item.finishOrder !== "-" ? `${item.finishOrder}着` : ""}`.replace(/\s+/g, " ").trim())
+			.join(" / ");
+
+		rows.push({
+			frameNo,
+			sectionResults,
+			source: NARUTO_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseNarutoAbilityIndex(html) {
+	const $ = load(html);
+	const table = $("table.par-table01.nouryoku").first().get(0) ?? findTableByKeywords($, ["能力指数", "能力値", "枠番相性", "スタート力"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tbody tr").toArray();
+
+	for (let rowIndex = 0; rowIndex + 1 < trList.length; rowIndex += 2) {
+		const firstCells = $(trList[rowIndex]).children("td,th").toArray();
+		if (firstCells.length < 5) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(normalizeNarutoCell($(firstCells[0]).text()));
+		if (!frameNo) {
+			continue;
+		}
+
+		rows.push({
+			frameNo,
+			abilityValue: normalizeNarutoCell($(firstCells[2]).text()),
+			frameCompatibility: normalizeNarutoCell($(firstCells[3]).text()),
+			startPower: normalizeNarutoCell($(firstCells[4]).text()),
+			source: NARUTO_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
 async function fetchNarutoRacerPerformance({ day, raceNo }) {
 	const urls = [0, 1, 2].map((kind) =>
 		toNarutoYosouUrlWithKind({
@@ -8563,36 +8712,85 @@ async function fetchNarutoRaceExtra({ day, raceNo }) {
 		type: "group-cyokuzen",
 		kind: 2,
 	});
+	const scoreUrl = toNarutoYosouUrl({
+		day,
+		raceNo,
+		type: "tokuhayami",
+	});
+	const sectionUrl = toNarutoYosouUrlWithKind({
+		day,
+		raceNo,
+		type: "group-syussou",
+		kind: 1,
+	});
+	const abilityUrl = toNarutoYosouUrlWithKind({
+		day,
+		raceNo,
+		type: "group-syussou",
+		kind: 3,
+	});
 
 	try {
-		const [cyokuzenHtml, originalDataHtml, narutoRacerPerformance] = await Promise.all([
+		const settled = await Promise.allSettled([
 			fetchHtml(cyokuzenUrl),
 			fetchHtml(originalDataUrl),
 			fetchNarutoRacerPerformance({ day, raceNo }),
+			fetchHtml(scoreUrl),
+			fetchHtml(sectionUrl),
+			fetchHtml(abilityUrl),
 		]);
+		const cyokuzenHtml = settled[0]?.status === "fulfilled" ? settled[0].value : "";
+		const originalDataHtml = settled[1]?.status === "fulfilled" ? settled[1].value : "";
+		const narutoRacerPerformance = settled[2]?.status === "fulfilled"
+			? settled[2].value
+			: null;
+		const scoreHtml = settled[3]?.status === "fulfilled" ? settled[3].value : "";
+		const sectionHtml = settled[4]?.status === "fulfilled" ? settled[4].value : "";
+		const abilityHtml = settled[5]?.status === "fulfilled" ? settled[5].value : "";
 
 		const originalExhibition = mergeNarutoOriginalExhibitionRows(
-			parseNarutoOriginalExhibitionBase(cyokuzenHtml),
-			parseNarutoOriginalExhibitionTimes(originalDataHtml),
+			cyokuzenHtml ? parseNarutoOriginalExhibitionBase(cyokuzenHtml) : [],
+			originalDataHtml ? parseNarutoOriginalExhibitionTimes(originalDataHtml) : [],
 		);
+		const abilityIndex = abilityHtml ? parseNarutoAbilityIndex(abilityHtml) : [];
+		const sectionResultsByFrame = new Map(
+			(sectionHtml ? parseNarutoSectionResults(sectionHtml) : []).map((row) => [row.frameNo, row.sectionResults]),
+		);
+		const scoreQuickLook = scoreHtml
+			? parseNarutoScoreRateGuide(scoreHtml).map((row) => ({
+				...row,
+				sectionResults: sectionResultsByFrame.get(row.frameNo) ?? "",
+			}))
+			: [];
+		const officialBeforeInfo = scoreQuickLook.length > 0
+			? {
+				status: "available",
+				source: NARUTO_SOURCE,
+				scoreQuickLook,
+			}
+			: null;
 
-		if (!originalExhibition.length && !narutoRacerPerformance) {
+		if (!originalExhibition.length && !narutoRacerPerformance && !officialBeforeInfo && !abilityIndex.length) {
 			console.log(`[venue-extras] naruto ${raceNo}R: no official rows yet`);
 			return {
 				raceNo,
 				originalExhibition: [],
 				narutoRacerPerformance: null,
+				officialBeforeInfo: null,
+				abilityIndex: [],
 			};
 		}
 
 		console.log(
-			`[venue-extras] naruto ${raceNo}R: ${originalExhibition.length} original rows${narutoRacerPerformance ? " + racer performance" : ""}`,
+			`[venue-extras] naruto ${raceNo}R: ${originalExhibition.length} original rows${narutoRacerPerformance ? " + racer performance" : ""}${officialBeforeInfo ? ` + score ${scoreQuickLook.length}` : ""}${abilityIndex.length ? ` + ability ${abilityIndex.length}` : ""}`,
 		);
 
 		return {
 			raceNo,
 			originalExhibition,
 			narutoRacerPerformance,
+			officialBeforeInfo,
+			abilityIndex,
 		};
 	} catch (error) {
 		console.warn(`[venue-extras] naruto ${raceNo}R official extras failed: ${error.message}`);
@@ -8601,6 +8799,8 @@ async function fetchNarutoRaceExtra({ day, raceNo }) {
 			raceNo,
 			originalExhibition: [],
 			narutoRacerPerformance: null,
+			officialBeforeInfo: null,
+			abilityIndex: [],
 		};
 	}
 }
@@ -8664,33 +8864,37 @@ async function createNarutoVenue(feed, date) {
 		}
 
 		for (const race of races) {
-	const motorSummary = createNarutoRaceMotorSummary(race, motorData);
-	const raceOfficialExtra = await fetchNarutoRaceExtra({
-		day: yosouDay,
-		raceNo: race.raceNo,
-	});
+			const motorSummary = createNarutoRaceMotorSummary(race, motorData);
+			const raceOfficialExtra = await fetchNarutoRaceExtra({
+				day: yosouDay,
+				raceNo: race.raceNo,
+			});
 
-	const originalExhibition = raceOfficialExtra?.originalExhibition ?? [];
-		const narutoRacerPerformance = raceOfficialExtra?.narutoRacerPerformance ?? null;
+			const originalExhibition = raceOfficialExtra?.originalExhibition ?? [];
+			const narutoRacerPerformance = raceOfficialExtra?.narutoRacerPerformance ?? null;
+			const officialBeforeInfo = raceOfficialExtra?.officialBeforeInfo ?? null;
+			const abilityIndex = raceOfficialExtra?.abilityIndex ?? [];
 
-		if (!motorSummary.length && !originalExhibition.length && !narutoRacerPerformance && !tideInfo && !waterSurfaceInfo) {
-		continue;
-	}
+			if (!motorSummary.length && !originalExhibition.length && !narutoRacerPerformance && !officialBeforeInfo && !abilityIndex.length && !tideInfo && !waterSurfaceInfo) {
+				continue;
+			}
 
-	raceExtras.push({
-		raceNo: race.raceNo,
-		status: "available",
-		source: NARUTO_SOURCE,
-		sourceType: "official-venue-motor-tide-water-cyokuzen",
-		originalExhibition,
-		narutoRacerPerformance,
-		motorSummary,
-		tideInfo,
-		waterSurfaceInfo,
-	});
+			raceExtras.push({
+				raceNo: race.raceNo,
+				status: "available",
+				source: NARUTO_SOURCE,
+				sourceType: "official-venue-motor-tide-water-cyokuzen",
+				officialBeforeInfo,
+				abilityIndex,
+				originalExhibition,
+				narutoRacerPerformance,
+				motorSummary,
+				tideInfo,
+				waterSurfaceInfo,
+			});
 
-	await sleep(REQUEST_INTERVAL_MS);
-}
+			await sleep(REQUEST_INTERVAL_MS);
+		}
 
 		if (!raceExtras.length) {
 			console.log("[venue-extras] naruto: held today, but no venue rows are available yet");
