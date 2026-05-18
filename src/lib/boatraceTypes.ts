@@ -91,13 +91,21 @@ export type BoatStartExhibitionItem = {
 export type BoatWeatherActual = {
 	weather?: string;
 	windDirection?: string;
+	windDirectionText?: string;
 	windSpeed?: string;
 	waveHeight?: string;
 	temperature?: string;
+	airTemperature?: string;
 	waterTemperature?: string;
+	pressure?: string;
+	humidity?: string;
+	rainfall?: string;
+	observedAt?: string;
 	updatedAt?: string;
 	fetchedAt?: string;
 	source?: string;
+	sourceUrl?: string;
+	sourceLabel?: string;
 };
 
 export type BoatOddsItem = {

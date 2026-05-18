@@ -361,11 +361,77 @@ function buildOfficialBeforeInfoScoreQuickLookRows(race) {
 		.sort((left, right) => left.frameNo - right.frameNo);
 }
 
+function normalizeVenueWeatherCondition(weather, options = {}) {
+	if (!weather || typeof weather !== "object") {
+		return null;
+	}
+
+	// Future venue integrations should normalize official weather, water condition,
+	// tide, pressure, humidity, and rainfall here before saving generated extras.
+	const condition = {
+		weather: weather.weather ?? "",
+		windDirection: weather.windDirection ?? weather.windDirectionText ?? "",
+		windDirectionText: weather.windDirectionText ?? weather.windDirection ?? "",
+		windSpeed: weather.windSpeed ?? "",
+		waveHeight: weather.waveHeight ?? "",
+		temperature: weather.temperature ?? weather.airTemperature ?? "",
+		airTemperature: weather.airTemperature ?? weather.temperature ?? "",
+		waterTemperature: weather.waterTemperature ?? "",
+		pressure: weather.pressure ?? "",
+		humidity: weather.humidity ?? "",
+		rainfall: weather.rainfall ?? "",
+		observedAt: weather.observedAt ?? "",
+		updatedAt: weather.updatedAt ?? "",
+		fetchedAt: weather.fetchedAt ?? "",
+		source: options.source ?? weather.source ?? "",
+		sourceUrl: options.sourceUrl ?? weather.sourceUrl ?? "",
+		sourceLabel: options.sourceLabel ?? weather.sourceLabel ?? "",
+	};
+
+	const hasValue = [
+		condition.weather,
+		condition.windDirection,
+		condition.windSpeed,
+		condition.waveHeight,
+		condition.temperature,
+		condition.waterTemperature,
+		condition.pressure,
+		condition.humidity,
+		condition.rainfall,
+		condition.observedAt,
+		condition.updatedAt,
+	].some((value) => typeof value === "string" && value.trim().length > 0);
+
+	return hasValue ? condition : null;
+}
+
+function mergeVenueWeatherCondition(baseWeather, overlayWeather) {
+	const base = normalizeVenueWeatherCondition(baseWeather);
+	const overlay = normalizeVenueWeatherCondition(overlayWeather);
+
+	if (!base) {
+		return overlay;
+	}
+
+	if (!overlay) {
+		return base;
+	}
+
+	return normalizeVenueWeatherCondition({
+		...base,
+		...Object.fromEntries(Object.entries(overlay).filter(([, value]) => value !== undefined && value !== null && value !== "")),
+	});
+}
+
 function buildOfficialBeforeInfoForRace(race) {
 	const exhibitionRows = buildOfficialBeforeInfoExhibitionRows(race);
 	const startExhibition = buildOfficialBeforeInfoStartExhibitionRows(race, exhibitionRows);
 	const scoreQuickLook = buildOfficialBeforeInfoScoreQuickLookRows(race);
 	const weatherActual = race?.weatherActual ?? null;
+	const weatherCondition = normalizeVenueWeatherCondition(weatherActual, {
+		source: BOATRACE_OFFICIAL_SOURCE,
+		sourceLabel: "BOATRACE official weather",
+	});
 	const hasAny = exhibitionRows.length > 0 || startExhibition.length > 0 || scoreQuickLook.length > 0 || Boolean(weatherActual);
 
 	return {
@@ -375,6 +441,7 @@ function buildOfficialBeforeInfoForRace(race) {
 		startExhibition,
 		scoreQuickLook,
 		weatherActual,
+		weatherCondition,
 	};
 }
 
@@ -384,13 +451,18 @@ function createOfficialBeforeInfoVenues(feed) {
 	}
 
 	return feed.venues.map((venue) => {
-		const races = getRaceList(venue).map((race) => ({
-			raceNo: race.raceNo,
-			status: "available",
-			source: BOATRACE_OFFICIAL_SOURCE,
-			sourceType: "boatrace-official-beforeinfo",
-			officialBeforeInfo: buildOfficialBeforeInfoForRace(race),
-		}));
+		const races = getRaceList(venue).map((race) => {
+			const officialBeforeInfo = buildOfficialBeforeInfoForRace(race);
+
+			return {
+				raceNo: race.raceNo,
+				status: "available",
+				source: BOATRACE_OFFICIAL_SOURCE,
+				sourceType: "boatrace-official-beforeinfo",
+				officialBeforeInfo,
+				weatherCondition: officialBeforeInfo.weatherCondition,
+			};
+		});
 
 		return {
 			venueCode: String(venue.venueCode ?? ""),
@@ -418,6 +490,7 @@ function mergeVenueRaceRecords(baseRaces, overlayRaces) {
 			...existing,
 			...race,
 			officialBeforeInfo: mergeOfficialBeforeInfo(existing.officialBeforeInfo, race?.officialBeforeInfo),
+			weatherCondition: mergeVenueWeatherCondition(existing.weatherCondition, race?.weatherCondition),
 		});
 	}
 
@@ -483,6 +556,7 @@ function mergeOfficialBeforeInfo(baseInfo, overlayInfo) {
 		startExhibition: overlayInfo.startExhibition ?? baseInfo.startExhibition,
 		scoreQuickLook: mergeRowsByFrame(baseInfo.scoreQuickLook, overlayInfo.scoreQuickLook),
 		weatherActual: overlayInfo.weatherActual ?? baseInfo.weatherActual,
+		weatherCondition: mergeVenueWeatherCondition(baseInfo.weatherCondition, overlayInfo.weatherCondition),
 	};
 }
 
@@ -4043,6 +4117,10 @@ async function createMikuniVenue(feed) {
 
 		const raceExtras = getRaceList(mikuniVenue).map((race) => {
 			const officialBeforeInfo = buildOfficialBeforeInfoForRace(race);
+			const weatherCondition = normalizeVenueWeatherCondition(officialBeforeInfo?.weatherCondition, {
+				source: MIKUNI_SOURCE,
+				sourceLabel: "Mikuni official weather",
+			});
 			const mikuniScoreRateGuide = createMikuniScoreRowsForRace(race, scoreRows);
 			const motorSummary = createMikuniMotorSummaryForRace(race, timerankRows, motorRows, motorHistoryByNo);
 			const mikuniCourseResults = parseMikuniCourseResults("", race);
@@ -4059,8 +4137,10 @@ async function createMikuniVenue(feed) {
 							source: MIKUNI_SOURCE,
 							scoreQuickLook: mikuniScoreRateGuide,
 							weatherActual: race?.weatherActual ?? null,
+							weatherCondition,
 						}
 					: null,
+				weatherCondition,
 				beforeInfo: officialBeforeInfo?.exhibitionRows ?? [],
 				startExhibition: officialBeforeInfo?.startExhibition ?? [],
 				originalExhibition: [],
@@ -4157,6 +4237,10 @@ async function fetchWakamatsuRaceExtra({ date, raceNo }) {
 	const wakamatsuFramePast10 = parseWakamatsuFramePast10(htmlByKey.frame10);
 	const wakamatsuScoreRateGuide = parseWakamatsuScoreRateGuide(htmlByKey.score);
 	const weatherActual = parseWakamatsuWeatherActual(htmlByKey.start);
+	const weatherCondition = normalizeVenueWeatherCondition(weatherActual, {
+		source: WAKAMATSU_SOURCE,
+		sourceLabel: "Wakamatsu official weather",
+	});
 
 	const motorTargets = wakamatsuEntryTable
 		.filter((row) => row.motorNo && row.motorDetailUrl)
@@ -4187,6 +4271,7 @@ async function fetchWakamatsuRaceExtra({ date, raceNo }) {
 				source: WAKAMATSU_SOURCE,
 				scoreQuickLook: wakamatsuScoreRateGuide,
 				weatherActual,
+				weatherCondition,
 			}
 		: null;
 
@@ -4236,6 +4321,7 @@ async function fetchWakamatsuRaceExtra({ date, raceNo }) {
 		source: WAKAMATSU_SOURCE,
 		sourceType: "official-venue-yosou-tabs",
 		officialBeforeInfo,
+		weatherCondition,
 		wakamatsuEntryTable,
 		wakamatsuBeforeInfo,
 		startExhibition,
@@ -7809,6 +7895,63 @@ function parseMarugameScoreRateGuide(html) {
 	return rows;
 }
 
+function parseMarugameWeatherCondition(html) {
+	const $ = load(html);
+	const rows = $("tr")
+		.toArray()
+		.map((row) => $(row)
+			.find("th, td")
+			.map((__, cell) => compactText($(cell).text()))
+			.get()
+			.filter(Boolean))
+		.filter((row) => Array.isArray(row) && row.length > 0);
+
+	const aliases = {
+		weather: ["天候"],
+		windDirection: ["風向"],
+		windSpeed: ["風速"],
+		waveHeight: ["波高"],
+		pressure: ["気圧"],
+		temperature: ["気温"],
+		waterTemperature: ["水温"],
+		humidity: ["湿度"],
+		rainfall: ["雨量"],
+		observedAt: ["現在", "更新", "時点"],
+	};
+	const condition = {};
+
+	for (let index = 0; index < rows.length - 1; index += 1) {
+		const headers = rows[index];
+		const values = rows[index + 1];
+		const hasWeatherHeader = Object.values(aliases).some((labels) =>
+			headers.some((cell) => labels.some((label) => cell.includes(label))),
+		);
+
+		if (!hasWeatherHeader) {
+			continue;
+		}
+
+		for (const [field, labels] of Object.entries(aliases)) {
+			const headerIndex = headers.findIndex((cell) => labels.some((label) => cell.includes(label)));
+			if (headerIndex >= 0 && values[headerIndex]) {
+				condition[field] = values[headerIndex];
+			}
+		}
+	}
+
+	const lines = readCleanLines($("body")).map((line) => compactText(line));
+	const observedLine = lines.find((line) => /(現在|更新|時点)/.test(line) && line.length <= 40);
+	if (!condition.observedAt && observedLine) {
+		condition.observedAt = observedLine;
+	}
+
+	return normalizeVenueWeatherCondition(condition, {
+		source: MARUGAME_SOURCE,
+		sourceUrl: MARUGAME_SCORE_RATE_URL,
+		sourceLabel: "Marugame official weather",
+	});
+}
+
 function parseMarugamePrecheckData(html) {
 	const $ = load(html);
 	const rows = [];
@@ -7974,6 +8117,7 @@ async function createMarugameVenue(feed, date) {
 
 		const motorData = parseMarugameMotorData(motorHtml);
 		const scoreRateRows = parseMarugameScoreRateGuide(scoreRateHtml);
+		const venueWeatherCondition = parseMarugameWeatherCondition(scoreRateHtml);
 		const precheckData = parseMarugamePrecheckData(precheckHtml);
 		const tideInfo = parseMarugameTideInfo(tideHtml, date);
 		const waterSurfaceInfo = parseMarugameWaterSurfaceInfo(waterSurfaceHtml);
@@ -7995,6 +8139,10 @@ async function createMarugameVenue(feed, date) {
 				motorNo: motorSummary.find((item) => item.frameNo === row.frameNo)?.motorNo ?? row.motorNo ?? "",
 			}));
 			const racerComments = raceOfficialExtra?.racerComments ?? [];
+			const weatherCondition = mergeVenueWeatherCondition(
+				raceOfficialExtra?.officialBeforeInfo?.weatherCondition ?? raceOfficialExtra?.officialBeforeInfo?.weatherActual,
+				venueWeatherCondition,
+			);
 			const scoreQuickLook = marugameScoreRateGuide.map((row) => ({
 				frameNo: row.frameNo,
 				registrationNo: row.registrationNo,
@@ -8009,6 +8157,7 @@ async function createMarugameVenue(feed, date) {
 				? {
 					...raceOfficialExtra.officialBeforeInfo,
 					scoreQuickLook,
+					weatherCondition,
 				}
 				: null;
 
@@ -8033,6 +8182,7 @@ async function createMarugameVenue(feed, date) {
 				beforeInfo,
 				startExhibition,
 				officialBeforeInfo,
+				weatherCondition,
 				originalExhibition,
 				motorSummary,
 				marugameMotorBoatData: motorSummary,
@@ -8061,7 +8211,7 @@ async function createMarugameVenue(feed, date) {
 		}
 
 		console.log(
-			`[marugame extras] before=${raceExtras[0]?.beforeInfo?.length ?? 0} start=${raceExtras[0]?.startExhibition?.length ?? 0} original=${raceExtras[0]?.originalExhibition?.length ?? 0} motor=${raceExtras[0]?.motorSummary?.length ?? 0} scoreRate=${raceExtras[0]?.marugameScoreRateGuide?.length ?? 0} weather=${raceExtras[0]?.officialBeforeInfo?.weatherActual ? "ok" : "feed"} tide=${tideInfo ? "ok" : "none"}`,
+			`[marugame extras] before=${raceExtras[0]?.beforeInfo?.length ?? 0} start=${raceExtras[0]?.startExhibition?.length ?? 0} original=${raceExtras[0]?.originalExhibition?.length ?? 0} motor=${raceExtras[0]?.motorSummary?.length ?? 0} scoreRate=${raceExtras[0]?.marugameScoreRateGuide?.length ?? 0} weather=${raceExtras[0]?.weatherCondition ? "ok" : "feed"} tide=${tideInfo ? "ok" : "none"}`,
 		);
 
 		return {

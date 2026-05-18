@@ -443,6 +443,10 @@ function getSafeDisplayValue(value?: string | null, fallback = "確認中"): str
 	return value && value.trim().length > 0 ? value : fallback;
 }
 
+function getOptionalDisplayValue(value?: string | null): string {
+	return value && value.trim().length > 0 ? value.trim() : "";
+}
+
 function getResultRecord(race: BoatRaceItem): Record<string, unknown> {
 	return isRecord(race.result) ? race.result : {};
 }
@@ -453,14 +457,20 @@ function getResultWeatherActual(resultRecord: Record<string, unknown>): BoatWeat
 }
 
 function getWeatherItems(weatherActual?: BoatWeatherActual | null): WeatherDisplayItem[] {
-	return [
-		{ icon: "☀️", label: "天気", value: getSafeDisplayValue(weatherActual?.weather) },
-		{ icon: "🌬️", label: "風向", value: getSafeDisplayValue(weatherActual?.windDirection) },
-		{ icon: "🍃", label: "風速", value: getSafeDisplayValue(weatherActual?.windSpeed) },
-		{ icon: "🌊", label: "波高", value: getSafeDisplayValue(weatherActual?.waveHeight) },
-		{ icon: "🌡️", label: "気温", value: getSafeDisplayValue(weatherActual?.temperature) },
-		{ icon: "💧", label: "水温", value: getSafeDisplayValue(weatherActual?.waterTemperature) },
-	];
+	const items = [
+		{ icon: "☀️", label: "天気", value: getOptionalDisplayValue(weatherActual?.weather) },
+		{ icon: "🌬️", label: "風向", value: getOptionalDisplayValue(weatherActual?.windDirection ?? weatherActual?.windDirectionText) },
+		{ icon: "🍃", label: "風速", value: getOptionalDisplayValue(weatherActual?.windSpeed) },
+		{ icon: "🌊", label: "波高", value: getOptionalDisplayValue(weatherActual?.waveHeight) },
+		{ icon: "🌡️", label: "気温", value: getOptionalDisplayValue(weatherActual?.temperature ?? weatherActual?.airTemperature) },
+		{ icon: "💧", label: "水温", value: getOptionalDisplayValue(weatherActual?.waterTemperature) },
+		{ icon: "⏱️", label: "気圧", value: getOptionalDisplayValue(weatherActual?.pressure) },
+		{ icon: "%", label: "湿度", value: getOptionalDisplayValue(weatherActual?.humidity) },
+		{ icon: "☔", label: "雨量", value: getOptionalDisplayValue(weatherActual?.rainfall) },
+		{ icon: "🕒", label: "表示時点", value: getOptionalDisplayValue(weatherActual?.observedAt ?? weatherActual?.updatedAt) },
+	].filter((item) => item.value);
+
+	return items.length > 0 ? items : [{ icon: "☁️", label: "気象", value: getSafeDisplayValue("") }];
 }
 
 function toPayoutItem(value: unknown): ResultPayoutDisplay | null {
@@ -657,7 +667,7 @@ export function BoatRaceDetailPanel({ venueWeatherActual, race, entryRacers, ent
 	const exhibitions = race.exhibitions ?? [];
 	const odds = race.oddsPreview ?? [];
 	const isConfirmed = getStringValue(resultRecord.status) === "confirmed";
-	const weatherItems = getWeatherItems(getResultWeatherActual(resultRecord) ?? race.weatherActual ?? venueWeatherActual);
+	const weatherItems = getWeatherItems(venueWeatherActual ?? getResultWeatherActual(resultRecord) ?? race.weatherActual);
 	const payoutItems = getPayoutItems(resultRecord);
 	const finishers = getFinishers(resultRecord);
 	const startInfo = getStartInfo(resultRecord);

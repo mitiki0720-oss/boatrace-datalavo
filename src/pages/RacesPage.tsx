@@ -33,7 +33,7 @@ import { SectionCard } from "../components/common/SectionCard";
 import { PageShell } from "../components/layout/PageShell";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import { withBasePath } from "../lib/assetPath";
-import type { BoatOddsPreviewGroup, BoatRacerItem, BoatTodayVenueItem } from "../lib/boatraceTypes";
+import type { BoatOddsPreviewGroup, BoatRacerItem, BoatTodayVenueItem, BoatWeatherActual } from "../lib/boatraceTypes";
 import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
 import { buildCommonRaceFallbackRacers, isRaceEntryMissingOrThin } from "../lib/boatRaceRacerNormalizer";
 import { boatTheme } from "../lib/theme";
@@ -1864,6 +1864,8 @@ type BoatVenueWaterMemo = {
 	waterSurfaceInfo: BoatVenueWaterSurfaceInfo | null;
 };
 
+type BoatOfficialWeatherCondition = BoatWeatherActual;
+
 type BoatOfficialBeforeInfoExhibitionRow = {
 	frameNo: number;
 	playerName: string;
@@ -1907,6 +1909,8 @@ type BoatOfficialBeforeInfoDisplay = {
 	exhibitionRows: BoatOfficialBeforeInfoExhibitionRow[];
 	startExhibition: BoatOfficialBeforeInfoStartRow[];
 	scoreQuickLook: BoatOfficialBeforeInfoScoreRow[];
+	weatherActual?: BoatOfficialWeatherCondition | null;
+	weatherCondition?: BoatOfficialWeatherCondition | null;
 };
 
 type BoatMikuniScoreRateGuideRow = {
@@ -2459,6 +2463,95 @@ function getVenueWaterMemo(
 		tideInfo,
 		waterSurfaceInfo,
 	};
+}
+
+function readVenueWeatherCondition(value: unknown): BoatOfficialWeatherCondition | null {
+	if (!isVenueExtraRecord(value)) {
+		return null;
+	}
+
+	const weather: BoatOfficialWeatherCondition = {
+		weather: readVenueExtraString(value.weather),
+		windDirection: readVenueExtraString(value.windDirection) || readVenueExtraString(value.windDirectionText),
+		windDirectionText: readVenueExtraString(value.windDirectionText),
+		windSpeed: readVenueExtraString(value.windSpeed),
+		waveHeight: readVenueExtraString(value.waveHeight),
+		temperature: readVenueExtraString(value.temperature) || readVenueExtraString(value.airTemperature),
+		airTemperature: readVenueExtraString(value.airTemperature),
+		waterTemperature: readVenueExtraString(value.waterTemperature),
+		pressure: readVenueExtraString(value.pressure),
+		humidity: readVenueExtraString(value.humidity),
+		rainfall: readVenueExtraString(value.rainfall),
+		observedAt: readVenueExtraString(value.observedAt),
+		updatedAt: readVenueExtraString(value.updatedAt),
+		fetchedAt: readVenueExtraString(value.fetchedAt),
+		source: readVenueExtraString(value.source) || undefined,
+		sourceUrl: readVenueExtraString(value.sourceUrl) || undefined,
+		sourceLabel: readVenueExtraString(value.sourceLabel) || undefined,
+	};
+
+	const hasValue = [
+		weather.weather,
+		weather.windDirection,
+		weather.windSpeed,
+		weather.waveHeight,
+		weather.temperature,
+		weather.waterTemperature,
+		weather.pressure,
+		weather.humidity,
+		weather.rainfall,
+		weather.observedAt,
+		weather.updatedAt,
+	].some((item) => Boolean(item && item.trim()));
+
+	return hasValue ? weather : null;
+}
+
+function getVenueOfficialWeatherCondition(
+	raceExtra: BoatVenueExtraRace | null,
+	venueExtra: BoatVenueExtraVenue | null,
+	fallbackWeatherActual?: BoatWeatherActual | null,
+): BoatOfficialWeatherCondition | null {
+	const officialBeforeInfo = isVenueExtraRecord(raceExtra?.officialBeforeInfo) ? raceExtra.officialBeforeInfo : null;
+
+	return (
+		readVenueWeatherCondition(raceExtra?.weatherCondition) ??
+		readVenueWeatherCondition(officialBeforeInfo?.weatherCondition) ??
+		readVenueWeatherCondition(officialBeforeInfo?.weatherActual) ??
+		readVenueWeatherCondition(raceExtra?.waterCondition) ??
+		readVenueWeatherCondition(venueExtra?.weatherCondition) ??
+		readVenueWeatherCondition(venueExtra?.officialWeatherCondition) ??
+		readVenueWeatherCondition(fallbackWeatherActual) ??
+		null
+	);
+}
+
+function buildOfficialWeatherSummary(weather: BoatOfficialWeatherCondition | null, variant: "primary" | "secondary"): string {
+	if (!weather) {
+		return "";
+	}
+
+	const items = variant === "primary"
+		? [
+				weather.weather,
+				weather.windDirection ? `風向 ${weather.windDirection}` : "",
+				weather.windSpeed ? `風 ${weather.windSpeed}` : "",
+				weather.waveHeight ? `波 ${weather.waveHeight}` : "",
+			]
+		: [
+				weather.temperature || weather.airTemperature ? `気温 ${weather.temperature || weather.airTemperature}` : "",
+				weather.waterTemperature ? `水温 ${weather.waterTemperature}` : "",
+				weather.pressure ? `気圧 ${weather.pressure}` : "",
+				weather.humidity ? `湿度 ${weather.humidity}` : "",
+				weather.rainfall ? `雨量 ${weather.rainfall}` : "",
+				weather.observedAt || weather.updatedAt ? `表示 ${weather.observedAt || weather.updatedAt}` : "",
+			];
+
+	return items.filter(Boolean).join(" / ");
+}
+
+function getOfficialWeatherSourceLabel(weather: BoatOfficialWeatherCondition | null): string {
+	return weather?.sourceLabel || weather?.source || "";
 }
 
 function getMikuniBeforeInfo(raceExtra: BoatVenueExtraRace | null): BoatOfficialBeforeInfoExhibitionRow[] {
@@ -5027,6 +5120,11 @@ const selectedWaterMemo = useMemo(
 	[selectedRaceExtra, selectedVenueExtra],
 );
 
+const selectedOfficialWeatherCondition = useMemo(
+	() => getVenueOfficialWeatherCondition(selectedRaceExtra, selectedVenueExtra, selectedVenue?.weatherActual),
+	[selectedRaceExtra, selectedVenueExtra, selectedVenue?.weatherActual],
+);
+
 const selectedMikuniBeforeInfo = useMemo(
 	() => getMikuniBeforeInfo(selectedRaceExtra),
 	[selectedRaceExtra],
@@ -5541,7 +5639,7 @@ const venueExtraPanelFlags = useMemo(
 		shouldShowNarutoPerformanceWaiting,
 		hasTamagawaMotorHistoryData,
 		hasRacerComments: selectedRacerComments.length > 0,
-		hasWaterMemo: Boolean(selectedWaterMemo),
+		hasWaterMemo: Boolean(selectedWaterMemo || selectedOfficialWeatherCondition),
 		hasAbilityIndex: selectedAbilityIndex.length > 0,
 		hasOmuraEntryData,
 		hasOmuraPreviousDayData,
@@ -5604,6 +5702,7 @@ const venueExtraPanelFlags = useMemo(
 		hasTamagawaMotorHistoryData,
 		selectedRacerComments.length,
 		selectedWaterMemo,
+		selectedOfficialWeatherCondition,
 		selectedAbilityIndex.length,
 		hasOmuraEntryData,
 		hasOmuraPreviousDayData,
@@ -6150,7 +6249,7 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 	const mikuniCourseRows = selectedMikuniCourseResults.length;
 	const mikuniMotorRows = selectedMikuniMotorHistory.length;
 	const scoreRows = Math.max(officialScores, selectedWakamatsuScoreRateGuide.length, selectedTsuScoreRateGuide.length, selectedFukuokaScoreRateGuide.length, selectedKojimaScoreRateGuide.length, mikuniScoreRows);
-	const weather = selectedVenue?.weatherActual;
+	const weather = selectedOfficialWeatherCondition;
 	const wakamatsuRecordsLabels = [
 		selectedWakamatsuScoreRateGuide.length > 0 ? `得点率 ${selectedWakamatsuScoreRateGuide.length}件` : "",
 		selectedWakamatsuSeriesResults.length > 0 ? "節間成績あり" : "",
@@ -6192,6 +6291,10 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 				selectedWaterMemo?.waterSurfaceInfo ? "水面" : "",
 				weather?.windSpeed ? `風 ${weather.windSpeed}` : "",
 				weather?.waveHeight ? `波 ${weather.waveHeight}` : "",
+				weather?.pressure ? `気圧 ${weather.pressure}` : "",
+				weather?.humidity ? `湿度 ${weather.humidity}` : "",
+				weather?.rainfall ? `雨量 ${weather.rainfall}` : "",
+				weather?.observedAt || weather?.updatedAt ? (weather.observedAt || weather.updatedAt) : "",
 			].filter(Boolean);
 			return waterLabels.length > 0 ? waterLabels.join(" / ") : "水面情報確認中";
 		}
@@ -6265,6 +6368,10 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 				selectedMikuniWaterSurfaceDisplay?.surfaceFeature ? "水面特性" : "",
 				weather?.windSpeed ? `風 ${weather.windSpeed}` : "",
 				weather?.waveHeight ? `波 ${weather.waveHeight}` : "",
+				weather?.pressure ? `気圧 ${weather.pressure}` : "",
+				weather?.humidity ? `湿度 ${weather.humidity}` : "",
+				weather?.rainfall ? `雨量 ${weather.rainfall}` : "",
+				weather?.observedAt || weather?.updatedAt ? (weather.observedAt || weather.updatedAt) : "",
 			].filter(Boolean);
 			return waterLabels.length > 0 ? waterLabels.join(" / ") : "水面情報確認中";
 		}
@@ -6307,6 +6414,10 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 				selectedWaterMemo?.tideInfo ? "潮見表あり" : "",
 				weather?.windSpeed ? `風 ${weather.windSpeed}` : "",
 				weather?.waveHeight ? `波 ${weather.waveHeight}` : "",
+				weather?.pressure ? `気圧 ${weather.pressure}` : "",
+				weather?.humidity ? `湿度 ${weather.humidity}` : "",
+				weather?.rainfall ? `雨量 ${weather.rainfall}` : "",
+				weather?.observedAt || weather?.updatedAt ? (weather.observedAt || weather.updatedAt) : "",
 			].filter(Boolean);
 			return waterLabels.length > 0 ? waterLabels.join(" / ") : "水面情報確認中";
 		}
@@ -6339,6 +6450,10 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 			selectedWaterMemo?.waterSurfaceInfo ? "水面" : "",
 			weather?.windSpeed ? `風 ${weather.windSpeed}` : "",
 			weather?.waveHeight ? `波 ${weather.waveHeight}` : "",
+			weather?.pressure ? `気圧 ${weather.pressure}` : "",
+			weather?.humidity ? `湿度 ${weather.humidity}` : "",
+			weather?.rainfall ? `雨量 ${weather.rainfall}` : "",
+			weather?.observedAt || weather?.updatedAt ? (weather.observedAt || weather.updatedAt) : "",
 		].filter(Boolean);
 		return waterLabels.length > 0 ? waterLabels.join(" / ") : "水面情報確認中";
 	}
@@ -6562,7 +6677,7 @@ body:has(.races-page-root) {
 				<div style={openSectionStyle}>
 					<BoatRaceDetailPanel
 						venueName={selectedVenue?.venueName ?? "-"}
-						venueWeatherActual={selectedVenue?.weatherActual}
+						venueWeatherActual={selectedOfficialWeatherCondition}
 						race={selectedRaceForDetail}
 						entryNote={selectedRaceEntryNote}
 						
@@ -9719,11 +9834,21 @@ body:has(.races-page-root) {
 						</section>
 					) : null}
 
-					{selectedWaterMemo ? (
+					{selectedWaterMemo || selectedOfficialWeatherCondition ? (
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>{isMarugameVenue ? "水面特性" : "水面・潮メモ"}</h4>
 							<div style={venueExtrasCommentListStyle}>
-								{selectedWaterMemo.tideInfo ? (
+								{selectedOfficialWeatherCondition ? (
+									<article style={venueExtrasRacerCommentCardStyle}>
+										<div style={venueExtrasRacerCommentHeaderStyle}>
+											<p style={venueExtrasRacerCommentFrameStyle}>公式水面気象</p>
+											{getOfficialWeatherSourceLabel(selectedOfficialWeatherCondition) ? <span style={venueExtrasFocusPillStyle}>{getOfficialWeatherSourceLabel(selectedOfficialWeatherCondition)}</span> : null}
+										</div>
+										{buildOfficialWeatherSummary(selectedOfficialWeatherCondition, "primary") ? <p style={venueExtrasRacerCommentTextStyle}>{buildOfficialWeatherSummary(selectedOfficialWeatherCondition, "primary")}</p> : null}
+										{buildOfficialWeatherSummary(selectedOfficialWeatherCondition, "secondary") ? <p style={venueExtrasCommentStyle}>{buildOfficialWeatherSummary(selectedOfficialWeatherCondition, "secondary")}</p> : null}
+									</article>
+								) : null}
+								{selectedWaterMemo?.tideInfo ? (
 									<article style={venueExtrasRacerCommentCardStyle}>
 										<div style={venueExtrasRacerCommentHeaderStyle}>
 											<p style={venueExtrasRacerCommentFrameStyle}>潮汐</p>
@@ -9737,7 +9862,7 @@ body:has(.races-page-root) {
 										</p>
 									</article>
 								) : null}
-								{selectedWaterMemo.waterSurfaceInfo?.surfaceSummary ? (
+								{selectedWaterMemo?.waterSurfaceInfo?.surfaceSummary ? (
 									isMikuniVenue && selectedMikuniWaterSurfaceDisplay ? (
 										<>
 											{selectedMikuniWaterSurfaceDisplay.waterType || selectedMikuniWaterSurfaceDisplay.flowStatus || selectedMikuniWaterSurfaceDisplay.tiltRange ? (
@@ -9746,15 +9871,6 @@ body:has(.races-page-root) {
 														<p style={venueExtrasRacerCommentFrameStyle}>水面要約</p>
 													</div>
 													<p style={venueExtrasRacerCommentTextStyle}>水質 {selectedMikuniWaterSurfaceDisplay.waterType || "-"} / 流れ・水位変化 {selectedMikuniWaterSurfaceDisplay.flowStatus || "-"} / チルト角度 {selectedMikuniWaterSurfaceDisplay.tiltRange || "-"}</p>
-												</article>
-											) : null}
-											{selectedVenue?.weatherActual ? (
-												<article style={venueExtrasRacerCommentCardStyle}>
-													<div style={venueExtrasRacerCommentHeaderStyle}>
-														<p style={venueExtrasRacerCommentFrameStyle}>実況気象</p>
-													</div>
-													<p style={venueExtrasRacerCommentTextStyle}>{selectedVenue.weatherActual.weather || "-"}{selectedVenue.weatherActual.windDirection ? ` / ${selectedVenue.weatherActual.windDirection}` : ""}{selectedVenue.weatherActual.windSpeed ? ` / 風 ${selectedVenue.weatherActual.windSpeed}` : ""}{selectedVenue.weatherActual.waveHeight ? ` / 波 ${selectedVenue.weatherActual.waveHeight}` : ""}</p>
-													<p style={venueExtrasCommentStyle}>気温 {selectedVenue.weatherActual.temperature || "-"} / 水温 {selectedVenue.weatherActual.waterTemperature || "-"}{selectedVenue.weatherActual.updatedAt ? ` / 表示 ${selectedVenue.weatherActual.updatedAt}` : ""}</p>
 												</article>
 											) : null}
 											{selectedMikuniWaterSurfaceDisplay.surfaceFeature ? (
@@ -9792,7 +9908,7 @@ body:has(.races-page-root) {
 									</article>
 									)
 								) : null}
-								{selectedWaterMemo.waterSurfaceInfo?.featureSummary && !(isMikuniVenue && selectedMikuniWaterSurfaceDisplay) ? (
+								{selectedWaterMemo?.waterSurfaceInfo?.featureSummary && !(isMikuniVenue && selectedMikuniWaterSurfaceDisplay) ? (
 									<article style={venueExtrasRacerCommentCardStyle}>
 										<div style={venueExtrasRacerCommentHeaderStyle}>
 											<p style={venueExtrasRacerCommentFrameStyle}>特徴</p>
@@ -9800,7 +9916,7 @@ body:has(.races-page-root) {
 										<p style={venueExtrasRacerCommentTextStyle}>{selectedWaterMemo.waterSurfaceInfo.featureSummary}</p>
 									</article>
 								) : null}
-								{selectedWaterMemo.waterSurfaceInfo?.courseSummary && !(isMikuniVenue && selectedMikuniWaterSurfaceDisplay) ? (
+								{selectedWaterMemo?.waterSurfaceInfo?.courseSummary && !(isMikuniVenue && selectedMikuniWaterSurfaceDisplay) ? (
 									<article style={venueExtrasRacerCommentCardStyle}>
 										<div style={venueExtrasRacerCommentHeaderStyle}>
 											<p style={venueExtrasRacerCommentFrameStyle}>コース別傾向</p>

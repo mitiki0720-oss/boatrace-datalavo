@@ -726,11 +726,17 @@ export function buildBoatPredictionMaterial(params: {
 	const { venue, race, venueExtra, raceExtra } = params;
 	const raceExtraRecord = isMaterialRecord(raceExtra) ? raceExtra : null;
     const officialBeforeInfo = isMaterialRecord(raceExtraRecord?.officialBeforeInfo) ? raceExtraRecord.officialBeforeInfo : null;
-    const weatherRecord = isMaterialRecord(officialBeforeInfo?.weatherActual)
-	? officialBeforeInfo.weatherActual
-	: isMaterialRecord(venue.weatherActual)
-		? venue.weatherActual
-		: null;
+    const weatherRecord = isMaterialRecord(raceExtraRecord?.weatherCondition)
+	? raceExtraRecord.weatherCondition
+	: isMaterialRecord(officialBeforeInfo?.weatherCondition)
+		? officialBeforeInfo.weatherCondition
+		: isMaterialRecord(officialBeforeInfo?.weatherActual)
+			? officialBeforeInfo.weatherActual
+			: isMaterialRecord(venueExtra?.weatherCondition)
+				? venueExtra.weatherCondition
+				: isMaterialRecord(venue.weatherActual)
+					? venue.weatherActual
+					: null;
     const racers = toMaterialArray<BoatRacerItem>((race as { racers?: unknown }).racers);
     const exhibitions = toMaterialArray<BoatExhibitionItem>((race as { exhibitions?: unknown }).exhibitions);
 
