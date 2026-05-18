@@ -30,6 +30,8 @@ const KARATSU_VENUE_NAME = "唐津";
 const KARATSU_SOURCE = "boatrace-karatsu.jp";
 const MARUGAME_VENUE_NAME = "丸亀";
 const MARUGAME_SOURCE = "marugameboat.jp";
+const MIKUNI_VENUE_NAME = "三国";
+const MIKUNI_SOURCE = "boatrace-mikuni.jp";
 const NARUTO_VENUE_NAME = "鳴門";
 const NARUTO_SOURCE = "n14.jp";
 const TAMAGAWA_VENUE_NAME = "多摩川";
@@ -53,6 +55,10 @@ const NARUTO_WATER_SURFACE_URL = "https://www.n14.jp/modules/datafile/?page=inde
 const MARUGAME_MOTOR_DATA_URL = "https://www.marugameboat.jp/asp/htmlmade/marugame/motor/motor02.htm";
 const MARUGAME_TIDE_URL = "https://www.marugameboat.jp/01shiomi/shiomi.htm";
 const MARUGAME_WATER_SURFACE_URL = "https://www.marugameboat.jp/01suimen/01suimen.htm";
+const MIKUNI_SCORE_RATE_URL = "https://www.boatrace-mikuni.jp/modules/raceinfo/?page=index_tokutenrank";
+const MIKUNI_TIMERANK_URL = "https://www.boatrace-mikuni.jp/modules/raceinfo/?page=index_timerank";
+const MIKUNI_MOTOR_DATA_URL = "https://www.boatrace-mikuni.jp/modules/datafile/";
+const MIKUNI_WATER_SURFACE_URL = "https://www.boatrace-mikuni.jp/modules/datafile/?page=index_suimen";
 const REQUEST_INTERVAL_MS = 250;
 
 function parseCliArgs(argv = process.argv.slice(2)) {
@@ -601,6 +607,21 @@ function toKojimaCourseUrl() {
 
 function toKojimaMotorInfoUrl() {
 	return "https://www.kojimaboat.jp/01motor/01motor.htm";
+}
+
+function toMikuniRaceCourseUrl(raceNo) {
+	const url = new URL("https://www.boatrace-mikuni.jp/modules/raceinfo/");
+	url.searchParams.set("page", "index_racecourse");
+	url.searchParams.set("race", String(Number(raceNo)));
+	return url.toString();
+}
+
+function toMikuniMotorHistoryUrl(motorNo) {
+	const url = new URL("https://www.boatrace-mikuni.jp/modules/datafile/");
+	url.searchParams.set("page", "index_motor_hist");
+	url.searchParams.set("motor_no", String(motorNo ?? ""));
+	url.searchParams.set("select", "7");
+	return url.toString();
 }
 
 async function fetchFukuokaHtml(url) {
@@ -3007,6 +3028,450 @@ async function createTsuVenue(feed, date) {
 			isAvailable: false,
 			status: "fetch-failed",
 			note: `津公式HPの取得に失敗しました: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
+function normalizeMikuniPlayerName(value) {
+	return compactText(value).replace(/\s+/g, "");
+}
+
+function getRaceRacerRows(race) {
+	return Array.isArray(race?.racers) ? race.racers : [];
+}
+
+function getRacerFrameNo(racer) {
+	return readRaceFrameNo(racer?.frameNo ?? racer?.frame ?? racer?.lane ?? racer?.boatNumber);
+}
+
+function getRacerRegistrationNo(racer) {
+	return readRaceString(racer?.registrationNo ?? racer?.racerId ?? racer?.registerNo);
+}
+
+function getRacerPlayerName(racer) {
+	return readRaceString(racer?.playerName ?? racer?.name ?? racer?.boatRacerName);
+}
+
+function findMikuniRowForRacer(rows, racer) {
+	const registrationNo = getRacerRegistrationNo(racer);
+	const playerName = normalizeMikuniPlayerName(getRacerPlayerName(racer));
+
+	return rows.find((row) =>
+		(registrationNo && row.registrationNo === registrationNo) ||
+		(playerName && normalizeMikuniPlayerName(row.playerName) === playerName)
+	) ?? null;
+}
+
+function parseMikuniScoreRateGuide(html) {
+	const $ = load(html);
+	const rows = [];
+	const table = findTableByKeywords($, ["得点率", "節間成績"]);
+
+	if (!table) {
+		return rows;
+	}
+
+	$(table).find("tr").each((_, tr) => {
+		const cells = $(tr).children("th, td").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 10 || !/^\d+$/.test(cells[0])) {
+			return;
+		}
+
+		rows.push({
+			rank: cells[0],
+			className: cells[1],
+			registrationNo: cells[2],
+			playerName: cells[3],
+			branch: cells[4],
+			scoreRate: cells[5],
+			score: cells[6],
+			deduction: cells[7],
+			starts: cells[8],
+			sectionResults: cells[9],
+			remarks: cells.slice(10).filter(Boolean).join(" / "),
+			source: MIKUNI_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseMikuniTimerank(html) {
+	const $ = load(html);
+	const rows = [];
+	const table = findTableByKeywords($, ["前検タイム", "モーター"]);
+
+	if (!table) {
+		return rows;
+	}
+
+	$(table).find("tr").each((_, tr) => {
+		const cells = $(tr).children("th, td").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 9 || !/^[AB]\d$/.test(cells[0])) {
+			return;
+		}
+
+		rows.push({
+			className: cells[0],
+			registrationNo: cells[1],
+			playerName: cells[2],
+			branch: cells[3],
+			motorNo: cells[4],
+			motorSecondRate: cells[5],
+			boatNo: cells[6],
+			boatSecondRate: cells[7],
+			preinspectionTime: cells[8],
+			source: MIKUNI_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseMikuniMotorData(html) {
+	const $ = load(html);
+	const rows = [];
+	const table = findTableByKeywords($, ["モーター番号", "2連対率", "優勝回数"]);
+
+	if (!table) {
+		return rows;
+	}
+
+	$(table).find("tr").each((_, tr) => {
+		const cells = $(tr).children("th, td").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 7 || !/^\d+$/.test(cells[0])) {
+			return;
+		}
+
+		const link = $(tr).find("a[href*='motor_hist']").first().attr("href");
+		const motorNo = cells[2];
+
+		rows.push({
+			rank: cells[0],
+			previousRank: cells[1],
+			motorNo,
+			motorSecondRate: cells[3],
+			motorWinRate: cells[4],
+			finals: cells[5],
+			championships: cells[6],
+			detailUrl: link ? new URL(link, MIKUNI_MOTOR_DATA_URL).toString() : toMikuniMotorHistoryUrl(motorNo),
+			source: MIKUNI_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseMikuniMotorHistory(html) {
+	const $ = load(html);
+	const rows = [];
+	const table = findTableByKeywords($, ["開催期間", "使用選手", "節間成績"]);
+
+	if (!table) {
+		return rows;
+	}
+
+	$(table).find("tr").each((_, tr) => {
+		const cells = $(tr).children("th, td").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 4 || !/\d{4}\//.test(cells[0])) {
+			return;
+		}
+
+		rows.push({
+			dateRange: cells[0],
+			title: cells[1],
+			racerName: cells[2],
+			results: cells[3],
+			source: MIKUNI_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseMikuniCourseResults(html, race) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["進入率", "平均ST", "1着率"]);
+	const rowsByFrame = new Map();
+	let currentFrameNo = null;
+	let currentPlayerName = "";
+
+	if (!table) {
+		return [];
+	}
+
+	$(table).find("tr").each((_, tr) => {
+		const cells = $(tr).children("th, td").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 9 || cells[0] === "枠") {
+			return;
+		}
+
+		let courseOffset = 0;
+		const frameNo = parseFrameNo(cells[0]);
+		if (frameNo && cells.length >= 11) {
+			currentFrameNo = frameNo;
+			currentPlayerName = cells[1];
+			courseOffset = 2;
+		} else if (currentFrameNo) {
+			courseOffset = 0;
+		} else {
+			return;
+		}
+
+		const courseNo = readRaceFrameNo(cells[courseOffset]);
+		if (!currentFrameNo || !courseNo) {
+			return;
+		}
+
+		const existing = rowsByFrame.get(currentFrameNo) ?? {
+			frameNo: currentFrameNo,
+			playerName: currentPlayerName,
+			courseRows: [],
+			source: MIKUNI_SOURCE,
+		};
+
+		existing.courseRows.push({
+			courseNo,
+			entryRate: cells[courseOffset + 1],
+			averageStart: cells[courseOffset + 2],
+			firstRate: cells[courseOffset + 3],
+			secondRate: cells[courseOffset + 4],
+			thirdRate: cells[courseOffset + 5],
+			fourthRate: cells[courseOffset + 6],
+			fifthRate: cells[courseOffset + 7],
+			sixthRate: cells[courseOffset + 8],
+		});
+
+		rowsByFrame.set(currentFrameNo, existing);
+	});
+
+	const racerByFrame = new Map(getRaceRacerRows(race).map((racer) => [getRacerFrameNo(racer), racer]));
+
+	return Array.from(rowsByFrame.values()).map((row) => {
+		const racer = racerByFrame.get(row.frameNo);
+
+		return {
+			...row,
+			className: readRaceString(racer?.class ?? racer?.grade ?? racer?.rank),
+			registrationNo: getRacerRegistrationNo(racer),
+			playerName: row.playerName || getRacerPlayerName(racer) || `枠${row.frameNo}`,
+		};
+	}).sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseMikuniWaterSurfaceInfo(html) {
+	const $ = load(html);
+	const tables = $("table").toArray();
+	const overviewText = tables[0] ? compactText($(tables[0]).text()) : "";
+	const courseText = tables[1] ? compactText($(tables[1]).text()) : "";
+	const entryText = tables[2] ? compactText($(tables[2]).text()) : "";
+
+	if (!overviewText && !courseText && !entryText) {
+		return null;
+	}
+
+	return {
+		surfaceSummary: overviewText,
+		featureSummary: courseText,
+		courseSummary: entryText,
+		source: MIKUNI_SOURCE,
+	};
+}
+
+function createMikuniScoreRowsForRace(race, scoreRows) {
+	return getRaceRacerRows(race)
+		.map((racer) => {
+			const frameNo = getRacerFrameNo(racer);
+			if (!frameNo) {
+				return null;
+			}
+
+			const score = findMikuniRowForRacer(scoreRows, racer);
+
+			return {
+				frameNo,
+				registrationNo: getRacerRegistrationNo(racer),
+				playerName: score?.playerName || getRacerPlayerName(racer),
+				className: score?.className || readRaceString(racer?.class ?? racer?.grade ?? racer?.rank),
+				branch: score?.branch || readRaceString(racer?.branch ?? racer?.hometown),
+				averageStart: readRaceString(racer?.averageStart ?? racer?.averageSt ?? racer?.avgSt ?? racer?.st),
+				winRate: readRaceString(racer?.winRate ?? racer?.winningRate),
+				secondRate: readRaceString(racer?.secondRate ?? racer?.twoRate ?? racer?.quinellaRate),
+				localWinRate: readRaceString(racer?.localWinRate),
+				localSecondRate: readRaceString(racer?.localSecondRate),
+				motorNo: readRaceString(racer?.motorNo ?? racer?.motorNumber),
+				motorSecondRate: readRaceString(racer?.motorSecondRate ?? racer?.motorTwoRate ?? racer?.motorQuinellaRate),
+				scoreRate: score?.scoreRate ?? "",
+				score: score?.score ?? "",
+				deduction: score?.deduction ?? "",
+				starts: score?.starts ?? "",
+				sectionResults: score?.sectionResults ?? "",
+				remarks: score?.remarks ?? "",
+				source: MIKUNI_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function createMikuniMotorSummaryForRace(race, timerankRows, motorRows, motorHistoryByNo) {
+	return getRaceRacerRows(race)
+		.map((racer) => {
+			const frameNo = getRacerFrameNo(racer);
+			const motorNo = readRaceString(racer?.motorNo ?? racer?.motorNumber);
+			if (!frameNo || !motorNo) {
+				return null;
+			}
+
+			const timerank = findMikuniRowForRacer(timerankRows, racer);
+			const motor = motorRows.find((row) => row.motorNo === motorNo) ?? null;
+			const historyEntries = motorHistoryByNo.get(motorNo) ?? [];
+			const latest = historyEntries[0] ?? null;
+			const motorSecondRate = motor?.motorSecondRate || timerank?.motorSecondRate || readRaceString(racer?.motorSecondRate ?? racer?.motorTwoRate);
+			const motorWinRate = motor?.motorWinRate || "";
+			const preinspectionTime = timerank?.preinspectionTime || "";
+
+			return {
+				frameNo,
+				motorNo,
+				playerName: getRacerPlayerName(racer),
+				className: readRaceString(racer?.class ?? racer?.grade ?? racer?.rank),
+				registerNo: getRacerRegistrationNo(racer),
+				motorSecondRate,
+				motorWinRate,
+				boatNo: timerank?.boatNo || readRaceString(racer?.boatNo ?? racer?.boatMotorNo),
+				boatSecondRate: timerank?.boatSecondRate || readRaceString(racer?.boatSecondRate ?? racer?.boatTwoRate),
+				preinspectionTime,
+				previousUser: latest?.racerName || "",
+				recentResults: [
+					motorSecondRate ? `2連率 ${motorSecondRate}` : "",
+					motorWinRate ? `勝率 ${motorWinRate}` : "",
+					preinspectionTime ? `前検 ${preinspectionTime}` : "",
+					latest?.results ? `直近 ${latest.results}` : "",
+				].filter(Boolean).join(" / "),
+				motorGrade: motorSecondRate ? `2連率 ${motorSecondRate}` : "",
+				comment: [
+					motor?.rank ? `モーター順位 ${motor.rank}` : "",
+					motor?.finals ? `優出 ${motor.finals}` : "",
+					motor?.championships ? `優勝 ${motor.championships}` : "",
+					latest?.title ? `前回 ${latest.title}` : "",
+				].filter(Boolean).join(" / "),
+				historyEntries,
+				source: MIKUNI_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+async function createMikuniVenue(feed) {
+	const mikuniVenue = findVenue(feed, MIKUNI_VENUE_NAME);
+
+	if (!mikuniVenue) {
+		console.log("[venue-extras] mikuni: not held today");
+		return null;
+	}
+
+	try {
+		const [scoreHtml, timerankHtml, motorHtml, waterHtml] = await Promise.all([
+			fetchHtml(MIKUNI_SCORE_RATE_URL),
+			fetchHtml(MIKUNI_TIMERANK_URL),
+			fetchHtml(MIKUNI_MOTOR_DATA_URL),
+			fetchHtml(MIKUNI_WATER_SURFACE_URL),
+		]);
+		const scoreRows = parseMikuniScoreRateGuide(scoreHtml);
+		const timerankRows = parseMikuniTimerank(timerankHtml);
+		const motorRows = parseMikuniMotorData(motorHtml);
+		const waterSurfaceInfo = parseMikuniWaterSurfaceInfo(waterHtml);
+		const motorNos = new Set(getRaceList(mikuniVenue).flatMap((race) =>
+			getRaceRacerRows(race).map((racer) => readRaceString(racer?.motorNo ?? racer?.motorNumber)).filter(Boolean)
+		));
+		const motorTargets = Array.from(motorNos).map((motorNo) => {
+			const motor = motorRows.find((row) => row.motorNo === motorNo);
+			return {
+				motorNo,
+				url: motor?.detailUrl || toMikuniMotorHistoryUrl(motorNo),
+			};
+		});
+		const motorHistorySettled = await Promise.allSettled(motorTargets.map((target) => fetchHtml(target.url)));
+		const motorHistoryByNo = new Map();
+
+		motorTargets.forEach((target, index) => {
+			const html = motorHistorySettled[index]?.status === "fulfilled" ? motorHistorySettled[index].value : "";
+			motorHistoryByNo.set(target.motorNo, html ? parseMikuniMotorHistory(html) : []);
+		});
+
+		const raceExtras = getRaceList(mikuniVenue).map((race) => {
+			const officialBeforeInfo = buildOfficialBeforeInfoForRace(race);
+			const mikuniScoreRateGuide = createMikuniScoreRowsForRace(race, scoreRows);
+			const motorSummary = createMikuniMotorSummaryForRace(race, timerankRows, motorRows, motorHistoryByNo);
+			const mikuniCourseResults = parseMikuniCourseResults("", race);
+
+			return {
+				raceNo: race.raceNo,
+				status: "available",
+				source: MIKUNI_SOURCE,
+				sourceType: "official-venue-score-course-motor-water",
+				officialBeforeInfo: mikuniScoreRateGuide.length || officialBeforeInfo?.status === "available"
+					? {
+							...officialBeforeInfo,
+							status: "available",
+							source: MIKUNI_SOURCE,
+							scoreQuickLook: mikuniScoreRateGuide,
+							weatherActual: race?.weatherActual ?? null,
+						}
+					: null,
+				beforeInfo: officialBeforeInfo?.exhibitionRows ?? [],
+				startExhibition: officialBeforeInfo?.startExhibition ?? [],
+				mikuniScoreRateGuide,
+				mikuniCourseResults,
+				mikuniMotorHistory: motorSummary,
+				motorSummary,
+				waterSurfaceInfo,
+			};
+		});
+
+		for (const race of raceExtras) {
+			try {
+				const courseHtml = await fetchHtml(toMikuniRaceCourseUrl(race.raceNo));
+				race.mikuniCourseResults = parseMikuniCourseResults(courseHtml, getRaceList(mikuniVenue).find((item) => item.raceNo === race.raceNo));
+			} catch (error) {
+				console.warn(`[venue-extras] mikuni ${race.raceNo}R course failed: ${error.message}`);
+			}
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const firstRace = raceExtras[0] ?? null;
+		console.log(
+			`[mikuni extras] before=${firstRace?.beforeInfo?.length ?? 0} start=${firstRace?.startExhibition?.length ?? 0} original=0 motor=${firstRace?.motorSummary?.length ?? 0} scoreRate=${firstRace?.mikuniScoreRateGuide?.length ?? 0} course=${firstRace?.mikuniCourseResults?.length ?? 0} weather=${waterSurfaceInfo ? "ok" : "none"}`,
+		);
+
+		return {
+			venueCode: String(mikuniVenue.venueCode ?? "10"),
+			venueName: MIKUNI_VENUE_NAME,
+			source: MIKUNI_SOURCE,
+			isAvailable: raceExtras.some((race) =>
+				race.mikuniScoreRateGuide.length > 0 ||
+				race.mikuniCourseResults.length > 0 ||
+				race.motorSummary.length > 0 ||
+				Boolean(waterSurfaceInfo)
+			),
+			status: "available",
+			note: "三国公式HPの得点率ランキング、進入コース別選手成績、モーター成績・履歴、水面特性を取得",
+			waterSurfaceInfo,
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] mikuni failed: ${error.message}`);
+
+		return {
+			venueCode: String(mikuniVenue.venueCode ?? "10"),
+			venueName: MIKUNI_VENUE_NAME,
+			source: MIKUNI_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `三国公式HPの取得に失敗しました: ${error.message}`,
 			races: [],
 		};
 	}
@@ -7650,6 +8115,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const marugameVenue = await createMarugameVenue(feed, date);
 	if (marugameVenue) {
 		venueMap.set(marugameVenue.venueName, mergeVenueRecord(venueMap.get(marugameVenue.venueName) ?? null, marugameVenue));
+	}
+
+	const mikuniVenue = await createMikuniVenue(feed);
+	if (mikuniVenue) {
+		venueMap.set(mikuniVenue.venueName, mergeVenueRecord(venueMap.get(mikuniVenue.venueName) ?? null, mikuniVenue));
 	}
 
 	const narutoVenue = await createNarutoVenue(feed, date);

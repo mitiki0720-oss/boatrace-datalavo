@@ -371,6 +371,10 @@ const extraKeyLabels: Record<string, string> = {
 	wakamatsuScoreRateGuide: "若松得点率早見",
 	wakamatsuMotorHistory: "若松モーター履歴",
 
+	mikuniScoreRateGuide: "三国得点率早見",
+	mikuniCourseResults: "三国進入コース別成績",
+	mikuniMotorHistory: "三国モーター履歴",
+
 	fukuokaSeriesResults: "福岡節間成績",
 	fukuokaRacerComments: "福岡選手コメント",
 	fukuokaFramePast10: "福岡枠別過去10走",
@@ -415,6 +419,7 @@ const recentPerformanceExtraKeys = [
 	"wakamatsuNationalRecent3",
 	"wakamatsuLocalRecent3",
 	"wakamatsuScoreRateGuide",
+	"mikuniScoreRateGuide",
 	"fukuokaSeriesResults",
 	"fukuokaScoreRateGuide",
 	"kojimaSeriesResults",
@@ -431,6 +436,7 @@ const frameCourseExtraKeys = [
 	"tsuFramePast10",
 	"wakamatsuCourseStats",
 	"wakamatsuFramePast10",
+	"mikuniCourseResults",
 	"fukuokaFramePast10",
 	"kojimaCourseStats",
 	"kojimaFrameStats",
@@ -441,6 +447,7 @@ const frameCourseExtraKeys = [
 
 const motorExtraKeys = [
 	"wakamatsuMotorHistory",
+	"mikuniMotorHistory",
 	"fukuokaMotorEvaluation",
 	"kojimaMotorStats",
 	"tamagawaMotorHistory",

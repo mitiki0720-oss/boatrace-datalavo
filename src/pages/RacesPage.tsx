@@ -1305,6 +1305,8 @@ type BoatWakamatsuScoreRateGuideRow = {
 	localSecondRate: string;
 	motorNo: string;
 	motorSecondRate: string;
+	scoreRate?: string;
+	sectionResults?: string;
 	source?: string | undefined;
 };
 
@@ -1849,6 +1851,8 @@ type BoatOfficialBeforeInfoScoreRow = {
 	localSecondRate: string;
 	motorNo: string;
 	motorSecondRate: string;
+	scoreRate?: string;
+	sectionResults?: string;
 	source?: string | undefined;
 };
 
@@ -1998,6 +2002,8 @@ function getOfficialBeforeInfoDisplay(raceExtra: BoatVenueExtraRace | null): Boa
 				localSecondRate: readVenueExtraString(item.localSecondRate),
 				motorNo: readVenueExtraString(item.motorNo),
 				motorSecondRate: readVenueExtraString(item.motorSecondRate),
+				scoreRate: readVenueExtraString(item.scoreRate),
+				sectionResults: readVenueExtraString(item.sectionResults),
 				source: readVenueExtraString(item.source) || undefined,
 			});
 		}
@@ -5651,8 +5657,12 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 	const officialRows = selectedOfficialBeforeInfo?.exhibitionRows.length ?? 0;
 	const officialScores = selectedOfficialBeforeInfo?.scoreQuickLook.length ?? 0;
 	const startRows = Math.max(selectedOfficialBeforeInfo?.startExhibition.length ?? 0, selectedStartExhibition.length);
-	const scoreRows = Math.max(officialScores, selectedWakamatsuScoreRateGuide.length, selectedTsuScoreRateGuide.length, selectedFukuokaScoreRateGuide.length, selectedKojimaScoreRateGuide.length);
+	const mikuniScoreRows = Array.isArray(selectedRaceExtra?.mikuniScoreRateGuide) ? selectedRaceExtra.mikuniScoreRateGuide.length : 0;
+	const mikuniCourseRows = Array.isArray(selectedRaceExtra?.mikuniCourseResults) ? selectedRaceExtra.mikuniCourseResults.length : 0;
+	const mikuniMotorRows = Array.isArray(selectedRaceExtra?.mikuniMotorHistory) ? selectedRaceExtra.mikuniMotorHistory.length : 0;
+	const scoreRows = Math.max(officialScores, selectedWakamatsuScoreRateGuide.length, selectedTsuScoreRateGuide.length, selectedFukuokaScoreRateGuide.length, selectedKojimaScoreRateGuide.length, mikuniScoreRows);
 	const weather = selectedVenue?.weatherActual;
+	const isMikuniVenue = selectedVenue?.venueName === "三国";
 	const wakamatsuRecordsLabels = [
 		selectedWakamatsuScoreRateGuide.length > 0 ? `得点率 ${selectedWakamatsuScoreRateGuide.length}件` : "",
 		selectedWakamatsuSeriesResults.length > 0 ? "節間成績あり" : "",
@@ -5715,6 +5725,23 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 
 		if (option.key === "wakamatsu-entry") {
 			return selectedWakamatsuEntryRows.length > 0 ? `出走表 ${selectedWakamatsuEntryRows.length}艇` : "出走表待ち";
+		}
+	}
+
+	if (isMikuniVenue) {
+		if (option.key === "records") {
+			const recordsLabels = [
+				mikuniScoreRows > 0 ? `得点率 ${mikuniScoreRows}件` : "",
+				mikuniScoreRows > 0 ? "節間成績あり" : "",
+				mikuniCourseRows > 0 ? "進入別あり" : "",
+			].filter(Boolean);
+
+			return recordsLabels.length > 0 ? recordsLabels.join(" / ") : "成績データ待ち";
+		}
+
+		if (option.key === "motor") {
+			const motorCount = Math.max(selectedMotorSummaryDisplay.items.length, mikuniMotorRows);
+			return motorCount > 0 ? `モーター ${motorCount}件 / 履歴あり` : "モーター情報待ち";
 		}
 	}
 
@@ -8398,6 +8425,8 @@ body:has(.races-page-root) {
 											<th style={venueExtrasHeadCellStyle}>当地勝率</th>
 											<th style={venueExtrasHeadCellStyle}>当地2連率</th>
 											<th style={venueExtrasHeadCellStyle}>モーター2連率</th>
+											<th style={venueExtrasHeadCellStyle}>得点率</th>
+											<th style={venueExtrasHeadCellStyle}>節間成績</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -8413,6 +8442,8 @@ body:has(.races-page-root) {
 												<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.scoreRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.sectionResults || "-"}</td>
 											</tr>
 										))}
 									</tbody>
@@ -8490,6 +8521,8 @@ body:has(.races-page-root) {
 													<th style={venueExtrasHeadCellStyle}>当地勝率</th>
 													<th style={venueExtrasHeadCellStyle}>当地2連率</th>
 													<th style={venueExtrasHeadCellStyle}>モーター2連率</th>
+													<th style={venueExtrasHeadCellStyle}>得点率</th>
+													<th style={venueExtrasHeadCellStyle}>節間成績</th>
 												</tr>
 											</thead>
 											<tbody>
@@ -8505,6 +8538,8 @@ body:has(.races-page-root) {
 														<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
 														<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
 														<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
+														<td style={venueExtrasBodyCellStyle}>{item.scoreRate || "-"}</td>
+														<td style={venueExtrasBodyCellStyle}>{item.sectionResults || "-"}</td>
 													</tr>
 												))}
 											</tbody>
