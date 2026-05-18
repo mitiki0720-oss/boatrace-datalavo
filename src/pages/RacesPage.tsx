@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { BoatRaceDetailPanel } from "../components/boatrace/BoatRaceDetailPanel";
 import { BoatRaceQuickSelector } from "../components/boatrace/BoatRaceQuickSelector";
 import { BoatVenueSelectorPanel } from "../components/boatrace/BoatVenueSelectorPanel";
@@ -502,6 +502,36 @@ const venueExtrasStatusValueStyle = {
 	lineHeight: 1.45,
 	color: boatTheme.colors.navy,
 	fontWeight: 900,
+};
+
+const venueOfficialLinkStatusChipBaseStyle = {
+	display: "inline-flex",
+	alignItems: "center",
+	justifyContent: "center",
+	width: "fit-content",
+	padding: "8px 13px",
+	borderRadius: "999px",
+	fontSize: "0.76rem",
+	fontWeight: 900,
+	whiteSpace: "nowrap" as const,
+	letterSpacing: "0.02em",
+	border: "1px solid transparent",
+	boxShadow: "0 10px 22px rgba(17, 64, 92, 0.06)",
+};
+
+const venueOfficialLinkStatusValueStyle = {
+	...venueExtrasStatusValueStyle,
+	display: "inline-flex",
+	alignItems: "center",
+	gap: "8px",
+	flexWrap: "wrap" as const,
+};
+
+const venueOfficialLinkStatusDescriptionStyle = {
+	margin: 0,
+	fontSize: "0.74rem",
+	lineHeight: 1.55,
+	color: boatTheme.colors.muted,
 };
 
 const venueExtrasEmptyStyle = {
@@ -4616,6 +4646,63 @@ const venueSpotlightCopy: Record<string, { summary: string; imageSrc?: string; i
 	大村: { summary: "出足系の比較と展示タイムの裏付けを重視したい会場です。", imageSrc: getVenueSpotlightImageSrc("omura-spotlight.png"), imageAlt: "大村の会場イメージ" },
 };
 
+type VenueOfficialLinkStatus = "complete" | "partial" | "checking";
+
+const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
+	若松: "complete",
+	三国: "partial",
+	鳴門: "partial",
+	丸亀: "partial",
+};
+
+const venueOfficialLinkStatusMeta: Record<
+	VenueOfficialLinkStatus,
+	{
+		label: string;
+		description: string;
+		chipStyle: CSSProperties;
+	}
+> = {
+	complete: {
+		label: "公式連携OK",
+		description: "この会場は公式データ連携を運用確認済みです。",
+		chipStyle: {
+			...venueOfficialLinkStatusChipBaseStyle,
+			background: "linear-gradient(180deg, rgba(232, 255, 247, 0.98), rgba(214, 248, 236, 0.94))",
+			border: "1px solid rgba(85, 188, 150, 0.32)",
+			color: "#186951",
+		},
+	},
+	partial: {
+		label: "一部連携OK",
+		description: "主要な公式データは連携済みです。未取得カテゴリは待機表示にしています。",
+		chipStyle: {
+			...venueOfficialLinkStatusChipBaseStyle,
+			background: "linear-gradient(180deg, rgba(234, 247, 255, 0.98), rgba(218, 240, 255, 0.94))",
+			border: "1px solid rgba(88, 155, 222, 0.3)",
+			color: "#225f9a",
+		},
+	},
+	checking: {
+		label: "連携確認中",
+		description: "この会場は公式データ連携を確認中です。",
+		chipStyle: {
+			...venueOfficialLinkStatusChipBaseStyle,
+			background: "linear-gradient(180deg, rgba(246, 244, 255, 0.96), rgba(240, 241, 250, 0.92))",
+			border: "1px solid rgba(165, 168, 208, 0.28)",
+			color: "#66689c",
+		},
+	},
+};
+
+function getVenueOfficialLinkStatus(venueName?: string | null): VenueOfficialLinkStatus {
+	if (!venueName) {
+		return "checking";
+	}
+
+	return venueOfficialLinkStatusMap[venueName] ?? "checking";
+}
+
 export function RacesPage() {
 	const [todayFeed, setTodayFeed] = useState(sampleBoatTodayFeed);
 	const [dataUpdatedAt, setDataUpdatedAt] = useState("");
@@ -5265,6 +5352,8 @@ const tamagawaStartExhibitionDisplay = useMemo(() => {
 }, [selectedStartExhibition, selectedTamagawaBeforeInfo]);
 const { isNarutoVenue, isKaratsuVenue, isBiwakoVenue, isTamagawaVenue, isTsuVenue, isWakamatsuVenue, isFukuokaVenue, isKojimaVenue, isOmuraVenue, isMarugameVenue } = getVenueExtraVenueFlags(selectedVenue?.venueName);
 const isMikuniVenue = selectedVenue?.venueName === "三国";
+const selectedVenueOfficialLinkStatus = getVenueOfficialLinkStatus(selectedVenue?.venueName);
+const selectedVenueOfficialLinkStatusMeta = venueOfficialLinkStatusMeta[selectedVenueOfficialLinkStatus];
 const hasOmuraEntryData = selectedOmuraEntryTable.length > 0;
 const hasOmuraPreviousDayData = selectedOmuraPreviousDayResults.some((row) => row.items.length > 0);
 const hasOmuraNationalFrameStatsData = selectedOmuraNationalFrameStats.length > 0;
@@ -6083,7 +6172,7 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 		}
 
 		if (option.key === "exhibition") {
-			return selectedOriginalExhibitionRows.length > 0 ? `独自展示 ${selectedOriginalExhibitionRows.length}艇` : "三国独自展示は未掲載";
+			return selectedOriginalExhibitionRows.length > 0 ? `独自展示 ${selectedOriginalExhibitionRows.length}艇` : "独自展示ページ確認中";
 		}
 
 		if (option.key === "motor") {
@@ -6367,6 +6456,7 @@ body:has(.races-page-root) {
 			</div>
 
 			<div style={venueExtrasHeaderMetaStyle}>
+				<span style={selectedVenueOfficialLinkStatusMeta.chipStyle}>{selectedVenueOfficialLinkStatusMeta.label}</span>
 				<span style={venueExtrasBadgeStyle}>{selectedVenue?.venueName ?? "会場未選択"}</span>
 				<span style={venueExtrasBadgeStyle}>{selectedRace?.raceNo ? `${selectedRace.raceNo}R` : "R未選択"}</span>
 				<span style={venueExtrasBadgeStyle}>{venueExtrasFeed?.venues?.length ?? 0}会場取得</span>
@@ -6387,6 +6477,14 @@ body:has(.races-page-root) {
 			<article style={venueExtrasStatusCardStyle}>
 				<p style={venueExtrasStatusLabelStyle}>取得会場数</p>
 				<p style={venueExtrasStatusValueStyle}>{venueExtrasFeed?.venues?.length ?? 0} 会場</p>
+			</article>
+
+			<article style={venueExtrasStatusCardStyle}>
+				<p style={venueExtrasStatusLabelStyle}>会場公式データ連携ステータス</p>
+				<p style={venueOfficialLinkStatusValueStyle}>
+					<span style={selectedVenueOfficialLinkStatusMeta.chipStyle}>{selectedVenueOfficialLinkStatusMeta.label}</span>
+				</p>
+				<p style={venueOfficialLinkStatusDescriptionStyle}>{selectedVenueOfficialLinkStatusMeta.description}</p>
 			</article>
 		</div>
 
@@ -9293,7 +9391,9 @@ body:has(.races-page-root) {
 							<p style={venueExtrasEmptyStyle}>
 								{isMarugameVenue
 									? "この会場は独自タイム集計中のため、モーター展示特性を表示しています。"
-									: "展示情報は準備中です。"}
+									: isMikuniVenue
+										? "三国公式の独自展示データは安定取得ページを確認中です。公式直前情報とスタート展示は取得済みです。"
+										: "展示情報は準備中です。"}
 							</p>
 						</section>
 					) : null}
