@@ -1864,6 +1864,86 @@ type BoatOfficialBeforeInfoDisplay = {
 	scoreQuickLook: BoatOfficialBeforeInfoScoreRow[];
 };
 
+type BoatMikuniScoreRateGuideRow = {
+	frameNo: number;
+	registrationNo: string;
+	playerName: string;
+	className: string;
+	branch: string;
+	averageStart: string;
+	winRate: string;
+	secondRate: string;
+	localWinRate: string;
+	localSecondRate: string;
+	motorNo: string;
+	motorSecondRate: string;
+	scoreRate: string;
+	score: string;
+	deduction: string;
+	starts: string;
+	sectionResults: string;
+	remarks: string;
+	source?: string | undefined;
+};
+
+type BoatMikuniCourseStatRow = {
+	courseNo: number;
+	entryRate: string;
+	averageStart: string;
+	firstRate: string;
+	secondRate: string;
+	thirdRate: string;
+	fourthRate: string;
+	fifthRate: string;
+	sixthRate: string;
+};
+
+type BoatMikuniCourseResultRow = {
+	frameNo: number;
+	playerName: string;
+	className: string;
+	registrationNo: string;
+	courseRows: BoatMikuniCourseStatRow[];
+	source?: string | undefined;
+};
+
+type BoatMikuniMotorHistoryEntry = {
+	dateRange: string;
+	title: string;
+	racerName: string;
+	results: string;
+	source?: string | undefined;
+};
+
+type BoatMikuniMotorHistoryRow = {
+	frameNo: number;
+	motorNo: string;
+	playerName: string;
+	className: string;
+	registerNo: string;
+	motorSecondRate: string;
+	motorWinRate: string;
+	boatNo: string;
+	boatSecondRate: string;
+	preinspectionTime: string;
+	previousUser: string;
+	recentResults: string;
+	motorGrade: string;
+	comment: string;
+	historyEntries: BoatMikuniMotorHistoryEntry[];
+	source?: string | undefined;
+};
+
+type BoatMikuniWaterSurfaceDisplay = {
+	waterType: string;
+	flowStatus: string;
+	tiltRange: string;
+	surfaceFeature: string;
+	raceFeature: string;
+	metricsNote: string;
+	courseNote: string;
+};
+
 async function loadBoatVenueExtrasFeed(): Promise<BoatVenueExtrasFeed | null> {
 	try {
 		const response = await fetch(`${withBasePath("data/boatrace/venue-extras.generated.json")}?ts=${Date.now()}`, {
@@ -2333,6 +2413,234 @@ function getVenueWaterMemo(
 	return {
 		tideInfo,
 		waterSurfaceInfo,
+	};
+}
+
+function getMikuniBeforeInfo(raceExtra: BoatVenueExtraRace | null): BoatOfficialBeforeInfoExhibitionRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.beforeInfo)) {
+		return [];
+	}
+
+	const rows: BoatOfficialBeforeInfoExhibitionRow[] = [];
+
+	for (const item of raceExtra.beforeInfo) {
+		if (!isVenueExtraRecord(item)) {
+			continue;
+		}
+
+		const frameNo = readVenueExtraNumber(item.frameNo);
+		if (!frameNo) {
+			continue;
+		}
+
+		rows.push({
+			frameNo,
+			playerName: readVenueExtraString(item.playerName),
+			exhibitionTime: readVenueExtraString(item.exhibitionTime),
+			tilt: readVenueExtraString(item.tilt),
+			course: readVenueExtraString(item.course),
+			startTiming: readVenueExtraString(item.startTiming),
+			partsExchange: readVenueExtraString(item.partsExchange),
+			memo: readVenueExtraString(item.memo),
+			source: readVenueExtraString(item.source) || undefined,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getMikuniScoreRateGuide(raceExtra: BoatVenueExtraRace | null): BoatMikuniScoreRateGuideRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.mikuniScoreRateGuide)) {
+		return [];
+	}
+
+	const rows: BoatMikuniScoreRateGuideRow[] = [];
+
+	for (const item of raceExtra.mikuniScoreRateGuide) {
+		if (!isVenueExtraRecord(item)) {
+			continue;
+		}
+
+		const frameNo = readVenueExtraNumber(item.frameNo);
+		if (!frameNo) {
+			continue;
+		}
+
+		rows.push({
+			frameNo,
+			registrationNo: readVenueExtraString(item.registrationNo),
+			playerName: readVenueExtraString(item.playerName),
+			className: readVenueExtraString(item.className),
+			branch: readVenueExtraString(item.branch),
+			averageStart: readVenueExtraString(item.averageStart),
+			winRate: readVenueExtraString(item.winRate),
+			secondRate: readVenueExtraString(item.secondRate),
+			localWinRate: readVenueExtraString(item.localWinRate),
+			localSecondRate: readVenueExtraString(item.localSecondRate),
+			motorNo: readVenueExtraString(item.motorNo),
+			motorSecondRate: readVenueExtraString(item.motorSecondRate),
+			scoreRate: readVenueExtraString(item.scoreRate),
+			score: readVenueExtraString(item.score),
+			deduction: readVenueExtraString(item.deduction),
+			starts: readVenueExtraString(item.starts),
+			sectionResults: readVenueExtraString(item.sectionResults),
+			remarks: readVenueExtraString(item.remarks),
+			source: readVenueExtraString(item.source) || undefined,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getMikuniCourseResults(raceExtra: BoatVenueExtraRace | null): BoatMikuniCourseResultRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.mikuniCourseResults)) {
+		return [];
+	}
+
+	const rows: BoatMikuniCourseResultRow[] = [];
+
+	for (const item of raceExtra.mikuniCourseResults) {
+		if (!isVenueExtraRecord(item)) {
+			continue;
+		}
+
+		const frameNo = readVenueExtraNumber(item.frameNo);
+		if (!frameNo) {
+			continue;
+		}
+
+		const courseRows = Array.isArray(item.courseRows)
+			? item.courseRows
+				.filter(isVenueExtraRecord)
+				.map((courseRow) => {
+					const courseNo = readVenueExtraNumber(courseRow.courseNo);
+					if (!courseNo) {
+						return null;
+					}
+
+					return {
+						courseNo,
+						entryRate: readVenueExtraString(courseRow.entryRate),
+						averageStart: readVenueExtraString(courseRow.averageStart),
+						firstRate: readVenueExtraString(courseRow.firstRate),
+						secondRate: readVenueExtraString(courseRow.secondRate),
+						thirdRate: readVenueExtraString(courseRow.thirdRate),
+						fourthRate: readVenueExtraString(courseRow.fourthRate),
+						fifthRate: readVenueExtraString(courseRow.fifthRate),
+						sixthRate: readVenueExtraString(courseRow.sixthRate),
+					};
+				})
+				.filter(isPresent)
+				.sort((left, right) => left.courseNo - right.courseNo)
+			: [];
+
+		rows.push({
+			frameNo,
+			playerName: readVenueExtraString(item.playerName),
+			className: readVenueExtraString(item.className),
+			registrationNo: readVenueExtraString(item.registrationNo),
+			courseRows,
+			source: readVenueExtraString(item.source) || undefined,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getMikuniMotorHistory(raceExtra: BoatVenueExtraRace | null): BoatMikuniMotorHistoryRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.mikuniMotorHistory)) {
+		return [];
+	}
+
+	const rows: BoatMikuniMotorHistoryRow[] = [];
+
+	for (const item of raceExtra.mikuniMotorHistory) {
+		if (!isVenueExtraRecord(item)) {
+			continue;
+		}
+
+		const frameNo = readVenueExtraNumber(item.frameNo);
+		if (!frameNo) {
+			continue;
+		}
+
+		const historyEntries = Array.isArray(item.historyEntries)
+			? item.historyEntries
+				.filter(isVenueExtraRecord)
+				.map((historyItem) => ({
+					dateRange: readVenueExtraString(historyItem.dateRange),
+					title: readVenueExtraString(historyItem.title),
+					racerName: readVenueExtraString(historyItem.racerName),
+					results: readVenueExtraString(historyItem.results),
+					source: readVenueExtraString(historyItem.source) || undefined,
+				}))
+				.filter((historyItem) => Boolean(historyItem.dateRange || historyItem.title || historyItem.racerName || historyItem.results))
+			: [];
+
+		rows.push({
+			frameNo,
+			motorNo: readVenueExtraString(item.motorNo),
+			playerName: readVenueExtraString(item.playerName),
+			className: readVenueExtraString(item.className),
+			registerNo: readVenueExtraString(item.registerNo),
+			motorSecondRate: readVenueExtraString(item.motorSecondRate),
+			motorWinRate: readVenueExtraString(item.motorWinRate),
+			boatNo: readVenueExtraString(item.boatNo),
+			boatSecondRate: readVenueExtraString(item.boatSecondRate),
+			preinspectionTime: readVenueExtraString(item.preinspectionTime),
+			previousUser: readVenueExtraString(item.previousUser),
+			recentResults: readVenueExtraString(item.recentResults),
+			motorGrade: readVenueExtraString(item.motorGrade),
+			comment: readVenueExtraString(item.comment),
+			historyEntries,
+			source: readVenueExtraString(item.source) || undefined,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function normalizeDenseText(value: string): string {
+	return value.replace(/\s+/g, " ").trim();
+}
+
+function escapeRegExp(value: string): string {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function readBetweenLabels(source: string, startLabel: string, endLabel?: string): string {
+	const normalizedSource = normalizeDenseText(source);
+	const pattern = endLabel
+		? new RegExp(`${escapeRegExp(startLabel)}\\s*(.+?)\\s*${escapeRegExp(endLabel)}`)
+		: new RegExp(`${escapeRegExp(startLabel)}\\s*(.+)$`);
+	const match = normalizedSource.match(pattern);
+	return match?.[1]?.trim() ?? "";
+}
+
+function getMikuniWaterSurfaceDisplay(waterSurfaceInfo: BoatVenueWaterSurfaceInfo | null): BoatMikuniWaterSurfaceDisplay | null {
+	if (!waterSurfaceInfo) {
+		return null;
+	}
+
+	const surfaceSummary = normalizeDenseText(waterSurfaceInfo.surfaceSummary);
+	const metaMatch = surfaceSummary.match(/水質\s+(.+?)\s+流れ・水位変化\s+(.+?)\s+チルト角度\s+(.+?)(?:\s+水面特性|$)/);
+	const surfaceFeature = readBetweenLabels(surfaceSummary, "水面特性", "レースの特徴");
+	const raceFeature = readBetweenLabels(surfaceSummary, "レースの特徴");
+	const hasMetrics = Boolean(normalizeDenseText(waterSurfaceInfo.featureSummary));
+	const hasCourseSummary = Boolean(normalizeDenseText(waterSurfaceInfo.courseSummary));
+
+	if (!metaMatch && !surfaceFeature && !raceFeature && !hasMetrics && !hasCourseSummary) {
+		return null;
+	}
+
+	return {
+		waterType: metaMatch?.[1]?.trim() ?? "",
+		flowStatus: metaMatch?.[2]?.trim() ?? "",
+		tiltRange: metaMatch?.[3]?.trim() ?? "",
+		surfaceFeature,
+		raceFeature,
+		metricsNote: hasMetrics ? "決まり手の数値一覧は三国専用の成績表で確認できます。" : "",
+		courseNote: hasCourseSummary ? "枠番ごとの進入傾向は三国専用の進入別成績に反映しています。" : "",
 	};
 }
 
@@ -4575,6 +4883,31 @@ const selectedWaterMemo = useMemo(
 	[selectedRaceExtra, selectedVenueExtra],
 );
 
+const selectedMikuniBeforeInfo = useMemo(
+	() => getMikuniBeforeInfo(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedMikuniScoreRateGuide = useMemo(
+	() => getMikuniScoreRateGuide(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedMikuniCourseResults = useMemo(
+	() => getMikuniCourseResults(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedMikuniMotorHistory = useMemo(
+	() => getMikuniMotorHistory(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedMikuniWaterSurfaceDisplay = useMemo(
+	() => selectedVenue?.venueName === "三国" ? getMikuniWaterSurfaceDisplay(selectedWaterMemo?.waterSurfaceInfo ?? null) : null,
+	[selectedVenue?.venueName, selectedWaterMemo],
+);
+
 const selectedNarutoRacerPerformance = useMemo(
 	() => getNarutoRacerPerformance(selectedRaceExtra),
 	[selectedRaceExtra],
@@ -4931,6 +5264,7 @@ const tamagawaStartExhibitionDisplay = useMemo(() => {
 		.sort((left, right) => left.course - right.course);
 }, [selectedStartExhibition, selectedTamagawaBeforeInfo]);
 const { isNarutoVenue, isKaratsuVenue, isBiwakoVenue, isTamagawaVenue, isTsuVenue, isWakamatsuVenue, isFukuokaVenue, isKojimaVenue, isOmuraVenue, isMarugameVenue } = getVenueExtraVenueFlags(selectedVenue?.venueName);
+const isMikuniVenue = selectedVenue?.venueName === "三国";
 const hasOmuraEntryData = selectedOmuraEntryTable.length > 0;
 const hasOmuraPreviousDayData = selectedOmuraPreviousDayResults.some((row) => row.items.length > 0);
 const hasOmuraNationalFrameStatsData = selectedOmuraNationalFrameStats.length > 0;
@@ -5004,11 +5338,12 @@ const hasTamagawaFramePast10Data = selectedTamagawaFramePast10.length > 0;
 const hasTamagawaScoreRateGuideData = selectedTamagawaScoreRateGuide.length > 0;
 const hasTamagawaOddsResultData = Boolean(selectedTamagawaOddsResult);
 const hasOfficialBeforeInfoDetail = Boolean(
-	selectedOfficialBeforeInfo && (
+	(selectedOfficialBeforeInfo && (
 		selectedOfficialBeforeInfo.exhibitionRows.length > 0 ||
 		selectedOfficialBeforeInfo.startExhibition.length > 0 ||
 		selectedOfficialBeforeInfo.scoreQuickLook.length > 0
-	),
+	)) ||
+	selectedMikuniBeforeInfo.length > 0,
 );
 const shouldShowOfficialBeforeInfoWaiting = Boolean(selectedOfficialBeforeInfo && !hasOfficialBeforeInfoDetail);
 const hasOriginalExhibitionData = selectedOriginalExhibitionRows.length > 0;
@@ -5657,12 +5992,12 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 	const officialRows = selectedOfficialBeforeInfo?.exhibitionRows.length ?? 0;
 	const officialScores = selectedOfficialBeforeInfo?.scoreQuickLook.length ?? 0;
 	const startRows = Math.max(selectedOfficialBeforeInfo?.startExhibition.length ?? 0, selectedStartExhibition.length);
-	const mikuniScoreRows = Array.isArray(selectedRaceExtra?.mikuniScoreRateGuide) ? selectedRaceExtra.mikuniScoreRateGuide.length : 0;
-	const mikuniCourseRows = Array.isArray(selectedRaceExtra?.mikuniCourseResults) ? selectedRaceExtra.mikuniCourseResults.length : 0;
-	const mikuniMotorRows = Array.isArray(selectedRaceExtra?.mikuniMotorHistory) ? selectedRaceExtra.mikuniMotorHistory.length : 0;
+	const mikuniBeforeRows = selectedMikuniBeforeInfo.length;
+	const mikuniScoreRows = selectedMikuniScoreRateGuide.length;
+	const mikuniCourseRows = selectedMikuniCourseResults.length;
+	const mikuniMotorRows = selectedMikuniMotorHistory.length;
 	const scoreRows = Math.max(officialScores, selectedWakamatsuScoreRateGuide.length, selectedTsuScoreRateGuide.length, selectedFukuokaScoreRateGuide.length, selectedKojimaScoreRateGuide.length, mikuniScoreRows);
 	const weather = selectedVenue?.weatherActual;
-	const isMikuniVenue = selectedVenue?.venueName === "三国";
 	const wakamatsuRecordsLabels = [
 		selectedWakamatsuScoreRateGuide.length > 0 ? `得点率 ${selectedWakamatsuScoreRateGuide.length}件` : "",
 		selectedWakamatsuSeriesResults.length > 0 ? "節間成績あり" : "",
@@ -5729,6 +6064,14 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 	}
 
 	if (isMikuniVenue) {
+		if (option.key === "official") {
+			return mikuniBeforeRows > 0 ? `直前情報 ${mikuniBeforeRows}艇 / 得点率 ${mikuniScoreRows}件` : "直前情報待ち";
+		}
+
+		if (option.key === "start") {
+			return startRows > 0 ? `進入・ST ${startRows}艇` : "公式スタート展示は未掲載";
+		}
+
 		if (option.key === "records") {
 			const recordsLabels = [
 				mikuniScoreRows > 0 ? `得点率 ${mikuniScoreRows}件` : "",
@@ -5739,9 +6082,22 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 			return recordsLabels.length > 0 ? recordsLabels.join(" / ") : "成績データ待ち";
 		}
 
+		if (option.key === "exhibition") {
+			return selectedOriginalExhibitionRows.length > 0 ? `独自展示 ${selectedOriginalExhibitionRows.length}艇` : "三国独自展示は未掲載";
+		}
+
 		if (option.key === "motor") {
 			const motorCount = Math.max(selectedMotorSummaryDisplay.items.length, mikuniMotorRows);
 			return motorCount > 0 ? `モーター ${motorCount}件 / 履歴あり` : "モーター情報待ち";
+		}
+
+		if (option.key === "water") {
+			const waterLabels = [
+				selectedMikuniWaterSurfaceDisplay?.surfaceFeature ? "水面特性" : "",
+				weather?.windSpeed ? `風 ${weather.windSpeed}` : "",
+				weather?.waveHeight ? `波 ${weather.waveHeight}` : "",
+			].filter(Boolean);
+			return waterLabels.length > 0 ? waterLabels.join(" / ") : "水面情報確認中";
 		}
 	}
 
@@ -6813,8 +7169,48 @@ body:has(.races-page-root) {
 						</section>
 					) : null}
 
+					{isMikuniVenue && selectedMikuniBeforeInfo.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>三国直前情報</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={venueExtrasTableStyle}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>枠</th>
+											<th style={venueExtrasHeadCellStyle}>選手</th>
+											<th style={venueExtrasHeadCellStyle}>コース</th>
+											<th style={venueExtrasHeadCellStyle}>チルト</th>
+											<th style={venueExtrasHeadCellStyle}>ST</th>
+											<th style={venueExtrasHeadCellStyle}>展示</th>
+											<th style={venueExtrasHeadCellStyle}>部品交換</th>
+											<th style={venueExtrasHeadCellStyle}>メモ</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedMikuniBeforeInfo.map((item) => {
+											const scoreRow = selectedMikuniScoreRateGuide.find((score) => score.frameNo === item.frameNo);
+
+											return (
+												<tr key={`mikuni-beforeinfo-${item.frameNo}`}>
+													<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+													<td style={venueExtrasBodyCellStyle}>{scoreRow?.playerName || item.playerName || `枠${item.frameNo}`}</td>
+													<td style={venueExtrasBodyCellStyle}>{item.course || "-"}</td>
+													<td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td>
+													<td style={venueExtrasBodyCellStyle}>{item.startTiming || "-"}</td>
+													<td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td>
+													<td style={venueExtrasBodyCellStyle}>{item.partsExchange || "-"}</td>
+													<td style={venueExtrasBodyCellStyle}>{item.memo || "-"}</td>
+												</tr>
+											);
+										})}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
 					{!hasOfficialBeforeInfoDetail ? (
-						<p style={venueExtrasEmptyStyle}>BOATRACE公式直前データは未取得待ちです。</p>
+						<p style={venueExtrasEmptyStyle}>{isMikuniVenue ? "三国の直前情報は未掲載です。公式更新後に展示値が反映される場合があります。" : "BOATRACE公式直前データは未取得待ちです。"}</p>
 					) : null}
 				</div>
 			) : (
@@ -7056,7 +7452,7 @@ body:has(.races-page-root) {
 					) : null}
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>このカテゴリのデータはまだ取得できていません。展示公開後、または対象会場の公式データ更新後に表示される可能性があります。</p>
+				<p style={venueExtrasEmptyStyle}>{isMikuniVenue ? "三国のスタート展示は現状 JSON では 0 件です。公式ページ未掲載、または安定取得対象外のため反映待ちです。" : "このカテゴリのデータはまだ取得できていません。展示公開後、または対象会場の公式データ更新後に表示される可能性があります。"}</p>
 			)
 		) : null}
 
@@ -8408,7 +8804,7 @@ body:has(.races-page-root) {
 		{selectedVenueExtraPanel === "records" ? (
 			hasRecordsPanelData ? (
 				<div style={venueExtrasDataGridStyle}>
-					{!isNarutoVenue && selectedOfficialBeforeInfo?.scoreQuickLook.length ? (
+					{!isNarutoVenue && !isMikuniVenue && selectedOfficialBeforeInfo?.scoreQuickLook.length ? (
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>公式得点率早見</h4>
 							<div style={venueExtrasTableWrapStyle}>
@@ -8444,6 +8840,107 @@ body:has(.races-page-root) {
 												<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.scoreRate || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.sectionResults || "-"}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isMikuniVenue && selectedMikuniScoreRateGuide.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>三国得点率・節間成績</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "1240px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>枠</th>
+											<th style={venueExtrasHeadCellStyle}>登録番号</th>
+											<th style={venueExtrasHeadCellStyle}>選手</th>
+											<th style={venueExtrasHeadCellStyle}>級別</th>
+											<th style={venueExtrasHeadCellStyle}>支部</th>
+											<th style={venueExtrasHeadCellStyle}>平均ST</th>
+											<th style={venueExtrasHeadCellStyle}>全国勝率</th>
+											<th style={venueExtrasHeadCellStyle}>全国2連率</th>
+											<th style={venueExtrasHeadCellStyle}>当地勝率</th>
+											<th style={venueExtrasHeadCellStyle}>当地2連率</th>
+											<th style={venueExtrasHeadCellStyle}>モーター</th>
+											<th style={venueExtrasHeadCellStyle}>モーター2連率</th>
+											<th style={venueExtrasHeadCellStyle}>得点率</th>
+											<th style={venueExtrasHeadCellStyle}>得点</th>
+											<th style={venueExtrasHeadCellStyle}>減点</th>
+											<th style={venueExtrasHeadCellStyle}>出走</th>
+											<th style={venueExtrasHeadCellStyle}>節間成績</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedMikuniScoreRateGuide.map((item) => (
+											<tr key={`mikuni-score-rate-${item.frameNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.registrationNo || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.className || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.branch || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.averageStart || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.winRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.secondRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.motorSecondRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.scoreRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.score || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.deduction || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.starts || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.sectionResults || "-"}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isMikuniVenue && selectedMikuniCourseResults.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>三国進入別成績</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "1180px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>枠</th>
+											<th style={venueExtrasHeadCellStyle}>選手</th>
+											{Array.from({ length: 6 }, (_, index) => (
+												<th key={`mikuni-course-head-${index + 1}`} style={venueExtrasHeadCellStyle}>{index + 1}コース</th>
+											))}
+										</tr>
+									</thead>
+									<tbody>
+										{selectedMikuniCourseResults.map((item) => (
+											<tr key={`mikuni-course-results-${item.frameNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>
+													<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+														<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+														<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>{item.className || "-"} / {item.registrationNo || "-"}</span>
+													</div>
+												</td>
+												{Array.from({ length: 6 }, (_, index) => {
+													const courseRow = item.courseRows.find((course) => course.courseNo === index + 1);
+													return (
+														<td key={`mikuni-course-results-cell-${item.frameNo}-${index + 1}`} style={venueExtrasBodyCellStyle}>
+															{courseRow ? (
+																<div style={{ display: "grid", gap: "3px", minWidth: "96px", lineHeight: 1.35 }}>
+																	<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>進入率 {courseRow.entryRate || "-"}%</span>
+																	<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>平均ST {courseRow.averageStart || "-"}</span>
+																	<strong>1着 {courseRow.firstRate || "-"}% / 2着 {courseRow.secondRate || "-"}%</strong>
+																	<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>3着 {courseRow.thirdRate || "-"}% / 4-6着 {courseRow.fourthRate || "-"}%・{courseRow.fifthRate || "-"}%・{courseRow.sixthRate || "-"}%</span>
+																</div>
+															) : "-"}
+														</td>
+													);
+												})}
 											</tr>
 										))}
 									</tbody>
@@ -8802,7 +9299,7 @@ body:has(.races-page-root) {
 					) : null}
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>このカテゴリのデータはまだ取得できていません。展示公開後、または対象会場の公式データ更新後に表示される可能性があります。</p>
+				<p style={venueExtrasEmptyStyle}>{isMikuniVenue ? "三国の独自展示は現状 JSON に未収録です。公式ページ未掲載、または未対応ページのため表示待ちです。" : "このカテゴリのデータはまだ取得できていません。展示公開後、または対象会場の公式データ更新後に表示される可能性があります。"}</p>
 			)
 		) : null}
 
@@ -8880,6 +9377,38 @@ body:has(.races-page-root) {
 							</div>
 						</section>
 					) : null}
+
+					{isMikuniVenue && selectedMikuniMotorHistory.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>三国モーター履歴</h4>
+							<div style={venueExtrasCommentListStyle}>
+								{selectedMikuniMotorHistory.map((item) => (
+									<article key={`mikuni-motor-history-${item.frameNo}`} style={venueExtrasRacerCommentCardStyle}>
+										<div style={venueExtrasRacerCommentHeaderStyle}>
+											<p style={venueExtrasRacerCommentFrameStyle}>{item.frameNo}号艇 / モーター{item.motorNo || "-"}</p>
+											{item.motorGrade ? <span style={venueExtrasFocusPillStyle}>{item.motorGrade}</span> : null}
+										</div>
+										<p style={venueExtrasRacerCommentTextStyle}>{item.playerName || `枠${item.frameNo}`} {item.className ? `/ ${item.className}` : ""} {item.registerNo ? `/ ${item.registerNo}` : ""}</p>
+										<p style={venueExtrasRacerCommentTextStyle}>2連率 {item.motorSecondRate || "-"} / 勝率 {item.motorWinRate || "-"} / ボート {item.boatNo || "-"} / ボート2連率 {item.boatSecondRate || "-"}</p>
+										<p style={venueExtrasRacerCommentTextStyle}>前検 {item.preinspectionTime || "-"} / 前使用者 {item.previousUser || "-"}</p>
+										{item.recentResults ? <p style={venueExtrasCommentStyle}>{item.recentResults}</p> : null}
+										{item.comment ? <p style={venueExtrasCommentStyle}>{item.comment}</p> : null}
+										{item.historyEntries.length > 0 ? (
+											<div style={{ display: "grid", gap: "8px" }}>
+												{item.historyEntries.slice(0, 4).map((history, index) => (
+													<div key={`mikuni-motor-history-entry-${item.frameNo}-${index}`} style={{ display: "grid", gap: "2px", paddingTop: "8px", borderTop: `1px solid ${boatTheme.colors.line}` }}>
+														<strong style={{ fontSize: "0.76rem", color: boatTheme.colors.ink }}>{history.title || history.dateRange || "履歴"}</strong>
+														<span style={{ fontSize: "0.7rem", color: boatTheme.colors.muted }}>{history.dateRange || "-"} / {history.racerName || "-"}</span>
+														<span style={{ fontSize: "0.74rem", color: boatTheme.colors.ink }}>{history.results || "-"}</span>
+													</div>
+												))}
+											</div>
+										) : null}
+									</article>
+								))}
+							</div>
+						</section>
+					) : null}
 				</div>
 			) : (
 				<p style={venueExtrasEmptyStyle}>このカテゴリのデータはまだ取得できていません。展示公開後、または対象会場の公式データ更新後に表示される可能性があります。</p>
@@ -8953,14 +9482,61 @@ body:has(.races-page-root) {
 									</article>
 								) : null}
 								{selectedWaterMemo.waterSurfaceInfo?.surfaceSummary ? (
+									isMikuniVenue && selectedMikuniWaterSurfaceDisplay ? (
+										<>
+											{selectedMikuniWaterSurfaceDisplay.waterType || selectedMikuniWaterSurfaceDisplay.flowStatus || selectedMikuniWaterSurfaceDisplay.tiltRange ? (
+												<article style={venueExtrasRacerCommentCardStyle}>
+													<div style={venueExtrasRacerCommentHeaderStyle}>
+														<p style={venueExtrasRacerCommentFrameStyle}>水面要約</p>
+													</div>
+													<p style={venueExtrasRacerCommentTextStyle}>水質 {selectedMikuniWaterSurfaceDisplay.waterType || "-"} / 流れ・水位変化 {selectedMikuniWaterSurfaceDisplay.flowStatus || "-"} / チルト角度 {selectedMikuniWaterSurfaceDisplay.tiltRange || "-"}</p>
+												</article>
+											) : null}
+											{selectedVenue?.weatherActual ? (
+												<article style={venueExtrasRacerCommentCardStyle}>
+													<div style={venueExtrasRacerCommentHeaderStyle}>
+														<p style={venueExtrasRacerCommentFrameStyle}>実況気象</p>
+													</div>
+													<p style={venueExtrasRacerCommentTextStyle}>{selectedVenue.weatherActual.weather || "-"}{selectedVenue.weatherActual.windDirection ? ` / ${selectedVenue.weatherActual.windDirection}` : ""}{selectedVenue.weatherActual.windSpeed ? ` / 風 ${selectedVenue.weatherActual.windSpeed}` : ""}{selectedVenue.weatherActual.waveHeight ? ` / 波 ${selectedVenue.weatherActual.waveHeight}` : ""}</p>
+													<p style={venueExtrasCommentStyle}>気温 {selectedVenue.weatherActual.temperature || "-"} / 水温 {selectedVenue.weatherActual.waterTemperature || "-"}{selectedVenue.weatherActual.updatedAt ? ` / 表示 ${selectedVenue.weatherActual.updatedAt}` : ""}</p>
+												</article>
+											) : null}
+											{selectedMikuniWaterSurfaceDisplay.surfaceFeature ? (
+												<article style={venueExtrasRacerCommentCardStyle}>
+													<div style={venueExtrasRacerCommentHeaderStyle}>
+														<p style={venueExtrasRacerCommentFrameStyle}>特徴</p>
+													</div>
+													<p style={venueExtrasRacerCommentTextStyle}>{selectedMikuniWaterSurfaceDisplay.surfaceFeature}</p>
+												</article>
+											) : null}
+											{selectedMikuniWaterSurfaceDisplay.raceFeature ? (
+												<article style={venueExtrasRacerCommentCardStyle}>
+													<div style={venueExtrasRacerCommentHeaderStyle}>
+														<p style={venueExtrasRacerCommentFrameStyle}>レースの特徴</p>
+													</div>
+													<p style={venueExtrasRacerCommentTextStyle}>{selectedMikuniWaterSurfaceDisplay.raceFeature}</p>
+												</article>
+											) : null}
+											{selectedMikuniWaterSurfaceDisplay.metricsNote ? (
+												<article style={venueExtrasRacerCommentCardStyle}>
+													<div style={venueExtrasRacerCommentHeaderStyle}>
+														<p style={venueExtrasRacerCommentFrameStyle}>数値メモ</p>
+													</div>
+													<p style={venueExtrasRacerCommentTextStyle}>{selectedMikuniWaterSurfaceDisplay.metricsNote}</p>
+													{selectedMikuniWaterSurfaceDisplay.courseNote ? <p style={venueExtrasCommentStyle}>{selectedMikuniWaterSurfaceDisplay.courseNote}</p> : null}
+												</article>
+											) : null}
+										</>
+									) : (
 									<article style={venueExtrasRacerCommentCardStyle}>
 										<div style={venueExtrasRacerCommentHeaderStyle}>
 											<p style={venueExtrasRacerCommentFrameStyle}>水面要約</p>
 										</div>
 										<p style={venueExtrasRacerCommentTextStyle}>{selectedWaterMemo.waterSurfaceInfo.surfaceSummary}</p>
 									</article>
+									)
 								) : null}
-								{selectedWaterMemo.waterSurfaceInfo?.featureSummary ? (
+								{selectedWaterMemo.waterSurfaceInfo?.featureSummary && !(isMikuniVenue && selectedMikuniWaterSurfaceDisplay) ? (
 									<article style={venueExtrasRacerCommentCardStyle}>
 										<div style={venueExtrasRacerCommentHeaderStyle}>
 											<p style={venueExtrasRacerCommentFrameStyle}>特徴</p>
@@ -8968,7 +9544,7 @@ body:has(.races-page-root) {
 										<p style={venueExtrasRacerCommentTextStyle}>{selectedWaterMemo.waterSurfaceInfo.featureSummary}</p>
 									</article>
 								) : null}
-								{selectedWaterMemo.waterSurfaceInfo?.courseSummary ? (
+								{selectedWaterMemo.waterSurfaceInfo?.courseSummary && !(isMikuniVenue && selectedMikuniWaterSurfaceDisplay) ? (
 									<article style={venueExtrasRacerCommentCardStyle}>
 										<div style={venueExtrasRacerCommentHeaderStyle}>
 											<p style={venueExtrasRacerCommentFrameStyle}>コース別傾向</p>
@@ -8981,7 +9557,7 @@ body:has(.races-page-root) {
 					) : null}
 				</div>
 			) : (
-				<p style={venueExtrasEmptyStyle}>このカテゴリのデータはまだ取得できていません。展示公開後、または対象会場の公式データ更新後に表示される可能性があります。</p>
+				<p style={venueExtrasEmptyStyle}>{isMikuniVenue ? "三国の水面情報はまだ整っていません。公式水面ページ更新後に再取得される場合があります。" : "このカテゴリのデータはまだ取得できていません。展示公開後、または対象会場の公式データ更新後に表示される可能性があります。"}</p>
 			)
 		) : null}
 
