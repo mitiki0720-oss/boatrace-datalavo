@@ -4798,7 +4798,7 @@ const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
 	鳴門: "complete",
 	丸亀: "complete",
 	徳山: "complete",
-	常滑: "partial",
+	常滑: "complete",
 };
 
 const venueOfficialLinkStatusMeta: Record<
@@ -6406,11 +6406,13 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 
 		if (option.key === "exhibition") {
 			const labels = [
-				selectedOriginalExhibitionRows.length > 0 ? `展示 ${selectedOriginalExhibitionRows.length}艇` : "",
+				selectedOriginalExhibitionRows.length > 0 ? `独自展示 ${selectedOriginalExhibitionRows.length}艇` : "",
 				selectedOriginalExhibitionRows.some((row) => Boolean(row.exhibitionTime)) ? "展示タイムあり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.oneLapTime)) ? "一周あり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.turnTime)) ? "まわり足あり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.straightTime)) ? "直線あり" : "",
 				selectedOriginalExhibitionRows.some((row) => Boolean(row.tilt)) ? "チルトあり" : "",
 				selectedOriginalExhibitionRows.some((row) => Boolean(row.motorNo)) ? "モーター番号あり" : "",
-				"一周・まわり足・直線は未取得",
 			].filter(Boolean);
 			return labels.length > 0 ? labels.join(" / ") : "展示公開待ち";
 		}

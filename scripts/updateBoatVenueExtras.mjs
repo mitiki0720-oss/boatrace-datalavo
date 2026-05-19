@@ -53,6 +53,8 @@ const TOKONAME_SECTION_RESULTS_URL = "https://www.boatrace-tokoname.jp/modules/r
 const TOKONAME_MOTOR_DATA_URL = "https://www.boatrace-tokoname.jp/modules/datafile/";
 const TOKONAME_BOAT_DATA_URL = "https://www.boatrace-tokoname.jp/modules/datafile/?page=index_boat";
 const TOKONAME_WATER_SURFACE_URL = "https://www.boatrace-tokoname.jp/modules/datafile/?page=index_suimen";
+const TOKONAME_TOP_URL = "https://www.boatrace-tokoname.jp/";
+const TOKONAME_YOSOU_BASE_URL = "https://www.boatrace-tokoname.jp/modules/yosou/group-cyokuzen.php";
 const FUKUOKA_VENUE_NAME = "福岡";
 const FUKUOKA_SOURCE = "boatrace-fukuoka.com";
 const KOJIMA_VENUE_NAME = "児島";
@@ -590,6 +592,23 @@ async function fetchHtml(url) {
 		headers: {
 			"user-agent": "Mozilla/5.0 (compatible; KURARI-DATALAVO/1.0; +https://example.com)",
 			"accept-language": "ja,en;q=0.8",
+		},
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status} ${response.statusText}`);
+	}
+
+	return response.text();
+}
+
+async function fetchTokonameHtml(url) {
+	const response = await fetch(url, {
+		headers: {
+			"user-agent": "Mozilla/5.0 (compatible; KURARI-DATALAVO/1.0; +https://example.com)",
+			"accept-language": "ja,en;q=0.8",
+			referer: TOKONAME_TOP_URL,
 		},
 		signal: AbortSignal.timeout(15000),
 	});
@@ -9618,6 +9637,108 @@ function parseTokonameSectionResults(html) {
 	});
 }
 
+function parseTokonameCurrentYosouContext(html, fallbackDate) {
+	const feedDay = compactText(fallbackDate).replaceAll("-", "");
+	const topDay = compactText(html?.match(/init_day\s*=\s*["'](\d{8})["']/)?.[1] ?? "");
+	const day = feedDay || topDay;
+	const hasCyokuzenFrame = String(html ?? "").includes("group-cyokuzen");
+
+	return {
+		day,
+		hasCyokuzenFrame,
+	};
+}
+
+function toTokonameOriginalExhibitionUrl(day, raceNo) {
+	const params = new URLSearchParams({
+		day,
+		race: String(Number(raceNo)),
+		kind: "2",
+		if: "1",
+	});
+	return `${TOKONAME_YOSOU_BASE_URL}?${params.toString()}`;
+}
+
+function parseTokonamePlayerCell($, cell) {
+	const classAndRegistration = normalizeTokonameCell($(cell).find(".com-toban").text());
+	const [className = "", registrationNo = ""] = classAndRegistration.split("/").map((part) => normalizeTokonameCell(part));
+	const playerName = normalizeTokonameCell($(cell).find(".com-rname").text());
+	const profileParts = normalizeTokonameCell($(cell).find(".com-subinfo").text()).split("/").map((part) => normalizeTokonameCell(part));
+
+	return {
+		className,
+		registrationNo,
+		playerName,
+		branch: profileParts[0] ?? "",
+		hometown: profileParts[1] ?? "",
+		age: profileParts[2] ?? "",
+	};
+}
+
+function parseTokonameOriginalExhibition(html, sourceUrl) {
+	if (!html) {
+		return [];
+	}
+
+	const $ = load(html);
+	const table = findTableByKeywords($, ["\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a\u30c7\u30fc\u30bf", "\u4e00\u5468", "\u307e\u308f\u308a\u8db3", "\u76f4\u7dda"])
+		?? findTableByKeywords($, ["\u4e00\u5468", "\u307e\u308f\u308a\u8db3", "\u76f4\u7dda"])
+		?? $("table").toArray().find((candidate) =>
+			$(candidate).find(".col6").length > 0 &&
+			$(candidate).find(".col7").length > 0 &&
+			$(candidate).find(".col8").length > 0
+		);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table).find("tbody tr, tr").each((_, row) => {
+		const frameNo = parseFrameNo($(row).children("td.col1, th.col1").first().text());
+		if (!frameNo) {
+			return;
+		}
+
+		const player = parseTokonamePlayerCell($, $(row).children(".col2").first());
+		const adjustmentRow = $(row).next("tr");
+		const weight = normalizeTokonameCell($(row).children(".col3").first().text());
+		const adjustment = normalizeTokonameCell(adjustmentRow.children(".col3").first().text());
+		const tilt = normalizeTokonameCell($(row).children(".col4").first().text());
+		const exhibitionTime = normalizeTokonameCell($(row).children(".col5").first().text());
+		const oneLapTime = normalizeTokonameCell($(row).children(".col6").first().text());
+		const turnTime = normalizeTokonameCell($(row).children(".col7").first().text());
+		const straightTime = normalizeTokonameCell($(row).children(".col8").first().text());
+
+		rows.push({
+			frameNo,
+			className: player.className,
+			registrationNo: player.registrationNo,
+			registerNo: player.registrationNo,
+			playerName: player.playerName,
+			racerName: player.playerName,
+			branch: player.branch,
+			hometown: player.hometown,
+			age: player.age,
+			weight,
+			weightAdjustment: adjustment,
+			adjustment,
+			tilt,
+			exhibitionTime,
+			oneLapTime,
+			lapTime: oneLapTime,
+			turnTime,
+			straightTime,
+			exhibitionEvaluation: "",
+			memo: "\u5e38\u6ed1\u516c\u5f0f\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a\u30c7\u30fc\u30bf",
+			note: "\u5e38\u6ed1\u516c\u5f0f\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a\u30c7\u30fc\u30bf",
+			source: sourceUrl,
+		});
+	});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
 function parseTokonameWaterSurfaceInfo(html) {
 	if (!html) {
 		return null;
@@ -9796,28 +9917,44 @@ function createTokonameMotorSummary(race, timerankRows, motorRows, boatRows) {
 	});
 }
 
-function createTokonameOriginalExhibition(race) {
+function createTokonameOriginalExhibition(race, officialRows = []) {
 	const exhibitionByFrame = new Map((Array.isArray(race?.exhibitions) ? race.exhibitions : []).map((row) => [Number(row.frameNo ?? row.frame ?? row.boatNumber), row]));
 	return getTokonameRaceEntries(race).map((entry) => {
 		const exhibition = exhibitionByFrame.get(entry.frameNo) ?? {};
+		const officialRow = officialRows.find((row) =>
+			row.frameNo === entry.frameNo ||
+			(entry.registrationNo && row.registrationNo === entry.registrationNo) ||
+			(entry.playerName && row.playerName === entry.playerName)
+		) ?? null;
+		const oneLapTime = officialRow?.oneLapTime ?? "";
+		const turnTime = officialRow?.turnTime ?? "";
+		const straightTime = officialRow?.straightTime ?? "";
 		return {
 			frameNo: entry.frameNo,
-			registrationNo: entry.registrationNo,
-			playerName: entry.playerName,
-			className: entry.className,
-			weight: compactText(exhibition.weight),
-			weightAdjustment: compactText(exhibition.weightAdjustment ?? exhibition.adjustment),
-			tilt: compactText(exhibition.tilt),
-			exhibitionTime: compactText(exhibition.exhibitionTime ?? exhibition.displayTime ?? exhibition.time),
+			registrationNo: officialRow?.registrationNo || entry.registrationNo,
+			registerNo: officialRow?.registrationNo || entry.registrationNo,
+			playerName: officialRow?.playerName || entry.playerName,
+			racerName: officialRow?.playerName || entry.playerName,
+			className: officialRow?.className || entry.className,
+			branch: officialRow?.branch || "",
+			hometown: officialRow?.hometown || "",
+			age: officialRow?.age || "",
+			weight: officialRow?.weight || compactText(exhibition.weight),
+			weightAdjustment: officialRow?.weightAdjustment || compactText(exhibition.weightAdjustment ?? exhibition.adjustment),
+			adjustment: officialRow?.weightAdjustment || compactText(exhibition.weightAdjustment ?? exhibition.adjustment),
+			tilt: officialRow?.tilt || compactText(exhibition.tilt),
+			exhibitionTime: officialRow?.exhibitionTime || compactText(exhibition.exhibitionTime ?? exhibition.displayTime ?? exhibition.time),
 			motorNo: entry.motorNo,
-			oneLapTime: "",
-			turnTime: "",
-			straightTime: "",
+			oneLapTime,
+			lapTime: oneLapTime,
+			turnTime,
+			straightTime,
 			exhibitionEvaluation: "",
-			memo: "\u5e38\u6ed1\u516c\u5f0f\u30c9\u30e1\u30a4\u30f3\u5185\u3067\u4e00\u5468/\u307e\u308f\u308a\u8db3/\u76f4\u7dda\u306e\u5b89\u5b9a\u8868\u306f\u672a\u78ba\u8a8d",
-			source: BOATRACE_OFFICIAL_SOURCE,
+			memo: officialRow ? "常滑公式オリジナル展示データ" : "\u5e38\u6ed1\u516c\u5f0f\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a\u30c7\u30fc\u30bf\u516c\u958b\u5f85\u3061",
+			note: officialRow ? "常滑公式オリジナル展示データ" : "",
+			source: officialRow?.source || BOATRACE_OFFICIAL_SOURCE,
 		};
-	}).filter((row) => row.exhibitionTime || row.tilt || row.motorNo);
+	}).filter((row) => row.exhibitionTime || row.tilt || row.motorNo || row.oneLapTime || row.turnTime || row.straightTime);
 }
 
 async function createTokonameVenue(feed) {
@@ -9829,6 +9966,7 @@ async function createTokonameVenue(feed) {
 
 	try {
 		const [
+			topHtml,
 			scoreHtml,
 			timerankHtml,
 			courseHtml,
@@ -9837,6 +9975,7 @@ async function createTokonameVenue(feed) {
 			boatHtml,
 			waterHtml,
 		] = await Promise.all([
+			fetchTokonameHtml(TOKONAME_TOP_URL).catch(() => ""),
 			fetchHtml(TOKONAME_SCORE_RATE_URL).catch(() => ""),
 			fetchHtml(TOKONAME_TIMERANK_URL).catch(() => ""),
 			fetchHtml(TOKONAME_COURSE_URL).catch(() => ""),
@@ -9852,12 +9991,26 @@ async function createTokonameVenue(feed) {
 		const motorRows = parseTokonameMotorData(motorHtml);
 		const boatRows = parseTokonameBoatData(boatHtml);
 		const waterSurfaceInfo = parseTokonameWaterSurfaceInfo(waterHtml);
+		const raceList = getRaceList(tokonameVenue);
+		const yosouContext = parseTokonameCurrentYosouContext(topHtml, feed?.date);
+		const originalRowsByRaceNo = new Map();
+		for (const race of raceList) {
+			const raceNo = Number(race.raceNo);
+			if (!yosouContext.day || !yosouContext.hasCyokuzenFrame || !raceNo) {
+				originalRowsByRaceNo.set(raceNo, []);
+				continue;
+			}
 
-		const raceExtras = getRaceList(tokonameVenue).map((race) => {
+			const url = toTokonameOriginalExhibitionUrl(yosouContext.day, raceNo);
+			const html = await fetchTokonameHtml(url).catch(() => "");
+			originalRowsByRaceNo.set(raceNo, parseTokonameOriginalExhibition(html, url));
+		}
+
+		const raceExtras = raceList.map((race) => {
 			const scoreQuickLook = createTokonameRaceScoreRows(race, scoreRows);
 			const tokonameCourseResults = createTokonameCourseRows(race, courseRows);
 			const motorSummary = createTokonameMotorSummary(race, timerankRows, motorRows, boatRows);
-			const originalExhibition = createTokonameOriginalExhibition(race);
+			const originalExhibition = createTokonameOriginalExhibition(race, originalRowsByRaceNo.get(Number(race.raceNo)) ?? []);
 			const tokonameSectionResults = sectionRows.filter((row) => scoreQuickLook.some((score) => score.playerName && score.playerName === row.playerName));
 			const beforeInfo = buildOfficialBeforeInfoExhibitionRows(race);
 			const startExhibition = buildOfficialBeforeInfoStartExhibitionRows(race, beforeInfo);
@@ -9894,8 +10047,15 @@ async function createTokonameVenue(feed) {
 			};
 		});
 		const firstRace = raceExtras[0] ?? null;
+		const originalRace = raceExtras.find((race) =>
+			(Array.isArray(race.originalExhibition) ? race.originalExhibition : []).filter((row) => row.oneLapTime && row.turnTime && row.straightTime).length === 6
+		) ?? null;
+		const originalRows = originalRace?.originalExhibition ?? [];
 		console.log(
 			`[tokoname extras] before=${firstRace?.officialBeforeInfo?.scoreQuickLook?.length ?? 0} start=feed original=${firstRace?.originalExhibition?.length ?? 0} motor=${firstRace?.motorSummary?.length ?? 0} boat=${firstRace?.tokonameBoatData?.length ?? 0} score=${firstRace?.tokonameScoreRateGuide?.length ?? 0} course=${firstRace?.tokonameCourseResults?.length ? "ok" : "none"} water=${waterSurfaceInfo ? "ok" : "none"} weather=${firstRace?.weatherCondition ? "ok" : "none"}`,
+		);
+		console.log(
+			`[tokoname original check] race=${originalRace?.raceNo ?? "-"} original=${originalRows.length} lap=${originalRows.filter((row) => row.oneLapTime).length} turn=${originalRows.filter((row) => row.turnTime).length} straight=${originalRows.filter((row) => row.straightTime).length} exhibition=${originalRows.filter((row) => row.exhibitionTime).length} source=${originalRows.some((row) => String(row.source ?? "").includes(TOKONAME_SOURCE)) ? "official" : "none"}`,
 		);
 
 		return {
@@ -9904,7 +10064,7 @@ async function createTokonameVenue(feed) {
 			source: TOKONAME_SOURCE,
 			isAvailable: raceExtras.some((race) => race.status === "available"),
 			status: raceExtras.some((race) => race.status === "available") ? "available" : "waiting-tokoname-data",
-			note: "\u5e38\u6ed1\u516c\u5f0fHP\u306e\u5f97\u70b9\u7387\u3001\u9032\u5165\u30b3\u30fc\u30b9\u5225\u6210\u7e3e\u3001\u30e2\u30fc\u30bf\u30fc/\u30dc\u30fc\u30c8\u30c7\u30fc\u30bf\u3001\u6c34\u9762\u7279\u6027\u3092\u53d6\u5f97",
+			note: "\u5e38\u6ed1\u516c\u5f0fHP\u306e\u5f97\u70b9\u7387\u3001\u9032\u5165\u30b3\u30fc\u30b9\u5225\u6210\u7e3e\u3001\u30e2\u30fc\u30bf\u30fc/\u30dc\u30fc\u30c8\u30c7\u30fc\u30bf\u3001\u6c34\u9762\u7279\u6027\u3001\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a\u30c7\u30fc\u30bf\u3092\u53d6\u5f97",
 			waterSurfaceInfo,
 			tokonameWaterSurfaceInfo: waterSurfaceInfo,
 			races: raceExtras,
