@@ -44,6 +44,15 @@ const WAKAMATSU_VENUE_NAME = "若松";
 const WAKAMATSU_SOURCE = "wmb.jp";
 const WAKAMATSU_TIDE_URL = "https://www.wmb.jp/modules/datafile/?page=index_tide_table";
 const WAKAMATSU_WATER_SURFACE_URL = "https://www.wmb.jp/modules/datafile/?page=index_suimen";
+const TOKONAME_VENUE_NAME = "\u5e38\u6ed1";
+const TOKONAME_SOURCE = "boatrace-tokoname.jp";
+const TOKONAME_SCORE_RATE_URL = "https://www.boatrace-tokoname.jp/modules/raceinfo/?page=index_tokutenrank";
+const TOKONAME_TIMERANK_URL = "https://www.boatrace-tokoname.jp/modules/raceinfo/?page=index_timerank";
+const TOKONAME_COURSE_URL = "https://www.boatrace-tokoname.jp/modules/raceinfo/?page=index_racecourse";
+const TOKONAME_SECTION_RESULTS_URL = "https://www.boatrace-tokoname.jp/modules/raceinfo/?page=index_konsetsu";
+const TOKONAME_MOTOR_DATA_URL = "https://www.boatrace-tokoname.jp/modules/datafile/";
+const TOKONAME_BOAT_DATA_URL = "https://www.boatrace-tokoname.jp/modules/datafile/?page=index_boat";
+const TOKONAME_WATER_SURFACE_URL = "https://www.boatrace-tokoname.jp/modules/datafile/?page=index_suimen";
 const FUKUOKA_VENUE_NAME = "福岡";
 const FUKUOKA_SOURCE = "boatrace-fukuoka.com";
 const KOJIMA_VENUE_NAME = "児島";
@@ -9423,6 +9432,497 @@ console.log(
 	}
 }
 
+function normalizeTokonameCell(value) {
+	return compactText(value).replace(/\s+/g, " ");
+}
+
+function readTokonameTableRows(html, tableIndex = 0) {
+	if (!html) {
+		return [];
+	}
+
+	const $ = load(html);
+	const table = $("table").eq(tableIndex);
+	if (!table.length) {
+		return [];
+	}
+
+	const rows = [];
+	table.find("> tbody > tr, > tr").each((_, row) => {
+		const cells = $(row)
+			.children("th,td")
+			.map((__, cell) => normalizeTokonameCell($(cell).text()))
+			.get();
+		if (cells.length && cells.some(Boolean)) {
+			rows.push(cells);
+		}
+	});
+
+	return rows;
+}
+
+function parseTokonameScoreRateGuide(html) {
+	return readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 10 || !/^\d+$/.test(cells[2] ?? "")) {
+			return [];
+		}
+
+		return [{
+			scoreRank: cells[0] ?? "",
+			className: cells[1] ?? "",
+			registrationNo: cells[2] ?? "",
+			playerName: cells[3] ?? "",
+			branch: cells[4] ?? "",
+			scoreRate: cells[5] ?? "",
+			score: cells[6] ?? "",
+			deduction: cells[7] ?? "",
+			starts: cells[8] ?? "",
+			sectionResults: cells[9] ?? "",
+			raceSchedule: [cells[10], cells[11]].filter(Boolean).join(" / "),
+			note: cells[12] ?? "",
+			source: TOKONAME_SOURCE,
+		}];
+	});
+}
+
+function parseTokonameTimerank(html) {
+	return readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 10 || !/^\d+$/.test(cells[1] ?? "")) {
+			return [];
+		}
+
+		return [{
+			rank: cells[0] ?? "",
+			registrationNo: cells[1] ?? "",
+			playerName: cells[2] ?? "",
+			className: cells[3] ?? "",
+			branch: cells[4] ?? "",
+			motorNo: cells[5] ?? "",
+			motorSecondRate: cells[6] ?? "",
+			boatNo: cells[7] ?? "",
+			boatSecondRate: cells[8] ?? "",
+			preinspectionTime: cells[9] ?? "",
+			source: TOKONAME_SOURCE,
+		}];
+	});
+}
+
+function parseTokonameMotorData(html) {
+	return readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 7 || !/^\d+$/.test(cells[2] ?? "")) {
+			return [];
+		}
+
+		return [{
+			rank: cells[0] ?? "",
+			previousRank: cells[1] ?? "",
+			motorNo: cells[2] ?? "",
+			motorSecondRate: cells[3] ?? "",
+			motorWinRate: cells[4] ?? "",
+			finals: cells[5] ?? "",
+			championships: cells[6] ?? "",
+			source: TOKONAME_SOURCE,
+		}];
+	});
+}
+
+function parseTokonameBoatData(html) {
+	return readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 11 || !/^\d+$/.test(cells[0] ?? "")) {
+			return [];
+		}
+
+		return [{
+			boatNo: cells[0] ?? "",
+			sets: cells[1] ?? "",
+			boatSecondRate: cells[2] ?? "",
+			boatWinRate: cells[3] ?? "",
+			accidentRate: cells[4] ?? "",
+			firstCount: cells[5] ?? "",
+			secondCount: cells[6] ?? "",
+			thirdCount: cells[7] ?? "",
+			starts: cells[8] ?? "",
+			finals: cells[9] ?? "",
+			championships: cells[10] ?? "",
+			source: TOKONAME_SOURCE,
+		}];
+	});
+}
+
+function parseTokonameCourseResults(html) {
+	const rows = readTokonameTableRows(html);
+	const results = [];
+	let currentFrameNo = null;
+	let currentPlayerName = "";
+
+	for (const cells of rows) {
+		if (cells.length >= 11) {
+			const maybeFrameNo = parseFrameNo(cells[0]);
+			if (maybeFrameNo && cells[1] && /^\d+$/.test(cells[2] ?? "")) {
+				currentFrameNo = maybeFrameNo;
+				currentPlayerName = cells[1];
+				results.push({
+					frameNo: currentFrameNo,
+					playerName: currentPlayerName,
+					course: cells[2] ?? "",
+					entryRate: cells[3] ?? "",
+					averageStart: cells[4] ?? "",
+					firstRate: cells[5] ?? "",
+					secondRate: cells[6] ?? "",
+					thirdRate: cells[7] ?? "",
+					fourthRate: cells[8] ?? "",
+					fifthRate: cells[9] ?? "",
+					sixthRate: cells[10] ?? "",
+					source: TOKONAME_SOURCE,
+				});
+				continue;
+			}
+		}
+
+		if (currentFrameNo && cells.length >= 9 && /^\d+$/.test(cells[0] ?? "")) {
+			results.push({
+				frameNo: currentFrameNo,
+				playerName: currentPlayerName,
+				course: cells[0] ?? "",
+				entryRate: cells[1] ?? "",
+				averageStart: cells[2] ?? "",
+				firstRate: cells[3] ?? "",
+				secondRate: cells[4] ?? "",
+				thirdRate: cells[5] ?? "",
+				fourthRate: cells[6] ?? "",
+				fifthRate: cells[7] ?? "",
+				sixthRate: cells[8] ?? "",
+				source: TOKONAME_SOURCE,
+			});
+		}
+	}
+
+	return results;
+}
+
+function parseTokonameSectionResults(html) {
+	const rows = readTokonameTableRows(html);
+	return rows.flatMap((cells) => {
+		const frameNo = parseFrameNo(cells[0]);
+		if (!frameNo || cells.length < 3) {
+			return [];
+		}
+
+		return [{
+			frameNo,
+			playerName: cells[1] ?? "",
+			results: cells.slice(2).filter(Boolean),
+			sectionResults: cells.slice(2).filter(Boolean).join(" / "),
+			source: TOKONAME_SOURCE,
+		}];
+	});
+}
+
+function parseTokonameWaterSurfaceInfo(html) {
+	if (!html) {
+		return null;
+	}
+
+	const $ = load(html);
+	const firstTable = readTokonameTableRows(html, 0);
+	const courseArrivalRows = readTokonameTableRows(html, 1).flatMap((cells) => {
+		if (cells.length < 12 || !/^\d+$/.test(cells[0] ?? "")) {
+			return [];
+		}
+
+		return [{
+			course: cells[0] ?? "",
+			firstRate: cells[1] ?? "",
+			secondRate: cells[2] ?? "",
+			thirdRate: cells[3] ?? "",
+			fourthRate: cells[4] ?? "",
+			fifthRate: cells[5] ?? "",
+			sixthRate: cells[6] ?? "",
+			escape: cells[7] ?? "",
+			turn: cells[8] ?? "",
+			difference: cells[9] ?? "",
+			turnDifference: cells[10] ?? "",
+			comeFromBehind: cells[11] ?? "",
+			benefit: cells[12] ?? "",
+		}];
+	});
+	const frameCourseRows = readTokonameTableRows(html, 2).flatMap((cells) => {
+		if (cells.length < 7 || !/^\d+$/.test(cells[0] ?? "")) {
+			return [];
+		}
+
+		return [{
+			frameNo: Number.parseInt(cells[0], 10),
+			course1: cells[1] ?? "",
+			course2: cells[2] ?? "",
+			course3: cells[3] ?? "",
+			course4: cells[4] ?? "",
+			course5: cells[5] ?? "",
+			course6: cells[6] ?? "",
+		}];
+	});
+	const waterQuality = firstTable[1]?.[0] ?? "";
+	const waterLevel = firstTable[1]?.[1] ?? "";
+	const tiltTrend = firstTable[3]?.[0] ?? "";
+	const featureSummary = firstTable[3]?.[1] ?? "";
+	const bodyText = normalizeTokonameCell($("body").text());
+	const surfaceSummary = [
+		waterQuality ? `\u6c34\u8cea: ${waterQuality}` : "",
+		waterLevel ? `\u6d41\u308c/\u6c34\u4f4d: ${waterLevel}` : "",
+		tiltTrend ? `\u30c1\u30eb\u30c8: ${tiltTrend}` : "",
+	].filter(Boolean).join(" / ");
+	const courseSummary = [
+		courseArrivalRows.length ? "\u30b3\u30fc\u30b9\u5225\u5165\u7740\u7387/\u6c7a\u307e\u308a\u624b\u3042\u308a" : "",
+		frameCourseRows.length ? "\u67a0\u756a\u5225\u30b3\u30fc\u30b9\u53d6\u5f97\u7387\u3042\u308a" : "",
+		bodyText.includes("\u5b63\u7bc0\u5225\u30b3\u30fc\u30b9\u30c7\u30fc\u30bf") ? "\u5b63\u7bc0\u5225\u30b3\u30fc\u30b9\u30c7\u30fc\u30bf\u3042\u308a" : "",
+	].filter(Boolean).join(" / ");
+
+	return {
+		surfaceSummary,
+		featureSummary,
+		courseSummary,
+		waterQuality,
+		waterLevelChange: waterLevel,
+		tiltTrend,
+		courseArrivalRates: courseArrivalRows,
+		frameCourseRates: frameCourseRows,
+		source: TOKONAME_SOURCE,
+		sourceUrl: TOKONAME_WATER_SURFACE_URL,
+	};
+}
+
+function getTokonameRaceEntries(race) {
+	const racers = Array.isArray(race?.racers) ? race.racers : [];
+	return racers.map((racer) => ({
+		frameNo: Number(racer.frameNo ?? racer.frame ?? racer.boatNumber),
+		registrationNo: compactText(racer.registrationNo ?? racer.racerId),
+		playerName: compactText(racer.playerName ?? racer.name ?? racer.boatRacerName),
+		className: compactText(racer.class ?? racer.grade ?? racer.className),
+		averageStart: compactText(racer.averageStart ?? racer.avgSt ?? racer.st),
+		winRate: compactText(racer.winRate ?? racer.winningRate),
+		secondRate: compactText(racer.secondRate ?? racer.twoRate),
+		localWinRate: compactText(racer.localWinRate),
+		localSecondRate: compactText(racer.localSecondRate),
+		motorNo: compactText(racer.motorNo ?? racer.motorNumber),
+		motorSecondRate: compactText(racer.motorSecondRate ?? racer.motorTwoRate),
+		boatNo: compactText(racer.boatNo ?? racer.boatMotorNo ?? racer.boatEquipmentNo),
+		boatSecondRate: compactText(racer.boatSecondRate ?? racer.boatTwoRate),
+	})).filter((row) => row.frameNo >= 1 && row.frameNo <= 6);
+}
+
+function findTokonameRow(rows, entry, key) {
+	return rows.find((row) =>
+		(entry.registrationNo && row.registrationNo === entry.registrationNo) ||
+		(entry[key] && row[key] === entry[key]) ||
+		(entry.playerName && row.playerName === entry.playerName)
+	) ?? null;
+}
+
+function createTokonameRaceScoreRows(race, scoreRows) {
+	return getTokonameRaceEntries(race).map((entry) => {
+		const scoreRow = findTokonameRow(scoreRows, entry, "registrationNo");
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			playerName: entry.playerName,
+			className: entry.className || scoreRow?.className || "",
+			averageStart: entry.averageStart,
+			winRate: entry.winRate,
+			secondRate: entry.secondRate,
+			localWinRate: entry.localWinRate,
+			localSecondRate: entry.localSecondRate,
+			motorNo: entry.motorNo,
+			motorSecondRate: entry.motorSecondRate,
+			scoreRate: scoreRow?.scoreRate ?? "",
+			scoreRank: scoreRow?.scoreRank ?? "",
+			score: scoreRow?.score ?? "",
+			deduction: scoreRow?.deduction ?? "",
+			starts: scoreRow?.starts ?? "",
+			sectionResults: scoreRow?.sectionResults ?? "",
+			raceSchedule: scoreRow?.raceSchedule ?? "",
+			source: scoreRow ? TOKONAME_SOURCE : BOATRACE_OFFICIAL_SOURCE,
+		};
+	});
+}
+
+function createTokonameCourseRows(race, courseRows) {
+	const entries = getTokonameRaceEntries(race);
+	const allowedFrames = new Set(entries.map((entry) => entry.frameNo));
+	return courseRows
+		.filter((row) => allowedFrames.has(row.frameNo))
+		.map((row) => ({
+			...row,
+			playerName: entries.find((entry) => entry.frameNo === row.frameNo)?.playerName || row.playerName,
+		}));
+}
+
+function createTokonameMotorSummary(race, timerankRows, motorRows, boatRows) {
+	return getTokonameRaceEntries(race).map((entry) => {
+		const timerank = findTokonameRow(timerankRows, entry, "registrationNo");
+		const motor = motorRows.find((row) => row.motorNo === (timerank?.motorNo || entry.motorNo)) ?? null;
+		const boat = boatRows.find((row) => row.boatNo === (timerank?.boatNo || entry.boatNo)) ?? null;
+		const motorNo = timerank?.motorNo || entry.motorNo;
+		const boatNo = timerank?.boatNo || entry.boatNo;
+		const labels = [
+			`\u30e2\u30fc\u30bf\u30fc2\u9023\u7387 ${motor?.motorSecondRate || timerank?.motorSecondRate || entry.motorSecondRate || "-"}`,
+			`\u30e2\u30fc\u30bf\u30fc\u52dd\u7387 ${motor?.motorWinRate || "-"}`,
+			`\u30dc\u30fc\u30c8 ${boatNo || "-"} / 2\u9023\u7387 ${boat?.boatSecondRate || timerank?.boatSecondRate || entry.boatSecondRate || "-"}`,
+			timerank?.preinspectionTime ? `\u524d\u691c ${timerank.preinspectionTime}` : "",
+			motor?.finals ? `\u512a\u51fa ${motor.finals}` : "",
+			motor?.championships ? `\u512a\u52dd ${motor.championships}` : "",
+			boat?.starts ? `\u30dc\u30fc\u30c8\u51fa\u8d70 ${boat.starts}` : "",
+		].filter(Boolean);
+
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			playerName: entry.playerName,
+			className: entry.className,
+			motorNo,
+			motorSecondRate: motor?.motorSecondRate || timerank?.motorSecondRate || entry.motorSecondRate || "",
+			motorWinRate: motor?.motorWinRate || "",
+			boatNo,
+			boatSecondRate: boat?.boatSecondRate || timerank?.boatSecondRate || entry.boatSecondRate || "",
+			boatWinRate: boat?.boatWinRate || "",
+			preinspectionTime: timerank?.preinspectionTime || "",
+			finals: motor?.finals || "",
+			championships: motor?.championships || "",
+			starts: boat?.starts || "",
+			currentUser: timerank?.playerName || entry.playerName,
+			previousUser: "",
+			comment: labels.join(" / "),
+			source: TOKONAME_SOURCE,
+		};
+	});
+}
+
+function createTokonameOriginalExhibition(race) {
+	const exhibitionByFrame = new Map((Array.isArray(race?.exhibitions) ? race.exhibitions : []).map((row) => [Number(row.frameNo ?? row.frame ?? row.boatNumber), row]));
+	return getTokonameRaceEntries(race).map((entry) => {
+		const exhibition = exhibitionByFrame.get(entry.frameNo) ?? {};
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			playerName: entry.playerName,
+			className: entry.className,
+			weight: compactText(exhibition.weight),
+			weightAdjustment: compactText(exhibition.weightAdjustment ?? exhibition.adjustment),
+			tilt: compactText(exhibition.tilt),
+			exhibitionTime: compactText(exhibition.exhibitionTime ?? exhibition.displayTime ?? exhibition.time),
+			motorNo: entry.motorNo,
+			oneLapTime: "",
+			turnTime: "",
+			straightTime: "",
+			exhibitionEvaluation: "",
+			memo: "\u5e38\u6ed1\u516c\u5f0f\u30c9\u30e1\u30a4\u30f3\u5185\u3067\u4e00\u5468/\u307e\u308f\u308a\u8db3/\u76f4\u7dda\u306e\u5b89\u5b9a\u8868\u306f\u672a\u78ba\u8a8d",
+			source: BOATRACE_OFFICIAL_SOURCE,
+		};
+	}).filter((row) => row.exhibitionTime || row.tilt || row.motorNo);
+}
+
+async function createTokonameVenue(feed) {
+	const tokonameVenue = findVenue(feed, TOKONAME_VENUE_NAME);
+	if (!tokonameVenue) {
+		console.log("[venue-extras] tokoname: not held today");
+		return null;
+	}
+
+	try {
+		const [
+			scoreHtml,
+			timerankHtml,
+			courseHtml,
+			sectionHtml,
+			motorHtml,
+			boatHtml,
+			waterHtml,
+		] = await Promise.all([
+			fetchHtml(TOKONAME_SCORE_RATE_URL).catch(() => ""),
+			fetchHtml(TOKONAME_TIMERANK_URL).catch(() => ""),
+			fetchHtml(TOKONAME_COURSE_URL).catch(() => ""),
+			fetchHtml(TOKONAME_SECTION_RESULTS_URL).catch(() => ""),
+			fetchHtml(TOKONAME_MOTOR_DATA_URL).catch(() => ""),
+			fetchHtml(TOKONAME_BOAT_DATA_URL).catch(() => ""),
+			fetchHtml(TOKONAME_WATER_SURFACE_URL).catch(() => ""),
+		]);
+		const scoreRows = parseTokonameScoreRateGuide(scoreHtml);
+		const timerankRows = parseTokonameTimerank(timerankHtml);
+		const courseRows = parseTokonameCourseResults(courseHtml);
+		const sectionRows = parseTokonameSectionResults(sectionHtml);
+		const motorRows = parseTokonameMotorData(motorHtml);
+		const boatRows = parseTokonameBoatData(boatHtml);
+		const waterSurfaceInfo = parseTokonameWaterSurfaceInfo(waterHtml);
+
+		const raceExtras = getRaceList(tokonameVenue).map((race) => {
+			const scoreQuickLook = createTokonameRaceScoreRows(race, scoreRows);
+			const tokonameCourseResults = createTokonameCourseRows(race, courseRows);
+			const motorSummary = createTokonameMotorSummary(race, timerankRows, motorRows, boatRows);
+			const originalExhibition = createTokonameOriginalExhibition(race);
+			const tokonameSectionResults = sectionRows.filter((row) => scoreQuickLook.some((score) => score.playerName && score.playerName === row.playerName));
+			const beforeInfo = buildOfficialBeforeInfoExhibitionRows(race);
+			const startExhibition = buildOfficialBeforeInfoStartExhibitionRows(race, beforeInfo);
+			const weatherCondition = normalizeVenueWeatherCondition(race?.weatherActual ?? tokonameVenue?.weatherActual ?? null, {
+				source: BOATRACE_OFFICIAL_SOURCE,
+			});
+
+			return {
+				raceNo: race.raceNo,
+				status: scoreQuickLook.length || motorSummary.length || waterSurfaceInfo ? "available" : "waiting-tokoname-data",
+				source: TOKONAME_SOURCE,
+				sourceType: "tokoname-official-extras",
+				officialBeforeInfo: {
+					status: "available",
+					source: `${BOATRACE_OFFICIAL_SOURCE}+${TOKONAME_SOURCE}`,
+					exhibitionRows: beforeInfo,
+					startExhibition,
+					scoreQuickLook,
+					weatherActual: weatherCondition,
+					weatherCondition,
+				},
+				beforeInfo,
+				startExhibition,
+				originalExhibition,
+				motorSummary,
+				scoreRateGuide: scoreQuickLook,
+				tokonameScoreRateGuide: scoreQuickLook,
+				tokonameCourseResults,
+				tokonameSectionResults,
+				tokonameMotorData: motorSummary,
+				tokonameBoatData: motorSummary,
+				waterSurfaceInfo,
+				weatherCondition,
+			};
+		});
+		const firstRace = raceExtras[0] ?? null;
+		console.log(
+			`[tokoname extras] before=${firstRace?.officialBeforeInfo?.scoreQuickLook?.length ?? 0} start=feed original=${firstRace?.originalExhibition?.length ?? 0} motor=${firstRace?.motorSummary?.length ?? 0} boat=${firstRace?.tokonameBoatData?.length ?? 0} score=${firstRace?.tokonameScoreRateGuide?.length ?? 0} course=${firstRace?.tokonameCourseResults?.length ? "ok" : "none"} water=${waterSurfaceInfo ? "ok" : "none"} weather=${firstRace?.weatherCondition ? "ok" : "none"}`,
+		);
+
+		return {
+			venueCode: String(tokonameVenue.venueCode ?? "08"),
+			venueName: TOKONAME_VENUE_NAME,
+			source: TOKONAME_SOURCE,
+			isAvailable: raceExtras.some((race) => race.status === "available"),
+			status: raceExtras.some((race) => race.status === "available") ? "available" : "waiting-tokoname-data",
+			note: "\u5e38\u6ed1\u516c\u5f0fHP\u306e\u5f97\u70b9\u7387\u3001\u9032\u5165\u30b3\u30fc\u30b9\u5225\u6210\u7e3e\u3001\u30e2\u30fc\u30bf\u30fc/\u30dc\u30fc\u30c8\u30c7\u30fc\u30bf\u3001\u6c34\u9762\u7279\u6027\u3092\u53d6\u5f97",
+			waterSurfaceInfo,
+			tokonameWaterSurfaceInfo: waterSurfaceInfo,
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] tokoname failed: ${error.message}`);
+		return {
+			venueCode: String(tokonameVenue.venueCode ?? "08"),
+			venueName: TOKONAME_VENUE_NAME,
+			source: TOKONAME_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `Tokoname official extras fetch failed: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
 async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const timestamps = getJstTimestampParts(rawOptions.targetDate);
 	const generatedAt = getJstTimestamp();
@@ -9475,6 +9975,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const wakamatsuVenue = await createWakamatsuVenue(feed, date);
 	if (wakamatsuVenue) {
 		venueMap.set(wakamatsuVenue.venueName, mergeVenueRecord(venueMap.get(wakamatsuVenue.venueName) ?? null, wakamatsuVenue));
+	}
+
+	const tokonameVenue = await createTokonameVenue(feed);
+	if (tokonameVenue) {
+		venueMap.set(tokonameVenue.venueName, mergeVenueRecord(venueMap.get(tokonameVenue.venueName) ?? null, tokonameVenue));
 	}
 
 	const fukuokaVenue = await createFukuokaVenue(feed, date);
