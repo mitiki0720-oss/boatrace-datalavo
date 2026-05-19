@@ -416,6 +416,147 @@ function resultNeedsCompletion(result) {
 	return !hasResultFinishers(result) || !getResultStartInfos(result).length || !hasResultPayouts(result) || !hasResultWeather(result) || !hasResultFinalOdds(result);
 }
 
+function normalizeRaceNo(value) {
+	const raceNo = Number.parseInt(String(value ?? ""), 10);
+	return Number.isInteger(raceNo) && raceNo >= 1 && raceNo <= 12 ? raceNo : null;
+}
+
+function getDetailResult(detail) {
+	if (!detail || typeof detail !== "object") {
+		return null;
+	}
+
+	return detail.result && typeof detail.result === "object" ? detail.result : detail;
+}
+
+function hasResultTop3(result) {
+	if (Array.isArray(result?.finishOrder) && result.finishOrder.filter(Boolean).length >= 3) {
+		return true;
+	}
+
+	if (Array.isArray(result?.resultTop3) && result.resultTop3.filter(Boolean).length >= 3) {
+		return true;
+	}
+
+	if (typeof result?.resultTop3 === "string" && result.resultTop3.trim()) {
+		return true;
+	}
+
+	if (Array.isArray(result?.top3) && result.top3.filter(Boolean).length >= 3) {
+		return true;
+	}
+
+	if (typeof result?.top3 === "string" && result.top3.trim()) {
+		return true;
+	}
+
+	if (!Array.isArray(result?.finishers)) {
+		return false;
+	}
+
+	const topRanks = new Set(
+		result.finishers
+			.map((item) => String(item?.rank ?? item?.arrival ?? item?.order ?? "").trim())
+			.filter((rank) => rank === "1" || rank === "2" || rank === "3"),
+	);
+	return topRanks.size >= 3;
+}
+
+function payoutItemIsComplete(item, knownBetType = "") {
+	if (!item || typeof item !== "object") {
+		return false;
+	}
+
+	const betType = String(item.betType ?? item.type ?? knownBetType ?? "");
+	const combination = compactInlineValue(item.combination ?? item.numbers ?? item.result ?? item.ticket);
+	const payout = compactInlineValue(item.payout ?? item.payoff ?? item.odds ?? item.amount);
+	const hasPopularityField = Object.hasOwn(item, "popularity") || Object.hasOwn(item, "popular") || Object.hasOwn(item, "rank");
+	const popularityValue = item.popularity ?? item.popular ?? item.rank;
+	const hasRequiredPopularity = !hasPopularityField || (popularityValue !== null && popularityValue !== undefined && String(popularityValue).trim() !== "");
+
+	return Boolean(betType && combination && payout && hasRequiredPopularity);
+}
+
+function resultPayoutItems(result) {
+	const items = [];
+	if (Array.isArray(result?.payoutsFull)) {
+		items.push(...result.payoutsFull);
+	}
+	if (Array.isArray(result?.payouts)) {
+		items.push(...result.payouts);
+	}
+	return items;
+}
+
+function hasPayoutType(result, labels, fallbackValue = null, fallbackBetType = "") {
+	if (payoutItemIsComplete(fallbackValue, fallbackBetType)) {
+		return true;
+	}
+
+	return resultPayoutItems(result).some((item) => {
+		const betType = String(item?.betType ?? item?.type ?? "");
+		return labels.some((label) => betType.includes(label)) && payoutItemIsComplete(item);
+	});
+}
+
+function hasSpecialResultCase(result) {
+	const refundItems = Array.isArray(result?.refunds) ? result.refunds : [];
+	if (refundItems.length || compactInlineValue(result?.refundText)) {
+		return true;
+	}
+
+	const joinedText = [
+		result?.remarks,
+		result?.notes,
+		...refundItems,
+	]
+		.map((item) => compactInlineValue(item))
+		.filter(Boolean)
+		.join(" ");
+	const specialTokens = [
+		"\u8fd4\u9084",
+		"\u6b20\u5834",
+		"\u4e0d\u6210\u7acb",
+		"\u4e2d\u6b62",
+		"\u5931\u683c",
+		"\u59a8\u5bb3",
+		"\u30d5\u30e9\u30a4\u30f3\u30b0",
+	];
+
+	return specialTokens.some((token) => joinedText.includes(token));
+}
+
+export function isRaceResultComplete(detail) {
+	const result = getDetailResult(detail);
+	if (!result || typeof result !== "object") {
+		return false;
+	}
+
+	if (hasSpecialResultCase(result)) {
+		return false;
+	}
+
+	const status = String(result.status ?? "");
+	const hasFinalStatus = isFinalizedResultStatus(status);
+	const hasTop3 = hasResultTop3(result);
+	const hasDecision = Boolean(result.kimarite ?? result.winningMethod ?? result.winningMove ?? result.decidingMove);
+	const hasTrifecta = hasPayoutType(result, ["3\u9023\u5358"], result.payout3tan, "3\u9023\u5358");
+	const hasExacta = hasPayoutType(result, ["2\u9023\u5358"], result.payout2tan, "2\u9023\u5358");
+	const hasQuinella = hasPayoutType(result, ["2\u9023\u8907"], result.payout2fuku, "2\u9023\u8907");
+	const hasTrio = hasPayoutType(result, ["3\u9023\u8907"], result.payout3fuku, "3\u9023\u8907");
+	const hasWide = hasPayoutType(result, ["\u62e1\u9023\u8907", "\u30ef\u30a4\u30c9"], Array.isArray(result.payoutWide) ? result.payoutWide.find(Boolean) : result.payoutWide, "\u62e1\u9023\u8907");
+
+	return (hasFinalStatus || hasTop3) && hasTop3 && hasDecision && hasTrifecta && hasExacta && hasQuinella && hasTrio && hasWide;
+}
+
+export function buildCompletedRaceKey(venueName, raceNo) {
+	return `${compactInlineValue(venueName) || "unknown"}#${normalizeRaceNo(raceNo) ?? "?"}`;
+}
+
+export function shouldSkipRaceUpdate(existingRaceDetail, mode) {
+	return (mode === "active" || mode === "results" || mode === "final") && isRaceResultComplete(existingRaceDetail);
+}
+
 function selectResultsRaceNumbers({ raceTitles, resultListRaces, fallbackVenue, timestamps, mode }) {
 	if (mode === "final") {
 		return [...RACE_NUMBERS];
@@ -2520,19 +2661,38 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 	const raceTitles = options.fetchSections.raceTitles ? await fetchRaceTitles(venue, timestamps) : [];
 	const resultListHtml = options.fetchSections.resultList ? await fetchOfficialHtml(resultListUrl) : null;
 	let resultListRaces = resultListHtml ? parseResultListPage(resultListHtml) : [];
-	const targetRaceNumbers = options.targetRaceNumbers.length
+	const completedRaceNumbers = new Set(
+		(fallbackVenue?.races ?? [])
+			.filter((race) => shouldSkipRaceUpdate(race, options.mode))
+			.map((race) => normalizeRaceNo(race.raceNo))
+			.filter((raceNo) => raceNo !== null),
+	);
+	const completedRaceKeys = new Map(
+		(fallbackVenue?.races ?? [])
+			.filter((race) => shouldSkipRaceUpdate(race, options.mode))
+			.map((race) => [normalizeRaceNo(race.raceNo), buildCompletedRaceKey(fallbackVenue?.venueName ?? venue.venueName, race.raceNo)])
+			.filter(([raceNo]) => raceNo !== null),
+	);
+	const plannedTargetRaceNumbers = options.targetRaceNumbers.length
 		? options.targetRaceNumbers
 		: options.mode === "active"
 			? selectActiveRaceNumbers({ raceTitles, fallbackVenue, timestamps })
 			: options.mode === "results" || options.mode === "final"
 				? selectResultsRaceNumbers({ raceTitles, resultListRaces, fallbackVenue, timestamps, mode: options.mode })
-			: RACE_NUMBERS;
-	const beforeInfoTargetRaceNumbers = getBeforeInfoTargetRaceNumbers(targetRaceNumbers, options);
+				: RACE_NUMBERS;
+	const skippedTargetRaceNumbers = plannedTargetRaceNumbers.filter((raceNo) => completedRaceNumbers.has(raceNo));
+	const targetRaceNumbers = plannedTargetRaceNumbers.filter((raceNo) => !completedRaceNumbers.has(raceNo));
+	const beforeInfoTargetRaceNumbers = getBeforeInfoTargetRaceNumbers(targetRaceNumbers, options).filter((raceNo) => !completedRaceNumbers.has(raceNo));
 	const detailedTargets = options.fetchSections.detailedResults
 		? (options.mode === "results" || options.mode === "final"
 			? targetRaceNumbers
 			: chooseDetailedRaceTargets(resultListRaces).filter((raceNo) => targetRaceNumbers.includes(raceNo)))
 		: [];
+	const completedSkipStats = {
+		skipped: skippedTargetRaceNumbers.length,
+		updated: targetRaceNumbers.length,
+		keys: skippedTargetRaceNumbers.map((raceNo) => completedRaceKeys.get(raceNo)).filter(Boolean),
+	};
 	const detailedRaceResults = [];
 
 	for (const raceNo of detailedTargets) {
@@ -2612,6 +2772,9 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 		dayText: venue.dayText ?? fallbackVenue?.dayText ?? "",
 		statusText: venue.statusText ?? fallbackVenue?.statusText ?? "",
 		currentRaceNo: venue.currentRaceNo ?? fallbackVenue?.currentRaceNo ?? null,
+		updateStats: {
+			completedSkip: completedSkipStats,
+		},
 		source: usedOfficial
 			? hasVenueWeather
 				? oddsRaceCount > 0
@@ -2683,9 +2846,20 @@ export async function main(rawOptions = {}) {
 	});
 	const fallbackVenueByCode = new Map((existingFeed?.venues ?? []).map((venue) => [venue.venueCode, venue]));
 	const normalizedVenueDetails = [];
+	const completedSkipSummary = {
+		skipped: 0,
+		updated: 0,
+		keys: [],
+	};
 
 	for (const venue of raceIndex.venues ?? []) {
 		const rawVenue = await fetchVenueRaceDetails(venue, { fallbackVenueByCode, timestamps, updateOptions });
+		const completedSkip = rawVenue?.updateStats?.completedSkip;
+		if (completedSkip) {
+			completedSkipSummary.skipped += completedSkip.skipped ?? 0;
+			completedSkipSummary.updated += completedSkip.updated ?? 0;
+			completedSkipSummary.keys.push(...(completedSkip.keys ?? []));
+		}
 		normalizedVenueDetails.push(normalizeVenueData(rawVenue, timestamps.generatedAt, raceIndex.source));
 	}
 
@@ -2699,6 +2873,12 @@ export async function main(rawOptions = {}) {
 	console.log(`mode: ${updateOptions.mode}`);
 	console.log(`targetSession: ${updateOptions.effectiveTargetSession}`);
 	console.log(`targetDate: ${timestamps.date}`);
+	if (updateOptions.mode === "active" || updateOptions.mode === "results" || updateOptions.mode === "final") {
+		console.log(`[boat details] completed skip count=${completedSkipSummary.skipped} / update count=${completedSkipSummary.updated}`);
+		if (process.env.BOAT_RACE_DEBUG_COMPLETED_SKIP === "1" && completedSkipSummary.keys.length) {
+			console.log(`[boat details] completed skip races=${completedSkipSummary.keys.slice(0, 24).join(", ")}`);
+		}
+	}
 	return feed;
 }
 
