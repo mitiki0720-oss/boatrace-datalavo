@@ -55,6 +55,16 @@ const TOKONAME_BOAT_DATA_URL = "https://www.boatrace-tokoname.jp/modules/datafil
 const TOKONAME_WATER_SURFACE_URL = "https://www.boatrace-tokoname.jp/modules/datafile/?page=index_suimen";
 const TOKONAME_TOP_URL = "https://www.boatrace-tokoname.jp/";
 const TOKONAME_YOSOU_BASE_URL = "https://www.boatrace-tokoname.jp/modules/yosou/group-cyokuzen.php";
+const ASHIYA_VENUE_NAME = "\u82a6\u5c4b";
+const ASHIYA_SOURCE = "boatrace-ashiya.com";
+const ASHIYA_RACE_INDEX_URL = "https://www.boatrace-ashiya.com/modules/raceinfo/?page=index_raceindex";
+const ASHIYA_TIMERANK_URL = "https://www.boatrace-ashiya.com/modules/raceinfo/?page=index_timerank";
+const ASHIYA_COURSE_URL = "https://www.boatrace-ashiya.com/modules/raceinfo/?page=index_racecourse";
+const ASHIYA_SCORE_RATE_URL = "https://www.boatrace-ashiya.com/modules/raceinfo/?page=index_tokutenrank";
+const ASHIYA_RACER_COMMENTS_URL = "https://www.boatrace-ashiya.com/modules/raceinfo/?page=index_racers_comment";
+const ASHIYA_MOTOR_DATA_URL = "https://www.boatrace-ashiya.com/modules/datafile/";
+const ASHIYA_BOAT_DATA_URL = "https://www.boatrace-ashiya.com/modules/datafile/?page=index_boat";
+const ASHIYA_WATER_SURFACE_URL = "https://www.boatrace-ashiya.com/modules/datafile/?page=index_suimen";
 const FUKUOKA_VENUE_NAME = "福岡";
 const FUKUOKA_SOURCE = "boatrace-fukuoka.com";
 const KOJIMA_VENUE_NAME = "児島";
@@ -9812,6 +9822,633 @@ function parseTokonameWaterSurfaceInfo(html) {
 	};
 }
 
+function toAshiyaRaceIndexUrl(date) {
+	const day = compactText(date).replaceAll("-", "");
+	return day ? `${ASHIYA_RACE_INDEX_URL}&targetday=${day}` : ASHIYA_RACE_INDEX_URL;
+}
+
+function toAshiyaCourseUrl(raceNo) {
+	return `${ASHIYA_COURSE_URL}&race=${Number(raceNo)}`;
+}
+
+function toAshiyaMotorHistoryUrl(motorNo) {
+	const params = new URLSearchParams({
+		page: "index_motor_histdtl",
+		motor_no: compactText(motorNo),
+		select: "4",
+	});
+	return `https://www.boatrace-ashiya.com/modules/datafile/?${params.toString()}`;
+}
+
+function normalizeAshiyaName(value) {
+	return compactText(value).replace(/\s+/g, "");
+}
+
+function parseAshiyaRaceIndex(html) {
+	const rowsByRaceNo = new Map();
+	for (const cells of readTokonameTableRows(html)) {
+		const raceNo = Number.parseInt(String(cells[0] ?? "").replace(/[^\d]/g, ""), 10);
+		if (!Number.isFinite(raceNo) || raceNo < 1 || raceNo > 12 || cells.length < 7) {
+			continue;
+		}
+
+		rowsByRaceNo.set(raceNo, cells.slice(1, 7).map((playerName, index) => ({
+			frameNo: index + 1,
+			playerName: compactText(playerName),
+			source: ASHIYA_SOURCE,
+		})));
+	}
+
+	return rowsByRaceNo;
+}
+
+function parseAshiyaTimerank(html) {
+	return readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 9 || !/^\d+$/.test(cells[1] ?? "")) {
+			return [];
+		}
+
+		return [{
+			rank: cells[0] ?? "",
+			registrationNo: cells[1] ?? "",
+			playerName: cells[2] ?? "",
+			className: cells[3] ?? "",
+			motorNo: cells[4] ?? "",
+			motorSecondRate: cells[5] ?? "",
+			boatNo: cells[6] ?? "",
+			boatSecondRate: cells[7] ?? "",
+			preinspectionTime: cells[8] ?? "",
+			source: ASHIYA_SOURCE,
+		}];
+	});
+}
+
+function parseAshiyaScoreRateGuide(html) {
+	return readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 9 || !/^\d+$/.test(cells[1] ?? "")) {
+			return [];
+		}
+
+		return [{
+			scoreRank: cells[0] ?? "",
+			registrationNo: cells[1] ?? "",
+			playerName: cells[2] ?? "",
+			className: cells[3] ?? "",
+			scoreRate: cells[4] ?? "",
+			score: cells[5] ?? "",
+			deduction: cells[6] ?? "",
+			starts: cells[7] ?? "",
+			sectionResults: cells[8] ?? "",
+			remarks: cells[9] ?? "",
+			source: ASHIYA_SOURCE,
+		}];
+	});
+}
+
+function parseAshiyaRacerComments(html) {
+	return readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 4 || !/^\d+$/.test(cells[0] ?? "")) {
+			return [];
+		}
+
+		return [{
+			registrationNo: cells[0] ?? "",
+			playerName: cells[1] ?? "",
+			className: cells[2] ?? "",
+			comment: cells[3] ?? "",
+			source: ASHIYA_SOURCE,
+		}];
+	});
+}
+
+function parseAshiyaMotorData(html) {
+	return readTokonameTableRows(html, 0).flatMap((cells) => {
+		if (cells.length < 7 || !/^\d+$/.test(cells[2] ?? "")) {
+			return [];
+		}
+
+		return [{
+			rank: cells[0] ?? "",
+			previousRank: cells[1] ?? "",
+			motorNo: cells[2] ?? "",
+			motorSecondRate: cells[3] ?? "",
+			motorWinRate: cells[4] ?? "",
+			finals: cells[5] ?? "",
+			championships: cells[6] ?? "",
+			source: ASHIYA_SOURCE,
+		}];
+	});
+}
+
+function parseAshiyaBoatData(html) {
+	return readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 12 || !/^\d+$/.test(cells[0] ?? "")) {
+			return [];
+		}
+
+		return [{
+			boatNo: cells[0] ?? "",
+			boatSecondRate: cells[1] ?? "",
+			boatWinRate: cells[2] ?? "",
+			sets: cells[3] ?? "",
+			accidentRate: cells[4] ?? "",
+			calculationPeriod: cells[5] ?? "",
+			firstCount: cells[6] ?? "",
+			secondCount: cells[7] ?? "",
+			thirdCount: cells[8] ?? "",
+			starts: cells[9] ?? "",
+			finals: cells[10] ?? "",
+			championships: cells[11] ?? "",
+			source: ASHIYA_SOURCE,
+		}];
+	});
+}
+
+function parseAshiyaCourseResults(html) {
+	const results = [];
+	let current = null;
+
+	for (const cells of readTokonameTableRows(html)) {
+		if (cells.length >= 11) {
+			const frameNo = parseFrameNo(cells[0]);
+			if (frameNo && cells[1] && /^\d+$/.test(cells[2] ?? "")) {
+				current = {
+					frameNo,
+					playerName: cells[1] ?? "",
+					courseRows: [],
+					source: ASHIYA_SOURCE,
+				};
+				results.push(current);
+				current.courseRows.push({
+					courseNo: Number.parseInt(cells[2], 10),
+					entryRate: cells[3] ?? "",
+					averageStart: cells[4] ?? "",
+					firstRate: cells[5] ?? "",
+					secondRate: cells[6] ?? "",
+					thirdRate: cells[7] ?? "",
+					fourthRate: cells[8] ?? "",
+					fifthRate: cells[9] ?? "",
+					sixthRate: cells[10] ?? "",
+				});
+				continue;
+			}
+		}
+
+		if (current && cells.length >= 9 && /^\d+$/.test(cells[0] ?? "")) {
+			current.courseRows.push({
+				courseNo: Number.parseInt(cells[0], 10),
+				entryRate: cells[1] ?? "",
+				averageStart: cells[2] ?? "",
+				firstRate: cells[3] ?? "",
+				secondRate: cells[4] ?? "",
+				thirdRate: cells[5] ?? "",
+				fourthRate: cells[6] ?? "",
+				fifthRate: cells[7] ?? "",
+				sixthRate: cells[8] ?? "",
+			});
+		}
+	}
+
+	return results;
+}
+
+function parseAshiyaMotorHistory(html, motorNo) {
+	const rows = [];
+	let currentDateLabel = "";
+	for (const cells of readTokonameTableRows(html, 0)) {
+		const first = cells[0] ?? "";
+		const second = cells[1] ?? "";
+		const firstIsRace = /\d+R/.test(first);
+		const secondIsRace = /\d+R/.test(second);
+		if (cells.length < 7 || (!firstIsRace && !secondIsRace)) {
+			continue;
+		}
+
+		if (!firstIsRace && first && first !== "-") {
+			currentDateLabel = first;
+		}
+
+		if (first === "-" && second === "-") {
+			continue;
+		}
+
+		const offset = secondIsRace ? 1 : 0;
+
+		rows.push({
+			dateLabel: offset ? currentDateLabel : "",
+			raceName: cells[offset] ?? "",
+			course: cells[offset + 1] ?? "",
+			startTiming: cells[offset + 2] ?? "",
+			finishOrder: cells[offset + 3] ?? "",
+			windDirection: cells[offset + 4] ?? "",
+			windSpeed: cells[offset + 5] ?? "",
+			exhibitionTime: cells[offset + 6] ?? "",
+			partsExchange: cells[offset + 7] ?? "",
+			comment: cells[offset + 8] ?? "",
+			motorNo: compactText(motorNo),
+			source: ASHIYA_SOURCE,
+		});
+	}
+
+	return rows.slice(0, 8);
+}
+
+function parseAshiyaWaterSurfaceInfo(html) {
+	if (!html) {
+		return null;
+	}
+
+	const firstTable = readTokonameTableRows(html, 0);
+	const courseArrivalRows = readTokonameTableRows(html, 1).flatMap((cells) => {
+		if (cells.length < 12 || !/^\d+/.test(cells[0] ?? "")) {
+			return [];
+		}
+
+		return [{
+			course: cells[0] ?? "",
+			firstRate: cells[1] ?? "",
+			secondRate: cells[2] ?? "",
+			thirdRate: cells[3] ?? "",
+			fourthRate: cells[4] ?? "",
+			fifthRate: cells[5] ?? "",
+			sixthRate: cells[6] ?? "",
+			escape: cells[7] ?? "",
+			turn: cells[8] ?? "",
+			difference: cells[9] ?? "",
+			turnDifference: cells[10] ?? "",
+			comeFromBehind: cells[11] ?? "",
+			benefit: cells[12] ?? "",
+		}];
+	});
+	const frameCourseRows = readTokonameTableRows(html, 2).flatMap((cells) => {
+		if (cells.length < 7 || !/^\d+/.test(cells[0] ?? "")) {
+			return [];
+		}
+
+		return [{
+			frameNo: Number.parseInt(cells[0], 10),
+			course1: cells[1] ?? "",
+			course2: cells[2] ?? "",
+			course3: cells[3] ?? "",
+			course4: cells[4] ?? "",
+			course5: cells[5] ?? "",
+			course6: cells[6] ?? "",
+		}];
+	});
+	const waterQuality = firstTable[0]?.[1] ?? "";
+	const waterLevel = firstTable[1]?.[1] ?? "";
+	const tiltTrend = firstTable[2]?.[1] ?? "";
+	const featureSummary = firstTable[3]?.[1] ?? "";
+	const raceFeature = firstTable[4]?.[1] ?? "";
+	const surfaceSummary = [
+		waterQuality ? `水質: ${waterQuality}` : "",
+		waterLevel ? `流れ/水位: ${waterLevel}` : "",
+		tiltTrend ? `チルト: ${tiltTrend}` : "",
+	].filter(Boolean).join(" / ");
+	const courseSummary = [
+		courseArrivalRows.length ? "コース別入着率/決まり手あり" : "",
+		frameCourseRows.length ? "枠番別コース取得率あり" : "",
+	].filter(Boolean).join(" / ");
+
+	return {
+		surfaceSummary,
+		featureSummary: [featureSummary, raceFeature].filter(Boolean).join(" / "),
+		courseSummary,
+		waterQuality,
+		waterLevelChange: waterLevel,
+		tiltTrend,
+		courseArrivalRates: courseArrivalRows,
+		frameCourseRates: frameCourseRows,
+		source: ASHIYA_SOURCE,
+		sourceUrl: ASHIYA_WATER_SURFACE_URL,
+	};
+}
+
+function getAshiyaFeedEntries(race) {
+	return (Array.isArray(race?.racers) ? race.racers : []).map((racer) => ({
+		frameNo: Number(racer.frameNo ?? racer.frame ?? racer.boatNumber),
+		registrationNo: compactText(racer.registrationNo ?? racer.racerId),
+		playerName: compactText(racer.playerName ?? racer.name ?? racer.boatRacerName),
+		className: compactText(racer.class ?? racer.grade ?? racer.className),
+		averageStart: compactText(racer.averageStart ?? racer.avgSt ?? racer.st),
+		winRate: compactText(racer.winRate ?? racer.winningRate),
+		secondRate: compactText(racer.secondRate ?? racer.twoRate),
+		localWinRate: compactText(racer.localWinRate),
+		localSecondRate: compactText(racer.localSecondRate),
+		motorNo: compactText(racer.motorNo ?? racer.motorNumber),
+		motorSecondRate: compactText(racer.motorSecondRate ?? racer.motorTwoRate),
+		boatNo: compactText(racer.boatNo ?? racer.boatMotorNo ?? racer.boatEquipmentNo),
+		boatSecondRate: compactText(racer.boatSecondRate ?? racer.boatTwoRate),
+	})).filter((entry) => entry.frameNo >= 1 && entry.frameNo <= 6);
+}
+
+function createAshiyaRaceEntries(race, raceIndexRows, timerankRows) {
+	const feedByFrame = new Map(getAshiyaFeedEntries(race).map((entry) => [entry.frameNo, entry]));
+	const timerankByName = new Map(timerankRows.map((row) => [normalizeAshiyaName(row.playerName), row]));
+
+	return Array.from({ length: 6 }, (_, index) => {
+		const frameNo = index + 1;
+		const raceIndexRow = (raceIndexRows ?? []).find((row) => row.frameNo === frameNo) ?? {};
+		const feedRow = feedByFrame.get(frameNo) ?? {};
+		const playerName = compactText(raceIndexRow.playerName ?? feedRow.playerName);
+		const timerank = timerankByName.get(normalizeAshiyaName(playerName)) ?? {};
+
+		return {
+			frameNo,
+			registrationNo: timerank.registrationNo || feedRow.registrationNo || "",
+			playerName,
+			className: timerank.className || feedRow.className || "",
+			averageStart: feedRow.averageStart || "",
+			winRate: feedRow.winRate || "",
+			secondRate: feedRow.secondRate || "",
+			localWinRate: feedRow.localWinRate || "",
+			localSecondRate: feedRow.localSecondRate || "",
+			motorNo: timerank.motorNo || feedRow.motorNo || "",
+			motorSecondRate: timerank.motorSecondRate || feedRow.motorSecondRate || "",
+			boatNo: timerank.boatNo || feedRow.boatNo || "",
+			boatSecondRate: timerank.boatSecondRate || feedRow.boatSecondRate || "",
+			preinspectionTime: timerank.preinspectionTime || "",
+		};
+	}).filter((entry) => entry.playerName || entry.registrationNo);
+}
+
+function createAshiyaBeforeInfo(race, entries) {
+	const byFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	return buildOfficialBeforeInfoExhibitionRows(race).map((row) => {
+		const entry = byFrame.get(row.frameNo) ?? {};
+		return {
+			...row,
+			playerName: entry.playerName || row.playerName,
+			registrationNo: entry.registrationNo || "",
+			className: entry.className || "",
+			motorNo: entry.motorNo || "",
+			boatNo: entry.boatNo || "",
+			source: `${BOATRACE_OFFICIAL_SOURCE}+${ASHIYA_SOURCE}`,
+		};
+	});
+}
+
+function createAshiyaStartExhibition(race, beforeInfo) {
+	return buildOfficialBeforeInfoStartExhibitionRows(race, beforeInfo).map((row) => {
+		const beforeRow = beforeInfo.find((item) => item.frameNo === row.frameNo) ?? {};
+		return {
+			...row,
+			playerName: beforeRow.playerName || "",
+			className: beforeRow.className || "",
+			registerNo: beforeRow.registrationNo || "",
+			exhibitionTime: beforeRow.exhibitionTime || "",
+			source: `${BOATRACE_OFFICIAL_SOURCE}+${ASHIYA_SOURCE}`,
+		};
+	});
+}
+
+function createAshiyaScoreRows(entries, scoreRows) {
+	const scoreByRegistration = new Map(scoreRows.map((row) => [row.registrationNo, row]));
+	const scoreByName = new Map(scoreRows.map((row) => [normalizeAshiyaName(row.playerName), row]));
+	return entries.map((entry) => {
+		const score = scoreByRegistration.get(entry.registrationNo) ?? scoreByName.get(normalizeAshiyaName(entry.playerName)) ?? {};
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo || score.registrationNo || "",
+			playerName: entry.playerName || score.playerName || "",
+			className: entry.className || score.className || "",
+			averageStart: entry.averageStart,
+			winRate: entry.winRate,
+			secondRate: entry.secondRate,
+			localWinRate: entry.localWinRate,
+			localSecondRate: entry.localSecondRate,
+			motorNo: entry.motorNo,
+			motorSecondRate: entry.motorSecondRate,
+			scoreRank: score.scoreRank || "",
+			scoreRate: score.scoreRate || "",
+			score: score.score || "",
+			deduction: score.deduction || "",
+			starts: score.starts || "",
+			sectionResults: score.sectionResults || "",
+			remarks: score.remarks || "",
+			source: score.source || ASHIYA_SOURCE,
+		};
+	});
+}
+
+function createAshiyaMotorSummary(entries, motorRows, boatRows, motorHistoryByNo) {
+	const motorByNo = new Map(motorRows.map((row) => [row.motorNo, row]));
+	const boatByNo = new Map(boatRows.map((row) => [row.boatNo, row]));
+
+	return entries.map((entry) => {
+		const motor = motorByNo.get(entry.motorNo) ?? {};
+		const boat = boatByNo.get(entry.boatNo) ?? {};
+		const historyEntries = motorHistoryByNo.get(entry.motorNo) ?? [];
+		const comment = [
+			`モーター2連率 ${motor.motorSecondRate || entry.motorSecondRate || "-"}`,
+			`モーター勝率 ${motor.motorWinRate || "-"}`,
+			`ボート ${entry.boatNo || "-"} / 2連率 ${boat.boatSecondRate || entry.boatSecondRate || "-"}`,
+			entry.preinspectionTime ? `前検 ${entry.preinspectionTime}` : "",
+			motor.finals ? `優出 ${motor.finals}` : "",
+			motor.championships ? `優勝 ${motor.championships}` : "",
+			historyEntries.length ? "使用履歴あり" : "",
+		].filter(Boolean).join(" / ");
+
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			playerName: entry.playerName,
+			className: entry.className,
+			motorNo: entry.motorNo,
+			motorSecondRate: motor.motorSecondRate || entry.motorSecondRate || "",
+			motorWinRate: motor.motorWinRate || "",
+			boatNo: entry.boatNo,
+			boatSecondRate: boat.boatSecondRate || entry.boatSecondRate || "",
+			boatWinRate: boat.boatWinRate || "",
+			preinspectionTime: entry.preinspectionTime,
+			finals: motor.finals || "",
+			championships: motor.championships || "",
+			starts: boat.starts || "",
+			currentUser: entry.playerName,
+			previousUser: historyEntries[0]?.comment || "",
+			recentResults: historyEntries.slice(0, 3).map((item) =>
+				[item.dateLabel, item.raceName, item.finishOrder ? `${item.finishOrder}着` : "", item.exhibitionTime ? `展示${item.exhibitionTime}` : ""]
+					.filter(Boolean)
+					.join(" ")
+			).filter(Boolean).join(" / "),
+			historyEntries,
+			comment,
+			source: ASHIYA_SOURCE,
+		};
+	});
+}
+
+function createAshiyaOriginalExhibition(entries, beforeInfo) {
+	const beforeByFrame = new Map(beforeInfo.map((row) => [row.frameNo, row]));
+	return entries.map((entry) => {
+		const before = beforeByFrame.get(entry.frameNo) ?? {};
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			registerNo: entry.registrationNo,
+			playerName: entry.playerName,
+			racerName: entry.playerName,
+			className: entry.className,
+			weight: before.weight || "",
+			weightAdjustment: before.weightAdjustment || before.adjustment || "",
+			adjustment: before.adjustment || before.weightAdjustment || "",
+			tilt: before.tilt || "",
+			exhibitionTime: before.exhibitionTime || "",
+			motorNo: entry.motorNo,
+			oneLapTime: "",
+			lapTime: "",
+			turnTime: "",
+			straightTime: "",
+			exhibitionEvaluation: "",
+			memo: "芦屋公式HTMLでは一周/まわり足/直線の安定掲載を確認できないため未取得",
+			source: `${BOATRACE_OFFICIAL_SOURCE}+${ASHIYA_SOURCE}`,
+		};
+	}).filter((row) => row.exhibitionTime || row.tilt || row.motorNo);
+}
+
+async function createAshiyaVenue(feed, date) {
+	const ashiyaVenue = findVenue(feed, ASHIYA_VENUE_NAME);
+	if (!ashiyaVenue) {
+		console.log("[venue-extras] ashiya: not held today");
+		return null;
+	}
+
+	try {
+		const [
+			raceIndexHtml,
+			timerankHtml,
+			scoreHtml,
+			commentsHtml,
+			motorHtml,
+			boatHtml,
+			waterHtml,
+		] = await Promise.all([
+			fetchHtml(toAshiyaRaceIndexUrl(date)).catch(() => ""),
+			fetchHtml(ASHIYA_TIMERANK_URL).catch(() => ""),
+			fetchHtml(ASHIYA_SCORE_RATE_URL).catch(() => ""),
+			fetchHtml(ASHIYA_RACER_COMMENTS_URL).catch(() => ""),
+			fetchHtml(ASHIYA_MOTOR_DATA_URL).catch(() => ""),
+			fetchHtml(ASHIYA_BOAT_DATA_URL).catch(() => ""),
+			fetchHtml(ASHIYA_WATER_SURFACE_URL).catch(() => ""),
+		]);
+		const raceIndexByRaceNo = parseAshiyaRaceIndex(raceIndexHtml);
+		const timerankRows = parseAshiyaTimerank(timerankHtml);
+		const scoreRows = parseAshiyaScoreRateGuide(scoreHtml);
+		const commentRows = parseAshiyaRacerComments(commentsHtml);
+		const motorRows = parseAshiyaMotorData(motorHtml);
+		const boatRows = parseAshiyaBoatData(boatHtml);
+		const waterSurfaceInfo = parseAshiyaWaterSurfaceInfo(waterHtml);
+		const races = getRaceList(ashiyaVenue);
+		const courseRowsByRaceNo = new Map();
+		for (const race of races) {
+			const raceNo = Number(race.raceNo);
+			const courseHtml = await fetchHtml(toAshiyaCourseUrl(raceNo)).catch(() => "");
+			courseRowsByRaceNo.set(raceNo, parseAshiyaCourseResults(courseHtml));
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const motorNos = new Set(timerankRows.map((row) => row.motorNo).filter(Boolean));
+		const motorHistoryByNo = new Map();
+		for (const motorNo of motorNos) {
+			const historyHtml = await fetchHtml(toAshiyaMotorHistoryUrl(motorNo)).catch(() => "");
+			motorHistoryByNo.set(motorNo, parseAshiyaMotorHistory(historyHtml, motorNo));
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const commentByRegistration = new Map(commentRows.map((row) => [row.registrationNo, row]));
+		const commentByName = new Map(commentRows.map((row) => [normalizeAshiyaName(row.playerName), row]));
+		const raceExtras = races.map((race) => {
+			const raceNo = Number(race.raceNo);
+			const entries = createAshiyaRaceEntries(race, raceIndexByRaceNo.get(raceNo) ?? [], timerankRows);
+			const beforeInfo = createAshiyaBeforeInfo(race, entries);
+			const startExhibition = createAshiyaStartExhibition(race, beforeInfo);
+			const scoreQuickLook = createAshiyaScoreRows(entries, scoreRows);
+			const motorSummary = createAshiyaMotorSummary(entries, motorRows, boatRows, motorHistoryByNo);
+			const originalExhibition = createAshiyaOriginalExhibition(entries, beforeInfo);
+			const ashiyaCourseResults = (courseRowsByRaceNo.get(raceNo) ?? []).map((row) => {
+				const entry = entries.find((item) => item.frameNo === row.frameNo) ?? {};
+				return {
+					...row,
+					registrationNo: entry.registrationNo || "",
+					className: entry.className || "",
+					playerName: entry.playerName || row.playerName,
+				};
+			});
+			const racerComments = entries.flatMap((entry) => {
+				const comment = commentByRegistration.get(entry.registrationNo) ?? commentByName.get(normalizeAshiyaName(entry.playerName));
+				return comment?.comment ? [{
+					frameNo: entry.frameNo,
+					registrationNo: entry.registrationNo || comment.registrationNo || "",
+					playerName: entry.playerName || comment.playerName || "",
+					comment: comment.comment,
+					source: ASHIYA_SOURCE,
+				}] : [];
+			});
+			const weatherCondition = normalizeVenueWeatherCondition(race?.weatherActual ?? ashiyaVenue?.weatherActual ?? null, {
+				source: BOATRACE_OFFICIAL_SOURCE,
+			});
+
+			return {
+				raceNo: race.raceNo,
+				status: scoreQuickLook.length || motorSummary.length || ashiyaCourseResults.length || waterSurfaceInfo ? "available" : "waiting-ashiya-data",
+				source: ASHIYA_SOURCE,
+				sourceType: "ashiya-official-extras",
+				officialBeforeInfo: {
+					status: beforeInfo.length || startExhibition.length || scoreQuickLook.length ? "available" : "waiting",
+					source: `${BOATRACE_OFFICIAL_SOURCE}+${ASHIYA_SOURCE}`,
+					exhibitionRows: beforeInfo,
+					startExhibition,
+					scoreQuickLook,
+					weatherActual: weatherCondition,
+					weatherCondition,
+				},
+				beforeInfo,
+				startExhibition,
+				originalExhibition,
+				motorSummary,
+				scoreRateGuide: scoreQuickLook,
+				ashiyaScoreRateGuide: scoreQuickLook,
+				ashiyaSectionResults: scoreQuickLook,
+				ashiyaCourseResults,
+				ashiyaMotorData: motorSummary,
+				ashiyaBoatData: motorSummary,
+				ashiyaMotorHistory: motorSummary,
+				ashiyaFrameLast10: [],
+				racerComments,
+				waterSurfaceInfo,
+				weatherCondition,
+			};
+		});
+		const firstRace = raceExtras[0] ?? null;
+		console.log(
+			`[ashiya extras] before=${firstRace?.beforeInfo?.length ?? 0} start=${firstRace?.startExhibition?.length ?? 0} original=${firstRace?.originalExhibition?.length ?? 0} motor=${firstRace?.motorSummary?.length ?? 0} boat=${firstRace?.ashiyaBoatData?.length ?? 0} score=${firstRace?.ashiyaScoreRateGuide?.length ?? 0} frame10=${firstRace?.ashiyaFrameLast10?.length ?? 0} course=${firstRace?.ashiyaCourseResults?.length ? "ok" : "none"} comments=${firstRace?.racerComments?.length ?? 0} water=${waterSurfaceInfo ? "ok" : "none"} weather=${firstRace?.weatherCondition ? "ok" : "none"}`,
+		);
+
+		return {
+			venueCode: String(ashiyaVenue.venueCode ?? "21"),
+			venueName: ASHIYA_VENUE_NAME,
+			source: ASHIYA_SOURCE,
+			isAvailable: raceExtras.some((race) => race.status === "available"),
+			status: raceExtras.some((race) => race.status === "available") ? "available" : "waiting-ashiya-data",
+			note: "芦屋公式HPのモーター抽選/前検、得点率、進入コース別、選手コメント、モーター/ボートデータ、水面特性を取得。一周/まわり足/直線と枠番別過去10走は通常HTMLで未確認。",
+			waterSurfaceInfo,
+			ashiyaWaterSurfaceInfo: waterSurfaceInfo,
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] ashiya failed: ${error.message}`);
+		return {
+			venueCode: String(ashiyaVenue.venueCode ?? "21"),
+			venueName: ASHIYA_VENUE_NAME,
+			source: ASHIYA_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `Ashiya official extras fetch failed: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
 function getTokonameRaceEntries(race) {
 	const racers = Array.isArray(race?.racers) ? race.racers : [];
 	return racers.map((racer) => ({
@@ -10140,6 +10777,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const tokonameVenue = await createTokonameVenue(feed);
 	if (tokonameVenue) {
 		venueMap.set(tokonameVenue.venueName, mergeVenueRecord(venueMap.get(tokonameVenue.venueName) ?? null, tokonameVenue));
+	}
+
+	const ashiyaVenue = await createAshiyaVenue(feed, date);
+	if (ashiyaVenue) {
+		venueMap.set(ashiyaVenue.venueName, mergeVenueRecord(venueMap.get(ashiyaVenue.venueName) ?? null, ashiyaVenue));
 	}
 
 	const fukuokaVenue = await createFukuokaVenue(feed, date);
