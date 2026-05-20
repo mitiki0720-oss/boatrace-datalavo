@@ -40,6 +40,10 @@ const TAMAGAWA_VENUE_NAME = "多摩川";
 const TAMAGAWA_SOURCE = "boatrace-tamagawa.com";
 const TSU_VENUE_NAME = "津";
 const TSU_SOURCE = "boatrace-tsu.com";
+const TSU_SP_BASE_URL = "https://www.boatrace-tsu.com/sp/index.php";
+const TSU_MOTOR_DATA_URL = `${TSU_SP_BASE_URL}?page=datafile-motordata`;
+const TSU_BOAT_DATA_URL = `${TSU_SP_BASE_URL}?page=datafile-boat`;
+const TSU_WATER_SURFACE_URL = `${TSU_SP_BASE_URL}?page=datafile-suimen`;
 const WAKAMATSU_VENUE_NAME = "若松";
 const WAKAMATSU_SOURCE = "wmb.jp";
 const WAKAMATSU_TIDE_URL = "https://www.wmb.jp/modules/datafile/?page=index_tide_table";
@@ -703,6 +707,23 @@ async function fetchKiryuHtml(url) {
 	return response.text();
 }
 
+async function fetchTsuPageHtml(url) {
+	const response = await fetch(url, {
+		headers: {
+			"user-agent": "Mozilla/5.0",
+			"accept-language": "ja,en;q=0.8",
+			referer: "https://www.boatrace-tsu.com/sp/index.php",
+		},
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status} ${response.statusText}`);
+	}
+
+	return response.text();
+}
+
 function toTamagawaDay(date) {
 	return String(date ?? "").replaceAll("-", "");
 }
@@ -1143,7 +1164,10 @@ function parseTsuOriginalExhibition(html) {
 				tilt: readCellText($, firstCells[2]),
 				exhibitionTime: readCellText($, firstCells[3]),
 				oneLapTime: readCellText($, firstCells[4]),
+				lapTime: readCellText($, firstCells[4]),
+				oneRoundTime: readCellText($, firstCells[4]),
 				turnTime: readCellText($, firstCells[5]),
+				mawariashi: readCellText($, firstCells[5]),
 				straightTime: readCellText($, firstCells[6]),
 				exhibitionEvaluation: "",
 				memo: "津公式 オリジナル展示から取得",
@@ -1414,6 +1438,287 @@ function parseTsuScoreRateGuide(html) {
 		});
 
 	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function readTsuCellOwnText($, cell) {
+	const clone = $(cell).clone();
+	clone.children("div, table").remove();
+	return compactText(clone.text());
+}
+
+function parseTsuHistoryEntries($, container) {
+	const entries = [];
+	$(container)
+		.find("table.tbl_history tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).children("tr").toArray();
+			const title = readCellText($, $(trList[0]).children("td,th").first());
+			const detailCells = trList[1] ? $(trList[1]).children("td,th").toArray() : [];
+			const results = readCellText($, $(trList[2]).children("td,th").first());
+			const dateRange = readCellText($, detailCells[0]);
+			const racerName = readCellText($, detailCells[1]);
+
+			if (!title && !dateRange && !racerName && !results) {
+				return;
+			}
+
+			entries.push({
+				title,
+				dateRange,
+				racerName,
+				playerName: racerName,
+				results,
+			});
+		});
+
+	return entries;
+}
+
+function readTsuPowerMark($, cell) {
+	const imageSrc = $(cell).find("img").first().attr("src") ?? "";
+	return imageSrc.match(/ico_mark(\d+)/)?.[1] ?? "";
+}
+
+function parseTsuMotorBoat(html, motorStats = new Map(), boatStats = new Map()) {
+	const $ = load(html);
+	const table = $(".tbl_motor_boat").first();
+	if (!table.length) {
+		return { motorSummary: [], tsuMotorData: [], tsuBoatData: [], tsuMotorHistory: [] };
+	}
+
+	const motorSummary = [];
+	const tsuMotorData = [];
+	const tsuBoatData = [];
+	const tsuMotorHistory = [];
+
+	table
+		.children("tbody")
+		.first()
+		.children("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 7) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, cells[1]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseTsuIdentity($, cells[2]);
+			const motorCell = cells[3];
+			const boatCell = cells[6];
+			const motorNo = readCellText($, $(motorCell).find("a.js-lightbox-btn").first());
+			const boatNo = readCellText($, $(boatCell).find("a.js-lightbox-btn").first());
+			const motorSecondRate = readTsuCellOwnText($, motorCell);
+			const boatSecondRate = readTsuCellOwnText($, boatCell);
+			const motorStat = motorStats.get(motorNo) ?? {};
+			const boatStat = boatStats.get(boatNo) ?? {};
+			const motorHistoryEntries = parseTsuHistoryEntries($, motorCell);
+			const boatHistoryEntries = parseTsuHistoryEntries($, boatCell);
+			const previousMotor = motorHistoryEntries[0] ?? {};
+			const motorGrade = [readTsuPowerMark($, cells[4]), readTsuPowerMark($, cells[5])].filter(Boolean).join("/");
+			const base = {
+				frameNo,
+				registerNo: identity.registerNo,
+				registrationNo: identity.registrationNo,
+				playerName: identity.playerName,
+				className: identity.className,
+				profile: identity.profile,
+				source: TSU_SOURCE,
+			};
+
+			if (motorNo) {
+				motorSummary.push({
+					...base,
+					motorNo,
+					previousUser: previousMotor.racerName ?? "",
+					recentResults: previousMotor.results ?? "",
+					motorGrade,
+					comment: "",
+					source: TSU_SOURCE,
+				});
+				tsuMotorData.push({
+					...base,
+					motorNo,
+					motorSecondRate: motorSecondRate || motorStat.motorSecondRate || "",
+					motorWinRate: motorStat.motorWinRate || "",
+					firstCount: motorStat.firstCount || "",
+					secondCount: motorStat.secondCount || "",
+					thirdCount: motorStat.thirdCount || "",
+					starts: motorStat.starts || "",
+					finalCount: motorStat.finalCount || "",
+					championCount: motorStat.championCount || "",
+					motorGrade,
+					previousUser: previousMotor.racerName ?? "",
+					recentResults: previousMotor.results ?? "",
+					historyEntries: motorHistoryEntries,
+					source: TSU_SOURCE,
+				});
+				tsuMotorHistory.push({
+					...base,
+					motorNo,
+					motorSecondRate: motorSecondRate || motorStat.motorSecondRate || "",
+					motorWinRate: motorStat.motorWinRate || "",
+					boatNo,
+					boatSecondRate: boatSecondRate || boatStat.boatSecondRate || "",
+					boatWinRate: boatStat.boatWinRate || "",
+					previousUser: previousMotor.racerName ?? "",
+					recentResults: previousMotor.results ?? "",
+					motorGrade,
+					historyEntries: motorHistoryEntries,
+					boatHistoryEntries,
+					source: TSU_SOURCE,
+				});
+			}
+
+			if (boatNo) {
+				tsuBoatData.push({
+					...base,
+					boatNo,
+					boatSecondRate: boatSecondRate || boatStat.boatSecondRate || "",
+					boatWinRate: boatStat.boatWinRate || "",
+					firstCount: boatStat.firstCount || "",
+					secondCount: boatStat.secondCount || "",
+					thirdCount: boatStat.thirdCount || "",
+					starts: boatStat.starts || "",
+					finalCount: boatStat.finalCount || "",
+					championCount: boatStat.championCount || "",
+					historyEntries: boatHistoryEntries,
+					source: TSU_SOURCE,
+				});
+			}
+		});
+
+	return {
+		motorSummary: motorSummary.sort((left, right) => left.frameNo - right.frameNo),
+		tsuMotorData: tsuMotorData.sort((left, right) => left.frameNo - right.frameNo),
+		tsuBoatData: tsuBoatData.sort((left, right) => left.frameNo - right.frameNo),
+		tsuMotorHistory: tsuMotorHistory.sort((left, right) => left.frameNo - right.frameNo),
+	};
+}
+
+function parseTsuDatafileStats(html, { noKey, secondRateKey, winRateKey }) {
+	const $ = load(html);
+	const rows = new Map();
+	$("table")
+		.first()
+		.children("tbody")
+		.first()
+		.children("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 9) {
+				return;
+			}
+
+			const no = readCellText($, $(cells[0]).find("a.js-lightbox-btn").first());
+			if (!no) {
+				return;
+			}
+
+			rows.set(no, {
+				[noKey]: no,
+				[secondRateKey]: readTsuCellOwnText($, cells[1]),
+				[winRateKey]: readTsuCellOwnText($, cells[2]),
+				firstCount: readTsuCellOwnText($, cells[3]),
+				secondCount: readTsuCellOwnText($, cells[4]),
+				thirdCount: readTsuCellOwnText($, cells[5]),
+				starts: readTsuCellOwnText($, cells[6]),
+				finalCount: readTsuCellOwnText($, cells[7]),
+				championCount: readTsuCellOwnText($, cells[8]),
+				source: TSU_SOURCE,
+			});
+		});
+
+	return rows;
+}
+
+function parseTsuCourseRateTable($, table) {
+	return $(table)
+		.find("tr")
+		.toArray()
+		.flatMap((rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			const courseNo = parseEmbeddedFrameNo(readCellText($, cells[0]));
+			if (!courseNo || cells.length < 7) {
+				return [];
+			}
+
+			return [{
+				courseNo,
+				firstRate: readCellText($, cells[1]),
+				secondRate: readCellText($, cells[2]),
+				thirdRate: readCellText($, cells[3]),
+				fourthRate: readCellText($, cells[4]),
+				fifthRate: readCellText($, cells[5]),
+				sixthRate: readCellText($, cells[6]),
+			}];
+		});
+}
+
+function parseTsuDecisionRateTable($, table) {
+	return $(table)
+		.find("tr")
+		.toArray()
+		.flatMap((rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			const courseNo = parseEmbeddedFrameNo(readCellText($, cells[0]));
+			if (!courseNo || cells.length < 7) {
+				return [];
+			}
+
+			return [{
+				courseNo,
+				escapeRate: readCellText($, cells[1]),
+				frontRunRate: readCellText($, cells[1]),
+				makuriRate: readCellText($, cells[2]),
+				sashiRate: readCellText($, cells[3]),
+				makuriSashiRate: readCellText($, cells[4]),
+				overtakeRate: readCellText($, cells[5]),
+				luckyRate: readCellText($, cells[6]),
+			}];
+		});
+}
+
+function parseTsuWaterSurfaceInfo(html) {
+	const $ = load(html);
+	const surfaceText = compactText($(".suimen_tokusei_area").first().text());
+	const courseRates = parseTsuCourseRateTable($, $(".cbetsu_table").first());
+	const decisionRates = parseTsuDecisionRateTable($, $(".cbetsu_table").eq(1));
+	const boatCourseRates = parseTsuCourseRateTable($, $(".wbetsu_table").first());
+	const decisionByCourse = new Map(decisionRates.map((row) => [row.courseNo, row]));
+	const courseResults = courseRates.map((row) => ({
+		...row,
+		decisionRates: decisionByCourse.get(row.courseNo) ?? null,
+		source: TSU_SOURCE,
+	}));
+	const topCourse = courseRates
+		.map((row) => ({ courseNo: row.courseNo, firstRate: Number.parseFloat(row.firstRate) }))
+		.filter((row) => Number.isFinite(row.firstRate))
+		.sort((left, right) => right.firstRate - left.firstRate)[0];
+
+	if (!surfaceText && !courseResults.length && !boatCourseRates.length) {
+		return { waterSurfaceInfo: null, tsuCourseResults: [] };
+	}
+
+	return {
+		waterSurfaceInfo: {
+			surfaceSummary: surfaceText,
+			featureSummary: surfaceText,
+			courseSummary: [
+				courseResults.length ? `Course finish rates ${courseResults.length} rows` : "",
+				decisionRates.length ? `Decision rates ${decisionRates.length} rows` : "",
+				topCourse ? `Top first-place course: ${topCourse.courseNo} course ${topCourse.firstRate}%` : "",
+				boatCourseRates.length ? `Frame-course rates ${boatCourseRates.length} rows` : "",
+			].filter(Boolean).join(" / "),
+			courseResults,
+			boatCourseRates,
+			source: TSU_SOURCE,
+		},
+		tsuCourseResults: courseResults,
+	};
 }
 
 function parseWakamatsuIdentity($, cell) {
@@ -3650,7 +3955,7 @@ async function createTamagawaVenue(feed, date) {
 	}
 }
 
-async function fetchTsuRaceExtra({ date, raceNo }) {
+async function fetchTsuRaceExtra({ date, race, raceNo, motorStats = new Map(), boatStats = new Map(), waterSurfaceInfo = null, tsuCourseResults = [] }) {
 	const settled = await Promise.allSettled([
 		fetchTsuHtml(toTsuRaceTabUrl({ date, raceNo, req: "cyokuzen", run: 0 })),
 		fetchTsuHtml(toTsuRaceTabUrl({ date, raceNo, req: "sttenji", run: 0 })),
@@ -3677,34 +3982,101 @@ async function fetchTsuRaceExtra({ date, raceNo }) {
 	const tsuLocalRecent3 = parseTsuLocalRecent3(syussouHtml);
 	const racerComments = tsuRacerComments;
 	const tsuScoreRateGuide = parseTsuScoreRateGuide(scoreHtml);
-	const officialBeforeInfo = tsuScoreRateGuide.length
+	const {
+		motorSummary,
+		tsuMotorData,
+		tsuBoatData,
+		tsuMotorHistory,
+	} = parseTsuMotorBoat(syussouHtml, motorStats, boatStats);
+	const motorByFrame = new Map(tsuMotorData.map((row) => [row.frameNo, row]));
+	const boatByFrame = new Map(tsuBoatData.map((row) => [row.frameNo, row]));
+	const mergedTsuBeforeInfo = tsuBeforeInfo.map((row) => {
+		const motor = motorByFrame.get(row.frameNo) ?? {};
+		const boat = boatByFrame.get(row.frameNo) ?? {};
+		return {
+			...row,
+			motorNo: motor.motorNo ?? "",
+			motorSecondRate: motor.motorSecondRate ?? "",
+			motorWinRate: motor.motorWinRate ?? "",
+			boatNo: boat.boatNo ?? "",
+			boatSecondRate: boat.boatSecondRate ?? "",
+			boatWinRate: boat.boatWinRate ?? "",
+		};
+	});
+	const mergedOriginalExhibition = originalExhibition.map((row) => {
+		const motor = motorByFrame.get(row.frameNo) ?? {};
+		const boat = boatByFrame.get(row.frameNo) ?? {};
+		return {
+			...row,
+			motorNo: motor.motorNo ?? "",
+			motorSecondRate: motor.motorSecondRate ?? "",
+			motorWinRate: motor.motorWinRate ?? "",
+			boatNo: boat.boatNo ?? "",
+			boatSecondRate: boat.boatSecondRate ?? "",
+			boatWinRate: boat.boatWinRate ?? "",
+		};
+	});
+	const mergedScoreRateGuide = tsuScoreRateGuide.map((row) => {
+		const motor = motorByFrame.get(row.frameNo) ?? {};
+		const before = mergedTsuBeforeInfo.find((item) => item.frameNo === row.frameNo) ?? {};
+		return {
+			...row,
+			registrationNo: before.registrationNo ?? row.registrationNo ?? "",
+			registerNo: before.registerNo ?? row.registerNo ?? "",
+			playerName: before.playerName ?? row.playerName ?? "",
+			className: before.className ?? row.className ?? "",
+			motorNo: motor.motorNo ?? row.motorNo ?? "",
+			motorSecondRate: motor.motorSecondRate ?? row.motorSecondRate ?? "",
+			motorWinRate: motor.motorWinRate ?? "",
+		};
+	});
+	const startExhibitionRows = startExhibition.length
+		? startExhibition
+		: buildOfficialBeforeInfoStartExhibitionRows(race, mergedTsuBeforeInfo);
+	const officialBeforeInfo = mergedTsuBeforeInfo.length || startExhibitionRows.length || mergedScoreRateGuide.length
 		? {
 				status: "available",
 				source: TSU_SOURCE,
-				scoreQuickLook: tsuScoreRateGuide,
+				exhibitionRows: mergedTsuBeforeInfo,
+				scoreQuickLook: mergedScoreRateGuide,
+				...(startExhibitionRows.length ? { startExhibition: startExhibitionRows } : {}),
 			}
 		: null;
 
 	console.log(
-		`[venue-extras] tsu ${raceNo}R: before ${tsuBeforeInfo.length} / exhibition ${originalExhibition.length} / start ${startExhibition.length} / frame10 ${tsuFramePast10.length} / comments ${tsuRacerComments.length} / series ${tsuSeriesResults.length} / national3 ${tsuNationalRecent3.length} / local3 ${tsuLocalRecent3.length} / score ${tsuScoreRateGuide.length}`,
+		`[venue-extras] tsu ${raceNo}R: before ${mergedTsuBeforeInfo.length} / exhibition ${mergedOriginalExhibition.length} / start ${startExhibitionRows.length} / frame10 ${tsuFramePast10.length} / comments ${tsuRacerComments.length} / series ${tsuSeriesResults.length} / national3 ${tsuNationalRecent3.length} / local3 ${tsuLocalRecent3.length} / score ${mergedScoreRateGuide.length} / motor ${motorSummary.length} / boat ${tsuBoatData.length} / course ${tsuCourseResults.length}`,
 	);
 
-	if (!tsuBeforeInfo.length && !startExhibition.length && !originalExhibition.length && !tsuFramePast10.length && !tsuRacerComments.length && !tsuSeriesResults.length && !tsuNationalRecent3.length && !tsuLocalRecent3.length && !tsuScoreRateGuide.length) {
+	if (!mergedTsuBeforeInfo.length && !startExhibition.length && !mergedOriginalExhibition.length && !tsuFramePast10.length && !tsuRacerComments.length && !tsuSeriesResults.length && !tsuNationalRecent3.length && !tsuLocalRecent3.length && !mergedScoreRateGuide.length && !motorSummary.length && !tsuBoatData.length) {
 		return {
 			raceNo,
 			status: "waiting",
 			source: TSU_SOURCE,
 			sourceType: "official-venue-yosou-tabs",
+			officialBeforeInfo,
+			weatherCondition: null,
+			waterSurfaceInfo,
+			beforeInfo: [],
 			tsuBeforeInfo: [],
-			startExhibition: [],
-			originalExhibition: [],
+			...(startExhibitionRows.length ? { startExhibition: startExhibitionRows } : {}),
+			...(mergedOriginalExhibition.length ? { originalExhibition: mergedOriginalExhibition } : {}),
+			motorSummary: [],
+			tsuMotorData: [],
+			tsuBoatData: [],
+			tsuMotorHistory: [],
+			tsuCourseResults,
 			tsuFramePast10: [],
+			frameLast10: [],
 			tsuRacerComments: [],
 			racerComments: [],
 			tsuSeriesResults: [],
+			sectionResults: [],
 			tsuNationalRecent3: [],
+			nationalRecent3: [],
 			tsuLocalRecent3: [],
+			localRecent3: [],
 			tsuScoreRateGuide: [],
+			scoreRateGuide: [],
 		};
 	}
 
@@ -3714,16 +4086,28 @@ async function fetchTsuRaceExtra({ date, raceNo }) {
 		source: TSU_SOURCE,
 		sourceType: "official-venue-yosou-tabs",
 		officialBeforeInfo,
-		tsuBeforeInfo,
-		startExhibition,
-		originalExhibition,
+		waterSurfaceInfo,
+		beforeInfo: mergedTsuBeforeInfo,
+		tsuBeforeInfo: mergedTsuBeforeInfo,
+		...(startExhibitionRows.length ? { startExhibition: startExhibitionRows } : {}),
+		...(mergedOriginalExhibition.length ? { originalExhibition: mergedOriginalExhibition } : {}),
+		motorSummary,
+		tsuMotorData,
+		tsuBoatData,
+		tsuMotorHistory,
+		tsuCourseResults,
 		tsuFramePast10,
+		frameLast10: tsuFramePast10,
 		tsuRacerComments,
 		racerComments,
 		tsuSeriesResults,
+		sectionResults: tsuSeriesResults,
 		tsuNationalRecent3,
+		nationalRecent3: tsuNationalRecent3,
 		tsuLocalRecent3,
-		tsuScoreRateGuide,
+		localRecent3: tsuLocalRecent3,
+		tsuScoreRateGuide: mergedScoreRateGuide,
+		scoreRateGuide: mergedScoreRateGuide,
 	};
 }
 
@@ -3738,9 +4122,32 @@ async function createTsuVenue(feed, date) {
 	try {
 		const races = getRaceList(tsuVenue);
 		const raceExtras = [];
+		const [motorDataHtml, boatDataHtml, waterSurfaceHtml] = await Promise.all([
+			fetchTsuPageHtml(TSU_MOTOR_DATA_URL).catch((error) => {
+				console.warn(`[venue-extras] tsu motor data failed: ${error.message}`);
+				return "";
+			}),
+			fetchTsuPageHtml(TSU_BOAT_DATA_URL).catch((error) => {
+				console.warn(`[venue-extras] tsu boat data failed: ${error.message}`);
+				return "";
+			}),
+			fetchTsuPageHtml(TSU_WATER_SURFACE_URL).catch((error) => {
+				console.warn(`[venue-extras] tsu water surface failed: ${error.message}`);
+				return "";
+			}),
+		]);
+		const motorStats = motorDataHtml
+			? parseTsuDatafileStats(motorDataHtml, { noKey: "motorNo", secondRateKey: "motorSecondRate", winRateKey: "motorWinRate" })
+			: new Map();
+		const boatStats = boatDataHtml
+			? parseTsuDatafileStats(boatDataHtml, { noKey: "boatNo", secondRateKey: "boatSecondRate", winRateKey: "boatWinRate" })
+			: new Map();
+		const { waterSurfaceInfo, tsuCourseResults } = waterSurfaceHtml
+			? parseTsuWaterSurfaceInfo(waterSurfaceHtml)
+			: { waterSurfaceInfo: null, tsuCourseResults: [] };
 
 		for (const race of races) {
-			raceExtras.push(await fetchTsuRaceExtra({ date, raceNo: race.raceNo }));
+			raceExtras.push(await fetchTsuRaceExtra({ date, race, raceNo: race.raceNo, motorStats, boatStats, waterSurfaceInfo, tsuCourseResults }));
 			await sleep(REQUEST_INTERVAL_MS);
 		}
 
@@ -3752,6 +4159,8 @@ async function createTsuVenue(feed, date) {
 			source: TSU_SOURCE,
 			isAvailable: availableRaceCount > 0,
 			status: availableRaceCount > 0 ? "available" : "waiting-tsu-data",
+			waterSurfaceInfo,
+			tsuCourseResults,
 			note: "津公式HPの直前情報・展示情報・枠番別過去10走・得点率早見を取得",
 			races: raceExtras,
 		};

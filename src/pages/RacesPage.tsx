@@ -1220,6 +1220,34 @@ type BoatTsuFramePast10Row = {
 	source?: string | undefined;
 };
 
+type BoatTsuMotorHistoryEntry = {
+	title: string;
+	dateRange: string;
+	racerName: string;
+	playerName: string;
+	results: string;
+};
+
+type BoatTsuMotorHistoryRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	motorNo: string;
+	motorSecondRate: string;
+	motorWinRate: string;
+	boatNo: string;
+	boatSecondRate: string;
+	boatWinRate: string;
+	previousUser: string;
+	recentResults: string;
+	motorGrade: string;
+	historyEntries: BoatTsuMotorHistoryEntry[];
+	boatHistoryEntries: BoatTsuMotorHistoryEntry[];
+	source?: string | undefined;
+};
+
 type BoatWakamatsuEntryRow = {
 	frameNo: number;
 	className: string;
@@ -3395,6 +3423,61 @@ function getTsuScoreRateGuide(raceExtra: BoatVenueExtraRace | null): BoatOfficia
 	return rows.sort((left, right) => left.frameNo - right.frameNo);
 }
 
+function getTsuMotorHistory(raceExtra: BoatVenueExtraRace | null): BoatTsuMotorHistoryRow[] {
+	if (!raceExtra || !Array.isArray((raceExtra as Record<string, unknown>).tsuMotorHistory)) {
+		return [];
+	}
+
+	return ((raceExtra as Record<string, unknown>).tsuMotorHistory as unknown[])
+		.filter(isVenueExtraRecord)
+		.flatMap((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return [];
+			}
+
+			const historyEntries = Array.isArray(item.historyEntries)
+				? item.historyEntries.filter(isVenueExtraRecord).map((history) => ({
+						title: readVenueExtraString(history.title),
+						dateRange: readVenueExtraString(history.dateRange),
+						racerName: readVenueExtraString(history.racerName),
+						playerName: readVenueExtraString(history.playerName),
+						results: readVenueExtraString(history.results),
+					}))
+				: [];
+			const boatHistoryEntries = Array.isArray(item.boatHistoryEntries)
+				? item.boatHistoryEntries.filter(isVenueExtraRecord).map((history) => ({
+						title: readVenueExtraString(history.title),
+						dateRange: readVenueExtraString(history.dateRange),
+						racerName: readVenueExtraString(history.racerName),
+						playerName: readVenueExtraString(history.playerName),
+						results: readVenueExtraString(history.results),
+					}))
+				: [];
+
+			return [{
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName),
+				profile: readVenueExtraString(item.profile),
+				motorNo: readVenueExtraString(item.motorNo),
+				motorSecondRate: readVenueExtraString(item.motorSecondRate),
+				motorWinRate: readVenueExtraString(item.motorWinRate),
+				boatNo: readVenueExtraString(item.boatNo),
+				boatSecondRate: readVenueExtraString(item.boatSecondRate),
+				boatWinRate: readVenueExtraString(item.boatWinRate),
+				previousUser: readVenueExtraString(item.previousUser),
+				recentResults: readVenueExtraString(item.recentResults),
+				motorGrade: readVenueExtraString(item.motorGrade),
+				historyEntries,
+				boatHistoryEntries,
+				source: readVenueExtraString(item.source) || undefined,
+			}];
+		})
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
 function getWakamatsuEntryRows(raceExtra: BoatVenueExtraRace | null): BoatWakamatsuEntryRow[] {
 	const sourceRows = !raceExtra
 		? null
@@ -4947,6 +5030,7 @@ const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
 	常滑: "complete",
 	芦屋: "complete",
 	桐生: "complete",
+	津: "complete",
 };
 
 const venueOfficialLinkStatusMeta: Record<
@@ -5455,6 +5539,11 @@ const selectedTsuScoreRateGuide = useMemo(
 	[selectedRaceExtra],
 );
 
+const selectedTsuMotorHistory = useMemo(
+	() => getTsuMotorHistory(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
 const selectedWakamatsuEntryRows = useMemo(
 	() => getWakamatsuEntryRows(selectedRaceExtra),
 	[selectedRaceExtra],
@@ -5697,6 +5786,7 @@ const hasTsuNationalRecent3Data = selectedTsuNationalRecent3.length > 0;
 const hasTsuLocalRecent3Data = selectedTsuLocalRecent3.length > 0;
 const hasTsuFramePast10Data = selectedTsuFramePast10Display.length > 0;
 const hasTsuScoreRateGuideData = selectedTsuScoreRateGuide.length > 0;
+const hasTsuMotorHistoryData = selectedTsuMotorHistory.length > 0;
 const hasWakamatsuEntryData = selectedWakamatsuEntryRows.length > 0;
 const hasWakamatsuBeforeInfoData = selectedWakamatsuBeforeInfo.length > 0;
 const hasWakamatsuSeriesResultsData = selectedWakamatsuSeriesResults.length > 0;
@@ -6550,6 +6640,71 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 
 	if (isTokuyamaVenue && option.key === "records") {
 		return tokuyamaRecordsLabels.length > 0 ? tokuyamaRecordsLabels.join(" / ") : "成績データ待ち";
+	}
+
+	if (isTsuVenue) {
+		if (option.key === "official" || option.key === "tsu-before") {
+			const labels = [
+				selectedTsuBeforeInfo.length > 0 ? `展示 ${selectedTsuBeforeInfo.length}艇` : "",
+				selectedTsuBeforeInfo.some((row) => Boolean(row.weight)) ? "体重あり" : "",
+				selectedTsuBeforeInfo.some((row) => Boolean(row.weightAdjustment)) ? "調整あり" : "",
+				selectedTsuBeforeInfo.some((row) => Boolean(row.tilt)) ? "チルトあり" : "",
+				selectedTsuBeforeInfo.some((row) => Boolean(row.partsExchange)) ? "部品交換あり" : "",
+			].filter(Boolean);
+			return labels.length > 0 ? labels.join(" / ") : "公式直前情報待ち";
+		}
+
+		if (option.key === "records" || option.key === "tsu-score") {
+			const labels = [
+				selectedTsuScoreRateGuide.length > 0 ? `得点率 ${selectedTsuScoreRateGuide.length}件` : "",
+				selectedTsuScoreRateGuide.length > 0 ? "得点率早見あり" : "",
+				selectedTsuSeriesResults.length > 0 ? "今節成績あり" : "",
+				selectedTsuFramePast10.length > 0 ? "枠番別10走あり" : "",
+				selectedTsuNationalRecent3.length > 0 ? "全国過去3節あり" : "",
+				selectedTsuLocalRecent3.length > 0 ? "当地過去3節あり" : "",
+				selectedTsuRacerComments.length > 0 ? "選手コメントあり" : "",
+			].filter(Boolean);
+			return labels.length > 0 ? labels.join(" / ") : "成績データ待ち";
+		}
+
+		if (option.key === "exhibition") {
+			const labels = [
+				selectedOriginalExhibitionRows.length > 0 ? `展示 ${selectedOriginalExhibitionRows.length}艇` : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.exhibitionTime)) ? "展示タイムあり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.oneLapTime)) ? "一周あり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.turnTime)) ? "まわり足あり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.straightTime)) ? "直線あり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.tilt)) ? "チルトあり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.motorNo)) ? "モーター番号あり" : "",
+			].filter(Boolean);
+			return labels.length > 0 ? labels.join(" / ") : "展示公開待ち";
+		}
+
+		if (option.key === "motor") {
+			const labels = [
+				selectedMotorSummaryDisplay.items.length > 0 ? `モーター ${selectedMotorSummaryDisplay.items.length}件` : "",
+				hasTsuMotorHistoryData ? "モーター履歴あり" : "",
+				selectedTsuMotorHistory.some((row) => Boolean(row.boatNo)) ? "ボートデータあり" : "",
+				selectedTsuMotorHistory.some((row) => Boolean(row.boatHistoryEntries.length)) ? "ボート履歴あり" : "",
+			].filter(Boolean);
+			return labels.length > 0 ? labels.join(" / ") : "モーター情報待ち";
+		}
+
+		if (option.key === "water") {
+			const waterSurfaceInfo = selectedWaterMemo?.waterSurfaceInfo;
+			const waterLabels = [
+				waterSurfaceInfo ? "水面特性あり" : "",
+				waterSurfaceInfo?.surfaceSummary?.includes("鈴鹿") ? "鈴鹿おろし" : "",
+				waterSurfaceInfo?.surfaceSummary?.includes("夏") ? "春夏の追い風傾向" : "",
+				waterSurfaceInfo?.surfaceSummary?.includes("荒れやすい") ? "荒れやすい水面" : "",
+				waterSurfaceInfo?.courseSummary ? "コース別入着率あり" : "",
+				weather?.windSpeed ? `風 ${weather.windSpeed}` : "",
+				weather?.waveHeight ? `波 ${weather.waveHeight}` : "",
+				weather?.temperature || weather?.airTemperature ? `気温 ${weather.temperature || weather.airTemperature}` : "",
+				weather?.waterTemperature ? `水温 ${weather.waterTemperature}` : "",
+			].filter(Boolean);
+			return waterLabels.length > 0 ? waterLabels.join(" / ") : "水面情報確認中";
+		}
 	}
 
 	if (isTokonameVenue) {
@@ -10238,6 +10393,43 @@ body:has(.races-page-root) {
 								{shouldShowMotorSummaryWaiting ? (
 									<p style={venueExtrasEmptyStyle}>{isNarutoVenue ? "一部モーターの詳細は準備中です。" : "モーター詳細は準備中です。"}</p>
 								) : null}
+							</div>
+						</section>
+					) : null}
+
+					{isTsuVenue && hasTsuMotorHistoryData ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>津モーター・ボート履歴</h4>
+							<div style={venueExtrasCommentListStyle}>
+								{selectedTsuMotorHistory.map((item) => (
+									<article key={`tsu-motor-history-${item.frameNo}`} style={venueExtrasRacerCommentCardStyle}>
+										<div style={venueExtrasRacerCommentHeaderStyle}>
+											<p style={venueExtrasRacerCommentFrameStyle}>{item.frameNo}号艇 / モーター{item.motorNo || "-"}</p>
+											{item.motorGrade ? <span style={venueExtrasFocusPillStyle}>出足/伸足 {item.motorGrade}</span> : null}
+										</div>
+										<p style={venueExtrasRacerCommentTextStyle}>{item.playerName || `枠${item.frameNo}`} {item.className ? `/ ${item.className}` : ""} {item.registerNo ? `/ ${item.registerNo}` : ""}</p>
+										<p style={venueExtrasRacerCommentTextStyle}>モーター2連率 {item.motorSecondRate || "-"} / 勝率 {item.motorWinRate || "-"} / ボート {item.boatNo || "-"} / ボート2連率 {item.boatSecondRate || "-"} / ボート勝率 {item.boatWinRate || "-"}</p>
+										<p style={venueExtrasRacerCommentTextStyle}>前使用者 {item.previousUser || "-"} / 直近成績 {item.recentResults || "-"}</p>
+										{item.historyEntries.length > 0 || item.boatHistoryEntries.length > 0 ? (
+											<div style={{ display: "grid", gap: "8px" }}>
+												{item.historyEntries.slice(0, 3).map((history, index) => (
+													<div key={`tsu-motor-history-entry-${item.frameNo}-${index}`} style={{ display: "grid", gap: "2px", paddingTop: "8px", borderTop: `1px solid ${boatTheme.colors.line}` }}>
+														<strong style={{ fontSize: "0.76rem", color: boatTheme.colors.ink }}>{history.title || history.dateRange || "モーター履歴"}</strong>
+														<span style={{ fontSize: "0.7rem", color: boatTheme.colors.muted }}>{history.dateRange || "-"} / {history.racerName || history.playerName || "-"}</span>
+														<span style={{ fontSize: "0.74rem", color: boatTheme.colors.ink }}>{history.results || "-"}</span>
+													</div>
+												))}
+												{item.boatHistoryEntries.slice(0, 2).map((history, index) => (
+													<div key={`tsu-boat-history-entry-${item.frameNo}-${index}`} style={{ display: "grid", gap: "2px", paddingTop: "8px", borderTop: `1px solid ${boatTheme.colors.line}` }}>
+														<strong style={{ fontSize: "0.76rem", color: boatTheme.colors.ink }}>{history.title || history.dateRange || "ボート履歴"}</strong>
+														<span style={{ fontSize: "0.7rem", color: boatTheme.colors.muted }}>{history.dateRange || "-"} / {history.racerName || history.playerName || "-"}</span>
+														<span style={{ fontSize: "0.74rem", color: boatTheme.colors.ink }}>{history.results || "-"}</span>
+													</div>
+												))}
+											</div>
+										) : null}
+									</article>
+								))}
 							</div>
 						</section>
 					) : null}
