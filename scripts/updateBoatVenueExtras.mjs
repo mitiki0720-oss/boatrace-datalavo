@@ -648,6 +648,37 @@ async function fetchTsuHtml(url) {
 	return response.text();
 }
 
+async function fetchAshiyaHtml(url, { cookie = "", referer = "https://www.boatrace-ashiya.com/sp/index.php?page=yosou-yosou" } = {}) {
+	const headers = {
+		"user-agent": "Mozilla/5.0",
+		"accept-language": "ja,en;q=0.8",
+		referer,
+		"x-requested-with": "XMLHttpRequest",
+	};
+
+	if (cookie) {
+		headers.cookie = cookie;
+	}
+
+	const response = await fetch(url, {
+		headers,
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status} ${response.statusText}`);
+	}
+
+	const getSetCookie = typeof response.headers.getSetCookie === "function"
+		? response.headers.getSetCookie.bind(response.headers)
+		: null;
+
+	return {
+		text: await response.text(),
+		cookie: getSetCookie ? getSetCookie().map((value) => value.split(";")[0]).filter(Boolean).join("; ") : "",
+	};
+}
+
 function toTamagawaDay(date) {
 	return String(date ?? "").replaceAll("-", "");
 }
@@ -657,6 +688,10 @@ function toBiwakoDay(date) {
 }
 
 function toTsuDay(date) {
+	return String(date ?? "").replaceAll("-", "");
+}
+
+function toAshiyaDay(date) {
 	return String(date ?? "").replaceAll("-", "");
 }
 
@@ -690,6 +725,10 @@ function toTamagawaYosouUrl({ day, raceNo, type }) {
 
 function toTsuRaceTabUrl({ date, raceNo, req, run = 0 }) {
 	return `https://www.boatrace-tsu.com/sp/ajax/ajax_yosou.php?targetday=${toTsuDay(date)}&race=${Number(raceNo)}&req=${req}&run=${Number(run)}`;
+}
+
+function toAshiyaRaceTabUrl({ date, raceNo, req, run = 0 }) {
+	return `https://www.boatrace-ashiya.com/sp/ajax/ajax_yosou.php?targetday=${toAshiyaDay(date)}&race=${Number(raceNo)}&req=${req}&run=${Number(run)}`;
 }
 
 function toWakamatsuRaceTabUrl({ date, raceNo, type, kind = null }) {
@@ -10124,6 +10163,363 @@ function parseAshiyaWaterSurfaceInfo(html) {
 	};
 }
 
+function parseAshiyaCyokuzenBeforeInfo(html, entries) {
+	const $ = load(html);
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const table = $(".category-cyokuzen.cyokuzen table").first().get(0) ?? findTableByKeywords($, ["展示タイム", "体重", "チルト", "調整"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tr").toArray();
+	for (let index = 0; index < trList.length; index += 1) {
+		const cells = $(trList[index]).children("td,th").toArray();
+		if (cells.length < 6) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, cells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const entry = entryByFrame.get(frameNo) ?? {};
+		const adjustmentCells = $(trList[index + 1] ?? []).children ? $(trList[index + 1]).children("td,th").toArray() : [];
+		const adjustment = adjustmentCells.length === 1 ? readCellText($, adjustmentCells[0]) : "";
+		rows.push({
+			frameNo,
+			registrationNo: entry.registrationNo || "",
+			playerName: entry.playerName || `枠${frameNo}`,
+			className: entry.className || readCellText($, cells[1]),
+			exhibitionTime: readCellText($, cells[3]),
+			weight: readCellText($, cells[4]),
+			tilt: readCellText($, cells[5]),
+			weightAdjustment: adjustment,
+			adjustment,
+			source: ASHIYA_SOURCE,
+		});
+
+		if (adjustment) {
+			index += 1;
+		}
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseAshiyaCyokuzenPreviousRace(html) {
+	const $ = load(html);
+	const table = $(".category-cyokuzen.zenso table").first().get(0) ?? findTableByKeywords($, ["前走成績", "部品交換"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	let pendingFrameNo = null;
+	let pendingPartsExchange = "";
+
+	$(table).find("tbody tr").each((_, rowElement) => {
+		const cells = $(rowElement).children("td,th").toArray();
+		if (!cells.length) {
+			return;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, cells[0]));
+		if (frameNo) {
+			pendingFrameNo = frameNo;
+			pendingPartsExchange = readCellText($, cells[2]);
+			return;
+		}
+
+		if (!pendingFrameNo || cells.length < 4) {
+			return;
+		}
+
+		rows.push({
+			frameNo: pendingFrameNo,
+			partsExchange: pendingPartsExchange,
+			previousRaceNo: readCellText($, cells[0]),
+			previousRaceCourse: readCellText($, cells[1]),
+			previousRaceStartTiming: readCellText($, cells[2]),
+			previousRaceFinishOrder: readCellText($, cells[3]),
+			source: ASHIYA_SOURCE,
+		});
+
+		pendingFrameNo = null;
+		pendingPartsExchange = "";
+	});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseAshiyaCyokuzenStartExhibition(html, entries) {
+	const $ = load(html);
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const table = $("table.par-table01.tenji").first().get(0) ?? $(".category-cyokuzen.tenji_content table").first().get(0) ?? findTableByKeywords($, ["今節平均ST", "スタート展示", "スタート順"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const startTimings = $(table).find(".st_area").toArray().map((element) => compactText($(element).text()));
+	const trList = $(table).find("tbody tr").toArray();
+	for (let index = 0; index < trList.length; index += 2) {
+		const mainCells = $(trList[index]).children("td,th").toArray();
+		const subCells = $(trList[index + 1]).children("td,th").toArray();
+		if (mainCells.length < 3) {
+			continue;
+		}
+
+		const course = parseFrameNo(readCellText($, mainCells[0]));
+		const frameNo = parseFrameNo(readCellText($, mainCells[1]));
+		if (!course || !frameNo) {
+			continue;
+		}
+
+		const entry = entryByFrame.get(frameNo) ?? {};
+		rows.push({
+			course,
+			frameNo,
+			playerName: entry.playerName || `枠${frameNo}`,
+			className: entry.className || "",
+			registerNo: entry.registrationNo || "",
+			currentAverageStart: readCellText($, mainCells[2]),
+			startTiming: startTimings[course - 1] || "",
+			startOrder: subCells.length ? readCellText($, subCells[subCells.length - 1]) : "",
+			source: ASHIYA_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.course - right.course);
+}
+
+function parseAshiyaCyokuzenWeather(html) {
+	const $ = load(html);
+	const table = $(".category-cyokuzen.tenji_content table").eq(1).get(0) ?? findTableByKeywords($, ["天候", "風向", "風速", "波高", "気温", "水温"]);
+
+	if (!table) {
+		return null;
+	}
+
+	const cells = $(table).find("tbody tr").first().children("td,th").toArray();
+	if (cells.length < 6) {
+		return null;
+	}
+
+	return normalizeVenueWeatherCondition({
+		weather: readCellText($, cells[0]),
+		windDirection: readCellText($, cells[1]),
+		windDirectionText: readCellText($, cells[1]),
+		windSpeed: readCellText($, cells[2]),
+		waveHeight: readCellText($, cells[3]),
+		temperature: readCellText($, cells[4]),
+		airTemperature: readCellText($, cells[4]),
+		waterTemperature: readCellText($, cells[5]),
+		source: ASHIYA_SOURCE,
+		sourceLabel: "芦屋公式 水面気象",
+	});
+}
+
+function parseAshiyaCyokuzenOriginalExhibition(html, entries) {
+	const $ = load(html);
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const table = $(".category-cyokuzen.oriten table").first().get(0) ?? findTableByKeywords($, ["一周", "まわり足", "直線", "調整"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tr").toArray();
+	for (let index = 0; index < trList.length; index += 1) {
+		const cells = $(trList[index]).children("td,th").toArray();
+		if (cells.length < 7) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, cells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const entry = entryByFrame.get(frameNo) ?? {};
+		const adjustmentCells = $(trList[index + 1] ?? []).children ? $(trList[index + 1]).children("td,th").toArray() : [];
+		const adjustment = adjustmentCells.length === 1 ? readCellText($, adjustmentCells[0]) : "";
+		rows.push({
+			frameNo,
+			registrationNo: entry.registrationNo || "",
+			registerNo: entry.registrationNo || "",
+			playerName: entry.playerName || `枠${frameNo}`,
+			racerName: entry.playerName || `枠${frameNo}`,
+			className: entry.className || "",
+			weight: readCellText($, cells[1]),
+			tilt: readCellText($, cells[2]),
+			exhibitionTime: readCellText($, cells[3]),
+			oneLapTime: readCellText($, cells[4]),
+			lapTime: readCellText($, cells[4]),
+			turnTime: readCellText($, cells[5]),
+			straightTime: readCellText($, cells[6]),
+			weightAdjustment: adjustment,
+			adjustment,
+			motorNo: entry.motorNo || "",
+			exhibitionEvaluation: "",
+			memo: "芦屋公式 オリジナル展示データから取得",
+			source: ASHIYA_SOURCE,
+		});
+
+		if (adjustment) {
+			index += 1;
+		}
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseAshiyaFrameLast10(html, entries) {
+	const $ = load(html);
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const table = $(".category-waku10 table").first().get(0) ?? findTableByKeywords($, ["枠番別データ", "平均ST", "スタート順"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	for (const tbody of $(table).find("tbody").toArray()) {
+		const trList = $(tbody).find("tr").toArray();
+		if (trList.length < 2) {
+			continue;
+		}
+
+		const firstCells = $(trList[0]).children("td,th").toArray();
+		const secondCells = $(trList[1]).children("td,th").toArray();
+		if (firstCells.length < 4 || secondCells.length < 10) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const entry = entryByFrame.get(frameNo) ?? {};
+		rows.push({
+			frameNo,
+			registerNo: entry.registrationNo || "",
+			registrationNo: entry.registrationNo || "",
+			playerName: entry.playerName || `枠${frameNo}`,
+			className: entry.className || "",
+			profile: "",
+			courseHistory: Array.from({ length: 10 }, () => ""),
+			finishHistory: secondCells.slice(0, 10).map((cell) => readCellText($, cell)),
+			startTimingHistory: Array.from({ length: 10 }, () => ""),
+			frameWinRate: readCellText($, firstCells[firstCells.length - 3]),
+			frameAverageStart: readCellText($, firstCells[firstCells.length - 2]),
+			frameStartOrder: readCellText($, firstCells[firstCells.length - 1]),
+			source: ASHIYA_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseAshiyaSyussouRacerComments(html, entries) {
+	const $ = load(html);
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const table = $("table").toArray().find((element) => {
+		const text = compactText($(element).text());
+		return text.includes("選手コメント") && text.includes("モーター") && !text.includes("フォーカス");
+	});
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tr").toArray();
+	for (let index = 0; index < trList.length; index += 1) {
+		const cells = $(trList[index]).children("td,th").toArray();
+		if (cells.length < 5) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, cells[0]));
+		if (!frameNo) {
+			continue;
+		}
+
+		const entry = entryByFrame.get(frameNo) ?? {};
+		const secondRowCells = $(trList[index + 1] ?? []).children("td,th").toArray();
+		const motorSecondRate = secondRowCells.length === 1 ? readCellText($, secondRowCells[0]) : "";
+		rows.push({
+			frameNo,
+			registrationNo: entry.registrationNo || "",
+			playerName: entry.playerName || `枠${frameNo}`,
+			className: entry.className || readCellText($, cells[1]),
+			motorNo: readCellText($, cells[3]) || entry.motorNo || "",
+			motorSecondRate,
+			comment: readCellText($, cells[4]),
+			source: ASHIYA_SOURCE,
+		});
+
+		if (motorSecondRate) {
+			index += 1;
+		}
+	}
+
+	return rows.filter((row) => row.comment).sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseAshiyaSyussouCourseResults(html, entries) {
+	const $ = load(html);
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const table = $("table.table1").first().get(0) ?? $("table").toArray().find((element) => {
+		const text = compactText($(element).text());
+		return text.includes("初日") && text.includes("進") && text.includes("ST") && text.includes("着");
+	});
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	const trList = $(table).find("tr").toArray();
+	for (let index = 1; index < trList.length; index += 4) {
+		const raceCells = $(trList[index]).children("td,th").toArray().map((cell) => readCellText($, cell));
+		const courseCells = $(trList[index + 1] ?? []).children("td,th").toArray().map((cell) => readCellText($, cell));
+		const startCells = $(trList[index + 2] ?? []).children("td,th").toArray().map((cell) => readCellText($, cell));
+		const finishCells = $(trList[index + 3] ?? []).children("td,th").toArray().map((cell) => readCellText($, cell));
+		const frameNo = parseFrameNo(raceCells[0]);
+		if (!frameNo) {
+			continue;
+		}
+
+		const entry = entryByFrame.get(frameNo) ?? {};
+		const raceHistory = raceCells.slice(2).filter(Boolean);
+		const courseHistory = courseCells.slice(1).filter(Boolean);
+		const startTimingHistory = startCells.slice(1).filter(Boolean);
+		const finishHistory = finishCells.slice(1).filter(Boolean);
+		rows.push({
+			frameNo,
+			registrationNo: entry.registrationNo || "",
+			playerName: entry.playerName || `枠${frameNo}`,
+			className: entry.className || "",
+			raceHistory: raceHistory.slice(-10),
+			courseHistory: courseHistory.slice(-10),
+			startTimingHistory: startTimingHistory.slice(-10),
+			finishHistory: finishHistory.slice(-10),
+			averageStart: entry.averageStart || "",
+			source: ASHIYA_SOURCE,
+		});
+	}
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
 function getAshiyaFeedEntries(race) {
 	return (Array.isArray(race?.racers) ? race.racers : []).map((racer) => ({
 		frameNo: Number(racer.frameNo ?? racer.frame ?? racer.boatNumber),
@@ -10314,6 +10710,8 @@ async function createAshiyaVenue(feed, date) {
 	}
 
 	try {
+		const ashiyaSpBootstrap = await fetchAshiyaHtml("https://www.boatrace-ashiya.com/sp/index.php?page=yosou-yosou").catch(() => ({ text: "", cookie: "" }));
+		const ashiyaCookie = ashiyaSpBootstrap.cookie;
 		const [
 			raceIndexHtml,
 			timerankHtml,
@@ -10340,10 +10738,21 @@ async function createAshiyaVenue(feed, date) {
 		const waterSurfaceInfo = parseAshiyaWaterSurfaceInfo(waterHtml);
 		const races = getRaceList(ashiyaVenue);
 		const courseRowsByRaceNo = new Map();
+		const cyokuzenByRaceNo = new Map();
+		const waku10ByRaceNo = new Map();
+		const syussouByRaceNo = new Map();
 		for (const race of races) {
 			const raceNo = Number(race.raceNo);
-			const courseHtml = await fetchHtml(toAshiyaCourseUrl(raceNo)).catch(() => "");
+			const [courseHtml, cyokuzenHtml, waku10Html, syussouHtml] = await Promise.all([
+				fetchHtml(toAshiyaCourseUrl(raceNo)).catch(() => ""),
+				fetchAshiyaHtml(toAshiyaRaceTabUrl({ date, raceNo, req: "cyokuzen", run: 0 }), { cookie: ashiyaCookie }).then((result) => result.text).catch(() => ""),
+				fetchAshiyaHtml(toAshiyaRaceTabUrl({ date, raceNo, req: "waku10", run: 0 }), { cookie: ashiyaCookie }).then((result) => result.text).catch(() => ""),
+				fetchAshiyaHtml(toAshiyaRaceTabUrl({ date, raceNo, req: "syussou", run: 0 }), { cookie: ashiyaCookie }).then((result) => result.text).catch(() => ""),
+			]);
 			courseRowsByRaceNo.set(raceNo, parseAshiyaCourseResults(courseHtml));
+			cyokuzenByRaceNo.set(raceNo, cyokuzenHtml);
+			waku10ByRaceNo.set(raceNo, waku10Html);
+			syussouByRaceNo.set(raceNo, syussouHtml);
 			await sleep(REQUEST_INTERVAL_MS);
 		}
 
@@ -10360,12 +10769,36 @@ async function createAshiyaVenue(feed, date) {
 		const raceExtras = races.map((race) => {
 			const raceNo = Number(race.raceNo);
 			const entries = createAshiyaRaceEntries(race, raceIndexByRaceNo.get(raceNo) ?? [], timerankRows);
-			const beforeInfo = createAshiyaBeforeInfo(race, entries);
-			const startExhibition = createAshiyaStartExhibition(race, beforeInfo);
+			const cyokuzenHtml = cyokuzenByRaceNo.get(raceNo) ?? "";
+			const waku10Html = waku10ByRaceNo.get(raceNo) ?? "";
+			const syussouHtml = syussouByRaceNo.get(raceNo) ?? "";
+			const cyokuzenBeforeRows = parseAshiyaCyokuzenBeforeInfo(cyokuzenHtml, entries);
+			const previousRaceRows = parseAshiyaCyokuzenPreviousRace(cyokuzenHtml);
+			const cyokuzenBeforeByFrame = new Map(cyokuzenBeforeRows.map((row) => [row.frameNo, row]));
+			const previousRaceByFrame = new Map(previousRaceRows.map((row) => [row.frameNo, row]));
+			const beforeInfo = createAshiyaBeforeInfo(race, entries).map((row) => ({
+				...row,
+				weight: cyokuzenBeforeByFrame.get(row.frameNo)?.weight || row.weight || "",
+				weightAdjustment: cyokuzenBeforeByFrame.get(row.frameNo)?.weightAdjustment || row.weightAdjustment || "",
+				adjustment: cyokuzenBeforeByFrame.get(row.frameNo)?.adjustment || row.adjustment || row.weightAdjustment || "",
+				partsExchange: previousRaceByFrame.get(row.frameNo)?.partsExchange || row.partsExchange || "",
+				memo: previousRaceByFrame.get(row.frameNo)
+					? [
+						previousRaceByFrame.get(row.frameNo)?.previousRaceNo ? `前走 ${previousRaceByFrame.get(row.frameNo)?.previousRaceNo}R` : "",
+						previousRaceByFrame.get(row.frameNo)?.previousRaceCourse ? `コース ${previousRaceByFrame.get(row.frameNo)?.previousRaceCourse}` : "",
+						previousRaceByFrame.get(row.frameNo)?.previousRaceStartTiming ? `ST ${previousRaceByFrame.get(row.frameNo)?.previousRaceStartTiming}` : "",
+						previousRaceByFrame.get(row.frameNo)?.previousRaceFinishOrder ? `${previousRaceByFrame.get(row.frameNo)?.previousRaceFinishOrder}着` : "",
+					].filter(Boolean).join(" / ")
+					: row.memo || "",
+			}));
+			const parsedStartExhibition = parseAshiyaCyokuzenStartExhibition(cyokuzenHtml, entries);
+			const startExhibition = parsedStartExhibition.length ? parsedStartExhibition : createAshiyaStartExhibition(race, beforeInfo);
 			const scoreQuickLook = createAshiyaScoreRows(entries, scoreRows);
 			const motorSummary = createAshiyaMotorSummary(entries, motorRows, boatRows, motorHistoryByNo);
-			const originalExhibition = createAshiyaOriginalExhibition(entries, beforeInfo);
-			const ashiyaCourseResults = (courseRowsByRaceNo.get(raceNo) ?? []).map((row) => {
+			const parsedOriginalExhibition = parseAshiyaCyokuzenOriginalExhibition(cyokuzenHtml, entries);
+			const originalExhibition = parsedOriginalExhibition.length ? parsedOriginalExhibition : createAshiyaOriginalExhibition(entries, beforeInfo);
+			const ashiyaFrameLast10 = parseAshiyaFrameLast10(waku10Html, entries);
+			const parsedAshiyaCourseResults = (courseRowsByRaceNo.get(raceNo) ?? []).map((row) => {
 				const entry = entries.find((item) => item.frameNo === row.frameNo) ?? {};
 				return {
 					...row,
@@ -10374,7 +10807,10 @@ async function createAshiyaVenue(feed, date) {
 					playerName: entry.playerName || row.playerName,
 				};
 			});
-			const racerComments = entries.flatMap((entry) => {
+			const syussouCourseResults = parseAshiyaSyussouCourseResults(syussouHtml, entries);
+			const ashiyaCourseResults = parsedAshiyaCourseResults.length ? parsedAshiyaCourseResults : syussouCourseResults;
+			const syussouRacerComments = parseAshiyaSyussouRacerComments(syussouHtml, entries);
+			const parsedRacerComments = entries.flatMap((entry) => {
 				const comment = commentByRegistration.get(entry.registrationNo) ?? commentByName.get(normalizeAshiyaName(entry.playerName));
 				return comment?.comment ? [{
 					frameNo: entry.frameNo,
@@ -10384,13 +10820,14 @@ async function createAshiyaVenue(feed, date) {
 					source: ASHIYA_SOURCE,
 				}] : [];
 			});
-			const weatherCondition = normalizeVenueWeatherCondition(race?.weatherActual ?? ashiyaVenue?.weatherActual ?? null, {
+			const racerComments = parsedRacerComments.length ? parsedRacerComments : syussouRacerComments;
+			const weatherCondition = normalizeVenueWeatherCondition(parseAshiyaCyokuzenWeather(cyokuzenHtml) ?? race?.weatherActual ?? ashiyaVenue?.weatherActual ?? null, {
 				source: BOATRACE_OFFICIAL_SOURCE,
 			});
 
 			return {
 				raceNo: race.raceNo,
-				status: scoreQuickLook.length || motorSummary.length || ashiyaCourseResults.length || waterSurfaceInfo ? "available" : "waiting-ashiya-data",
+				status: scoreQuickLook.length || motorSummary.length || ashiyaCourseResults.length || ashiyaFrameLast10.length || waterSurfaceInfo ? "available" : "waiting-ashiya-data",
 				source: ASHIYA_SOURCE,
 				sourceType: "ashiya-official-extras",
 				officialBeforeInfo: {
@@ -10413,7 +10850,7 @@ async function createAshiyaVenue(feed, date) {
 				ashiyaMotorData: motorSummary,
 				ashiyaBoatData: motorSummary,
 				ashiyaMotorHistory: motorSummary,
-				ashiyaFrameLast10: [],
+				ashiyaFrameLast10,
 				racerComments,
 				waterSurfaceInfo,
 				weatherCondition,
@@ -10430,7 +10867,7 @@ async function createAshiyaVenue(feed, date) {
 			source: ASHIYA_SOURCE,
 			isAvailable: raceExtras.some((race) => race.status === "available"),
 			status: raceExtras.some((race) => race.status === "available") ? "available" : "waiting-ashiya-data",
-			note: "芦屋公式HPのモーター抽選/前検、得点率、進入コース別、選手コメント、モーター/ボートデータ、水面特性を取得。一周/まわり足/直線と枠番別過去10走は通常HTMLで未確認。",
+			note: "芦屋公式SP/PC HTMLから直前情報、オリジナル展示、枠番別10走、得点率、進入コース別、選手コメント、モーター/ボート/水面特性を取得。",
 			waterSurfaceInfo,
 			ashiyaWaterSurfaceInfo: waterSurfaceInfo,
 			races: raceExtras,

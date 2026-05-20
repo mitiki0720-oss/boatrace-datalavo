@@ -1467,6 +1467,21 @@ type BoatTokuyamaFramePast10Row = {
 	source?: string | undefined;
 };
 
+type BoatAshiyaFrameLast10Row = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	profile: string;
+	courseHistory: string[];
+	finishHistory: string[];
+	startTimingHistory: string[];
+	frameWinRate: string;
+	frameAverageStart: string;
+	frameStartOrder: string;
+	source?: string | undefined;
+};
+
 type BoatFukuokaScoreRateGuideRow = {
 	frameNo: number;
 	registrationNo: string;
@@ -1870,6 +1885,8 @@ type BoatOfficialBeforeInfoExhibitionRow = {
 	frameNo: number;
 	playerName: string;
 	exhibitionTime: string;
+	weight?: string;
+	weightAdjustment?: string;
 	tilt: string;
 	course: string;
 	startTiming: string;
@@ -2072,6 +2089,8 @@ function getOfficialBeforeInfoDisplay(raceExtra: BoatVenueExtraRace | null): Boa
 				frameNo,
 				playerName: readVenueExtraString(item.playerName),
 				exhibitionTime: readVenueExtraString(item.exhibitionTime),
+				weight: readVenueExtraString(item.weight) || undefined,
+				weightAdjustment: readVenueExtraString(item.weightAdjustment) || readVenueExtraString(item.adjustment) || undefined,
 				tilt: readVenueExtraString(item.tilt),
 				course: readVenueExtraString(item.course),
 				startTiming: readVenueExtraString(item.startTiming),
@@ -3975,6 +3994,46 @@ function getTokuyamaFramePast10(raceExtra: BoatVenueExtraRace | null): BoatTokuy
 		.sort((left, right) => left.frameNo - right.frameNo);
 }
 
+function getAshiyaFrameLast10(raceExtra: BoatVenueExtraRace | null): BoatAshiyaFrameLast10Row[] {
+	const frameLast10 = raceExtra && isVenueExtraRecord(raceExtra)
+		? (raceExtra as Record<string, unknown>).ashiyaFrameLast10
+		: null;
+
+	if (!Array.isArray(frameLast10)) {
+		return [];
+	}
+
+	return frameLast10
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				courseHistory: Array.isArray(item.courseHistory) ? item.courseHistory.map((value) => readVenueExtraString(value)).slice(0, 10) : [],
+				finishHistory: Array.isArray(item.finishHistory) ? item.finishHistory.map((value) => readVenueExtraString(value)).slice(0, 10) : [],
+				startTimingHistory: Array.isArray(item.startTimingHistory)
+					? item.startTimingHistory.map((value) => readVenueExtraString(value)).slice(0, 10)
+					: Array.isArray(item.startTimings)
+						? item.startTimings.map((value) => readVenueExtraString(value)).slice(0, 10)
+						: [],
+				frameWinRate: readVenueExtraString(item.frameWinRate),
+				frameAverageStart: readVenueExtraString(item.frameAverageStart),
+				frameStartOrder: readVenueExtraString(item.frameStartOrder),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
 function getFukuokaScoreRateGuide(raceExtra: BoatVenueExtraRace | null): BoatFukuokaScoreRateGuideRow[] {
 	if (!raceExtra || !Array.isArray(raceExtra.fukuokaScoreRateGuide)) {
 		return [];
@@ -4799,7 +4858,7 @@ const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
 	丸亀: "complete",
 	徳山: "complete",
 	常滑: "complete",
-	芦屋: "partial",
+	芦屋: "complete",
 };
 
 const venueOfficialLinkStatusMeta: Record<
@@ -5388,6 +5447,11 @@ const selectedTokuyamaFramePast10 = useMemo(
 	[selectedRaceExtra],
 );
 
+const selectedAshiyaFrameLast10 = useMemo(
+	() => getAshiyaFrameLast10(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
 const selectedFukuokaScoreRateGuide = useMemo(
 	() => getFukuokaScoreRateGuide(selectedRaceExtra),
 	[selectedRaceExtra],
@@ -5550,6 +5614,7 @@ const hasFukuokaSeriesResultsData = selectedFukuokaSeriesResults.length > 0;
 const hasFukuokaRacerCommentsData = selectedFukuokaRacerComments.length > 0;
 const hasFukuokaFramePast10Data = selectedFukuokaFramePast10.length > 0;
 const hasTokuyamaFramePast10Data = selectedTokuyamaFramePast10.length > 0;
+const hasAshiyaFrameLast10Data = selectedAshiyaFrameLast10.length > 0;
 const hasKojimaBeforeInfoData = selectedKojimaBeforeInfo.length > 0;
 const hasKojimaSeriesResultsData = selectedKojimaSeriesResults.length > 0;
 const hasKojimaRecentResultsData = selectedKojimaRecentResults.length > 0;
@@ -5763,6 +5828,7 @@ const {
 	hasMotorPanelData,
 	hasWaterPanelData,
 } = venueExtraPanelFlags;
+const hasOfficialWeightData = Boolean(selectedOfficialBeforeInfo?.exhibitionRows.some((item) => item.weight || item.weightAdjustment));
 const tamagawaScoreRows = selectedTamagawaScoreRateGuide.length
 	? selectedTamagawaScoreRateGuide
 	: selectedOfficialBeforeInfo?.scoreQuickLook ?? [];
@@ -7604,6 +7670,7 @@ body:has(.races-page-root) {
 										<tr>
 											<th style={venueExtrasHeadCellStyle}>枠</th>
 											<th style={venueExtrasHeadCellStyle}>選手</th>
+											{hasOfficialWeightData ? <th style={venueExtrasHeadCellStyle}>体重 / 調整</th> : null}
 											<th style={venueExtrasHeadCellStyle}>チルト</th>
 											<th style={venueExtrasHeadCellStyle}>展示タイム</th>
 										</tr>
@@ -7613,6 +7680,7 @@ body:has(.races-page-root) {
 											<tr key={`official-beforeinfo-exhibition-${item.frameNo}`}>
 												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td>
+												{hasOfficialWeightData ? <td style={venueExtrasBodyCellStyle}>{item.weight || "-"} / {item.weightAdjustment || "-"}</td> : null}
 												<td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td>
 												<td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td>
 											</tr>
@@ -9665,6 +9733,55 @@ body:has(.races-page-root) {
 												</td>
 												{Array.from({ length: 10 }, (_, index) => (
 													<td key={`tokuyama-frame10-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														<div style={narutoHistoryStackStyle}>
+															<span style={narutoHistoryCourseStyle}>{item.courseHistory[index] || " "}</span>
+															<span style={narutoHistoryFinishStyle}>{item.finishHistory[index] || "-"}</span>
+															<span style={{ fontSize: "0.66rem", color: boatTheme.colors.muted }}>ST {item.startTimingHistory[index] || "-"}</span>
+														</div>
+													</td>
+												))}
+												<td style={venueExtrasBodyCellStyle}>{item.frameWinRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.frameAverageStart || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.frameStartOrder || "-"}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isAshiyaVenue && hasAshiyaFrameLast10Data ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>芦屋枠番別10走</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>枠</th>
+											<th style={venueExtrasHeadCellStyle}>選手</th>
+											{Array.from({ length: 10 }, (_, index) => (
+												<th key={`ashiya-frame10-head-${index}`} style={venueExtrasHeadCellStyle}>{10 - index}走</th>
+											))}
+											<th style={venueExtrasHeadCellStyle}>枠番勝率</th>
+											<th style={venueExtrasHeadCellStyle}>枠番平均ST</th>
+											<th style={venueExtrasHeadCellStyle}>スタート順</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedAshiyaFrameLast10.map((item) => (
+											<tr key={`ashiya-frame10-${item.frameNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>
+													<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+														<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+														<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+															{item.className || "-"} / {item.registerNo || "-"}
+														</span>
+													</div>
+												</td>
+												{Array.from({ length: 10 }, (_, index) => (
+													<td key={`ashiya-frame10-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
 														<div style={narutoHistoryStackStyle}>
 															<span style={narutoHistoryCourseStyle}>{item.courseHistory[index] || " "}</span>
 															<span style={narutoHistoryFinishStyle}>{item.finishHistory[index] || "-"}</span>
