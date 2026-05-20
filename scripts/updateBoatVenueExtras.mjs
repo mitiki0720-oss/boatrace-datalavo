@@ -65,6 +65,13 @@ const ASHIYA_RACER_COMMENTS_URL = "https://www.boatrace-ashiya.com/modules/racei
 const ASHIYA_MOTOR_DATA_URL = "https://www.boatrace-ashiya.com/modules/datafile/";
 const ASHIYA_BOAT_DATA_URL = "https://www.boatrace-ashiya.com/modules/datafile/?page=index_boat";
 const ASHIYA_WATER_SURFACE_URL = "https://www.boatrace-ashiya.com/modules/datafile/?page=index_suimen";
+const KIRYU_VENUE_NAME = "\u6850\u751f";
+const KIRYU_SOURCE = "kiryu-kyotei.com";
+const KIRYU_YOSOU_BASE_URL = "https://www.kiryu-kyotei.com/modules/yosou/";
+const KIRYU_TIMERANK_URL = "https://www.kiryu-kyotei.com/modules/raceinfo/?page=index_timerank";
+const KIRYU_MOTOR_RANK_URL = "https://www.kiryu-kyotei.com/modules/datafile/?page=index_motorrank";
+const KIRYU_BOAT_RANK_URL = "https://www.kiryu-kyotei.com/modules/datafile/?page=index_boatrank";
+const KIRYU_WATER_SURFACE_URL = "https://www.kiryu-kyotei.com/modules/datafile/?page=index_suimen";
 const FUKUOKA_VENUE_NAME = "福岡";
 const FUKUOKA_SOURCE = "boatrace-fukuoka.com";
 const KOJIMA_VENUE_NAME = "児島";
@@ -679,6 +686,23 @@ async function fetchAshiyaHtml(url, { cookie = "", referer = "https://www.boatra
 	};
 }
 
+async function fetchKiryuHtml(url) {
+	const response = await fetch(url, {
+		headers: {
+			"user-agent": "Mozilla/5.0",
+			"accept-language": "ja,en;q=0.8",
+			referer: KIRYU_YOSOU_BASE_URL,
+		},
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status} ${response.statusText}`);
+	}
+
+	return response.text();
+}
+
 function toTamagawaDay(date) {
 	return String(date ?? "").replaceAll("-", "");
 }
@@ -692,6 +716,10 @@ function toTsuDay(date) {
 }
 
 function toAshiyaDay(date) {
+	return String(date ?? "").replaceAll("-", "");
+}
+
+function toKiryuDay(date) {
 	return String(date ?? "").replaceAll("-", "");
 }
 
@@ -729,6 +757,14 @@ function toTsuRaceTabUrl({ date, raceNo, req, run = 0 }) {
 
 function toAshiyaRaceTabUrl({ date, raceNo, req, run = 0 }) {
 	return `https://www.boatrace-ashiya.com/sp/ajax/ajax_yosou.php?targetday=${toAshiyaDay(date)}&race=${Number(raceNo)}&req=${req}&run=${Number(run)}`;
+}
+
+function toKiryuYosouUrl({ date, raceNo, type }) {
+	return `${KIRYU_YOSOU_BASE_URL}${type}.php?day=${toKiryuDay(date)}&race=${Number(raceNo)}&if=1`;
+}
+
+function toKiryuMotorHistoryUrl(motorNo) {
+	return `https://www.kiryu-kyotei.com/modules/datafile/?page=index_motor_hist&motor_no=${encodeURIComponent(String(motorNo))}`;
 }
 
 function toWakamatsuRaceTabUrl({ date, raceNo, type, kind = null }) {
@@ -10886,6 +10922,680 @@ async function createAshiyaVenue(feed, date) {
 	}
 }
 
+function parseKiryuProfile(value) {
+	const text = compactText(value);
+	const registrationMatch = text.match(/^(\d{4})/);
+	const registrationNo = registrationMatch?.[1] ?? "";
+	const rest = registrationNo ? text.slice(registrationNo.length).trim() : text;
+	const classMatch = rest.match(/([AB]\d)\//);
+	const className = classMatch?.[1] ?? "";
+	const playerName = classMatch ? rest.slice(0, classMatch.index).trim() : rest;
+	const profile = classMatch ? rest.slice(classMatch.index ?? 0).trim() : "";
+
+	return {
+		registrationNo,
+		registerNo: registrationNo,
+		playerName,
+		className,
+		profile,
+	};
+}
+
+function parseKiryuYosouHeader(html) {
+	const $ = load(html);
+	const text = compactText($("body").text());
+	const match = text.match(/(\d+)R\s+([^\s]+)\s+締切時刻\s*([0-9:]+)/);
+	return {
+		raceNo: match?.[1] ?? "",
+		raceTitle: match?.[2] ?? "",
+		deadline: match?.[3] ?? "",
+	};
+}
+
+function parseKiryuCyokuzen(html) {
+	const $ = load(html);
+	const beforeInfo = [];
+	const originalExhibition = [];
+
+	$("table.cyokuzen tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		const frameNo = parseFrameNo(cells[0]);
+		if (!frameNo || !cells[1]) {
+			return;
+		}
+
+		const profile = parseKiryuProfile(cells[1]);
+		const partsExchange = cells.find((value) => /リング|ピストン|電気|キャブ|シリンダ|シャフト|ペラ|ギヤ|キャリボ/.test(value)) ?? "";
+		const weight = cells[2] ?? "";
+		const tilt = cells[3] ?? "";
+		const exhibitionTime = cells[4] ?? "";
+		const halfLapTime = cells[5] ?? "";
+		const turnTime = cells[6] ?? "";
+		const straightTime = cells[7] ?? "";
+
+		beforeInfo.push({
+			frameNo,
+			registrationNo: profile.registrationNo,
+			registerNo: profile.registrationNo,
+			playerName: profile.playerName,
+			racerName: profile.playerName,
+			className: profile.className,
+			weight,
+			weightAdjustment: "",
+			adjustment: "",
+			tilt,
+			exhibitionTime,
+			partsExchange,
+			memo: partsExchange ? `部品交換: ${partsExchange}` : "",
+			source: KIRYU_SOURCE,
+		});
+
+		originalExhibition.push({
+			frameNo,
+			registrationNo: profile.registrationNo,
+			registerNo: profile.registrationNo,
+			playerName: profile.playerName,
+			racerName: profile.playerName,
+			className: profile.className,
+			weight,
+			weightAdjustment: "",
+			adjustment: "",
+			tilt,
+			exhibitionTime,
+			halfLapTime,
+			turnTime,
+			straightTime,
+			partsExchange,
+			memo: halfLapTime ? "桐生公式独自計測: 半周 / まわり足 / 直線" : "",
+			source: KIRYU_SOURCE,
+		});
+	});
+
+	const startExhibition = [];
+	$("table.start.table_01 tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		const frameNo = parseFrameNo(cells[0]);
+		if (!frameNo || !cells[1]) {
+			return;
+		}
+
+		const profile = parseKiryuProfile(cells[1]);
+		const startTiming = cells.find((value) => /^F?\.\d+/.test(value)) ?? "";
+		const course = readRaceFrameNo(cells[2]) ?? frameNo;
+		const style = cells.find((value, index) => index >= 3 && /^[SD]$/.test(value)) ?? "";
+		startExhibition.push({
+			course,
+			frameNo,
+			playerName: profile.playerName,
+			className: profile.className,
+			registerNo: profile.registrationNo,
+			registrationNo: profile.registrationNo,
+			currentAverageStart: "",
+			style,
+			startTiming,
+			startOrder: "",
+			source: KIRYU_SOURCE,
+		});
+	});
+
+	const weatherEntries = new Map();
+	$("table.start.table_02 tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		if (cells[0] && cells[1]) {
+			weatherEntries.set(cells[0], cells[1]);
+		}
+	});
+	const weatherHeader = readCellText($, $("table.start.table_01 th").filter((_, cell) => /水面気象状況/.test($(cell).text())).first());
+	const displayTime = weatherHeader.match(/(\d{1,2}:\d{2})/)?.[1] ?? "";
+	const weatherCondition = normalizeVenueWeatherCondition({
+		weather: weatherEntries.get("天候") ?? "",
+		windDirection: weatherEntries.get("風向") ?? "",
+		windSpeed: weatherEntries.get("風速") ?? "",
+		waveHeight: weatherEntries.get("波高") ?? "",
+		airTemperature: weatherEntries.get("気温") ?? "",
+		waterTemperature: weatherEntries.get("水温") ?? "",
+		displayTime,
+	}, { source: KIRYU_SOURCE });
+
+	return {
+		beforeInfo: beforeInfo.sort((left, right) => left.frameNo - right.frameNo),
+		originalExhibition: originalExhibition.sort((left, right) => left.frameNo - right.frameNo),
+		startExhibition: startExhibition.sort((left, right) => left.course - right.course),
+		weatherCondition,
+	};
+}
+
+function parseKiryuSyussou(html) {
+	const $ = load(html);
+	const rows = [];
+	const sectionResults = [];
+
+	const tableRows = $("table.table1").first().children("tbody, thead").children("tr").toArray();
+	if (!tableRows.length) {
+		tableRows.push(...$("table.table1").first().children("tr").toArray());
+	}
+	for (let index = 0; index < tableRows.length; index += 1) {
+		const cells = $(tableRows[index]).children("th,td").map((_, cell) => readCellText($, cell)).get();
+		const frameNo = parseFrameNo(cells[1]);
+		if (!frameNo || !/^\d{4}/.test(cells[2] ?? "")) {
+			continue;
+		}
+
+		const profile = parseKiryuProfile(cells[2]);
+		const courseCells = $(tableRows[index + 1]).children("th,td").map((_, cell) => readCellText($, cell)).get();
+		const startCells = $(tableRows[index + 2]).children("th,td").map((_, cell) => readCellText($, cell)).get();
+		const finishCells = $(tableRows[index + 3]).children("th,td").map((_, cell) => readCellText($, cell)).get();
+		const raceNumbers = cells.slice(10, 22);
+		const courses = courseCells[0] === "進" ? courseCells.slice(1, 13) : [];
+		const startTimings = startCells.includes("ST") ? startCells.slice(startCells.indexOf("ST") + 1, startCells.indexOf("ST") + 13) : [];
+		const finishOrders = finishCells[0] === "着" ? finishCells.slice(1, 13) : [];
+
+		const row = {
+			frameNo,
+			registrationNo: profile.registrationNo,
+			registerNo: profile.registrationNo,
+			playerName: profile.playerName,
+			className: profile.className,
+			profile: profile.profile,
+			averageStart: cells[4] ?? "",
+			nationalWinRate: cells[5] ?? "",
+			localWinRate: cells[6] ?? "",
+			motorNo: cells[7] ?? "",
+			boatNo: cells[8] ?? "",
+			nationalSecondRate: startCells[0] ?? "",
+			localSecondRate: startCells[1] ?? "",
+			motorSecondRate: startCells[2] ?? "",
+			boatSecondRate: startCells[3] ?? "",
+			quickRaceNo: cells[cells.length - 1] ?? "",
+			raceNumbers,
+			courses,
+			startTimings,
+			finishOrders,
+			source: KIRYU_SOURCE,
+		};
+		rows.push(row);
+		sectionResults.push({
+			frameNo,
+			registrationNo: row.registrationNo,
+			playerName: row.playerName,
+			className: row.className,
+			raceNumbers,
+			courses,
+			startTimings,
+			finishOrders,
+			source: KIRYU_SOURCE,
+		});
+	}
+
+	return {
+		entries: rows.sort((left, right) => left.frameNo - right.frameNo),
+		sectionResults: sectionResults.sort((left, right) => left.frameNo - right.frameNo),
+	};
+}
+
+function parseKiryuWaku10Course(html, entries = []) {
+	const $ = load(html);
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const frameLast10 = [];
+	const rows = $("table.waku10 tr").toArray();
+
+	for (let index = 0; index < rows.length; index += 1) {
+		const cells = $(rows[index]).children("th,td").map((_, cell) => readCellText($, cell)).get();
+		const frameNo = parseFrameNo(cells[0]);
+		if (!frameNo) {
+			continue;
+		}
+
+		const finishCells = $(rows[index + 1]).children("th,td").map((_, cell) => readCellText($, cell)).get();
+		const entry = entryByFrame.get(frameNo) ?? {};
+		const courseHistory = cells.slice(3, 13);
+		const finishHistory = finishCells[0] === "着順" ? finishCells.slice(1, 11) : [];
+		frameLast10.push({
+			frameNo,
+			registrationNo: entry.registrationNo ?? "",
+			playerName: entry.playerName ?? cells[1] ?? "",
+			className: entry.className ?? "",
+			courseHistory,
+			finishHistory,
+			startTimingHistory: Array.from({ length: 10 }, () => ""),
+			frameWinRate: cells[13] ?? "",
+			frameAverageStart: cells[14] ?? "",
+			source: KIRYU_SOURCE,
+		});
+	}
+
+	const courseResults = [];
+	let currentFrameNo = null;
+	let currentPlayerName = "";
+	$("table").not(".waku10").first().find("tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		if (!cells.length || cells[0] === "艇番") {
+			return;
+		}
+
+		if (parseFrameNo(cells[0]) && cells.length >= 8) {
+			currentFrameNo = Number(cells[0]);
+			currentPlayerName = cells[1] ?? "";
+			const entry = entryByFrame.get(currentFrameNo) ?? {};
+			courseResults.push({
+				frameNo: currentFrameNo,
+				registrationNo: entry.registrationNo ?? "",
+				playerName: entry.playerName ?? currentPlayerName,
+				className: entry.className ?? "",
+				course: cells[2] ?? "",
+				entryRate: cells[3] ?? "",
+				averageStart: cells[4] ?? "",
+				firstRate: cells[5] ?? "",
+				secondRate: cells[6] ?? "",
+				thirdRate: cells[7] ?? "",
+				source: KIRYU_SOURCE,
+			});
+			return;
+		}
+
+		if (currentFrameNo && cells.length >= 6) {
+			const entry = entryByFrame.get(currentFrameNo) ?? {};
+			courseResults.push({
+				frameNo: currentFrameNo,
+				registrationNo: entry.registrationNo ?? "",
+				playerName: entry.playerName ?? currentPlayerName,
+				className: entry.className ?? "",
+				course: cells[0] ?? "",
+				entryRate: cells[1] ?? "",
+				averageStart: cells[2] ?? "",
+				firstRate: cells[3] ?? "",
+				secondRate: cells[4] ?? "",
+				thirdRate: cells[5] ?? "",
+				source: KIRYU_SOURCE,
+			});
+		}
+	});
+
+	return { frameLast10, courseResults };
+}
+
+function parseKiryuScoreRateGuide(html, entries = []) {
+	const $ = load(html);
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const rows = [];
+
+	$("table.mt_20 tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		const frameNo = parseFrameNo(cells[0]);
+		if (!frameNo || !cells[1]) {
+			return;
+		}
+
+		const profile = parseKiryuProfile(cells[1]);
+		const entry = entryByFrame.get(frameNo) ?? {};
+		rows.push({
+			frameNo,
+			registrationNo: profile.registrationNo || entry.registrationNo || "",
+			registerNo: profile.registrationNo || entry.registrationNo || "",
+			playerName: profile.playerName || entry.playerName || "",
+			className: profile.className || entry.className || "",
+			averageStart: entry.averageStart || "",
+			winRate: entry.nationalWinRate || "",
+			secondRate: entry.nationalSecondRate || "",
+			localWinRate: entry.localWinRate || "",
+			localSecondRate: entry.localSecondRate || "",
+			motorNo: entry.motorNo || "",
+			motorSecondRate: entry.motorSecondRate || "",
+			scoreRate: cells[2] ?? "",
+			rank: cells[3] ?? "",
+			pointIfFirst: cells[4] ?? "",
+			pointIfSecond: cells[5] ?? "",
+			pointIfThird: cells[6] ?? "",
+			pointIfFourth: cells[7] ?? "",
+			pointIfFifth: cells[8] ?? "",
+			pointIfSixth: cells[9] ?? "",
+			quickRaceNo: cells[10] ?? entry.quickRaceNo ?? "",
+			source: KIRYU_SOURCE,
+		});
+	});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseKiryuTimerank(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table.table tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		if (cells.length < 6 || !/^\d+/.test(cells[0])) {
+			return;
+		}
+
+		rows.push({
+			rank: cells[0] ?? "",
+			registrationNo: cells[1] ?? "",
+			playerName: cells[2] ?? "",
+			motorNo: cells[3] ?? "",
+			motorSecondRate: cells[4] ?? "",
+			boatNo: cells[5] ?? "",
+			boatSecondRate: cells[6] ?? "",
+			preInspectionTime: cells[7] ?? "",
+			source: KIRYU_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseKiryuMotorRank(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table.table").first().find("tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		const motorNo = cells[0];
+		if (!/^\d+$/.test(motorNo ?? "")) {
+			return;
+		}
+
+		rows.push({
+			motorNo,
+			calculationPeriod: cells[1] ?? "",
+			seriesCount: cells[2] ?? "",
+			motorSecondRate: cells[3] ?? "",
+			motorWinRate: cells[4] ?? "",
+			accidentRate: cells[5] ?? "",
+			firstCount: cells[6] ?? "",
+			secondCount: cells[7] ?? "",
+			thirdCount: cells[8] ?? "",
+			starts: cells[9] ?? "",
+			finals: cells[10] ?? "",
+			championships: cells[11] ?? "",
+			source: KIRYU_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseKiryuBoatRank(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table.table").first().find("tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		const boatNo = cells[0];
+		if (!/^\d+$/.test(boatNo ?? "")) {
+			return;
+		}
+
+		rows.push({
+			boatNo,
+			calculationPeriod: cells[1] ?? "",
+			seriesCount: cells[2] ?? "",
+			boatSecondRate: cells[3] ?? "",
+			boatWinRate: cells[4] ?? "",
+			accidentRate: cells[5] ?? "",
+			firstCount: cells[6] ?? "",
+			secondCount: cells[7] ?? "",
+			thirdCount: cells[8] ?? "",
+			starts: cells[9] ?? "",
+			finals: cells[10] ?? "",
+			championships: cells[11] ?? "",
+			source: KIRYU_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseKiryuMotorHistory(html, motorNo) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table").first().find("tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		if (cells.length < 4 || cells[0] === "使用期間") {
+			return;
+		}
+
+		rows.push({
+			motorNo: String(motorNo),
+			dateRange: cells[0] ?? "",
+			grade: cells[1] ?? "",
+			playerName: cells[2] ?? "",
+			results: cells[3] ?? "",
+			source: KIRYU_SOURCE,
+		});
+	});
+
+	return rows.slice(0, 5);
+}
+
+function parseKiryuWaterSurfaceInfo(html) {
+	const $ = load(html);
+	const pointRows = {};
+	$("table.point tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		for (let index = 0; index < cells.length; index += 2) {
+			if (cells[index] && cells[index + 1]) {
+				pointRows[cells[index]] = cells[index + 1];
+			}
+		}
+	});
+
+	const courseRates = [];
+	const courseTable = $("table.course").first();
+	const firstRates = $(courseTable).find("tr").eq(2).children("th,td").map((_, cell) => readCellText($, cell)).get().slice(1);
+	const secondRates = $(courseTable).find("tr").eq(3).children("th,td").map((_, cell) => readCellText($, cell)).get().slice(1);
+	const thirdRates = $(courseTable).find("tr").eq(4).children("th,td").map((_, cell) => readCellText($, cell)).get().slice(1);
+	for (let index = 0; index < 6; index += 1) {
+		courseRates.push({
+			course: String(index + 1),
+			firstRate: firstRates[index] ?? "",
+			secondRate: secondRates[index] ?? "",
+			thirdRate: thirdRates[index] ?? "",
+		});
+	}
+
+	const text = [
+		pointRows["水面特性"] ? `水面特性: ${pointRows["水面特性"]}` : "",
+		pointRows["レースの特性"] ? `レース特性: ${pointRows["レースの特性"]}` : "",
+	].filter(Boolean).join(" / ");
+
+	return {
+		source: KIRYU_SOURCE,
+		surfaceSummary: [
+			pointRows["水質"] ? `水質 ${pointRows["水質"]}` : "",
+			pointRows["流れ：水位変化"] ? `水位変化 ${pointRows["流れ：水位変化"]}` : "",
+			pointRows["チルト角度"] ? `チルト ${pointRows["チルト角度"]}` : "",
+		].filter(Boolean).join(" / "),
+		featureSummary: text,
+		courseSummary: courseRates.map((row) => `${row.course}コース 1着${row.firstRate}% 2着${row.secondRate}% 3着${row.thirdRate}%`).join(" / "),
+		waterQuality: pointRows["水質"] ?? "",
+		waterLevelChange: pointRows["流れ：水位変化"] ?? "",
+		tiltRange: pointRows["チルト角度"] ?? "",
+		waterSurface: pointRows["水面特性"] ?? "",
+		raceCharacteristics: pointRows["レースの特性"] ?? "",
+		courseRates,
+		description: text,
+		summary: text,
+	};
+}
+
+function createKiryuMotorSummary(entries, timerankRows, motorRows, boatRows, motorHistoryByNo = new Map()) {
+	const timerankByRegistration = new Map(timerankRows.map((row) => [row.registrationNo, row]));
+	const timerankByName = new Map(timerankRows.map((row) => [row.playerName.replace(/\s+/g, ""), row]));
+	const motorByNo = new Map(motorRows.map((row) => [row.motorNo, row]));
+	const boatByNo = new Map(boatRows.map((row) => [row.boatNo, row]));
+
+	return entries.map((entry) => {
+		const timerank = timerankByRegistration.get(entry.registrationNo) ?? timerankByName.get(entry.playerName.replace(/\s+/g, "")) ?? {};
+		const motorNo = entry.motorNo || timerank.motorNo || "";
+		const boatNo = entry.boatNo || timerank.boatNo || "";
+		const motor = motorByNo.get(motorNo) ?? {};
+		const boat = boatByNo.get(boatNo) ?? {};
+		const historyEntries = motorHistoryByNo.get(motorNo) ?? [];
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			playerName: entry.playerName,
+			motorNo,
+			motorSecondRate: entry.motorSecondRate || timerank.motorSecondRate || motor.motorSecondRate || "",
+			motorWinRate: motor.motorWinRate || "",
+			finals: motor.finals || "",
+			championships: motor.championships || "",
+			boatNo,
+			boatSecondRate: entry.boatSecondRate || timerank.boatSecondRate || boat.boatSecondRate || "",
+			boatWinRate: boat.boatWinRate || "",
+			preInspectionTime: timerank.preInspectionTime || "",
+			currentUser: entry.playerName,
+			previousUser: historyEntries[0]?.playerName ?? "",
+			recentResults: historyEntries.map((item) => [item.dateRange, item.playerName, item.results].filter(Boolean).join(" ")).join(" / ") || (motor.calculationPeriod ? `算出期間 ${motor.calculationPeriod}` : ""),
+			historyEntries,
+			comment: [
+				motor.motorWinRate ? `モーター勝率 ${motor.motorWinRate}` : "",
+				timerank.preInspectionTime ? `前検 ${timerank.preInspectionTime}` : "",
+				boat.boatWinRate ? `ボート勝率 ${boat.boatWinRate}` : "",
+			].filter(Boolean).join(" / "),
+			source: KIRYU_SOURCE,
+		};
+	});
+}
+
+async function createKiryuVenue(feed, date) {
+	const kiryuVenue = findVenue(feed, KIRYU_VENUE_NAME);
+	if (!kiryuVenue) {
+		console.log("[venue-extras] kiryu: not held today");
+		return null;
+	}
+
+	try {
+		const [timerankHtml, motorHtml, boatHtml, waterHtml] = await Promise.all([
+			fetchKiryuHtml(KIRYU_TIMERANK_URL).catch(() => ""),
+			fetchKiryuHtml("https://www.kiryu-kyotei.com/modules/datafile/?page=index_mrankdtl&start=13&dtl=13").catch(async () => fetchKiryuHtml(KIRYU_MOTOR_RANK_URL).catch(() => "")),
+			fetchKiryuHtml(KIRYU_BOAT_RANK_URL).catch(() => ""),
+			fetchKiryuHtml(KIRYU_WATER_SURFACE_URL).catch(() => ""),
+		]);
+		const timerankRows = parseKiryuTimerank(timerankHtml);
+		const motorRows = parseKiryuMotorRank(motorHtml);
+		const boatRows = parseKiryuBoatRank(boatHtml);
+		const waterSurfaceInfo = parseKiryuWaterSurfaceInfo(waterHtml);
+		const races = getRaceList(kiryuVenue);
+		const raceHtmlByNo = new Map();
+
+		for (const race of races) {
+			const raceNo = Number(race.raceNo);
+			const [syussouHtml, cyokuzenHtml, waku10Html, tokuhayamiHtml] = await Promise.all([
+				fetchKiryuHtml(toKiryuYosouUrl({ date, raceNo, type: "syussou" })).catch(() => ""),
+				fetchKiryuHtml(toKiryuYosouUrl({ date, raceNo, type: "cyokuzen" })).catch(() => ""),
+				fetchKiryuHtml(toKiryuYosouUrl({ date, raceNo, type: "waku10_cource" })).catch(() => ""),
+				fetchKiryuHtml(toKiryuYosouUrl({ date, raceNo, type: "tokuhayami" })).catch(() => ""),
+			]);
+			raceHtmlByNo.set(raceNo, { syussouHtml, cyokuzenHtml, waku10Html, tokuhayamiHtml });
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const parsedSyussouByRaceNo = new Map();
+		const motorNos = new Set();
+		for (const race of races) {
+			const raceNo = Number(race.raceNo);
+			const parsedSyussou = parseKiryuSyussou(raceHtmlByNo.get(raceNo)?.syussouHtml ?? "");
+			parsedSyussouByRaceNo.set(raceNo, parsedSyussou);
+			for (const entry of parsedSyussou.entries) {
+				if (entry.motorNo) {
+					motorNos.add(entry.motorNo);
+				}
+			}
+		}
+		const motorHistoryByNo = new Map();
+		for (const motorNo of motorNos) {
+			const historyHtml = await fetchKiryuHtml(toKiryuMotorHistoryUrl(motorNo)).catch(() => "");
+			motorHistoryByNo.set(motorNo, parseKiryuMotorHistory(historyHtml, motorNo));
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const raceExtras = races.map((race) => {
+			const raceNo = Number(race.raceNo);
+			const html = raceHtmlByNo.get(raceNo) ?? {};
+			const { entries, sectionResults } = parsedSyussouByRaceNo.get(raceNo) ?? { entries: [], sectionResults: [] };
+			const cyokuzen = parseKiryuCyokuzen(html.cyokuzenHtml ?? "");
+			const { frameLast10, courseResults } = parseKiryuWaku10Course(html.waku10Html ?? "", entries);
+			const scoreQuickLook = parseKiryuScoreRateGuide(html.tokuhayamiHtml ?? "", entries);
+			const motorSummary = createKiryuMotorSummary(entries, timerankRows, motorRows, boatRows, motorHistoryByNo);
+			const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+			const beforeInfo = cyokuzen.beforeInfo.map((row) => ({
+				...row,
+				motorNo: entryByFrame.get(row.frameNo)?.motorNo ?? "",
+			}));
+			const originalExhibition = cyokuzen.originalExhibition.map((row) => ({
+				...row,
+				motorNo: entryByFrame.get(row.frameNo)?.motorNo ?? "",
+			}));
+			const weatherCondition = normalizeVenueWeatherCondition(cyokuzen.weatherCondition ?? race?.weatherActual ?? kiryuVenue?.weatherActual ?? null, {
+				source: KIRYU_SOURCE,
+			});
+
+			return {
+				raceNo: race.raceNo,
+				status: cyokuzen.beforeInfo.length || scoreQuickLook.length || motorSummary.length || frameLast10.length ? "available" : "waiting-kiryu-data",
+				source: KIRYU_SOURCE,
+				sourceType: "kiryu-official-extras",
+				officialBeforeInfo: {
+					status: cyokuzen.beforeInfo.length || cyokuzen.startExhibition.length || scoreQuickLook.length ? "available" : "waiting",
+					source: `${BOATRACE_OFFICIAL_SOURCE}+${KIRYU_SOURCE}`,
+					exhibitionRows: beforeInfo,
+					startExhibition: cyokuzen.startExhibition,
+					scoreQuickLook,
+					weatherActual: weatherCondition,
+					weatherCondition,
+				},
+				beforeInfo,
+				startExhibition: cyokuzen.startExhibition,
+				originalExhibition,
+				motorSummary,
+				scoreQuickLook,
+				scoreRateGuide: scoreQuickLook,
+				kiryuScoreRateGuide: scoreQuickLook,
+				kiryuSectionResults: sectionResults,
+				kiryuFrameLast10: frameLast10,
+				kiryuCourseResults: courseResults,
+				kiryuMotorData: motorSummary,
+				kiryuBoatData: motorSummary,
+				kiryuMotorHistory: motorSummary,
+				kiryuPreInspectionRank: timerankRows,
+				waterSurfaceInfo,
+				kiryuWaterSurfaceInfo: waterSurfaceInfo,
+				weatherCondition,
+			};
+		});
+
+		const firstRace = raceExtras[0] ?? null;
+		console.log(
+			`[kiryu extras] before=${firstRace?.beforeInfo?.length ?? 0} start=${firstRace?.startExhibition?.length ?? 0} original=${firstRace?.originalExhibition?.length ?? 0} motor=${firstRace?.motorSummary?.length ?? 0} boat=${firstRace?.kiryuBoatData?.length ?? 0} score=${firstRace?.kiryuScoreRateGuide?.length ?? 0} frame10=${firstRace?.kiryuFrameLast10?.length ?? 0} course=${firstRace?.kiryuCourseResults?.length ? "ok" : "none"} water=${waterSurfaceInfo ? "ok" : "none"} weather=${firstRace?.weatherCondition ? "ok" : "none"}`,
+		);
+
+		return {
+			venueCode: String(kiryuVenue.venueCode ?? "01"),
+			venueName: KIRYU_VENUE_NAME,
+			source: KIRYU_SOURCE,
+			isAvailable: raceExtras.some((race) => race.status === "available"),
+			status: raceExtras.some((race) => race.status === "available") ? "available" : "waiting-kiryu-data",
+			note: "桐生公式HTMLから直前情報、スタート展示、独自展示、得点率早見、枠番別10走、進入コース別、モーター/ボート、水面特性を取得。",
+			waterSurfaceInfo,
+			kiryuWaterSurfaceInfo: waterSurfaceInfo,
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] kiryu failed: ${error.message}`);
+		return {
+			venueCode: String(kiryuVenue.venueCode ?? "01"),
+			venueName: KIRYU_VENUE_NAME,
+			source: KIRYU_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `Kiryu official extras fetch failed: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
 function getTokonameRaceEntries(race) {
 	const racers = Array.isArray(race?.racers) ? race.racers : [];
 	return racers.map((racer) => ({
@@ -11219,6 +11929,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const ashiyaVenue = await createAshiyaVenue(feed, date);
 	if (ashiyaVenue) {
 		venueMap.set(ashiyaVenue.venueName, mergeVenueRecord(venueMap.get(ashiyaVenue.venueName) ?? null, ashiyaVenue));
+	}
+
+	const kiryuVenue = await createKiryuVenue(feed, date);
+	if (kiryuVenue) {
+		venueMap.set(kiryuVenue.venueName, mergeVenueRecord(venueMap.get(kiryuVenue.venueName) ?? null, kiryuVenue));
 	}
 
 	const fukuokaVenue = await createFukuokaVenue(feed, date);

@@ -1482,6 +1482,22 @@ type BoatAshiyaFrameLast10Row = {
 	source?: string | undefined;
 };
 
+type BoatKiryuFrameLast10Row = BoatAshiyaFrameLast10Row;
+
+type BoatKiryuCourseResultRow = {
+	frameNo: number;
+	className: string;
+	registerNo: string;
+	playerName: string;
+	course: string;
+	entryRate: string;
+	averageStart: string;
+	firstRate: string;
+	secondRate: string;
+	thirdRate: string;
+	source?: string | undefined;
+};
+
 type BoatFukuokaScoreRateGuideRow = {
 	frameNo: number;
 	registrationNo: string;
@@ -4034,6 +4050,77 @@ function getAshiyaFrameLast10(raceExtra: BoatVenueExtraRace | null): BoatAshiyaF
 		.sort((left, right) => left.frameNo - right.frameNo);
 }
 
+function getKiryuFrameLast10(raceExtra: BoatVenueExtraRace | null): BoatKiryuFrameLast10Row[] {
+	const frameLast10 = raceExtra && isVenueExtraRecord(raceExtra)
+		? (raceExtra as Record<string, unknown>).kiryuFrameLast10
+		: null;
+
+	if (!Array.isArray(frameLast10)) {
+		return [];
+	}
+
+	return frameLast10
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || readVenueExtraString(item.racerName) || readVenueExtraString(item.name) || `枠${frameNo}`,
+				profile: readVenueExtraString(item.profile),
+				courseHistory: Array.isArray(item.courseHistory) ? item.courseHistory.map((value) => readVenueExtraString(value)).slice(0, 10) : [],
+				finishHistory: Array.isArray(item.finishHistory) ? item.finishHistory.map((value) => readVenueExtraString(value)).slice(0, 10) : [],
+				startTimingHistory: Array.isArray(item.startTimingHistory) ? item.startTimingHistory.map((value) => readVenueExtraString(value)).slice(0, 10) : [],
+				frameWinRate: readVenueExtraString(item.frameWinRate),
+				frameAverageStart: readVenueExtraString(item.frameAverageStart),
+				frameStartOrder: readVenueExtraString(item.frameStartOrder),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getKiryuCourseResults(raceExtra: BoatVenueExtraRace | null): BoatKiryuCourseResultRow[] {
+	const courseResults = raceExtra && isVenueExtraRecord(raceExtra)
+		? (raceExtra as Record<string, unknown>).kiryuCourseResults
+		: null;
+
+	if (!Array.isArray(courseResults)) {
+		return [];
+	}
+
+	return courseResults
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				className: readVenueExtraString(item.className),
+				registerNo: readVenueExtraString(item.registerNo) || readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName) || `枠${frameNo}`,
+				course: readVenueExtraString(item.course),
+				entryRate: readVenueExtraString(item.entryRate),
+				averageStart: readVenueExtraString(item.averageStart),
+				firstRate: readVenueExtraString(item.firstRate),
+				secondRate: readVenueExtraString(item.secondRate),
+				thirdRate: readVenueExtraString(item.thirdRate),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo || Number(left.course) - Number(right.course));
+}
+
 function getFukuokaScoreRateGuide(raceExtra: BoatVenueExtraRace | null): BoatFukuokaScoreRateGuideRow[] {
 	if (!raceExtra || !Array.isArray(raceExtra.fukuokaScoreRateGuide)) {
 		return [];
@@ -4859,6 +4946,7 @@ const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
 	徳山: "complete",
 	常滑: "complete",
 	芦屋: "complete",
+	桐生: "complete",
 };
 
 const venueOfficialLinkStatusMeta: Record<
@@ -5452,6 +5540,16 @@ const selectedAshiyaFrameLast10 = useMemo(
 	[selectedRaceExtra],
 );
 
+const selectedKiryuFrameLast10 = useMemo(
+	() => getKiryuFrameLast10(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedKiryuCourseResults = useMemo(
+	() => getKiryuCourseResults(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
 const selectedFukuokaScoreRateGuide = useMemo(
 	() => getFukuokaScoreRateGuide(selectedRaceExtra),
 	[selectedRaceExtra],
@@ -5581,6 +5679,7 @@ const isMikuniVenue = selectedVenue?.venueName === "三国";
 const isTokuyamaVenue = selectedVenue?.venueName === "徳山";
 const isTokonameVenue = selectedVenue?.venueName === "常滑";
 const isAshiyaVenue = selectedVenue?.venueName === "芦屋";
+const isKiryuVenue = selectedVenue?.venueName === "桐生";
 const selectedVenueOfficialLinkStatus = getVenueOfficialLinkStatus(selectedVenue?.venueName);
 const selectedVenueOfficialLinkStatusMeta = venueOfficialLinkStatusMeta[selectedVenueOfficialLinkStatus];
 const hasOmuraEntryData = selectedOmuraEntryTable.length > 0;
@@ -5615,6 +5714,8 @@ const hasFukuokaRacerCommentsData = selectedFukuokaRacerComments.length > 0;
 const hasFukuokaFramePast10Data = selectedFukuokaFramePast10.length > 0;
 const hasTokuyamaFramePast10Data = selectedTokuyamaFramePast10.length > 0;
 const hasAshiyaFrameLast10Data = selectedAshiyaFrameLast10.length > 0;
+const hasKiryuFrameLast10Data = selectedKiryuFrameLast10.length > 0;
+const hasKiryuCourseResultsData = selectedKiryuCourseResults.length > 0;
 const hasKojimaBeforeInfoData = selectedKojimaBeforeInfo.length > 0;
 const hasKojimaSeriesResultsData = selectedKojimaSeriesResults.length > 0;
 const hasKojimaRecentResultsData = selectedKojimaRecentResults.length > 0;
@@ -6560,6 +6661,61 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 				weather?.humidity ? `湿度 ${weather.humidity}` : "",
 				weather?.rainfall ? `雨量 ${weather.rainfall}` : "",
 				weather?.observedAt || weather?.updatedAt ? (weather.observedAt || weather.updatedAt) : "",
+			].filter(Boolean);
+			return waterLabels.length > 0 ? waterLabels.join(" / ") : "水面情報確認中";
+		}
+	}
+
+	if (isKiryuVenue) {
+		if (option.key === "official") {
+			return officialRows > 0 ? `展示 ${officialRows}艇 / 展示タイム・体重・チルト` : "公式直前情報待ち";
+		}
+
+		if (option.key === "start") {
+			return startRows > 0 ? `進入・ST ${startRows}艇` : "スタート展示待ち";
+		}
+
+		if (option.key === "records") {
+			const kiryuSectionResults = (selectedRaceExtra as Record<string, unknown> | null)?.kiryuSectionResults;
+			const labels = [
+				officialScores > 0 ? `得点率 ${officialScores}件` : "",
+				officialScores > 0 ? "得点率早見あり" : "",
+				Array.isArray(kiryuSectionResults) && kiryuSectionResults.length > 0 ? "節間成績あり" : "",
+				hasKiryuFrameLast10Data ? "枠番別10走あり" : "",
+				hasKiryuCourseResultsData ? "進入コース別成績あり" : "",
+			].filter(Boolean);
+			return labels.length > 0 ? labels.join(" / ") : "成績データ待ち";
+		}
+
+		if (option.key === "exhibition") {
+			const labels = [
+				selectedOriginalExhibitionRows.length > 0 ? `展示 ${selectedOriginalExhibitionRows.length}艇` : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.exhibitionTime)) ? "展示タイムあり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.tilt)) ? "チルトあり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.motorNo)) ? "モーター番号あり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.turnTime)) ? "まわり足あり" : "",
+				selectedOriginalExhibitionRows.some((row) => Boolean(row.straightTime)) ? "直線あり" : "",
+			].filter(Boolean);
+			return labels.length > 0 ? labels.join(" / ") : "展示公開待ち";
+		}
+
+		if (option.key === "motor") {
+			return selectedMotorSummaryDisplay.items.length > 0 ? `モーター ${selectedMotorSummaryDisplay.items.length}件 / ボートデータあり / 前検タイムあり / 使用履歴あり` : "モーター情報待ち";
+		}
+
+		if (option.key === "water") {
+			const waterSurfaceInfo = selectedWaterMemo?.waterSurfaceInfo;
+			const waterLabels = [
+				waterSurfaceInfo ? "水面特性あり" : "",
+				waterSurfaceInfo?.surfaceSummary?.includes("淡水") ? "淡水" : "",
+				waterSurfaceInfo?.surfaceSummary?.includes("なし") ? "水位変化なし" : "",
+				waterSurfaceInfo?.featureSummary?.includes("赤城おろし") ? "赤城おろし/夏場まくり傾向あり" : "",
+				waterSurfaceInfo?.featureSummary?.includes("ナイター") ? "ナイター/標高特性あり" : "",
+				waterSurfaceInfo?.courseSummary ? "コース別入着率あり" : "",
+				weather?.windSpeed ? `風 ${weather.windSpeed}` : "",
+				weather?.waveHeight ? `波 ${weather.waveHeight}` : "",
+				weather?.temperature || weather?.airTemperature ? `気温 ${weather.temperature || weather.airTemperature}` : "",
+				weather?.waterTemperature ? `水温 ${weather.waterTemperature}` : "",
 			].filter(Boolean);
 			return waterLabels.length > 0 ? waterLabels.join(" / ") : "水面情報確認中";
 		}
@@ -9794,6 +9950,105 @@ body:has(.races-page-root) {
 												<td style={venueExtrasBodyCellStyle}>{item.frameStartOrder || "-"}</td>
 											</tr>
 										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isKiryuVenue && hasKiryuFrameLast10Data ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>桐生枠番別10走</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>枠</th>
+											<th style={venueExtrasHeadCellStyle}>選手</th>
+											{Array.from({ length: 10 }, (_, index) => (
+												<th key={`kiryu-frame10-head-${index}`} style={venueExtrasHeadCellStyle}>{10 - index}走</th>
+											))}
+											<th style={venueExtrasHeadCellStyle}>枠番勝率</th>
+											<th style={venueExtrasHeadCellStyle}>枠番平均ST</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedKiryuFrameLast10.map((item) => (
+											<tr key={`kiryu-frame10-${item.frameNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>
+													<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+														<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+														<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+															{item.className || "-"} / {item.registerNo || "-"}
+														</span>
+													</div>
+												</td>
+												{Array.from({ length: 10 }, (_, index) => (
+													<td key={`kiryu-frame10-cell-${item.frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+														<div style={narutoHistoryStackStyle}>
+															<span style={narutoHistoryCourseStyle}>{item.courseHistory[index] || " "}</span>
+															<span style={narutoHistoryFinishStyle}>{item.finishHistory[index] || "-"}</span>
+															<span style={{ fontSize: "0.66rem", color: boatTheme.colors.muted }}>ST {item.startTimingHistory[index] || "-"}</span>
+														</div>
+													</td>
+												))}
+												<td style={venueExtrasBodyCellStyle}>{item.frameWinRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.frameAverageStart || "-"}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isKiryuVenue && hasKiryuCourseResultsData ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>桐生進入コース別成績</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "1240px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>枠</th>
+											<th style={venueExtrasHeadCellStyle}>選手</th>
+											{Array.from({ length: 6 }, (_, index) => (
+												<th key={`kiryu-course-head-${index}`} style={venueExtrasHeadCellStyle}>{index + 1}コース</th>
+											))}
+										</tr>
+									</thead>
+									<tbody>
+										{Array.from(new Set(selectedKiryuCourseResults.map((item) => item.frameNo))).map((frameNo) => {
+											const rows = selectedKiryuCourseResults.filter((item) => item.frameNo === frameNo);
+											const first = rows[0];
+											return (
+												<tr key={`kiryu-course-${frameNo}`}>
+													<td style={venueExtrasBodyCellStyle}>{frameNo}</td>
+													<td style={venueExtrasBodyCellStyle}>
+														<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+															<strong>{first?.playerName || `枠${frameNo}`}</strong>
+															<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+																{first?.className || "-"} / {first?.registerNo || "-"}
+															</span>
+														</div>
+													</td>
+													{Array.from({ length: 6 }, (_, index) => {
+														const course = rows.find((item) => Number(item.course) === index + 1);
+														return (
+															<td key={`kiryu-course-cell-${frameNo}-${index}`} style={venueExtrasBodyCellStyle}>
+																{course ? (
+																	<div style={{ display: "grid", gap: "3px", minWidth: "92px", lineHeight: 1.35 }}>
+																		<span>進入率 {course.entryRate || "-"}</span>
+																		<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>平均ST {course.averageStart || "-"}</span>
+																		<span style={{ fontSize: "0.69rem", color: boatTheme.colors.muted }}>1/2/3着 {course.firstRate || "-"} / {course.secondRate || "-"} / {course.thirdRate || "-"}</span>
+																	</div>
+																) : "-"}
+															</td>
+														);
+													})}
+												</tr>
+											);
+										})}
 									</tbody>
 								</table>
 							</div>
