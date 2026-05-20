@@ -89,40 +89,77 @@ const getFrameBadgeStyle = (frameNo: BoatFrameNumber) => ({
 	border: frameNo === 1 ? `1px solid ${boatTheme.colors.line}` : "none",
 });
 
+const hasDisplayValue = (value?: string | null) => Boolean(value && value.trim().length > 0);
+
 export function BoatExhibitionTable({ exhibitions }: BoatExhibitionTableProps) {
+	const hasPlayerName = exhibitions.some((item) => hasDisplayValue(item.playerName));
+	const hasExhibitionTime = exhibitions.some((item) => hasDisplayValue(item.exhibitionTime));
+	const hasWeight = exhibitions.some((item) => hasDisplayValue(item.weight));
+	const hasWeightAdjustment = exhibitions.some((item) => hasDisplayValue(item.weightAdjustment));
+	const hasTilt = exhibitions.some((item) => hasDisplayValue(item.tilt));
+	const hasPartsExchange = exhibitions.some((item) => hasDisplayValue(item.partsExchange));
+	const hasOneLapTime = exhibitions.some((item) => hasDisplayValue(item.oneLapTime));
+	const hasTurnTime = exhibitions.some((item) => hasDisplayValue(item.turnTime));
+	const hasStraightTime = exhibitions.some((item) => hasDisplayValue(item.straightTime));
+	const hasStartTiming = exhibitions.some((item) => hasDisplayValue(item.startTiming));
+	const hasCourse = exhibitions.some((item) => hasDisplayValue(item.course));
+	const hasMemo = exhibitions.some((item) => hasDisplayValue(item.memo));
+	const hasEvaluation = exhibitions.some((item) => item.evaluation && item.evaluation !== "unknown");
+
 	return (
 		<section style={sectionStyle}>
 			<div style={{ display: "grid", gap: "4px" }}>
 				<h4 style={titleStyle}>展示</h4>
-				<p style={descriptionStyle}>展示タイムと進入、評価メモを軽い見た目のまま比較できます。</p>
+				<p style={descriptionStyle}>
+					展示タイム、チルト、体重、会場独自展示データを取得できている列だけで表示します。
+				</p>
 			</div>
 			<div style={tableWrapStyle}>
 				<table style={tableStyle}>
 					<thead>
 						<tr>
-							<th style={headCellStyle}>枠</th>
-							<th style={headCellStyle}>展示タイム</th>
-							<th style={headCellStyle}>チルト</th>
-							<th style={headCellStyle}>ST展示</th>
-							<th style={headCellStyle}>進入</th>
-							<th style={headCellStyle}>評価</th>
-							<th style={headCellStyle}>メモ</th>
+							<th style={headCellStyle}>艇番</th>
+							{hasPlayerName ? <th style={headCellStyle}>選手名</th> : null}
+							{hasExhibitionTime ? <th style={headCellStyle}>展示タイム</th> : null}
+							{hasWeight ? <th style={headCellStyle}>体重</th> : null}
+							{hasWeightAdjustment ? <th style={headCellStyle}>調整</th> : null}
+							{hasTilt ? <th style={headCellStyle}>チルト</th> : null}
+							{hasPartsExchange ? <th style={headCellStyle}>部品交換</th> : null}
+							{hasOneLapTime ? <th style={headCellStyle}>一周</th> : null}
+							{hasTurnTime ? <th style={headCellStyle}>まわり足</th> : null}
+							{hasStraightTime ? <th style={headCellStyle}>直線</th> : null}
+							{hasStartTiming ? <th style={headCellStyle}>ST展示</th> : null}
+							{hasCourse ? <th style={headCellStyle}>進入</th> : null}
+							{hasEvaluation ? <th style={headCellStyle}>評価</th> : null}
+							{hasMemo ? <th style={headCellStyle}>メモ</th> : null}
 						</tr>
 					</thead>
 					<tbody>
 						{exhibitions.map((item, index) => (
-							<tr key={`${item.frameNo}-${item.course}-${item.exhibitionTime}` } style={{ background: index % 2 === 0 ? "rgba(255, 255, 255, 0.86)" : "rgba(247, 252, 255, 0.74)" }}>
+							<tr
+								key={`${item.frameNo}-${item.course}-${item.exhibitionTime}`}
+								style={{ background: index % 2 === 0 ? "rgba(255, 255, 255, 0.86)" : "rgba(247, 252, 255, 0.74)" }}
+							>
 								<td style={bodyCellStyle}>
 									<span style={getFrameBadgeStyle(item.frameNo)}>{item.frameNo}</span>
 								</td>
-								<td style={bodyCellStyle}>{item.exhibitionTime ?? "-"}</td>
-								<td style={bodyCellStyle}>{item.tilt ?? "-"}</td>
-								<td style={bodyCellStyle}>{item.startTiming ?? "-"}</td>
-								<td style={bodyCellStyle}>{item.course ?? "-"}</td>
-								<td style={{ ...bodyCellStyle, color: boatTheme.colors.navy, fontWeight: 700 }}>
-									{evaluationMap[item.evaluation ?? "unknown"]}
-								</td>
-								<td style={bodyCellStyle}>{item.memo ?? "-"}</td>
+								{hasPlayerName ? <td style={bodyCellStyle}>{item.playerName || "-"}</td> : null}
+								{hasExhibitionTime ? <td style={bodyCellStyle}>{item.exhibitionTime || "-"}</td> : null}
+								{hasWeight ? <td style={bodyCellStyle}>{item.weight || "-"}</td> : null}
+								{hasWeightAdjustment ? <td style={bodyCellStyle}>{item.weightAdjustment || "-"}</td> : null}
+								{hasTilt ? <td style={bodyCellStyle}>{item.tilt || "-"}</td> : null}
+								{hasPartsExchange ? <td style={bodyCellStyle}>{item.partsExchange || "-"}</td> : null}
+								{hasOneLapTime ? <td style={bodyCellStyle}>{item.oneLapTime || "-"}</td> : null}
+								{hasTurnTime ? <td style={bodyCellStyle}>{item.turnTime || "-"}</td> : null}
+								{hasStraightTime ? <td style={bodyCellStyle}>{item.straightTime || "-"}</td> : null}
+								{hasStartTiming ? <td style={bodyCellStyle}>{item.startTiming || "-"}</td> : null}
+								{hasCourse ? <td style={bodyCellStyle}>{item.course || "-"}</td> : null}
+								{hasEvaluation ? (
+									<td style={{ ...bodyCellStyle, color: boatTheme.colors.navy, fontWeight: 700 }}>
+										{evaluationMap[item.evaluation ?? "unknown"]}
+									</td>
+								) : null}
+								{hasMemo ? <td style={bodyCellStyle}>{item.memo || "-"}</td> : null}
 							</tr>
 						))}
 					</tbody>

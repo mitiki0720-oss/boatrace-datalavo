@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import type { BoatPayoutItem, BoatRaceItem, BoatRacerItem, BoatWeatherActual } from "../../lib/boatraceTypes";
+import type { BoatExhibitionItem, BoatFrameNumber, BoatPayoutItem, BoatRaceItem, BoatRacerItem, BoatWeatherActual } from "../../lib/boatraceTypes";
+import type { BoatVenueExtraRace } from "../../lib/boatVenueExtrasFeed";
 import { boatTheme } from "../../lib/theme";
 import { BoatExhibitionTable } from "./BoatExhibitionTable";
 import { BoatOddsPreview } from "./BoatOddsPreview";
@@ -9,6 +10,7 @@ type BoatRaceDetailPanelProps = {
 	venueName: string;
 	venueWeatherActual?: BoatWeatherActual | null;
 	race: BoatRaceItem | null | undefined;
+	venueRaceExtra?: BoatVenueExtraRace | null;
 	entryRacers?: BoatRacerItem[];
 	entryNote?: ReactNode;
 	afterEntryContent?: ReactNode;
@@ -443,6 +445,159 @@ function getSafeDisplayValue(value?: string | null, fallback = "確認中"): str
 	return value && value.trim().length > 0 ? value : fallback;
 }
 
+function getAnyStringValue(value: unknown): string {
+	if (typeof value === "string") {
+		return value.trim();
+	}
+
+	if (typeof value === "number" && Number.isFinite(value)) {
+		return String(value);
+	}
+
+	return "";
+}
+
+function getFrameNo(value: unknown): BoatFrameNumber | null {
+	const frameNo = Number(value);
+	return Number.isInteger(frameNo) && frameNo >= 1 && frameNo <= 6 ? frameNo as BoatFrameNumber : null;
+}
+
+function toRecordArray(value: unknown): Record<string, unknown>[] {
+	if (Array.isArray(value)) {
+		return value.filter(isRecord);
+	}
+
+	if (isRecord(value)) {
+		return Object.values(value).filter(isRecord);
+	}
+
+	return [];
+}
+
+function firstDisplayValue(...values: Array<string | undefined>): string | undefined {
+	return values.find((value) => value && value.trim().length > 0);
+}
+
+function mergeExhibitionValue(current: string | undefined, next: string | undefined): string | undefined {
+	return current && current.trim().length > 0 ? current : next || current;
+}
+
+function mergeExhibitionPlayerName(current: string | undefined, next: string | undefined): string | undefined {
+	if (!next || !next.trim()) {
+		return current;
+	}
+
+	if (!current || !current.trim() || /^枠\d+$/.test(current.trim())) {
+		return next;
+	}
+
+	return current;
+}
+
+function mergeExhibitionRow(
+	rowsByFrameNo: Map<BoatFrameNumber, BoatExhibitionItem>,
+	frameNo: BoatFrameNumber,
+	next: Partial<BoatExhibitionItem>,
+) {
+	const current = rowsByFrameNo.get(frameNo) ?? { frameNo };
+	rowsByFrameNo.set(frameNo, {
+		...current,
+		frameNo,
+		playerName: mergeExhibitionPlayerName(current.playerName, next.playerName),
+		exhibitionTime: mergeExhibitionValue(current.exhibitionTime, next.exhibitionTime),
+		weight: mergeExhibitionValue(current.weight, next.weight),
+		weightAdjustment: mergeExhibitionValue(current.weightAdjustment, next.weightAdjustment),
+		tilt: mergeExhibitionValue(current.tilt, next.tilt),
+		partsExchange: mergeExhibitionValue(current.partsExchange, next.partsExchange),
+		oneLapTime: mergeExhibitionValue(current.oneLapTime, next.oneLapTime),
+		turnTime: mergeExhibitionValue(current.turnTime, next.turnTime),
+		straightTime: mergeExhibitionValue(current.straightTime, next.straightTime),
+		startTiming: mergeExhibitionValue(current.startTiming, next.startTiming),
+		course: mergeExhibitionValue(current.course, next.course),
+		weatherMemo: mergeExhibitionValue(current.weatherMemo, next.weatherMemo),
+		memo: mergeExhibitionValue(current.memo, next.memo),
+		evaluation: current.evaluation && current.evaluation !== "unknown" ? current.evaluation : next.evaluation ?? current.evaluation,
+	});
+}
+
+function readExhibitionRow(item: Record<string, unknown>): Partial<BoatExhibitionItem> & { frameNo: BoatFrameNumber } | null {
+	const frameNo = getFrameNo(item.frameNo ?? item.frame ?? item.lane ?? item.boatNumber);
+	if (!frameNo) {
+		return null;
+	}
+
+	return {
+		frameNo,
+		playerName: firstDisplayValue(
+			getAnyStringValue(item.playerName),
+			getAnyStringValue(item.racerName),
+			getAnyStringValue(item.name),
+			getAnyStringValue(item.boatRacerName),
+		),
+		exhibitionTime: firstDisplayValue(getAnyStringValue(item.exhibitionTime), getAnyStringValue(item.displayTime)),
+		weight: getAnyStringValue(item.weight),
+		weightAdjustment: firstDisplayValue(getAnyStringValue(item.weightAdjustment), getAnyStringValue(item.adjustment)),
+		tilt: getAnyStringValue(item.tilt),
+		partsExchange: firstDisplayValue(getAnyStringValue(item.partsExchange), getAnyStringValue(item.partsReplacement)),
+		oneLapTime: firstDisplayValue(getAnyStringValue(item.oneLapTime), getAnyStringValue(item.lapTime)),
+		turnTime: firstDisplayValue(getAnyStringValue(item.turnTime), getAnyStringValue(item.turningTime)),
+		straightTime: getAnyStringValue(item.straightTime),
+		startTiming: firstDisplayValue(getAnyStringValue(item.startTiming), getAnyStringValue(item.stDisplay)),
+		course: firstDisplayValue(getAnyStringValue(item.course), getAnyStringValue(item.entryCourse)),
+		memo: firstDisplayValue(getAnyStringValue(item.memo), getAnyStringValue(item.note), getAnyStringValue(item.exhibitionEvaluation)),
+	};
+}
+
+function readVenueExtraExhibitionArrays(venueRaceExtra?: BoatVenueExtraRace | null): Record<string, unknown>[][] {
+	if (!venueRaceExtra) {
+		return [];
+	}
+
+	const officialBeforeInfo = isRecord(venueRaceExtra.officialBeforeInfo) ? venueRaceExtra.officialBeforeInfo : null;
+
+	return [
+		toRecordArray(officialBeforeInfo?.exhibitionRows),
+		toRecordArray(officialBeforeInfo?.beforeInfo),
+		toRecordArray(venueRaceExtra.beforeInfo),
+		toRecordArray(venueRaceExtra.originalExhibition),
+	].filter((rows) => rows.length > 0);
+}
+
+function buildDisplayExhibitions(race: BoatRaceItem, venueRaceExtra?: BoatVenueExtraRace | null): BoatExhibitionItem[] {
+	const rowsByFrameNo = new Map<BoatFrameNumber, BoatExhibitionItem>();
+
+	for (const item of race.exhibitions ?? []) {
+		mergeExhibitionRow(rowsByFrameNo, item.frameNo, item);
+	}
+
+	for (const rows of readVenueExtraExhibitionArrays(venueRaceExtra)) {
+		for (const item of rows) {
+			const row = readExhibitionRow(item);
+			if (row) {
+				mergeExhibitionRow(rowsByFrameNo, row.frameNo, row);
+			}
+		}
+	}
+
+	return Array.from(rowsByFrameNo.values())
+		.filter((item) =>
+			Boolean(
+				item.exhibitionTime ||
+				item.weight ||
+				item.weightAdjustment ||
+				item.tilt ||
+				item.partsExchange ||
+				item.oneLapTime ||
+				item.turnTime ||
+				item.straightTime ||
+				item.startTiming ||
+				item.course ||
+				item.playerName,
+			),
+		)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
 function getOptionalDisplayValue(value?: string | null): string {
 	return value && value.trim().length > 0 ? value.trim() : "";
 }
@@ -655,7 +810,7 @@ function renderStartInfo(startInfo: ResultStartInfoDisplay[]) {
 	);
 }
 
-export function BoatRaceDetailPanel({ venueWeatherActual, race, entryRacers, entryNote, afterEntryContent }: BoatRaceDetailPanelProps) {
+export function BoatRaceDetailPanel({ venueWeatherActual, race, venueRaceExtra, entryRacers, entryNote, afterEntryContent }: BoatRaceDetailPanelProps) {
 	if (!race) {
 		return <p style={emptyStyle}>レースが選択されていません。</p>;
 	}
@@ -664,7 +819,7 @@ export function BoatRaceDetailPanel({ venueWeatherActual, race, entryRacers, ent
 	const racers = entryRacers && entryRacers.length > 0
 	 		? entryRacers
 			: race.racers ?? [];
-	const exhibitions = race.exhibitions ?? [];
+	const exhibitions = buildDisplayExhibitions(race, venueRaceExtra);
 	const odds = race.oddsPreview ?? [];
 	const isConfirmed = getStringValue(resultRecord.status) === "confirmed";
 	const weatherItems = getWeatherItems(venueWeatherActual ?? getResultWeatherActual(resultRecord) ?? race.weatherActual);

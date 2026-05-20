@@ -6797,6 +6797,7 @@ body:has(.races-page-root) {
 						venueName={selectedVenue?.venueName ?? "-"}
 						venueWeatherActual={selectedOfficialWeatherCondition}
 						race={selectedRaceForDetail}
+						venueRaceExtra={selectedRaceExtra}
 						entryNote={selectedRaceEntryNote}
 						
 						afterEntryContent={

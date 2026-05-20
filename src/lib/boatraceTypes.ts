@@ -72,8 +72,15 @@ export type BoatBodyItem = {
 
 export type BoatExhibitionItem = {
 	frameNo: BoatFrameNumber;
+	playerName?: string;
 	exhibitionTime?: string;
+	weight?: string;
+	weightAdjustment?: string;
 	tilt?: string;
+	partsExchange?: string;
+	oneLapTime?: string;
+	turnTime?: string;
+	straightTime?: string;
 	startTiming?: string;
 	course?: string;
 	weatherMemo?: string;
