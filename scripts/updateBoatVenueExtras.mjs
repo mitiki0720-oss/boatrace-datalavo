@@ -76,6 +76,13 @@ const KIRYU_TIMERANK_URL = "https://www.kiryu-kyotei.com/modules/raceinfo/?page=
 const KIRYU_MOTOR_RANK_URL = "https://www.kiryu-kyotei.com/modules/datafile/?page=index_motorrank";
 const KIRYU_BOAT_RANK_URL = "https://www.kiryu-kyotei.com/modules/datafile/?page=index_boatrank";
 const KIRYU_WATER_SURFACE_URL = "https://www.kiryu-kyotei.com/modules/datafile/?page=index_suimen";
+const MIYAJIMA_VENUE_NAME = "\u5bae\u5cf6";
+const MIYAJIMA_SOURCE = "boatrace-miyajima.com";
+const MIYAJIMA_TOP_URL = "https://www.boatrace-miyajima.com/";
+const MIYAJIMA_RACEDATA_URL = "https://www.boatrace-miyajima.com/racedata.html";
+const MIYAJIMA_TIMERANK_URL = "https://www.boatrace-miyajima.com/raceinfo_timerank.html";
+const MIYAJIMA_SCORE_RATE_URL = "https://www.boatrace-miyajima.com/yosen_point_rank.html";
+const MIYAJIMA_WEATHER_LIVE_URL = "https://www.boatrace-miyajima.com/weather_live/data/weather.txt";
 const FUKUOKA_VENUE_NAME = "福岡";
 const FUKUOKA_SOURCE = "boatrace-fukuoka.com";
 const KOJIMA_VENUE_NAME = "児島";
@@ -12005,6 +12012,415 @@ async function createKiryuVenue(feed, date) {
 	}
 }
 
+function getMiyajimaRaceEntries(race) {
+	const racers = Array.isArray(race?.racers) ? race.racers : [];
+	return racers.map((racer) => ({
+		frameNo: Number(racer.frameNo ?? racer.frame ?? racer.lane ?? racer.boatNumber),
+		registrationNo: compactText(racer.registrationNo ?? racer.racerId),
+		registerNo: compactText(racer.registrationNo ?? racer.racerId),
+		playerName: compactText(racer.playerName ?? racer.name ?? racer.boatRacerName),
+		racerName: compactText(racer.playerName ?? racer.name ?? racer.boatRacerName),
+		className: compactText(racer.class ?? racer.grade ?? racer.className),
+		branch: compactText(racer.branch),
+		averageStart: compactText(racer.averageStart ?? racer.avgSt ?? racer.st),
+		winRate: compactText(racer.winRate ?? racer.winningRate),
+		secondRate: compactText(racer.secondRate ?? racer.twoRate),
+		localWinRate: compactText(racer.localWinRate),
+		localSecondRate: compactText(racer.localSecondRate),
+		motorNo: compactText(racer.motorNo ?? racer.motorNumber),
+		motorSecondRate: compactText(racer.motorSecondRate ?? racer.motorTwoRate),
+		boatNo: compactText(racer.boatNo ?? racer.boatMotorNo ?? racer.boatEquipmentNo),
+		boatSecondRate: compactText(racer.boatSecondRate ?? racer.boatTwoRate),
+	})).filter((row) => row.frameNo >= 1 && row.frameNo <= 6);
+}
+
+function parseMiyajimaTimerank(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table.raceinfotable").first().find("tr").each((_, row) => {
+		const cells = $(row).find("td").map((__, cell) => readCellText($, cell)).get();
+		if (cells.length < 9 || !/^\d+$/.test(cells[0]) || !/^\d{4}$/.test(cells[1])) {
+			return;
+		}
+
+		rows.push({
+			rank: cells[0],
+			registrationNo: cells[1],
+			registerNo: cells[1],
+			playerName: cells[2],
+			racerName: cells[2],
+			className: cells[3],
+			motorNo: cells[4],
+			motorSecondRate: cells[5],
+			boatNo: cells[6],
+			boatSecondRate: cells[7],
+			preInspectionTime: cells[8],
+			source: MIYAJIMA_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseMiyajimaScoreRateRows(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table.raceinfotable").first().find("tr").each((_, row) => {
+		const cells = $(row).find("td").map((__, cell) => readCellText($, cell)).get();
+		if (cells.length < 8 || !/^\d+$/.test(cells[0]) || !/^\d{4}$/.test(cells[1])) {
+			return;
+		}
+
+		rows.push({
+			rank: cells[0],
+			registrationNo: cells[1],
+			playerName: cells[2],
+			className: cells[3],
+			scoreRate: cells[4],
+			starts: cells[5],
+			score: cells[6],
+			deduction: cells[7],
+			sectionResults: cells.slice(8, -1).filter(Boolean).join(" / "),
+			remarks: cells.at(-1) ?? "",
+			source: MIYAJIMA_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseMiyajimaRaceDataLinks(html) {
+	const $ = load(html);
+	const links = {};
+
+	$("a[href*='shussou/pdf_file/']").each((_, anchor) => {
+		const href = $(anchor).attr("href");
+		const label = compactText($(anchor).closest(".thum02").find(".txt").text()) || compactText($(anchor).text());
+		if (!href || !label) {
+			return;
+		}
+
+		const url = new URL(href, MIYAJIMA_TOP_URL).href;
+		const key = label.includes("\u9078\u624b\u7bc0\u9593\u6210\u7e3e\u8868") ? "sectionResults" :
+			label.includes("\u5c55\u793a\u822a\u8d70\u60c5\u5831\u5c65\u6b74\u4e00\u89a7\u8868") ? "exhibitionHistory" :
+			label.includes("\u4f53\u91cd\u5c65\u6b74\u4e00\u89a7\u8868") ? "weightHistory" :
+			label.includes("\u6700\u8fd1\u7bc0\u9078\u624b\u6210\u7e3e\u8868\uff08\u5f53\u5730\uff09") ? "localRecent3" :
+			label.includes("\u6700\u8fd1\u7bc0\u9078\u624b\u6210\u7e3e\u8868\uff08\u5168\u56fd\uff09") ? "nationalRecent3" :
+			label.includes("\u524d\u691c\u822a\u8d70\u30bf\u30a4\u30e0") ? "preInspectionLapTimes" :
+			label.includes("\u30e2\u30fc\u30bf\u30fc\u6210\u7e3e\u96c6\u8a08\u8868") ? "motorStats" :
+			label.includes("\u30e2\u30fc\u30bf\u30fc\u524d\u56de\u6210\u7e3e\u8868") ? "motorHistory" :
+			label.includes("\u30dc\u30fc\u30c8\u6210\u7e3e\u96c6\u8a08\u8868") ? "boatStats" :
+			label.includes("\u30dc\u30fc\u30c8\u524d\u56de\u6210\u7e3e\u8868") ? "boatHistory" :
+			label.includes("\u9078\u624b\u6210\u7e3e\u8868") ? "racerStats" :
+			label.includes("\u9078\u624b\u5225\u6210\u7e3e") ? "racerStartStats" :
+			"other";
+
+		if (key !== "other" && !links[key]) {
+			links[key] = { label, url, source: MIYAJIMA_SOURCE };
+		}
+	});
+
+	return links;
+}
+
+async function fetchMiyajimaWeatherCondition() {
+	try {
+		const text = await fetchHtml(MIYAJIMA_WEATHER_LIVE_URL);
+		const parsed = JSON.parse(text);
+		const item = Array.isArray(parsed?.Items) ? parsed.Items[0] : null;
+		if (!item) {
+			return null;
+		}
+
+		return normalizeVenueWeatherCondition({
+			windDirection: item.Dm ? `${item.Dm}\u00b0` : "",
+			windDirectionText: item.Dm ? `${item.Dm}\u00b0` : "",
+			windSpeed: item.Sm !== undefined ? `${item.Sm}m/s` : "",
+			temperature: item.Ta !== undefined ? `${item.Ta}\u2103` : "",
+			airTemperature: item.Ta !== undefined ? `${item.Ta}\u2103` : "",
+			waterTemperature: item.Th !== undefined ? `${item.Th}\u2103` : "",
+			pressure: item.Pa !== undefined ? `${item.Pa}hPa` : "",
+			humidity: item.Ua !== undefined ? `${item.Ua}%` : "",
+			rainfall: item.Ra !== undefined ? `${item.Ra}mm` : "",
+			observedAt: compactText(item.logtime),
+			updatedAt: compactText(item.logtime),
+			source: MIYAJIMA_SOURCE,
+			sourceUrl: MIYAJIMA_WEATHER_LIVE_URL,
+			sourceLabel: "\u5bae\u5cf6\u516c\u5f0f\u6c34\u9762\u6c17\u8c61\u60c5\u5831LIVE",
+		}, {
+			source: MIYAJIMA_SOURCE,
+			sourceUrl: MIYAJIMA_WEATHER_LIVE_URL,
+			sourceLabel: "\u5bae\u5cf6\u516c\u5f0f\u6c34\u9762\u6c17\u8c61\u60c5\u5831LIVE",
+		});
+	} catch (error) {
+		console.warn(`[venue-extras] miyajima weather failed: ${error.message}`);
+		return null;
+	}
+}
+
+function createMiyajimaMotorSummary(entries, timerankRows) {
+	const byRegistration = new Map(timerankRows.map((row) => [row.registrationNo, row]));
+	const byMotorNo = new Map(timerankRows.map((row) => [row.motorNo, row]));
+
+	return entries.map((entry) => {
+		const timerank = byRegistration.get(entry.registrationNo) ?? byMotorNo.get(entry.motorNo) ?? {};
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			playerName: entry.playerName,
+			className: entry.className,
+			motorNo: timerank.motorNo || entry.motorNo,
+			motorSecondRate: timerank.motorSecondRate || entry.motorSecondRate,
+			motorWinRate: "",
+			boatNo: timerank.boatNo || entry.boatNo,
+			boatSecondRate: timerank.boatSecondRate || entry.boatSecondRate,
+			boatWinRate: "",
+			preInspectionTime: timerank.preInspectionTime || "",
+			previousUser: "",
+			recentResults: timerank.rank ? `\u524d\u691c\u9806\u4f4d ${timerank.rank}` : "",
+			motorGrade: "",
+			comment: timerank.preInspectionTime ? `\u524d\u691c\u30bf\u30a4\u30e0 ${timerank.preInspectionTime}` : "",
+			source: MIYAJIMA_SOURCE,
+		};
+	}).filter((row) => row.motorNo || row.boatNo || row.preInspectionTime);
+}
+
+function createMiyajimaScoreRows(entries, scoreRows, officialRows = []) {
+	const byRegistration = new Map(scoreRows.map((row) => [row.registrationNo, row]));
+	const officialByFrame = new Map(officialRows.map((row) => [row.frameNo, row]));
+
+	return entries.map((entry) => {
+		const score = byRegistration.get(entry.registrationNo) ?? {};
+		const official = officialByFrame.get(entry.frameNo) ?? {};
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			playerName: entry.playerName,
+			className: entry.className,
+			branch: entry.branch,
+			averageStart: entry.averageStart || official.averageStart || "",
+			winRate: entry.winRate || official.winRate || "",
+			secondRate: entry.secondRate || official.secondRate || "",
+			localWinRate: entry.localWinRate || official.localWinRate || "",
+			localSecondRate: entry.localSecondRate || official.localSecondRate || "",
+			motorNo: entry.motorNo || official.motorNo || "",
+			motorSecondRate: entry.motorSecondRate || official.motorSecondRate || "",
+			scoreRate: score.scoreRate || official.scoreRate || "",
+			score: score.score || "",
+			deduction: score.deduction || "",
+			starts: score.starts || "",
+			sectionResults: score.sectionResults || "",
+			remarks: score.remarks || "",
+			source: score.source || BOATRACE_OFFICIAL_SOURCE,
+		};
+	});
+}
+
+function createMiyajimaOriginalExhibition(entries, beforeInfo) {
+	const beforeByFrame = new Map(beforeInfo.map((row) => [row.frameNo, row]));
+	return entries.map((entry) => {
+		const before = beforeByFrame.get(entry.frameNo) ?? {};
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			registerNo: entry.registrationNo,
+			playerName: entry.playerName,
+			racerName: entry.playerName,
+			className: entry.className,
+			weight: before.weight || "",
+			weightAdjustment: before.weightAdjustment || before.adjustment || "",
+			adjustment: before.adjustment || before.weightAdjustment || "",
+			tilt: before.tilt || "",
+			exhibitionTime: before.exhibitionTime || "",
+			motorNo: entry.motorNo,
+			lapTime: "",
+			turnTime: "",
+			straightTime: "",
+			originalTime: "",
+			lapMemo: "\u5bae\u5cf6\u516c\u5f0fHTML\u3067\u306f\u5468\u56de\u30bf\u30a4\u30e0/\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a\u30bf\u30a4\u30e0\u306e\u30c6\u30ad\u30b9\u30c8\u8868\u306f\u672a\u78ba\u8a8d",
+			sourceLabel: "\u5bae\u5cf6\u516c\u5f0f\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a\u30bf\u30a4\u30e0",
+			source: `${BOATRACE_OFFICIAL_SOURCE}+${MIYAJIMA_SOURCE}`,
+		};
+	}).filter((row) => row.exhibitionTime || row.tilt || row.motorNo);
+}
+
+function createMiyajimaAvailabilityRows(entries, key, link) {
+	if (!link) {
+		return [];
+	}
+
+	return entries.map((entry) => ({
+		frameNo: entry.frameNo,
+		registrationNo: entry.registrationNo,
+		playerName: entry.playerName,
+		className: entry.className,
+		sourceLabel: link.label,
+		sourceUrl: link.url,
+		source: MIYAJIMA_SOURCE,
+		status: "available-official-pdf",
+	}));
+}
+
+function createMiyajimaCourseRows(entries) {
+	return entries.map((entry) => ({
+		frameNo: entry.frameNo,
+		registrationNo: entry.registrationNo,
+		playerName: entry.playerName,
+		className: entry.className,
+		courseRows: Array.from({ length: 6 }, (_, index) => ({
+			courseNo: index + 1,
+			entryRate: "",
+			averageStart: "",
+			firstRate: "",
+			secondRate: "",
+			thirdRate: "",
+			fourthRate: "",
+			fifthRate: "",
+			sixthRate: "",
+		})),
+		source: MIYAJIMA_SOURCE,
+		sourceLabel: "\u5bae\u5cf6\u516c\u5f0f\u7af6\u8d70\u6c34\u9762\u30fb\u9032\u5165\u30b3\u30fc\u30b9\u5225\u60c5\u5831",
+	}));
+}
+
+async function createMiyajimaVenue(feed, date) {
+	const miyajimaVenue = findVenue(feed, MIYAJIMA_VENUE_NAME);
+	if (!miyajimaVenue) {
+		console.log("[venue-extras] miyajima: not held today");
+		return null;
+	}
+
+	try {
+		const [timerankHtml, scoreHtml, racedataHtml, weatherCondition] = await Promise.all([
+			fetchHtml(MIYAJIMA_TIMERANK_URL).catch(() => ""),
+			fetchHtml(MIYAJIMA_SCORE_RATE_URL).catch(() => ""),
+			fetchHtml(MIYAJIMA_RACEDATA_URL).catch(() => ""),
+			fetchMiyajimaWeatherCondition(),
+		]);
+
+		const timerankRows = parseMiyajimaTimerank(timerankHtml);
+		const scoreRows = parseMiyajimaScoreRateRows(scoreHtml);
+		const racedataLinks = parseMiyajimaRaceDataLinks(racedataHtml);
+		const races = getRaceList(miyajimaVenue);
+		const waterSurfaceInfo = {
+			surfaceSummary: "\u5bae\u5cf6\u516c\u5f0f\u306e\u6c34\u9762\u6c17\u8c61LIVE\u3068\u7af6\u8d70\u6c34\u9762\u30fb\u9032\u5165\u30b3\u30fc\u30b9\u5225\u60c5\u5831\u3092\u78ba\u8a8d\u5bfe\u8c61\u3068\u3057\u3066\u4fdd\u5b58",
+			featureSummary: "\u6c17\u8c61LIVE\u304b\u3089\u98a8\u901f\u30fb\u6c17\u6e29\u30fb\u6c34\u6e29\u30fb\u6c17\u5727\u30fb\u6e7f\u5ea6\u30fb\u96e8\u91cf\u3092\u53d6\u5f97",
+			courseSummary: "\u9032\u5165\u30b3\u30fc\u30b9\u5225\u60c5\u5831\u306f\u5bae\u5cf6\u516c\u5f0f\u5c0e\u7dda\u78ba\u8a8d\u6e08\u307f",
+			source: MIYAJIMA_SOURCE,
+		};
+
+		const raceExtras = races.map((race) => {
+			const entries = getMiyajimaRaceEntries(race);
+			const baseOfficialBeforeInfo = buildOfficialBeforeInfoForRace(race);
+			const beforeInfo = baseOfficialBeforeInfo.exhibitionRows.map((row) => {
+				const entry = entries.find((item) => item.frameNo === row.frameNo) ?? {};
+				return {
+					...row,
+					playerName: entry.playerName || row.playerName,
+					registrationNo: entry.registrationNo || "",
+					registerNo: entry.registrationNo || "",
+					className: entry.className || "",
+					weight: row.weight || "",
+					weightAdjustment: row.weightAdjustment || "",
+					adjustment: row.adjustment || row.weightAdjustment || "",
+					motorNo: entry.motorNo || "",
+					source: `${BOATRACE_OFFICIAL_SOURCE}+${MIYAJIMA_SOURCE}`,
+				};
+			});
+			const startExhibition = baseOfficialBeforeInfo.startExhibition.map((row) => {
+				const entry = entries.find((item) => item.frameNo === row.frameNo) ?? {};
+				return {
+					...row,
+					playerName: entry.playerName || "",
+					className: entry.className || "",
+					registerNo: entry.registrationNo || "",
+					exhibitionTime: beforeInfo.find((item) => item.frameNo === row.frameNo)?.exhibitionTime || "",
+					source: `${BOATRACE_OFFICIAL_SOURCE}+${MIYAJIMA_SOURCE}`,
+				};
+			});
+			const scoreQuickLook = createMiyajimaScoreRows(entries, scoreRows, baseOfficialBeforeInfo.scoreQuickLook);
+			const motorSummary = createMiyajimaMotorSummary(entries, timerankRows);
+			const originalExhibition = createMiyajimaOriginalExhibition(entries, beforeInfo);
+			const miyajimaFrameLast10 = createMiyajimaAvailabilityRows(entries, "frameLast10", racedataLinks.racerStats);
+			const miyajimaNationalRecent3 = createMiyajimaAvailabilityRows(entries, "nationalRecent3", racedataLinks.nationalRecent3);
+			const miyajimaLocalRecent3 = createMiyajimaAvailabilityRows(entries, "localRecent3", racedataLinks.localRecent3);
+			const miyajimaSectionResults = createMiyajimaAvailabilityRows(entries, "sectionResults", racedataLinks.sectionResults);
+			const miyajimaCourseResults = createMiyajimaCourseRows(entries);
+			const mergedWeather = mergeVenueWeatherCondition(
+				baseOfficialBeforeInfo.weatherCondition ?? race?.weatherActual ?? miyajimaVenue?.weatherActual,
+				weatherCondition,
+			);
+
+			return {
+				raceNo: race.raceNo,
+				status: beforeInfo.length || startExhibition.length || motorSummary.length || scoreQuickLook.length ? "available" : "waiting-miyajima-data",
+				source: MIYAJIMA_SOURCE,
+				sourceType: "miyajima-official-extras",
+				officialBeforeInfo: {
+					...baseOfficialBeforeInfo,
+					status: beforeInfo.length || startExhibition.length || scoreQuickLook.length ? "available" : "waiting",
+					source: `${BOATRACE_OFFICIAL_SOURCE}+${MIYAJIMA_SOURCE}`,
+					exhibitionRows: beforeInfo,
+					startExhibition,
+					scoreQuickLook,
+					weatherActual: mergedWeather,
+					weatherCondition: mergedWeather,
+				},
+				beforeInfo,
+				startExhibition,
+				originalExhibition,
+				motorSummary,
+				scoreRateGuide: scoreQuickLook,
+				miyajimaScoreRateGuide: scoreQuickLook,
+				miyajimaSectionResults,
+				miyajimaFrameLast10,
+				miyajimaNationalRecent3,
+				miyajimaLocalRecent3,
+				miyajimaCourseResults,
+				miyajimaMotorData: motorSummary,
+				miyajimaBoatData: motorSummary,
+				miyajimaMotorHistory: motorSummary,
+				miyajimaPreInspectionRank: timerankRows,
+				miyajimaOfficialLinks: racedataLinks,
+				waterSurfaceInfo,
+				miyajimaWaterSurfaceInfo: waterSurfaceInfo,
+				weatherCondition: mergedWeather,
+			};
+		});
+
+		const firstRace = raceExtras[0] ?? null;
+		console.log(
+			`[miyajima extras] before=${firstRace?.beforeInfo?.length ?? 0} start=${firstRace?.startExhibition?.length ?? 0} original=${firstRace?.originalExhibition?.length ?? 0} motor=${firstRace?.motorSummary?.length ?? 0} boat=${firstRace?.miyajimaBoatData?.length ?? 0} score=${firstRace?.miyajimaScoreRateGuide?.length ?? 0} frame10=${firstRace?.miyajimaFrameLast10?.length ?? 0} national3=${firstRace?.miyajimaNationalRecent3?.length ?? 0} local3=${firstRace?.miyajimaLocalRecent3?.length ?? 0} course=${firstRace?.miyajimaCourseResults?.length ? "ok" : "none"} water=${waterSurfaceInfo ? "ok" : "none"} weather=${firstRace?.weatherCondition ? "ok" : "none"}`,
+		);
+
+		return {
+			venueCode: String(miyajimaVenue.venueCode ?? "17"),
+			venueName: MIYAJIMA_VENUE_NAME,
+			source: MIYAJIMA_SOURCE,
+			isAvailable: raceExtras.some((race) => race.status === "available"),
+			status: raceExtras.some((race) => race.status === "available") ? "available" : "waiting-miyajima-data",
+			note: "Miyajima official extras from before info, timerank, score rank, race data links, and weather live.",
+			waterSurfaceInfo,
+			miyajimaWaterSurfaceInfo: waterSurfaceInfo,
+			weatherCondition,
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] miyajima failed: ${error.message}`);
+		return {
+			venueCode: String(miyajimaVenue.venueCode ?? "17"),
+			venueName: MIYAJIMA_VENUE_NAME,
+			source: MIYAJIMA_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `Miyajima official extras fetch failed: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
 function getTokonameRaceEntries(race) {
 	const racers = Array.isArray(race?.racers) ? race.racers : [];
 	return racers.map((racer) => ({
@@ -12343,6 +12759,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const kiryuVenue = await createKiryuVenue(feed, date);
 	if (kiryuVenue) {
 		venueMap.set(kiryuVenue.venueName, mergeVenueRecord(venueMap.get(kiryuVenue.venueName) ?? null, kiryuVenue));
+	}
+
+	const miyajimaVenue = await createMiyajimaVenue(feed, date);
+	if (miyajimaVenue) {
+		venueMap.set(miyajimaVenue.venueName, mergeVenueRecord(venueMap.get(miyajimaVenue.venueName) ?? null, miyajimaVenue));
 	}
 
 	const fukuokaVenue = await createFukuokaVenue(feed, date);

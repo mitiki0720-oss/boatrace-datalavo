@@ -429,6 +429,10 @@ const recentPerformanceExtraKeys = [
 	"tamagawaScoreRateGuide",
 	"omuraPreviousDayResults",
 	"narutoRacerPerformance",
+	"miyajimaScoreRateGuide",
+	"miyajimaSectionResults",
+	"miyajimaNationalRecent3",
+	"miyajimaLocalRecent3",
 ];
 
 const frameCourseExtraKeys = [
@@ -443,6 +447,8 @@ const frameCourseExtraKeys = [
 	"tamagawaFramePast10",
 	"omuraNationalFrameStats",
 	"omuraFrameLast10",
+	"miyajimaFrameLast10",
+	"miyajimaCourseResults",
 ];
 
 const motorExtraKeys = [
@@ -452,6 +458,7 @@ const motorExtraKeys = [
 	"kojimaMotorStats",
 	"tamagawaMotorHistory",
 	"omuraRacerCommentsMotor",
+	"miyajimaMotorHistory",
 	"motorSummary",
 	"abilityIndex",
 ];
