@@ -1,4 +1,6 @@
 import type { ChangeEvent, CSSProperties } from "react";
+import type { ParsedBoatBetSummary } from "../../lib/boatBetParser";
+import type { BoatPracticeResultStatus } from "../../lib/boatResultSettlement";
 import type { BoatPredictionTicket } from "../../lib/boatraceTypes";
 import { countBoatPredictionTicketsByType } from "../../lib/boatPredictionParser";
 import { boatTheme } from "../../lib/theme";
@@ -12,10 +14,20 @@ type BoatPracticeResultPanelProps = {
 	isSaved?: boolean;
 	onSave?: () => void;
 	onClear?: () => void;
+	onLoadBets?: () => void;
+	onSettleResult?: () => void;
 	actualFinishOrderText: string;
 	investmentAmount: number;
 	payoutAmount: number;
 	practiceMemo: string;
+	betSummary?: Pick<ParsedBoatBetSummary, "totalBets" | "trifectaCount" | "exactaCount" | "totalStakeYen">;
+	resultStatus?: BoatPracticeResultStatus;
+	kimarite?: string;
+	startInfoText?: string;
+	hitBetLabel?: string;
+	settlementMessage?: string;
+	isBetAutoApplied?: boolean;
+	isResultAutoApplied?: boolean;
 	onChangeFinishOrder: (value: string) => void;
 	onChangeInvestmentAmount: (value: number) => void;
 	onChangePayoutAmount: (value: number) => void;
@@ -340,10 +352,20 @@ export function BoatPracticeResultPanel({
 	isSaved = false,
 	onSave,
 	onClear,
+	onLoadBets,
+	onSettleResult,
 	actualFinishOrderText,
 	investmentAmount,
 	payoutAmount,
 	practiceMemo,
+	betSummary,
+	resultStatus,
+	kimarite,
+	startInfoText,
+	hitBetLabel,
+	settlementMessage,
+	isBetAutoApplied,
+	isResultAutoApplied,
 	onChangeFinishOrder,
 	onChangeInvestmentAmount,
 	onChangePayoutAmount,
@@ -359,6 +381,17 @@ export function BoatPracticeResultPanel({
 	const profitLoss = payoutAmount - investmentAmount;
 	const roi = investmentAmount > 0 ? (payoutAmount / investmentAmount) * 100 : 0;
 	const ticketCounts = countBoatPredictionTicketsByType(tickets);
+	const totalBets = betSummary?.totalBets ?? ticketCounts.total;
+	const trifectaCount = betSummary?.trifectaCount ?? ticketCounts.trifecta;
+	const exactaCount = betSummary?.exactaCount ?? ticketCounts.exacta;
+	const resultStatusLabel =
+		resultStatus === "confirmed"
+			? "結果データ照合済み"
+			: resultStatus === "pending"
+				? "結果待ち"
+				: resultStatus === "missing"
+					? "結果未取得"
+					: "手動確認";
 
 	const handleAmountChange = (handler: (value: number) => void) => (event: ChangeEvent<HTMLInputElement>) => {
 		handler(Number(event.target.value) || 0);
@@ -383,6 +416,9 @@ export function BoatPracticeResultPanel({
 				<p style={descriptionStyle}>実着順、投資額、払戻、メモをその場で整理し、あとから保存や結果連携を足しやすい形に整えています。</p>
 				<div style={statusRowStyle}>
 					<span style={statusChipStyle}>{isSaved ? "実践結果 保存済み" : "実践結果 未保存"}</span>
+					{isBetAutoApplied ? <span style={statusChipStyle}>買い目から自動計算 / 1点100円</span> : null}
+					{isResultAutoApplied || resultStatus ? <span style={statusChipStyle}>{resultStatusLabel}</span> : null}
+					{hitBetLabel ? <span style={statusChipStyle}>的中: {hitBetLabel}</span> : null}
 					{isSaved && savedAt ? <p style={savedAtStyle}>{savedAt}</p> : null}
 				</div>
 			</header>
@@ -403,6 +439,10 @@ export function BoatPracticeResultPanel({
 				<div style={cardStyle}>
 					<p style={labelStyle}>対象レース情報</p>
 					<div style={detailGridStyle}>
+						<div>結果ステータス: {resultStatusLabel}</div>
+						{kimarite ? <div>決まり手: {kimarite}</div> : null}
+						{startInfoText ? <div>S/H/B: {startInfoText}</div> : null}
+						{settlementMessage ? <div>照合: {settlementMessage}</div> : null}
 						<div>日付: 2026-05-03</div>
 						<div>会場: {venueName}</div>
 						<div>レース番号: {raceNo}R</div>
@@ -431,11 +471,20 @@ export function BoatPracticeResultPanel({
 				)}
 			</div>
 
+			{betSummary ? (
+				<div style={summaryGridStyle}>
+					<article style={summaryCardStyle}><p style={labelStyle}>買い目数</p><p style={valueStyle}>{totalBets}件</p></article>
+					<article style={summaryCardStyle}><p style={labelStyle}>3連単数</p><p style={valueStyle}>{trifectaCount}件</p></article>
+					<article style={summaryCardStyle}><p style={labelStyle}>2連単数</p><p style={valueStyle}>{exactaCount}件</p></article>
+					<article style={summaryCardStyle}><p style={labelStyle}>1点100円</p><p style={valueStyle}>{formatYen(betSummary.totalStakeYen)}</p></article>
+				</div>
+			) : null}
+
 			<div style={summaryGridStyle}>
 				{[
-					{ label: "買い目数", value: `${ticketCounts.total}件` },
-					{ label: "3連単数", value: `${ticketCounts.trifecta}件` },
-					{ label: "2連単数", value: `${ticketCounts.exacta}件` },
+					{ label: "買い目数", value: `${totalBets}件` },
+					{ label: "3連単数", value: `${trifectaCount}件` },
+					{ label: "2連単数", value: `${exactaCount}件` },
 					{ label: "投資額", value: formatYen(investmentAmount) },
 					{ label: "払戻", value: formatYen(payoutAmount) },
 					{ label: "収支", value: formatYen(profitLoss) },
@@ -472,6 +521,8 @@ export function BoatPracticeResultPanel({
 				</div>
 
 				<div style={buttonColumnStyle}>
+					<button type="button" style={secondaryButtonStyle} onClick={onLoadBets}>買い目読込</button>
+					<button type="button" style={secondaryButtonStyle} onClick={onSettleResult}>結果照合</button>
 					<button type="button" style={primaryButtonStyle} onClick={onSave}>実践結果を保存</button>
 					<button type="button" style={secondaryButtonStyle} onClick={handleClear}>クリア</button>
 				</div>
@@ -481,7 +532,7 @@ export function BoatPracticeResultPanel({
 				{[
 					{ label: "会場", value: venueName },
 					{ label: "レース", value: `${raceNo}R` },
-					{ label: "買い目数", value: `${ticketCounts.total}件` },
+					{ label: "買い目数", value: `${totalBets}件` },
 					{ label: "投資", value: formatYen(investmentAmount) },
 					{ label: "払戻", value: formatYen(payoutAmount) },
 					{ label: "着順", value: actualFinishOrderText || "-" },

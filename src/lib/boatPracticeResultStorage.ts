@@ -1,17 +1,35 @@
+import type { ParsedBoatBet, ParsedBoatBetSummary } from "./boatBetParser";
+import type { BoatPracticeResultStatus } from "./boatResultSettlement";
+
 export const BOAT_PRACTICE_RESULT_STORAGE_KEY = "kurari-boat-data-labo-practice-results";
 
 export type BoatPracticeResultRecord = {
 	raceKey: string;
 	raceId?: string;
+	venueCode?: string;
 	venueName: string;
 	date: string;
 	raceNo: number;
 	raceTitle?: string;
+	predictionText?: string;
+	parsedBets?: ParsedBoatBet[];
+	betSummary?: Pick<ParsedBoatBetSummary, "totalBets" | "trifectaCount" | "exactaCount" | "totalStakeYen">;
 	actualFinishOrderText: string;
 	investmentAmount: number;
 	payoutAmount: number;
 	profitLoss: number;
 	roi: number;
+	resultStatus?: BoatPracticeResultStatus;
+	kimarite?: string;
+	startInfoText?: string;
+	payouts?: unknown[];
+	hitBets?: ParsedBoatBet[];
+	hitBetType?: string;
+	hitBetNumbers?: number[];
+	totalStakeYen?: number;
+	payoutYen?: number;
+	profitYen?: number;
+	resultSource?: string;
 	practiceMemo: string;
 	savedAt: string;
 };

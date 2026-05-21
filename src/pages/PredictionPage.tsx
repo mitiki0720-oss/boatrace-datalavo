@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { BoatPredictionRecord } from "../lib/boatraceTypes";
+import type { BoatPredictionRecord, BoatPredictionTicket } from "../lib/boatraceTypes";
 import { BoatGptMaterialPanel } from "../components/boatrace/BoatGptMaterialPanel";
 import { BoatPracticeResultPanel } from "../components/boatrace/BoatPracticeResultPanel";
 import { BoatPredictionPastePanel } from "../components/boatrace/BoatPredictionPastePanel";
@@ -7,8 +7,13 @@ import { BoatPredictionVenueRaceChooser } from "../components/boatrace/BoatPredi
 import { PageShell } from "../components/layout/PageShell";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
+import { parseBoatBets } from "../lib/boatBetParser";
 import { buildBoatPredictionMaterial } from "../lib/boatPredictionMaterial";
-import { parseBoatPredictionTickets } from "../lib/boatPredictionParser";
+import {
+	findBoatRaceForSettlement,
+	settleBoatPredictionResult,
+	type BoatPracticeResultStatus,
+} from "../lib/boatResultSettlement";
 import {
 	findSelectedRaceExtra,
 	findSelectedVenueExtra,
@@ -74,6 +79,14 @@ const toArray = <T,>(value: unknown): T[] => {
 
 const getVenueRaces = (venue: BoatPredictionVenue | undefined): BoatPredictionRace[] =>
 	toArray<BoatPredictionRace>((venue as { races?: unknown } | undefined)?.races);
+
+const toPredictionTickets = (bets: ReturnType<typeof parseBoatBets>["bets"]): BoatPredictionTicket[] =>
+	bets.map((bet, index) => ({
+		index: String(index + 1).padStart(2, "0"),
+		betType: bet.type === "trifecta" ? "3連単" : bet.type === "exacta" ? "2連単" : bet.label,
+		combination: bet.normalized,
+		note: bet.sourceLine,
+	}));
 
 type PredictionHeroTimeBand = "morning" | "day" | "night";
 
@@ -171,6 +184,14 @@ export function PredictionPage() {
 	const [investmentAmount, setInvestmentAmount] = useState<number>(1000);
 	const [payoutAmount, setPayoutAmount] = useState<number>(0);
 	const [practiceMemo, setPracticeMemo] = useState<string>("");
+	const [isInvestmentAmountManual, setIsInvestmentAmountManual] = useState(false);
+	const [practiceResultStatus, setPracticeResultStatus] = useState<BoatPracticeResultStatus | undefined>(undefined);
+	const [practiceKimarite, setPracticeKimarite] = useState("");
+	const [practiceStartInfoText, setPracticeStartInfoText] = useState("");
+	const [practiceHitBetLabel, setPracticeHitBetLabel] = useState("");
+	const [practiceSettlementMessage, setPracticeSettlementMessage] = useState("");
+	const [isBetAutoApplied, setIsBetAutoApplied] = useState(false);
+	const [isResultAutoApplied, setIsResultAutoApplied] = useState(false);
 
 	const venues = useMemo<BoatPredictionVenue[]>(
 		() =>
@@ -197,7 +218,8 @@ export function PredictionPage() {
 		[selectedVenueExtra, selectedRace],
 	);
 
-	const parsedTickets = useMemo(() => parseBoatPredictionTickets(predictionText), [predictionText]);
+	const parsedBetSummary = useMemo(() => parseBoatBets(predictionText), [predictionText]);
+	const parsedTickets = useMemo(() => toPredictionTickets(parsedBetSummary.bets), [parsedBetSummary]);
 	const selectedRaceKey = useMemo(() => {
 		if (!selectedVenue || !selectedRace) {
 			return "";
@@ -472,17 +494,45 @@ export function PredictionPage() {
 			setInvestmentAmount(record.investmentAmount);
 			setPayoutAmount(record.payoutAmount);
 			setPracticeMemo(record.practiceMemo);
+			if (record.predictionText) {
+				setPredictionText(record.predictionText);
+			}
+			setPracticeResultStatus(record.resultStatus);
+			setPracticeKimarite(record.kimarite ?? "");
+			setPracticeStartInfoText(record.startInfoText ?? "");
+			setPracticeHitBetLabel(record.hitBetType && record.hitBetNumbers ? `${record.hitBetType} ${record.hitBetNumbers.join("-")}` : "");
+			setPracticeSettlementMessage(record.resultStatus === "confirmed" ? "保存済み照合結果" : "");
+			setIsInvestmentAmountManual(true);
+			setIsBetAutoApplied(Boolean(record.betSummary));
+			setIsResultAutoApplied(Boolean(record.resultStatus));
 			setPracticeMessage("保存済み実践結果を読み込みました");
 			return;
 		}
 
 		setSavedPracticeResultRecord(undefined);
 		setActualFinishOrderText(selectedRace.result?.finishOrder?.slice(0, 3).join("-") ?? "");
-		setInvestmentAmount(1000);
+		setInvestmentAmount(parsedBetSummary.totalStakeYen || 1000);
 		setPayoutAmount(0);
 		setPracticeMemo("");
+		setPracticeResultStatus(undefined);
+		setPracticeKimarite("");
+		setPracticeStartInfoText("");
+		setPracticeHitBetLabel("");
+		setPracticeSettlementMessage("");
+		setIsInvestmentAmountManual(false);
+		setIsBetAutoApplied(parsedBetSummary.totalStakeYen > 0);
+		setIsResultAutoApplied(false);
 		setPracticeMessage("");
 	}, [selectedRace, selectedRaceKey]);
+
+	useEffect(() => {
+		if (savedPracticeResultRecord || isInvestmentAmountManual || parsedBetSummary.totalStakeYen <= 0) {
+			return;
+		}
+
+		setInvestmentAmount(parsedBetSummary.totalStakeYen);
+		setIsBetAutoApplied(true);
+	}, [parsedBetSummary.totalStakeYen, savedPracticeResultRecord, isInvestmentAmountManual]);
 
 	const handleSavePrediction = () => {
 		if (!selectedVenue || !selectedRace || !selectedRaceKey) {
@@ -507,6 +557,10 @@ export function PredictionPage() {
 
 		upsertBoatPredictionRecord(record);
 		setSavedPredictionRecord(record);
+		if (parsedBetSummary.totalStakeYen > 0 && !isInvestmentAmountManual) {
+			setInvestmentAmount(parsedBetSummary.totalStakeYen);
+			setIsBetAutoApplied(true);
+		}
 		setSavedMessage("予想を保存しました");
 	};
 
@@ -521,6 +575,56 @@ export function PredictionPage() {
 		setSavedMessage("予想をクリアしました");
 	};
 
+	const handleLoadBetsToPractice = () => {
+		if (parsedBetSummary.totalStakeYen <= 0) {
+			setPracticeMessage("買い目を読み取れませんでした");
+			return;
+		}
+
+		setInvestmentAmount(parsedBetSummary.totalStakeYen);
+		setIsInvestmentAmountManual(false);
+		setIsBetAutoApplied(true);
+		setPracticeMessage(`買い目${parsedBetSummary.totalBets}点を読み込みました`);
+	};
+
+	const handleSettlePracticeResult = () => {
+		if (!selectedVenue || !selectedRace) {
+			return;
+		}
+
+		const matched = findBoatRaceForSettlement({
+			feed: todayFeed,
+			date: selectedVenue.date,
+			venueName: selectedVenue.venueName,
+			venueCode: selectedVenue.venueCode,
+			raceNo: selectedRace.raceNo,
+			raceId: selectedRace.raceId,
+		});
+		const settlement = settleBoatPredictionResult({
+			race: matched?.race ?? selectedRace,
+			bets: parsedBetSummary.bets,
+			investmentAmount,
+			source: "today-race-details.generated.json",
+		});
+
+		setPracticeResultStatus(settlement.status);
+		setPracticeKimarite(settlement.kimarite ?? "");
+		setPracticeStartInfoText(settlement.startInfoText ?? "");
+		setPracticeHitBetLabel(settlement.hitBets[0] ? `${settlement.hitBets[0].label} ${settlement.hitBets[0].normalized}` : "");
+		setPracticeSettlementMessage(settlement.message);
+		setIsResultAutoApplied(true);
+
+		if (settlement.finishOrderText) {
+			setActualFinishOrderText(settlement.finishOrderText);
+		}
+
+		if (settlement.status === "confirmed") {
+			setPayoutAmount(settlement.payoutYen);
+		}
+
+		setPracticeMessage(settlement.message);
+	};
+
 	const handleSavePracticeResult = () => {
 		if (!selectedVenue || !selectedRace || !selectedRaceKey) {
 			return;
@@ -530,19 +634,39 @@ export function PredictionPage() {
 			investmentAmount,
 			payoutAmount,
 		});
+		const hitBet = parsedBetSummary.bets.find((bet) => practiceHitBetLabel.includes(bet.normalized));
 
 		const record: BoatPracticeResultRecord = {
 			raceKey: selectedRaceKey,
 			raceId: selectedRace.raceId,
+			venueCode: selectedVenue.venueCode,
 			venueName: selectedVenue.venueName,
 			date: selectedVenue.date,
 			raceNo: selectedRace.raceNo,
 			raceTitle: selectedRace.title,
+			predictionText,
+			parsedBets: parsedBetSummary.bets,
+			betSummary: {
+				totalBets: parsedBetSummary.totalBets,
+				trifectaCount: parsedBetSummary.trifectaCount,
+				exactaCount: parsedBetSummary.exactaCount,
+				totalStakeYen: parsedBetSummary.totalStakeYen,
+			},
 			actualFinishOrderText,
 			investmentAmount,
 			payoutAmount,
 			profitLoss,
 			roi,
+			resultStatus: practiceResultStatus,
+			kimarite: practiceKimarite || undefined,
+			startInfoText: practiceStartInfoText || undefined,
+			hitBets: hitBet ? [hitBet] : undefined,
+			hitBetType: hitBet?.label,
+			hitBetNumbers: hitBet?.numbers,
+			totalStakeYen: parsedBetSummary.totalStakeYen,
+			payoutYen: payoutAmount,
+			profitYen: profitLoss,
+			resultSource: isResultAutoApplied ? "today-race-details.generated.json" : undefined,
 			practiceMemo,
 			savedAt: new Date().toISOString(),
 		};
@@ -562,7 +686,25 @@ export function PredictionPage() {
 		setInvestmentAmount(1000);
 		setPayoutAmount(0);
 		setPracticeMemo("");
+		setPracticeResultStatus(undefined);
+		setPracticeKimarite("");
+		setPracticeStartInfoText("");
+		setPracticeHitBetLabel("");
+		setPracticeSettlementMessage("");
+		setIsInvestmentAmountManual(false);
+		setIsBetAutoApplied(false);
+		setIsResultAutoApplied(false);
 		setPracticeMessage("実践結果をクリアしました");
+	};
+
+	const handleChangeInvestmentAmount = (value: number) => {
+		setIsInvestmentAmountManual(true);
+		setInvestmentAmount(value);
+	};
+
+	const handleChangePayoutAmount = (value: number) => {
+		setIsResultAutoApplied(false);
+		setPayoutAmount(value);
 	};
 
 	return (
@@ -1046,13 +1188,23 @@ body:has(.prediction-page-root) {
 					isSaved={Boolean(savedPracticeResultRecord)}
 					onSave={handleSavePracticeResult}
 					onClear={handleClearPracticeResult}
+					onLoadBets={handleLoadBetsToPractice}
+					onSettleResult={handleSettlePracticeResult}
 					actualFinishOrderText={actualFinishOrderText}
 					investmentAmount={investmentAmount}
 					payoutAmount={payoutAmount}
 					practiceMemo={practiceMemo}
+					betSummary={parsedBetSummary}
+					resultStatus={practiceResultStatus}
+					kimarite={practiceKimarite}
+					startInfoText={practiceStartInfoText}
+					hitBetLabel={practiceHitBetLabel}
+					settlementMessage={practiceSettlementMessage}
+					isBetAutoApplied={isBetAutoApplied}
+					isResultAutoApplied={isResultAutoApplied}
 					onChangeFinishOrder={setActualFinishOrderText}
-					onChangeInvestmentAmount={setInvestmentAmount}
-					onChangePayoutAmount={setPayoutAmount}
+					onChangeInvestmentAmount={handleChangeInvestmentAmount}
+					onChangePayoutAmount={handleChangePayoutAmount}
 					onChangePracticeMemo={setPracticeMemo}
 				/>
 			</div>
