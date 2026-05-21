@@ -238,26 +238,29 @@ const footerCardStyle: CSSProperties = {
 
 const placeholderText = `買い目（10点）
 
-3連単（厚め2点）
-01 1-2-3
-02 1-3-2
+3連単（厚め2点）01/02
+01 x-x-x
+02 x-x-x
 
-3連単（本線6点）
-03 1-2-4
-04 1-4-2
-05 1-3-4
-06 1-4-3
-07 2-1-3
-08 2-1-4
+3連単（本線3点）03-05
+03 x-x-x
+04 x-x-x
+05 x-x-x
 
-2連単（穴狙い2点）
-09 3-1
-10 4-1
+3連単（中穴3点）06-08
+06 x-x-x
+07 x-x-x
+08 x-x-x
+
+3連単（大穴2点）09/10
+09 x-x-x
+10 x-x-x
 
 展開メモ：
 本命：
 相手：
 穴：
+
 注意：`;
 
 const formatTextCount = (text: string) => {
@@ -345,7 +348,7 @@ export function BoatPredictionPastePanel({
 					<p style={eyebrowStyle}>AI Prediction Note</p>
 					<h3 style={titleStyle}>GPT予想貼り付け欄</h3>
 					<p style={descriptionStyle}>
-						GPTから返ってきた買い目・展開メモをここに整理します。保存すると、あとで結果確認と振り返りに使える形へつなげます。
+						GPTから返ってきた競艇10点フォーマットの買い目と展開メモを保存します。保存後は同じ日付・会場・レースで再表示します。
 					</p>
 				</div>
 
@@ -383,7 +386,7 @@ export function BoatPredictionPastePanel({
 						<span style={{ ...dotStyle, background: "rgba(32, 201, 151, 0.72)" }} />
 						<span style={{ ...dotStyle, background: "rgba(159, 137, 216, 0.72)" }} />
 					</div>
-					<p style={editorMetaStyle}>10点フォーマット / 展開メモ / 注意点を保存</p>
+					<p style={editorMetaStyle}>競艇10点フォーマット / 展開メモ / 注意点を保存</p>
 				</div>
 
 				<textarea

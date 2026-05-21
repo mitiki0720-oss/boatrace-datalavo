@@ -272,6 +272,7 @@ export type BoatPredictionTicket = {
 export type BoatPredictionRecord = {
 	raceKey: string;
 	raceId?: string;
+	venueCode?: string;
 	venueName: string;
 	date: string;
 	raceNo: number;

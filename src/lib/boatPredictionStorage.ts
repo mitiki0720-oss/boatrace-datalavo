@@ -58,7 +58,7 @@ export function findBoatPredictionRecord(params: {
 	const key = buildBoatPredictionRaceKey(params);
 	const records = loadBoatPredictionRecords();
 
-	return records[key];
+	return records[key] ?? records[buildBoatPredictionRaceKey({ ...params, raceId: undefined })];
 }
 
 export function upsertBoatPredictionRecord(record: BoatPredictionRecord): BoatPredictionRecordMap {

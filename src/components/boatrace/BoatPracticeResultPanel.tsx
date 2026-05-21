@@ -476,7 +476,7 @@ export function BoatPracticeResultPanel({
 					<article style={summaryCardStyle}><p style={labelStyle}>買い目数</p><p style={valueStyle}>{totalBets}件</p></article>
 					<article style={summaryCardStyle}><p style={labelStyle}>3連単数</p><p style={valueStyle}>{trifectaCount}件</p></article>
 					<article style={summaryCardStyle}><p style={labelStyle}>2連単数</p><p style={valueStyle}>{exactaCount}件</p></article>
-					<article style={summaryCardStyle}><p style={labelStyle}>1点100円</p><p style={valueStyle}>{formatYen(betSummary.totalStakeYen)}</p></article>
+					<article style={summaryCardStyle}><p style={labelStyle}>単価 100円 / 投資額</p><p style={valueStyle}>{formatYen(betSummary.totalStakeYen)}</p></article>
 				</div>
 			) : null}
 

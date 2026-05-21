@@ -113,6 +113,33 @@ const formatPracticeProfit = (value: unknown): string => {
 
 const formatPracticeRoi = (value: unknown): string => `${readPracticeNumber(value).toFixed(1)}%`;
 
+const resolvePracticeStakeYen = (record: BoatPracticeResultRecord): number =>
+	readPracticeNumber(record.totalStakeYen ?? record.betSummary?.totalStakeYen ?? record.investmentAmount);
+
+const resolvePracticePayoutYen = (record: BoatPracticeResultRecord): number =>
+	readPracticeNumber(record.payoutYen ?? record.payoutAmount);
+
+const resolvePracticeProfitYen = (record: BoatPracticeResultRecord): number => {
+	const storedProfit = record.profitYen ?? record.profitLoss;
+	if (storedProfit !== undefined) {
+		return readPracticeNumber(storedProfit);
+	}
+
+	return resolvePracticePayoutYen(record) - resolvePracticeStakeYen(record);
+};
+
+const isPracticeSummaryRecord = (record: BoatPracticeResultRecord, date: string | undefined): boolean => {
+	if (!date || record.date !== date) {
+		return false;
+	}
+
+	if (record.resultStatus === "pending" || record.resultStatus === "missing") {
+		return false;
+	}
+
+	return record.resultStatus === "confirmed" || resolvePracticePayoutYen(record) > 0 || Boolean(record.actualFinishOrderText);
+};
+
 const readPracticeHitBetLabel = (record: BoatPracticeResultRecord): string => {
 	const hitBet = Array.isArray(record.hitBets) ? record.hitBets[0] : undefined;
 	if (hitBet) {
@@ -305,6 +332,23 @@ export function PredictionPage() {
 			? `発走 ${selectedRace.startTime}`
 			: "時刻未取得";
 	const venueFeatureStatusLabel = selectedVenueFeatureNote ? "会場特徴ノート: 連携済み" : "会場特徴ノート: 未登録";
+	const practiceSummary = useMemo(() => {
+		const targetRecords = practiceResultRecords.filter((record) => isPracticeSummaryRecord(record, selectedVenue?.date));
+		const hitCount = targetRecords.filter(isBoatPracticeHit).length;
+		const totalStakeYen = targetRecords.reduce((sum, record) => sum + resolvePracticeStakeYen(record), 0);
+		const totalPayoutYen = targetRecords.reduce((sum, record) => sum + resolvePracticePayoutYen(record), 0);
+		const profitYen = totalPayoutYen - totalStakeYen;
+
+		return {
+			resultCount: targetRecords.length,
+			hitCount,
+			totalStakeYen,
+			totalPayoutYen,
+			profitYen,
+			hitRate: targetRecords.length > 0 ? (hitCount / targetRecords.length) * 100 : null,
+			roi: totalStakeYen > 0 ? (totalPayoutYen / totalStakeYen) * 100 : null,
+		};
+	}, [practiceResultRecords, selectedVenue?.date]);
 	const predictionHeroTimeBand = getPredictionHeroTimeBand(selectedVenue);
 	const predictionHeroImageSrc = predictionHeroImageSrcMap[predictionHeroTimeBand];
 	const predictionHeroImageAlt =
@@ -338,27 +382,30 @@ export function PredictionPage() {
 		{
 			eyebrow: "TODAY RESULTS",
 			value: `${confirmedRaceCount}R`,
-			description: `結果確定 ${confirmedRaceCount}R / 保存集計は次フェーズ`,
+			description: `結果確定 ${confirmedRaceCount}R / 保存済み ${practiceSummary.resultCount}件`,
 		},
 		{
 			eyebrow: "HIT RATE",
-			value: "--%",
-			description: "保存済み結果の的中率を次フェーズで接続",
+			value: practiceSummary.hitRate === null ? "--%" : `${practiceSummary.hitRate.toFixed(1)}%`,
+			description: practiceSummary.resultCount > 0 ? `的中 ${practiceSummary.hitCount}/${practiceSummary.resultCount}件` : "保存済み結果なし",
 		},
 		{
 			eyebrow: "ROI",
-			value: "--%",
-			description: "保存済み投資 / 払戻を次フェーズで集計",
+			value: practiceSummary.roi === null ? "--%" : `${practiceSummary.roi.toFixed(1)}%`,
+			description: practiceSummary.resultCount > 0
+				? `投資 ${formatPracticeYen(practiceSummary.totalStakeYen)} / 払戻 ${formatPracticeYen(practiceSummary.totalPayoutYen)}`
+				: "保存済み投資なし",
 		},
 		{
 			eyebrow: "PROFIT",
-			value: "--円",
-			description: "当日保存済み結果データを集計予定",
+			value: practiceSummary.resultCount > 0 ? formatPracticeProfit(practiceSummary.profitYen) : "--円",
+			description: practiceSummary.resultCount > 0 ? "当日保存済み実践結果から集計" : "保存済み結果なし",
 		},
 	];
 
 	const hitNotificationItems = [
 		...practiceResultRecords
+			.filter((record) => record.date === selectedVenue?.date)
 			.filter(isBoatPracticeHit)
 			.sort((left, right) => String(right.savedAt ?? "").localeCompare(String(left.savedAt ?? "")))
 			.slice(0, 20)
@@ -372,9 +419,9 @@ export function PredictionPage() {
 				].filter(Boolean).join(" / "),
 				badge: "的中",
 				result: readPracticeHitBetLabel(record),
-				payout: `払戻 ${formatPracticeYen(record.payoutYen ?? record.payoutAmount)}`,
-				investment: `投資 ${formatPracticeYen(record.totalStakeYen ?? record.investmentAmount)}`,
-				profit: `収支 ${formatPracticeProfit(record.profitYen ?? record.profitLoss)}`,
+				payout: `払戻 ${formatPracticeYen(resolvePracticePayoutYen(record))}`,
+				investment: `投資 ${formatPracticeYen(resolvePracticeStakeYen(record))}`,
+				profit: `収支 ${formatPracticeProfit(resolvePracticeProfitYen(record))}`,
 				roi: `回収率 ${formatPracticeRoi(record.roi)}`,
 				savedAt: record.savedAt,
 			})),
@@ -554,8 +601,8 @@ export function PredictionPage() {
 		if (record) {
 			setSavedPracticeResultRecord(record);
 			setActualFinishOrderText(record.actualFinishOrderText);
-			setInvestmentAmount(record.investmentAmount);
-			setPayoutAmount(record.payoutAmount);
+			setInvestmentAmount(resolvePracticeStakeYen(record) || 1000);
+			setPayoutAmount(resolvePracticePayoutYen(record));
 			setPracticeMemo(record.practiceMemo);
 			if (record.predictionText) {
 				setPredictionText(record.predictionText);
@@ -563,7 +610,7 @@ export function PredictionPage() {
 			setPracticeResultStatus(record.resultStatus);
 			setPracticeKimarite(record.kimarite ?? "");
 			setPracticeStartInfoText(record.startInfoText ?? "");
-			setPracticeHitBetLabel(record.hitBetType && record.hitBetNumbers ? `${record.hitBetType} ${record.hitBetNumbers.join("-")}` : "");
+			setPracticeHitBetLabel(isBoatPracticeHit(record) ? readPracticeHitBetLabel(record) : "");
 			setPracticeSettlementMessage(record.resultStatus === "confirmed" ? "保存済み照合結果" : "");
 			setIsInvestmentAmountManual(true);
 			setIsBetAutoApplied(Boolean(record.betSummary));
@@ -610,6 +657,7 @@ export function PredictionPage() {
 		const record: BoatPredictionRecord = {
 			raceKey: selectedRaceKey,
 			raceId: selectedRace.raceId,
+			venueCode: selectedVenue.venueCode,
 			venueName: selectedVenue.venueName,
 			date: selectedVenue.date,
 			raceNo: selectedRace.raceNo,
@@ -620,8 +668,10 @@ export function PredictionPage() {
 
 		upsertBoatPredictionRecord(record);
 		setSavedPredictionRecord(record);
-		if (parsedBetSummary.totalStakeYen > 0 && !isInvestmentAmountManual) {
-			setInvestmentAmount(parsedBetSummary.totalStakeYen);
+		if (parsedBetSummary.totalStakeYen > 0) {
+			if (!isInvestmentAmountManual) {
+				setInvestmentAmount(parsedBetSummary.totalStakeYen);
+			}
 			setIsBetAutoApplied(true);
 		}
 		setSavedMessage("予想を保存しました");
@@ -726,7 +776,7 @@ export function PredictionPage() {
 			hitBets: hitBet ? [hitBet] : undefined,
 			hitBetType: hitBet?.label,
 			hitBetNumbers: hitBet?.numbers,
-			totalStakeYen: parsedBetSummary.totalStakeYen,
+			totalStakeYen: parsedBetSummary.totalStakeYen || investmentAmount,
 			payoutYen: payoutAmount,
 			profitYen: profitLoss,
 			resultSource: isResultAutoApplied ? "today-race-details.generated.json" : undefined,
