@@ -774,6 +774,74 @@ export function PredictionPage() {
 		setPracticeMessage(`買い目${parsedBetSummary.totalBets}点を読み込みました`);
 	};
 
+	const buildPracticeResultRecord = (params?: {
+		actualFinishOrderText?: string;
+		investmentAmount?: number;
+		payoutAmount?: number;
+		resultStatus?: BoatPracticeResultStatus;
+		resultLookupStatus?: BoatResultLookupStatus;
+		kimarite?: string;
+		startInfoText?: string;
+		hitBets?: ReturnType<typeof parseBoatBets>["bets"];
+		resultSource?: string;
+	}): BoatPracticeResultRecord | null => {
+		if (!selectedVenue || !selectedRace || !selectedRaceKey) {
+			return null;
+		}
+
+		const nextActualFinishOrderText = params?.actualFinishOrderText ?? actualFinishOrderText;
+		const nextInvestmentAmount = params?.investmentAmount ?? investmentAmount;
+		const nextPayoutAmount = params?.payoutAmount ?? payoutAmount;
+		const { profitLoss, roi } = calculateBoatPracticeProfitLoss({
+			investmentAmount: nextInvestmentAmount,
+			payoutAmount: nextPayoutAmount,
+		});
+		const labelHitBets = parsedBetSummary.bets.filter((bet) => practiceHitBetLabel.includes(bet.normalized));
+		const finishOrderHitBets = labelHitBets.length > 0 ? labelHitBets : findHitBetsByFinishOrder(parsedBetSummary.bets, nextActualFinishOrderText);
+		const hitBets = params?.hitBets ?? (nextPayoutAmount > 0 ? finishOrderHitBets : labelHitBets);
+		const hitBet = hitBets[0];
+		const savedResultStatus = params?.resultStatus ?? practiceResultStatus ?? (nextPayoutAmount > 0 || nextActualFinishOrderText ? "confirmed" : undefined);
+		const savedLookupStatus = params?.resultLookupStatus ?? practiceResultLookupStatus ?? (nextPayoutAmount > 0 ? "manual" : undefined);
+		const savedAt = new Date().toISOString();
+
+		return {
+			raceKey: selectedRaceKey,
+			raceId: selectedRace.raceId,
+			venueCode: selectedVenue.venueCode,
+			venueName: selectedVenue.venueName,
+			date: todayFeed.date ?? selectedVenue.date,
+			raceNo: selectedRace.raceNo,
+			raceTitle: selectedRace.title,
+			predictionText,
+			parsedBets: parsedBetSummary.bets,
+			betSummary: {
+				totalBets: parsedBetSummary.totalBets,
+				trifectaCount: parsedBetSummary.trifectaCount,
+				exactaCount: parsedBetSummary.exactaCount,
+				totalStakeYen: parsedBetSummary.totalStakeYen,
+			},
+			actualFinishOrderText: nextActualFinishOrderText,
+			investmentAmount: nextInvestmentAmount,
+			payoutAmount: nextPayoutAmount,
+			profitLoss,
+			roi,
+			resultStatus: savedResultStatus,
+			resultLookupStatus: savedLookupStatus,
+			kimarite: (params?.kimarite ?? practiceKimarite) || undefined,
+			startInfoText: (params?.startInfoText ?? practiceStartInfoText) || undefined,
+			hitBets: hitBets.length > 0 ? hitBets : undefined,
+			hitBetType: hitBet?.label,
+			hitBetNumbers: hitBet?.numbers,
+			totalStakeYen: parsedBetSummary.totalStakeYen || nextInvestmentAmount,
+			payoutYen: nextPayoutAmount,
+			profitYen: profitLoss,
+			resultSource: params?.resultSource ?? (isResultAutoApplied ? "today-race-details.generated.json" : undefined),
+			updatedAt: savedAt,
+			practiceMemo,
+			savedAt,
+		};
+	};
+
 	const handleSettlePracticeResult = async () => {
 		if (!selectedVenue || !selectedRace) {
 			return;
@@ -827,62 +895,39 @@ export function PredictionPage() {
 			setPayoutAmount(settlement.payoutYen);
 		}
 
+		const shouldAutoSave =
+			settlement.status === "confirmed" &&
+			(lookupStatus === "matched" || lookupStatus === "date-mismatch");
+		if (shouldAutoSave) {
+			const autoSavedRecord = buildPracticeResultRecord({
+				actualFinishOrderText: settlement.finishOrderText,
+				investmentAmount,
+				payoutAmount: settlement.payoutYen,
+				resultStatus: settlement.status,
+				resultLookupStatus: lookupStatus,
+				kimarite: settlement.kimarite,
+				startInfoText: settlement.startInfoText,
+				hitBets: settlement.hitBets,
+				resultSource: "today-race-details.generated.json",
+			});
+
+			if (autoSavedRecord) {
+				upsertBoatPracticeResultRecord(autoSavedRecord);
+				setSavedPracticeResultRecord(autoSavedRecord);
+				refreshPracticeResults();
+				setPracticeMessage(`${settlement.message} / 自動保存済み (${lookupDebugText})`);
+				return;
+			}
+		}
+
 		setPracticeMessage(`${settlement.message} (${lookupDebugText})`);
 	};
 
 	const handleSavePracticeResult = () => {
-		if (!selectedVenue || !selectedRace || !selectedRaceKey) {
+		const record = buildPracticeResultRecord();
+		if (!record) {
 			return;
 		}
-
-		const { profitLoss, roi } = calculateBoatPracticeProfitLoss({
-			investmentAmount,
-			payoutAmount,
-		});
-		const matchedHitBets = parsedBetSummary.bets.filter((bet) => practiceHitBetLabel.includes(bet.normalized));
-		const finishOrderHitBets = matchedHitBets.length > 0 ? matchedHitBets : findHitBetsByFinishOrder(parsedBetSummary.bets, actualFinishOrderText);
-		const hitBets = payoutAmount > 0 ? finishOrderHitBets : matchedHitBets;
-		const hitBet = hitBets[0];
-		const savedResultStatus = practiceResultStatus ?? (payoutAmount > 0 || actualFinishOrderText ? "confirmed" : undefined);
-		const savedLookupStatus = practiceResultLookupStatus ?? (payoutAmount > 0 ? "manual" : undefined);
-		const savedAt = new Date().toISOString();
-
-		const record: BoatPracticeResultRecord = {
-			raceKey: selectedRaceKey,
-			raceId: selectedRace.raceId,
-			venueCode: selectedVenue.venueCode,
-			venueName: selectedVenue.venueName,
-			date: todayFeed.date ?? selectedVenue.date,
-			raceNo: selectedRace.raceNo,
-			raceTitle: selectedRace.title,
-			predictionText,
-			parsedBets: parsedBetSummary.bets,
-			betSummary: {
-				totalBets: parsedBetSummary.totalBets,
-				trifectaCount: parsedBetSummary.trifectaCount,
-				exactaCount: parsedBetSummary.exactaCount,
-				totalStakeYen: parsedBetSummary.totalStakeYen,
-			},
-			actualFinishOrderText,
-			investmentAmount,
-			payoutAmount,
-			profitLoss,
-			roi,
-			resultStatus: savedResultStatus,
-			resultLookupStatus: savedLookupStatus,
-			kimarite: practiceKimarite || undefined,
-			startInfoText: practiceStartInfoText || undefined,
-			hitBets: hitBets.length > 0 ? hitBets : undefined,
-			hitBetType: hitBet?.label,
-			hitBetNumbers: hitBet?.numbers,
-			totalStakeYen: parsedBetSummary.totalStakeYen || investmentAmount,
-			payoutYen: payoutAmount,
-			profitYen: profitLoss,
-			resultSource: isResultAutoApplied ? "today-race-details.generated.json" : undefined,
-			updatedAt: savedAt,
-			practiceMemo,
-			savedAt,
-		};
 
 		upsertBoatPracticeResultRecord(record);
 		setSavedPracticeResultRecord(record);
