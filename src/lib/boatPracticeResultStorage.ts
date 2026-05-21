@@ -4,6 +4,7 @@ import type { BoatPracticeResultStatus, BoatResultLookupStatus } from "./boatRes
 export const BOAT_PRACTICE_RESULT_STORAGE_KEY = "kurari-boat-data-labo-practice-results";
 
 export type BoatPracticeResultRecord = {
+	id?: string;
 	raceKey: string;
 	raceId?: string;
 	venueCode?: string;
@@ -21,16 +22,20 @@ export type BoatPracticeResultRecord = {
 	roi: number;
 	resultStatus?: BoatPracticeResultStatus;
 	resultLookupStatus?: BoatResultLookupStatus;
+	actualOrder?: string;
+	finishOrder?: string;
 	kimarite?: string;
 	startInfoText?: string;
 	payouts?: unknown[];
 	hitBets?: ParsedBoatBet[];
 	hitBetType?: string;
-	hitBetNumbers?: number[];
+	hitBetNumbers?: number[] | string;
 	totalStakeYen?: number;
 	payoutYen?: number;
 	profitYen?: number;
 	resultSource?: string;
+	memo?: string;
+	createdAt?: string;
 	updatedAt?: string;
 	practiceMemo: string;
 	savedAt: string;
@@ -41,6 +46,15 @@ export type BoatPracticeResultRecordMap = Record<string, BoatPracticeResultRecor
 const canUseStorage = () => typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 
 const isRecordLike = (value: unknown): value is BoatPracticeResultRecordMap => typeof value === "object" && value !== null && !Array.isArray(value);
+
+const buildPracticeRecordKey = (record: BoatPracticeResultRecord): string =>
+	record.raceKey ||
+	record.id ||
+	[
+		record.date,
+		record.venueCode || record.venueName,
+		record.raceNo,
+	].filter(Boolean).join(":");
 
 const readNumber = (value: unknown): number => {
 	if (typeof value === "number" && Number.isFinite(value)) {
@@ -69,6 +83,48 @@ export function isBoatPracticeHit(result: BoatPracticeResultRecord | null | unde
 	);
 }
 
+export function normalizeBoatPracticeResultRecords(payload: unknown): BoatPracticeResultRecordMap {
+	if (Array.isArray(payload)) {
+		return payload.reduce<BoatPracticeResultRecordMap>((records, item) => {
+			if (!item || typeof item !== "object") {
+				return records;
+			}
+
+			const record = item as BoatPracticeResultRecord;
+			const key = buildPracticeRecordKey(record);
+			if (key) {
+				records[key] = {
+					...record,
+					raceKey: record.raceKey || key,
+				};
+			}
+
+			return records;
+		}, {});
+	}
+
+	if (!isRecordLike(payload)) {
+		return {};
+	}
+
+	return Object.entries(payload).reduce<BoatPracticeResultRecordMap>((records, [key, item]) => {
+		if (!item || typeof item !== "object") {
+			return records;
+		}
+
+		const record = item as BoatPracticeResultRecord;
+		const recordKey = record.raceKey || key || buildPracticeRecordKey(record);
+		if (recordKey) {
+			records[recordKey] = {
+				...record,
+				raceKey: recordKey,
+			};
+		}
+
+		return records;
+	}, {});
+}
+
 export function calculateBoatPracticeProfitLoss(params: {
 	investmentAmount: number;
 	payoutAmount: number;
@@ -95,7 +151,7 @@ export function loadBoatPracticeResultRecords(): BoatPracticeResultRecordMap {
 		}
 
 		const parsed: unknown = JSON.parse(raw);
-		return isRecordLike(parsed) ? (parsed as BoatPracticeResultRecordMap) : {};
+		return normalizeBoatPracticeResultRecords(parsed);
 	} catch {
 		return {};
 	}
@@ -111,14 +167,19 @@ export function saveBoatPracticeResultRecords(records: BoatPracticeResultRecordM
 
 export function findBoatPracticeResultRecord(raceKey: string): BoatPracticeResultRecord | undefined {
 	const records = loadBoatPracticeResultRecords();
-	return records[raceKey];
+	return records[raceKey] ?? Object.values(records).find((record) => record.raceKey === raceKey || record.id === raceKey);
 }
 
 export function upsertBoatPracticeResultRecord(record: BoatPracticeResultRecord): BoatPracticeResultRecordMap {
 	const records = loadBoatPracticeResultRecords();
+	const key = buildPracticeRecordKey(record);
 	const nextRecords: BoatPracticeResultRecordMap = {
 		...records,
-		[record.raceKey]: record,
+		[key]: {
+			...record,
+			raceKey: record.raceKey || key,
+			id: record.id || key,
+		},
 	};
 
 	saveBoatPracticeResultRecords(nextRecords);

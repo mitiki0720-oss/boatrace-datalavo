@@ -555,6 +555,10 @@ export function PredictionPage() {
 		setPracticeResultRecords(Object.values(loadBoatPracticeResultRecords()));
 	};
 
+	const applyPracticeResultRecords = (records: Record<string, BoatPracticeResultRecord>) => {
+		setPracticeResultRecords(Object.values(records));
+	};
+
 	useEffect(() => {
 		let isActive = true;
 
@@ -803,8 +807,10 @@ export function PredictionPage() {
 		const savedResultStatus = params?.resultStatus ?? practiceResultStatus ?? (nextPayoutAmount > 0 || nextActualFinishOrderText ? "confirmed" : undefined);
 		const savedLookupStatus = params?.resultLookupStatus ?? practiceResultLookupStatus ?? (nextPayoutAmount > 0 ? "manual" : undefined);
 		const savedAt = new Date().toISOString();
+		const createdAt = savedPracticeResultRecord?.createdAt ?? savedPracticeResultRecord?.savedAt ?? savedAt;
 
 		return {
+			id: selectedRaceKey,
 			raceKey: selectedRaceKey,
 			raceId: selectedRace.raceId,
 			venueCode: selectedVenue.venueCode,
@@ -821,6 +827,8 @@ export function PredictionPage() {
 				totalStakeYen: parsedBetSummary.totalStakeYen,
 			},
 			actualFinishOrderText: nextActualFinishOrderText,
+			actualOrder: nextActualFinishOrderText,
+			finishOrder: nextActualFinishOrderText,
 			investmentAmount: nextInvestmentAmount,
 			payoutAmount: nextPayoutAmount,
 			profitLoss,
@@ -836,6 +844,8 @@ export function PredictionPage() {
 			payoutYen: nextPayoutAmount,
 			profitYen: profitLoss,
 			resultSource: params?.resultSource ?? (isResultAutoApplied ? "today-race-details.generated.json" : undefined),
+			memo: practiceMemo,
+			createdAt,
 			updatedAt: savedAt,
 			practiceMemo,
 			savedAt,
@@ -912,9 +922,9 @@ export function PredictionPage() {
 			});
 
 			if (autoSavedRecord) {
-				upsertBoatPracticeResultRecord(autoSavedRecord);
+				const nextRecords = upsertBoatPracticeResultRecord(autoSavedRecord);
 				setSavedPracticeResultRecord(autoSavedRecord);
-				refreshPracticeResults();
+				applyPracticeResultRecords(nextRecords);
 				setPracticeMessage(`${settlement.message} / 自動保存済み (${lookupDebugText})`);
 				return;
 			}
@@ -929,9 +939,9 @@ export function PredictionPage() {
 			return;
 		}
 
-		upsertBoatPracticeResultRecord(record);
+		const nextRecords = upsertBoatPracticeResultRecord(record);
 		setSavedPracticeResultRecord(record);
-		refreshPracticeResults();
+		applyPracticeResultRecords(nextRecords);
 		setPracticeMessage("実践結果を保存しました");
 	};
 
