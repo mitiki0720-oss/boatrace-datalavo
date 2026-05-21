@@ -5,7 +5,12 @@ import type {
 	BoatTodayVenueItem,
 } from "./boatraceTypes";
 import type { BoatVenueExtraRace, BoatVenueExtraVenue } from "./boatVenueExtrasFeed";
-import { buildBoatVenueFeatureMaterial, type BoatVenueFeatureNote } from "./boatVenueFeatures";
+import {
+	buildBoatVenueFeatureFullMaterial,
+	buildBoatVenueUserInsightMaterial,
+	type BoatVenueFeatureNote,
+	type BoatVenueUserInsight,
+} from "./boatVenueFeatures";
 
 const toMaterialArray = <T,>(value: unknown): T[] => {
 	if (Array.isArray(value)) {
@@ -90,6 +95,167 @@ const readOfficialBeforeInfo = (raceExtra: BoatVenueExtraRace | undefined): Mate
 	isMaterialRecord(raceExtra?.officialBeforeInfo) ? raceExtra.officialBeforeInfo : null;
 
 const readVenueWaterRecord = (value: unknown): MaterialRecord | null => (isMaterialRecord(value) ? value : null);
+
+const readFirstMaterialString = (...values: unknown[]): string => {
+	for (const value of values) {
+		const text = readMaterialString(value);
+		if (text) {
+			return text;
+		}
+	}
+
+	return "";
+};
+
+const formatWeatherUnit = (value: string, unit: string): string => {
+	if (!value) {
+		return "";
+	}
+
+	if (value.includes(unit)) {
+		return value;
+	}
+
+	if (/^-?\d+(\.\d+)?$/.test(value)) {
+		return `${value}${unit}`;
+	}
+
+	return value;
+};
+
+const readWeatherValue = (record: MaterialRecord | null, keys: string[], unit = ""): string => {
+	if (!record) {
+		return "";
+	}
+
+	const value = readFirstMaterialString(...keys.map((key) => record[key]));
+	return unit ? formatWeatherUnit(value, unit) : value;
+};
+
+const isPlaceholderWeatherText = (value: string): boolean =>
+	["確認中", "未取得", "未設定", "undefined", "null", "-"].includes(value.trim().toLowerCase());
+
+const hasUsableWeatherRecord = (record: MaterialRecord): boolean => {
+	const keys = [
+		"weather",
+		"weatherText",
+		"condition",
+		"conditionText",
+		"temperature",
+		"airTemperature",
+		"temp",
+		"airTemp",
+		"waterTemperature",
+		"waterTemp",
+		"windDirection",
+		"windDirectionText",
+		"windDir",
+		"wind",
+		"windSpeed",
+		"windVelocity",
+		"windSpeedMps",
+		"waveHeight",
+		"wave",
+		"waveCm",
+	];
+
+	return keys.some((key) => {
+		const text = readMaterialString(record[key]);
+		return text && !isPlaceholderWeatherText(text);
+	});
+};
+
+const resolveWeatherRecord = (
+	race: BoatRaceItem,
+	venue: BoatTodayVenueItem,
+	venueExtra?: BoatVenueExtraVenue | null,
+	raceExtra?: BoatVenueExtraRace | null,
+): MaterialRecord | null => {
+	const raceRecord: MaterialRecord | null = isMaterialRecord(race) ? race as MaterialRecord : null;
+	const venueRecord: MaterialRecord | null = isMaterialRecord(venue) ? venue as MaterialRecord : null;
+	const raceExtraRecord = isMaterialRecord(raceExtra) ? raceExtra : null;
+	const venueExtraRecord = isMaterialRecord(venueExtra) ? venueExtra : null;
+	const officialBeforeInfo = isMaterialRecord(raceExtraRecord?.officialBeforeInfo) ? raceExtraRecord.officialBeforeInfo : null;
+
+	const candidates = [
+		raceExtraRecord?.weatherCondition,
+		raceExtraRecord?.weatherActual,
+		raceExtraRecord?.weather,
+		raceExtraRecord?.condition,
+		raceExtraRecord?.conditions,
+		officialBeforeInfo?.weatherCondition,
+		officialBeforeInfo?.weatherActual,
+		officialBeforeInfo?.weather,
+		venueExtraRecord?.weatherCondition,
+		venueExtraRecord?.weatherActual,
+		venueExtraRecord?.weather,
+		venueExtraRecord?.condition,
+		venueExtraRecord?.conditions,
+		raceRecord?.weatherCondition,
+		raceRecord?.weatherActual,
+		raceRecord?.weather,
+		raceRecord?.condition,
+		raceRecord?.conditions,
+		venueRecord?.weatherCondition,
+		venueRecord?.weatherActual,
+		venueRecord?.weather,
+		venueRecord?.condition,
+		venueRecord?.conditions,
+	];
+
+	let fallbackRecord: MaterialRecord | null = null;
+	for (const candidate of candidates) {
+		if (isMaterialRecord(candidate)) {
+			fallbackRecord ??= candidate;
+			if (hasUsableWeatherRecord(candidate)) {
+				return candidate;
+			}
+		}
+	}
+
+	return fallbackRecord;
+};
+
+const buildWeatherMaterialBlock = (
+	race: BoatRaceItem,
+	venue: BoatTodayVenueItem,
+	venueExtra?: BoatVenueExtraVenue | null,
+	raceExtra?: BoatVenueExtraRace | null,
+): string => {
+	const record = resolveWeatherRecord(race, venue, venueExtra, raceExtra);
+	const venueRecord = isMaterialRecord(venue) ? venue : null;
+	const venueExtraRecord = isMaterialRecord(venueExtra) ? venueExtra : null;
+
+	const weather = readWeatherValue(record, ["weather", "weatherText", "condition", "conditionText", "tenko"]);
+	const temperature = readWeatherValue(record, ["temperature", "airTemperature", "temp", "airTemp"], "℃");
+	const waterTemperature = readWeatherValue(record, ["waterTemperature", "waterTemp"], "℃");
+	const windDirection = readWeatherValue(record, ["windDirection", "windDirectionText", "windDir", "wind"]);
+	const windSpeed = readWeatherValue(record, ["windSpeed", "windVelocity", "windSpeedMps"], "m");
+	const waveHeight = readWeatherValue(record, ["waveHeight", "wave", "waveCm"], "cm");
+	const pressure = readWeatherValue(record, ["pressure", "airPressure"], "hPa");
+	const humidity = readWeatherValue(record, ["humidity"], "%");
+	const rainfall = readWeatherValue(record, ["rainfall", "rain"], "mm");
+	const observedAt = readWeatherValue(record, ["observedAt", "measuredAt", "updatedAt", "time", "displayTime"]);
+	const source =
+		readWeatherValue(record, ["source", "sourceLabel"]) ||
+		readMaterialString(venueExtraRecord?.source) ||
+		readMaterialString(venueRecord?.source);
+
+	return [
+		"[C. 天気 / 風 / 波]",
+		`天候: ${toDisplay(weather)}`,
+		`気温: ${toDisplay(temperature)}`,
+		`水温: ${toDisplay(waterTemperature)}`,
+		`風向: ${toDisplay(windDirection)}`,
+		`風速: ${toDisplay(windSpeed)}`,
+		`波高: ${toDisplay(waveHeight)}`,
+		`気圧: ${toDisplay(pressure)}`,
+		`湿度: ${toDisplay(humidity)}`,
+		`雨量: ${toDisplay(rainfall)}`,
+		`表示時点: ${toDisplay(observedAt)}`,
+		`データソース: ${toDisplay(source)}`,
+	].join("\n");
+};
 
 const getMainFocus = (value: unknown): string[] =>
 	Array.isArray(value) ? value.map((item) => readMaterialString(item)).filter(Boolean) : [];
@@ -614,6 +780,62 @@ const buildExhibitionBlock = (item: BoatExhibitionItem) => [
 	`- メモ: ${toDisplay(item.memo)}`,
 ].join("\n");
 
+const resolvePredictionExhibitions = (
+	race: BoatRaceItem,
+	raceExtra?: BoatVenueExtraRace | null,
+): BoatExhibitionItem[] => {
+	const raceRows = toMaterialArray<BoatExhibitionItem>((race as { exhibitions?: unknown }).exhibitions);
+	if (raceRows.length > 0) {
+		return raceRows;
+	}
+
+	const officialBeforeInfo = readOfficialBeforeInfo(raceExtra ?? undefined);
+	const officialRows = toMaterialRecordArray(officialBeforeInfo?.exhibitionRows);
+	const originalRows = toMaterialRecordArray(raceExtra?.originalExhibition);
+	const startRows = toMaterialRecordArray(raceExtra?.startExhibition);
+
+	const byFrame = new Map<number, MaterialRecord>();
+
+	const mergeRow = (row: MaterialRecord) => {
+		const frameNo = readMaterialNumber(row.frameNo);
+		if (!frameNo) {
+			return;
+		}
+
+		const current = byFrame.get(frameNo) ?? { frameNo };
+		byFrame.set(frameNo, { ...current, ...row });
+	};
+
+	officialRows.forEach(mergeRow);
+	originalRows.forEach(mergeRow);
+	startRows.forEach(mergeRow);
+
+	return sortByFrameNo([...byFrame.values()]).map((row) => {
+		const lapTime = readFirstMaterialString(row.lapTime, row.oneLapTime, row.oneRoundTime, row.halfLapTime);
+		const turnTime = readFirstMaterialString(row.turnTime, row.mawariashi);
+		const straightTime = readFirstMaterialString(row.straightTime);
+		const weight = readFirstMaterialString(row.weight);
+		const adjustment = readFirstMaterialString(row.adjustment);
+		const memo = [
+			lapTime ? `一周/周回 ${lapTime}` : "",
+			turnTime ? `回り足 ${turnTime}` : "",
+			straightTime ? `直線 ${straightTime}` : "",
+			weight ? `体重 ${weight}` : "",
+			adjustment ? `調整 ${adjustment}` : "",
+		].filter(Boolean).join(" / ");
+
+		return {
+			frameNo: (readMaterialNumber(row.frameNo) ?? 0) as BoatExhibitionItem["frameNo"],
+			exhibitionTime: readFirstMaterialString(row.exhibitionTime, row.displayTime),
+			tilt: readFirstMaterialString(row.tilt),
+			startTiming: readFirstMaterialString(row.startTiming, row.st, row.officialStart),
+			course: readFirstMaterialString(row.course, row.courseNo, row.frameNo),
+			evaluation: readFirstMaterialString(row.exhibitionEvaluation, row.evaluation) as BoatExhibitionItem["evaluation"],
+			memo,
+		};
+	});
+};
+
 const readFirstRecord = (...values: unknown[]): MaterialRecord | null => {
 	for (const value of values) {
 		if (isMaterialRecord(value)) {
@@ -731,23 +953,13 @@ export function buildBoatPredictionMaterial(params: {
 	venueExtra?: BoatVenueExtraVenue | null;
 	raceExtra?: BoatVenueExtraRace | null;
 	venueFeatureNote?: BoatVenueFeatureNote | null;
+	venueFeatureInsights?: BoatVenueUserInsight[];
 }): string {
-	const { venue, race, venueExtra, raceExtra, venueFeatureNote } = params;
-	const raceExtraRecord = isMaterialRecord(raceExtra) ? raceExtra : null;
-    const officialBeforeInfo = isMaterialRecord(raceExtraRecord?.officialBeforeInfo) ? raceExtraRecord.officialBeforeInfo : null;
-    const weatherRecord = isMaterialRecord(raceExtraRecord?.weatherCondition)
-	? raceExtraRecord.weatherCondition
-	: isMaterialRecord(officialBeforeInfo?.weatherCondition)
-		? officialBeforeInfo.weatherCondition
-		: isMaterialRecord(officialBeforeInfo?.weatherActual)
-			? officialBeforeInfo.weatherActual
-			: isMaterialRecord(venueExtra?.weatherCondition)
-				? venueExtra.weatherCondition
-				: isMaterialRecord(venue.weatherActual)
-					? venue.weatherActual
-					: null;
-    const racers = toMaterialArray<BoatRacerItem>((race as { racers?: unknown }).racers);
-    const exhibitions = toMaterialArray<BoatExhibitionItem>((race as { exhibitions?: unknown }).exhibitions);
+	const { venue, race, venueExtra, raceExtra, venueFeatureNote, venueFeatureInsights = [] } = params;
+	const racers = toMaterialArray<BoatRacerItem>((race as { racers?: unknown }).racers);
+	const exhibitions = resolvePredictionExhibitions(race, raceExtra);
+	const venueStartExhibitionMaterial = buildVenueStartExhibitionBlock(racers, raceExtra);
+	const raceStartExhibitionMaterial = buildStartExhibitionBlock(race);
 
 	const sections = [
 		[
@@ -762,28 +974,14 @@ export function buildBoatPredictionMaterial(params: {
 			`race_id: ${toDisplay(race.raceId)}`,
 		].join("\n"),
 		[
-			"[B. 水面 / 会場特徴]",
-			"水面特徴: サンプル未登録",
-			"イン逃げ傾向: サンプル未登録",
-			"まくり・差し傾向: サンプル未登録",
-			"風の影響: サンプル未登録",
-			"荒れそう度: サンプル未登録",
-			"会場メモ: サンプル未登録",
+			"[B. \u4f1a\u5834\u7279\u5fb4\u30ce\u30fc\u30c8 / Venue Selector\u5168\u6587]",
+			buildBoatVenueFeatureFullMaterial(venueFeatureNote) || "- \u672a\u767b\u9332",
 		].join("\n"),
 		[
-			"[B2. 会場特徴ノート / 手入力]",
-			buildBoatVenueFeatureMaterial(venueFeatureNote, { maxLength: 1800 }) || "- 未登録",
+			"[B2. MY ANALYSIS LOG / \u81ea\u5206\u5206\u6790\u30b5\u30de\u30ea\u30fc\u5168\u6587]",
+			buildBoatVenueUserInsightMaterial(venue.venueName, venueFeatureInsights),
 		].join("\n"),
-		[
-	        "[C. 天気 / 風 / 波]",
-	        `天候: ${toDisplay(readMaterialString(weatherRecord?.weather))}`,
-	        `気温: ${toDisplay(readMaterialString(weatherRecord?.temperature))}`,
-	        `水温: ${toDisplay(readMaterialString(weatherRecord?.waterTemperature))}`,
-	        `風向: ${toDisplay(readMaterialString(weatherRecord?.windDirection))}`,
-	        `風速: ${toDisplay(readMaterialString(weatherRecord?.windSpeed))}`,
-	        `波高: ${toDisplay(readMaterialString(weatherRecord?.waveHeight))}`,
-	        `データソース: ${toDisplay(readMaterialString(weatherRecord?.source) || venue.source)}`,
-        ].join("\n"),
+		buildWeatherMaterialBlock(race, venue, venueExtra, raceExtra),
 		[
 			"[D. 出走表 基本データ]",
 			racers.length > 0 ? racers.map((racer) => buildRacerBlock(racer)).join("\n\n") : "出走表サンプルなし",
@@ -805,7 +1003,9 @@ export function buildBoatPredictionMaterial(params: {
 		].join("\n"),
 		[
 			"[G. 進入 / スタート展示]",
-			buildStartExhibitionBlock(race),
+			venueStartExhibitionMaterial !== buildMissingBlock()
+				? venueStartExhibitionMaterial
+				: raceStartExhibitionMaterial,
 		].join("\n"),
 		[
 			"[H. オッズ]",

@@ -240,6 +240,28 @@ export function buildBoatVenueFeatureMaterial(note: BoatVenueFeatureNote | null 
 	return body.length > maxLength ? `${body.slice(0, maxLength - 20).trim()}\n...` : body;
 }
 
+export function buildBoatVenueFeatureFullMaterial(note: BoatVenueFeatureNote | null | undefined): string {
+	if (!note) {
+		return "";
+	}
+
+	return [
+		"【会場特徴ノート / Venue Selector全文】",
+		`会場: ${note.item.venueName}`,
+		`タイトル: ${note.item.title ?? note.item.venueName}`,
+		`slug: ${note.item.slug}`,
+		`status: ${note.item.status ?? "unknown"}`,
+		`sourceType: ${note.item.sourceType ?? "manual-note"}`,
+		`updatedAt: ${note.item.updatedAt ?? "未設定"}`,
+		`tags: ${(note.item.tags ?? []).join(" / ") || "未設定"}`,
+		"",
+		"※このノートは買い目指定ではなく、会場特性・水面・風・コース傾向・展示チェックの参考資料です。",
+		"※以下は省略なしの全文です。",
+		"",
+		note.markdown.trim(),
+	].join("\n").trim();
+}
+
 export function loadBoatVenueUserInsights(): BoatVenueUserInsight[] {
 	if (typeof window === "undefined") {
 		return [];
@@ -247,9 +269,61 @@ export function loadBoatVenueUserInsights(): BoatVenueUserInsight[] {
 
 	try {
 		const raw = window.localStorage.getItem(BOAT_VENUE_FEATURE_INSIGHTS_STORAGE_KEY);
-		const parsed = raw ? JSON.parse(raw) : [];
-		return Array.isArray(parsed) ? parsed.filter((item): item is BoatVenueUserInsight => Boolean(item?.venueName && item?.summary)) : [];
+		if (!raw) {
+			return [];
+		}
+
+		const parsed = JSON.parse(raw);
+		if (!Array.isArray(parsed)) {
+			return [];
+		}
+
+		return parsed.filter((item): item is BoatVenueUserInsight => {
+			return Boolean(item) && typeof item === "object" && typeof item.venueName === "string";
+		});
 	} catch {
 		return [];
 	}
+}
+
+export function buildBoatVenueUserInsightMaterial(
+	venueName: string,
+	insights: BoatVenueUserInsight[] | null | undefined,
+): string {
+	const rows = (insights ?? []).filter((item) => item.venueName === venueName);
+
+	if (rows.length === 0) {
+		return "【MY ANALYSIS LOG / 自分分析サマリー全文】\n- 未登録";
+	}
+
+	const lines: string[] = [
+		"【MY ANALYSIS LOG / 自分分析サマリー全文】",
+		`会場: ${venueName}`,
+		`登録件数: ${rows.length}`,
+		"",
+	];
+
+	rows.forEach((item, index) => {
+		lines.push(`## ${index + 1}. ${item.date} / ${item.source}`);
+		lines.push(`summary: ${item.summary || "未入力"}`);
+
+		if (typeof item.hitRate === "number") {
+			lines.push(`hitRate: ${item.hitRate}`);
+		}
+
+		if (typeof item.roi === "number") {
+			lines.push(`roi: ${item.roi}`);
+		}
+
+		if (Array.isArray(item.notes) && item.notes.length > 0) {
+			lines.push("notes:");
+			item.notes.forEach((note) => {
+				lines.push(`- ${note}`);
+			});
+		}
+
+		lines.push("");
+	});
+
+	return lines.join("\n").trim();
 }

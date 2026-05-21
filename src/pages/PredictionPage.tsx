@@ -18,8 +18,10 @@ import {
 import {
 	loadBoatVenueFeatureIndex,
 	loadBoatVenueFeatureNote,
+	loadBoatVenueUserInsights,
 	type BoatVenueFeatureIndex,
 	type BoatVenueFeatureNote,
+	type BoatVenueUserInsight,
 } from "../lib/boatVenueFeatures";
 import type { BoatPracticeResultRecord } from "../lib/boatPracticeResultStorage";
 import { withBasePath } from "../lib/assetPath";
@@ -159,6 +161,7 @@ export function PredictionPage() {
 	const [selectedRaceId, setSelectedRaceId] = useState<string>("");
 	const [venueFeatureIndex, setVenueFeatureIndex] = useState<BoatVenueFeatureIndex | null>(null);
 	const [selectedVenueFeatureNote, setSelectedVenueFeatureNote] = useState<BoatVenueFeatureNote | null>(null);
+	const [venueFeatureInsights, setVenueFeatureInsights] = useState<BoatVenueUserInsight[]>([]);
 	const [predictionText, setPredictionText] = useState<string>("");
 	const [savedPredictionRecord, setSavedPredictionRecord] = useState<BoatPredictionRecord | undefined>(undefined);
 	const [savedMessage, setSavedMessage] = useState<string>("");
@@ -215,6 +218,7 @@ export function PredictionPage() {
 				venueExtra: selectedVenueExtra,
 				raceExtra: selectedRaceExtra,
 				venueFeatureNote: selectedVenueFeatureNote,
+				venueFeatureInsights,
 			})
 		: "レース情報が選択されていません。";
 	const raceLabel = `${selectedVenue?.venueName ?? "-"} ${selectedRace ? `${selectedRace.raceNo}R` : "-"}`;
@@ -407,6 +411,10 @@ export function PredictionPage() {
 		return () => {
 			cancelled = true;
 		};
+	}, []);
+
+	useEffect(() => {
+		setVenueFeatureInsights(loadBoatVenueUserInsights());
 	}, []);
 
 	useEffect(() => {
