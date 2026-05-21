@@ -1,5 +1,5 @@
 import type { ParsedBoatBet, ParsedBoatBetSummary } from "./boatBetParser";
-import type { BoatPracticeResultStatus } from "./boatResultSettlement";
+import type { BoatPracticeResultStatus, BoatResultLookupStatus } from "./boatResultSettlement";
 
 export const BOAT_PRACTICE_RESULT_STORAGE_KEY = "kurari-boat-data-labo-practice-results";
 
@@ -20,6 +20,7 @@ export type BoatPracticeResultRecord = {
 	profitLoss: number;
 	roi: number;
 	resultStatus?: BoatPracticeResultStatus;
+	resultLookupStatus?: BoatResultLookupStatus;
 	kimarite?: string;
 	startInfoText?: string;
 	payouts?: unknown[];
@@ -30,6 +31,7 @@ export type BoatPracticeResultRecord = {
 	payoutYen?: number;
 	profitYen?: number;
 	resultSource?: string;
+	updatedAt?: string;
 	practiceMemo: string;
 	savedAt: string;
 };

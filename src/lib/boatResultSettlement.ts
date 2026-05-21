@@ -3,9 +3,28 @@ import type { ParsedBoatBet } from "./boatBetParser";
 import { normalizeBoatBetCombination } from "./boatBetParser";
 
 export type BoatPracticeResultStatus = "pending" | "confirmed" | "missing";
+export type BoatResultLookupStatus = "matched" | "date-mismatch" | "pending" | "missing" | "payout-missing" | "manual";
+
+export type BoatRaceResultLookupDebug = {
+	targetDate?: string;
+	feedDate?: string;
+	targetVenueName?: string;
+	targetVenueCode?: string;
+	matchedVenueName?: string;
+	matchedVenueCode?: string;
+	raceNo?: number;
+	raceFound: boolean;
+	resultFound: boolean;
+	payoutFound: boolean;
+	finishOrderText?: string;
+	trifectaPayout?: string | number;
+	exactaPayout?: string | number;
+};
 
 export type BoatResultSettlement = {
 	status: BoatPracticeResultStatus;
+	lookupStatus: BoatResultLookupStatus;
+	lookupDebug?: BoatRaceResultLookupDebug;
 	finishOrderText: string;
 	first?: number;
 	second?: number;
@@ -20,6 +39,14 @@ export type BoatResultSettlement = {
 	resultSource?: string;
 	message: string;
 };
+
+const normalizeVenueName = (value: string | undefined): string =>
+	String(value ?? "")
+		.normalize("NFKC")
+		.replace(/\s+/g, "")
+		.replace(/^ボートレース/, "")
+		.replace(/^BOATRACE/i, "")
+		.toLowerCase();
 
 const readPayoutYen = (value: string | number | undefined): number => {
 	if (typeof value === "number" && Number.isFinite(value)) {
@@ -46,15 +73,38 @@ const readResultPayouts = (result: BoatRaceResult | undefined): BoatPayoutItem[]
 		return [];
 	}
 
+	const record = result as BoatRaceResult & Record<string, unknown>;
 	const rows = [
 		...(Array.isArray(result.payoutsFull) ? result.payoutsFull : []),
 		...(Array.isArray(result.payouts) ? result.payouts : []),
+		...(Array.isArray(record.payout) ? record.payout as BoatPayoutItem[] : []),
+		...(Array.isArray(record.oddsPayouts) ? record.oddsPayouts as BoatPayoutItem[] : []),
+		...(Array.isArray(record.refunds) ? record.refunds as unknown as BoatPayoutItem[] : []),
 		result.payout3tan,
+		record.trifecta,
+		record.sanrentan,
 		result.payout3fuku,
 		result.payout2tan,
+		record.exacta,
+		record.nirentan,
 		result.payout2fuku,
 		...(Array.isArray(result.payoutWide) ? result.payoutWide : []),
-	].filter((item): item is BoatPayoutItem => Boolean(item?.betType && item?.combination));
+	].filter((item): item is BoatPayoutItem => {
+		if (!item || typeof item !== "object") {
+			return false;
+		}
+
+		const row = item as Record<string, unknown>;
+		return Boolean((row.betType || row.type || row.label) && (row.combination || row.numbers || row.result));
+	}).map((item) => {
+		const row = item as BoatPayoutItem & Record<string, unknown>;
+		return {
+			betType: String(row.betType ?? row.type ?? row.label ?? ""),
+			combination: String(row.combination ?? row.numbers ?? row.result ?? ""),
+			payout: String(row.payout ?? row.payoff ?? row.amount ?? row.refund ?? ""),
+			popularity: row.popularity as number | string | undefined,
+		};
+	});
 
 	const seen = new Set<string>();
 	return rows.filter((row) => {
@@ -73,33 +123,142 @@ const findPayoutForBet = (bet: ParsedBoatBet, payouts: BoatPayoutItem[]): BoatPa
 	const unorderedCombination = normalizeUnorderedCombination(bet.normalized);
 
 	return payouts.find((payout) => {
-		const betType = payout.betType;
+		const betType = String(payout.betType).normalize("NFKC").toLowerCase();
 		const payoutOrdered = normalizeBoatBetCombination(payout.combination);
 		const payoutUnordered = normalizeUnorderedCombination(payout.combination);
 
 		if (bet.type === "trifecta") {
-			return betType === "3連単" && payoutOrdered === orderedCombination;
+			return (/3\s*連\s*単|三\s*連\s*単|trifecta|sanrentan/.test(betType)) && payoutOrdered === orderedCombination;
 		}
 
 		if (bet.type === "exacta") {
-			return betType === "2連単" && payoutOrdered === orderedCombination;
+			return (/2\s*連\s*単|二\s*連\s*単|exacta|nirentan/.test(betType)) && payoutOrdered === orderedCombination;
 		}
 
 		if (bet.type === "trio") {
-			return betType === "3連複" && payoutUnordered === unorderedCombination;
+			return (/3\s*連\s*複|三\s*連\s*複|trio/.test(betType)) && payoutUnordered === unorderedCombination;
 		}
 
 		if (bet.type === "quinella") {
-			return betType === "2連複" && payoutUnordered === unorderedCombination;
+			return (/2\s*連\s*複|二\s*連\s*複|quinella/.test(betType)) && payoutUnordered === unorderedCombination;
 		}
 
 		if (bet.type === "wide") {
-			return betType === "拡連複" && payoutUnordered === unorderedCombination;
+			return (/拡\s*連\s*複|wide|ワイド/.test(betType)) && payoutUnordered === unorderedCombination;
 		}
 
 		return false;
 	}) ?? null;
 };
+
+const readFinishOrderText = (result: (BoatRaceResult & Record<string, unknown>) | undefined): string => {
+	if (!result) {
+		return "";
+	}
+
+	const order = result.finishOrder ?? result.resultTop3 ?? result.top3;
+	if (Array.isArray(order)) {
+		return order.slice(0, 3).map(String).join("-");
+	}
+
+	const arrivals = result.arrivals;
+	if (Array.isArray(arrivals)) {
+		return arrivals
+			.slice(0, 3)
+			.map((row) => {
+				if (typeof row === "number" || typeof row === "string") {
+					return String(row);
+				}
+				const record = row as Record<string, unknown>;
+				return String(record.frameNo ?? record.frame ?? record.boatNumber ?? record.lane ?? "");
+			})
+			.filter(Boolean)
+			.join("-");
+	}
+
+	if (Array.isArray(result.finishers)) {
+		return result.finishers
+			.slice(0, 3)
+			.map((row) => String(row.frameNo ?? row.frame ?? row.boatNumber ?? row.lane ?? ""))
+			.filter(Boolean)
+			.join("-");
+	}
+
+	return "";
+};
+
+const buildLookupDebug = (params: {
+	feed?: BoatTodayFeed | null;
+	targetDate?: string;
+	targetVenueName?: string;
+	targetVenueCode?: string;
+	matchedVenue?: BoatTodayVenueItem;
+	race?: BoatRaceItem;
+	raceNo?: number;
+}): BoatRaceResultLookupDebug => {
+	const { feed, targetDate, targetVenueName, targetVenueCode, matchedVenue, race, raceNo } = params;
+	const result = race?.result as (BoatRaceResult & Record<string, unknown>) | undefined;
+	const payouts = readResultPayouts(result);
+	const findByType = (pattern: RegExp) => payouts.find((payout) => pattern.test(String(payout.betType).normalize("NFKC")));
+
+	return {
+		targetDate,
+		feedDate: feed?.date,
+		targetVenueName,
+		targetVenueCode,
+		matchedVenueName: matchedVenue?.venueName,
+		matchedVenueCode: matchedVenue?.venueCode,
+		raceNo,
+		raceFound: Boolean(race),
+		resultFound: Boolean(result),
+		payoutFound: payouts.length > 0,
+		finishOrderText: readFinishOrderText(result),
+		trifectaPayout: findByType(/3\s*連\s*単|trifecta|sanrentan/)?.payout,
+		exactaPayout: findByType(/2\s*連\s*単|exacta|nirentan/)?.payout,
+	};
+};
+
+export function findBoatRaceResultForPractice(params: {
+	feed: BoatTodayFeed | null | undefined;
+	date?: string;
+	venueName?: string;
+	venueCode?: string;
+	raceNo?: number;
+}): { venue?: BoatTodayVenueItem; race?: BoatRaceItem; lookupStatus: BoatResultLookupStatus; debug: BoatRaceResultLookupDebug } {
+	const { feed, date, venueName, venueCode, raceNo } = params;
+	if (!feed || !Array.isArray(feed.venues)) {
+		return {
+			lookupStatus: "missing",
+			debug: buildLookupDebug({ feed, targetDate: date, targetVenueName: venueName, targetVenueCode: venueCode, raceNo }),
+		};
+	}
+
+	const normalizedVenueName = normalizeVenueName(venueName);
+	const venue = feed.venues.find((item) => {
+		if (venueCode && item.venueCode === venueCode) {
+			return true;
+		}
+
+		return normalizedVenueName && normalizeVenueName(item.venueName) === normalizedVenueName;
+	});
+
+	const race = venue?.races?.find((item) => Number(item.raceNo) === Number(raceNo));
+	const debug = buildLookupDebug({ feed, targetDate: date, targetVenueName: venueName, targetVenueCode: venueCode, matchedVenue: venue, race, raceNo });
+
+	if (!venue || !race) {
+		return { venue, race, lookupStatus: "missing", debug };
+	}
+
+	if (!race.result || race.result.status === "pending" || !debug.finishOrderText) {
+		return { venue, race, lookupStatus: "pending", debug };
+	}
+
+	if (date && feed.date && date !== feed.date) {
+		return { venue, race, lookupStatus: "date-mismatch", debug };
+	}
+
+	return { venue, race, lookupStatus: debug.payoutFound ? "matched" : "payout-missing", debug };
+}
 
 export function findBoatRaceForSettlement(params: {
 	feed: BoatTodayFeed | null | undefined;
@@ -117,7 +276,7 @@ export function findBoatRaceForSettlement(params: {
 	for (const venue of feed.venues) {
 		const venueMatched =
 			(venueCode && venue.venueCode === venueCode) ||
-			(venueName && venue.venueName === venueName) ||
+			(venueName && normalizeVenueName(venue.venueName) === normalizeVenueName(venueName)) ||
 			(date && venue.date === date && !venueCode && !venueName);
 
 		if (!venueMatched) {
@@ -149,6 +308,7 @@ export function settleBoatPredictionResult(params: {
 	if (!result) {
 		return {
 			status: "missing",
+			lookupStatus: "missing",
 			finishOrderText: "",
 			payouts: [],
 			hitBets: [],
@@ -160,10 +320,11 @@ export function settleBoatPredictionResult(params: {
 		};
 	}
 
-	const finishOrderText = Array.isArray(result.finishOrder) ? result.finishOrder.slice(0, 3).join("-") : "";
+	const finishOrderText = readFinishOrderText(result as BoatRaceResult & Record<string, unknown>);
 	if (result.status !== "confirmed" || !finishOrderText) {
 		return {
 			status: "pending",
+			lookupStatus: "pending",
 			finishOrderText,
 			payouts: readResultPayouts(result),
 			hitBets: [],
@@ -188,6 +349,7 @@ export function settleBoatPredictionResult(params: {
 
 	return {
 		status: "confirmed",
+		lookupStatus: payouts.length > 0 ? "matched" : "payout-missing",
 		finishOrderText,
 		first: finishNumbers[0],
 		second: finishNumbers[1],

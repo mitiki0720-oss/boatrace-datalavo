@@ -1,6 +1,6 @@
 import type { ChangeEvent, CSSProperties } from "react";
 import type { ParsedBoatBetSummary } from "../../lib/boatBetParser";
-import type { BoatPracticeResultStatus } from "../../lib/boatResultSettlement";
+import type { BoatPracticeResultStatus, BoatResultLookupStatus } from "../../lib/boatResultSettlement";
 import type { BoatPredictionTicket } from "../../lib/boatraceTypes";
 import { countBoatPredictionTicketsByType } from "../../lib/boatPredictionParser";
 import { boatTheme } from "../../lib/theme";
@@ -22,6 +22,8 @@ type BoatPracticeResultPanelProps = {
 	practiceMemo: string;
 	betSummary?: Pick<ParsedBoatBetSummary, "totalBets" | "trifectaCount" | "exactaCount" | "totalStakeYen">;
 	resultStatus?: BoatPracticeResultStatus;
+	resultLookupStatus?: BoatResultLookupStatus;
+	resultLookupDebugText?: string;
 	kimarite?: string;
 	startInfoText?: string;
 	hitBetLabel?: string;
@@ -360,6 +362,8 @@ export function BoatPracticeResultPanel({
 	practiceMemo,
 	betSummary,
 	resultStatus,
+	resultLookupStatus,
+	resultLookupDebugText,
 	kimarite,
 	startInfoText,
 	hitBetLabel,
@@ -385,7 +389,15 @@ export function BoatPracticeResultPanel({
 	const trifectaCount = betSummary?.trifectaCount ?? ticketCounts.trifecta;
 	const exactaCount = betSummary?.exactaCount ?? ticketCounts.exacta;
 	const resultStatusLabel =
-		resultStatus === "confirmed"
+		resultLookupStatus === "date-mismatch"
+			? "照合済み（日付差あり）"
+			: resultLookupStatus === "payout-missing"
+				? "的中候補 / 払戻未取得"
+				: resultLookupStatus === "missing"
+					? "対象レース未検出"
+					: resultLookupStatus === "manual"
+						? "手動確認"
+						: resultStatus === "confirmed"
 			? "結果データ照合済み"
 			: resultStatus === "pending"
 				? "結果待ち"
@@ -440,6 +452,7 @@ export function BoatPracticeResultPanel({
 					<p style={labelStyle}>対象レース情報</p>
 					<div style={detailGridStyle}>
 						<div>結果ステータス: {resultStatusLabel}</div>
+						{resultLookupDebugText ? <div>照合詳細: {resultLookupDebugText}</div> : null}
 						{kimarite ? <div>決まり手: {kimarite}</div> : null}
 						{startInfoText ? <div>S/H/B: {startInfoText}</div> : null}
 						{settlementMessage ? <div>照合: {settlementMessage}</div> : null}

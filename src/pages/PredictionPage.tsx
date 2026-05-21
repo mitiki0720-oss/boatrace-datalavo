@@ -10,9 +10,11 @@ import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
 import { parseBoatBets } from "../lib/boatBetParser";
 import { buildBoatPredictionMaterial } from "../lib/boatPredictionMaterial";
 import {
-	findBoatRaceForSettlement,
+	findBoatRaceResultForPractice,
 	settleBoatPredictionResult,
 	type BoatPracticeResultStatus,
+	type BoatRaceResultLookupDebug,
+	type BoatResultLookupStatus,
 } from "../lib/boatResultSettlement";
 import {
 	findSelectedRaceExtra,
@@ -140,6 +142,26 @@ const isPracticeSummaryRecord = (record: BoatPracticeResultRecord, date: string 
 	return record.resultStatus === "confirmed" || resolvePracticePayoutYen(record) > 0 || Boolean(record.actualFinishOrderText);
 };
 
+const buildPracticeLookupDebugText = (debug: BoatRaceResultLookupDebug | undefined): string => {
+	if (!debug) {
+		return "";
+	}
+
+	return [
+		`targetDate=${debug.targetDate ?? "-"}`,
+		`feedDate=${debug.feedDate ?? "-"}`,
+		`venue=${debug.targetVenueName ?? "-"}(${debug.targetVenueCode ?? "-"})`,
+		`matched=${debug.matchedVenueName ?? "-"}(${debug.matchedVenueCode ?? "-"})`,
+		`race=${debug.raceNo ?? "-"}`,
+		`raceFound=${debug.raceFound ? "yes" : "no"}`,
+		`result=${debug.resultFound ? "yes" : "no"}`,
+		`payout=${debug.payoutFound ? "yes" : "no"}`,
+		`order=${debug.finishOrderText ?? "-"}`,
+		`3tan=${debug.trifectaPayout ?? "-"}`,
+		`2tan=${debug.exactaPayout ?? "-"}`,
+	].join(" / ");
+};
+
 const readPracticeHitBetLabel = (record: BoatPracticeResultRecord): string => {
 	const hitBet = Array.isArray(record.hitBets) ? record.hitBets[0] : undefined;
 	if (hitBet) {
@@ -155,6 +177,51 @@ const readPracticeHitBetLabel = (record: BoatPracticeResultRecord): string => {
 	}
 
 	return record.actualFinishOrderText || "-";
+};
+
+const findHitBetsByFinishOrder = (
+	bets: ReturnType<typeof parseBoatBets>["bets"],
+	finishOrderText: string,
+): ReturnType<typeof parseBoatBets>["bets"] => {
+	const order = finishOrderText
+		.normalize("NFKC")
+		.replace(/[＝=]/g, "-")
+		.split("-")
+		.map((value) => Number(value))
+		.filter((value) => Number.isFinite(value));
+
+	if (order.length < 2) {
+		return [];
+	}
+
+	const top3 = order.slice(0, 3).join("-");
+	const top2 = order.slice(0, 2).join("-");
+	const unorderedTop3 = order.slice(0, 3).sort().join("-");
+	const unorderedTop2 = order.slice(0, 2).sort().join("-");
+
+	return bets.filter((bet) => {
+		if (bet.type === "trifecta") {
+			return bet.normalized === top3;
+		}
+
+		if (bet.type === "exacta") {
+			return bet.normalized === top2;
+		}
+
+		if (bet.type === "trio") {
+			return [...bet.numbers].sort().join("-") === unorderedTop3;
+		}
+
+		if (bet.type === "quinella") {
+			return [...bet.numbers].sort().join("-") === unorderedTop2;
+		}
+
+		if (bet.type === "wide") {
+			return bet.numbers.every((number) => order.slice(0, 3).includes(number));
+		}
+
+		return false;
+	});
 };
 
 type PredictionHeroTimeBand = "morning" | "day" | "night";
@@ -256,6 +323,8 @@ export function PredictionPage() {
 	const [practiceMemo, setPracticeMemo] = useState<string>("");
 	const [isInvestmentAmountManual, setIsInvestmentAmountManual] = useState(false);
 	const [practiceResultStatus, setPracticeResultStatus] = useState<BoatPracticeResultStatus | undefined>(undefined);
+	const [practiceResultLookupStatus, setPracticeResultLookupStatus] = useState<BoatResultLookupStatus | undefined>(undefined);
+	const [practiceResultLookupDebugText, setPracticeResultLookupDebugText] = useState("");
 	const [practiceKimarite, setPracticeKimarite] = useState("");
 	const [practiceStartInfoText, setPracticeStartInfoText] = useState("");
 	const [practiceHitBetLabel, setPracticeHitBetLabel] = useState("");
@@ -332,8 +401,9 @@ export function PredictionPage() {
 			? `発走 ${selectedRace.startTime}`
 			: "時刻未取得";
 	const venueFeatureStatusLabel = selectedVenueFeatureNote ? "会場特徴ノート: 連携済み" : "会場特徴ノート: 未登録";
+	const practiceSummaryDate = todayFeed.date ?? selectedVenue?.date;
 	const practiceSummary = useMemo(() => {
-		const targetRecords = practiceResultRecords.filter((record) => isPracticeSummaryRecord(record, selectedVenue?.date));
+		const targetRecords = practiceResultRecords.filter((record) => isPracticeSummaryRecord(record, practiceSummaryDate));
 		const hitCount = targetRecords.filter(isBoatPracticeHit).length;
 		const totalStakeYen = targetRecords.reduce((sum, record) => sum + resolvePracticeStakeYen(record), 0);
 		const totalPayoutYen = targetRecords.reduce((sum, record) => sum + resolvePracticePayoutYen(record), 0);
@@ -348,7 +418,7 @@ export function PredictionPage() {
 			hitRate: targetRecords.length > 0 ? (hitCount / targetRecords.length) * 100 : null,
 			roi: totalStakeYen > 0 ? (totalPayoutYen / totalStakeYen) * 100 : null,
 		};
-	}, [practiceResultRecords, selectedVenue?.date]);
+	}, [practiceResultRecords, practiceSummaryDate]);
 	const predictionHeroTimeBand = getPredictionHeroTimeBand(selectedVenue);
 	const predictionHeroImageSrc = predictionHeroImageSrcMap[predictionHeroTimeBand];
 	const predictionHeroImageAlt =
@@ -405,7 +475,7 @@ export function PredictionPage() {
 
 	const hitNotificationItems = [
 		...practiceResultRecords
-			.filter((record) => record.date === selectedVenue?.date)
+			.filter((record) => record.date === practiceSummaryDate)
 			.filter(isBoatPracticeHit)
 			.sort((left, right) => String(right.savedAt ?? "").localeCompare(String(left.savedAt ?? "")))
 			.slice(0, 20)
@@ -608,6 +678,8 @@ export function PredictionPage() {
 				setPredictionText(record.predictionText);
 			}
 			setPracticeResultStatus(record.resultStatus);
+			setPracticeResultLookupStatus(record.resultLookupStatus);
+			setPracticeResultLookupDebugText(record.resultLookupStatus ? `保存済み / source=${record.resultSource ?? "-"}` : "");
 			setPracticeKimarite(record.kimarite ?? "");
 			setPracticeStartInfoText(record.startInfoText ?? "");
 			setPracticeHitBetLabel(isBoatPracticeHit(record) ? readPracticeHitBetLabel(record) : "");
@@ -625,6 +697,8 @@ export function PredictionPage() {
 		setPayoutAmount(0);
 		setPracticeMemo("");
 		setPracticeResultStatus(undefined);
+		setPracticeResultLookupStatus(undefined);
+		setPracticeResultLookupDebugText("");
 		setPracticeKimarite("");
 		setPracticeStartInfoText("");
 		setPracticeHitBetLabel("");
@@ -700,31 +774,49 @@ export function PredictionPage() {
 		setPracticeMessage(`買い目${parsedBetSummary.totalBets}点を読み込みました`);
 	};
 
-	const handleSettlePracticeResult = () => {
+	const handleSettlePracticeResult = async () => {
 		if (!selectedVenue || !selectedRace) {
 			return;
 		}
 
-		const matched = findBoatRaceForSettlement({
-			feed: todayFeed,
+		const freshFeed = await loadBoatTodayRaceDetailsFeed();
+		const settlementFeed = freshFeed ?? todayFeed;
+		if (freshFeed) {
+			setTodayFeed(freshFeed);
+			setDataUpdatedAt(freshFeed.generatedAt ?? dataUpdatedAt);
+		}
+
+		const lookup = findBoatRaceResultForPractice({
+			feed: settlementFeed,
 			date: selectedVenue.date,
 			venueName: selectedVenue.venueName,
 			venueCode: selectedVenue.venueCode,
 			raceNo: selectedRace.raceNo,
-			raceId: selectedRace.raceId,
 		});
 		const settlement = settleBoatPredictionResult({
-			race: matched?.race ?? selectedRace,
+			race: lookup.race ?? selectedRace,
 			bets: parsedBetSummary.bets,
 			investmentAmount,
 			source: "today-race-details.generated.json",
 		});
+		const finishOrderHitBets = settlement.hitBets.length > 0
+			? settlement.hitBets
+			: findHitBetsByFinishOrder(parsedBetSummary.bets, settlement.finishOrderText);
+		const lookupStatus =
+			lookup.lookupStatus === "date-mismatch" && settlement.status === "confirmed"
+				? "date-mismatch"
+				: settlement.status === "confirmed" && finishOrderHitBets.length > 0 && settlement.payoutYen <= 0
+					? "payout-missing"
+					: settlement.lookupStatus;
+		const lookupDebugText = buildPracticeLookupDebugText(lookup.debug);
 
 		setPracticeResultStatus(settlement.status);
+		setPracticeResultLookupStatus(lookupStatus);
+		setPracticeResultLookupDebugText(lookupDebugText);
 		setPracticeKimarite(settlement.kimarite ?? "");
 		setPracticeStartInfoText(settlement.startInfoText ?? "");
-		setPracticeHitBetLabel(settlement.hitBets[0] ? `${settlement.hitBets[0].label} ${settlement.hitBets[0].normalized}` : "");
-		setPracticeSettlementMessage(settlement.message);
+		setPracticeHitBetLabel(finishOrderHitBets[0] ? `${finishOrderHitBets[0].label} ${finishOrderHitBets[0].normalized}` : "");
+		setPracticeSettlementMessage(`${settlement.message}${lookupStatus === "date-mismatch" ? " / 日付差あり" : ""}`);
 		setIsResultAutoApplied(true);
 
 		if (settlement.finishOrderText) {
@@ -735,7 +827,7 @@ export function PredictionPage() {
 			setPayoutAmount(settlement.payoutYen);
 		}
 
-		setPracticeMessage(settlement.message);
+		setPracticeMessage(`${settlement.message} (${lookupDebugText})`);
 	};
 
 	const handleSavePracticeResult = () => {
@@ -747,14 +839,20 @@ export function PredictionPage() {
 			investmentAmount,
 			payoutAmount,
 		});
-		const hitBet = parsedBetSummary.bets.find((bet) => practiceHitBetLabel.includes(bet.normalized));
+		const matchedHitBets = parsedBetSummary.bets.filter((bet) => practiceHitBetLabel.includes(bet.normalized));
+		const finishOrderHitBets = matchedHitBets.length > 0 ? matchedHitBets : findHitBetsByFinishOrder(parsedBetSummary.bets, actualFinishOrderText);
+		const hitBets = payoutAmount > 0 ? finishOrderHitBets : matchedHitBets;
+		const hitBet = hitBets[0];
+		const savedResultStatus = practiceResultStatus ?? (payoutAmount > 0 || actualFinishOrderText ? "confirmed" : undefined);
+		const savedLookupStatus = practiceResultLookupStatus ?? (payoutAmount > 0 ? "manual" : undefined);
+		const savedAt = new Date().toISOString();
 
 		const record: BoatPracticeResultRecord = {
 			raceKey: selectedRaceKey,
 			raceId: selectedRace.raceId,
 			venueCode: selectedVenue.venueCode,
 			venueName: selectedVenue.venueName,
-			date: selectedVenue.date,
+			date: todayFeed.date ?? selectedVenue.date,
 			raceNo: selectedRace.raceNo,
 			raceTitle: selectedRace.title,
 			predictionText,
@@ -770,18 +868,20 @@ export function PredictionPage() {
 			payoutAmount,
 			profitLoss,
 			roi,
-			resultStatus: practiceResultStatus,
+			resultStatus: savedResultStatus,
+			resultLookupStatus: savedLookupStatus,
 			kimarite: practiceKimarite || undefined,
 			startInfoText: practiceStartInfoText || undefined,
-			hitBets: hitBet ? [hitBet] : undefined,
+			hitBets: hitBets.length > 0 ? hitBets : undefined,
 			hitBetType: hitBet?.label,
 			hitBetNumbers: hitBet?.numbers,
 			totalStakeYen: parsedBetSummary.totalStakeYen || investmentAmount,
 			payoutYen: payoutAmount,
 			profitYen: profitLoss,
 			resultSource: isResultAutoApplied ? "today-race-details.generated.json" : undefined,
+			updatedAt: savedAt,
 			practiceMemo,
-			savedAt: new Date().toISOString(),
+			savedAt,
 		};
 
 		upsertBoatPracticeResultRecord(record);
@@ -801,6 +901,8 @@ export function PredictionPage() {
 		setPayoutAmount(0);
 		setPracticeMemo("");
 		setPracticeResultStatus(undefined);
+		setPracticeResultLookupStatus(undefined);
+		setPracticeResultLookupDebugText("");
 		setPracticeKimarite("");
 		setPracticeStartInfoText("");
 		setPracticeHitBetLabel("");
@@ -819,6 +921,7 @@ export function PredictionPage() {
 
 	const handleChangePayoutAmount = (value: number) => {
 		setIsResultAutoApplied(false);
+		setPracticeResultLookupStatus(value > 0 ? "manual" : practiceResultLookupStatus);
 		setPayoutAmount(value);
 	};
 
@@ -1346,6 +1449,8 @@ body:has(.prediction-page-root) {
 					practiceMemo={practiceMemo}
 					betSummary={parsedBetSummary}
 					resultStatus={practiceResultStatus}
+					resultLookupStatus={practiceResultLookupStatus}
+					resultLookupDebugText={practiceResultLookupDebugText}
 					kimarite={practiceKimarite}
 					startInfoText={practiceStartInfoText}
 					hitBetLabel={practiceHitBetLabel}
