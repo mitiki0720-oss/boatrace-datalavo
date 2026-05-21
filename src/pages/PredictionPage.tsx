@@ -34,6 +34,8 @@ import {
 	calculateBoatPracticeProfitLoss,
 	deleteBoatPracticeResultRecord,
 	findBoatPracticeResultRecord,
+	isBoatPracticeHit,
+	loadBoatPracticeResultRecords,
 	upsertBoatPracticeResultRecord,
 } from "../lib/boatPracticeResultStorage";
 import {
@@ -87,6 +89,46 @@ const toPredictionTickets = (bets: ReturnType<typeof parseBoatBets>["bets"]): Bo
 		combination: bet.normalized,
 		note: bet.sourceLine,
 	}));
+
+const readPracticeNumber = (value: unknown): number => {
+	if (typeof value === "number" && Number.isFinite(value)) {
+		return value;
+	}
+
+	if (typeof value === "string") {
+		const parsed = Number(value.replace(/[^\d.-]/g, ""));
+		return Number.isFinite(parsed) ? parsed : 0;
+	}
+
+	return 0;
+};
+
+const formatPracticeYen = (value: unknown): string => `${readPracticeNumber(value).toLocaleString("ja-JP")}円`;
+
+const formatPracticeProfit = (value: unknown): string => {
+	const amount = readPracticeNumber(value);
+	const prefix = amount > 0 ? "+" : "";
+	return `${prefix}${amount.toLocaleString("ja-JP")}円`;
+};
+
+const formatPracticeRoi = (value: unknown): string => `${readPracticeNumber(value).toFixed(1)}%`;
+
+const readPracticeHitBetLabel = (record: BoatPracticeResultRecord): string => {
+	const hitBet = Array.isArray(record.hitBets) ? record.hitBets[0] : undefined;
+	if (hitBet) {
+		return `${hitBet.label} ${hitBet.normalized}`;
+	}
+
+	if (record.hitBetType && Array.isArray(record.hitBetNumbers) && record.hitBetNumbers.length > 0) {
+		return `${record.hitBetType} ${record.hitBetNumbers.join("-")}`;
+	}
+
+	if (Array.isArray(record.hitBetNumbers) && record.hitBetNumbers.length > 0) {
+		return record.hitBetNumbers.join("-");
+	}
+
+	return record.actualFinishOrderText || "-";
+};
 
 type PredictionHeroTimeBand = "morning" | "day" | "night";
 
@@ -179,6 +221,7 @@ export function PredictionPage() {
 	const [savedPredictionRecord, setSavedPredictionRecord] = useState<BoatPredictionRecord | undefined>(undefined);
 	const [savedMessage, setSavedMessage] = useState<string>("");
 	const [savedPracticeResultRecord, setSavedPracticeResultRecord] = useState<BoatPracticeResultRecord | undefined>(undefined);
+	const [practiceResultRecords, setPracticeResultRecords] = useState<BoatPracticeResultRecord[]>([]);
 	const [practiceMessage, setPracticeMessage] = useState<string>("");
 	const [actualFinishOrderText, setActualFinishOrderText] = useState<string>("");
 	const [investmentAmount, setInvestmentAmount] = useState<number>(1000);
@@ -315,21 +358,33 @@ export function PredictionPage() {
 	];
 
 	const hitNotificationItems = [
-		{
-			title: "的中ログ準備中",
-			meta: "保存済み結果データと接続予定",
-			badge: "準備中",
-			result: "-",
-			payout: "払戻 -",
-			profit: "収支 -",
-		},
+		...practiceResultRecords
+			.filter(isBoatPracticeHit)
+			.sort((left, right) => String(right.savedAt ?? "").localeCompare(String(left.savedAt ?? "")))
+			.slice(0, 20)
+			.map((record) => ({
+				key: record.raceKey || `${record.date}-${record.venueName}-${record.raceNo}`,
+				title: `${record.venueName || "会場未設定"} ${record.raceNo ? `${record.raceNo}R` : ""}`.trim(),
+				meta: [
+					record.date || "日付未設定",
+					record.actualFinishOrderText ? `実着順 ${record.actualFinishOrderText}` : "",
+					record.kimarite ? `決まり手 ${record.kimarite}` : "",
+				].filter(Boolean).join(" / "),
+				badge: "的中",
+				result: readPracticeHitBetLabel(record),
+				payout: `払戻 ${formatPracticeYen(record.payoutYen ?? record.payoutAmount)}`,
+				investment: `投資 ${formatPracticeYen(record.totalStakeYen ?? record.investmentAmount)}`,
+				profit: `収支 ${formatPracticeProfit(record.profitYen ?? record.profitLoss)}`,
+				roi: `回収率 ${formatPracticeRoi(record.roi)}`,
+				savedAt: record.savedAt,
+			})),
 	];
 
 	const hitNotificationLoopItems = [
-		...hitNotificationItems,
-		...hitNotificationItems,
-		...hitNotificationItems,
-		...hitNotificationItems,
+		...(hitNotificationItems.length > 0 ? hitNotificationItems : []),
+		...(hitNotificationItems.length > 0 ? hitNotificationItems : []),
+		...(hitNotificationItems.length > 0 ? hitNotificationItems : []),
+		...(hitNotificationItems.length > 0 ? hitNotificationItems : []),
 	];
 
 	const refreshTodayFeed = async (options?: { silent?: boolean; isActive?: () => boolean }) => {
@@ -379,6 +434,10 @@ export function PredictionPage() {
 		}
 	};
 
+	const refreshPracticeResults = () => {
+		setPracticeResultRecords(Object.values(loadBoatPracticeResultRecords()));
+	};
+
 	useEffect(() => {
 		let isActive = true;
 
@@ -387,6 +446,10 @@ export function PredictionPage() {
 		return () => {
 			isActive = false;
 		};
+	}, []);
+
+	useEffect(() => {
+		refreshPracticeResults();
 	}, []);
 
 	useEffect(() => {
@@ -673,6 +736,7 @@ export function PredictionPage() {
 
 		upsertBoatPracticeResultRecord(record);
 		setSavedPracticeResultRecord(record);
+		refreshPracticeResults();
 		setPracticeMessage("実践結果を保存しました");
 	};
 
@@ -694,6 +758,7 @@ export function PredictionPage() {
 		setIsInvestmentAmountManual(false);
 		setIsBetAutoApplied(false);
 		setIsResultAutoApplied(false);
+		refreshPracticeResults();
 		setPracticeMessage("実践結果をクリアしました");
 	};
 
@@ -959,6 +1024,17 @@ body:has(.prediction-page-root) {
 						gap: 10px;
 					}
 
+					.prediction-notification-empty {
+						display: flex;
+						align-items: center;
+						gap: 12px;
+						flex-wrap: wrap;
+						padding: 18px;
+						border-radius: 20px;
+						border: 1px solid rgba(176, 137, 216, 0.22);
+						background: rgba(250, 247, 255, 0.9);
+					}
+
 					@keyframes predictionNotificationMarquee {
 						from {
 							transform: translateX(0);
@@ -985,6 +1061,19 @@ body:has(.prediction-page-root) {
 						border-radius: 999px;
 						background: rgba(176, 137, 216, 0.16);
 						color: #8a70d2;
+						font-size: 0.7rem;
+						font-weight: 900;
+					}
+
+					.prediction-hit-badge {
+						display: inline-flex;
+						width: fit-content;
+						align-items: center;
+						justify-content: center;
+						padding: 5px 10px;
+						border-radius: 999px;
+						background: rgba(46, 204, 113, 0.15);
+						color: #12815c;
 						font-size: 0.7rem;
 						font-weight: 900;
 					}
@@ -1102,7 +1191,7 @@ body:has(.prediction-page-root) {
 							<p className="prediction-eyebrow">HIT NOTIFICATIONS</p>
 							<h2 className="prediction-section-title">的中通知ログ</h2>
 							<p className="prediction-text">
-								的中したレースを自動で記録していく想定のエリアです。将来は通知ログ・Slack通知・PWA通知の土台にします。
+								保存済みの実践結果から、的中したレースだけを自動で表示します。
 							</p>
 						</div>
 
@@ -1110,27 +1199,38 @@ body:has(.prediction-page-root) {
 					</div>
 
 					<div className="prediction-notification-grid">
-						<div className="prediction-notification-track">
-							{hitNotificationLoopItems.map((item, index) => (
-								<article key={`${item.title}-${index}`} className="prediction-notification-card">
-									<div className="prediction-notification-top">
-										<strong style={{ color: "#132f45", fontSize: "0.92rem" }}>{item.title}</strong>
-										<span className="prediction-badge">{item.badge}</span>
-									</div>
+						{hitNotificationItems.length > 0 ? (
+							<div className="prediction-notification-track">
+								{hitNotificationLoopItems.map((item, index) => (
+									<article key={`${item.key}-${index}`} className="prediction-notification-card">
+										<div className="prediction-notification-top">
+											<strong style={{ color: "#132f45", fontSize: "0.92rem" }}>{item.title}</strong>
+											<span className="prediction-hit-badge">{item.badge}</span>
+										</div>
 
-									<p className="prediction-text">{item.meta}</p>
+										<p className="prediction-text">{item.meta}</p>
 
-									<div style={{ display: "flex", gap: "8px", flexWrap: "wrap" as const }}>
-										<span className="prediction-badge">{item.result}</span>
-										<span className="prediction-badge">{item.payout}</span>
-									</div>
+										<div style={{ display: "flex", gap: "8px", flexWrap: "wrap" as const }}>
+											<span className="prediction-badge">{item.result}</span>
+											<span className="prediction-badge">{item.payout}</span>
+											<span className="prediction-badge">{item.investment}</span>
+										</div>
 
-									<p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 900, color: "#5575d9" }}>
-										{item.profit}
-									</p>
-								</article>
-							))}
-						</div>
+										<p style={{ margin: 0, fontSize: "0.92rem", fontWeight: 900, color: "#12815c" }}>
+											{item.profit} / {item.roi}
+										</p>
+										<p style={{ margin: 0, fontSize: "0.72rem", fontWeight: 800, color: "#8a70d2" }}>
+											保存済み実践結果から自動表示{item.savedAt ? ` / ${formatJstDateTimeLabel(item.savedAt)}` : ""}
+										</p>
+									</article>
+								))}
+							</div>
+						) : (
+							<div className="prediction-notification-empty">
+								<span className="prediction-badge">保存済み実践結果から自動表示</span>
+								<p className="prediction-text" style={{ margin: 0 }}>的中ログはまだありません</p>
+							</div>
+						)}
 					</div>
 				</section>
 

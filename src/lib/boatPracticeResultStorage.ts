@@ -40,6 +40,33 @@ const canUseStorage = () => typeof window !== "undefined" && typeof window.local
 
 const isRecordLike = (value: unknown): value is BoatPracticeResultRecordMap => typeof value === "object" && value !== null && !Array.isArray(value);
 
+const readNumber = (value: unknown): number => {
+	if (typeof value === "number" && Number.isFinite(value)) {
+		return value;
+	}
+
+	if (typeof value === "string") {
+		const parsed = Number(value.replace(/[^\d.-]/g, ""));
+		return Number.isFinite(parsed) ? parsed : 0;
+	}
+
+	return 0;
+};
+
+export function isBoatPracticeHit(result: BoatPracticeResultRecord | null | undefined): boolean {
+	if (!result) {
+		return false;
+	}
+
+	return (
+		readNumber(result.payoutYen) > 0 ||
+		readNumber(result.profitYen) > 0 ||
+		(Array.isArray(result.hitBets) && result.hitBets.length > 0) ||
+		Boolean(result.hitBetNumbers) ||
+		(result.resultStatus === "confirmed" && readNumber(result.payoutYen) > 0)
+	);
+}
+
 export function calculateBoatPracticeProfitLoss(params: {
 	investmentAmount: number;
 	payoutAmount: number;
