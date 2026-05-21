@@ -15,6 +15,12 @@ import {
 	loadBoatVenueExtrasFeed,
 	type BoatVenueExtrasFeed,
 } from "../lib/boatVenueExtrasFeed";
+import {
+	loadBoatVenueFeatureIndex,
+	loadBoatVenueFeatureNote,
+	type BoatVenueFeatureIndex,
+	type BoatVenueFeatureNote,
+} from "../lib/boatVenueFeatures";
 import type { BoatPracticeResultRecord } from "../lib/boatPracticeResultStorage";
 import { withBasePath } from "../lib/assetPath";
 import {
@@ -151,6 +157,8 @@ export function PredictionPage() {
 	const [refreshMessage, setRefreshMessage] = useState("");
 	const [selectedVenueId, setSelectedVenueId] = useState<string>("");
 	const [selectedRaceId, setSelectedRaceId] = useState<string>("");
+	const [venueFeatureIndex, setVenueFeatureIndex] = useState<BoatVenueFeatureIndex | null>(null);
+	const [selectedVenueFeatureNote, setSelectedVenueFeatureNote] = useState<BoatVenueFeatureNote | null>(null);
 	const [predictionText, setPredictionText] = useState<string>("");
 	const [savedPredictionRecord, setSavedPredictionRecord] = useState<BoatPredictionRecord | undefined>(undefined);
 	const [savedMessage, setSavedMessage] = useState<string>("");
@@ -206,6 +214,7 @@ export function PredictionPage() {
 				race: selectedRace,
 				venueExtra: selectedVenueExtra,
 				raceExtra: selectedRaceExtra,
+				venueFeatureNote: selectedVenueFeatureNote,
 			})
 		: "レース情報が選択されていません。";
 	const raceLabel = `${selectedVenue?.venueName ?? "-"} ${selectedRace ? `${selectedRace.raceNo}R` : "-"}`;
@@ -226,6 +235,7 @@ export function PredictionPage() {
 		: selectedRace?.startTime
 			? `発走 ${selectedRace.startTime}`
 			: "時刻未取得";
+	const venueFeatureStatusLabel = selectedVenueFeatureNote ? "会場特徴ノート: 連携済み" : "会場特徴ノート: 未登録";
 	const predictionHeroTimeBand = getPredictionHeroTimeBand(selectedVenue);
 	const predictionHeroImageSrc = predictionHeroImageSrcMap[predictionHeroTimeBand];
 	const predictionHeroImageAlt =
@@ -386,6 +396,36 @@ export function PredictionPage() {
 	const handleSelectRace = (raceId: string) => {
 		setSelectedRaceId(raceId);
 	};
+
+	useEffect(() => {
+		let cancelled = false;
+		loadBoatVenueFeatureIndex().then((loadedIndex) => {
+			if (!cancelled) {
+				setVenueFeatureIndex(loadedIndex);
+			}
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!selectedVenue?.venueName) {
+			setSelectedVenueFeatureNote(null);
+			return;
+		}
+
+		let cancelled = false;
+		setSelectedVenueFeatureNote(null);
+		loadBoatVenueFeatureNote(selectedVenue.venueName, venueFeatureIndex).then((note) => {
+			if (!cancelled) {
+				setSelectedVenueFeatureNote(note);
+			}
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [selectedVenue, venueFeatureIndex]);
 
 	useEffect(() => {
 		if (!selectedVenue || !selectedRace || !selectedRaceKey) {
@@ -958,6 +998,7 @@ body:has(.prediction-page-root) {
 							<p className="prediction-eyebrow">CURRENT</p>
 							<p className="prediction-current-value">{currentSelectionLabel}</p>
 							<p className="prediction-text">{currentSelectionMeta}</p>
+							<span className="prediction-badge" style={{ marginTop: "8px" }}>{venueFeatureStatusLabel}</span>
 						</div>
 					</div>
 

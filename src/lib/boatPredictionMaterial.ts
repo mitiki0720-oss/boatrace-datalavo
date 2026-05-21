@@ -5,6 +5,7 @@ import type {
 	BoatTodayVenueItem,
 } from "./boatraceTypes";
 import type { BoatVenueExtraRace, BoatVenueExtraVenue } from "./boatVenueExtrasFeed";
+import { buildBoatVenueFeatureMaterial, type BoatVenueFeatureNote } from "./boatVenueFeatures";
 
 const toMaterialArray = <T,>(value: unknown): T[] => {
 	if (Array.isArray(value)) {
@@ -729,8 +730,9 @@ export function buildBoatPredictionMaterial(params: {
 	race: BoatRaceItem;
 	venueExtra?: BoatVenueExtraVenue | null;
 	raceExtra?: BoatVenueExtraRace | null;
+	venueFeatureNote?: BoatVenueFeatureNote | null;
 }): string {
-	const { venue, race, venueExtra, raceExtra } = params;
+	const { venue, race, venueExtra, raceExtra, venueFeatureNote } = params;
 	const raceExtraRecord = isMaterialRecord(raceExtra) ? raceExtra : null;
     const officialBeforeInfo = isMaterialRecord(raceExtraRecord?.officialBeforeInfo) ? raceExtraRecord.officialBeforeInfo : null;
     const weatherRecord = isMaterialRecord(raceExtraRecord?.weatherCondition)
@@ -767,6 +769,10 @@ export function buildBoatPredictionMaterial(params: {
 			"風の影響: サンプル未登録",
 			"荒れそう度: サンプル未登録",
 			"会場メモ: サンプル未登録",
+		].join("\n"),
+		[
+			"[B2. 会場特徴ノート / 手入力]",
+			buildBoatVenueFeatureMaterial(venueFeatureNote, { maxLength: 1800 }) || "- 未登録",
 		].join("\n"),
 		[
 	        "[C. 天気 / 風 / 波]",
