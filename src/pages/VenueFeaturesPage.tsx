@@ -19,6 +19,10 @@ import {
 type NoteViewMode = "summary" | "markdown" | "material";
 type SortMode = "venue" | "updated" | "ready";
 
+const venueFeaturesBackgroundUrl = withBasePath(
+	"venue-features-page/backgrounds/venue-features-bg-water-analytics.png",
+);
+
 const statusText: Record<BoatVenueFeatureStatus, string> = {
 	ready: "ready",
 	draft: "draft",
@@ -219,12 +223,48 @@ export function VenueFeaturesPage() {
 		>
 			<style>
 				{`
-					.venue-features-root {
-						width: 100%;
-						display: grid;
-						gap: 24px;
-						color: #112f46;
-					}
+
+#root:has(.venue-features-root) {
+  position: relative;
+  min-height: 100vh;
+  background: transparent;
+}
+
+#root:has(.venue-features-root)::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(180deg, rgba(245, 253, 255, 0.20), rgba(236, 248, 255, 0.42)),
+    radial-gradient(circle at 12% 10%, rgba(191, 244, 255, 0.24), transparent 34%),
+    radial-gradient(circle at 88% 14%, rgba(226, 214, 255, 0.22), transparent 34%),
+    url("${venueFeaturesBackgroundUrl}");
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+#root:has(.venue-features-root)::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(245, 253, 255, 0.24), transparent 20%, transparent 80%, rgba(245, 253, 255, 0.24)),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.18), transparent 44%);
+}
+
+.venue-features-root {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: grid;
+  gap: 24px;
+  color: #112f46;
+}
 
 					.venue-features-hero,
 					.venue-features-panel,
@@ -232,7 +272,7 @@ export function VenueFeaturesPage() {
 					.venue-features-note-panel {
 						border: 1px solid rgba(125, 211, 252, 0.35);
 						border-radius: 28px;
-						background: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(236, 252, 255, 0.86) 54%, rgba(246, 242, 255, 0.88));
+						background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(236, 252, 255, 0.91) 54%, rgba(246, 242, 255, 0.92));
 						box-shadow: 0 18px 60px rgba(37, 77, 112, 0.12);
 					}
 
