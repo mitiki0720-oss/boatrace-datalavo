@@ -41,22 +41,29 @@ const pageStyle: CSSProperties = {
 	boxSizing: "border-box",
 };
 
+const topGridStyle: CSSProperties = {
+	display: "grid",
+	gridTemplateColumns: "minmax(0, 1.45fr) minmax(330px, 0.55fr)",
+	gap: "22px",
+	alignItems: "stretch",
+};
+
 const heroStyle: CSSProperties = {
 	display: "grid",
-	gridTemplateColumns: "minmax(0, 1.1fr) minmax(360px, 0.9fr)",
+	gridTemplateColumns: "minmax(0, 1.06fr) minmax(320px, 0.94fr)",
 	gap: "28px",
-	alignItems: "stretch",
+	alignItems: "center",
 	padding: "34px",
 	borderRadius: "34px",
 	border: "1px solid rgba(93, 199, 232, 0.24)",
 	background:
-		"radial-gradient(circle at 10% 0%, rgba(222, 245, 255, 0.9), transparent 34%), radial-gradient(circle at 86% 12%, rgba(235, 226, 255, 0.84), transparent 34%), linear-gradient(135deg, rgba(255,255,255,0.98), rgba(244,252,255,0.96) 54%, rgba(239,246,255,0.95))",
+		"radial-gradient(circle at 12% 0%, rgba(222, 245, 255, 0.9), transparent 34%), radial-gradient(circle at 88% 12%, rgba(235, 226, 255, 0.84), transparent 34%), linear-gradient(135deg, rgba(255,255,255,0.98), rgba(244,252,255,0.96) 54%, rgba(239,246,255,0.95))",
 	boxShadow: "0 26px 64px rgba(17, 64, 92, 0.1)",
 	overflow: "hidden",
 };
 
 const heroImageWrapStyle: CSSProperties = {
-	minHeight: "300px",
+	minHeight: "270px",
 	borderRadius: "28px",
 	border: "1px solid rgba(93, 199, 232, 0.22)",
 	background:
@@ -88,7 +95,7 @@ const heroFallbackStyle: CSSProperties = {
 const titleStyle: CSSProperties = {
 	margin: 0,
 	color: boatTheme.colors.navy,
-	fontSize: "clamp(2rem, 3.4vw, 4rem)",
+	fontSize: "clamp(2rem, 3.2vw, 3.8rem)",
 	lineHeight: 1.14,
 	fontWeight: 950,
 };
@@ -96,16 +103,17 @@ const titleStyle: CSSProperties = {
 const textStyle: CSSProperties = {
 	margin: 0,
 	color: boatTheme.colors.muted,
-	fontSize: "1rem",
-	lineHeight: 1.85,
+	fontSize: "0.96rem",
+	lineHeight: 1.82,
 };
 
 const eyebrowStyle: CSSProperties = {
 	margin: 0,
 	color: boatTheme.colors.aquaDeep,
-	fontSize: "0.78rem",
+	fontSize: "0.74rem",
 	fontWeight: 950,
 	letterSpacing: "0.14em",
+	textTransform: "uppercase",
 };
 
 const chipRowStyle: CSSProperties = {
@@ -125,7 +133,7 @@ const chipStyle: CSSProperties = {
 	border: "1px solid rgba(93, 199, 232, 0.22)",
 	background: "rgba(255,255,255,0.86)",
 	color: boatTheme.colors.aquaDeep,
-	fontSize: "0.78rem",
+	fontSize: "0.76rem",
 	fontWeight: 900,
 	whiteSpace: "nowrap",
 };
@@ -141,27 +149,32 @@ const panelStyle: CSSProperties = {
 	minWidth: 0,
 };
 
+const calendarPanelStyle: CSSProperties = {
+	...panelStyle,
+	background:
+		"radial-gradient(circle at 100% 0%, rgba(233, 226, 255, 0.58), transparent 34%), linear-gradient(180deg, rgba(255,255,255,0.97), rgba(240,251,253,0.93))",
+	alignContent: "start",
+};
+
+const sectionHeaderStyle: CSSProperties = {
+	display: "flex",
+	justifyContent: "space-between",
+	alignItems: "flex-start",
+	gap: "18px",
+	flexWrap: "wrap",
+};
+
 const sectionTitleStyle: CSSProperties = {
 	margin: 0,
 	color: boatTheme.colors.navy,
-	fontSize: "1.05rem",
+	fontSize: "1.2rem",
 	fontWeight: 950,
 };
 
 const dateGridStyle: CSSProperties = {
 	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
-	gap: "8px",
-};
-
-const dateButtonStyle: CSSProperties = {
-	border: "1px solid rgba(93, 199, 232, 0.2)",
-	background: "rgba(255,255,255,0.92)",
-	color: boatTheme.colors.navy,
-	borderRadius: "16px",
-	padding: "12px 10px",
-	fontWeight: 900,
-	cursor: "pointer",
+	gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+	gap: "10px",
 };
 
 const calendarGridStyle: CSSProperties = {
@@ -181,70 +194,118 @@ const calendarDayStyle: CSSProperties = {
 	position: "relative",
 };
 
-const mainGridStyle: CSSProperties = {
-	display: "grid",
-	gridTemplateColumns: "minmax(320px, 0.74fr) minmax(0, 1.26fr)",
-	gap: "22px",
-	alignItems: "start",
+const dateButtonStyle: CSSProperties = {
+	border: "1px solid rgba(93, 199, 232, 0.2)",
+	background: "rgba(255,255,255,0.92)",
+	color: boatTheme.colors.navy,
+	borderRadius: "16px",
+	padding: "12px 10px",
+	fontWeight: 900,
+	cursor: "pointer",
 };
 
-const venueListStyle: CSSProperties = {
+const overviewGridStyle: CSSProperties = {
 	display: "grid",
+	gridTemplateColumns: "repeat(5, minmax(150px, 1fr))",
 	gap: "12px",
+};
+
+const summaryCardStyle: CSSProperties = {
+	padding: "16px 17px",
+	borderRadius: "22px",
+	background: "rgba(255, 255, 255, 0.86)",
+	border: "1px solid rgba(93, 199, 232, 0.2)",
+	display: "grid",
+	gap: "5px",
+	boxShadow: "0 12px 26px rgba(17, 64, 92, 0.04)",
+};
+
+const summaryLabelStyle: CSSProperties = {
+	margin: 0,
+	color: boatTheme.colors.aquaDeep,
+	fontSize: "0.68rem",
+	fontWeight: 900,
+	letterSpacing: "0.08em",
+};
+
+const summaryValueStyle: CSSProperties = {
+	margin: 0,
+	color: boatTheme.colors.navy,
+	fontSize: "1.08rem",
+	fontWeight: 950,
+	lineHeight: 1.2,
+};
+
+const venueRowsStyle: CSSProperties = {
+	display: "grid",
+	gap: "16px",
+};
+
+const venueRowStyle: CSSProperties = {
+	display: "grid",
+	gap: "16px",
+	alignItems: "stretch",
 };
 
 const venueCardStyle: CSSProperties = {
 	width: "100%",
+	minHeight: "202px",
 	textAlign: "left",
-	padding: "18px",
-	borderRadius: "22px",
-	border: "1px solid rgba(93, 199, 232, 0.18)",
-	background: "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245,252,255,0.94))",
-	boxShadow: "0 10px 24px rgba(17, 64, 92, 0.045)",
+	padding: "16px",
+	borderRadius: "26px",
+	border: "1px solid rgba(93, 199, 232, 0.2)",
+	background:
+		"radial-gradient(circle at 10% 0%, rgba(202, 243, 255, 0.58), transparent 38%), radial-gradient(circle at 100% 10%, rgba(232, 224, 255, 0.44), transparent 36%), linear-gradient(150deg, rgba(255,255,255,0.99), rgba(242,253,255,0.95) 55%, rgba(248,255,252,0.94))",
+	boxShadow: "0 14px 34px rgba(17, 64, 92, 0.055)",
 	cursor: "pointer",
 	display: "grid",
-	gap: "12px",
+	gridTemplateRows: "auto auto 1fr",
+	gap: "10px",
+	position: "relative",
+	overflow: "hidden",
 };
 
 const metricGridStyle: CSSProperties = {
 	display: "grid",
-	gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-	gap: "8px",
+	gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+	gap: "7px",
+	alignSelf: "end",
 };
 
 const metricStyle: CSSProperties = {
-	padding: "10px",
-	borderRadius: "14px",
-	background: "rgba(238, 249, 252, 0.74)",
-	border: "1px solid rgba(93, 199, 232, 0.14)",
+	padding: "8px",
+	borderRadius: "15px",
+	background: "rgba(239, 251, 255, 0.78)",
+	border: "1px solid rgba(93, 199, 232, 0.16)",
 	display: "grid",
-	gap: "3px",
+	gap: "2px",
 };
 
 const metricLabelStyle: CSSProperties = {
 	margin: 0,
 	color: boatTheme.colors.muted,
-	fontSize: "0.68rem",
-	fontWeight: 800,
+	fontSize: "0.6rem",
+	fontWeight: 850,
 };
 
 const metricValueStyle: CSSProperties = {
 	margin: 0,
 	color: boatTheme.colors.navy,
-	fontSize: "0.88rem",
+	fontSize: "0.78rem",
 	fontWeight: 950,
+	lineHeight: 1.15,
 };
 
 const workbenchGridStyle: CSSProperties = {
 	display: "grid",
-	gridTemplateColumns: "minmax(0, 1fr) minmax(360px, 0.66fr)",
-	gap: "18px",
+	gridTemplateColumns: "minmax(0, 1.18fr) minmax(360px, 0.82fr)",
+	gap: "22px",
 	alignItems: "start",
 };
 
 const textareaStyle: CSSProperties = {
 	width: "100%",
-	minHeight: "340px",
+	minHeight: "300px",
 	boxSizing: "border-box",
 	padding: "16px",
 	borderRadius: "18px",
@@ -395,8 +456,19 @@ function downloadText(filename: string, text: string): void {
 	URL.revokeObjectURL(url);
 }
 
-function normalizeLocalStorageValues<T>(map: Record<string, T>): T[] {
+function normalizeLocalStorageValues<T>(map: Record<string, T> | T[]): T[] {
 	return Array.isArray(map) ? map : Object.values(map || {});
+}
+
+function getReviewFileName(date: string, venueSlug: string, suffix: "predictions" | "results" | "summary"): string {
+	const ext = suffix === "summary" ? "md" : "txt";
+	return `${date}-${venueSlug}-${suffix}.${ext}`;
+}
+
+function getMonthDates(dateSet: Set<string>, selectedDate: string): string[] {
+	return Array.from(dateSet)
+		.filter((date) => date.slice(0, 7) === selectedDate.slice(0, 7))
+		.sort((a, b) => a.localeCompare(b));
 }
 
 export function ReviewPage() {
@@ -432,9 +504,10 @@ export function ReviewPage() {
 	const archiveDates = useMemo(() => getBoatReviewArchiveDates(archiveIndex), [archiveIndex]);
 	const archiveDateSet = useMemo(() => new Set(archiveDates), [archiveDates]);
 	const liveDateSet = useMemo(() => new Set([operationalToday, operationalYesterday, todayFeed?.date].filter(Boolean) as string[]), [operationalToday, operationalYesterday, todayFeed?.date]);
+	const selectableDateSet = useMemo(() => new Set([...liveDateSet, ...archiveDateSet]), [archiveDateSet, liveDateSet]);
 	const mode: ReviewDataMode = liveDateSet.has(selectedDate) ? "live" : "archive";
-	const predictionRecords = useMemo(() => normalizeBoatPredictionRecordList(normalizeLocalStorageValues(predictionPayload)), [predictionPayload]);
-	const practiceRecords = useMemo(() => normalizeBoatPracticeResultList(normalizeLocalStorageValues(practicePayload)), [practicePayload]);
+	const predictionRecords = useMemo(() => normalizeBoatPredictionRecordList(predictionPayload), [predictionPayload]);
+	const practiceRecords = useMemo(() => normalizeBoatPracticeResultList(practicePayload), [practicePayload]);
 
 	const liveGroups = useMemo(() => buildLiveBoatReviewVenueGroups({
 		date: selectedDate,
@@ -475,6 +548,11 @@ export function ReviewPage() {
 	}, [archiveIndex, mode, selectedDate]);
 
 	const groups = mode === "archive" ? archiveGroups : liveGroups;
+	const venueRows = useMemo(() => {
+		if (groups.length <= 1) return groups.length === 1 ? [groups] : [];
+		const firstRowCount = Math.ceil(groups.length / 2);
+		return [groups.slice(0, firstRowCount), groups.slice(firstRowCount)].filter((row) => row.length > 0);
+	}, [groups]);
 	const selectedGroup = useMemo(() => {
 		if (groups.length === 0) return undefined;
 		return groups.find((group) => group.key === selectedVenueKey) ?? groups[0];
@@ -507,19 +585,31 @@ export function ReviewPage() {
 		const venueMetrics = groups.map(getBoatReviewVenueMetrics);
 		const predictionCount = venueMetrics.reduce((sum, item) => sum + item.predictionCount, 0);
 		const resultCount = venueMetrics.reduce((sum, item) => sum + item.resultCount, 0);
+		const practiceCount = venueMetrics.reduce((sum, item) => sum + item.practiceCount, 0);
+		const hitCount = venueMetrics.reduce((sum, item) => sum + item.hitCount, 0);
+		const investment = venueMetrics.reduce((sum, item) => sum + item.investment, 0);
+		const payout = venueMetrics.reduce((sum, item) => sum + item.payout, 0);
 		const summaryCount = venueMetrics.filter((item) => item.hasSummary).length;
 		return {
 			venueCount: groups.length,
 			predictionCount,
 			resultCount,
+			practiceCount,
+			hitCount,
+			investment,
+			payout,
+			profit: payout - investment,
+			roi: investment > 0 ? payout / investment * 100 : 0,
 			summaryCount,
 		};
 	}, [groups]);
 
+	const selectedMetrics = selectedGroup ? getBoatReviewVenueMetrics(selectedGroup) : null;
 	const predictionText = selectedGroup ? buildBoatPredictionSummaryText(selectedGroup) : "会場を選択してください";
 	const resultText = selectedGroup ? buildBoatResultSummaryText(selectedGroup) : "会場を選択してください";
-	const selectedMetrics = selectedGroup ? getBoatReviewVenueMetrics(selectedGroup) : null;
 	const calendarCells = useMemo(() => buildCalendarCells(calendarMonth), [calendarMonth]);
+	const monthRegisteredDates = useMemo(() => getMonthDates(selectableDateSet, `${calendarMonth}-01`), [calendarMonth, selectableDateSet]);
+	const modeLabel = mode === "archive" ? "ARCHIVE FILE" : selectedDate === operationalToday ? "TODAY LIVE" : "YESTERDAY LIVE";
 
 	const selectDate = (date: string) => {
 		if (date > operationalToday) return;
@@ -557,185 +647,261 @@ export function ReviewPage() {
 			heroMaxWidth="2040px"
 			hideHero
 		>
-			<div style={pageStyle}>
-				<section style={heroStyle}>
-					<div style={{ display: "grid", gap: "22px", alignContent: "center" }}>
-						<p style={eyebrowStyle}>BOAT REVIEW SUMMARY</p>
-						<h1 style={titleStyle}>今日の予想と結果を、次の一手につなげる</h1>
-						<p style={textStyle}>GPT予想・公式結果・実践収支・レビューsummaryを、会場ごとにまとめて次回予想へ活かします。</p>
-						<div style={chipRowStyle}>
-							<span style={chipStyle}>選択日 {selectedDate}</span>
-							<span style={chipStyle}>対象会場数 {metrics.venueCount}</span>
-							<span style={chipStyle}>予想保存数 {metrics.predictionCount}</span>
-							<span style={chipStyle}>結果取得数 {metrics.resultCount}</span>
-							<span style={chipStyle}>summary {metrics.summaryCount > 0 ? `${metrics.summaryCount}件あり` : "未登録"}</span>
+			<div className="boat-review-workbench" style={pageStyle}>
+				<section className="boat-review-top" style={topGridStyle}>
+					<div className="boat-review-hero" style={heroStyle}>
+						<div style={{ display: "grid", gap: "22px", alignContent: "center" }}>
+							<p style={eyebrowStyle}>BOAT REVIEW SUMMARY</p>
+							<h1 style={titleStyle}>今日の予想と結果を、次の一手につなげる</h1>
+							<p style={textStyle}>GPT予想・公式結果・実践収支・レビューsummaryを、会場ごとにまとめて次回予想へ活かします。</p>
+							<div style={chipRowStyle}>
+								<span style={chipStyle}>{modeLabel}</span>
+								<span style={chipStyle}>選択日 {selectedDate}</span>
+								<span style={chipStyle}>6時切替</span>
+								<span style={chipStyle}>summary {metrics.summaryCount > 0 ? `${metrics.summaryCount}件あり` : "未登録"}</span>
+							</div>
+						</div>
+						<div style={heroImageWrapStyle}>
+							{heroImageAvailable ? (
+								<img
+									src={withBasePath(HERO_IMAGE_PATH)}
+									alt="競艇レビュー用ヒーロー"
+									style={heroImageStyle}
+									onError={() => setHeroImageAvailable(false)}
+								/>
+							) : (
+								<div style={heroFallbackStyle}>
+									<span style={{ fontSize: "0.72rem", letterSpacing: "0.18em" }}>BOAT REVIEW</span>
+									<span>public/review-page/hero に画像を配置してください</span>
+								</div>
+							)}
 						</div>
 					</div>
-					<div style={heroImageWrapStyle}>
-						{heroImageAvailable ? (
-							<img
-								src={withBasePath(HERO_IMAGE_PATH)}
-								alt="ボートレビューまとめ"
-								style={heroImageStyle}
-								onError={() => setHeroImageAvailable(false)}
-							/>
-						) : (
-							<div style={heroFallbackStyle}>
-								<div style={{ fontSize: "2.4rem" }}>BOAT REVIEW</div>
-								<div>画像配置待ち: {HERO_IMAGE_PATH}</div>
+
+					<aside style={calendarPanelStyle}>
+						<div style={sectionHeaderStyle}>
+							<div>
+								<p style={eyebrowStyle}>Review Calendar</p>
+								<h2 style={sectionTitleStyle}>{formatMonthLabel(calendarMonth)}</h2>
 							</div>
-						)}
+							<div style={buttonRowStyle}>
+								<button type="button" style={secondaryButtonStyle} onClick={() => setCalendarMonth(shiftMonth(calendarMonth, -1))}>←</button>
+								<button type="button" style={secondaryButtonStyle} onClick={() => setCalendarMonth(shiftMonth(calendarMonth, 1))}>→</button>
+							</div>
+						</div>
+						<div style={dateGridStyle}>
+							<button type="button" style={{ ...dateButtonStyle, background: selectedDate === operationalToday ? boatTheme.colors.navy : dateButtonStyle.background, color: selectedDate === operationalToday ? "#fff" : dateButtonStyle.color }} onClick={() => selectDate(operationalToday)}>今日<br />{operationalToday}</button>
+							<button type="button" style={{ ...dateButtonStyle, background: selectedDate === operationalYesterday ? boatTheme.colors.navy : dateButtonStyle.background, color: selectedDate === operationalYesterday ? "#fff" : dateButtonStyle.color }} onClick={() => selectDate(operationalYesterday)}>昨日<br />{operationalYesterday}</button>
+						</div>
+						<div style={calendarGridStyle}>
+							{WEEKDAY_LABELS.map((label) => <div key={label} style={{ textAlign: "center", color: boatTheme.colors.muted, fontWeight: 900, fontSize: "0.72rem" }}>{label}</div>)}
+							{calendarCells.map((date) => {
+								const isSelected = date === selectedDate;
+								const isMonth = date.slice(0, 7) === calendarMonth;
+								const hasData = selectableDateSet.has(date);
+								return (
+									<button
+										key={date}
+										type="button"
+										disabled={date > operationalToday}
+										onClick={() => selectDate(date)}
+										style={{
+											...calendarDayStyle,
+											opacity: isMonth ? 1 : 0.36,
+											background: isSelected ? boatTheme.colors.navy : hasData ? "rgba(235, 250, 255, 0.95)" : calendarDayStyle.background,
+											color: isSelected ? "#fff" : calendarDayStyle.color,
+											cursor: date > operationalToday ? "not-allowed" : "pointer",
+										}}
+									>
+										{Number(date.slice(-2))}
+										{hasData ? <span style={{ position: "absolute", left: "50%", bottom: 5, width: 5, height: 5, borderRadius: 999, background: isSelected ? "#fff" : boatTheme.colors.aquaDeep, transform: "translateX(-50%)" }} /> : null}
+									</button>
+								);
+							})}
+						</div>
+						<p style={{ ...textStyle, fontSize: "0.78rem" }}>登録日: {monthRegisteredDates.length > 0 ? monthRegisteredDates.join(" / ") : "この月の保存ファイルは未登録"}</p>
+					</aside>
+				</section>
+
+				<section style={panelStyle}>
+					<div style={sectionHeaderStyle}>
+						<div>
+							<p style={eyebrowStyle}>Review Target</p>
+							<h2 style={sectionTitleStyle}>レビュー対象の日付・会場を確認</h2>
+						</div>
+						<div style={buttonRowStyle}>
+							<button type="button" style={secondaryButtonStyle} onClick={refreshLiveData}>localStorage / generated JSON 再読み込み</button>
+							{statusMessage ? <span style={chipStyle}>{statusMessage}</span> : null}
+						</div>
+					</div>
+					<div style={overviewGridStyle}>
+						{[
+							["選択日", selectedDate],
+							["表示モード", mode === "archive" ? "保存ファイル" : "今日/昨日 live"],
+							["対象会場", `${metrics.venueCount}会場`],
+							["予想保存", `${metrics.predictionCount}R`],
+							["結果取得", `${metrics.resultCount}R`],
+							["実践保存", `${metrics.practiceCount}R`],
+							["的中", `${metrics.hitCount}件`],
+							["投資", formatYen(metrics.investment)],
+							["払戻", formatYen(metrics.payout)],
+							["回収率", formatPercent(metrics.roi)],
+						].map(([label, value]) => (
+							<article key={label} style={summaryCardStyle}>
+								<p style={summaryLabelStyle}>{label}</p>
+								<p style={summaryValueStyle}>{value}</p>
+							</article>
+						))}
 					</div>
 				</section>
 
 				<section style={panelStyle}>
-					<div style={chipRowStyle}>
-						<p style={sectionTitleStyle}>Calendar / Date Selector</p>
-						<button type="button" style={secondaryButtonStyle} onClick={refreshLiveData}>今日・昨日を再読み込み</button>
-						{statusMessage ? <span style={chipStyle}>{statusMessage}</span> : null}
-					</div>
-					<div style={dateGridStyle}>
-						<button type="button" style={{ ...dateButtonStyle, background: selectedDate === operationalToday ? boatTheme.background.highlight : dateButtonStyle.background }} onClick={() => selectDate(operationalToday)}>今日<br />{operationalToday}</button>
-						<button type="button" style={{ ...dateButtonStyle, background: selectedDate === operationalYesterday ? boatTheme.background.highlight : dateButtonStyle.background }} onClick={() => selectDate(operationalYesterday)}>昨日<br />{operationalYesterday}</button>
-						{todayFeed?.date && todayFeed.date !== operationalToday && todayFeed.date !== operationalYesterday ? (
-							<button type="button" style={{ ...dateButtonStyle, background: selectedDate === todayFeed.date ? boatTheme.background.highlight : dateButtonStyle.background }} onClick={() => selectDate(todayFeed.date)}>generated JSON<br />{todayFeed.date}</button>
-						) : null}
-						{archiveDates.map((date) => (
-							<button key={date} type="button" style={{ ...dateButtonStyle, background: selectedDate === date ? boatTheme.background.highlight : dateButtonStyle.background }} onClick={() => selectDate(date)}>archive<br />{date}</button>
-						))}
-					</div>
-					<div style={{ display: "grid", gridTemplateColumns: "48px minmax(0, 1fr) 48px", gap: "10px", alignItems: "center" }}>
-						<button type="button" style={secondaryButtonStyle} onClick={() => setCalendarMonth((current) => shiftMonth(current, -1))}>{"<"}</button>
-						<p style={{ ...sectionTitleStyle, textAlign: "center" }}>{formatMonthLabel(calendarMonth)}</p>
-						<button type="button" style={secondaryButtonStyle} onClick={() => setCalendarMonth((current) => shiftMonth(current, 1))}>{">"}</button>
-					</div>
-					<div style={calendarGridStyle}>
-						{WEEKDAY_LABELS.map((label) => <div key={label} style={{ textAlign: "center", color: boatTheme.colors.aquaDeep, fontWeight: 900 }}>{label}</div>)}
-						{calendarCells.map((date) => {
-							const inMonth = date.slice(0, 7) === calendarMonth;
-							const isSelected = date === selectedDate;
-							const isFuture = date > operationalToday;
-							const hasArchive = archiveDateSet.has(date);
-							return (
-								<button
-									key={date}
-									type="button"
-									disabled={isFuture}
-									onClick={() => selectDate(date)}
-									style={{
-										...calendarDayStyle,
-										opacity: isFuture ? 0.32 : inMonth ? 1 : 0.42,
-										cursor: isFuture ? "not-allowed" : "pointer",
-										background: isSelected ? "linear-gradient(135deg, rgba(233,226,255,0.98), rgba(201,241,255,0.96))" : calendarDayStyle.background,
-										border: isSelected ? "1px solid rgba(24, 115, 152, 0.5)" : calendarDayStyle.border,
-									}}
-								>
-									{Number(date.slice(8, 10))}
-									{hasArchive ? <span style={{ position: "absolute", left: "50%", bottom: "6px", width: "5px", height: "5px", borderRadius: "50%", background: "#f27aa9", transform: "translateX(-50%)" }} /> : null}
-								</button>
-							);
-						})}
-					</div>
-				</section>
-
-				<div style={mainGridStyle}>
-					<section style={panelStyle}>
-						<div style={chipRowStyle}>
-							<h2 style={sectionTitleStyle}>会場カード</h2>
-							<span style={chipStyle}>{mode === "live" ? "localStorage / generated JSON" : "public archive"}</span>
+					<div style={sectionHeaderStyle}>
+						<div>
+							<p style={eyebrowStyle}>Venue Cards</p>
+							<h2 style={sectionTitleStyle}>{mode === "archive" ? "保存ファイルがある会場を、見やすいカードで振り返る" : "今日・昨日に予想した会場を、朝に振り返る"}</h2>
 						</div>
-						{groups.length > 0 ? (
-							<div style={venueListStyle}>
-								{groups.map((group) => {
-									const itemMetrics = getBoatReviewVenueMetrics(group);
-									const active = selectedGroup?.key === group.key;
-									return (
-										<button
-											key={group.key}
-											type="button"
-											onClick={() => setSelectedVenueKey(group.key)}
-											style={{
-												...venueCardStyle,
-												border: active ? "1px solid rgba(24, 115, 152, 0.62)" : venueCardStyle.border,
-												background: active ? "linear-gradient(180deg, rgba(235,250,255,0.98), rgba(246,255,252,0.96))" : venueCardStyle.background,
-											}}
-										>
-											<div style={chipRowStyle}>
-												<strong style={{ color: boatTheme.colors.navy, fontSize: "1.05rem" }}>{group.venueName}</strong>
-												<span style={chipStyle}>{itemMetrics.hasSummary ? "summaryあり" : "summaryなし"}</span>
-											</div>
-											<div style={metricGridStyle}>
-												{[
-													["予想保存R数", `${itemMetrics.predictionCount}R`],
-													["結果取得R数", `${itemMetrics.resultCount}R`],
-													["実践結果保存R数", `${itemMetrics.practiceCount}R`],
-													["的中数", `${itemMetrics.hitCount}`],
-													["投資", formatYen(itemMetrics.investment)],
-													["払戻", formatYen(itemMetrics.payout)],
-													["収支", formatSignedYen(itemMetrics.profit)],
-													["回収率", formatPercent(itemMetrics.roi)],
-												].map(([label, value]) => (
+						<p style={{ ...textStyle, fontSize: "0.82rem", textAlign: "right" }}>会場カードを押すと、下の予想まとめ・結果まとめ・summary欄が切り替わります。</p>
+					</div>
+					{groups.length > 0 ? (
+						<div style={venueRowsStyle}>
+							{venueRows.map((row, rowIndex) => (
+								<div
+									key={`venue-row-${rowIndex}`}
+									className="boat-review-venue-row"
+									style={{ ...venueRowStyle, gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))` }}
+								>
+									{row.map((group) => {
+										const isSelected = selectedGroup?.key === group.key;
+										const itemMetrics = getBoatReviewVenueMetrics(group);
+										return (
+											<button
+												key={group.key}
+												type="button"
+												className="boat-review-venue-card"
+												onClick={() => setSelectedVenueKey(group.key)}
+												style={{
+													...venueCardStyle,
+													border: isSelected ? "1px solid rgba(24, 115, 152, 0.68)" : venueCardStyle.border,
+													background: isSelected
+														? "radial-gradient(circle at 12% 0%, rgba(179, 238, 255, 0.72), transparent 40%), linear-gradient(150deg, rgba(232,250,255,0.99), rgba(245,255,252,0.97))"
+														: venueCardStyle.background,
+													boxShadow: isSelected ? "0 20px 38px rgba(17,64,92,0.14)" : venueCardStyle.boxShadow,
+												}}
+											>
+												<div style={{ ...chipRowStyle, justifyContent: "space-between", alignItems: "center" }}>
+													<strong style={{ color: boatTheme.colors.navy, fontSize: "1.08rem", lineHeight: 1.15 }}>{group.venueName}</strong>
+													<span style={{ ...chipStyle, padding: "7px 10px", fontSize: "0.66rem", background: itemMetrics.hasSummary ? "rgba(221, 252, 239, 0.92)" : "rgba(241, 249, 252, 0.9)" }}>{itemMetrics.hasSummary ? "summaryあり" : "summaryなし"}</span>
+												</div>
+												<p style={{ ...textStyle, fontSize: "0.72rem", lineHeight: 1.55, minHeight: "2.25em" }}>{group.date} / {group.title || "開催名確認中"}</p>
+												<div style={metricGridStyle}>
+													{[
+														["予想", `${itemMetrics.predictionCount}R`],
+														["結果", `${itemMetrics.resultCount}R`],
+														["実践", `${itemMetrics.practiceCount}R`],
+														["的中", `${itemMetrics.hitCount}件`],
+														["投資", formatYen(itemMetrics.investment)],
+														["払戻", formatYen(itemMetrics.payout)],
+														["収支", formatSignedYen(itemMetrics.profit)],
+														["回収率", formatPercent(itemMetrics.roi)],
+													].map(([label, value]) => (
 													<div key={label} style={metricStyle}>
 														<p style={metricLabelStyle}>{label}</p>
 														<p style={metricValueStyle}>{value}</p>
 													</div>
-												))}
-											</div>
-										</button>
-									);
-								})}
-							</div>
-						) : (
-							<p style={emptyStyle}>この日付の会場データは未登録です。今日・昨日は保存済み予想または generated JSON、過去日は public/data/boatrace/reviews/index.json を確認します。</p>
-						)}
-					</section>
-
-					<section style={workbenchGridStyle}>
-						<div style={{ display: "grid", gap: "18px", minWidth: 0 }}>
-							<section style={panelStyle}>
-								<div style={chipRowStyle}>
-									<h2 style={sectionTitleStyle}>予想まとめコピー</h2>
-									{selectedGroup ? <span style={chipStyle}>{selectedGroup.venueName}</span> : null}
+													))}
+												</div>
+											</button>
+										);
+									})}
 								</div>
-								<textarea style={textareaStyle} value={predictionText} readOnly />
-								<div style={buttonRowStyle}>
-									<button type="button" style={primaryButtonStyle} onClick={() => void handleCopy(predictionText, "予想まとめ")}>予想まとめをコピー</button>
-									<button type="button" style={secondaryButtonStyle} onClick={() => selectedGroup && downloadText(`${selectedGroup.date}-${selectedGroup.venueSlug}-predictions.txt`, predictionText)}>予想まとめを .txt ダウンロード</button>
-								</div>
-							</section>
-
-							<section style={panelStyle}>
-								<div style={chipRowStyle}>
-									<h2 style={sectionTitleStyle}>結果まとめコピー</h2>
-									{selectedMetrics ? <span style={chipStyle}>結果 {selectedMetrics.resultCount}R</span> : null}
-								</div>
-								<textarea style={textareaStyle} value={resultText} readOnly />
-								<div style={buttonRowStyle}>
-									<button type="button" style={primaryButtonStyle} onClick={() => void handleCopy(resultText, "結果まとめ")}>結果まとめをコピー</button>
-									<button type="button" style={secondaryButtonStyle} onClick={() => selectedGroup && downloadText(`${selectedGroup.date}-${selectedGroup.venueSlug}-results.txt`, resultText)}>結果まとめを .txt ダウンロード</button>
-								</div>
-							</section>
+							))}
 						</div>
+					) : (
+						<p style={emptyStyle}>この日付の会場データは未登録です。今日・昨日は保存済み予想または generated JSON、過去日は public/data/boatrace/reviews/index.json を確認します。</p>
+					)}
+				</section>
 
+				<section className="boat-review-copy-grid" style={workbenchGridStyle}>
+					<div style={{ display: "grid", gap: "18px", minWidth: 0 }}>
 						<section style={panelStyle}>
-							<div style={chipRowStyle}>
-								<h2 style={sectionTitleStyle}>GPTレビューsummary</h2>
-								<span style={chipStyle}>{mode === "archive" ? "public file" : "manual draft"}</span>
+							<div style={sectionHeaderStyle}>
+								<div>
+									<p style={eyebrowStyle}>Prediction Copy</p>
+									<h2 style={sectionTitleStyle}>予想まとめコピー</h2>
+								</div>
+								{selectedGroup ? <span style={chipStyle}>{selectedGroup.venueName} / {selectedGroup.races.length}R</span> : null}
 							</div>
-							<textarea
-								style={summaryTextareaStyle}
-								value={summaryDraft}
-								readOnly={mode === "archive"}
-								onChange={(event) => handleSummaryChange(event.target.value)}
-								placeholder="今日・昨日はここにsummaryを貼り付けできます。過去日はsummary.mdまたはsummary.txtがあれば表示します。"
-							/>
+							<textarea style={textareaStyle} value={predictionText} readOnly />
 							<div style={buttonRowStyle}>
-								<button type="button" style={primaryButtonStyle} onClick={() => void handleCopy(summaryDraft, "summary")}>summaryをコピー</button>
-								<button type="button" style={secondaryButtonStyle} onClick={() => selectedGroup && downloadText(`${selectedGroup.date}-${selectedGroup.venueSlug}-summary.md`, summaryDraft || "summaryファイル未登録")}>summaryを .md ダウンロード</button>
+								<button type="button" style={primaryButtonStyle} onClick={() => void handleCopy(predictionText, "予想まとめ")}>予想まとめをコピー</button>
+								<button type="button" style={secondaryButtonStyle} onClick={() => selectedGroup && downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "predictions"), predictionText)}>予想まとめを .txt ダウンロード</button>
 							</div>
 						</section>
+
+						<section style={panelStyle}>
+							<div style={sectionHeaderStyle}>
+								<div>
+									<p style={eyebrowStyle}>Result Copy</p>
+									<h2 style={sectionTitleStyle}>結果まとめコピー</h2>
+								</div>
+								{selectedMetrics ? <span style={chipStyle}>収支 {formatSignedYen(selectedMetrics.profit)} / 回収率 {formatPercent(selectedMetrics.roi)}</span> : null}
+							</div>
+							<textarea style={textareaStyle} value={resultText} readOnly />
+							<div style={buttonRowStyle}>
+								<button type="button" style={primaryButtonStyle} onClick={() => void handleCopy(resultText, "結果まとめ")}>結果まとめをコピー</button>
+								<button type="button" style={secondaryButtonStyle} onClick={() => selectedGroup && downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "results"), resultText)}>結果まとめを .txt ダウンロード</button>
+							</div>
+						</section>
+					</div>
+
+					<section style={panelStyle}>
+						<div style={sectionHeaderStyle}>
+							<div>
+								<p style={eyebrowStyle}>GPT Review Summary</p>
+								<h2 style={sectionTitleStyle}>GPTレビュー貼り付け欄</h2>
+							</div>
+							{mode === "archive" ? <span style={chipStyle}>保存ファイル表示</span> : <span style={chipStyle}>localStorage下書き</span>}
+						</div>
+						<textarea
+							style={summaryTextareaStyle}
+							value={summaryDraft}
+							onChange={(event) => handleSummaryChange(event.target.value)}
+							readOnly={mode === "archive"}
+							placeholder="ここにGPTレビューsummaryを貼り付けます。保存ファイルがある過去日はsummary.mdを表示します。"
+						/>
+						<div style={buttonRowStyle}>
+							<button type="button" style={primaryButtonStyle} onClick={() => void handleCopy(summaryDraft, "summary")}>summaryをコピー</button>
+							<button type="button" style={secondaryButtonStyle} onClick={() => selectedGroup && downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "summary"), summaryDraft)}>summaryを .md ダウンロード</button>
+							{mode === "live" ? <span style={chipStyle}>入力内容は会場ごとに自動保存</span> : null}
+						</div>
 					</section>
-				</div>
+				</section>
+
+				<style>{`
+					@media (max-width: 1380px) {
+						.boat-review-venue-row {
+							grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
+						}
+					}
+					@media (max-width: 1180px) {
+						.boat-review-top,
+						.boat-review-copy-grid {
+							grid-template-columns: 1fr !important;
+						}
+						.boat-review-hero {
+							grid-template-columns: 1fr !important;
+						}
+					}
+					@media (max-width: 760px) {
+						.boat-review-workbench {
+							padding-inline: 4px !important;
+						}
+						.boat-review-venue-row {
+							grid-template-columns: 1fr !important;
+						}
+					}
+				`}</style>
 			</div>
 		</PageShell>
 	);
