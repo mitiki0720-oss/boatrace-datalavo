@@ -41,6 +41,14 @@ const bodyStyle = {
   padding: "24px 0 56px",
 };
 
+const mobileBodyStyle = {
+  width: "100%",
+  maxWidth: "100%",
+  margin: "0",
+  padding: "0",
+  overflowX: "hidden" as const,
+};
+
 export default function App() {
   const [currentHash, setCurrentHash] = useState<PageHash>(() => {
     if (typeof window === "undefined") {
@@ -71,11 +79,12 @@ export default function App() {
   }, []);
 
   const CurrentPage = pageMap[currentHash];
+  const isMobilePage = currentHash === "#mobile-page";
 
   return (
     <div style={appStyle}>
-      <SiteHeader currentHash={currentHash} />
-      <main style={bodyStyle}>
+      {!isMobilePage && <SiteHeader currentHash={currentHash} />}
+      <main style={isMobilePage ? mobileBodyStyle : bodyStyle}>
         <CurrentPage />
       </main>
     </div>
