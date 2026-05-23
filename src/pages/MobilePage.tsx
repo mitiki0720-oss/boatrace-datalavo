@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { parseBoatBets, type ParsedBoatBet } from "../lib/boatBetParser";
 import { withBasePath } from "../lib/assetPath";
 
+const MOBILE_PAGE_BACKGROUND_URL = withBasePath("mobile-page/backgrounds/mobile-page-bg-water-sky.png");
+
 type AnyRecord = Record<string, unknown>;
 
 type MobileVenue = {
@@ -76,8 +78,15 @@ const pageStyle: CSSProperties = {
   width: "100%",
   minHeight: "100svh",
   overflowX: "hidden",
-  background:
-    "radial-gradient(circle at 12% -6%, rgba(125, 211, 252, 0.34), transparent 32%), radial-gradient(circle at 92% 4%, rgba(196, 181, 253, 0.26), transparent 34%), linear-gradient(180deg, #eafaff 0%, #f8fdff 42%, #f0fbff 100%)",
+  backgroundColor: "#eafaff",
+  backgroundImage: `
+    linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(235,250,255,0.22) 42%, rgba(255,255,255,0.46) 100%),
+    url("${MOBILE_PAGE_BACKGROUND_URL}")
+  `,
+  backgroundSize: "cover",
+  backgroundPosition: "center top",
+  backgroundRepeat: "no-repeat",
+  backgroundAttachment: "scroll",
   padding: "0 0 calc(96px + env(safe-area-inset-bottom))",
   boxSizing: "border-box",
 };
