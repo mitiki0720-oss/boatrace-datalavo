@@ -38,7 +38,7 @@ export const emptyBoatBetSummary = (): ParsedBoatBetSummary => ({
 export function normalizeBoatBetCombination(value: string): string {
 	return value
 		.normalize("NFKC")
-		.replace(/[‐‑‒–—―−－ーｰ~〜～>＞=＝]/g, "-")
+		.replace(/[‐-‒–—―−－ーｰ~〜～>＞=＝]/g, "-")
 		.replace(/\s+/g, "")
 		.replace(/^-+|-+$/g, "");
 }
@@ -81,15 +81,55 @@ const inferBetTypeFromNumbers = (numbers: number[]): BoatBetType | null => {
 	return null;
 };
 
-const readAmountYen = (line: string): number => {
+const readAmountYen = (line: string, unitAmountYen: number): number => {
 	const normalized = line.normalize("NFKC");
 	const match = normalized.match(/(\d{2,6})\s*円/);
 	if (!match) {
-		return DEFAULT_BET_AMOUNT_YEN;
+		return unitAmountYen;
 	}
 
 	const parsed = Number(match[1]);
-	return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_BET_AMOUNT_YEN;
+	return Number.isFinite(parsed) && parsed > 0 ? parsed : unitAmountYen;
+};
+
+const extractBoatBetSection = (predictionText: string): string[] => {
+	const lines = predictionText.split(/\r?\n/);
+
+	const startIndex = lines.findIndex((line) => {
+		const text = line.normalize("NFKC");
+		return /買い目|買い目📝|BET|ベット/i.test(text);
+	});
+
+	if (startIndex < 0) {
+		return lines;
+	}
+
+	const endIndex = lines.findIndex((line, index) => {
+		if (index <= startIndex) {
+			return false;
+		}
+
+		const text = line.normalize("NFKC").replace(/[【】]/g, "").trim();
+
+		return /^(タグ|危険な人気|穴候補|結果|振り返り|メモ追記|レビュー|総評)/i.test(text);
+	});
+
+	return lines.slice(startIndex, endIndex > startIndex ? endIndex : undefined);
+};
+
+const extractTicketCombinationFromLine = (line: string): string | null => {
+	const normalized = line
+		.normalize("NFKC")
+		.replace(/[‐-‒–—―−－ーｰ~〜～>＞=＝]/g, "-")
+		.trim();
+
+	const match = normalized.match(/^(?:0?[1-9]|1[0-2])(?:[.)．、]|\s)+([1-6]\s*-\s*[1-6](?:\s*-\s*[1-6])?)(?:\s|$)/);
+
+	if (!match) {
+		return null;
+	}
+
+	return normalizeBoatBetCombination(match[1]);
 };
 
 export function parseBoatBets(predictionText: string, unitAmountYen = DEFAULT_BET_AMOUNT_YEN): ParsedBoatBetSummary {
@@ -98,8 +138,9 @@ export function parseBoatBets(predictionText: string, unitAmountYen = DEFAULT_BE
 	let currentType: BoatBetType | null = null;
 	let currentLabel = "";
 
-	for (const rawLine of predictionText.split(/\r?\n/)) {
+	for (const rawLine of extractBoatBetSection(predictionText)) {
 		const line = rawLine.trim();
+
 		if (!line || /^#/.test(line)) {
 			continue;
 		}
@@ -108,41 +149,44 @@ export function parseBoatBets(predictionText: string, unitAmountYen = DEFAULT_BE
 		if (headingType) {
 			currentType = headingType;
 			currentLabel = line;
+			continue;
 		}
 
-		const normalizedLine = normalizeBoatBetCombination(line);
-		const matches = normalizedLine.match(/[1-6]-[1-6](?:-[1-6])?/g) ?? [];
-
-		for (const match of matches) {
-			const numbers = match.split("-").map((value) => Number(value));
-			const type = currentType ?? inferBetTypeFromNumbers(numbers);
-			if (!type) {
-				continue;
-			}
-
-			if ((type === "trifecta" || type === "trio") && numbers.length !== 3) {
-				continue;
-			}
-
-			if ((type === "exacta" || type === "quinella" || type === "wide") && numbers.length !== 2) {
-				continue;
-			}
-
-			const dedupeKey = `${type}:${match}`;
-			if (seen.has(dedupeKey)) {
-				continue;
-			}
-
-			seen.add(dedupeKey);
-			bets.push({
-				type,
-				label: currentLabel || typeLabels[type],
-				numbers,
-				normalized: match,
-				amountYen: readAmountYen(line) || unitAmountYen,
-				sourceLine: line,
-			});
+		const match = extractTicketCombinationFromLine(line);
+		if (!match) {
+			continue;
 		}
+
+		const numbers = match.split("-").map((value) => Number(value));
+		const type = currentType ?? inferBetTypeFromNumbers(numbers);
+
+		if (!type) {
+			continue;
+		}
+
+		if ((type === "trifecta" || type === "trio") && numbers.length !== 3) {
+			continue;
+		}
+
+		if ((type === "exacta" || type === "quinella" || type === "wide") && numbers.length !== 2) {
+			continue;
+		}
+
+		const dedupeKey = `${type}:${match}`;
+		if (seen.has(dedupeKey)) {
+			continue;
+		}
+
+		seen.add(dedupeKey);
+
+		bets.push({
+			type,
+			label: currentLabel || typeLabels[type],
+			numbers,
+			normalized: match,
+			amountYen: readAmountYen(line, unitAmountYen),
+			sourceLine: line,
+		});
 	}
 
 	const totalBets = bets.length;

@@ -345,6 +345,55 @@ const getBoatNumberChipStyle = (value: string | number) => {
 	return palette;
 };
 
+const resolveResultTone = (params: {
+	resultStatus?: BoatPracticeResultStatus;
+	resultLookupStatus?: BoatResultLookupStatus;
+	hitBetLabel?: string;
+	payoutAmount: number;
+}) => {
+	const isConfirmed = params.resultStatus === "confirmed";
+	const hasHit = Boolean(params.hitBetLabel);
+	const hasPayout = params.payoutAmount > 0;
+
+	if (isConfirmed && hasHit && hasPayout) {
+		return {
+			label: "的中 / 払戻取得済み",
+			background: "linear-gradient(135deg, rgba(220, 252, 231, 0.98) 0%, rgba(187, 247, 208, 0.72) 100%)",
+			border: "1px solid rgba(34, 197, 94, 0.42)",
+			color: "#166534",
+			shadow: "0 18px 36px rgba(34, 197, 94, 0.16)",
+		};
+	}
+
+	if (isConfirmed && hasHit && params.resultLookupStatus === "payout-missing") {
+		return {
+			label: "的中候補 / 払戻未取得",
+			background: "linear-gradient(135deg, rgba(255, 247, 237, 0.98) 0%, rgba(254, 215, 170, 0.66) 100%)",
+			border: "1px solid rgba(249, 115, 22, 0.36)",
+			color: "#9a3412",
+			shadow: "0 18px 36px rgba(249, 115, 22, 0.12)",
+		};
+	}
+
+	if (isConfirmed && !hasHit) {
+		return {
+			label: "不的中 / 結果確定",
+			background: "linear-gradient(135deg, rgba(254, 242, 242, 0.98) 0%, rgba(254, 202, 202, 0.52) 100%)",
+			border: "1px solid rgba(239, 68, 68, 0.28)",
+			color: "#991b1b",
+			shadow: "0 18px 36px rgba(239, 68, 68, 0.1)",
+		};
+	}
+
+	return {
+		label: params.resultStatus === "pending" ? "結果待ち" : "手動確認",
+		background: "linear-gradient(135deg, rgba(248, 250, 252, 0.98) 0%, rgba(226, 232, 240, 0.62) 100%)",
+		border: "1px solid rgba(148, 163, 184, 0.28)",
+		color: "#334155",
+		shadow: "0 14px 28px rgba(15, 23, 42, 0.08)",
+	};
+};
+
 export function BoatPracticeResultPanel({
 	venueName,
 	raceNo,
@@ -405,6 +454,13 @@ export function BoatPracticeResultPanel({
 					? "結果未取得"
 					: "手動確認";
 
+	const resultTone = resolveResultTone({
+	resultStatus,
+	resultLookupStatus,
+	hitBetLabel,
+	payoutAmount,
+});
+
 	const handleAmountChange = (handler: (value: number) => void) => (event: ChangeEvent<HTMLInputElement>) => {
 		handler(Number(event.target.value) || 0);
 	};
@@ -429,15 +485,47 @@ export function BoatPracticeResultPanel({
 				<div style={statusRowStyle}>
 					<span style={statusChipStyle}>{isSaved ? "実践結果 保存済み" : "実践結果 未保存"}</span>
 					{isBetAutoApplied ? <span style={statusChipStyle}>買い目から自動計算 / 1点100円</span> : null}
-					{isResultAutoApplied || resultStatus ? <span style={statusChipStyle}>{resultStatusLabel}</span> : null}
-					{hitBetLabel ? <span style={statusChipStyle}>的中: {hitBetLabel}</span> : null}
+					{isResultAutoApplied || resultStatus ? (
+	<span
+		style={{
+			...statusChipStyle,
+			background: resultTone.background,
+			border: resultTone.border,
+			color: resultTone.color,
+			boxShadow: resultTone.shadow,
+		}}
+	>
+		{resultTone.label}
+	</span>
+) : null}
+
+{hitBetLabel ? (
+	<span
+		style={{
+			...statusChipStyle,
+			background: "rgba(220, 252, 231, 0.95)",
+			border: "1px solid rgba(34, 197, 94, 0.36)",
+			color: "#166534",
+			boxShadow: "0 12px 26px rgba(34, 197, 94, 0.12)",
+		}}
+	>
+		的中: {hitBetLabel}
+	</span>
+) : null}
 					{isSaved && savedAt ? <p style={savedAtStyle}>{savedAt}</p> : null}
 				</div>
 			</header>
 
 			<div style={topGridStyle}>
-				<div style={cardStyle}>
-					<p style={labelStyle}>的中着順</p>
+				<div
+	style={{
+		...cardStyle,
+		background: resultTone.background,
+		border: resultTone.border,
+		boxShadow: resultTone.shadow,
+	}}
+>
+	<p style={{ ...labelStyle, color: resultTone.color }}>結果着順</p>
 					<p style={resultValueStyle}>{actualFinishOrderText || "-"}</p>
 					<div style={rankRowStyle}>
 						{[0, 1, 2].map((index) => (
@@ -459,7 +547,7 @@ export function BoatPracticeResultPanel({
 						<div>日付: 2026-05-03</div>
 						<div>会場: {venueName}</div>
 						<div>レース番号: {raceNo}R</div>
-						<div>ステータス: 手動確認待ち</div>
+						<div>ステータス: {resultTone.label}</div>
 						<div>備考: {raceTitle ?? "実践確認メモを入力"}</div>
 					</div>
 				</div>

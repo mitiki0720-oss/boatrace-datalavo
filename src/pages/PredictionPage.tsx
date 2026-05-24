@@ -65,9 +65,17 @@ const practiceMessageStyle = {
 
 const getRaceKey = (venueId: string, raceId: string | undefined, raceNo: number) => raceId ?? `${venueId}-${raceNo}`;
 
+const PREDICTION_SELECTION_STORAGE_KEY = "kurari-boat-data-labo-prediction-selected-race";
+
 type BoatPredictionTodayFeed = typeof sampleBoatTodayFeed;
 type BoatPredictionVenue = BoatPredictionTodayFeed["venues"][number];
 type BoatPredictionRace = BoatPredictionVenue["races"][number];
+type PredictionRaceExhibitionStatus = {
+	level: "ready" | "partial" | "waiting";
+	title: string;
+	shortLabel: string;
+	detail: string;
+};
 
 const toArray = <T,>(value: unknown): T[] => {
 	if (Array.isArray(value)) {
@@ -300,6 +308,128 @@ const hasVenueWeather = (venue: BoatPredictionVenue): boolean => {
 	return Boolean(weatherActual || weather);
 };
 
+	const readLooseString = (value: unknown): string => {
+	if (typeof value === "string") return value.trim();
+	if (typeof value === "number" && Number.isFinite(value)) return String(value);
+	return "";
+};
+
+const readRaceTimeText = (race: unknown): { label: string; value: string } => {
+	const record = toLooseRecord(race);
+
+	const deadline =
+		readLooseString(record.deadlineTime) ||
+		readLooseString(record.deadline) ||
+		readLooseString(record.closeTime) ||
+		readLooseString(record["締切"]);
+
+	if (deadline) {
+		return { label: "締切", value: deadline };
+	}
+
+	const start =
+		readLooseString(record.startTime) ||
+		readLooseString(record.time) ||
+		readLooseString(record["発走"]);
+
+	if (start) {
+		return { label: "発走", value: start };
+	}
+
+	return { label: "時刻", value: "未取得" };
+};
+
+const readRaceDeadlineOrStartTime = (race: unknown): string => {
+	const record = toLooseRecord(race);
+
+	return (
+		readLooseString(record.deadlineTime) ||
+		readLooseString(record.deadline) ||
+		readLooseString(record.closeTime) ||
+		readLooseString(record["締切"]) ||
+		readLooseString(record.startTime) ||
+		readLooseString(record.time) ||
+		readLooseString(record["発走"])
+	);
+};
+
+const toLooseRecord = (value: unknown): Record<string, unknown> =>
+	value && typeof value === "object" && !Array.isArray(value)
+		? value as Record<string, unknown>
+		: {};
+
+const hasExhibitionTimeValue = (row: unknown): boolean => {
+	const record = toLooseRecord(row);
+	return Boolean(
+		readLooseString(record.exhibitionTime) ||
+		readLooseString(record.exhibition) ||
+		readLooseString(record.displayTime) ||
+		readLooseString(record.tenjiTime) ||
+		readLooseString(record.showTime) ||
+		readLooseString(record["展示"]) ||
+		readLooseString(record["展示タイム"])
+	);
+};
+
+const getRaceExhibitionRows = (
+	race: unknown,
+	raceExtra: unknown,
+): unknown[] => {
+	const raceRecord = toLooseRecord(race);
+	const extraRecord = toLooseRecord(raceExtra);
+	const officialBeforeInfo = toLooseRecord(extraRecord.officialBeforeInfo);
+
+	const candidates = [
+		raceRecord.exhibitions,
+		officialBeforeInfo.exhibitionRows,
+		officialBeforeInfo.beforeInfo,
+		extraRecord.beforeInfo,
+		extraRecord.officialBeforeInfo,
+		extraRecord.originalExhibition,
+		extraRecord.startExhibition,
+	];
+
+	for (const candidate of candidates) {
+		const rows = toArray<unknown>(candidate);
+		if (rows.length > 0) return rows;
+	}
+
+	return [];
+};
+
+const buildExhibitionStatusLabel = (params: {
+	race: unknown;
+	raceExtra: unknown;
+	feedUpdatedAt?: string;
+	extraUpdatedAt?: string;
+}) => {
+	const rows = getRaceExhibitionRows(params.race, params.raceExtra);
+	const exhibitionTimeCount = rows.filter(hasExhibitionTimeValue).length;
+	const updatedAt = params.extraUpdatedAt || params.feedUpdatedAt || "";
+
+	if (exhibitionTimeCount >= 6) {
+		return {
+			level: "ready" as const,
+			title: "展示タイム 6艇取得済み",
+			detail: updatedAt ? `更新 ${formatJstDateTimeLabel(updatedAt)}` : "更新時刻未取得",
+		};
+	}
+
+	if (exhibitionTimeCount > 0) {
+		return {
+			level: "partial" as const,
+			title: `展示タイム ${exhibitionTimeCount}/6艇`,
+			detail: updatedAt ? `更新 ${formatJstDateTimeLabel(updatedAt)}` : "一部取得済み",
+		};
+	}
+
+	return {
+		level: "waiting" as const,
+		title: "展示タイム未取得",
+		detail: "展示が入るまで予想注意",
+	};
+};
+
 export function PredictionPage() {
 	const [todayFeed, setTodayFeed] = useState(sampleBoatTodayFeed);
 	const [venueExtrasFeed, setVenueExtrasFeed] = useState<BoatVenueExtrasFeed | null>(null);
@@ -348,14 +478,142 @@ export function PredictionPage() {
 	const selectedRace =
 		selectedVenueRaces.find((race) => getRaceKey(selectedVenue?.id ?? "", race.raceId, race.raceNo) === selectedRaceId) ??
 		selectedVenueRaces[0];
-	const selectedVenueExtra = useMemo(
-		() => findSelectedVenueExtra(venueExtrasFeed, selectedVenue),
-		[venueExtrasFeed, selectedVenue],
+const selectedVenueExtra = useMemo(	
+	() => findSelectedVenueExtra(venueExtrasFeed, selectedVenue),
+	[venueExtrasFeed, selectedVenue],
+);
+
+const selectedRaceExtra = useMemo(
+	() => findSelectedRaceExtra(selectedVenueExtra, selectedRace),
+	[selectedVenueExtra, selectedRace],
+);
+
+const raceExhibitionStatusMap = useMemo<Record<string, PredictionRaceExhibitionStatus>>(() => {
+	const extraRaces = toArray<Record<string, unknown>>(
+		(selectedVenueExtra as { races?: unknown } | null | undefined)?.races,
 	);
-	const selectedRaceExtra = useMemo(
-		() => findSelectedRaceExtra(selectedVenueExtra, selectedRace),
-		[selectedVenueExtra, selectedRace],
-	);
+
+	return selectedVenueRaces.reduce<Record<string, PredictionRaceExhibitionStatus>>((acc, race) => {
+		const raceKey = getRaceKey(selectedVenue?.id ?? "", race.raceId, race.raceNo);
+		const raceExtra = extraRaces.find((item) => Number(item.raceNo) === Number(race.raceNo));
+
+		const status = buildExhibitionStatusLabel({
+			race,
+			raceExtra,
+			feedUpdatedAt: todayFeed.generatedAt,
+			extraUpdatedAt: venueExtrasFeed?.generatedAt,
+		});
+
+		acc[raceKey] = {
+			...status,
+			shortLabel:
+				status.level === "ready"
+					? "展示タイムOK"
+					: status.level === "partial"
+						? status.title.replace("展示タイム ", "展示")
+						: "展示未取得",
+		};
+
+		return acc;
+	}, {});
+}, [selectedVenue, selectedVenueRaces, selectedVenueExtra, todayFeed.generatedAt, venueExtrasFeed?.generatedAt]);
+
+	type PredictionSelectionSnapshot = {
+	date?: string;
+	venueId?: string;
+	venueCode?: string;
+	venueName?: string;
+	raceId?: string;
+	raceNo?: number;
+	savedAt?: string;
+};
+
+const loadPredictionSelectionSnapshot = (): PredictionSelectionSnapshot | null => {
+	if (typeof window === "undefined") return null;
+
+	try {
+		const raw = window.sessionStorage.getItem(PREDICTION_SELECTION_STORAGE_KEY);
+		if (!raw) return null;
+		const parsed = JSON.parse(raw) as PredictionSelectionSnapshot;
+		return parsed && typeof parsed === "object" ? parsed : null;
+	} catch {
+		return null;
+	}
+};
+
+const savePredictionSelectionSnapshot = (params: {
+	date?: string;
+	venue?: BoatPredictionVenue;
+	race?: BoatPredictionRace;
+}) => {
+	if (typeof window === "undefined") return;
+	if (!params.venue || !params.race) return;
+
+	const snapshot: PredictionSelectionSnapshot = {
+		date: params.date,
+		venueId: params.venue.id,
+		venueCode: params.venue.venueCode,
+		venueName: params.venue.venueName,
+		raceId: getRaceKey(params.venue.id, params.race.raceId, params.race.raceNo),
+		raceNo: params.race.raceNo,
+		savedAt: new Date().toISOString(),
+	};
+
+	try {
+		window.sessionStorage.setItem(PREDICTION_SELECTION_STORAGE_KEY, JSON.stringify(snapshot));
+	} catch {
+		// sessionStorage失敗は無視
+	}
+};
+
+const parseRaceTimeMinutes = (value: unknown): number | null => {
+	const text = readLooseString(value);
+	const match = text.match(/(\d{1,2}):(\d{2})/);
+	if (!match) return null;
+
+	const hour = Number(match[1]);
+	const minute = Number(match[2]);
+	if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
+
+	return hour * 60 + minute;
+};
+
+const getJstNowMinutes = (): number => {
+	const parts = new Intl.DateTimeFormat("ja-JP", {
+		timeZone: "Asia/Tokyo",
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+	}).formatToParts(new Date());
+
+	const hour = Number(parts.find((part) => part.type === "hour")?.value ?? 0);
+	const minute = Number(parts.find((part) => part.type === "minute")?.value ?? 0);
+
+	return hour * 60 + minute;
+};
+
+const findCurrentTimeRaceSelection = (venues: BoatPredictionVenue[]) => {
+	const nowMinutes = getJstNowMinutes();
+
+	for (const venue of venues) {
+		const races = getVenueRaces(venue);
+		const upcomingRace =
+			races.find((race) => {
+				const deadline = parseRaceTimeMinutes(readRaceDeadlineOrStartTime(race));
+				return deadline !== null && deadline >= nowMinutes - 8;
+			}) ?? races[0];
+
+		if (upcomingRace) {
+			return {
+				venue,
+				race: upcomingRace,
+				raceId: getRaceKey(venue.id, upcomingRace.raceId, upcomingRace.raceNo),
+			};
+		}
+	}
+
+	return null;
+};
 
 	const parsedBetSummary = useMemo(() => parseBoatBets(predictionText), [predictionText]);
 	const parsedTickets = useMemo(() => toPredictionTickets(parsedBetSummary.bets), [parsedBetSummary]);
@@ -395,12 +653,7 @@ export function PredictionPage() {
 	const copyReadyRaceCount = materialReadyRaceCount;
 	const weatherReadyVenueCount = venues.filter(hasVenueWeather).length;
 	const currentSelectionLabel = `${selectedVenue?.venueName ?? "-"} / ${selectedRace?.raceNo ? `${selectedRace.raceNo}R` : "-"}`;
-	const currentSelectionMeta = selectedRace?.deadlineTime
-		? `締切 ${selectedRace.deadlineTime}`
-		: selectedRace?.startTime
-			? `発走 ${selectedRace.startTime}`
-			: "時刻未取得";
-	const venueFeatureStatusLabel = selectedVenueFeatureNote ? "会場特徴ノート: 連携済み" : "会場特徴ノート: 未登録";
+	const selectedRaceTime = readRaceTimeText(selectedRace);
 	const practiceSummaryDate = todayFeed.date ?? selectedVenue?.date;
 	const practiceSummary = useMemo(() => {
 		const targetRecords = practiceResultRecords.filter((record) => isPracticeSummaryRecord(record, practiceSummaryDate));
@@ -408,6 +661,7 @@ export function PredictionPage() {
 		const totalStakeYen = targetRecords.reduce((sum, record) => sum + resolvePracticeStakeYen(record), 0);
 		const totalPayoutYen = targetRecords.reduce((sum, record) => sum + resolvePracticePayoutYen(record), 0);
 		const profitYen = totalPayoutYen - totalStakeYen;
+
 
 		return {
 			resultCount: targetRecords.length,
@@ -574,38 +828,80 @@ export function PredictionPage() {
 	}, []);
 
 	useEffect(() => {
-		const firstVenue = venues[0];
-		const firstRace = getVenueRaces(firstVenue)[0];
+	if (venues.length === 0) return;
 
-		if (!firstVenue || !firstRace) {
-			return;
-		}
+	const currentVenue = venues.find((venue) => venue.id === selectedVenueId);
+	const currentRace = currentVenue
+		? getVenueRaces(currentVenue).find((race) => getRaceKey(currentVenue.id, race.raceId, race.raceNo) === selectedRaceId)
+		: undefined;
 
-		const currentVenue = venues.find((venue) => venue.id === selectedVenueId);
-		const currentRace = currentVenue
-			? getVenueRaces(currentVenue).find((race) => {
-					const raceId = race.raceId || `${currentVenue.id}-${race.raceNo}`;
-					return raceId === selectedRaceId;
-				})
+	if (currentVenue && currentRace) {
+		return;
+	}
+
+	const savedSelection = loadPredictionSelectionSnapshot();
+	const todayDate = todayFeed.date;
+
+	if (savedSelection?.date === todayDate) {
+		const savedVenue = venues.find((venue) =>
+			venue.id === savedSelection.venueId ||
+			venue.venueCode === savedSelection.venueCode ||
+			venue.venueName === savedSelection.venueName
+		);
+
+		const savedRace = savedVenue
+			? getVenueRaces(savedVenue).find((race) =>
+					getRaceKey(savedVenue.id, race.raceId, race.raceNo) === savedSelection.raceId ||
+					race.raceNo === savedSelection.raceNo
+				)
 			: undefined;
 
-		if (!currentVenue || !currentRace) {
-			setSelectedVenueId(firstVenue.id);
-			setSelectedRaceId(firstRace.raceId || `${firstVenue.id}-${firstRace.raceNo}`);
+		if (savedVenue && savedRace) {
+			setSelectedVenueId(savedVenue.id);
+			setSelectedRaceId(getRaceKey(savedVenue.id, savedRace.raceId, savedRace.raceNo));
+			return;
 		}
-	}, [venues, selectedVenueId, selectedRaceId]);
+	}
 
-	const handleSelectVenue = (venueId: string) => {
-		const venue = venues.find((item) => item.id === venueId);
-		const firstRace = getVenueRaces(venue)[0];
+	const timeSelection = findCurrentTimeRaceSelection(venues);
+	if (timeSelection) {
+		setSelectedVenueId(timeSelection.venue.id);
+		setSelectedRaceId(timeSelection.raceId);
+	}
+}, [venues, selectedVenueId, selectedRaceId, todayFeed.date]);
 
-		setSelectedVenueId(venueId);
-		setSelectedRaceId(getRaceKey(venueId, firstRace?.raceId, firstRace?.raceNo ?? 0));
-	};
+const handleSelectVenue = (venueId: string) => {
+	const venue = venues.find((item) => item.id === venueId);
+	const firstRace = getVenueRaces(venue)[0];
 
-	const handleSelectRace = (raceId: string) => {
-		setSelectedRaceId(raceId);
-	};
+	setSelectedVenueId(venueId);
+	setSelectedRaceId(getRaceKey(venueId, firstRace?.raceId, firstRace?.raceNo ?? 0));
+
+	if (venue && firstRace) {
+		savePredictionSelectionSnapshot({
+			date: todayFeed.date,
+			venue,
+			race: firstRace,
+		});
+	}
+};
+
+const handleSelectRace = (raceId: string) => {
+	setSelectedRaceId(raceId);
+
+	const venue = venues.find((item) => item.id === selectedVenueId);
+	const race = getVenueRaces(venue).find(
+		(item) => getRaceKey(selectedVenueId, item.raceId, item.raceNo) === raceId,
+	);
+
+	if (venue && race) {
+		savePredictionSelectionSnapshot({
+			date: todayFeed.date,
+			venue,
+			race,
+		});
+	}
+};
 
 	useEffect(() => {
 		let cancelled = false;
@@ -905,9 +1201,15 @@ export function PredictionPage() {
 			setPayoutAmount(settlement.payoutYen);
 		}
 
-		const shouldAutoSave =
-			settlement.status === "confirmed" &&
-			(lookupStatus === "matched" || lookupStatus === "date-mismatch");
+const shouldAutoSave =
+	settlement.status === "confirmed" &&
+	Boolean(settlement.finishOrderText) &&
+	(
+		lookupStatus === "matched" ||
+		lookupStatus === "date-mismatch" ||
+		lookupStatus === "payout-missing"
+	);
+
 		if (shouldAutoSave) {
 			const autoSavedRecord = buildPracticeResultRecord({
 				actualFinishOrderText: settlement.finishOrderText,
@@ -1443,31 +1745,25 @@ body:has(.prediction-page-root) {
 				</section>
 
 				<section className="prediction-section-card">
-					<div className="prediction-quick-head">
-						<div>
-							<p className="prediction-eyebrow">QUICK SELECT</p>
-							<h2 className="prediction-section-title">会場とレースを選ぶ</h2>
-							<p className="prediction-text">
-								会場とレースを選び、そのまま下の予想素材確認へ進めます。
-							</p>
-						</div>
+	<div className="prediction-quick-head">
+		<div>
+			<p className="prediction-eyebrow">QUICK SELECT</p>
+			<h2 className="prediction-section-title">会場とレースを選ぶ</h2>
+			<p className="prediction-text">
+				会場とレースを選び、そのまま下の予想素材確認へ進めます。
+			</p>
+		</div>
+	</div>
 
-						<div className="prediction-current-card">
-							<p className="prediction-eyebrow">CURRENT</p>
-							<p className="prediction-current-value">{currentSelectionLabel}</p>
-							<p className="prediction-text">{currentSelectionMeta}</p>
-							<span className="prediction-badge" style={{ marginTop: "8px" }}>{venueFeatureStatusLabel}</span>
-						</div>
-					</div>
-
-					<BoatPredictionVenueRaceChooser
-						venues={venues}
-						selectedVenueId={selectedVenueId}
-						selectedRaceId={selectedRaceId}
-						onSelectVenue={handleSelectVenue}
-						onSelectRace={handleSelectRace}
-					/>
-				</section>
+	<BoatPredictionVenueRaceChooser
+		venues={venues}
+		selectedVenueId={selectedVenueId}
+		selectedRaceId={selectedRaceId}
+		raceExhibitionStatusMap={raceExhibitionStatusMap}
+		onSelectVenue={handleSelectVenue}
+		onSelectRace={handleSelectRace}
+	/>
+</section>
 
 				<div className={panelGridClassName}>
 					<BoatGptMaterialPanel materialText={materialText} raceLabel={raceLabel} />

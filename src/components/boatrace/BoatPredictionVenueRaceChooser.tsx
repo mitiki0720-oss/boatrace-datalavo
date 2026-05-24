@@ -2,10 +2,18 @@ import type { CSSProperties } from "react";
 import type { BoatRaceItem, BoatTodayVenueItem } from "../../lib/boatraceTypes";
 import { boatTheme } from "../../lib/theme";
 
+type RaceExhibitionStatus = {
+	level: "ready" | "partial" | "waiting";
+	title: string;
+	shortLabel: string;
+	detail: string;
+};
+
 type BoatPredictionVenueRaceChooserProps = {
 	venues: BoatTodayVenueItem[];
 	selectedVenueId: string;
 	selectedRaceId: string;
+	raceExhibitionStatusMap?: Record<string, RaceExhibitionStatus>;
 	onSelectVenue: (venueId: string) => void;
 	onSelectRace: (raceId: string) => void;
 };
@@ -132,7 +140,7 @@ const raceWrapStyle: CSSProperties = {
 const raceGridStyle: CSSProperties = {
 	display: "grid",
 	gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
-	gap: "9px",
+	gap: "10px",
 	width: "100%",
 	maxWidth: "100%",
 	minWidth: 0,
@@ -142,13 +150,13 @@ const raceGridStyle: CSSProperties = {
 const raceCardBaseStyle: CSSProperties = {
 	position: "relative",
 	overflow: "hidden",
-	padding: "12px 8px",
+	padding: "12px 8px 11px",
 	borderRadius: "18px",
 	border: `1px solid rgba(176, 198, 214, 0.42)`,
 	background: "linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 252, 255, 0.94) 100%)",
 	display: "grid",
 	gap: "6px",
-	minHeight: "66px",
+	minHeight: "88px",
 	textAlign: "center",
 	cursor: "pointer",
 	appearance: "none",
@@ -350,6 +358,7 @@ export function BoatPredictionVenueRaceChooser({
 	venues,
 	selectedVenueId,
 	selectedRaceId,
+	raceExhibitionStatusMap = {},
 	onSelectVenue,
 	onSelectRace,
 }: BoatPredictionVenueRaceChooserProps) {
@@ -477,17 +486,23 @@ export function BoatPredictionVenueRaceChooser({
 								<div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
 									{statusLabels.map((label) => (
 										<span
-											key={`${venue.id}-${label}`}
-											style={{
-												...chipStyle,
-												padding: "4px 8px",
-												fontSize: "0.68rem",
-												background: label.includes("あり") ? "rgba(220, 252, 231, 0.95)" : "rgba(236, 246, 251, 0.96)",
-												color: label.includes("あり") ? "#047857" : boatTheme.colors.aquaDeep,
-											}}
-										>
-											{label}
-										</span>
+	key={`${venue.id}-${label}`}
+	style={{
+		...chipStyle,
+		padding: "4px 8px",
+		fontSize: "0.68rem",
+		background: label.includes("あり")
+			? "rgba(255, 235, 243, 0.94)"
+			: "rgba(236, 246, 251, 0.96)",
+		border: label.includes("あり")
+			? "1px solid rgba(244, 190, 211, 0.95)"
+			: "1px solid rgba(176, 198, 214, 0.28)",
+		color: label.includes("あり") ? "#b45d84" : boatTheme.colors.aquaDeep,
+		boxShadow: label.includes("あり") ? "0 8px 18px rgba(244, 190, 211, 0.16)" : "none",
+	}}
+>
+	{label}
+</span>
 									))}
 								</div>
 							</button>
@@ -503,6 +518,7 @@ export function BoatPredictionVenueRaceChooser({
 					{races.map((race) => {
 						const raceKey = getRaceKey(selectedVenue.id, race);
 						const isSelected = raceKey === selectedRaceId;
+						const exhibitionStatus = raceExhibitionStatusMap[raceKey];
 						const style: CSSProperties = {
 							...raceCardBaseStyle,
 							background: isSelected
@@ -522,16 +538,39 @@ export function BoatPredictionVenueRaceChooser({
 								onClick={() => onSelectRace(raceKey)}
 							>
 								<strong style={{ fontSize: "0.95rem", letterSpacing: "-0.01em" }}>{race.raceNo}R</strong>
-								<span
-									style={{
-										fontSize: "0.72rem",
-										fontWeight: 700,
-										letterSpacing: "0.01em",
-										color: isSelected ? "rgba(255,255,255,0.82)" : boatTheme.colors.muted,
-									}}
-									>
-										{getRaceTimeLabel(race)}
-								</span>
+
+<span
+	style={{
+		fontSize: "0.72rem",
+		fontWeight: 700,
+		letterSpacing: "0.01em",
+		color: isSelected ? "rgba(255,255,255,0.82)" : boatTheme.colors.muted,
+	}}
+>
+	{getRaceTimeLabel(race)}
+</span>
+
+<span
+	style={{
+		fontSize: "0.68rem",
+		fontWeight: 900,
+		letterSpacing: "0.01em",
+		color:
+			exhibitionStatus?.level === "ready"
+				? isSelected
+					? "#a7f3d0"
+					: "#15966a"
+				: exhibitionStatus?.level === "partial"
+					? isSelected
+						? "#fde68a"
+						: "#b7791f"
+					: isSelected
+						? "rgba(255,255,255,0.72)"
+						: "#8aa0b8",
+	}}
+>
+	{exhibitionStatus?.shortLabel ?? "展示未取得"}
+</span>
 							</button>
 						);
 					})}

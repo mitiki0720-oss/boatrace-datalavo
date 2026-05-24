@@ -74,39 +74,65 @@ const readResultPayouts = (result: BoatRaceResult | undefined): BoatPayoutItem[]
 	}
 
 	const record = result as BoatRaceResult & Record<string, unknown>;
-	const rows = [
-		...(Array.isArray(result.payoutsFull) ? result.payoutsFull : []),
-		...(Array.isArray(result.payouts) ? result.payouts : []),
-		...(Array.isArray(record.payout) ? record.payout as BoatPayoutItem[] : []),
-		...(Array.isArray(record.oddsPayouts) ? record.oddsPayouts as BoatPayoutItem[] : []),
-		...(Array.isArray(record.refunds) ? record.refunds as unknown as BoatPayoutItem[] : []),
-		result.payout3tan,
-		record.trifecta,
-		record.sanrentan,
-		result.payout3fuku,
-		result.payout2tan,
-		record.exacta,
-		record.nirentan,
-		result.payout2fuku,
-		...(Array.isArray(result.payoutWide) ? result.payoutWide : []),
-	].filter((item): item is BoatPayoutItem => {
-		if (!item || typeof item !== "object") {
-			return false;
+	const rows: BoatPayoutItem[] = [];
+
+	const appendPayout = (value: unknown, fallbackBetType?: string) => {
+		if (!value) {
+			return;
 		}
 
-		const row = item as Record<string, unknown>;
-		return Boolean((row.betType || row.type || row.label) && (row.combination || row.numbers || row.result));
-	}).map((item) => {
-		const row = item as BoatPayoutItem & Record<string, unknown>;
-		return {
-			betType: String(row.betType ?? row.type ?? row.label ?? ""),
-			combination: String(row.combination ?? row.numbers ?? row.result ?? ""),
-			payout: String(row.payout ?? row.payoff ?? row.amount ?? row.refund ?? ""),
+		if (Array.isArray(value)) {
+			value.forEach((item) => appendPayout(item, fallbackBetType));
+			return;
+		}
+
+		if (typeof value !== "object") {
+			return;
+		}
+
+		const row = value as Record<string, unknown>;
+
+		const betType = String(row.betType ?? row.type ?? row.label ?? fallbackBetType ?? "");
+		const combination = String(row.combination ?? row.numbers ?? row.result ?? row.combo ?? "");
+		const payout = String(row.payout ?? row.payoff ?? row.amount ?? row.refund ?? row.yen ?? "");
+
+		if (!betType || !combination) {
+			return;
+		}
+
+		rows.push({
+			betType: betType as BoatPayoutItem["betType"],
+			combination,
+			payout,
 			popularity: row.popularity as number | string | undefined,
-		};
-	});
+		});
+	};
+
+	appendPayout(record.payoutsFull);
+	appendPayout(record.payouts);
+	appendPayout(record.payout);
+	appendPayout(record.oddsPayouts);
+	appendPayout(record.refunds);
+
+	appendPayout(result.payout3tan, "3連単");
+	appendPayout(record.trifecta, "3連単");
+	appendPayout(record.sanrentan, "3連単");
+
+	appendPayout(result.payout3fuku, "3連複");
+	appendPayout(record.trio, "3連複");
+
+	appendPayout(result.payout2tan, "2連単");
+	appendPayout(record.exacta, "2連単");
+	appendPayout(record.nirentan, "2連単");
+
+	appendPayout(result.payout2fuku, "2連複");
+	appendPayout(record.quinella, "2連複");
+
+	appendPayout(result.payoutWide, "拡連複");
+	appendPayout(record.wide, "拡連複");
 
 	const seen = new Set<string>();
+
 	return rows.filter((row) => {
 		const key = `${row.betType}:${row.combination}:${row.payout}`;
 		if (seen.has(key)) {
@@ -117,6 +143,7 @@ const readResultPayouts = (result: BoatRaceResult | undefined): BoatPayoutItem[]
 		return true;
 	});
 };
+
 
 const findPayoutForBet = (bet: ParsedBoatBet, payouts: BoatPayoutItem[]): BoatPayoutItem | null => {
 	const orderedCombination = normalizeBoatBetCombination(bet.normalized);
@@ -320,7 +347,9 @@ export function settleBoatPredictionResult(params: {
 		};
 	}
 
-	const finishOrderText = readFinishOrderText(result as BoatRaceResult & Record<string, unknown>);
+	const resultRecord = result as BoatRaceResult & Record<string, unknown>;
+	const finishOrderText = readFinishOrderText(resultRecord);
+
 	if (result.status !== "confirmed" || !finishOrderText) {
 		return {
 			status: "pending",
@@ -337,19 +366,72 @@ export function settleBoatPredictionResult(params: {
 	}
 
 	const payouts = readResultPayouts(result);
-	const hitBets = bets.filter((bet) => Boolean(findPayoutForBet(bet, payouts)));
+	const finishNumbers = finishOrderText
+		.split("-")
+		.map((value) => Number(value))
+		.filter((value) => Number.isFinite(value));
+
+	const top3 = finishNumbers.slice(0, 3).join("-");
+	const top2 = finishNumbers.slice(0, 2).join("-");
+	const unorderedTop3 = [...finishNumbers.slice(0, 3)].sort().join("-");
+	const unorderedTop2 = [...finishNumbers.slice(0, 2)].sort().join("-");
+
+	const finishOrderHitBets = bets.filter((bet) => {
+		if (bet.type === "trifecta") {
+			return bet.normalized === top3;
+		}
+
+		if (bet.type === "exacta") {
+			return bet.normalized === top2;
+		}
+
+		if (bet.type === "trio") {
+			return [...bet.numbers].sort().join("-") === unorderedTop3;
+		}
+
+		if (bet.type === "quinella") {
+			return [...bet.numbers].sort().join("-") === unorderedTop2;
+		}
+
+		if (bet.type === "wide") {
+			return bet.numbers.every((number) => finishNumbers.slice(0, 3).includes(number));
+		}
+
+		return false;
+	});
+
+	const payoutMatchedHitBets = finishOrderHitBets.filter((bet) => Boolean(findPayoutForBet(bet, payouts)));
+	const hitBets = payoutMatchedHitBets.length > 0 ? payoutMatchedHitBets : finishOrderHitBets;
 	const payoutYen = hitBets.reduce((sum, bet) => sum + readPayoutYen(findPayoutForBet(bet, payouts)?.payout), 0);
 	const profitYen = payoutYen - investmentAmount;
-	const roi = investmentAmount > 0 ? payoutYen / investmentAmount * 100 : 0;
-	const finishNumbers = finishOrderText.split("-").map((value) => Number(value)).filter((value) => Number.isFinite(value));
+	const roi = investmentAmount > 0 ? (payoutYen / investmentAmount) * 100 : 0;
+
 	const startInfoRows = result.startInfo ?? result.startInfos ?? [];
 	const startInfoText = Array.isArray(startInfoRows)
-		? startInfoRows.map((row) => `${row.course ?? row.entryCourse ?? "-"}:${row.frameNo ?? row.frame ?? row.boatNumber ?? "-"} ST${row.stDisplay ?? row.startTiming ?? row.st ?? "-"}`).join(" / ")
+		? startInfoRows
+				.map((row) =>
+					`${row.course ?? row.entryCourse ?? "-"}:${row.frameNo ?? row.frame ?? row.boatNumber ?? "-"} ST${row.stDisplay ?? row.startTiming ?? row.st ?? "-"}`,
+				)
+				.join(" / ")
 		: "";
+
+	const lookupStatus: BoatResultLookupStatus =
+		hitBets.length > 0 && payoutYen <= 0
+			? "payout-missing"
+			: payouts.length > 0
+				? "matched"
+				: "payout-missing";
+
+	const message =
+		hitBets.length > 0
+			? payoutYen > 0
+				? "的中 / 払戻取得済み"
+				: "的中候補 / 払戻未取得"
+			: "不的中";
 
 	return {
 		status: "confirmed",
-		lookupStatus: payouts.length > 0 ? "matched" : "payout-missing",
+		lookupStatus,
 		finishOrderText,
 		first: finishNumbers[0],
 		second: finishNumbers[1],
@@ -362,6 +444,6 @@ export function settleBoatPredictionResult(params: {
 		profitYen,
 		roi,
 		resultSource: source,
-		message: hitBets.length > 0 ? "的中" : "不的中",
+		message,
 	};
 }
