@@ -1,4 +1,5 @@
 import type { ParsedBoatBet, ParsedBoatBetSummary } from "./boatBetParser";
+import type { BoatPredictionTicket } from "./boatraceTypes";
 import type { BoatPracticeResultStatus, BoatResultLookupStatus } from "./boatResultSettlement";
 
 export const BOAT_PRACTICE_RESULT_STORAGE_KEY = "kurari-boat-data-labo-practice-results";
@@ -13,6 +14,7 @@ export type BoatPracticeResultRecord = {
 	raceNo: number;
 	raceTitle?: string;
 	predictionText?: string;
+	tickets?: BoatPredictionTicket[];
 	parsedBets?: ParsedBoatBet[];
 	betSummary?: Pick<ParsedBoatBetSummary, "totalBets" | "trifectaCount" | "exactaCount" | "totalStakeYen">;
 	actualFinishOrderText: string;

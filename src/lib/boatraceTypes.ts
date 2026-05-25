@@ -281,7 +281,7 @@ export type BoatPredictionRecord = {
 	predictionText: string;
 	tickets?: BoatPredictionTicket[];
 	parsedBets?: ParsedBoatBet[];
-	betSummary?: Pick<ParsedBoatBetSummary, "totalBets" | "trifectaCount" | "exactaCount" | "totalStakeYen">;
+	betSummary?: ParsedBoatBetSummary;
 	totalStakeYen?: number;
 	updatedAt?: string;
 	savedAt: string;

@@ -50,6 +50,7 @@ import {
 	buildBoatPredictionRaceKey,
 	deleteBoatPredictionRecord,
 	findBoatPredictionRecord,
+	hydrateBoatPredictionRecord,
 	upsertBoatPredictionRecord,
 } from "../lib/boatPredictionStorage";
 
@@ -165,6 +166,10 @@ const buildParsedBetSummaryFromTickets = (tickets: BoatPredictionTicket[]): Pars
 const buildStoredPredictionBetSummary = (record: BoatPredictionRecord | undefined): ParsedBoatBetSummary | null => {
 	if (!record) {
 		return null;
+	}
+
+	if (record.betSummary && Array.isArray(record.betSummary.bets) && record.betSummary.bets.length > 0) {
+		return record.betSummary;
 	}
 
 	if (Array.isArray(record.parsedBets) && record.parsedBets.length > 0) {
@@ -827,17 +832,36 @@ const buildPracticeFallbackRaceKey = (params: {
 	};
 
 	const ensurePredictionBets = () => {
-		if (predictionTickets.length > 0 && parsedBetSummary.totalBets > 0) {
+		if (parsedBetSummary.bets.length > 0 || parsedBetSummary.totalBets > 0) {
 			return {
-				tickets: predictionTickets,
+				tickets: predictionTickets.length > 0 ? predictionTickets : toPredictionTickets(parsedBetSummary.bets),
+				parsedBets: parsedBetSummary.bets,
 				betSummary: parsedBetSummary,
-				investmentAmount: parsedBetSummary.totalStakeYen > 0 ? parsedBetSummary.totalStakeYen : predictionTickets.length * 100,
+				totalStakeYen: parsedBetSummary.totalStakeYen > 0 ? parsedBetSummary.totalStakeYen : (predictionTickets.length > 0 ? predictionTickets.length * 100 : parsedBetSummary.bets.length * 100),
+				investmentAmount: parsedBetSummary.totalStakeYen > 0 ? parsedBetSummary.totalStakeYen : (predictionTickets.length > 0 ? predictionTickets.length * 100 : parsedBetSummary.bets.length * 100),
 			};
 		}
 
-		return syncPredictionTicketsFromText(predictionText, {
+		if (predictionTickets.length > 0) {
+			const betSummary = buildParsedBetSummaryFromTickets(predictionTickets);
+			return {
+				tickets: predictionTickets,
+				parsedBets: betSummary.bets,
+				betSummary,
+				totalStakeYen: betSummary.totalStakeYen,
+				investmentAmount: betSummary.totalStakeYen,
+			};
+		}
+
+		const synced = syncPredictionTicketsFromText(predictionText, {
 			applyInvestment: false,
 		});
+
+		return {
+			...synced,
+			parsedBets: synced.betSummary.bets,
+			totalStakeYen: synced.betSummary.totalStakeYen,
+		};
 	};
 
 	const materialText = selectedVenue && selectedRace
@@ -1172,12 +1196,13 @@ const handleSelectRace = (raceId: string) => {
 			return;
 		}
 
-		const record = findBoatPredictionRecord({
+		const storedRecord = findBoatPredictionRecord({
 			date: selectedVenue.date,
 			venueName: selectedVenue.venueName,
 			raceNo: selectedRace.raceNo,
 			raceId: selectedRace.raceId,
 		});
+		const record = storedRecord ? hydrateBoatPredictionRecord(storedRecord) : undefined;
 
 		if (record) {
 			setSavedPredictionRecord(record);
@@ -1187,6 +1212,8 @@ const handleSelectRace = (raceId: string) => {
 				preferredTickets: record.tickets,
 				preferredBetSummary: buildStoredPredictionBetSummary(record),
 			});
+			setInvestmentAmount(record.totalStakeYen ?? record.betSummary?.totalStakeYen ?? ((record.tickets?.length ?? 0) * 100 || 1000));
+			setIsBetAutoApplied((record.totalStakeYen ?? record.betSummary?.totalStakeYen ?? 0) > 0 || (record.tickets?.length ?? 0) > 0);
 			setSavedMessage("保存済み予想を読み込みました");
 			return;
 		}
@@ -1214,6 +1241,7 @@ const handleSelectRace = (raceId: string) => {
 				setPredictionText(record.predictionText);
 				syncPredictionTicketsFromText(record.predictionText, {
 					applyInvestment: false,
+					preferredTickets: record.tickets,
 					preferredBetSummary: record.betSummary
 						? {
 							bets: Array.isArray(record.parsedBets) ? record.parsedBets : [],
@@ -1291,12 +1319,7 @@ const handleSelectRace = (raceId: string) => {
 			predictionText,
 			tickets: synced.tickets,
 			parsedBets: synced.betSummary.bets,
-			betSummary: {
-				totalBets: synced.betSummary.totalBets,
-				trifectaCount: synced.betSummary.trifectaCount,
-				exactaCount: synced.betSummary.exactaCount,
-				totalStakeYen: synced.betSummary.totalStakeYen,
-			},
+			betSummary: synced.betSummary,
 			totalStakeYen: synced.betSummary.totalStakeYen,
 			updatedAt: savedAt,
 			savedAt,
@@ -1405,13 +1428,9 @@ const handleSelectRace = (raceId: string) => {
 			raceNo: selectedRace.raceNo,
 			raceTitle: selectedRace.title,
 			predictionText,
+			tickets: syncedPrediction.tickets,
 			parsedBets: syncedPrediction.betSummary.bets,
-			betSummary: {
-				totalBets: syncedPrediction.betSummary.totalBets,
-				trifectaCount: syncedPrediction.betSummary.trifectaCount,
-				exactaCount: syncedPrediction.betSummary.exactaCount,
-				totalStakeYen: syncedPrediction.betSummary.totalStakeYen,
-			},
+			betSummary: syncedPrediction.betSummary,
 			actualFinishOrderText: nextActualFinishOrderText,
 			actualOrder: nextActualFinishOrderText,
 			finishOrder: nextActualFinishOrderText,
@@ -1427,7 +1446,7 @@ const handleSelectRace = (raceId: string) => {
 			hitBets: hitBets.length > 0 ? hitBets : undefined,
 			hitBetType: hitBet?.label,
 			hitBetNumbers: hitBet ? hitBet.normalized || hitBet.numbers?.join("-") : undefined,
-			totalStakeYen: syncedPrediction.betSummary.totalStakeYen || nextInvestmentAmount,
+			totalStakeYen: syncedPrediction.totalStakeYen || nextInvestmentAmount,
 			payoutYen: nextPayoutAmount,
 			profitYen: profitLoss,
 			resultSource: params?.resultSource ?? (isResultAutoApplied ? "today-race-details.generated.json" : undefined),
@@ -1458,16 +1477,16 @@ const handleSelectRace = (raceId: string) => {
 			venueCode: selectedVenue.venueCode,
 			raceNo: selectedRace.raceNo,
 		});
+		const syncedPrediction = ensurePredictionBets();
 		const settlement = settleBoatPredictionResult({
 			race: lookup.race ?? selectedRace,
-			bets: ensurePredictionBets().betSummary.bets,
-			investmentAmount,
+			bets: syncedPrediction.parsedBets,
+			investmentAmount: syncedPrediction.totalStakeYen || investmentAmount,
 			source: "today-race-details.generated.json",
 		});
-		const syncedPrediction = ensurePredictionBets();
 		const finishOrderHitBets = settlement.hitBets.length > 0
 			? settlement.hitBets
-			: findHitBetsByFinishOrder(syncedPrediction.betSummary.bets, settlement.finishOrderText);
+			: findHitBetsByFinishOrder(syncedPrediction.parsedBets, settlement.finishOrderText);
 		const lookupStatus =
 			lookup.lookupStatus === "date-mismatch" && settlement.status === "confirmed"
 				? "date-mismatch"
@@ -1499,7 +1518,7 @@ const handleSelectRace = (raceId: string) => {
 		if (shouldAutoSave) {
 			const autoSavedRecord = buildPracticeResultRecord({
 				actualFinishOrderText: finishOrderForSave,
-				investmentAmount,
+				investmentAmount: syncedPrediction.totalStakeYen || investmentAmount,
 				payoutAmount: settlement.payoutYen,
 				resultStatus: "confirmed",
 				resultLookupStatus: lookupStatus,

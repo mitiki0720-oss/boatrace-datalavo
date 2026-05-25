@@ -352,7 +352,7 @@ const resolveResultTone = (params: {
 	payoutAmount: number;
 }) => {
 	const isConfirmed = params.resultStatus === "confirmed";
-	const hasHit = Boolean(params.hitBetLabel);
+	const hasHit = Boolean(params.hitBetLabel) || params.resultLookupStatus === "payout-missing" || params.payoutAmount > 0;
 	const hasPayout = params.payoutAmount > 0;
 
 	if (isConfirmed && hasHit && hasPayout) {
