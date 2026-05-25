@@ -1,3 +1,5 @@
+import type { ParsedBoatBet, ParsedBoatBetSummary } from "./boatBetParser";
+
 export type BoatFrameNumber = 1 | 2 | 3 | 4 | 5 | 6;
 
 export type BoatFrameDisplay = BoatFrameNumber | string;
@@ -278,6 +280,10 @@ export type BoatPredictionRecord = {
 	raceNo: number;
 	predictionText: string;
 	tickets?: BoatPredictionTicket[];
+	parsedBets?: ParsedBoatBet[];
+	betSummary?: Pick<ParsedBoatBetSummary, "totalBets" | "trifectaCount" | "exactaCount" | "totalStakeYen">;
+	totalStakeYen?: number;
+	updatedAt?: string;
 	savedAt: string;
 };
 

@@ -7,8 +7,14 @@ import { BoatPredictionVenueRaceChooser } from "../components/boatrace/BoatPredi
 import { PageShell } from "../components/layout/PageShell";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
-import { parseBoatBets } from "../lib/boatBetParser";
+import {
+	emptyBoatBetSummary,
+	parseBoatBets,
+	type ParsedBoatBet,
+	type ParsedBoatBetSummary,
+} from "../lib/boatBetParser";
 import { buildBoatPredictionMaterial } from "../lib/boatPredictionMaterial";
+import { parseBoatPredictionTickets } from "../lib/boatPredictionParser";
 import {
 	findBoatRaceResultForPractice,
 	settleBoatPredictionResult,
@@ -99,6 +105,89 @@ const toPredictionTickets = (bets: ReturnType<typeof parseBoatBets>["bets"]): Bo
 		combination: bet.normalized,
 		note: bet.sourceLine,
 	}));
+
+const inferParsedBetTypeFromTicket = (ticket: BoatPredictionTicket): ParsedBoatBet["type"] | null => {
+	if (ticket.betType.includes("3連単")) {
+		return "trifecta";
+	}
+
+	if (ticket.betType.includes("2連単")) {
+		return "exacta";
+	}
+
+	if (ticket.betType.includes("3連複")) {
+		return "trio";
+	}
+
+	if (ticket.betType.includes("2連複")) {
+		return "quinella";
+	}
+
+	if (ticket.betType.includes("拡連複") || ticket.betType.toLowerCase().includes("wide")) {
+		return "wide";
+	}
+
+	const count = ticket.combination.split("-").filter(Boolean).length;
+	return count >= 3 ? "trifecta" : count === 2 ? "exacta" : null;
+};
+
+const buildParsedBetSummaryFromTickets = (tickets: BoatPredictionTicket[]): ParsedBoatBetSummary => {
+	const bets = tickets.flatMap<ParsedBoatBet>((ticket) => {
+		const type = inferParsedBetTypeFromTicket(ticket);
+		const numbers = ticket.combination
+			.split("-")
+			.map((value) => Number(value))
+			.filter((value) => Number.isFinite(value));
+
+		if (!type || numbers.length < 2) {
+			return [];
+		}
+
+		return [{
+			type,
+			label: ticket.betType,
+			numbers,
+			normalized: ticket.combination,
+			amountYen: 100,
+			sourceLine: ticket.note || `${ticket.index} ${ticket.betType} ${ticket.combination}`,
+		}];
+	});
+
+	return {
+		bets,
+		totalBets: bets.length,
+		trifectaCount: bets.filter((bet) => bet.type === "trifecta").length,
+		exactaCount: bets.filter((bet) => bet.type === "exacta").length,
+		totalStakeYen: bets.length * 100,
+	};
+};
+
+const buildStoredPredictionBetSummary = (record: BoatPredictionRecord | undefined): ParsedBoatBetSummary | null => {
+	if (!record) {
+		return null;
+	}
+
+	if (Array.isArray(record.parsedBets) && record.parsedBets.length > 0) {
+		return {
+			bets: record.parsedBets,
+			totalBets: record.betSummary?.totalBets ?? record.parsedBets.length,
+			trifectaCount:
+				record.betSummary?.trifectaCount ?? record.parsedBets.filter((bet) => bet.type === "trifecta").length,
+			exactaCount:
+				record.betSummary?.exactaCount ?? record.parsedBets.filter((bet) => bet.type === "exacta").length,
+			totalStakeYen:
+				record.totalStakeYen ??
+				record.betSummary?.totalStakeYen ??
+				record.parsedBets.reduce((sum, bet) => sum + (bet.amountYen || 100), 0),
+		};
+	}
+
+	if (Array.isArray(record.tickets) && record.tickets.length > 0) {
+		return buildParsedBetSummaryFromTickets(record.tickets);
+	}
+
+	return null;
+};
 
 const readPracticeNumber = (value: unknown): number => {
 	if (typeof value === "number" && Number.isFinite(value)) {
@@ -464,6 +553,8 @@ export function PredictionPage() {
 	const [selectedVenueFeatureNote, setSelectedVenueFeatureNote] = useState<BoatVenueFeatureNote | null>(null);
 	const [venueFeatureInsights, setVenueFeatureInsights] = useState<BoatVenueUserInsight[]>([]);
 	const [predictionText, setPredictionText] = useState<string>("");
+	const [predictionTickets, setPredictionTickets] = useState<BoatPredictionTicket[]>([]);
+	const [parsedBetSummary, setParsedBetSummary] = useState<ParsedBoatBetSummary>(emptyBoatBetSummary());
 	const [savedPredictionRecord, setSavedPredictionRecord] = useState<BoatPredictionRecord | undefined>(undefined);
 	const [savedMessage, setSavedMessage] = useState<string>("");
 	const [savedPracticeResultRecord, setSavedPracticeResultRecord] = useState<BoatPracticeResultRecord | undefined>(undefined);
@@ -666,8 +757,6 @@ const buildPracticeFallbackRaceKey = (params: {
 	return `boat-practice:${fallbackDate}:${params.venue.venueCode || params.venue.venueName}:${params.race.raceNo}`;
 };
 
-	const parsedBetSummary = useMemo(() => parseBoatBets(predictionText), [predictionText]);
-	const parsedTickets = useMemo(() => toPredictionTickets(parsedBetSummary.bets), [parsedBetSummary]);
 	const selectedRaceKey = useMemo(() => {
 		if (!selectedVenue || !selectedRace) {
 			return "";
@@ -689,6 +778,67 @@ const buildPracticeFallbackRaceKey = (params: {
 		}),
 		[selectedRaceKey, selectedVenue, selectedRace, todayFeed.date],
 	);
+
+	const syncPredictionTicketsFromText = (nextPredictionText: string, options?: {
+		applyInvestment?: boolean;
+		preferredTickets?: BoatPredictionTicket[];
+		preferredBetSummary?: ParsedBoatBetSummary | null;
+	}) => {
+		const parsedTicketsFromText = parseBoatPredictionTickets(nextPredictionText);
+		const parsedBetSummaryFromText = parseBoatBets(nextPredictionText);
+		const fallbackTickets = toPredictionTickets(parsedBetSummaryFromText.bets);
+		const nextTickets = options?.preferredTickets && options.preferredTickets.length > 0
+			? options.preferredTickets
+			: parsedTicketsFromText.length > 0
+				? parsedTicketsFromText
+				: fallbackTickets;
+		const nextBetSummary = options?.preferredBetSummary &&
+			(options.preferredBetSummary.totalBets > 0 || options.preferredBetSummary.bets.length > 0)
+			? options.preferredBetSummary
+			: parsedBetSummaryFromText.totalBets > 0
+				? parsedBetSummaryFromText
+				: buildParsedBetSummaryFromTickets(nextTickets);
+		const nextInvestmentAmount = nextBetSummary.totalStakeYen > 0
+			? nextBetSummary.totalStakeYen
+			: nextTickets.length > 0
+				? nextTickets.length * 100
+				: 1000;
+
+		setPredictionTickets(nextTickets);
+		setParsedBetSummary(nextBetSummary);
+
+		if (options?.applyInvestment) {
+			setInvestmentAmount(nextInvestmentAmount);
+			setIsBetAutoApplied(nextTickets.length > 0 || nextBetSummary.totalBets > 0);
+		}
+
+		return {
+			tickets: nextTickets,
+			betSummary: nextBetSummary,
+			investmentAmount: nextInvestmentAmount,
+		};
+	};
+
+	const handleChangePredictionText = (nextPredictionText: string) => {
+		setPredictionText(nextPredictionText);
+		syncPredictionTicketsFromText(nextPredictionText, {
+			applyInvestment: !savedPracticeResultRecord && !isInvestmentAmountManual,
+		});
+	};
+
+	const ensurePredictionBets = () => {
+		if (predictionTickets.length > 0 && parsedBetSummary.totalBets > 0) {
+			return {
+				tickets: predictionTickets,
+				betSummary: parsedBetSummary,
+				investmentAmount: parsedBetSummary.totalStakeYen > 0 ? parsedBetSummary.totalStakeYen : predictionTickets.length * 100,
+			};
+		}
+
+		return syncPredictionTicketsFromText(predictionText, {
+			applyInvestment: false,
+		});
+	};
 
 	const materialText = selectedVenue && selectedRace
 		? buildBoatPredictionMaterial({
@@ -1032,12 +1182,18 @@ const handleSelectRace = (raceId: string) => {
 		if (record) {
 			setSavedPredictionRecord(record);
 			setPredictionText(record.predictionText);
+			syncPredictionTicketsFromText(record.predictionText, {
+				applyInvestment: false,
+				preferredTickets: record.tickets,
+				preferredBetSummary: buildStoredPredictionBetSummary(record),
+			});
 			setSavedMessage("保存済み予想を読み込みました");
 			return;
 		}
 
 		setSavedPredictionRecord(undefined);
 		setPredictionText("");
+		syncPredictionTicketsFromText("", { applyInvestment: false, preferredBetSummary: emptyBoatBetSummary() });
 		setSavedMessage("");
 	}, [selectedVenue, selectedRace, selectedRaceKey]);
 
@@ -1056,6 +1212,18 @@ const handleSelectRace = (raceId: string) => {
 			setPracticeMemo(record.practiceMemo);
 			if (record.predictionText) {
 				setPredictionText(record.predictionText);
+				syncPredictionTicketsFromText(record.predictionText, {
+					applyInvestment: false,
+					preferredBetSummary: record.betSummary
+						? {
+							bets: Array.isArray(record.parsedBets) ? record.parsedBets : [],
+							totalBets: record.betSummary.totalBets,
+							trifectaCount: record.betSummary.trifectaCount,
+							exactaCount: record.betSummary.exactaCount,
+							totalStakeYen: record.betSummary.totalStakeYen,
+						}
+						: null,
+				});
 			}
 			setPracticeResultStatus(record.resultStatus);
 			setPracticeResultLookupStatus(record.resultLookupStatus);
@@ -1108,6 +1276,11 @@ const handleSelectRace = (raceId: string) => {
 			return;
 		}
 
+		const synced = syncPredictionTicketsFromText(predictionText, {
+			applyInvestment: !savedPracticeResultRecord && !isInvestmentAmountManual,
+		});
+		const savedAt = new Date().toISOString();
+
 		const record: BoatPredictionRecord = {
 			raceKey: selectedRaceKey,
 			raceId: selectedRace.raceId,
@@ -1116,15 +1289,24 @@ const handleSelectRace = (raceId: string) => {
 			date: selectedVenue.date,
 			raceNo: selectedRace.raceNo,
 			predictionText,
-			tickets: parsedTickets,
-			savedAt: new Date().toISOString(),
+			tickets: synced.tickets,
+			parsedBets: synced.betSummary.bets,
+			betSummary: {
+				totalBets: synced.betSummary.totalBets,
+				trifectaCount: synced.betSummary.trifectaCount,
+				exactaCount: synced.betSummary.exactaCount,
+				totalStakeYen: synced.betSummary.totalStakeYen,
+			},
+			totalStakeYen: synced.betSummary.totalStakeYen,
+			updatedAt: savedAt,
+			savedAt,
 		};
 
 		upsertBoatPredictionRecord(record);
 		setSavedPredictionRecord(record);
-		if (parsedBetSummary.totalStakeYen > 0) {
+		if (synced.betSummary.totalStakeYen > 0) {
 			if (!isInvestmentAmountManual) {
-				setInvestmentAmount(parsedBetSummary.totalStakeYen);
+				setInvestmentAmount(synced.betSummary.totalStakeYen);
 			}
 			setIsBetAutoApplied(true);
 		}
@@ -1133,6 +1315,7 @@ const handleSelectRace = (raceId: string) => {
 
 	const handleClearPrediction = () => {
 		setPredictionText("");
+		syncPredictionTicketsFromText("", { applyInvestment: false, preferredBetSummary: emptyBoatBetSummary() });
 
 		if (savedPredictionRecord?.raceKey) {
 			deleteBoatPredictionRecord(savedPredictionRecord.raceKey);
@@ -1143,15 +1326,18 @@ const handleSelectRace = (raceId: string) => {
 	};
 
 	const handleLoadBetsToPractice = () => {
-		if (parsedBetSummary.totalStakeYen <= 0) {
+		const synced = syncPredictionTicketsFromText(predictionText, {
+			applyInvestment: true,
+		});
+
+		if (synced.betSummary.totalStakeYen <= 0 && synced.tickets.length <= 0) {
 			setPracticeMessage("買い目を読み取れませんでした");
 			return;
 		}
 
-		setInvestmentAmount(parsedBetSummary.totalStakeYen);
 		setIsInvestmentAmountManual(false);
 		setIsBetAutoApplied(true);
-		setPracticeMessage(`買い目${parsedBetSummary.totalBets}点を読み込みました`);
+		setPracticeMessage(`買い目を読み込みました（${synced.betSummary.totalBets || synced.tickets.length}点）`);
 	};
 
 	const savePracticeRecordAndRefresh = (record: BoatPracticeResultRecord, message: string) => {
@@ -1187,16 +1373,17 @@ const handleSelectRace = (raceId: string) => {
 		const nextInvestmentAmount = params?.investmentAmount ?? investmentAmount;
 		const nextPayoutAmount = params?.payoutAmount ?? payoutAmount;
 		const nextDate = selectedVenue.date ?? todayFeed.date ?? "";
+		const syncedPrediction = ensurePredictionBets();
 		const raceResultRecord = toLooseRecord((selectedRace as { result?: unknown } | undefined)?.result);
 		const storedPayouts = mergePracticePayouts(raceResultRecord.payoutsFull, raceResultRecord.payouts);
 		const { profitLoss, roi } = calculateBoatPracticeProfitLoss({
 			investmentAmount: nextInvestmentAmount,
 			payoutAmount: nextPayoutAmount,
 		});
-		const labelHitBets = parsedBetSummary.bets.filter((bet) =>
+		const labelHitBets = syncedPrediction.betSummary.bets.filter((bet) =>
 			practiceHitBetLabel.includes(bet.normalized),
 		);
-		const finishOrderHitBets = findHitBetsByFinishOrder(parsedBetSummary.bets, nextActualFinishOrderText);
+		const finishOrderHitBets = findHitBetsByFinishOrder(syncedPrediction.betSummary.bets, nextActualFinishOrderText);
 		const hitBets = params?.hitBets && params.hitBets.length > 0
 			? params.hitBets
 			: finishOrderHitBets.length > 0
@@ -1218,12 +1405,12 @@ const handleSelectRace = (raceId: string) => {
 			raceNo: selectedRace.raceNo,
 			raceTitle: selectedRace.title,
 			predictionText,
-			parsedBets: parsedBetSummary.bets,
+			parsedBets: syncedPrediction.betSummary.bets,
 			betSummary: {
-				totalBets: parsedBetSummary.totalBets,
-				trifectaCount: parsedBetSummary.trifectaCount,
-				exactaCount: parsedBetSummary.exactaCount,
-				totalStakeYen: parsedBetSummary.totalStakeYen,
+				totalBets: syncedPrediction.betSummary.totalBets,
+				trifectaCount: syncedPrediction.betSummary.trifectaCount,
+				exactaCount: syncedPrediction.betSummary.exactaCount,
+				totalStakeYen: syncedPrediction.betSummary.totalStakeYen,
 			},
 			actualFinishOrderText: nextActualFinishOrderText,
 			actualOrder: nextActualFinishOrderText,
@@ -1240,7 +1427,7 @@ const handleSelectRace = (raceId: string) => {
 			hitBets: hitBets.length > 0 ? hitBets : undefined,
 			hitBetType: hitBet?.label,
 			hitBetNumbers: hitBet ? hitBet.normalized || hitBet.numbers?.join("-") : undefined,
-			totalStakeYen: parsedBetSummary.totalStakeYen || nextInvestmentAmount,
+			totalStakeYen: syncedPrediction.betSummary.totalStakeYen || nextInvestmentAmount,
 			payoutYen: nextPayoutAmount,
 			profitYen: profitLoss,
 			resultSource: params?.resultSource ?? (isResultAutoApplied ? "today-race-details.generated.json" : undefined),
@@ -1273,13 +1460,14 @@ const handleSelectRace = (raceId: string) => {
 		});
 		const settlement = settleBoatPredictionResult({
 			race: lookup.race ?? selectedRace,
-			bets: parsedBetSummary.bets,
+			bets: ensurePredictionBets().betSummary.bets,
 			investmentAmount,
 			source: "today-race-details.generated.json",
 		});
+		const syncedPrediction = ensurePredictionBets();
 		const finishOrderHitBets = settlement.hitBets.length > 0
 			? settlement.hitBets
-			: findHitBetsByFinishOrder(parsedBetSummary.bets, settlement.finishOrderText);
+			: findHitBetsByFinishOrder(syncedPrediction.betSummary.bets, settlement.finishOrderText);
 		const lookupStatus =
 			lookup.lookupStatus === "date-mismatch" && settlement.status === "confirmed"
 				? "date-mismatch"
@@ -1882,11 +2070,11 @@ body:has(.prediction-page-root) {
 						<BoatPredictionPastePanel
 							value={predictionText}
 							raceLabel={raceLabel}
-							tickets={parsedTickets}
+							tickets={predictionTickets}
 							savedAt={savedPredictionRecord?.savedAt}
 							isSaved={Boolean(savedPredictionRecord && savedPredictionRecord.predictionText === predictionText)}
 							onSave={handleSavePrediction}
-							onChange={setPredictionText}
+							onChange={handleChangePredictionText}
 							onClear={handleClearPrediction}
 						/>
 					</div>
@@ -1897,7 +2085,7 @@ body:has(.prediction-page-root) {
 					venueName={selectedVenue?.venueName ?? "-"}
 					raceNo={selectedRace?.raceNo ?? 0}
 					raceTitle={selectedRace?.title}
-					tickets={parsedTickets}
+					tickets={predictionTickets}
 					savedAt={savedPracticeResultRecord?.savedAt}
 					isSaved={Boolean(savedPracticeResultRecord)}
 					onSave={handleSavePracticeResult}
