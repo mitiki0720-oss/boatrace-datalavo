@@ -61,6 +61,17 @@ const readPayoutYen = (value: string | number | undefined): number => {
 	return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const normalizeBoatCombinationText = (value: unknown): string =>
+	String(value ?? "")
+		.normalize("NFKC")
+		.replace(/[=＝]/g, "-")
+		.replace(/[‐-‒–—―−－ーｰ~〜～>＞]/g, "-")
+		.replace(/[^\d-]/g, "")
+		.replace(/-+/g, "-")
+		.replace(/^-+|-+$/g, "");
+
+const isTrifectaBetType = (value: unknown): boolean => /3\s*連\s*単|三連単|3\s*単|trifecta/i.test(String(value ?? "").normalize("NFKC"));
+
 const normalizeUnorderedCombination = (value: string): string =>
 	normalizeBoatBetCombination(value)
 		.split("-")
@@ -94,7 +105,7 @@ const readResultPayouts = (result: BoatRaceResult | undefined): BoatPayoutItem[]
 
 		const betType = String(row.betType ?? row.type ?? row.label ?? fallbackBetType ?? "");
 		const combination = String(row.combination ?? row.numbers ?? row.result ?? row.combo ?? "");
-		const payout = String(row.payout ?? row.payoff ?? row.amount ?? row.refund ?? row.yen ?? "");
+		const payout = String(row.payout ?? row.payoff ?? row.amount ?? row.refund ?? row.yen ?? row.payoutYen ?? row.value ?? "");
 
 		if (!betType || !combination) {
 			return;
@@ -203,6 +214,18 @@ const findPayoutForBet = (bet: ParsedBoatBet, payouts: BoatPayoutItem[]): BoatPa
 
 		return false;
 	});
+};
+
+const findTrifectaPayoutByFinishOrder = (finishOrderText: string, payouts: BoatPayoutItem[]): BoatPayoutItem | undefined => {
+	const normalizedFinish = normalizeBoatCombinationText(finishOrderText);
+
+	if (!normalizedFinish) {
+		return undefined;
+	}
+
+	return payouts.find((payout) =>
+		isTrifectaBetType(payout.betType) && normalizeBoatCombinationText(payout.combination) === normalizedFinish,
+	);
 };
 
 const readFinishOrderText = (result: (BoatRaceResult & Record<string, unknown>) | undefined): string => {
@@ -429,7 +452,11 @@ export function settleBoatPredictionResult(params: {
 
 	const payoutMatchedHitBets = finishOrderHitBets.filter((bet) => Boolean(findPayoutForBet(bet, payouts)));
 	const hitBets = payoutMatchedHitBets.length > 0 ? payoutMatchedHitBets : finishOrderHitBets;
-	const payoutYen = hitBets.reduce((sum, bet) => sum + readPayoutYen(findPayoutForBet(bet, payouts)?.payout), 0);
+	const directPayoutYen = hitBets.reduce((sum, bet) => sum + readPayoutYen(findPayoutForBet(bet, payouts)?.payout), 0);
+	const finishOrderTrifectaPayout = hitBets.some((bet) => bet.type === "trifecta")
+		? readPayoutYen(findTrifectaPayoutByFinishOrder(finishOrderText, payouts)?.payout)
+		: 0;
+	const payoutYen = directPayoutYen > 0 ? directPayoutYen : finishOrderTrifectaPayout;
 	const profitYen = payoutYen - investmentAmount;
 	const roi = investmentAmount > 0 ? (payoutYen / investmentAmount) * 100 : 0;
 

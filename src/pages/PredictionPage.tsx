@@ -281,45 +281,34 @@ const readPracticeHitBetLabel = (record: BoatPracticeResultRecord): string => {
 	return record.actualFinishOrderText || "-";
 };
 
-const findHitBetsByFinishOrder = (
-	bets: ReturnType<typeof parseBoatBets>["bets"],
-	finishOrderText: string,
-): ReturnType<typeof parseBoatBets>["bets"] => {
-	const order = finishOrderText
+const normalizeBoatCombinationText = (value: unknown): string =>
+	String(value ?? "")
 		.normalize("NFKC")
-		.replace(/[＝=]/g, "-")
-		.split("-")
-		.map((value) => Number(value))
-		.filter((value) => Number.isFinite(value));
+		.replace(/[=＝]/g, "-")
+		.replace(/[‐-‒–—―−－ーｰ~〜～>＞]/g, "-")
+		.replace(/[^\d-]/g, "")
+		.replace(/-+/g, "-")
+		.replace(/^-+|-+$/g, "");
 
-	if (order.length < 2) {
+const findHitBetsByFinishOrder = (
+	finishOrderText: string,
+	parsedBets: ParsedBoatBet[],
+): ParsedBoatBet[] => {
+	const normalizedFinish = normalizeBoatCombinationText(finishOrderText);
+
+	if (!normalizedFinish) {
 		return [];
 	}
 
-	const top3 = order.slice(0, 3).join("-");
-	const top2 = order.slice(0, 2).join("-");
-	const unorderedTop3 = order.slice(0, 3).sort().join("-");
-	const unorderedTop2 = order.slice(0, 2).sort().join("-");
+	return parsedBets.filter((bet) => {
+		const normalizedBet = normalizeBoatCombinationText(bet.normalized || bet.numbers?.join("-"));
 
-	return bets.filter((bet) => {
-		if (bet.type === "trifecta") {
-			return bet.normalized === top3;
+		if (!normalizedBet) {
+			return false;
 		}
 
-		if (bet.type === "exacta") {
-			return bet.normalized === top2;
-		}
-
-		if (bet.type === "trio") {
-			return [...bet.numbers].sort().join("-") === unorderedTop3;
-		}
-
-		if (bet.type === "quinella") {
-			return [...bet.numbers].sort().join("-") === unorderedTop2;
-		}
-
-		if (bet.type === "wide") {
-			return bet.numbers.every((number) => order.slice(0, 3).includes(number));
+		if (bet.type === "trifecta" || bet.type === "exacta") {
+			return normalizedBet === normalizedFinish;
 		}
 
 		return false;
@@ -1392,29 +1381,30 @@ const handleSelectRace = (raceId: string) => {
 			race: selectedRace,
 			todayDate: todayFeed.date,
 		});
-		const nextActualFinishOrderText = params?.actualFinishOrderText ?? actualFinishOrderText ?? "";
-		const nextInvestmentAmount = params?.investmentAmount ?? investmentAmount;
+		const finishOrderForSave = params?.actualFinishOrderText ?? actualFinishOrderText ?? "";
 		const nextPayoutAmount = params?.payoutAmount ?? payoutAmount;
 		const nextDate = selectedVenue.date ?? todayFeed.date ?? "";
 		const syncedPrediction = ensurePredictionBets();
+		const nextInvestmentAmount = syncedPrediction.totalStakeYen || params?.investmentAmount || investmentAmount;
 		const raceResultRecord = toLooseRecord((selectedRace as { result?: unknown } | undefined)?.result);
 		const storedPayouts = mergePracticePayouts(raceResultRecord.payoutsFull, raceResultRecord.payouts);
 		const { profitLoss, roi } = calculateBoatPracticeProfitLoss({
 			investmentAmount: nextInvestmentAmount,
 			payoutAmount: nextPayoutAmount,
 		});
-		const labelHitBets = syncedPrediction.betSummary.bets.filter((bet) =>
-			practiceHitBetLabel.includes(bet.normalized),
-		);
-		const finishOrderHitBets = findHitBetsByFinishOrder(syncedPrediction.betSummary.bets, nextActualFinishOrderText);
-		const hitBets = params?.hitBets && params.hitBets.length > 0
+		const finishOrderHitBets = findHitBetsByFinishOrder(finishOrderForSave, syncedPrediction.parsedBets);
+		const hitBetsForSave = params?.hitBets && params.hitBets.length > 0
 			? params.hitBets
-			: finishOrderHitBets.length > 0
-				? finishOrderHitBets
-				: labelHitBets;
-		const hitBet = hitBets[0];
-		const savedResultStatus = params?.resultStatus ?? practiceResultStatus ?? (nextPayoutAmount > 0 || nextActualFinishOrderText ? "confirmed" : undefined);
-		const savedLookupStatus = params?.resultLookupStatus ?? practiceResultLookupStatus ?? (nextPayoutAmount > 0 ? "manual" : undefined);
+			: finishOrderHitBets;
+		const hitBet = hitBetsForSave[0];
+		const savedResultStatus = params?.resultStatus ?? practiceResultStatus ?? (nextPayoutAmount > 0 || finishOrderForSave || hitBetsForSave.length > 0 ? "confirmed" : undefined);
+		const savedLookupStatus = params?.resultLookupStatus
+			?? practiceResultLookupStatus
+			?? (hitBetsForSave.length > 0 && nextPayoutAmount <= 0
+				? "payout-missing"
+				: nextPayoutAmount > 0
+					? "manual"
+					: undefined);
 		const savedAt = new Date().toISOString();
 		const createdAt = savedPracticeResultRecord?.createdAt ?? savedPracticeResultRecord?.savedAt ?? savedAt;
 
@@ -1429,11 +1419,11 @@ const handleSelectRace = (raceId: string) => {
 			raceTitle: selectedRace.title,
 			predictionText,
 			tickets: syncedPrediction.tickets,
-			parsedBets: syncedPrediction.betSummary.bets,
+			parsedBets: syncedPrediction.parsedBets,
 			betSummary: syncedPrediction.betSummary,
-			actualFinishOrderText: nextActualFinishOrderText,
-			actualOrder: nextActualFinishOrderText,
-			finishOrder: nextActualFinishOrderText,
+			actualFinishOrderText: finishOrderForSave,
+			actualOrder: finishOrderForSave,
+			finishOrder: finishOrderForSave,
 			investmentAmount: nextInvestmentAmount,
 			payoutAmount: nextPayoutAmount,
 			profitLoss,
@@ -1443,7 +1433,7 @@ const handleSelectRace = (raceId: string) => {
 			kimarite: (params?.kimarite ?? practiceKimarite) || undefined,
 			startInfoText: (params?.startInfoText ?? practiceStartInfoText) || undefined,
 			payouts: params?.payouts ?? storedPayouts,
-			hitBets: hitBets.length > 0 ? hitBets : undefined,
+			hitBets: hitBetsForSave.length > 0 ? hitBetsForSave : undefined,
 			hitBetType: hitBet?.label,
 			hitBetNumbers: hitBet ? hitBet.normalized || hitBet.numbers?.join("-") : undefined,
 			totalStakeYen: syncedPrediction.totalStakeYen || nextInvestmentAmount,
@@ -1484,13 +1474,16 @@ const handleSelectRace = (raceId: string) => {
 			investmentAmount: syncedPrediction.totalStakeYen || investmentAmount,
 			source: "today-race-details.generated.json",
 		});
-		const finishOrderHitBets = settlement.hitBets.length > 0
+		const finishOrderForSave = settlement.finishOrderText || actualFinishOrderText;
+		const finishOrderHitBets = findHitBetsByFinishOrder(finishOrderForSave, syncedPrediction.parsedBets);
+		const hitBetsForSave = settlement.hitBets.length > 0
 			? settlement.hitBets
-			: findHitBetsByFinishOrder(syncedPrediction.parsedBets, settlement.finishOrderText);
+			: finishOrderHitBets;
+		const payoutYenForSave = settlement.payoutYen;
 		const lookupStatus =
 			lookup.lookupStatus === "date-mismatch" && settlement.status === "confirmed"
 				? "date-mismatch"
-				: settlement.status === "confirmed" && finishOrderHitBets.length > 0 && settlement.payoutYen <= 0
+				: settlement.status === "confirmed" && hitBetsForSave.length > 0 && payoutYenForSave <= 0
 					? "payout-missing"
 					: settlement.lookupStatus;
 		const lookupDebugText = buildPracticeLookupDebugText(lookup.debug);
@@ -1500,7 +1493,7 @@ const handleSelectRace = (raceId: string) => {
 		setPracticeResultLookupDebugText(lookupDebugText);
 		setPracticeKimarite(settlement.kimarite ?? "");
 		setPracticeStartInfoText(settlement.startInfoText ?? "");
-		setPracticeHitBetLabel(finishOrderHitBets[0] ? `${finishOrderHitBets[0].label} ${finishOrderHitBets[0].normalized}` : "");
+		setPracticeHitBetLabel(hitBetsForSave[0] ? `${hitBetsForSave[0].label} ${hitBetsForSave[0].normalized}` : "");
 		setPracticeSettlementMessage(`${settlement.message}${lookupStatus === "date-mismatch" ? " / 日付差あり" : ""}`);
 		setIsResultAutoApplied(true);
 
@@ -1509,23 +1502,22 @@ const handleSelectRace = (raceId: string) => {
 		}
 
 		if (settlement.status === "confirmed") {
-			setPayoutAmount(settlement.payoutYen);
+			setPayoutAmount(payoutYenForSave);
 		}
 
-		const finishOrderForSave = settlement.finishOrderText || actualFinishOrderText;
-		const shouldAutoSave = Boolean(finishOrderForSave);
+		const shouldAutoSave = Boolean(finishOrderForSave) || hitBetsForSave.length > 0 || payoutYenForSave > 0;
 
 		if (shouldAutoSave) {
 			const autoSavedRecord = buildPracticeResultRecord({
 				actualFinishOrderText: finishOrderForSave,
 				investmentAmount: syncedPrediction.totalStakeYen || investmentAmount,
-				payoutAmount: settlement.payoutYen,
+				payoutAmount: payoutYenForSave,
 				resultStatus: "confirmed",
 				resultLookupStatus: lookupStatus,
 				kimarite: settlement.kimarite,
 				startInfoText: settlement.startInfoText,
 				payouts: settlement.payouts,
-				hitBets: finishOrderHitBets,
+				hitBets: hitBetsForSave,
 				resultSource: "today-race-details.generated.json",
 			});
 
