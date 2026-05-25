@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { BoatPredictionRecord, BoatPredictionTicket } from "../lib/boatraceTypes";
 import { BoatGptMaterialPanel } from "../components/boatrace/BoatGptMaterialPanel";
 import { BoatPracticeResultPanel } from "../components/boatrace/BoatPracticeResultPanel";
@@ -51,6 +51,7 @@ import {
 	deleteBoatPredictionRecord,
 	findBoatPredictionRecord,
 	hydrateBoatPredictionRecord,
+	loadBoatPredictionRecords,
 	upsertBoatPredictionRecord,
 } from "../lib/boatPredictionStorage";
 
@@ -68,6 +69,23 @@ const practiceMessageStyle = {
 	fontSize: "0.9rem",
 	fontWeight: 700,
 	color: "#7a4a5f",
+};
+
+const autoSettleChipRowStyle = {
+	display: "flex",
+	gap: "10px",
+	flexWrap: "wrap" as const,
+	alignItems: "center",
+};
+
+const autoSettleChipStyle = {
+	padding: "8px 12px",
+	borderRadius: "999px",
+	background: "rgba(240, 248, 253, 0.94)",
+	border: "1px solid rgba(93, 199, 232, 0.18)",
+	color: "#2c7fa3",
+	fontSize: "0.78rem",
+	fontWeight: 800,
 };
 
 const getRaceKey = (venueId: string, raceId: string | undefined, raceNo: number) => raceId ?? `${venueId}-${raceNo}`;
@@ -337,6 +355,23 @@ const mergePracticePayouts = (...sources: unknown[]): unknown[] => {
 	return merged;
 };
 
+const buildPracticeResultFingerprint = (params: {
+	date: string;
+	venueCode?: string;
+	venueName: string;
+	raceNo: number;
+	finishOrderText: string;
+	payoutYen: number;
+	resultSourceUpdatedAt?: string;
+}) => [
+	params.date,
+	params.venueCode || params.venueName,
+	String(params.raceNo),
+	params.finishOrderText,
+	String(params.payoutYen),
+	params.resultSourceUpdatedAt ?? "",
+].join("|");
+
 type PredictionHeroTimeBand = "morning" | "day" | "night";
 
 const predictionHeroImageSrcMap: Record<PredictionHeroTimeBand, string> = {
@@ -568,6 +603,15 @@ export function PredictionPage() {
 	const [practiceSettlementMessage, setPracticeSettlementMessage] = useState("");
 	const [isBetAutoApplied, setIsBetAutoApplied] = useState(false);
 	const [isResultAutoApplied, setIsResultAutoApplied] = useState(false);
+	const [predictionRecordsVersion, setPredictionRecordsVersion] = useState(0);
+	const [autoSettleState, setAutoSettleState] = useState({
+		enabled: true,
+		autoSettledCount: 0,
+		pendingCount: 0,
+		lastRunAt: "",
+		lastReason: "",
+	});
+	const autoSettleRunKeyRef = useRef("");
 
 	const venues = useMemo<BoatPredictionVenue[]>(
 		() =>
@@ -938,7 +982,7 @@ const practiceSummary = useMemo(() => {
 		{
 			eyebrow: "TODAY RESULTS",
 			value: `${confirmedRaceCount}R`,
-			description: `結果確定 ${confirmedRaceCount}R / 保存済み ${practiceSummary.resultCount}件`,
+			description: `結果確定 ${confirmedRaceCount}R / 保存済み ${practiceSummary.resultCount}件 / 自動照合 ${autoSettleState.autoSettledCount}件`,
 		},
 		{
 			eyebrow: "HIT RATE",
@@ -1052,8 +1096,242 @@ const practiceSummary = useMemo(() => {
 		setPracticeResultRecords(Object.values(loadBoatPracticeResultRecords()));
 	};
 
+	const applyPracticeRecordToPanel = (record: BoatPracticeResultRecord) => {
+		setSavedPracticeResultRecord(record);
+		setActualFinishOrderText(record.actualFinishOrderText);
+		setInvestmentAmount(resolvePracticeStakeYen(record) || 1000);
+		setPayoutAmount(resolvePracticePayoutYen(record));
+		setPracticeMemo(record.practiceMemo);
+		if (record.predictionText) {
+			setPredictionText(record.predictionText);
+			syncPredictionTicketsFromText(record.predictionText, {
+				applyInvestment: false,
+				preferredTickets: record.tickets,
+				preferredBetSummary: record.betSummary
+					? {
+						bets: Array.isArray(record.parsedBets) ? record.parsedBets : [],
+						totalBets: record.betSummary.totalBets,
+						trifectaCount: record.betSummary.trifectaCount,
+						exactaCount: record.betSummary.exactaCount,
+						totalStakeYen: record.betSummary.totalStakeYen,
+					}
+					: null,
+			});
+		}
+		setPracticeResultStatus(record.resultStatus);
+		setPracticeResultLookupStatus(record.resultLookupStatus);
+		setPracticeResultLookupDebugText(record.resultLookupStatus ? `保存済み / source=${record.resultSource ?? "-"}` : "");
+		setPracticeKimarite(record.kimarite ?? "");
+		setPracticeStartInfoText(record.startInfoText ?? "");
+		setPracticeHitBetLabel(isBoatPracticeHit(record) ? readPracticeHitBetLabel(record) : "");
+		setPracticeSettlementMessage(record.resultStatus === "confirmed" ? "保存済み照合結果" : "");
+		setIsInvestmentAmountManual(true);
+		setIsBetAutoApplied(Boolean(record.betSummary));
+		setIsResultAutoApplied(Boolean(record.resultStatus));
+	};
+
 	const applyPracticeResultRecords = (records: Record<string, BoatPracticeResultRecord>) => {
 		setPracticeResultRecords(Object.values(records));
+	};
+
+	const shouldSkipAutoSettledRecord = (existingRecord: BoatPracticeResultRecord | undefined, nextRecord: BoatPracticeResultRecord): boolean => {
+		if (!existingRecord || existingRecord.resultFingerprint !== nextRecord.resultFingerprint) {
+			return false;
+		}
+
+		const existingHitCount = Array.isArray(existingRecord.hitBets) ? existingRecord.hitBets.length : 0;
+		const nextHitCount = Array.isArray(nextRecord.hitBets) ? nextRecord.hitBets.length : 0;
+		const existingPayout = resolvePracticePayoutYen(existingRecord);
+		const nextPayout = resolvePracticePayoutYen(nextRecord);
+
+		if (nextPayout > existingPayout) {
+			return false;
+		}
+
+		if (nextHitCount > existingHitCount) {
+			return false;
+		}
+
+		if (!existingRecord.hitBetNumbers && nextRecord.hitBetNumbers) {
+			return false;
+		}
+
+		if (existingRecord.resultLookupStatus === "payout-missing" && nextRecord.resultLookupStatus === "matched") {
+			return false;
+		}
+
+		return true;
+	};
+
+	const autoSettleSavedPredictions = (params: {
+		reason: string;
+		feed: typeof todayFeed;
+	}) => {
+		const { feed, reason } = params;
+		if (!feed?.date || !Array.isArray(feed.venues) || feed.venues.length === 0) {
+			return;
+		}
+
+		const runKey = [reason, feed.date, feed.generatedAt ?? "", predictionRecordsVersion].join("|");
+		if (autoSettleRunKeyRef.current === runKey) {
+			return;
+		}
+		autoSettleRunKeyRef.current = runKey;
+
+		const predictionRecords = Object.values(loadBoatPredictionRecords()).map((record) => hydrateBoatPredictionRecord(record));
+		let pendingCount = 0;
+		let nextRecords = loadBoatPracticeResultRecords();
+		let changed = false;
+
+		for (const predictionRecord of predictionRecords) {
+			if (!predictionRecord.predictionText?.trim()) {
+				continue;
+			}
+
+			const syncedPrediction = {
+				tickets: predictionRecord.tickets ?? [],
+				parsedBets: predictionRecord.parsedBets ?? [],
+				betSummary: buildStoredPredictionBetSummary(predictionRecord) ?? emptyBoatBetSummary(),
+				totalStakeYen: predictionRecord.totalStakeYen ?? predictionRecord.betSummary?.totalStakeYen ?? 0,
+			};
+
+			if (syncedPrediction.parsedBets.length <= 0 && syncedPrediction.tickets.length <= 0) {
+				continue;
+			}
+
+			const lookup = findBoatRaceResultForPractice({
+				feed,
+				date: predictionRecord.date || feed.date,
+				venueName: predictionRecord.venueName,
+				venueCode: predictionRecord.venueCode,
+				raceNo: predictionRecord.raceNo,
+			});
+
+			if (!lookup.race || lookup.lookupStatus === "pending" || lookup.lookupStatus === "missing") {
+				pendingCount += 1;
+				continue;
+			}
+
+			const settlement = settleBoatPredictionResult({
+				race: lookup.race,
+				bets: syncedPrediction.parsedBets,
+				investmentAmount: syncedPrediction.totalStakeYen || 1000,
+				source: "today-race-details.generated.json",
+			});
+
+			const finishOrderForSave = settlement.finishOrderText;
+			if (!finishOrderForSave) {
+				pendingCount += 1;
+				continue;
+			}
+
+			const finishOrderHitBets = findHitBetsByFinishOrder(finishOrderForSave, syncedPrediction.parsedBets);
+			const hitBetsForSave = settlement.hitBets.length > 0 ? settlement.hitBets : finishOrderHitBets;
+			const payoutYenForSave = settlement.payoutYen;
+			const lookupStatus: BoatResultLookupStatus =
+				lookup.lookupStatus === "date-mismatch" && settlement.status === "confirmed"
+					? "date-mismatch"
+					: settlement.status === "confirmed" && hitBetsForSave.length > 0 && payoutYenForSave <= 0
+						? "payout-missing"
+						: settlement.lookupStatus;
+			const hitBet = hitBetsForSave[0];
+			const savedAt = new Date().toISOString();
+			const raceKey = predictionRecord.raceKey || buildBoatPredictionRaceKey({
+				date: predictionRecord.date || feed.date,
+				venueName: predictionRecord.venueName,
+				raceNo: predictionRecord.raceNo,
+				raceId: predictionRecord.raceId,
+			});
+			const existingRecord = nextRecords[raceKey] ?? findBoatPracticeResultRecord(raceKey);
+			const resultUpdatedAt = readLooseString(toLooseRecord((lookup.race as { result?: unknown } | undefined)?.result).updatedAt)
+				|| readLooseString((lookup.race as { updatedAt?: unknown } | undefined)?.updatedAt)
+				|| feed.generatedAt
+				|| "";
+			const resultFingerprint = buildPracticeResultFingerprint({
+				date: predictionRecord.date || feed.date,
+				venueCode: predictionRecord.venueCode,
+				venueName: predictionRecord.venueName,
+				raceNo: predictionRecord.raceNo,
+				finishOrderText: finishOrderForSave,
+				payoutYen: payoutYenForSave,
+				resultSourceUpdatedAt: resultUpdatedAt,
+			});
+			const { profitLoss, roi } = calculateBoatPracticeProfitLoss({
+				investmentAmount: syncedPrediction.totalStakeYen || 1000,
+				payoutAmount: payoutYenForSave,
+			});
+
+			const nextRecord: BoatPracticeResultRecord = {
+				id: raceKey,
+				raceKey,
+				raceId: predictionRecord.raceId,
+				venueCode: predictionRecord.venueCode,
+				venueName: predictionRecord.venueName,
+				date: predictionRecord.date || feed.date,
+				raceNo: predictionRecord.raceNo,
+				raceTitle: lookup.race.title,
+				predictionText: predictionRecord.predictionText,
+				tickets: syncedPrediction.tickets,
+				parsedBets: syncedPrediction.parsedBets,
+				betSummary: syncedPrediction.betSummary,
+				actualFinishOrderText: finishOrderForSave,
+				actualOrder: finishOrderForSave,
+				finishOrder: finishOrderForSave,
+				investmentAmount: syncedPrediction.totalStakeYen || 1000,
+				payoutAmount: payoutYenForSave,
+				profitLoss,
+				roi,
+				resultStatus: "confirmed",
+				resultLookupStatus: lookupStatus,
+				kimarite: settlement.kimarite,
+				startInfoText: settlement.startInfoText,
+				payouts: settlement.payouts,
+				hitBets: hitBetsForSave.length > 0 ? hitBetsForSave : undefined,
+				hitBetType: hitBet?.label,
+				hitBetNumbers: hitBet ? hitBet.normalized || hitBet.numbers?.join("-") : undefined,
+				totalStakeYen: syncedPrediction.totalStakeYen || 1000,
+				payoutYen: payoutYenForSave,
+				profitYen: profitLoss,
+				resultSource: "today-race-details.generated.json",
+				autoSettled: true,
+				autoSettledAt: savedAt,
+				resultFingerprint,
+				settlementReason: reason,
+				memo: existingRecord?.memo ?? "",
+				createdAt: existingRecord?.createdAt ?? existingRecord?.savedAt ?? savedAt,
+				updatedAt: savedAt,
+				practiceMemo: existingRecord?.practiceMemo ?? "",
+				savedAt,
+			};
+
+			if (shouldSkipAutoSettledRecord(existingRecord, nextRecord)) {
+				continue;
+			}
+
+			nextRecords = upsertBoatPracticeResultRecord(nextRecord);
+			changed = true;
+
+			if (practiceRaceKey && raceKey === practiceRaceKey) {
+				applyPracticeRecordToPanel(nextRecord);
+				setPracticeMessage(`保存済み予想を自動照合しました (${buildPracticeLookupDebugText(lookup.debug)})`);
+			}
+		}
+
+		if (changed) {
+			applyPracticeResultRecords(nextRecords);
+		}
+
+		const todayAutoSettledCount = Object.values(nextRecords).filter(
+			(record) => record.date === feed.date && Boolean(record.autoSettled),
+		).length;
+
+		setAutoSettleState({
+			enabled: true,
+			autoSettledCount: todayAutoSettledCount,
+			pendingCount,
+			lastRunAt: new Date().toISOString(),
+			lastReason: reason,
+		});
 	};
 
 	useEffect(() => {
@@ -1069,6 +1347,33 @@ const practiceSummary = useMemo(() => {
 	useEffect(() => {
 		refreshPracticeResults();
 	}, []);
+
+	useEffect(() => {
+		if (!todayFeed?.venues?.length) {
+			return;
+		}
+
+		autoSettleSavedPredictions({
+			reason: "feed-loaded",
+			feed: todayFeed,
+		});
+	}, [todayFeed.generatedAt, todayFeed.date, predictionRecordsVersion]);
+
+	useEffect(() => {
+		if (typeof window === "undefined") {
+			return;
+		}
+
+		const intervalId = window.setInterval(() => {
+			if (document.hidden) {
+				return;
+			}
+
+			void refreshTodayFeed({ silent: true });
+		}, 90_000);
+
+		return () => window.clearInterval(intervalId);
+	}, [todayFeed.generatedAt]);
 
 	useEffect(() => {
 	if (venues.length === 0) return;
@@ -1221,37 +1526,7 @@ const handleSelectRace = (raceId: string) => {
 		const record = findBoatPracticeResultRecord(practiceRaceKey);
 
 		if (record) {
-			setSavedPracticeResultRecord(record);
-			setActualFinishOrderText(record.actualFinishOrderText);
-			setInvestmentAmount(resolvePracticeStakeYen(record) || 1000);
-			setPayoutAmount(resolvePracticePayoutYen(record));
-			setPracticeMemo(record.practiceMemo);
-			if (record.predictionText) {
-				setPredictionText(record.predictionText);
-				syncPredictionTicketsFromText(record.predictionText, {
-					applyInvestment: false,
-					preferredTickets: record.tickets,
-					preferredBetSummary: record.betSummary
-						? {
-							bets: Array.isArray(record.parsedBets) ? record.parsedBets : [],
-							totalBets: record.betSummary.totalBets,
-							trifectaCount: record.betSummary.trifectaCount,
-							exactaCount: record.betSummary.exactaCount,
-							totalStakeYen: record.betSummary.totalStakeYen,
-						}
-						: null,
-				});
-			}
-			setPracticeResultStatus(record.resultStatus);
-			setPracticeResultLookupStatus(record.resultLookupStatus);
-			setPracticeResultLookupDebugText(record.resultLookupStatus ? `保存済み / source=${record.resultSource ?? "-"}` : "");
-			setPracticeKimarite(record.kimarite ?? "");
-			setPracticeStartInfoText(record.startInfoText ?? "");
-			setPracticeHitBetLabel(isBoatPracticeHit(record) ? readPracticeHitBetLabel(record) : "");
-			setPracticeSettlementMessage(record.resultStatus === "confirmed" ? "保存済み照合結果" : "");
-			setIsInvestmentAmountManual(true);
-			setIsBetAutoApplied(Boolean(record.betSummary));
-			setIsResultAutoApplied(Boolean(record.resultStatus));
+			applyPracticeRecordToPanel(record);
 			setPracticeMessage("保存済み実践結果を読み込みました");
 			return;
 		}
@@ -1316,6 +1591,7 @@ const handleSelectRace = (raceId: string) => {
 
 		upsertBoatPredictionRecord(record);
 		setSavedPredictionRecord(record);
+		setPredictionRecordsVersion((current) => current + 1);
 		if (synced.betSummary.totalStakeYen > 0) {
 			if (!isInvestmentAmountManual) {
 				setInvestmentAmount(synced.betSummary.totalStakeYen);
@@ -1334,6 +1610,7 @@ const handleSelectRace = (raceId: string) => {
 		}
 
 		setSavedPredictionRecord(undefined);
+		setPredictionRecordsVersion((current) => current + 1);
 		setSavedMessage("予想をクリアしました");
 	};
 
@@ -1354,7 +1631,9 @@ const handleSelectRace = (raceId: string) => {
 
 	const savePracticeRecordAndRefresh = (record: BoatPracticeResultRecord, message: string) => {
 		const nextRecords = upsertBoatPracticeResultRecord(record);
-		setSavedPracticeResultRecord(record);
+		if (practiceRaceKey && record.raceKey === practiceRaceKey) {
+			applyPracticeRecordToPanel(record);
+		}
 		applyPracticeResultRecords(nextRecords);
 		setPracticeMessage(message);
 	};
@@ -1444,6 +1723,10 @@ const handleSelectRace = (raceId: string) => {
 			createdAt,
 			updatedAt: savedAt,
 			practiceMemo,
+			autoSettled: false,
+			autoSettledAt: undefined,
+			resultFingerprint: undefined,
+			settlementReason: undefined,
 			savedAt,
 		};
 	};
@@ -2002,6 +2285,13 @@ body:has(.prediction-page-root) {
 							<p className="prediction-stat-description">{item.description}</p>
 						</article>
 					))}
+				</div>
+
+				<div style={autoSettleChipRowStyle}>
+					<span style={autoSettleChipStyle}>自動照合ON</span>
+					<span style={autoSettleChipStyle}>自動照合済み {autoSettleState.autoSettledCount}R</span>
+					<span style={autoSettleChipStyle}>結果待ち {autoSettleState.pendingCount}R</span>
+					<span style={autoSettleChipStyle}>最終照合 {formatJstDateTimeLabel(autoSettleState.lastRunAt)}</span>
 				</div>
 
 				<section className="prediction-section-card">

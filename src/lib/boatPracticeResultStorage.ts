@@ -36,6 +36,10 @@ export type BoatPracticeResultRecord = {
 	payoutYen?: number;
 	profitYen?: number;
 	resultSource?: string;
+	autoSettled?: boolean;
+	autoSettledAt?: string;
+	resultFingerprint?: string;
+	settlementReason?: string;
 	memo?: string;
 	createdAt?: string;
 	updatedAt?: string;
