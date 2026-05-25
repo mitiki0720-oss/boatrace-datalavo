@@ -615,6 +615,35 @@ const findCurrentTimeRaceSelection = (venues: BoatPredictionVenue[]) => {
 	return null;
 };
 
+const buildPracticeFallbackRaceKey = (params: {
+	selectedRaceKey?: string;
+	venue?: BoatPredictionVenue;
+	race?: BoatPredictionRace;
+	todayDate?: string;
+}): string => {
+	if (params.selectedRaceKey) {
+		return params.selectedRaceKey;
+	}
+
+	if (!params.venue || !params.race) {
+		return "";
+	}
+
+	const fallbackDate = params.venue.date ?? params.todayDate ?? "";
+	const predictionRaceKey = buildBoatPredictionRaceKey({
+		date: fallbackDate,
+		venueName: params.venue.venueName,
+		raceNo: params.race.raceNo,
+		raceId: params.race.raceId,
+	});
+
+	if (predictionRaceKey) {
+		return predictionRaceKey;
+	}
+
+	return `boat-practice:${fallbackDate}:${params.venue.venueCode || params.venue.venueName}:${params.race.raceNo}`;
+};
+
 	const parsedBetSummary = useMemo(() => parseBoatBets(predictionText), [predictionText]);
 	const parsedTickets = useMemo(() => toPredictionTickets(parsedBetSummary.bets), [parsedBetSummary]);
 	const selectedRaceKey = useMemo(() => {
@@ -629,6 +658,15 @@ const findCurrentTimeRaceSelection = (venues: BoatPredictionVenue[]) => {
 			raceId: selectedRace.raceId,
 		});
 	}, [selectedVenue, selectedRace]);
+	const practiceRaceKey = useMemo(
+		() => buildPracticeFallbackRaceKey({
+			selectedRaceKey,
+			venue: selectedVenue,
+			race: selectedRace,
+			todayDate: todayFeed.date,
+		}),
+		[selectedRaceKey, selectedVenue, selectedRace, todayFeed.date],
+	);
 
 	const materialText = selectedVenue && selectedRace
 		? buildBoatPredictionMaterial({
@@ -655,31 +693,22 @@ const findCurrentTimeRaceSelection = (venues: BoatPredictionVenue[]) => {
 	const currentSelectionLabel = `${selectedVenue?.venueName ?? "-"} / ${selectedRace?.raceNo ? `${selectedRace.raceNo}R` : "-"}`;
 	const selectedRaceTime = readRaceTimeText(selectedRace);
 	const practiceSummaryDate = todayFeed.date ?? selectedVenue?.date;
-	const practiceSummary = useMemo(() => {
-	const records = practiceResultRecords.filter((record) => isPracticeSummaryRecord(record, practiceSummaryDate));
+const practiceSummary = useMemo(() => {
+	const targetRecords = practiceResultRecords.filter((record) => isPracticeSummaryRecord(record, practiceSummaryDate));
 
-	const confirmedRecords = records.filter((record) =>
-		record.resultStatus === "confirmed" ||
-		resolvePracticeStakeYen(record) > 0 ||
-		resolvePracticePayoutYen(record) > 0 ||
-		Boolean(record.actualFinishOrderText)
-	);
-
-	const totalStakeYen = confirmedRecords.reduce(
+	const totalStakeYen = targetRecords.reduce(
 		(sum, record) => sum + resolvePracticeStakeYen(record),
 		0,
 	);
 
-	const totalPayoutYen = confirmedRecords.reduce(
+	const totalPayoutYen = targetRecords.reduce(
 		(sum, record) => sum + resolvePracticePayoutYen(record),
 		0,
 	);
 
-	const hitCount = confirmedRecords.filter(isBoatPracticeHit).length;
-	const resultCount = confirmedRecords.length;
+	const hitCount = targetRecords.filter(isBoatPracticeHit).length;
+	const resultCount = targetRecords.length;
 	const profitYen = totalPayoutYen - totalStakeYen;
-	const roi = totalStakeYen > 0 ? (totalPayoutYen / totalStakeYen) * 100 : 0;
-	const hitRate = resultCount > 0 ? (hitCount / resultCount) * 100 : 0;
 
 	return {
 		resultCount,
@@ -687,8 +716,8 @@ const findCurrentTimeRaceSelection = (venues: BoatPredictionVenue[]) => {
 		totalStakeYen,
 		totalPayoutYen,
 		profitYen,
-		roi,
-		hitRate,
+		hitRate: resultCount > 0 ? (hitCount / resultCount) * 100 : null,
+		roi: totalStakeYen > 0 ? (totalPayoutYen / totalStakeYen) * 100 : null,
 	};
 }, [practiceResultRecords, practiceSummaryDate]);
 	const predictionHeroTimeBand = getPredictionHeroTimeBand(selectedVenue);
@@ -991,11 +1020,11 @@ const handleSelectRace = (raceId: string) => {
 	}, [selectedVenue, selectedRace, selectedRaceKey]);
 
 	useEffect(() => {
-		if (!selectedRaceKey || !selectedRace) {
+		if (!practiceRaceKey || !selectedRace) {
 			return;
 		}
 
-		const record = findBoatPracticeResultRecord(selectedRaceKey);
+		const record = findBoatPracticeResultRecord(practiceRaceKey);
 
 		if (record) {
 			setSavedPracticeResultRecord(record);
@@ -1036,7 +1065,7 @@ const handleSelectRace = (raceId: string) => {
 		setIsBetAutoApplied(parsedBetSummary.totalStakeYen > 0);
 		setIsResultAutoApplied(false);
 		setPracticeMessage("");
-	}, [selectedRace, selectedRaceKey]);
+	}, [practiceRaceKey, selectedRace]);
 
 	useEffect(() => {
 		if (savedPracticeResultRecord || isInvestmentAmountManual || parsedBetSummary.totalStakeYen <= 0) {
@@ -1103,6 +1132,13 @@ const handleSelectRace = (raceId: string) => {
 		setPracticeMessage(`買い目${parsedBetSummary.totalBets}点を読み込みました`);
 	};
 
+	const savePracticeRecordAndRefresh = (record: BoatPracticeResultRecord, message: string) => {
+		upsertBoatPracticeResultRecord(record);
+		setSavedPracticeResultRecord(record);
+		applyPracticeResultRecords(loadBoatPracticeResultRecords());
+		setPracticeMessage(message);
+	};
+
 	const buildPracticeResultRecord = (params?: {
 		actualFinishOrderText?: string;
 		investmentAmount?: number;
@@ -1111,23 +1147,42 @@ const handleSelectRace = (raceId: string) => {
 		resultLookupStatus?: BoatResultLookupStatus;
 		kimarite?: string;
 		startInfoText?: string;
+		payouts?: unknown[];
 		hitBets?: ReturnType<typeof parseBoatBets>["bets"];
 		resultSource?: string;
 	}): BoatPracticeResultRecord | null => {
-		if (!selectedVenue || !selectedRace || !selectedRaceKey) {
+		if (!selectedVenue || !selectedRace) {
 			return null;
 		}
 
-		const nextActualFinishOrderText = params?.actualFinishOrderText ?? actualFinishOrderText;
+		const resolvedRaceKey = buildPracticeFallbackRaceKey({
+			selectedRaceKey: practiceRaceKey,
+			venue: selectedVenue,
+			race: selectedRace,
+			todayDate: todayFeed.date,
+		});
+		const nextActualFinishOrderText = params?.actualFinishOrderText ?? actualFinishOrderText ?? "";
 		const nextInvestmentAmount = params?.investmentAmount ?? investmentAmount;
 		const nextPayoutAmount = params?.payoutAmount ?? payoutAmount;
+		const nextDate = selectedVenue.date ?? todayFeed.date ?? "";
+		const raceResultRecord = toLooseRecord((selectedRace as { result?: unknown } | undefined)?.result);
+		const storedPayouts = [
+			...toArray<unknown>(raceResultRecord.payoutsFull),
+			...toArray<unknown>(raceResultRecord.payouts),
+		];
 		const { profitLoss, roi } = calculateBoatPracticeProfitLoss({
 			investmentAmount: nextInvestmentAmount,
 			payoutAmount: nextPayoutAmount,
 		});
-		const labelHitBets = parsedBetSummary.bets.filter((bet) => practiceHitBetLabel.includes(bet.normalized));
-		const finishOrderHitBets = labelHitBets.length > 0 ? labelHitBets : findHitBetsByFinishOrder(parsedBetSummary.bets, nextActualFinishOrderText);
-		const hitBets = params?.hitBets ?? (nextPayoutAmount > 0 ? finishOrderHitBets : labelHitBets);
+		const labelHitBets = parsedBetSummary.bets.filter((bet) =>
+			practiceHitBetLabel.includes(bet.normalized),
+		);
+		const finishOrderHitBets = findHitBetsByFinishOrder(parsedBetSummary.bets, nextActualFinishOrderText);
+		const hitBets = params?.hitBets && params.hitBets.length > 0
+			? params.hitBets
+			: finishOrderHitBets.length > 0
+				? finishOrderHitBets
+				: labelHitBets;
 		const hitBet = hitBets[0];
 		const savedResultStatus = params?.resultStatus ?? practiceResultStatus ?? (nextPayoutAmount > 0 || nextActualFinishOrderText ? "confirmed" : undefined);
 		const savedLookupStatus = params?.resultLookupStatus ?? practiceResultLookupStatus ?? (nextPayoutAmount > 0 ? "manual" : undefined);
@@ -1135,12 +1190,12 @@ const handleSelectRace = (raceId: string) => {
 		const createdAt = savedPracticeResultRecord?.createdAt ?? savedPracticeResultRecord?.savedAt ?? savedAt;
 
 		return {
-			id: selectedRaceKey,
-			raceKey: selectedRaceKey,
+			id: resolvedRaceKey,
+			raceKey: resolvedRaceKey,
 			raceId: selectedRace.raceId,
 			venueCode: selectedVenue.venueCode,
 			venueName: selectedVenue.venueName,
-			date: todayFeed.date ?? selectedVenue.date,
+			date: nextDate,
 			raceNo: selectedRace.raceNo,
 			raceTitle: selectedRace.title,
 			predictionText,
@@ -1162,9 +1217,10 @@ const handleSelectRace = (raceId: string) => {
 			resultLookupStatus: savedLookupStatus,
 			kimarite: (params?.kimarite ?? practiceKimarite) || undefined,
 			startInfoText: (params?.startInfoText ?? practiceStartInfoText) || undefined,
+			payouts: params?.payouts ?? storedPayouts,
 			hitBets: hitBets.length > 0 ? hitBets : undefined,
 			hitBetType: hitBet?.label,
-			hitBetNumbers: hitBet?.numbers,
+			hitBetNumbers: hitBet ? hitBet.normalized || hitBet.numbers?.join("-") : undefined,
 			totalStakeYen: parsedBetSummary.totalStakeYen || nextInvestmentAmount,
 			payoutYen: nextPayoutAmount,
 			profitYen: profitLoss,
@@ -1230,55 +1286,61 @@ const handleSelectRace = (raceId: string) => {
 			setPayoutAmount(settlement.payoutYen);
 		}
 
-const shouldAutoSave =
-	settlement.status === "confirmed" &&
-	Boolean(settlement.finishOrderText) &&
-	(
-		lookupStatus === "matched" ||
-		lookupStatus === "date-mismatch" ||
-		lookupStatus === "payout-missing"
-	);
+		const finishOrderForSave = settlement.finishOrderText || actualFinishOrderText;
+		const shouldAutoSave = Boolean(finishOrderForSave);
 
 		if (shouldAutoSave) {
 			const autoSavedRecord = buildPracticeResultRecord({
-				actualFinishOrderText: settlement.finishOrderText,
+				actualFinishOrderText: finishOrderForSave,
 				investmentAmount,
 				payoutAmount: settlement.payoutYen,
-				resultStatus: settlement.status,
+				resultStatus: "confirmed",
 				resultLookupStatus: lookupStatus,
 				kimarite: settlement.kimarite,
 				startInfoText: settlement.startInfoText,
+				payouts: settlement.payouts,
 				hitBets: finishOrderHitBets,
 				resultSource: "today-race-details.generated.json",
 			});
 
 			if (autoSavedRecord) {
-				const nextRecords = upsertBoatPracticeResultRecord(autoSavedRecord);
-				setSavedPracticeResultRecord(autoSavedRecord);
-				applyPracticeResultRecords(nextRecords);
-				setPracticeMessage(`${settlement.message} / 自動保存済み (${lookupDebugText})`);
+				savePracticeRecordAndRefresh(
+					autoSavedRecord,
+					`${settlement.message} / 自動保存済み (${lookupDebugText})`,
+				);
 				return;
 			}
+
+			setPracticeMessage("結果は取れましたが、実践結果の保存レコードを作れませんでした。会場・レース選択を確認してください。");
+			return;
 		}
 
 		setPracticeMessage(`${settlement.message} (${lookupDebugText})`);
 	};
 
 	const handleSavePracticeResult = () => {
-		const record = buildPracticeResultRecord();
+		const record = buildPracticeResultRecord({
+			actualFinishOrderText,
+			investmentAmount,
+			payoutAmount,
+			resultStatus: actualFinishOrderText ? "confirmed" : practiceResultStatus,
+			resultLookupStatus: practiceResultLookupStatus,
+			kimarite: practiceKimarite,
+			startInfoText: practiceStartInfoText,
+			resultSource: isResultAutoApplied ? "today-race-details.generated.json" : undefined,
+		});
+
 		if (!record) {
+			setPracticeMessage("保存できませんでした。会場・レース・着順の取得状態を確認してください。");
 			return;
 		}
 
-		const nextRecords = upsertBoatPracticeResultRecord(record);
-		setSavedPracticeResultRecord(record);
-		applyPracticeResultRecords(nextRecords);
-		setPracticeMessage("実践結果を保存しました");
+		savePracticeRecordAndRefresh(record, "実践結果を保存しました");
 	};
 
 	const handleClearPracticeResult = () => {
-		if (selectedRaceKey) {
-			deleteBoatPracticeResultRecord(selectedRaceKey);
+		if (practiceRaceKey) {
+			deleteBoatPracticeResultRecord(practiceRaceKey);
 		}
 
 		setSavedPracticeResultRecord(undefined);

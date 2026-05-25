@@ -459,11 +459,17 @@ export function BoatPracticeResultPanel({
 					: "手動確認";
 
 	const resultTone = resolveResultTone({
-	resultStatus,
-	resultLookupStatus,
-	hitBetLabel,
-	payoutAmount,
-});
+		resultStatus,
+		resultLookupStatus,
+		hitBetLabel,
+		payoutAmount,
+	});
+	const shouldUseResultTone = Boolean(
+		resultStatus ||
+		resultLookupStatus ||
+		settlementMessage ||
+		actualFinishOrderText.trim(),
+	);
 
 	const handleAmountChange = (handler: (value: number) => void) => (event: ChangeEvent<HTMLInputElement>) => {
 		handler(Number(event.target.value) || 0);
@@ -482,14 +488,14 @@ export function BoatPracticeResultPanel({
 	};
 
 	return (
-	<section
-		style={{
-			...wrapStyle,
-			background: resultStatus === "confirmed" ? resultTone.background : wrapStyle.background,
-			border: resultStatus === "confirmed" ? resultTone.border : wrapStyle.border,
-			boxShadow: resultStatus === "confirmed" ? resultTone.shadow : wrapStyle.boxShadow,
-		}}
-	>
+		<section
+			style={{
+				...wrapStyle,
+				background: shouldUseResultTone ? resultTone.background : wrapStyle.background,
+				border: shouldUseResultTone ? resultTone.border : wrapStyle.border,
+				boxShadow: shouldUseResultTone ? resultTone.shadow : wrapStyle.boxShadow,
+			}}
+		>
 			<header style={headerStyle}>
 				<h3 style={titleStyle}>実践結果・収支確認パネル</h3>
 				<p style={descriptionStyle}>実着順、投資額、払戻、メモをその場で整理し、あとから保存や結果連携を足しやすい形に整えています。</p>
@@ -573,11 +579,16 @@ export function BoatPracticeResultPanel({
 
 			<div style={chipRowStyle}>
 				{tickets.length > 0 ? (
-					tickets.map((ticket) => (
-						<span key={`${ticket.betType}-${ticket.combination}`} style={tagStyle}>
-							{ticket.index} {ticket.betType} {ticket.combination} {ticket.group ?? "その他"}
-						</span>
-					))
+					tickets.map((ticket) => {
+						const visibleGroup = String(ticket.group ?? "").trim();
+						const groupLabel = visibleGroup && visibleGroup !== "その他" ? ` ${visibleGroup}` : "";
+
+						return (
+							<span key={`${ticket.betType}-${ticket.combination}`} style={tagStyle}>
+								{ticket.index} {ticket.betType} {ticket.combination}{groupLabel}
+							</span>
+						);
+					})
 				) : (
 					<span style={tagStyle}>買い目未読込</span>
 				)}
