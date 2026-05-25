@@ -13,6 +13,8 @@ export type BoatPredictionRecordMap = Record<string, BoatPredictionRecord>;
 
 const canUseStorage = () => typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 
+const BOAT_PREDICTION_FALLBACK_KEEP_DAYS = 2;
+
 const isRecordLike = (value: unknown): value is BoatPredictionRecordMap => typeof value === "object" && value !== null && !Array.isArray(value);
 
 const inferParsedBetTypeFromTicket = (ticket: BoatPredictionTicket): ParsedBoatBet["type"] | null => {
@@ -92,6 +94,50 @@ const normalizeParsedBets = (record: BoatPredictionRecord, tickets: BoatPredicti
 	return buildParsedBetsFromTickets(tickets);
 };
 
+const readPredictionDateValue = (record: BoatPredictionRecord): number => {
+	const parsed = Date.parse(record.updatedAt ?? record.savedAt ?? "");
+	return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const sortBoatPredictionRecordsByRecency = (records: BoatPredictionRecord[]): BoatPredictionRecord[] =>
+	[...records].sort((left, right) => {
+		if (left.date !== right.date) {
+			return right.date.localeCompare(left.date);
+		}
+
+		return readPredictionDateValue(right) - readPredictionDateValue(left);
+	});
+
+const reduceBoatPredictionRecords = (records: BoatPredictionRecord[]): BoatPredictionRecordMap =>
+	records.reduce<BoatPredictionRecordMap>((acc, record) => {
+		if (record.raceKey) {
+			acc[record.raceKey] = hydrateBoatPredictionRecord(record);
+		}
+
+		return acc;
+	}, {});
+
+const selectLatestPredictionDates = (records: BoatPredictionRecordMap, keepDays = BOAT_PREDICTION_FALLBACK_KEEP_DAYS): string[] => Array.from(
+	new Set(Object.values(records).map((record) => record.date).filter(Boolean)),
+).sort((left, right) => right.localeCompare(left)).slice(0, keepDays);
+
+export function pruneBoatPredictionRecordsByDate(records: BoatPredictionRecordMap, keepDates: string[]): BoatPredictionRecordMap {
+	const keepDateSet = new Set(keepDates.filter(Boolean));
+	if (keepDateSet.size <= 0) {
+		return {};
+	}
+
+	return reduceBoatPredictionRecords(
+		sortBoatPredictionRecordsByRecency(Object.values(records)).filter((record) => keepDateSet.has(record.date)),
+	);
+}
+
+export type SaveBoatPredictionRecordsResult = {
+	ok: boolean;
+	records: BoatPredictionRecordMap;
+	reason?: "quota-exceeded" | "unknown";
+};
+
 export function hydrateBoatPredictionRecord(record: BoatPredictionRecord): BoatPredictionRecord {
 	const tickets = normalizeTickets(record);
 	const parsedBets = normalizeParsedBets(record, tickets);
@@ -157,12 +203,32 @@ export function loadBoatPredictionRecords(): BoatPredictionRecordMap {
 	}
 }
 
-export function saveBoatPredictionRecords(records: BoatPredictionRecordMap): void {
+export function saveBoatPredictionRecords(records: BoatPredictionRecordMap): SaveBoatPredictionRecordsResult {
 	if (!canUseStorage()) {
-		return;
+		return { ok: true, records };
 	}
 
-	window.localStorage.setItem(BOAT_PREDICTION_STORAGE_KEY, JSON.stringify(records));
+	const normalizedRecords = reduceBoatPredictionRecords(sortBoatPredictionRecordsByRecency(Object.values(records)));
+
+	try {
+		window.localStorage.setItem(BOAT_PREDICTION_STORAGE_KEY, JSON.stringify(normalizedRecords));
+		return { ok: true, records: normalizedRecords };
+	} catch (error) {
+		if (error instanceof DOMException && error.name === "QuotaExceededError") {
+			const fallbackRecords = pruneBoatPredictionRecordsByDate(normalizedRecords, selectLatestPredictionDates(normalizedRecords));
+
+			try {
+				window.localStorage.setItem(BOAT_PREDICTION_STORAGE_KEY, JSON.stringify(fallbackRecords));
+				return { ok: true, records: fallbackRecords, reason: "quota-exceeded" };
+			} catch (fallbackError) {
+				console.error("[boat-prediction-storage] compact save failed", fallbackError);
+				return { ok: false, records: fallbackRecords, reason: "quota-exceeded" };
+			}
+		}
+
+		console.error("[boat-prediction-storage] save failed", error);
+		return { ok: false, records: normalizedRecords, reason: "unknown" };
+	}
 }
 
 export function findBoatPredictionRecord(params: {
@@ -188,8 +254,7 @@ export function upsertBoatPredictionRecord(record: BoatPredictionRecord): BoatPr
 		},
 	};
 
-	saveBoatPredictionRecords(nextRecords);
-	return nextRecords;
+	return saveBoatPredictionRecords(nextRecords).records;
 }
 
 export function deleteBoatPredictionRecord(raceKey: string): BoatPredictionRecordMap {

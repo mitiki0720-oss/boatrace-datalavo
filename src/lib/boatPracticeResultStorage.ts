@@ -38,6 +38,7 @@ export type BoatPracticeResultRecord = {
 	payoutYen?: number;
 	profitYen?: number;
 	resultSource?: string;
+	observedFeedGeneratedAt?: string;
 	autoSettled?: boolean;
 	autoSettledAt?: string;
 	resultFingerprint?: string;
@@ -146,6 +147,7 @@ export const compactBoatPracticeResultRecord = (record: BoatPracticeResultRecord
 		kimarite: record.kimarite,
 		startInfoText: record.startInfoText,
 		resultSource: record.resultSource,
+		observedFeedGeneratedAt: record.observedFeedGeneratedAt,
 		autoSettled: record.autoSettled,
 		autoSettledAt: record.autoSettledAt,
 		resultFingerprint: record.resultFingerprint,
@@ -173,6 +175,22 @@ const prioritizePracticeRecords = (records: BoatPracticeResultRecord[]): BoatPra
 		return readDateValue(right.updatedAt ?? right.savedAt ?? right.createdAt) - readDateValue(left.updatedAt ?? left.savedAt ?? left.createdAt);
 	});
 };
+
+export function pruneBoatPracticeResultRecordsByDate(records: BoatPracticeResultRecordMap, keepDates: string[]): BoatPracticeResultRecordMap {
+	const keepDateSet = new Set(keepDates.filter(Boolean));
+	if (keepDateSet.size <= 0) {
+		return {};
+	}
+
+	return compactBoatPracticeResultRecords(
+		Object.values(records)
+			.filter((record) => keepDateSet.has(record.date))
+			.reduce<BoatPracticeResultRecordMap>((acc, record) => {
+				acc[buildPracticeRecordKey(record)] = record;
+				return acc;
+			}, {}),
+	);
+}
 
 export function compactBoatPracticeResultRecords(records: BoatPracticeResultRecordMap, maxRecords = PRACTICE_RESULT_MAX_RECORDS): BoatPracticeResultRecordMap {
 	const compactedRecords = prioritizePracticeRecords(Object.values(records).map(compactBoatPracticeResultRecord)).slice(0, maxRecords);
@@ -222,10 +240,10 @@ export function normalizeBoatPracticeResultRecords(payload: unknown): BoatPracti
 			const record = item as BoatPracticeResultRecord;
 			const key = buildPracticeRecordKey(record);
 			if (key) {
-				records[key] = {
+				records[key] = compactBoatPracticeResultRecord({
 					...record,
 					raceKey: record.raceKey || key,
-				};
+				});
 			}
 
 			return records;

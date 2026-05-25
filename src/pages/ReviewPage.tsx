@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PageShell } from "../components/layout/PageShell";
 import { withBasePath } from "../lib/assetPath";
 import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
+import { getBoatOperationDate, resolveActiveBoatOperationDate, shiftBoatOperationDate } from "../lib/boatOperationDate";
 import { loadBoatPredictionRecords } from "../lib/boatPredictionStorage";
 import { loadBoatPracticeResultRecords } from "../lib/boatPracticeResultStorage";
 import {
@@ -358,29 +359,6 @@ const emptyStyle: CSSProperties = {
 	lineHeight: 1.8,
 };
 
-function formatJstDate(date: Date): string {
-	return new Intl.DateTimeFormat("sv-SE", {
-		timeZone: "Asia/Tokyo",
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-	}).format(date);
-}
-
-function getOperationalToday(): string {
-	const now = new Date();
-	const hour = Number(new Intl.DateTimeFormat("ja-JP", { timeZone: "Asia/Tokyo", hour: "2-digit", hour12: false }).format(now));
-	const base = new Date(now);
-	if (hour < 6) base.setDate(base.getDate() - 1);
-	return formatJstDate(base);
-}
-
-function shiftDate(dateText: string, days: number): string {
-	const date = new Date(`${dateText}T00:00:00+09:00`);
-	date.setDate(date.getDate() + days);
-	return formatJstDate(date);
-}
-
 function formatMonthLabel(month: string): string {
 	const [year, monthNumber] = month.split("-").map(Number);
 	return `${year}年${monthNumber}月`;
@@ -472,8 +450,8 @@ function getMonthDates(dateSet: Set<string>, selectedDate: string): string[] {
 }
 
 export function ReviewPage() {
-	const operationalToday = useMemo(() => getOperationalToday(), []);
-	const operationalYesterday = useMemo(() => shiftDate(operationalToday, -1), [operationalToday]);
+	const operationalToday = useMemo(() => getBoatOperationDate(), []);
+	const operationalYesterday = useMemo(() => shiftBoatOperationDate(operationalToday, -1), [operationalToday]);
 	const [selectedDate, setSelectedDate] = useState(operationalToday);
 	const [calendarMonth, setCalendarMonth] = useState(operationalToday.slice(0, 7));
 	const [archiveIndex, setArchiveIndex] = useState<BoatReviewArchiveIndex>({ items: [] });
@@ -503,7 +481,8 @@ export function ReviewPage() {
 
 	const archiveDates = useMemo(() => getBoatReviewArchiveDates(archiveIndex), [archiveIndex]);
 	const archiveDateSet = useMemo(() => new Set(archiveDates), [archiveDates]);
-	const liveDateSet = useMemo(() => new Set([operationalToday, operationalYesterday, todayFeed?.date].filter(Boolean) as string[]), [operationalToday, operationalYesterday, todayFeed?.date]);
+	const activeLiveDate = useMemo(() => resolveActiveBoatOperationDate(todayFeed?.date), [todayFeed?.date]);
+	const liveDateSet = useMemo(() => new Set([activeLiveDate, shiftBoatOperationDate(activeLiveDate, -1)].filter(Boolean) as string[]), [activeLiveDate]);
 	const selectableDateSet = useMemo(() => new Set([...liveDateSet, ...archiveDateSet]), [archiveDateSet, liveDateSet]);
 	const mode: ReviewDataMode = liveDateSet.has(selectedDate) ? "live" : "archive";
 	const predictionRecords = useMemo(() => normalizeBoatPredictionRecordList(predictionPayload), [predictionPayload]);
@@ -520,7 +499,8 @@ export function ReviewPage() {
 		let active = true;
 
 		async function loadArchiveGroups() {
-			if (mode !== "archive") {
+			const shouldLoadArchive = mode === "archive" || selectedDate === operationalYesterday;
+			if (!shouldLoadArchive) {
 				setArchiveGroups([]);
 				return;
 			}
@@ -545,9 +525,13 @@ export function ReviewPage() {
 		return () => {
 			active = false;
 		};
-	}, [archiveIndex, mode, selectedDate]);
+	}, [archiveIndex, mode, operationalYesterday, selectedDate]);
 
-	const groups = mode === "archive" ? archiveGroups : liveGroups;
+	const groups = mode === "archive"
+		? archiveGroups
+		: selectedDate === operationalYesterday && liveGroups.length <= 0
+			? archiveGroups
+			: liveGroups;
 	const venueRows = useMemo(() => {
 		if (groups.length <= 1) return groups.length === 1 ? [groups] : [];
 		const firstRowCount = Math.ceil(groups.length / 2);
@@ -622,7 +606,7 @@ export function ReviewPage() {
 		setPredictionPayload(loadBoatPredictionRecords());
 		setPracticePayload(loadBoatPracticeResultRecords());
 		void loadBoatTodayRaceDetailsFeed().then(setTodayFeed);
-		setStatusMessage("今日・昨日のlocalStorage / generated JSONを再読み込みしました");
+		setStatusMessage("今日・昨日のlocalStorageを優先しつつ、必要なら archive も再読み込みしました");
 	};
 
 	const handleCopy = async (text: string, label: string) => {

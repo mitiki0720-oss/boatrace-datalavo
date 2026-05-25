@@ -38,6 +38,8 @@ import {
 } from "../lib/boatVenueFeatures";
 import type { BoatPracticeResultRecord } from "../lib/boatPracticeResultStorage";
 import { withBasePath } from "../lib/assetPath";
+import { pruneBoatLocalRecordsByDate } from "../lib/boatLocalStorageMaintenance";
+import { getBoatOperationDate, resolveActiveBoatOperationDate, shiftBoatOperationDate } from "../lib/boatOperationDate";
 import {
 	compactBoatPracticeResultRecords,
 	calculateBoatPracticeProfitLoss,
@@ -98,6 +100,7 @@ const autoSettleButtonStyle = {
 
 const MAX_AUTO_SETTLE_PER_RUN = 12;
 const AUTO_SETTLE_STORAGE_LIMIT_KB = 4500;
+const LOCAL_STORAGE_WARNING_KB = 4000;
 
 const getRaceKey = (venueId: string, raceId: string | undefined, raceNo: number) => raceId ?? `${venueId}-${raceNo}`;
 
@@ -372,15 +375,17 @@ const buildPracticeResultFingerprint = (params: {
 	venueName: string;
 	raceNo: number;
 	finishOrderText: string;
+	hitBetNumbers?: string;
 	payoutYen: number;
-	resultSourceUpdatedAt?: string;
+	resultLookupStatus?: BoatResultLookupStatus;
 }) => [
 	params.date,
 	params.venueCode || params.venueName,
 	String(params.raceNo),
 	params.finishOrderText,
+	params.hitBetNumbers ?? "",
 	String(params.payoutYen),
-	params.resultSourceUpdatedAt ?? "",
+	params.resultLookupStatus ?? "",
 ].join("|");
 
 const getLocalStorageSizeKb = (): number => {
@@ -650,6 +655,7 @@ export function PredictionPage() {
 		warning: "",
 	});
 	const autoSettleRunKeyRef = useRef("");
+	const autoSettledFingerprintRef = useRef<Set<string>>(new Set());
 
 	const venues = useMemo<BoatPredictionVenue[]>(
 		() =>
@@ -663,6 +669,11 @@ export function PredictionPage() {
 	const races = useMemo<BoatPredictionRace[]>(() => venues.flatMap((venue) => getVenueRaces(venue)), [venues]);
 	const initialVenue = venues[0];
 	const selectedVenue = venues.find((venue) => venue.id === selectedVenueId) ?? initialVenue;
+	const activePredictionDate = useMemo(
+		() => (dataUpdatedAt ? resolveActiveBoatOperationDate(todayFeed.date) : getBoatOperationDate()),
+		[dataUpdatedAt, todayFeed.date],
+	);
+	const previousPredictionDate = useMemo(() => shiftBoatOperationDate(activePredictionDate, -1), [activePredictionDate]);
 	const selectedVenueRaces = useMemo(() => getVenueRaces(selectedVenue), [selectedVenue]);
 	const selectedRace =
 		selectedVenueRaces.find((race) => getRaceKey(selectedVenue?.id ?? "", race.raceId, race.raceNo) === selectedRaceId) ??
@@ -839,20 +850,20 @@ const buildPracticeFallbackRaceKey = (params: {
 		}
 
 		return buildBoatPredictionRaceKey({
-			date: selectedVenue.date,
+			date: activePredictionDate,
 			venueName: selectedVenue.venueName,
 			raceNo: selectedRace.raceNo,
 			raceId: selectedRace.raceId,
 		});
-	}, [selectedVenue, selectedRace]);
+	}, [activePredictionDate, selectedVenue, selectedRace]);
 	const practiceRaceKey = useMemo(
 		() => buildPracticeFallbackRaceKey({
 			selectedRaceKey,
 			venue: selectedVenue,
 			race: selectedRace,
-			todayDate: todayFeed.date,
+			todayDate: activePredictionDate,
 		}),
-		[selectedRaceKey, selectedVenue, selectedRace, todayFeed.date],
+		[selectedRaceKey, selectedVenue, selectedRace, activePredictionDate],
 	);
 
 	const syncPredictionTicketsFromText = (nextPredictionText: string, options?: {
@@ -959,7 +970,14 @@ const buildPracticeFallbackRaceKey = (params: {
 	const weatherReadyVenueCount = venues.filter(hasVenueWeather).length;
 	const currentSelectionLabel = `${selectedVenue?.venueName ?? "-"} / ${selectedRace?.raceNo ? `${selectedRace.raceNo}R` : "-"}`;
 	const selectedRaceTime = readRaceTimeText(selectedRace);
-	const practiceSummaryDate = todayFeed.date ?? selectedVenue?.date;
+	const practiceSummaryDate = activePredictionDate;
+	const localStorageUsageKb = useMemo(
+		() => getLocalStorageSizeKb(),
+		[activePredictionDate, practiceResultRecords, predictionRecordsVersion, autoSettleState.lastRunAt],
+	);
+	const localStorageWarningText = localStorageUsageKb >= LOCAL_STORAGE_WARNING_KB
+		? "ブラウザ保存容量が少なくなっています。競輪/競艇の保存データが同じブラウザ領域を使っています。"
+		: "";
 const practiceSummary = useMemo(() => {
 	const targetRecords = practiceResultRecords.filter((record) => isPracticeSummaryRecord(record, practiceSummaryDate));
 
@@ -1131,7 +1149,9 @@ const practiceSummary = useMemo(() => {
 	};
 
 	const refreshPracticeResults = () => {
-		setPracticeResultRecords(Object.values(loadBoatPracticeResultRecords()));
+		setPracticeResultRecords(
+			Object.values(loadBoatPracticeResultRecords()).filter((record) => record.date === activePredictionDate),
+		);
 	};
 
 	const applyPracticeRecordToPanel = (record: BoatPracticeResultRecord) => {
@@ -1180,8 +1200,23 @@ const practiceSummary = useMemo(() => {
 		);
 	};
 
+	const handlePruneBoatLocalStorage = () => {
+		const pruneResult = pruneBoatLocalRecordsByDate({
+			activeDate: activePredictionDate,
+			keepDates: [activePredictionDate, previousPredictionDate],
+		});
+		autoSettledFingerprintRef.current.clear();
+		setPredictionRecordsVersion((current) => current + 1);
+		applyPracticeResultRecords(pruneResult.practice.records);
+		setPracticeMessage(
+			pruneResult.prediction.ok && pruneResult.practice.ok
+				? `競艇の保存データを ${activePredictionDate} / ${previousPredictionDate} に整理しました`
+				: "保存容量の都合で一部整理に失敗しました。ブラウザの保存状況を確認してください。",
+		);
+	};
+
 	const applyPracticeResultRecords = (records: Record<string, BoatPracticeResultRecord>) => {
-		setPracticeResultRecords(Object.values(records));
+		setPracticeResultRecords(Object.values(records).filter((record) => record.date === activePredictionDate));
 	};
 
 	const shouldSkipAutoSettledRecord = (existingRecord: BoatPracticeResultRecord | undefined, nextRecord: BoatPracticeResultRecord): boolean => {
@@ -1207,6 +1242,10 @@ const practiceSummary = useMemo(() => {
 		}
 
 		if (existingRecord.resultLookupStatus === "payout-missing" && nextRecord.resultLookupStatus === "matched") {
+			return false;
+		}
+
+		if (existingRecord.resultStatus !== "confirmed") {
 			return false;
 		}
 
@@ -1242,7 +1281,9 @@ const practiceSummary = useMemo(() => {
 			return;
 		}
 
-		const predictionRecords = Object.values(loadBoatPredictionRecords()).map((record) => hydrateBoatPredictionRecord(record));
+		const predictionRecords = Object.values(loadBoatPredictionRecords())
+			.map((record) => hydrateBoatPredictionRecord(record))
+			.filter((record) => record.date === activePredictionDate);
 		let pendingCount = 0;
 		let nextRecords = loadBoatPracticeResultRecords();
 		let changed = false;
@@ -1304,6 +1345,7 @@ const practiceSummary = useMemo(() => {
 						? "payout-missing"
 						: settlement.lookupStatus;
 			const hitBet = hitBetsForSave[0];
+			const hitBetNumbers = hitBet ? hitBet.normalized || hitBet.numbers?.join("-") : "";
 			const savedAt = new Date().toISOString();
 			const raceKey = predictionRecord.raceKey || buildBoatPredictionRaceKey({
 				date: predictionRecord.date || feed.date,
@@ -1312,19 +1354,20 @@ const practiceSummary = useMemo(() => {
 				raceId: predictionRecord.raceId,
 			});
 			const existingRecord = nextRecords[raceKey] ?? findBoatPracticeResultRecord(raceKey);
-			const resultUpdatedAt = readLooseString(toLooseRecord((lookup.race as { result?: unknown } | undefined)?.result).updatedAt)
-				|| readLooseString((lookup.race as { updatedAt?: unknown } | undefined)?.updatedAt)
-				|| feed.generatedAt
-				|| "";
 			const resultFingerprint = buildPracticeResultFingerprint({
-				date: predictionRecord.date || feed.date,
+				date: activePredictionDate,
 				venueCode: predictionRecord.venueCode,
 				venueName: predictionRecord.venueName,
 				raceNo: predictionRecord.raceNo,
 				finishOrderText: finishOrderForSave,
+				hitBetNumbers,
 				payoutYen: payoutYenForSave,
-				resultSourceUpdatedAt: resultUpdatedAt,
+				resultLookupStatus: lookupStatus,
 			});
+			const processedFingerprintKey = `${raceKey}|${resultFingerprint}`;
+			if (autoSettledFingerprintRef.current.has(processedFingerprintKey)) {
+				continue;
+			}
 			const { profitLoss, roi } = calculateBoatPracticeProfitLoss({
 				investmentAmount: syncedPrediction.totalStakeYen || 1000,
 				payoutAmount: payoutYenForSave,
@@ -1336,7 +1379,7 @@ const practiceSummary = useMemo(() => {
 				raceId: predictionRecord.raceId,
 				venueCode: predictionRecord.venueCode,
 				venueName: predictionRecord.venueName,
-				date: predictionRecord.date || feed.date,
+				date: activePredictionDate,
 				raceNo: predictionRecord.raceNo,
 				raceTitle: lookup.race.title,
 				ticketsCount: syncedPrediction.tickets.length,
@@ -1355,11 +1398,12 @@ const practiceSummary = useMemo(() => {
 				startInfoText: settlement.startInfoText,
 				hitBets: compactHitBetsForRecord(hitBetsForSave),
 				hitBetType: hitBet?.label,
-				hitBetNumbers: hitBet ? hitBet.normalized || hitBet.numbers?.join("-") : undefined,
+				hitBetNumbers: hitBetNumbers || undefined,
 				totalStakeYen: syncedPrediction.totalStakeYen || 1000,
 				payoutYen: payoutYenForSave,
 				profitYen: profitLoss,
 				resultSource: "today-race-details.generated.json",
+				observedFeedGeneratedAt: feed.generatedAt,
 				autoSettled: true,
 				autoSettledAt: savedAt,
 				resultFingerprint,
@@ -1372,6 +1416,7 @@ const practiceSummary = useMemo(() => {
 			};
 
 			if (shouldSkipAutoSettledRecord(existingRecord, nextRecord)) {
+				autoSettledFingerprintRef.current.add(processedFingerprintKey);
 				continue;
 			}
 
@@ -1392,6 +1437,7 @@ const practiceSummary = useMemo(() => {
 				nextRecords = saveResult.records;
 				changed = true;
 				savedCount += 1;
+				autoSettledFingerprintRef.current.add(processedFingerprintKey);
 			} catch (error) {
 				console.error("[auto-settle] failed to save practice result", error);
 				setPracticeMessage("保存容量がいっぱいのため、実践結果を保存できませんでした。古い結果を整理してください。");
@@ -1409,7 +1455,7 @@ const practiceSummary = useMemo(() => {
 		}
 
 		const todayAutoSettledCount = Object.values(nextRecords).filter(
-			(record) => record.date === feed.date && Boolean(record.autoSettled),
+			(record) => record.date === activePredictionDate && Boolean(record.autoSettled),
 		).length;
 
 		setAutoSettleState({
@@ -1434,7 +1480,21 @@ const practiceSummary = useMemo(() => {
 
 	useEffect(() => {
 		refreshPracticeResults();
-	}, []);
+	}, [activePredictionDate]);
+
+	useEffect(() => {
+		if (!activePredictionDate) {
+			return;
+		}
+
+		autoSettledFingerprintRef.current.clear();
+		const pruneResult = pruneBoatLocalRecordsByDate({
+			activeDate: activePredictionDate,
+			keepDates: [activePredictionDate, previousPredictionDate],
+		});
+		applyPracticeResultRecords(pruneResult.practice.records);
+		setPredictionRecordsVersion((current) => current + 1);
+	}, [activePredictionDate, previousPredictionDate]);
 
 	useEffect(() => {
 		if (!todayFeed?.venues?.length) {
@@ -1445,7 +1505,7 @@ const practiceSummary = useMemo(() => {
 			reason: "feed-loaded",
 			feed: todayFeed,
 		});
-	}, [todayFeed.generatedAt, todayFeed.date, predictionRecordsVersion]);
+	}, [todayFeed.generatedAt, activePredictionDate, predictionRecordsVersion]);
 
 	useEffect(() => {
 		if (typeof window === "undefined") {
@@ -1476,7 +1536,7 @@ const practiceSummary = useMemo(() => {
 	}
 
 	const savedSelection = loadPredictionSelectionSnapshot();
-	const todayDate = todayFeed.date;
+	const todayDate = activePredictionDate;
 
 	if (savedSelection?.date === todayDate) {
 		const savedVenue = venues.find((venue) =>
@@ -1515,7 +1575,7 @@ const handleSelectVenue = (venueId: string) => {
 
 	if (venue && firstRace) {
 		savePredictionSelectionSnapshot({
-			date: todayFeed.date,
+			date: activePredictionDate,
 			venue,
 			race: firstRace,
 		});
@@ -1532,7 +1592,7 @@ const handleSelectRace = (raceId: string) => {
 
 	if (venue && race) {
 		savePredictionSelectionSnapshot({
-			date: todayFeed.date,
+			date: activePredictionDate,
 			venue,
 			race,
 		});
@@ -1579,12 +1639,12 @@ const handleSelectRace = (raceId: string) => {
 		}
 
 		const storedRecord = findBoatPredictionRecord({
-			date: selectedVenue.date,
+			date: activePredictionDate,
 			venueName: selectedVenue.venueName,
 			raceNo: selectedRace.raceNo,
 			raceId: selectedRace.raceId,
 		});
-		const record = storedRecord ? hydrateBoatPredictionRecord(storedRecord) : undefined;
+		const record = storedRecord && storedRecord.date === activePredictionDate ? hydrateBoatPredictionRecord(storedRecord) : undefined;
 
 		if (record) {
 			setSavedPredictionRecord(record);
@@ -1604,7 +1664,7 @@ const handleSelectRace = (raceId: string) => {
 		setPredictionText("");
 		syncPredictionTicketsFromText("", { applyInvestment: false, preferredBetSummary: emptyBoatBetSummary() });
 		setSavedMessage("");
-	}, [selectedVenue, selectedRace, selectedRaceKey]);
+	}, [activePredictionDate, predictionRecordsVersion, selectedVenue, selectedRace, selectedRaceKey]);
 
 	useEffect(() => {
 		if (!practiceRaceKey || !selectedRace) {
@@ -1613,7 +1673,7 @@ const handleSelectRace = (raceId: string) => {
 
 		const record = findBoatPracticeResultRecord(practiceRaceKey);
 
-		if (record) {
+		if (record && record.date === activePredictionDate) {
 			applyPracticeRecordToPanel(record);
 			setPracticeMessage("保存済み実践結果を読み込みました");
 			return;
@@ -1635,7 +1695,7 @@ const handleSelectRace = (raceId: string) => {
 		setIsBetAutoApplied(parsedBetSummary.totalStakeYen > 0);
 		setIsResultAutoApplied(false);
 		setPracticeMessage("");
-	}, [practiceRaceKey, selectedRace]);
+	}, [activePredictionDate, practiceRaceKey, predictionRecordsVersion, selectedRace]);
 
 	useEffect(() => {
 		if (savedPracticeResultRecord || isInvestmentAmountManual || parsedBetSummary.totalStakeYen <= 0) {
@@ -1666,7 +1726,7 @@ const handleSelectRace = (raceId: string) => {
 			raceId: selectedRace.raceId,
 			venueCode: selectedVenue.venueCode,
 			venueName: selectedVenue.venueName,
-			date: selectedVenue.date,
+			date: activePredictionDate,
 			raceNo: selectedRace.raceNo,
 			predictionText,
 			tickets: synced.tickets,
@@ -1757,11 +1817,11 @@ const handleSelectRace = (raceId: string) => {
 			selectedRaceKey: practiceRaceKey,
 			venue: selectedVenue,
 			race: selectedRace,
-			todayDate: todayFeed.date,
+			todayDate: activePredictionDate,
 		});
 		const finishOrderForSave = params?.actualFinishOrderText ?? actualFinishOrderText ?? "";
 		const nextPayoutAmount = params?.payoutAmount ?? payoutAmount;
-		const nextDate = selectedVenue.date ?? todayFeed.date ?? "";
+		const nextDate = activePredictionDate;
 		const syncedPrediction = ensurePredictionBets();
 		const nextInvestmentAmount = syncedPrediction.totalStakeYen || params?.investmentAmount || investmentAmount;
 		const { profitLoss, roi } = calculateBoatPracticeProfitLoss({
@@ -2393,7 +2453,9 @@ body:has(.prediction-page-root) {
 					<span style={autoSettleChipStyle}>結果待ち {autoSettleState.pendingCount}R</span>
 					<span style={autoSettleChipStyle}>最終照合 {formatJstDateTimeLabel(autoSettleState.lastRunAt)}</span>
 					<button type="button" style={autoSettleButtonStyle} onClick={handleCompactPracticeResults}>古い実践結果を整理</button>
+					<button type="button" style={autoSettleButtonStyle} onClick={handlePruneBoatLocalStorage}>今日/昨日以外の競艇予想を整理</button>
 				</div>
+					{localStorageWarningText ? <p style={practiceMessageStyle}>{localStorageWarningText}</p> : null}
 					{autoSettleState.warning ? <p style={practiceMessageStyle}>{autoSettleState.warning}</p> : null}
 
 				<section className="prediction-section-card">
