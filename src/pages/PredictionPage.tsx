@@ -656,23 +656,41 @@ const findCurrentTimeRaceSelection = (venues: BoatPredictionVenue[]) => {
 	const selectedRaceTime = readRaceTimeText(selectedRace);
 	const practiceSummaryDate = todayFeed.date ?? selectedVenue?.date;
 	const practiceSummary = useMemo(() => {
-		const targetRecords = practiceResultRecords.filter((record) => isPracticeSummaryRecord(record, practiceSummaryDate));
-		const hitCount = targetRecords.filter(isBoatPracticeHit).length;
-		const totalStakeYen = targetRecords.reduce((sum, record) => sum + resolvePracticeStakeYen(record), 0);
-		const totalPayoutYen = targetRecords.reduce((sum, record) => sum + resolvePracticePayoutYen(record), 0);
-		const profitYen = totalPayoutYen - totalStakeYen;
+	const records = practiceResultRecords.filter((record) => isPracticeSummaryRecord(record, practiceSummaryDate));
 
+	const confirmedRecords = records.filter((record) =>
+		record.resultStatus === "confirmed" ||
+		resolvePracticeStakeYen(record) > 0 ||
+		resolvePracticePayoutYen(record) > 0 ||
+		Boolean(record.actualFinishOrderText)
+	);
 
-		return {
-			resultCount: targetRecords.length,
-			hitCount,
-			totalStakeYen,
-			totalPayoutYen,
-			profitYen,
-			hitRate: targetRecords.length > 0 ? (hitCount / targetRecords.length) * 100 : null,
-			roi: totalStakeYen > 0 ? (totalPayoutYen / totalStakeYen) * 100 : null,
-		};
-	}, [practiceResultRecords, practiceSummaryDate]);
+	const totalStakeYen = confirmedRecords.reduce(
+		(sum, record) => sum + resolvePracticeStakeYen(record),
+		0,
+	);
+
+	const totalPayoutYen = confirmedRecords.reduce(
+		(sum, record) => sum + resolvePracticePayoutYen(record),
+		0,
+	);
+
+	const hitCount = confirmedRecords.filter(isBoatPracticeHit).length;
+	const resultCount = confirmedRecords.length;
+	const profitYen = totalPayoutYen - totalStakeYen;
+	const roi = totalStakeYen > 0 ? (totalPayoutYen / totalStakeYen) * 100 : 0;
+	const hitRate = resultCount > 0 ? (hitCount / resultCount) * 100 : 0;
+
+	return {
+		resultCount,
+		hitCount,
+		totalStakeYen,
+		totalPayoutYen,
+		profitYen,
+		roi,
+		hitRate,
+	};
+}, [practiceResultRecords, practiceSummaryDate]);
 	const predictionHeroTimeBand = getPredictionHeroTimeBand(selectedVenue);
 	const predictionHeroImageSrc = predictionHeroImageSrcMap[predictionHeroTimeBand];
 	const predictionHeroImageAlt =
@@ -727,29 +745,40 @@ const findCurrentTimeRaceSelection = (venues: BoatPredictionVenue[]) => {
 		},
 	];
 
-	const hitNotificationItems = [
-		...practiceResultRecords
-			.filter((record) => record.date === practiceSummaryDate)
-			.filter(isBoatPracticeHit)
-			.sort((left, right) => String(right.savedAt ?? "").localeCompare(String(left.savedAt ?? "")))
-			.slice(0, 20)
-			.map((record) => ({
-				key: record.raceKey || `${record.date}-${record.venueName}-${record.raceNo}`,
-				title: `${record.venueName || "会場未設定"} ${record.raceNo ? `${record.raceNo}R` : ""}`.trim(),
-				meta: [
-					record.date || "日付未設定",
-					record.actualFinishOrderText ? `実着順 ${record.actualFinishOrderText}` : "",
-					record.kimarite ? `決まり手 ${record.kimarite}` : "",
-				].filter(Boolean).join(" / "),
-				badge: "的中",
-				result: readPracticeHitBetLabel(record),
-				payout: `払戻 ${formatPracticeYen(resolvePracticePayoutYen(record))}`,
-				investment: `投資 ${formatPracticeYen(resolvePracticeStakeYen(record))}`,
-				profit: `収支 ${formatPracticeProfit(resolvePracticeProfitYen(record))}`,
-				roi: `回収率 ${formatPracticeRoi(record.roi)}`,
-				savedAt: record.savedAt,
-			})),
-	];
+	const hitNotificationItems = practiceResultRecords
+	.filter((record) => isPracticeSummaryRecord(record, practiceSummaryDate))
+	.filter((record) =>
+		isBoatPracticeHit(record) ||
+		(Array.isArray(record.hitBets) && record.hitBets.length > 0) ||
+		Boolean(record.hitBetNumbers)
+	)
+	.sort((left, right) =>
+		String(right.updatedAt ?? right.savedAt ?? "").localeCompare(String(left.updatedAt ?? left.savedAt ?? ""))
+	)
+	.slice(0, 20)
+	.map((record) => {
+		const payoutYen = resolvePracticePayoutYen(record);
+		const stakeYen = resolvePracticeStakeYen(record);
+		const profitYen = resolvePracticeProfitYen(record);
+		const roi = stakeYen > 0 ? (payoutYen / stakeYen) * 100 : readPracticeNumber(record.roi);
+
+		return {
+			key: record.raceKey || record.id || `${record.date}-${record.venueName}-${record.raceNo}`,
+			title: `${record.venueName || "会場未設定"} ${record.raceNo ? `${record.raceNo}R` : ""}`.trim(),
+			meta: [
+				record.date || "日付未設定",
+				record.actualFinishOrderText ? `実着順 ${record.actualFinishOrderText}` : "",
+				record.kimarite ? `決まり手 ${record.kimarite}` : "",
+			].filter(Boolean).join(" / "),
+			badge: payoutYen > 0 ? "的中" : "的中候補",
+			result: readPracticeHitBetLabel(record),
+			payout: `払戻 ${formatPracticeYen(payoutYen)}`,
+			investment: `投資 ${formatPracticeYen(stakeYen)}`,
+			profit: `収支 ${formatPracticeProfit(profitYen)}`,
+			roi: `回収率 ${formatPracticeRoi(roi)}`,
+			savedAt: record.updatedAt ?? record.savedAt,
+		};
+	});
 
 	const hitNotificationLoopItems = [
 		...(hitNotificationItems.length > 0 ? hitNotificationItems : []),
@@ -1219,7 +1248,7 @@ const shouldAutoSave =
 				resultLookupStatus: lookupStatus,
 				kimarite: settlement.kimarite,
 				startInfoText: settlement.startInfoText,
-				hitBets: settlement.hitBets,
+				hitBets: finishOrderHitBets,
 				resultSource: "today-race-details.generated.json",
 			});
 

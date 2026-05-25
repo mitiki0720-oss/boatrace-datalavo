@@ -358,10 +358,11 @@ const resolveResultTone = (params: {
 	if (isConfirmed && hasHit && hasPayout) {
 		return {
 			label: "的中 / 払戻取得済み",
-			background: "linear-gradient(135deg, rgba(220, 252, 231, 0.98) 0%, rgba(187, 247, 208, 0.72) 100%)",
-			border: "1px solid rgba(34, 197, 94, 0.42)",
-			color: "#166534",
-			shadow: "0 18px 36px rgba(34, 197, 94, 0.16)",
+			background: "linear-gradient(135deg, rgba(255, 241, 242, 0.98) 0%, rgba(254, 202, 202, 0.66) 100%)",
+			border: "1px solid rgba(244, 63, 94, 0.42)",
+			color: "#9f1239",
+			shadow: "0 18px 40px rgba(244, 63, 94, 0.16)",
+			accent: "#f43f5e",
 		};
 	}
 
@@ -372,16 +373,18 @@ const resolveResultTone = (params: {
 			border: "1px solid rgba(249, 115, 22, 0.36)",
 			color: "#9a3412",
 			shadow: "0 18px 36px rgba(249, 115, 22, 0.12)",
+			accent: "#f97316",
 		};
 	}
 
 	if (isConfirmed && !hasHit) {
 		return {
 			label: "不的中 / 結果確定",
-			background: "linear-gradient(135deg, rgba(254, 242, 242, 0.98) 0%, rgba(254, 202, 202, 0.52) 100%)",
-			border: "1px solid rgba(239, 68, 68, 0.28)",
-			color: "#991b1b",
-			shadow: "0 18px 36px rgba(239, 68, 68, 0.1)",
+			background: "linear-gradient(135deg, rgba(239, 246, 255, 0.98) 0%, rgba(191, 219, 254, 0.62) 100%)",
+			border: "1px solid rgba(59, 130, 246, 0.32)",
+			color: "#1d4ed8",
+			shadow: "0 18px 36px rgba(59, 130, 246, 0.12)",
+			accent: "#2563eb",
 		};
 	}
 
@@ -391,6 +394,7 @@ const resolveResultTone = (params: {
 		border: "1px solid rgba(148, 163, 184, 0.28)",
 		color: "#334155",
 		shadow: "0 14px 28px rgba(15, 23, 42, 0.08)",
+		accent: "#64748b",
 	};
 };
 
@@ -478,7 +482,14 @@ export function BoatPracticeResultPanel({
 	};
 
 	return (
-		<section style={wrapStyle}>
+	<section
+		style={{
+			...wrapStyle,
+			background: resultStatus === "confirmed" ? resultTone.background : wrapStyle.background,
+			border: resultStatus === "confirmed" ? resultTone.border : wrapStyle.border,
+			boxShadow: resultStatus === "confirmed" ? resultTone.shadow : wrapStyle.boxShadow,
+		}}
+	>
 			<header style={headerStyle}>
 				<h3 style={titleStyle}>実践結果・収支確認パネル</h3>
 				<p style={descriptionStyle}>実着順、投資額、払戻、メモをその場で整理し、あとから保存や結果連携を足しやすい形に整えています。</p>

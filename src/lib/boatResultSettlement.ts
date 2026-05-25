@@ -145,37 +145,64 @@ const readResultPayouts = (result: BoatRaceResult | undefined): BoatPayoutItem[]
 };
 
 
-const findPayoutForBet = (bet: ParsedBoatBet, payouts: BoatPayoutItem[]): BoatPayoutItem | null => {
-	const orderedCombination = normalizeBoatBetCombination(bet.normalized);
-	const unorderedCombination = normalizeUnorderedCombination(bet.normalized);
+const normalizePayoutCombination = (value: unknown): string =>
+	String(value ?? "")
+		.normalize("NFKC")
+		.replace(/[=＝]/g, "-")
+		.replace(/[‐-‒–—―−－ーｰ~〜～>＞]/g, "-")
+		.replace(/[^\d-]/g, "")
+		.replace(/-+/g, "-")
+		.replace(/^-+|-+$/g, "");
+
+const sortCombinationText = (value: string): string =>
+	value
+		.split("-")
+		.map((item) => Number(item))
+		.filter((item) => Number.isFinite(item))
+		.sort((a, b) => a - b)
+		.join("-");
+
+const payoutBetTypeMatches = (bet: ParsedBoatBet, payout: BoatPayoutItem): boolean => {
+	const typeText = String(payout.betType ?? "").normalize("NFKC");
+
+	if (bet.type === "trifecta") return /3連単|三連単|3単/.test(typeText);
+	if (bet.type === "exacta") return /2連単|二連単|2単/.test(typeText);
+	if (bet.type === "trio") return /3連複|三連複|3複/.test(typeText);
+	if (bet.type === "quinella") return /2連複|二連複|2複/.test(typeText);
+	if (bet.type === "wide") return /拡連複|ワイド|wide/i.test(typeText);
+
+	return false;
+};
+
+const findPayoutForBet = (bet: ParsedBoatBet, payouts: BoatPayoutItem[]): BoatPayoutItem | undefined => {
+	const betCombination = normalizePayoutCombination(bet.normalized);
 
 	return payouts.find((payout) => {
-		const betType = String(payout.betType).normalize("NFKC").toLowerCase();
-		const payoutOrdered = normalizeBoatBetCombination(payout.combination);
-		const payoutUnordered = normalizeUnorderedCombination(payout.combination);
-
-		if (bet.type === "trifecta") {
-			return (/3\s*連\s*単|三\s*連\s*単|trifecta|sanrentan/.test(betType)) && payoutOrdered === orderedCombination;
+		if (!payoutBetTypeMatches(bet, payout)) {
+			return false;
 		}
 
-		if (bet.type === "exacta") {
-			return (/2\s*連\s*単|二\s*連\s*単|exacta|nirentan/.test(betType)) && payoutOrdered === orderedCombination;
+		const payoutCombination = normalizePayoutCombination(payout.combination);
+
+		if (!payoutCombination) {
+			return false;
 		}
 
-		if (bet.type === "trio") {
-			return (/3\s*連\s*複|三\s*連\s*複|trio/.test(betType)) && payoutUnordered === unorderedCombination;
+		if (bet.type === "trifecta" || bet.type === "exacta") {
+			return payoutCombination === betCombination;
 		}
 
-		if (bet.type === "quinella") {
-			return (/2\s*連\s*複|二\s*連\s*複|quinella/.test(betType)) && payoutUnordered === unorderedCombination;
+		if (bet.type === "trio" || bet.type === "quinella") {
+			return sortCombinationText(payoutCombination) === sortCombinationText(betCombination);
 		}
 
 		if (bet.type === "wide") {
-			return (/拡\s*連\s*複|wide|ワイド/.test(betType)) && payoutUnordered === unorderedCombination;
+			const payoutNumbers = payoutCombination.split("-").map((value) => Number(value));
+			return bet.numbers.every((number) => payoutNumbers.includes(number));
 		}
 
 		return false;
-	}) ?? null;
+	});
 };
 
 const readFinishOrderText = (result: (BoatRaceResult & Record<string, unknown>) | undefined): string => {

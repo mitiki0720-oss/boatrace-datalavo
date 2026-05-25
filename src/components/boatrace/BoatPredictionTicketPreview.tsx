@@ -58,7 +58,9 @@ const ticketGridStyle = {
 };
 
 const getTicketStyle = (group?: BoatPredictionTicket["group"]) => {
-	if (group === "厚め") {
+	const groupText = String(group ?? "");
+
+	if (groupText === "厚め") {
 		return {
 			padding: "10px 12px",
 			borderRadius: "16px",
@@ -70,7 +72,7 @@ const getTicketStyle = (group?: BoatPredictionTicket["group"]) => {
 		};
 	}
 
-	if (group === "本線") {
+	if (groupText === "本線") {
 		return {
 			padding: "10px 12px",
 			borderRadius: "16px",
@@ -82,7 +84,7 @@ const getTicketStyle = (group?: BoatPredictionTicket["group"]) => {
 		};
 	}
 
-	if (group === "穴狙い") {
+	if (groupText === "穴狙い" || groupText === "中穴" || groupText === "大穴") {
 		return {
 			padding: "10px 12px",
 			borderRadius: "16px",
@@ -110,6 +112,16 @@ const metaStyle = {
 	opacity: 0.86,
 };
 
+const getVisibleGroup = (group?: BoatPredictionTicket["group"]): string => {
+	const groupText = String(group ?? "").trim();
+
+	if (!groupText || groupText === "その他") {
+		return "";
+	}
+
+	return groupText;
+};
+
 export function BoatPredictionTicketPreview({ tickets }: BoatPredictionTicketPreviewProps) {
 	const counts = countBoatPredictionTicketsByType(tickets);
 
@@ -128,12 +140,18 @@ export function BoatPredictionTicketPreview({ tickets }: BoatPredictionTicketPre
 				<p style={emptyStyle}>GPT予想を貼り付けると、ここに読み取った買い目が表示されます。</p>
 			) : (
 				<div style={ticketGridStyle}>
-					{tickets.map((ticket) => (
-						<article key={`${ticket.betType}-${ticket.combination}`} style={getTicketStyle(ticket.group)}>
-							<div>{ticket.index} {ticket.betType} {ticket.combination}</div>
-							<div style={metaStyle}>{ticket.group ?? "その他"}</div>
-						</article>
-					))}
+					{tickets.map((ticket) => {
+						const visibleGroup = getVisibleGroup(ticket.group);
+
+						return (
+							<article key={`${ticket.index}-${ticket.betType}-${ticket.combination}`} style={getTicketStyle(ticket.group)}>
+								<div>
+									{ticket.index} {ticket.betType} {ticket.combination}
+								</div>
+								{visibleGroup ? <div style={metaStyle}>{visibleGroup}</div> : null}
+							</article>
+						);
+					})}
 				</div>
 			)}
 		</section>
