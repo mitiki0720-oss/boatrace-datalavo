@@ -232,6 +232,28 @@ const findHitBetsByFinishOrder = (
 	});
 };
 
+const mergePracticePayouts = (...sources: unknown[]): unknown[] => {
+	const seen = new Set<string>();
+	const merged: unknown[] = [];
+
+	for (const source of sources) {
+		for (const item of toArray<unknown>(source)) {
+			const key = typeof item === "object" && item !== null
+				? JSON.stringify(item)
+				: String(item);
+
+			if (seen.has(key)) {
+				continue;
+			}
+
+			seen.add(key);
+			merged.push(item);
+		}
+	}
+
+	return merged;
+};
+
 type PredictionHeroTimeBand = "morning" | "day" | "night";
 
 const predictionHeroImageSrcMap: Record<PredictionHeroTimeBand, string> = {
@@ -1133,9 +1155,9 @@ const handleSelectRace = (raceId: string) => {
 	};
 
 	const savePracticeRecordAndRefresh = (record: BoatPracticeResultRecord, message: string) => {
-		upsertBoatPracticeResultRecord(record);
+		const nextRecords = upsertBoatPracticeResultRecord(record);
 		setSavedPracticeResultRecord(record);
-		applyPracticeResultRecords(loadBoatPracticeResultRecords());
+		applyPracticeResultRecords(nextRecords);
 		setPracticeMessage(message);
 	};
 
@@ -1166,10 +1188,7 @@ const handleSelectRace = (raceId: string) => {
 		const nextPayoutAmount = params?.payoutAmount ?? payoutAmount;
 		const nextDate = selectedVenue.date ?? todayFeed.date ?? "";
 		const raceResultRecord = toLooseRecord((selectedRace as { result?: unknown } | undefined)?.result);
-		const storedPayouts = [
-			...toArray<unknown>(raceResultRecord.payoutsFull),
-			...toArray<unknown>(raceResultRecord.payouts),
-		];
+		const storedPayouts = mergePracticePayouts(raceResultRecord.payoutsFull, raceResultRecord.payouts);
 		const { profitLoss, roi } = calculateBoatPracticeProfitLoss({
 			investmentAmount: nextInvestmentAmount,
 			payoutAmount: nextPayoutAmount,

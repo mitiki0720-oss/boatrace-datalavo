@@ -358,21 +358,21 @@ const resolveResultTone = (params: {
 	if (isConfirmed && hasHit && hasPayout) {
 		return {
 			label: "的中 / 払戻取得済み",
-			background: "linear-gradient(135deg, rgba(255, 241, 242, 0.98) 0%, rgba(254, 202, 202, 0.66) 100%)",
-			border: "1px solid rgba(244, 63, 94, 0.42)",
-			color: "#9f1239",
-			shadow: "0 18px 40px rgba(244, 63, 94, 0.16)",
-			accent: "#f43f5e",
+			background: "linear-gradient(135deg, rgba(219, 244, 255, 0.98), rgba(186, 230, 253, 0.78))",
+			border: "2px solid rgba(14, 165, 233, 0.7)",
+			color: "#075985",
+			shadow: "0 22px 48px rgba(14, 165, 233, 0.22)",
+			accent: "#0ea5e9",
 		};
 	}
 
-	if (isConfirmed && hasHit && params.resultLookupStatus === "payout-missing") {
+	if (isConfirmed && hasHit && !hasPayout) {
 		return {
 			label: "的中候補 / 払戻未取得",
-			background: "linear-gradient(135deg, rgba(255, 247, 237, 0.98) 0%, rgba(254, 215, 170, 0.66) 100%)",
-			border: "1px solid rgba(249, 115, 22, 0.36)",
+			background: "linear-gradient(135deg, rgba(255, 247, 237, 0.98), rgba(254, 215, 170, 0.78))",
+			border: "2px solid rgba(249, 115, 22, 0.58)",
 			color: "#9a3412",
-			shadow: "0 18px 36px rgba(249, 115, 22, 0.12)",
+			shadow: "0 22px 48px rgba(249, 115, 22, 0.18)",
 			accent: "#f97316",
 		};
 	}
@@ -380,11 +380,11 @@ const resolveResultTone = (params: {
 	if (isConfirmed && !hasHit) {
 		return {
 			label: "不的中 / 結果確定",
-			background: "linear-gradient(135deg, rgba(239, 246, 255, 0.98) 0%, rgba(191, 219, 254, 0.62) 100%)",
-			border: "1px solid rgba(59, 130, 246, 0.32)",
-			color: "#1d4ed8",
-			shadow: "0 18px 36px rgba(59, 130, 246, 0.12)",
-			accent: "#2563eb",
+			background: "linear-gradient(135deg, rgba(255, 241, 242, 0.98), rgba(254, 202, 202, 0.76))",
+			border: "2px solid rgba(244, 63, 94, 0.68)",
+			color: "#9f1239",
+			shadow: "0 22px 48px rgba(244, 63, 94, 0.2)",
+			accent: "#f43f5e",
 		};
 	}
 
@@ -470,6 +470,14 @@ export function BoatPracticeResultPanel({
 		settlementMessage ||
 		actualFinishOrderText.trim(),
 	);
+	const resultOrderCardStyle = shouldUseResultTone
+		? {
+			...cardStyle,
+			background: resultTone.background,
+			border: resultTone.border,
+			boxShadow: `${resultTone.shadow}, inset 0 0 0 1px rgba(255, 255, 255, 0.72)`,
+		}
+		: cardStyle;
 
 	const handleAmountChange = (handler: (value: number) => void) => (event: ChangeEvent<HTMLInputElement>) => {
 		handler(Number(event.target.value) || 0);
@@ -510,6 +518,7 @@ export function BoatPracticeResultPanel({
 			border: resultTone.border,
 			color: resultTone.color,
 			boxShadow: resultTone.shadow,
+						fontWeight: 900,
 		}}
 	>
 		{resultTone.label}
@@ -534,16 +543,9 @@ export function BoatPracticeResultPanel({
 			</header>
 
 			<div style={topGridStyle}>
-				<div
-	style={{
-		...cardStyle,
-		background: resultTone.background,
-		border: resultTone.border,
-		boxShadow: resultTone.shadow,
-	}}
->
+				<div style={resultOrderCardStyle}>
 	<p style={{ ...labelStyle, color: resultTone.color }}>結果着順</p>
-					<p style={resultValueStyle}>{actualFinishOrderText || "-"}</p>
+					<p style={{ ...resultValueStyle, color: resultTone.color }}>{actualFinishOrderText || "-"}</p>
 					<div style={rankRowStyle}>
 						{[0, 1, 2].map((index) => (
 							<span key={index} style={getRankChipStyle(finishParts[index] || "-")}>
