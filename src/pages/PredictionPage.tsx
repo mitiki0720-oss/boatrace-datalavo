@@ -39,11 +39,13 @@ import {
 import type { BoatPracticeResultRecord } from "../lib/boatPracticeResultStorage";
 import { withBasePath } from "../lib/assetPath";
 import {
+	compactBoatPracticeResultRecords,
 	calculateBoatPracticeProfitLoss,
 	deleteBoatPracticeResultRecord,
 	findBoatPracticeResultRecord,
 	isBoatPracticeHit,
 	loadBoatPracticeResultRecords,
+	saveBoatPracticeResultRecords,
 	upsertBoatPracticeResultRecord,
 } from "../lib/boatPracticeResultStorage";
 import {
@@ -87,6 +89,15 @@ const autoSettleChipStyle = {
 	fontSize: "0.78rem",
 	fontWeight: 800,
 };
+
+const autoSettleButtonStyle = {
+	...autoSettleChipStyle,
+	cursor: "pointer",
+	background: "rgba(255, 255, 255, 0.98)",
+};
+
+const MAX_AUTO_SETTLE_PER_RUN = 12;
+const AUTO_SETTLE_STORAGE_LIMIT_KB = 4500;
 
 const getRaceKey = (venueId: string, raceId: string | undefined, raceNo: number) => raceId ?? `${venueId}-${raceNo}`;
 
@@ -372,6 +383,32 @@ const buildPracticeResultFingerprint = (params: {
 	params.resultSourceUpdatedAt ?? "",
 ].join("|");
 
+const getLocalStorageSizeKb = (): number => {
+	if (typeof window === "undefined") {
+		return 0;
+	}
+
+	return Object.keys(window.localStorage).reduce((sum, key) => {
+		const value = window.localStorage.getItem(key) ?? "";
+		return sum + key.length + value.length;
+	}, 0) / 1024;
+};
+
+const compactHitBetsForRecord = (bets: ParsedBoatBet[]): ParsedBoatBet[] | undefined => {
+	if (bets.length <= 0) {
+		return undefined;
+	}
+
+	return bets.slice(0, 3).map((bet) => ({
+		type: bet.type,
+		label: bet.label,
+		numbers: bet.numbers,
+		normalized: bet.normalized,
+		amountYen: bet.amountYen,
+		sourceLine: "",
+	}));
+};
+
 type PredictionHeroTimeBand = "morning" | "day" | "night";
 
 const predictionHeroImageSrcMap: Record<PredictionHeroTimeBand, string> = {
@@ -610,6 +647,7 @@ export function PredictionPage() {
 		pendingCount: 0,
 		lastRunAt: "",
 		lastReason: "",
+		warning: "",
 	});
 	const autoSettleRunKeyRef = useRef("");
 
@@ -1130,6 +1168,18 @@ const practiceSummary = useMemo(() => {
 		setIsResultAutoApplied(Boolean(record.resultStatus));
 	};
 
+	const handleCompactPracticeResults = () => {
+		const currentRecords = loadBoatPracticeResultRecords();
+		const compactedRecords = compactBoatPracticeResultRecords(currentRecords);
+		const result = saveBoatPracticeResultRecords(compactedRecords);
+		applyPracticeResultRecords(result.records);
+		setPracticeMessage(
+			result.ok
+				? "古い実践結果を整理しました"
+				: "保存容量がいっぱいのため、実践結果の整理に失敗しました。古い結果をさらに減らしてください。",
+		);
+	};
+
 	const applyPracticeResultRecords = (records: Record<string, BoatPracticeResultRecord>) => {
 		setPracticeResultRecords(Object.values(records));
 	};
@@ -1178,12 +1228,31 @@ const practiceSummary = useMemo(() => {
 		}
 		autoSettleRunKeyRef.current = runKey;
 
+		const localStorageSizeKb = getLocalStorageSizeKb();
+		if (localStorageSizeKb >= AUTO_SETTLE_STORAGE_LIMIT_KB) {
+			const warning = "保存容量がいっぱいに近いため、自動照合を一時停止しています。古い実践結果を整理してください。";
+			setAutoSettleState((current) => ({
+				...current,
+				enabled: false,
+				lastRunAt: new Date().toISOString(),
+				lastReason: reason,
+				warning,
+			}));
+			setPracticeMessage(warning);
+			return;
+		}
+
 		const predictionRecords = Object.values(loadBoatPredictionRecords()).map((record) => hydrateBoatPredictionRecord(record));
 		let pendingCount = 0;
 		let nextRecords = loadBoatPracticeResultRecords();
 		let changed = false;
+		let savedCount = 0;
 
 		for (const predictionRecord of predictionRecords) {
+			if (savedCount >= MAX_AUTO_SETTLE_PER_RUN) {
+				break;
+			}
+
 			if (!predictionRecord.predictionText?.trim()) {
 				continue;
 			}
@@ -1270,9 +1339,8 @@ const practiceSummary = useMemo(() => {
 				date: predictionRecord.date || feed.date,
 				raceNo: predictionRecord.raceNo,
 				raceTitle: lookup.race.title,
-				predictionText: predictionRecord.predictionText,
-				tickets: syncedPrediction.tickets,
-				parsedBets: syncedPrediction.parsedBets,
+				ticketsCount: syncedPrediction.tickets.length,
+				parsedBetsCount: syncedPrediction.parsedBets.length,
 				betSummary: syncedPrediction.betSummary,
 				actualFinishOrderText: finishOrderForSave,
 				actualOrder: finishOrderForSave,
@@ -1285,8 +1353,7 @@ const practiceSummary = useMemo(() => {
 				resultLookupStatus: lookupStatus,
 				kimarite: settlement.kimarite,
 				startInfoText: settlement.startInfoText,
-				payouts: settlement.payouts,
-				hitBets: hitBetsForSave.length > 0 ? hitBetsForSave : undefined,
+				hitBets: compactHitBetsForRecord(hitBetsForSave),
 				hitBetType: hitBet?.label,
 				hitBetNumbers: hitBet ? hitBet.normalized || hitBet.numbers?.join("-") : undefined,
 				totalStakeYen: syncedPrediction.totalStakeYen || 1000,
@@ -1308,8 +1375,28 @@ const practiceSummary = useMemo(() => {
 				continue;
 			}
 
-			nextRecords = upsertBoatPracticeResultRecord(nextRecord);
-			changed = true;
+			try {
+				const saveResult = upsertBoatPracticeResultRecord(nextRecord);
+				if (!saveResult.ok) {
+					setPracticeMessage("保存容量がいっぱいのため、実践結果を保存できませんでした。古い結果を整理してください。");
+					setAutoSettleState((current) => ({
+						...current,
+						enabled: false,
+						warning: "保存容量がいっぱいのため、自動照合の保存を停止しました。",
+						lastRunAt: new Date().toISOString(),
+						lastReason: reason,
+					}));
+					break;
+				}
+
+				nextRecords = saveResult.records;
+				changed = true;
+				savedCount += 1;
+			} catch (error) {
+				console.error("[auto-settle] failed to save practice result", error);
+				setPracticeMessage("保存容量がいっぱいのため、実践結果を保存できませんでした。古い結果を整理してください。");
+				break;
+			}
 
 			if (practiceRaceKey && raceKey === practiceRaceKey) {
 				applyPracticeRecordToPanel(nextRecord);
@@ -1331,6 +1418,7 @@ const practiceSummary = useMemo(() => {
 			pendingCount,
 			lastRunAt: new Date().toISOString(),
 			lastReason: reason,
+			warning: "",
 		});
 	};
 
@@ -1630,12 +1718,23 @@ const handleSelectRace = (raceId: string) => {
 	};
 
 	const savePracticeRecordAndRefresh = (record: BoatPracticeResultRecord, message: string) => {
-		const nextRecords = upsertBoatPracticeResultRecord(record);
-		if (practiceRaceKey && record.raceKey === practiceRaceKey) {
-			applyPracticeRecordToPanel(record);
+		try {
+			const saveResult = upsertBoatPracticeResultRecord(record);
+			if (!saveResult.ok) {
+				setPracticeMessage("保存容量がいっぱいのため、実践結果を保存できませんでした。古い結果を整理してください。");
+				return;
+			}
+
+			const savedRecord = saveResult.records[record.raceKey] ?? record;
+			if (practiceRaceKey && record.raceKey === practiceRaceKey) {
+				applyPracticeRecordToPanel(savedRecord);
+			}
+			applyPracticeResultRecords(saveResult.records);
+			setPracticeMessage(message);
+		} catch (error) {
+			console.error("[practice-results] save failed", error);
+			setPracticeMessage("保存容量がいっぱいのため、実践結果を保存できませんでした。古い結果を整理してください。");
 		}
-		applyPracticeResultRecords(nextRecords);
-		setPracticeMessage(message);
 	};
 
 	const buildPracticeResultRecord = (params?: {
@@ -1665,8 +1764,6 @@ const handleSelectRace = (raceId: string) => {
 		const nextDate = selectedVenue.date ?? todayFeed.date ?? "";
 		const syncedPrediction = ensurePredictionBets();
 		const nextInvestmentAmount = syncedPrediction.totalStakeYen || params?.investmentAmount || investmentAmount;
-		const raceResultRecord = toLooseRecord((selectedRace as { result?: unknown } | undefined)?.result);
-		const storedPayouts = mergePracticePayouts(raceResultRecord.payoutsFull, raceResultRecord.payouts);
 		const { profitLoss, roi } = calculateBoatPracticeProfitLoss({
 			investmentAmount: nextInvestmentAmount,
 			payoutAmount: nextPayoutAmount,
@@ -1696,10 +1793,14 @@ const handleSelectRace = (raceId: string) => {
 			date: nextDate,
 			raceNo: selectedRace.raceNo,
 			raceTitle: selectedRace.title,
-			predictionText,
-			tickets: syncedPrediction.tickets,
-			parsedBets: syncedPrediction.parsedBets,
-			betSummary: syncedPrediction.betSummary,
+			ticketsCount: syncedPrediction.tickets.length,
+			parsedBetsCount: syncedPrediction.parsedBets.length,
+			betSummary: {
+				totalBets: syncedPrediction.betSummary.totalBets,
+				trifectaCount: syncedPrediction.betSummary.trifectaCount,
+				exactaCount: syncedPrediction.betSummary.exactaCount,
+				totalStakeYen: syncedPrediction.betSummary.totalStakeYen,
+			},
 			actualFinishOrderText: finishOrderForSave,
 			actualOrder: finishOrderForSave,
 			finishOrder: finishOrderForSave,
@@ -1711,8 +1812,7 @@ const handleSelectRace = (raceId: string) => {
 			resultLookupStatus: savedLookupStatus,
 			kimarite: (params?.kimarite ?? practiceKimarite) || undefined,
 			startInfoText: (params?.startInfoText ?? practiceStartInfoText) || undefined,
-			payouts: params?.payouts ?? storedPayouts,
-			hitBets: hitBetsForSave.length > 0 ? hitBetsForSave : undefined,
+			hitBets: compactHitBetsForRecord(hitBetsForSave),
 			hitBetType: hitBet?.label,
 			hitBetNumbers: hitBet ? hitBet.normalized || hitBet.numbers?.join("-") : undefined,
 			totalStakeYen: syncedPrediction.totalStakeYen || nextInvestmentAmount,
@@ -2288,11 +2388,13 @@ body:has(.prediction-page-root) {
 				</div>
 
 				<div style={autoSettleChipRowStyle}>
-					<span style={autoSettleChipStyle}>自動照合ON</span>
+					<span style={autoSettleChipStyle}>{autoSettleState.enabled ? "自動照合ON" : "自動照合停止中"}</span>
 					<span style={autoSettleChipStyle}>自動照合済み {autoSettleState.autoSettledCount}R</span>
 					<span style={autoSettleChipStyle}>結果待ち {autoSettleState.pendingCount}R</span>
 					<span style={autoSettleChipStyle}>最終照合 {formatJstDateTimeLabel(autoSettleState.lastRunAt)}</span>
+					<button type="button" style={autoSettleButtonStyle} onClick={handleCompactPracticeResults}>古い実践結果を整理</button>
 				</div>
+					{autoSettleState.warning ? <p style={practiceMessageStyle}>{autoSettleState.warning}</p> : null}
 
 				<section className="prediction-section-card">
 					<div className="prediction-section-header">
