@@ -273,36 +273,37 @@ const venueRowStyle: CSSProperties = {
 
 const venueCardStyle: CSSProperties = {
 	width: "100%",
-	minHeight: "202px",
+	minHeight: "178px",
 	textAlign: "left",
-	padding: "16px",
-	borderRadius: "26px",
-	border: "1px solid rgba(93, 199, 232, 0.2)",
+	padding: "18px",
+	borderRadius: "24px",
+	border: "1px solid rgba(179, 155, 255, 0.38)",
 	background:
-		"radial-gradient(circle at 10% 0%, rgba(202, 243, 255, 0.58), transparent 38%), radial-gradient(circle at 100% 10%, rgba(232, 224, 255, 0.44), transparent 36%), linear-gradient(150deg, rgba(255,255,255,0.99), rgba(242,253,255,0.95) 55%, rgba(248,255,252,0.94))",
-	boxShadow: "0 14px 34px rgba(17, 64, 92, 0.055)",
+		"radial-gradient(circle at 12% 0%, rgba(230, 221, 255, 0.62), transparent 40%), radial-gradient(circle at 100% 10%, rgba(214, 245, 255, 0.5), transparent 36%), linear-gradient(145deg, rgba(255,255,255,0.98), rgba(248,244,255,0.94) 56%, rgba(239,250,255,0.92))",
+	boxShadow: "0 16px 34px rgba(93, 76, 143, 0.08)",
 	cursor: "pointer",
 	display: "grid",
-	gridTemplateRows: "auto auto 1fr",
-	gap: "10px",
+	gridTemplateRows: "auto 1fr",
+	gap: "14px",
 	position: "relative",
 	overflow: "hidden",
 };
 
 const metricGridStyle: CSSProperties = {
 	display: "grid",
-	gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-	gap: "7px",
+	gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+	gap: "9px",
 	alignSelf: "end",
 };
 
 const metricStyle: CSSProperties = {
-	padding: "8px",
-	borderRadius: "15px",
-	background: "rgba(239, 251, 255, 0.78)",
-	border: "1px solid rgba(93, 199, 232, 0.16)",
+	padding: "11px 12px",
+	borderRadius: "16px",
+	background: "linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,244,255,0.84))",
+	border: "1px solid rgba(179, 155, 255, 0.28)",
 	display: "grid",
-	gap: "2px",
+	gap: "3px",
+	minHeight: "58px",
 };
 
 const metricLabelStyle: CSSProperties = {
@@ -315,7 +316,7 @@ const metricLabelStyle: CSSProperties = {
 const metricValueStyle: CSSProperties = {
 	margin: 0,
 	color: boatTheme.colors.navy,
-	fontSize: "0.78rem",
+	fontSize: "0.95rem",
 	fontWeight: 950,
 	lineHeight: 1.15,
 };
@@ -416,6 +417,37 @@ function formatSignedYen(value: number): string {
 
 function formatPercent(value: number): string {
 	return `${value.toFixed(1)}%`;
+}
+
+function formatVenueCardDate(date: string): string {
+	const [, month, day] = date.split("-");
+	return month && day ? `${Number(month)}/${Number(day)}` : date;
+}
+
+function getVenueStageLabel(group: BoatReviewVenueGroup): string {
+	const title = group.title ?? "";
+	const matched = title.match(/(初日|2日目|3日目|4日目|5日目|6日目|最終日)/);
+
+	return matched?.[1] ?? "初日";
+}
+
+function getVenueSessionLabel(group: BoatReviewVenueGroup): string {
+	const title = group.title ?? "";
+
+	if (title.includes("モーニング")) return "🐣 モーニング";
+	if (title.includes("ナイター")) return "🌙 ナイター";
+	if (title.includes("ミッドナイト")) return "🌃 ミッドナイト";
+	if (title.includes("デイ")) return "☀️ デイ";
+
+	return "";
+}
+
+function getVenueHitLine(metrics: ReturnType<typeof getBoatReviewVenueMetrics>): string {
+	if (metrics.practiceCount <= 0) {
+		return "--";
+	}
+
+	return `${metrics.hitCount}-${metrics.practiceCount}`;
 }
 
 function readDrafts(): Record<string, string> {
@@ -867,10 +899,6 @@ export function ReviewPage() {
 									{row.map((group) => {
 										const isSelected = selectedGroup?.key === group.key;
 										const itemMetrics = getBoatReviewVenueMetrics(group);
-											const archiveItem = archiveItemMap.get(group.key);
-											const hasPredictionAsset = Boolean(group.races.some((entry) => entry.prediction?.predictionText?.trim()) || archiveItem?.predictionFile);
-											const hasResultAsset = Boolean(group.races.some((entry) => entry.practiceResult || entry.race?.result) || archiveItem?.resultFile);
-											const hasSummaryAsset = Boolean(summaryDraft && selectedGroup?.key === group.key ? summaryDraft !== "summary未登録" : archiveItem?.summaryFile || group.summaryFileText);
 										return (
 											<button
 												key={group.key}
@@ -881,32 +909,111 @@ export function ReviewPage() {
 													...venueCardStyle,
 													border: isSelected ? "1px solid rgba(24, 115, 152, 0.68)" : venueCardStyle.border,
 													background: isSelected
-														? "radial-gradient(circle at 12% 0%, rgba(179, 238, 255, 0.72), transparent 40%), linear-gradient(150deg, rgba(232,250,255,0.99), rgba(245,255,252,0.97))"
+														? "radial-gradient(circle at 12% 0%, rgba(221, 214, 254, 0.78), transparent 42%), radial-gradient(circle at 100% 10%, rgba(186, 230, 253, 0.52), transparent 38%), linear-gradient(145deg, rgba(255,255,255,0.99), rgba(247,244,255,0.96))"
 														: venueCardStyle.background,
 													boxShadow: isSelected ? "0 20px 38px rgba(17,64,92,0.14)" : venueCardStyle.boxShadow,
 												}}
-											>
-												<div style={{ ...chipRowStyle, justifyContent: "space-between", alignItems: "center" }}>
-													<strong style={{ color: boatTheme.colors.navy, fontSize: "1.08rem", lineHeight: 1.15 }}>{group.venueName}</strong>
-														<span style={{ ...chipStyle, padding: "7px 10px", fontSize: "0.66rem", background: mode === "archive" ? "rgba(232, 224, 255, 0.84)" : "rgba(224, 242, 254, 0.88)" }}>{mode === "archive" ? "archive" : archiveItem ? "live + archive" : "live"}</span>
-												</div>
-												<p style={{ ...textStyle, fontSize: "0.72rem", lineHeight: 1.55, minHeight: "2.25em" }}>{group.date} / {group.title || "開催名確認中"}</p>
-													<div style={chipRowStyle}>
-														<span style={{ ...chipStyle, fontSize: "0.68rem", background: hasPredictionAsset ? "rgba(224, 242, 254, 0.9)" : "rgba(248, 250, 252, 0.9)" }}>prediction {hasPredictionAsset ? "あり" : "なし"}</span>
-														<span style={{ ...chipStyle, fontSize: "0.68rem", background: hasResultAsset ? "rgba(224, 242, 254, 0.9)" : "rgba(248, 250, 252, 0.9)" }}>result {hasResultAsset ? "あり" : "なし"}</span>
-														<span style={{ ...chipStyle, fontSize: "0.68rem", background: hasSummaryAsset ? "rgba(221, 252, 239, 0.92)" : "rgba(248, 250, 252, 0.9)" }}>summary {hasSummaryAsset ? "あり" : "なし"}</span>
+																						>
+												<div style={{ display: "grid", gap: "8px" }}>
+													<div style={{ display: "flex", justifyContent: "space-between", gap: "10px", alignItems: "flex-start" }}>
+														<div style={{ display: "grid", gap: "4px", minWidth: 0 }}>
+															<p
+																style={{
+																	margin: 0,
+																	color: "#7c5cff",
+																	fontSize: "0.72rem",
+																	fontWeight: 950,
+																	letterSpacing: "0.08em",
+																}}
+															>
+																{formatVenueCardDate(group.date)}
+															</p>
+															<strong
+																style={{
+																	color: boatTheme.colors.navy,
+																	fontSize: "1.45rem",
+																	lineHeight: 1.05,
+																	letterSpacing: "-0.04em",
+																}}
+															>
+																{group.venueName}
+															</strong>
+															<p
+																style={{
+																	margin: 0,
+																	color: boatTheme.colors.muted,
+																	fontSize: "0.78rem",
+																	fontWeight: 700,
+																	whiteSpace: "nowrap",
+																	overflow: "hidden",
+																	textOverflow: "ellipsis",
+																}}
+															>
+																{group.title || `${group.venueName} 出走表一覧`}
+															</p>
+														</div>
+
+														<div style={{ display: "grid", gap: "7px", justifyItems: "end", flexShrink: 0 }}>
+															<span
+																style={{
+																	...chipStyle,
+																	padding: "6px 10px",
+																	fontSize: "0.68rem",
+																	background: "rgba(238, 232, 255, 0.96)",
+																	border: "1px solid rgba(167, 139, 250, 0.38)",
+																	color: "#5b4ab5",
+																}}
+															>
+																{getVenueStageLabel(group)}
+															</span>
+															{getVenueSessionLabel(group) ? (
+																<span
+																	style={{
+																		margin: 0,
+																		color: "#9a6a1a",
+																		fontSize: "0.72rem",
+																		fontWeight: 850,
+																	}}
+																>
+																	{getVenueSessionLabel(group)}
+																</span>
+															) : null}
+														</div>
 													</div>
+												</div>
+
 												<div style={metricGridStyle}>
 													{[
-															["予想", archiveItem?.predictionSizeBytes ? formatFileSize(archiveItem.predictionSizeBytes) : `${itemMetrics.predictionCount}R`],
-															["結果", archiveItem?.resultSizeBytes ? formatFileSize(archiveItem.resultSizeBytes) : `${itemMetrics.resultCount}R`],
-															["summary", archiveItem?.summarySizeBytes ? formatFileSize(archiveItem.summarySizeBytes) : itemMetrics.hasSummary ? "あり" : "なし"],
-															["収支", formatSignedYen(itemMetrics.profit)],
-													].map(([label, value]) => (
-													<div key={label} style={metricStyle}>
-														<p style={metricLabelStyle}>{label}</p>
-														<p style={metricValueStyle}>{value}</p>
-													</div>
+														["払戻", formatYen(itemMetrics.payout), "払い戻し合計"],
+														["収支", formatSignedYen(itemMetrics.profit), itemMetrics.profit >= 0 ? "プラス収支" : "マイナス収支"],
+														["的中率", formatPercent(itemMetrics.practiceCount > 0 ? itemMetrics.hitCount / itemMetrics.practiceCount * 100 : 0), getVenueHitLine(itemMetrics)],
+													].map(([label, value, caption]) => (
+														<div key={label} style={metricStyle}>
+															<p style={metricLabelStyle}>{label}</p>
+															<p
+																style={{
+																	...metricValueStyle,
+																	color:
+																		label === "収支"
+																			? itemMetrics.profit >= 0
+																				? "#0f75a8"
+																				: "#7f3150"
+																			: boatTheme.colors.navy,
+																}}
+															>
+																{value}
+															</p>
+															<p
+																style={{
+																	margin: 0,
+																	color: boatTheme.colors.muted,
+																	fontSize: "0.58rem",
+																	fontWeight: 750,
+																}}
+															>
+																{caption}
+															</p>
+														</div>
 													))}
 												</div>
 											</button>
