@@ -463,6 +463,29 @@ const formatJstDateTimeLabel = (value: string | undefined): string => {
 	}).format(date);
 };
 
+const inferHitNotificationBetType = (record: BoatPracticeResultRecord, hitBetNumbers: string): string => {
+	const explicitType = String(record.hitBetType ?? "").trim();
+	if (explicitType) {
+		return explicitType;
+	}
+
+	const hitBetLabel = String(record.hitBets?.[0]?.label ?? "").trim();
+	if (hitBetLabel) {
+		return hitBetLabel;
+	}
+
+	const parts = hitBetNumbers.split("-").map((value) => value.trim()).filter(Boolean);
+	if (parts.length >= 3) {
+		return "3連単";
+	}
+
+	if (parts.length === 2) {
+		return "2連単";
+	}
+
+	return "券種未設定";
+};
+
 const hasRaceOddsPreview = (race: BoatPredictionRace): boolean => {
 	const oddsPreview = (race as { oddsPreview?: unknown }).oddsPreview;
 
@@ -1076,10 +1099,15 @@ const practiceSummary = useMemo(() => {
 		const payoutYen = resolvePracticePayoutYen(record);
 		const profitYen = resolvePracticeProfitYen(record);
 		const hitBetNumbers = String(record.hitBetNumbers ?? "").trim() || record.hitBets?.[0]?.normalized || readPracticeHitBetLabel(record);
+		const savedAt = record.updatedAt ?? record.savedAt ?? record.autoSettledAt;
+		const betTypeLabel = inferHitNotificationBetType(record, hitBetNumbers);
 
 		return {
 			key: record.raceKey || record.id || `${record.date}-${record.venueName}-${record.raceNo}`,
 			venueRaceLabel: `${record.venueName || "会場未設定"} ${record.raceNo ? `${record.raceNo}R` : ""}`.trim(),
+			dateLabel: record.date || activePredictionDate,
+			timeLabel: formatJstDateTimeLabel(savedAt),
+			betTypeLabel,
 			hitBetNumbers,
 			payoutLabel: formatPracticeYen(payoutYen),
 			profitLabel: formatPracticeProfit(profitYen),
@@ -2242,20 +2270,22 @@ body:has(.prediction-page-root) {
 
 					.prediction-notification-grid {
 						display: grid;
-						grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+						grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 						gap: 12px;
 						padding: 2px 0 6px;
 					}
 
 					.prediction-notification-card {
 						min-width: 0;
-						padding: 14px;
-						border-radius: 20px;
-						border: 1px solid rgba(14, 165, 233, 0.35);
-						background: linear-gradient(135deg, rgba(240, 249, 255, 0.96), rgba(224, 242, 254, 0.75));
-						box-shadow: 0 14px 32px rgba(14, 165, 233, 0.14);
+						padding: 14px 16px;
+						border-radius: 18px;
+						border: 1px solid rgba(129, 140, 248, 0.28);
+						background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(240,249,255,0.88));
+						box-shadow: 0 12px 28px rgba(14, 165, 233, 0.10);
 						display: grid;
-						gap: 8px;
+						grid-template-columns: auto minmax(0, 1fr);
+						gap: 12px;
+						align-items: start;
 					}
 
 					.prediction-notification-empty {
@@ -2269,56 +2299,62 @@ body:has(.prediction-page-root) {
 						background: rgba(250, 247, 255, 0.9);
 					}
 
-					.prediction-notification-top {
-						display: flex;
-						align-items: center;
-						justify-content: space-between;
-						gap: 10px;
-					}
-
-					.prediction-badge {
+					.prediction-notification-icon {
+						width: 36px;
+						height: 36px;
+						border-radius: 12px;
 						display: inline-flex;
-						width: fit-content;
 						align-items: center;
 						justify-content: center;
-						padding: 5px 10px;
-						border-radius: 999px;
-						background: rgba(176, 137, 216, 0.16);
-						color: #8a70d2;
-						font-size: 0.7rem;
-						font-weight: 900;
+						background: rgba(224, 242, 254, 0.92);
+						border: 1px solid rgba(125, 211, 252, 0.42);
+						font-size: 1rem;
+						box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+					}
+
+					.prediction-notification-body {
+						display: grid;
+						gap: 2px;
 					}
 
 					.prediction-notification-line {
 						margin: 0;
-						font-size: 0.9rem;
-						line-height: 1.6;
+						font-size: 0.88rem;
+						line-height: 1.45;
 						color: #16425b;
 					}
 
-					.prediction-notification-payout {
+					.prediction-notification-title {
 						margin: 0;
-						font-size: 1rem;
+						font-size: 0.98rem;
+						font-weight: 900;
+						color: #132f45;
+					}
+
+					.prediction-notification-time {
+						margin: 0;
+						font-size: 0.76rem;
+						font-weight: 700;
+						color: #667b8f;
+					}
+
+					.prediction-notification-bet-type {
+						margin: 2px 0 0;
+						font-size: 0.8rem;
+						font-weight: 800;
+						color: #475569;
+					}
+
+					.prediction-notification-payout {
+						margin: 4px 0 0;
+						font-size: 0.92rem;
 						font-weight: 900;
 						color: #0369a1;
 					}
 
 					.prediction-notification-profit {
 						margin: 0;
-						font-size: 0.96rem;
-						font-weight: 900;
-					}
-
-					.prediction-hit-badge {
-						display: inline-flex;
-						width: fit-content;
-						align-items: center;
-						justify-content: center;
-						padding: 5px 10px;
-						border-radius: 999px;
-						background: rgba(46, 204, 113, 0.15);
-						color: #12815c;
-						font-size: 0.7rem;
+						font-size: 0.9rem;
 						font-weight: 900;
 					}
 
@@ -2458,18 +2494,20 @@ body:has(.prediction-page-root) {
 							<>
 								{hitNotificationItems.map((item) => (
 									<article key={item.key} className="prediction-notification-card">
-										<div className="prediction-notification-top">
-											<strong style={{ color: "#132f45", fontSize: "0.98rem" }}>{item.venueRaceLabel}</strong>
-											<span className="prediction-hit-badge">的中</span>
+										<span className="prediction-notification-icon" aria-hidden="true">🎯</span>
+										<div className="prediction-notification-body">
+											<p className="prediction-notification-title">{item.venueRaceLabel} 的中</p>
+											<p className="prediction-notification-time">{item.dateLabel} / {item.timeLabel}</p>
+											<p className="prediction-notification-bet-type">{item.betTypeLabel}</p>
+											<p className="prediction-notification-line">{item.hitBetNumbers}</p>
+											<p className="prediction-notification-payout">払戻 {item.payoutLabel}</p>
+											<p
+												className="prediction-notification-profit"
+												style={{ color: item.profitLabel.startsWith("+") ? "#0284c7" : "#b91c1c" }}
+											>
+												収支 {item.profitLabel}
+											</p>
 										</div>
-										<p className="prediction-notification-line">的中 {item.hitBetNumbers}</p>
-										<p className="prediction-notification-payout">払戻 {item.payoutLabel}</p>
-										<p
-											className="prediction-notification-profit"
-											style={{ color: item.profitLabel.startsWith("+") ? "#0284c7" : "#b91c1c" }}
-										>
-											収支 {item.profitLabel}
-										</p>
 									</article>
 								))}
 							</>
