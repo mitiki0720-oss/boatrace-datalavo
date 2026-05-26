@@ -1005,6 +1005,12 @@ const practiceSummary = useMemo(() => {
 		roi: totalStakeYen > 0 ? (totalPayoutYen / totalStakeYen) * 100 : null,
 	};
 }, [practiceResultRecords, practiceSummaryDate]);
+	const isHitNotificationRecord = (record: BoatPracticeResultRecord): boolean => {
+		const payoutYen = resolvePracticePayoutYen(record);
+		const hasHitNumbers = Boolean(record.hitBetNumbers) || (Array.isArray(record.hitBets) && record.hitBets.length > 0);
+
+		return payoutYen > 0 && hasHitNumbers;
+	};
 	const predictionHeroTimeBand = getPredictionHeroTimeBand(selectedVenue);
 	const predictionHeroImageSrc = predictionHeroImageSrcMap[predictionHeroTimeBand];
 	const predictionHeroImageAlt =
@@ -1061,45 +1067,24 @@ const practiceSummary = useMemo(() => {
 
 	const hitNotificationItems = practiceResultRecords
 	.filter((record) => isPracticeSummaryRecord(record, practiceSummaryDate))
-	.filter((record) =>
-		isBoatPracticeHit(record) ||
-		(Array.isArray(record.hitBets) && record.hitBets.length > 0) ||
-		Boolean(record.hitBetNumbers)
-	)
+	.filter((record) => isHitNotificationRecord(record))
 	.sort((left, right) =>
-		String(right.updatedAt ?? right.savedAt ?? "").localeCompare(String(left.updatedAt ?? left.savedAt ?? ""))
+		String(right.updatedAt ?? right.savedAt ?? right.autoSettledAt ?? "").localeCompare(String(left.updatedAt ?? left.savedAt ?? left.autoSettledAt ?? ""))
 	)
-	.slice(0, 20)
+	.slice(0, 5)
 	.map((record) => {
 		const payoutYen = resolvePracticePayoutYen(record);
-		const stakeYen = resolvePracticeStakeYen(record);
 		const profitYen = resolvePracticeProfitYen(record);
-		const roi = stakeYen > 0 ? (payoutYen / stakeYen) * 100 : readPracticeNumber(record.roi);
+		const hitBetNumbers = String(record.hitBetNumbers ?? "").trim() || record.hitBets?.[0]?.normalized || readPracticeHitBetLabel(record);
 
 		return {
 			key: record.raceKey || record.id || `${record.date}-${record.venueName}-${record.raceNo}`,
-			title: `${record.venueName || "会場未設定"} ${record.raceNo ? `${record.raceNo}R` : ""}`.trim(),
-			meta: [
-				record.date || "日付未設定",
-				record.actualFinishOrderText ? `実着順 ${record.actualFinishOrderText}` : "",
-				record.kimarite ? `決まり手 ${record.kimarite}` : "",
-			].filter(Boolean).join(" / "),
-			badge: payoutYen > 0 ? "的中" : "的中候補",
-			result: readPracticeHitBetLabel(record),
-			payout: `払戻 ${formatPracticeYen(payoutYen)}`,
-			investment: `投資 ${formatPracticeYen(stakeYen)}`,
-			profit: `収支 ${formatPracticeProfit(profitYen)}`,
-			roi: `回収率 ${formatPracticeRoi(roi)}`,
-			savedAt: record.updatedAt ?? record.savedAt,
+			venueRaceLabel: `${record.venueName || "会場未設定"} ${record.raceNo ? `${record.raceNo}R` : ""}`.trim(),
+			hitBetNumbers,
+			payoutLabel: formatPracticeYen(payoutYen),
+			profitLabel: formatPracticeProfit(profitYen),
 		};
 	});
-
-	const hitNotificationLoopItems = [
-		...(hitNotificationItems.length > 0 ? hitNotificationItems : []),
-		...(hitNotificationItems.length > 0 ? hitNotificationItems : []),
-		...(hitNotificationItems.length > 0 ? hitNotificationItems : []),
-		...(hitNotificationItems.length > 0 ? hitNotificationItems : []),
-	];
 
 	const refreshTodayFeed = async (options?: { silent?: boolean; isActive?: () => boolean }) => {
 		const isSilent = options?.silent ?? false;
@@ -2256,34 +2241,21 @@ body:has(.prediction-page-root) {
 					}
 
 					.prediction-notification-grid {
-						position: relative;
-						overflow: hidden;
-						padding: 2px 0 6px;
-						mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
-					}
-
-					.prediction-notification-track {
-						display: flex;
-						width: max-content;
+						display: grid;
+						grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
 						gap: 12px;
-						animation: predictionNotificationMarquee 34s linear infinite;
-						will-change: transform;
-					}
-
-					.prediction-notification-grid:hover .prediction-notification-track {
-						animation-play-state: paused;
+						padding: 2px 0 6px;
 					}
 
 					.prediction-notification-card {
-						width: 260px;
-						flex: 0 0 260px;
 						min-width: 0;
 						padding: 14px;
 						border-radius: 20px;
-						border: 1px solid rgba(176, 137, 216, 0.22);
-						background: rgba(250, 247, 255, 0.9);
+						border: 1px solid rgba(14, 165, 233, 0.35);
+						background: linear-gradient(135deg, rgba(240, 249, 255, 0.96), rgba(224, 242, 254, 0.75));
+						box-shadow: 0 14px 32px rgba(14, 165, 233, 0.14);
 						display: grid;
-						gap: 10px;
+						gap: 8px;
 					}
 
 					.prediction-notification-empty {
@@ -2295,16 +2267,6 @@ body:has(.prediction-page-root) {
 						border-radius: 20px;
 						border: 1px solid rgba(176, 137, 216, 0.22);
 						background: rgba(250, 247, 255, 0.9);
-					}
-
-					@keyframes predictionNotificationMarquee {
-						from {
-							transform: translateX(0);
-						}
-
-						to {
-							transform: translateX(calc(-50% - 6px));
-						}
 					}
 
 					.prediction-notification-top {
@@ -2324,6 +2286,26 @@ body:has(.prediction-page-root) {
 						background: rgba(176, 137, 216, 0.16);
 						color: #8a70d2;
 						font-size: 0.7rem;
+						font-weight: 900;
+					}
+
+					.prediction-notification-line {
+						margin: 0;
+						font-size: 0.9rem;
+						line-height: 1.6;
+						color: #16425b;
+					}
+
+					.prediction-notification-payout {
+						margin: 0;
+						font-size: 1rem;
+						font-weight: 900;
+						color: #0369a1;
+					}
+
+					.prediction-notification-profit {
+						margin: 0;
+						font-size: 0.96rem;
 						font-weight: 900;
 					}
 
@@ -2473,31 +2455,24 @@ body:has(.prediction-page-root) {
 
 					<div className="prediction-notification-grid">
 						{hitNotificationItems.length > 0 ? (
-							<div className="prediction-notification-track">
-								{hitNotificationLoopItems.map((item, index) => (
-									<article key={`${item.key}-${index}`} className="prediction-notification-card">
+							<>
+								{hitNotificationItems.map((item) => (
+									<article key={item.key} className="prediction-notification-card">
 										<div className="prediction-notification-top">
-											<strong style={{ color: "#132f45", fontSize: "0.92rem" }}>{item.title}</strong>
-											<span className="prediction-hit-badge">{item.badge}</span>
+											<strong style={{ color: "#132f45", fontSize: "0.98rem" }}>{item.venueRaceLabel}</strong>
+											<span className="prediction-hit-badge">的中</span>
 										</div>
-
-										<p className="prediction-text">{item.meta}</p>
-
-										<div style={{ display: "flex", gap: "8px", flexWrap: "wrap" as const }}>
-											<span className="prediction-badge">{item.result}</span>
-											<span className="prediction-badge">{item.payout}</span>
-											<span className="prediction-badge">{item.investment}</span>
-										</div>
-
-										<p style={{ margin: 0, fontSize: "0.92rem", fontWeight: 900, color: "#12815c" }}>
-											{item.profit} / {item.roi}
-										</p>
-										<p style={{ margin: 0, fontSize: "0.72rem", fontWeight: 800, color: "#8a70d2" }}>
-											保存済み実践結果から自動表示{item.savedAt ? ` / ${formatJstDateTimeLabel(item.savedAt)}` : ""}
+										<p className="prediction-notification-line">的中 {item.hitBetNumbers}</p>
+										<p className="prediction-notification-payout">払戻 {item.payoutLabel}</p>
+										<p
+											className="prediction-notification-profit"
+											style={{ color: item.profitLabel.startsWith("+") ? "#0284c7" : "#b91c1c" }}
+										>
+											収支 {item.profitLabel}
 										</p>
 									</article>
 								))}
-							</div>
+							</>
 						) : (
 							<div className="prediction-notification-empty">
 								<span className="prediction-badge">保存済み実践結果から自動表示</span>
