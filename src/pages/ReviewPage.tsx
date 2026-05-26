@@ -996,8 +996,8 @@ export function ReviewPage() {
 						background-image:
 							linear-gradient(180deg, rgba(241, 250, 255, 0.04), rgba(244, 250, 255, 0.16)),
 							url("${REVIEW_PAGE_BACKGROUND_URL}");
-						background-size: cover;
-						background-position: center center;
+						background-size: min(2900px, 150vw) auto;
+						background-position: center top;
 						background-repeat: no-repeat;
 						pointer-events: none;
 						z-index: 0;
