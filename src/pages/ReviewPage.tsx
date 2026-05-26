@@ -43,18 +43,7 @@ const reviewRootStyle: CSSProperties = {
 };
 
 const reviewBackgroundStyle: CSSProperties = {
-	position: "fixed",
-	inset: 0,
-	width: "100vw",
-	height: "100vh",
-	backgroundImage: `linear-gradient(180deg, rgba(241, 250, 255, 0.02), rgba(244, 250, 255, 0.12)), url(${REVIEW_PAGE_BACKGROUND_URL})`,
-	backgroundSize: "cover",
-	backgroundPosition: "center top",
-	backgroundRepeat: "no-repeat",
-	backgroundAttachment: "fixed",
-	pointerEvents: "none",
-	zIndex: 0,
-	transform: "translateZ(0)",
+	display: "none",
 };
 
 const reviewGlowStyle: CSSProperties = {
@@ -576,19 +565,26 @@ export function ReviewPage() {
 	);
 
 	const groups = useMemo(() => {
-		if (mode === "archive") {
-			return archiveGroups;
-		}
+	if (mode === "archive") {
+		return archiveGroups;
+	}
 
-		const mergedGroups = [...liveGroups];
-		for (const archiveGroup of archiveGroups) {
-			if (!mergedGroups.some((group) => group.key === archiveGroup.key)) {
-				mergedGroups.push(archiveGroup);
-			}
-		}
+	const hasSavedPrediction = (group: BoatReviewVenueGroup) =>
+		group.races.some((entry) => Boolean(entry.prediction?.predictionText?.trim()));
 
-		return mergedGroups;
-	}, [archiveGroups, liveGroups, mode]);
+	const hasArchivePrediction = (group: BoatReviewVenueGroup) =>
+		Boolean(archiveItemMap.get(group.key)?.predictionFile);
+
+	const mergedGroups = liveGroups.filter(hasSavedPrediction);
+
+	for (const archiveGroup of archiveGroups) {
+		if (hasArchivePrediction(archiveGroup) && !mergedGroups.some((group) => group.key === archiveGroup.key)) {
+			mergedGroups.push(archiveGroup);
+		}
+	}
+
+	return mergedGroups;
+}, [archiveGroups, archiveItemMap, liveGroups, mode]);
 	const venueRows = useMemo(() => {
 		if (groups.length <= 1) return groups.length === 1 ? [groups] : [];
 		const firstRowCount = Math.ceil(groups.length / 2);
@@ -839,17 +835,11 @@ export function ReviewPage() {
 					</div>
 					<div style={overviewGridStyle}>
 						{[
-							["選択日", selectedDate],
-							["表示モード", mode === "archive" ? "Archive txt" : "今日/昨日 localStorage"],
-							["対象会場", `${metrics.venueCount}会場`],
-							["予想ファイル", `${archiveIndex.items.filter((item) => item.date === selectedDate && item.predictionFile).length}件`],
-							["結果ファイル", `${archiveIndex.items.filter((item) => item.date === selectedDate && item.resultFile).length}件`],
-							["summary", `${archiveIndex.items.filter((item) => item.date === selectedDate && item.summaryFile).length}件`],
-							["会場ソース", sourceLabel],
-							["投資", formatYen(metrics.investment)],
-							["払戻", formatYen(metrics.payout)],
-							["回収率", formatPercent(metrics.roi)],
-						].map(([label, value]) => (
+	["対象会場", `${metrics.venueCount}会場`],
+	["投資", formatYen(metrics.investment)],
+	["払戻", formatYen(metrics.payout)],
+	["回収率", formatPercent(metrics.roi)],
+].map(([label, value]) => (
 							<article key={label} style={summaryCardStyle}>
 								<p style={summaryLabelStyle}>{label}</p>
 								<p style={summaryValueStyle}>{value}</p>
@@ -862,7 +852,7 @@ export function ReviewPage() {
 					<div style={sectionHeaderStyle}>
 						<div>
 							<p style={eyebrowStyle}>Venue Cards</p>
-							<h2 style={sectionTitleStyle}>{mode === "archive" ? "保存した txt を会場ごとに開く" : "今日・昨日の会場を localStorage 優先で振り返る"}</h2>
+							<h2 style={sectionTitleStyle}>{mode === "archive" ? "保存した txt を会場ごとに開く" : "予想を保存した会場だけ振り返る"}</h2>
 						</div>
 						<p style={{ ...textStyle, fontSize: "0.82rem", textAlign: "right" }}>会場カードを押すと、予想全文・結果全文・summary全文が下の欄で切り替わります。</p>
 					</div>
@@ -987,6 +977,37 @@ export function ReviewPage() {
 				</section>
 
 				<style>{`
+
+					body:has(.review-page-root) {
+						background: #eaf8ff;
+					}
+
+					#root:has(.review-page-root) {
+						position: relative;
+						isolation: isolate;
+					}
+
+					#root:has(.review-page-root)::before {
+						content: "";
+						position: fixed;
+						inset: 0;
+						width: 100vw;
+						height: 100vh;
+						background-image:
+							linear-gradient(180deg, rgba(241, 250, 255, 0.04), rgba(244, 250, 255, 0.16)),
+							url("${REVIEW_PAGE_BACKGROUND_URL}");
+						background-size: cover;
+						background-position: center center;
+						background-repeat: no-repeat;
+						pointer-events: none;
+						z-index: 0;
+					}
+
+					.review-page-root {
+						position: relative;
+						z-index: 1;
+					}
+
 					@media (max-width: 1380px) {
 						.boat-review-venue-row {
 							grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
