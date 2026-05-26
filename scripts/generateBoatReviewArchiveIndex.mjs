@@ -1,3 +1,8 @@
+// Task Scheduler memo:
+//   Working directory: C:\Users\mitik\Desktop\ボートレースウェブ作成用\boatrace-datalavo
+//   Command: npm.cmd run generate:boat-review-index
+//   Schedule: every day 23:00 and 09:00
+
 import { readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -5,7 +10,7 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
-const archiveRoot = path.join(projectRoot, "public", "data", "boatrace", "reviews");
+const archiveRoot = path.join(projectRoot, "public", "data", "reviews");
 const indexPath = path.join(archiveRoot, "index.json");
 
 const VENUE_SLUG_TO_NAME = {
@@ -36,7 +41,22 @@ const VENUE_SLUG_TO_NAME = {
 };
 
 const DATE_DIR_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-const FILE_PATTERN = /^(.+)-(predictions|results|summary)\.(txt|md)$/;
+const FILE_PATTERN = /^(.+)-(predictions|results|summary)\.txt$/;
+
+function getJstIsoString(date = new Date()) {
+	const formatter = new Intl.DateTimeFormat("sv-SE", {
+		timeZone: "Asia/Tokyo",
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		hour12: false,
+	});
+	const parts = Object.fromEntries(formatter.formatToParts(date).filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
+	return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}.000+09:00`;
+}
 
 async function fileExists(filePath) {
 	try {
@@ -44,6 +64,15 @@ async function fileExists(filePath) {
 		return info.isFile();
 	} catch {
 		return false;
+	}
+}
+
+async function getFileSize(filePath) {
+	try {
+		const info = await stat(filePath);
+		return info.isFile() ? info.size : null;
+	} catch {
+		return null;
 	}
 }
 
@@ -81,16 +110,17 @@ async function main() {
 
 			const predictionFile = `${slug}-predictions.txt`;
 			const resultFile = `${slug}-results.txt`;
-			const summaryMdFile = `${slug}-summary.md`;
 			const summaryTxtFile = `${slug}-summary.txt`;
 			const hasPrediction = await fileExists(path.join(datePath, predictionFile));
 			const hasResult = await fileExists(path.join(datePath, resultFile));
-			const hasSummaryMd = await fileExists(path.join(datePath, summaryMdFile));
 			const hasSummaryTxt = await fileExists(path.join(datePath, summaryTxtFile));
+			const predictionSizeBytes = hasPrediction ? await getFileSize(path.join(datePath, predictionFile)) : null;
+			const resultSizeBytes = hasResult ? await getFileSize(path.join(datePath, resultFile)) : null;
+			const summarySizeBytes = hasSummaryTxt ? await getFileSize(path.join(datePath, summaryTxtFile)) : null;
 
 			if (!hasPrediction) warnings.push(`[warn] missing prediction file: ${date}/${predictionFile}`);
 			if (!hasResult) warnings.push(`[warn] missing result file: ${date}/${resultFile}`);
-			if (!hasSummaryMd && !hasSummaryTxt) warnings.push(`[warn] missing summary file: ${date}/${summaryMdFile}`);
+			if (!hasSummaryTxt) warnings.push(`[warn] missing summary file: ${date}/${summaryTxtFile}`);
 
 			items.push({
 				date,
@@ -98,13 +128,17 @@ async function main() {
 				venueSlug: slug,
 				predictionFile: hasPrediction ? `${date}/${predictionFile}` : null,
 				resultFile: hasResult ? `${date}/${resultFile}` : null,
-				summaryFile: hasSummaryMd ? `${date}/${summaryMdFile}` : hasSummaryTxt ? `${date}/${summaryTxtFile}` : null,
+				summaryFile: hasSummaryTxt ? `${date}/${summaryTxtFile}` : null,
+				predictionSizeBytes,
+				resultSizeBytes,
+				summarySizeBytes,
 			});
 		}
 	}
 
 	const payload = {
-		generatedAt: new Date().toISOString(),
+		generatedAt: getJstIsoString(),
+		source: "public/data/reviews",
 		items,
 	};
 

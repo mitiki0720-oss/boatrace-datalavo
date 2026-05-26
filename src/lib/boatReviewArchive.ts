@@ -7,10 +7,14 @@ export type BoatReviewArchiveItem = {
 	predictionFile?: string | null;
 	resultFile?: string | null;
 	summaryFile?: string | null;
+	predictionSizeBytes?: number | null;
+	resultSizeBytes?: number | null;
+	summarySizeBytes?: number | null;
 };
 
 export type BoatReviewArchiveIndex = {
 	generatedAt?: string;
+	source?: string;
 	items: BoatReviewArchiveItem[];
 };
 
@@ -20,33 +24,53 @@ export type BoatReviewArchiveVenueFiles = {
 	summaryText: string | null;
 };
 
-const BOAT_REVIEW_ARCHIVE_INDEX_URL = "data/boatrace/reviews/index.json";
+const BOAT_REVIEW_ARCHIVE_INDEX_URLS = [
+	"data/reviews/index.json",
+	"data/boatrace/reviews/index.json",
+];
+const BOAT_REVIEW_ARCHIVE_FILE_PREFIXES = [
+	"data/reviews",
+	"data/boatrace/reviews",
+];
 
 async function fetchTextFile(path: string | null | undefined): Promise<string | null> {
 	if (!path) return null;
 
-	try {
-		const response = await fetch(withBasePath(`data/boatrace/reviews/${path}`), { cache: "no-store" });
-		if (!response.ok) return null;
-		return await response.text();
-	} catch {
-		return null;
+	for (const prefix of BOAT_REVIEW_ARCHIVE_FILE_PREFIXES) {
+		try {
+			const response = await fetch(withBasePath(`${prefix}/${path}`), { cache: "no-store" });
+			if (!response.ok) {
+				continue;
+			}
+			return await response.text();
+		} catch {
+			continue;
+		}
 	}
+
+	return null;
 }
 
 export async function loadBoatReviewArchiveIndex(): Promise<BoatReviewArchiveIndex> {
-	try {
-		const response = await fetch(withBasePath(BOAT_REVIEW_ARCHIVE_INDEX_URL), { cache: "no-store" });
-		if (!response.ok) return { items: [] };
+	for (const indexUrl of BOAT_REVIEW_ARCHIVE_INDEX_URLS) {
+		try {
+			const response = await fetch(withBasePath(indexUrl), { cache: "no-store" });
+			if (!response.ok) {
+				continue;
+			}
 
-		const payload = await response.json() as Partial<BoatReviewArchiveIndex>;
-		return {
-			generatedAt: payload.generatedAt,
-			items: Array.isArray(payload.items) ? payload.items.filter((item) => item?.date && item?.venueSlug) as BoatReviewArchiveItem[] : [],
-		};
-	} catch {
-		return { items: [] };
+			const payload = await response.json() as Partial<BoatReviewArchiveIndex>;
+			return {
+				generatedAt: payload.generatedAt,
+				source: payload.source,
+				items: Array.isArray(payload.items) ? payload.items.filter((item) => item?.date && item?.venueSlug) as BoatReviewArchiveItem[] : [],
+			};
+		} catch {
+			continue;
+		}
 	}
+
+	return { items: [] };
 }
 
 export async function loadBoatReviewArchiveVenueFiles(item: BoatReviewArchiveItem): Promise<BoatReviewArchiveVenueFiles> {

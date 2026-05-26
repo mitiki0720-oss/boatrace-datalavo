@@ -32,7 +32,35 @@ type ReviewDataMode = "live" | "archive";
 
 const REVIEW_DRAFT_STORAGE_KEY = "kurari-boat-data-labo-review-summary-drafts";
 const HERO_IMAGE_PATH = "review-page/hero/review-hero-boat-summary-kurari-funako.png";
+const REVIEW_PAGE_BACKGROUND_URL = withBasePath("review-page/backgrounds/review-page-bg-water-archive.png");
 const WEEKDAY_LABELS = ["月", "火", "水", "木", "金", "土", "日"];
+
+const reviewRootStyle: CSSProperties = {
+	position: "relative",
+	minHeight: "100%",
+	overflow: "hidden",
+	paddingBottom: "40px",
+};
+
+const reviewBackgroundStyle: CSSProperties = {
+	position: "fixed",
+	inset: 0,
+	backgroundImage: `linear-gradient(180deg, rgba(241, 250, 255, 0.82), rgba(244, 250, 255, 0.92)), url(${REVIEW_PAGE_BACKGROUND_URL})`,
+	backgroundSize: "cover",
+	backgroundPosition: "center top",
+	backgroundRepeat: "no-repeat",
+	pointerEvents: "none",
+	zIndex: 0,
+	transform: "translateZ(0)",
+};
+
+const reviewGlowStyle: CSSProperties = {
+	position: "absolute",
+	inset: 0,
+	background: "radial-gradient(circle at 12% 0%, rgba(191, 239, 255, 0.28), transparent 28%), radial-gradient(circle at 88% 12%, rgba(226, 232, 255, 0.26), transparent 30%)",
+	pointerEvents: "none",
+	zIndex: 1,
+};
 
 const pageStyle: CSSProperties = {
 	display: "grid",
@@ -40,6 +68,8 @@ const pageStyle: CSSProperties = {
 	width: "100%",
 	padding: "18px 24px 96px",
 	boxSizing: "border-box",
+	position: "relative",
+	zIndex: 2,
 };
 
 const topGridStyle: CSSProperties = {
@@ -143,7 +173,8 @@ const panelStyle: CSSProperties = {
 	padding: "24px",
 	borderRadius: "28px",
 	border: `1px solid ${boatTheme.colors.line}`,
-	background: "rgba(255,255,255,0.94)",
+	background: "rgba(255,255,255,0.88)",
+	backdropFilter: "blur(16px)",
 	boxShadow: boatTheme.shadow.soft,
 	display: "grid",
 	gap: "16px",
@@ -207,7 +238,7 @@ const dateButtonStyle: CSSProperties = {
 
 const overviewGridStyle: CSSProperties = {
 	display: "grid",
-	gridTemplateColumns: "repeat(5, minmax(150px, 1fr))",
+	gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
 	gap: "12px",
 };
 
@@ -439,7 +470,7 @@ function normalizeLocalStorageValues<T>(map: Record<string, T> | T[]): T[] {
 }
 
 function getReviewFileName(date: string, venueSlug: string, suffix: "predictions" | "results" | "summary"): string {
-	const ext = suffix === "summary" ? "md" : "txt";
+	const ext = "txt";
 	return `${date}-${venueSlug}-${suffix}.${ext}`;
 }
 
@@ -447,6 +478,12 @@ function getMonthDates(dateSet: Set<string>, selectedDate: string): string[] {
 	return Array.from(dateSet)
 		.filter((date) => date.slice(0, 7) === selectedDate.slice(0, 7))
 		.sort((a, b) => a.localeCompare(b));
+}
+
+function formatFileSize(sizeBytes: number | null | undefined): string {
+	if (!sizeBytes || sizeBytes <= 0) return "-";
+	if (sizeBytes < 1024) return `${sizeBytes}B`;
+	return `${(sizeBytes / 1024).toFixed(sizeBytes >= 10 * 1024 ? 0 : 1)}KB`;
 }
 
 export function ReviewPage() {
@@ -480,6 +517,10 @@ export function ReviewPage() {
 	}, []);
 
 	const archiveDates = useMemo(() => getBoatReviewArchiveDates(archiveIndex), [archiveIndex]);
+	const archiveItemMap = useMemo(
+		() => new Map<string, BoatReviewArchiveItem>(archiveIndex.items.map((item) => [`${item.date}:${item.venueSlug}`, item])),
+		[archiveIndex],
+	);
 	const archiveDateSet = useMemo(() => new Set(archiveDates), [archiveDates]);
 	const activeLiveDate = useMemo(() => resolveActiveBoatOperationDate(todayFeed?.date), [todayFeed?.date]);
 	const liveDateSet = useMemo(() => new Set([activeLiveDate, shiftBoatOperationDate(activeLiveDate, -1)].filter(Boolean) as string[]), [activeLiveDate]);
@@ -499,13 +540,12 @@ export function ReviewPage() {
 		let active = true;
 
 		async function loadArchiveGroups() {
-			const shouldLoadArchive = mode === "archive" || selectedDate === operationalYesterday;
-			if (!shouldLoadArchive) {
+			const items = getBoatReviewArchiveItemsByDate(archiveIndex, selectedDate);
+			if (items.length <= 0) {
 				setArchiveGroups([]);
 				return;
 			}
 
-			const items = getBoatReviewArchiveItemsByDate(archiveIndex, selectedDate);
 			const groups = await Promise.all(items.map(async (item: BoatReviewArchiveItem) => {
 				const files = await loadBoatReviewArchiveVenueFiles(item);
 				return createArchiveBoatReviewVenueGroup({
@@ -525,13 +565,27 @@ export function ReviewPage() {
 		return () => {
 			active = false;
 		};
-	}, [archiveIndex, mode, operationalYesterday, selectedDate]);
+	}, [archiveIndex, selectedDate]);
 
-	const groups = mode === "archive"
-		? archiveGroups
-		: selectedDate === operationalYesterday && liveGroups.length <= 0
-			? archiveGroups
-			: liveGroups;
+	const archiveGroupMap = useMemo(
+		() => new Map<string, BoatReviewVenueGroup>(archiveGroups.map((group) => [group.key, group])),
+		[archiveGroups],
+	);
+
+	const groups = useMemo(() => {
+		if (mode === "archive") {
+			return archiveGroups;
+		}
+
+		const mergedGroups = [...liveGroups];
+		for (const archiveGroup of archiveGroups) {
+			if (!mergedGroups.some((group) => group.key === archiveGroup.key)) {
+				mergedGroups.push(archiveGroup);
+			}
+		}
+
+		return mergedGroups;
+	}, [archiveGroups, liveGroups, mode]);
 	const venueRows = useMemo(() => {
 		if (groups.length <= 1) return groups.length === 1 ? [groups] : [];
 		const firstRowCount = Math.ceil(groups.length / 2);
@@ -541,6 +595,14 @@ export function ReviewPage() {
 		if (groups.length === 0) return undefined;
 		return groups.find((group) => group.key === selectedVenueKey) ?? groups[0];
 	}, [groups, selectedVenueKey]);
+	const selectedLiveGroup = useMemo(
+		() => selectedGroup ? liveGroups.find((group) => group.key === selectedGroup.key) : undefined,
+		[liveGroups, selectedGroup],
+	);
+	const selectedArchiveGroup = useMemo(
+		() => selectedGroup ? archiveGroupMap.get(selectedGroup.key) : undefined,
+		[archiveGroupMap, selectedGroup],
+	);
 
 	useEffect(() => {
 		if (!selectedGroup) {
@@ -558,12 +620,12 @@ export function ReviewPage() {
 			return;
 		}
 		if (mode === "archive") {
-			setSummaryDraft(selectedGroup.summaryFileText || "summaryファイル未登録");
+			setSummaryDraft(selectedArchiveGroup?.summaryFileText || selectedGroup.summaryFileText || "summary未登録");
 			return;
 		}
 		const draftKey = `${selectedGroup.date}:${selectedGroup.venueSlug}`;
-		setSummaryDraft(readDrafts()[draftKey] ?? "");
-	}, [mode, selectedGroup]);
+		setSummaryDraft(readDrafts()[draftKey] ?? selectedArchiveGroup?.summaryFileText ?? "summary未登録");
+	}, [mode, selectedArchiveGroup, selectedGroup]);
 
 	const metrics = useMemo(() => {
 		const venueMetrics = groups.map(getBoatReviewVenueMetrics);
@@ -589,11 +651,50 @@ export function ReviewPage() {
 	}, [groups]);
 
 	const selectedMetrics = selectedGroup ? getBoatReviewVenueMetrics(selectedGroup) : null;
-	const predictionText = selectedGroup ? buildBoatPredictionSummaryText(selectedGroup) : "会場を選択してください";
-	const resultText = selectedGroup ? buildBoatResultSummaryText(selectedGroup) : "会場を選択してください";
+	const predictionText = useMemo(() => {
+		if (!selectedGroup) {
+			return "会場を選択してください";
+		}
+
+		if (mode === "archive") {
+			return selectedArchiveGroup ? buildBoatPredictionSummaryText(selectedArchiveGroup) : "予想ファイル未登録";
+		}
+
+		if (selectedLiveGroup) {
+			const hasLivePrediction = selectedLiveGroup.races.some((entry) => Boolean(entry.prediction?.predictionText?.trim()));
+			if (hasLivePrediction || !selectedArchiveGroup?.predictionFileText?.trim()) {
+				return buildBoatPredictionSummaryText(selectedLiveGroup);
+			}
+		}
+
+		return selectedArchiveGroup ? buildBoatPredictionSummaryText(selectedArchiveGroup) : "予想ファイル未登録";
+	}, [mode, selectedArchiveGroup, selectedGroup, selectedLiveGroup]);
+	const resultText = useMemo(() => {
+		if (!selectedGroup) {
+			return "会場を選択してください";
+		}
+
+		if (mode === "archive") {
+			return selectedArchiveGroup ? buildBoatResultSummaryText(selectedArchiveGroup) : "結果ファイル未登録";
+		}
+
+		if (selectedLiveGroup) {
+			const hasLiveResult = selectedLiveGroup.races.some((entry) => entry.practiceResult || entry.race?.result);
+			if (hasLiveResult || !selectedArchiveGroup?.resultFileText?.trim()) {
+				return buildBoatResultSummaryText(selectedLiveGroup);
+			}
+		}
+
+		return selectedArchiveGroup ? buildBoatResultSummaryText(selectedArchiveGroup) : "結果ファイル未登録";
+	}, [mode, selectedArchiveGroup, selectedGroup, selectedLiveGroup]);
 	const calendarCells = useMemo(() => buildCalendarCells(calendarMonth), [calendarMonth]);
 	const monthRegisteredDates = useMemo(() => getMonthDates(selectableDateSet, `${calendarMonth}-01`), [calendarMonth, selectableDateSet]);
 	const modeLabel = mode === "archive" ? "ARCHIVE FILE" : selectedDate === operationalToday ? "TODAY LIVE" : "YESTERDAY LIVE";
+	const sourceLabel = mode === "archive"
+		? "archive txt"
+		: selectedDate === operationalYesterday
+			? "localStorage優先 / archive fallback"
+			: "today localStorage";
 
 	const selectDate = (date: string) => {
 		if (date > operationalToday) return;
@@ -631,18 +732,21 @@ export function ReviewPage() {
 			heroMaxWidth="2040px"
 			hideHero
 		>
-			<div className="boat-review-workbench" style={pageStyle}>
+			<div className="review-page-root" style={reviewRootStyle}>
+				<div aria-hidden="true" style={reviewBackgroundStyle} />
+				<div aria-hidden="true" style={reviewGlowStyle} />
+				<div className="boat-review-workbench" style={pageStyle}>
 				<section className="boat-review-top" style={topGridStyle}>
 					<div className="boat-review-hero" style={heroStyle}>
 						<div style={{ display: "grid", gap: "22px", alignContent: "center" }}>
-							<p style={eyebrowStyle}>BOAT REVIEW SUMMARY</p>
+							<p style={eyebrowStyle}>REVIEW ARCHIVE LOUNGE</p>
 							<h1 style={titleStyle}>今日の予想と結果を、次の一手につなげる</h1>
-							<p style={textStyle}>GPT予想・公式結果・実践収支・レビューsummaryを、会場ごとにまとめて次回予想へ活かします。</p>
+							<p style={textStyle}>会場ごとに 1R〜12R の予想・結果・summary をまとめ、今日と昨日は localStorage、過去日は保存済み txt から自然に振り返るラウンジです。</p>
 							<div style={chipRowStyle}>
 								<span style={chipStyle}>{modeLabel}</span>
 								<span style={chipStyle}>選択日 {selectedDate}</span>
-								<span style={chipStyle}>6時切替</span>
-								<span style={chipStyle}>summary {metrics.summaryCount > 0 ? `${metrics.summaryCount}件あり` : "未登録"}</span>
+								<span style={chipStyle}>今日 / 昨日 / Archive</span>
+								<span style={chipStyle}>Summary {metrics.summaryCount > 0 ? `${metrics.summaryCount}件` : "未登録"}</span>
 							</div>
 						</div>
 						<div style={heroImageWrapStyle}>
@@ -677,6 +781,18 @@ export function ReviewPage() {
 							<button type="button" style={{ ...dateButtonStyle, background: selectedDate === operationalToday ? boatTheme.colors.navy : dateButtonStyle.background, color: selectedDate === operationalToday ? "#fff" : dateButtonStyle.color }} onClick={() => selectDate(operationalToday)}>今日<br />{operationalToday}</button>
 							<button type="button" style={{ ...dateButtonStyle, background: selectedDate === operationalYesterday ? boatTheme.colors.navy : dateButtonStyle.background, color: selectedDate === operationalYesterday ? "#fff" : dateButtonStyle.color }} onClick={() => selectDate(operationalYesterday)}>昨日<br />{operationalYesterday}</button>
 						</div>
+						<div style={overviewGridStyle}>
+							{[
+								["Archive件数", `${archiveIndex.items.length}件`],
+								["Summary件数", `${archiveIndex.items.filter((item) => item.summaryFile).length}件`],
+								["データ源", sourceLabel],
+							].map(([label, value]) => (
+								<article key={label} style={summaryCardStyle}>
+									<p style={summaryLabelStyle}>{label}</p>
+									<p style={{ ...summaryValueStyle, fontSize: "0.92rem" }}>{value}</p>
+								</article>
+							))}
+						</div>
 						<div style={calendarGridStyle}>
 							{WEEKDAY_LABELS.map((label) => <div key={label} style={{ textAlign: "center", color: boatTheme.colors.muted, fontWeight: 900, fontSize: "0.72rem" }}>{label}</div>)}
 							{calendarCells.map((date) => {
@@ -710,8 +826,8 @@ export function ReviewPage() {
 				<section style={panelStyle}>
 					<div style={sectionHeaderStyle}>
 						<div>
-							<p style={eyebrowStyle}>Review Target</p>
-							<h2 style={sectionTitleStyle}>レビュー対象の日付・会場を確認</h2>
+							<p style={eyebrowStyle}>Status Strip</p>
+							<h2 style={sectionTitleStyle}>対象日とレビューソース</h2>
 						</div>
 						<div style={buttonRowStyle}>
 							<button type="button" style={secondaryButtonStyle} onClick={refreshLiveData}>localStorage / generated JSON 再読み込み</button>
@@ -721,12 +837,12 @@ export function ReviewPage() {
 					<div style={overviewGridStyle}>
 						{[
 							["選択日", selectedDate],
-							["表示モード", mode === "archive" ? "保存ファイル" : "今日/昨日 live"],
+							["表示モード", mode === "archive" ? "Archive txt" : "今日/昨日 localStorage"],
 							["対象会場", `${metrics.venueCount}会場`],
-							["予想保存", `${metrics.predictionCount}R`],
-							["結果取得", `${metrics.resultCount}R`],
-							["実践保存", `${metrics.practiceCount}R`],
-							["的中", `${metrics.hitCount}件`],
+							["予想ファイル", `${archiveIndex.items.filter((item) => item.date === selectedDate && item.predictionFile).length}件`],
+							["結果ファイル", `${archiveIndex.items.filter((item) => item.date === selectedDate && item.resultFile).length}件`],
+							["summary", `${archiveIndex.items.filter((item) => item.date === selectedDate && item.summaryFile).length}件`],
+							["会場ソース", sourceLabel],
 							["投資", formatYen(metrics.investment)],
 							["払戻", formatYen(metrics.payout)],
 							["回収率", formatPercent(metrics.roi)],
@@ -743,9 +859,9 @@ export function ReviewPage() {
 					<div style={sectionHeaderStyle}>
 						<div>
 							<p style={eyebrowStyle}>Venue Cards</p>
-							<h2 style={sectionTitleStyle}>{mode === "archive" ? "保存ファイルがある会場を、見やすいカードで振り返る" : "今日・昨日に予想した会場を、朝に振り返る"}</h2>
+							<h2 style={sectionTitleStyle}>{mode === "archive" ? "保存した txt を会場ごとに開く" : "今日・昨日の会場を localStorage 優先で振り返る"}</h2>
 						</div>
-						<p style={{ ...textStyle, fontSize: "0.82rem", textAlign: "right" }}>会場カードを押すと、下の予想まとめ・結果まとめ・summary欄が切り替わります。</p>
+						<p style={{ ...textStyle, fontSize: "0.82rem", textAlign: "right" }}>会場カードを押すと、予想全文・結果全文・summary全文が下の欄で切り替わります。</p>
 					</div>
 					{groups.length > 0 ? (
 						<div style={venueRowsStyle}>
@@ -758,6 +874,10 @@ export function ReviewPage() {
 									{row.map((group) => {
 										const isSelected = selectedGroup?.key === group.key;
 										const itemMetrics = getBoatReviewVenueMetrics(group);
+											const archiveItem = archiveItemMap.get(group.key);
+											const hasPredictionAsset = Boolean(group.races.some((entry) => entry.prediction?.predictionText?.trim()) || archiveItem?.predictionFile);
+											const hasResultAsset = Boolean(group.races.some((entry) => entry.practiceResult || entry.race?.result) || archiveItem?.resultFile);
+											const hasSummaryAsset = Boolean(summaryDraft && selectedGroup?.key === group.key ? summaryDraft !== "summary未登録" : archiveItem?.summaryFile || group.summaryFileText);
 										return (
 											<button
 												key={group.key}
@@ -775,19 +895,20 @@ export function ReviewPage() {
 											>
 												<div style={{ ...chipRowStyle, justifyContent: "space-between", alignItems: "center" }}>
 													<strong style={{ color: boatTheme.colors.navy, fontSize: "1.08rem", lineHeight: 1.15 }}>{group.venueName}</strong>
-													<span style={{ ...chipStyle, padding: "7px 10px", fontSize: "0.66rem", background: itemMetrics.hasSummary ? "rgba(221, 252, 239, 0.92)" : "rgba(241, 249, 252, 0.9)" }}>{itemMetrics.hasSummary ? "summaryあり" : "summaryなし"}</span>
+														<span style={{ ...chipStyle, padding: "7px 10px", fontSize: "0.66rem", background: mode === "archive" ? "rgba(232, 224, 255, 0.84)" : "rgba(224, 242, 254, 0.88)" }}>{mode === "archive" ? "archive" : archiveItem ? "live + archive" : "live"}</span>
 												</div>
 												<p style={{ ...textStyle, fontSize: "0.72rem", lineHeight: 1.55, minHeight: "2.25em" }}>{group.date} / {group.title || "開催名確認中"}</p>
+													<div style={chipRowStyle}>
+														<span style={{ ...chipStyle, fontSize: "0.68rem", background: hasPredictionAsset ? "rgba(224, 242, 254, 0.9)" : "rgba(248, 250, 252, 0.9)" }}>prediction {hasPredictionAsset ? "あり" : "なし"}</span>
+														<span style={{ ...chipStyle, fontSize: "0.68rem", background: hasResultAsset ? "rgba(224, 242, 254, 0.9)" : "rgba(248, 250, 252, 0.9)" }}>result {hasResultAsset ? "あり" : "なし"}</span>
+														<span style={{ ...chipStyle, fontSize: "0.68rem", background: hasSummaryAsset ? "rgba(221, 252, 239, 0.92)" : "rgba(248, 250, 252, 0.9)" }}>summary {hasSummaryAsset ? "あり" : "なし"}</span>
+													</div>
 												<div style={metricGridStyle}>
 													{[
-														["予想", `${itemMetrics.predictionCount}R`],
-														["結果", `${itemMetrics.resultCount}R`],
-														["実践", `${itemMetrics.practiceCount}R`],
-														["的中", `${itemMetrics.hitCount}件`],
-														["投資", formatYen(itemMetrics.investment)],
-														["払戻", formatYen(itemMetrics.payout)],
-														["収支", formatSignedYen(itemMetrics.profit)],
-														["回収率", formatPercent(itemMetrics.roi)],
+															["予想", archiveItem?.predictionSizeBytes ? formatFileSize(archiveItem.predictionSizeBytes) : `${itemMetrics.predictionCount}R`],
+															["結果", archiveItem?.resultSizeBytes ? formatFileSize(archiveItem.resultSizeBytes) : `${itemMetrics.resultCount}R`],
+															["summary", archiveItem?.summarySizeBytes ? formatFileSize(archiveItem.summarySizeBytes) : itemMetrics.hasSummary ? "あり" : "なし"],
+															["収支", formatSignedYen(itemMetrics.profit)],
 													].map(([label, value]) => (
 													<div key={label} style={metricStyle}>
 														<p style={metricLabelStyle}>{label}</p>
@@ -802,7 +923,7 @@ export function ReviewPage() {
 							))}
 						</div>
 					) : (
-						<p style={emptyStyle}>この日付の会場データは未登録です。今日・昨日は保存済み予想または generated JSON、過去日は public/data/boatrace/reviews/index.json を確認します。</p>
+						<p style={emptyStyle}>この日付の会場データは未登録です。今日・昨日は localStorage を優先し、過去日は public/data/reviews/index.json から txt を読み込みます。</p>
 					)}
 				</section>
 
@@ -845,18 +966,18 @@ export function ReviewPage() {
 								<p style={eyebrowStyle}>GPT Review Summary</p>
 								<h2 style={sectionTitleStyle}>GPTレビュー貼り付け欄</h2>
 							</div>
-							{mode === "archive" ? <span style={chipStyle}>保存ファイル表示</span> : <span style={chipStyle}>localStorage下書き</span>}
+							{mode === "archive" ? <span style={chipStyle}>保存ファイル表示</span> : <span style={chipStyle}>localStorage下書き / archive fallback</span>}
 						</div>
 						<textarea
 							style={summaryTextareaStyle}
 							value={summaryDraft}
 							onChange={(event) => handleSummaryChange(event.target.value)}
 							readOnly={mode === "archive"}
-							placeholder="ここにGPTレビューsummaryを貼り付けます。保存ファイルがある過去日はsummary.mdを表示します。"
+							placeholder="ここにGPTレビューsummaryを貼り付けます。保存ファイルがある過去日は summary.txt を表示します。"
 						/>
 						<div style={buttonRowStyle}>
 							<button type="button" style={primaryButtonStyle} onClick={() => void handleCopy(summaryDraft, "summary")}>summaryをコピー</button>
-							<button type="button" style={secondaryButtonStyle} onClick={() => selectedGroup && downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "summary"), summaryDraft)}>summaryを .md ダウンロード</button>
+							<button type="button" style={secondaryButtonStyle} onClick={() => selectedGroup && downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "summary"), summaryDraft)}>summaryを .txt ダウンロード</button>
 							{mode === "live" ? <span style={chipStyle}>入力内容は会場ごとに自動保存</span> : null}
 						</div>
 					</section>
@@ -886,6 +1007,7 @@ export function ReviewPage() {
 						}
 					}
 				`}</style>
+				</div>
 			</div>
 		</PageShell>
 	);
