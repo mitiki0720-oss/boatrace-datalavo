@@ -267,20 +267,23 @@ const venueRowsStyle: CSSProperties = {
 
 const venueRowStyle: CSSProperties = {
 	display: "grid",
-	gap: "16px",
+	gridTemplateColumns: "repeat(auto-fill, minmax(250px, 270px))",
+	gap: "18px",
 	alignItems: "stretch",
+	justifyContent: "start",
 };
 
 const venueCardStyle: CSSProperties = {
 	width: "100%",
-	minHeight: "178px",
+	minHeight: "198px",
+	aspectRatio: "1.18 / 1",
 	textAlign: "left",
-	padding: "18px",
+	padding: "16px",
 	borderRadius: "24px",
-	border: "1px solid rgba(179, 155, 255, 0.38)",
+	border: "1px solid rgba(179, 155, 255, 0.42)",
 	background:
-		"radial-gradient(circle at 12% 0%, rgba(230, 221, 255, 0.62), transparent 40%), radial-gradient(circle at 100% 10%, rgba(214, 245, 255, 0.5), transparent 36%), linear-gradient(145deg, rgba(255,255,255,0.98), rgba(248,244,255,0.94) 56%, rgba(239,250,255,0.92))",
-	boxShadow: "0 16px 34px rgba(93, 76, 143, 0.08)",
+		"radial-gradient(circle at 8% 0%, rgba(221, 214, 254, 0.72), transparent 42%), radial-gradient(circle at 100% 8%, rgba(224, 242, 254, 0.54), transparent 38%), linear-gradient(145deg, rgba(255,255,255,0.98), rgba(249,246,255,0.95) 56%, rgba(240,250,255,0.92))",
+	boxShadow: "0 18px 38px rgba(93, 76, 143, 0.09)",
 	cursor: "pointer",
 	display: "grid",
 	gridTemplateRows: "auto 1fr",
@@ -297,13 +300,13 @@ const metricGridStyle: CSSProperties = {
 };
 
 const metricStyle: CSSProperties = {
-	padding: "11px 12px",
-	borderRadius: "16px",
-	background: "linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,244,255,0.84))",
-	border: "1px solid rgba(179, 155, 255, 0.28)",
+	padding: "10px 9px",
+	borderRadius: "15px",
+	background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,244,255,0.86))",
+	border: "1px solid rgba(179, 155, 255, 0.3)",
 	display: "grid",
 	gap: "3px",
-	minHeight: "58px",
+	minHeight: "56px",
 };
 
 const metricLabelStyle: CSSProperties = {
@@ -894,7 +897,7 @@ export function ReviewPage() {
 								<div
 									key={`venue-row-${rowIndex}`}
 									className="boat-review-venue-row"
-									style={{ ...venueRowStyle, gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))` }}
+									style={venueRowStyle}
 								>
 									{row.map((group) => {
 										const isSelected = selectedGroup?.key === group.key;
@@ -907,9 +910,9 @@ export function ReviewPage() {
 												onClick={() => setSelectedVenueKey(group.key)}
 												style={{
 													...venueCardStyle,
-													border: isSelected ? "1px solid rgba(24, 115, 152, 0.68)" : venueCardStyle.border,
+													border: isSelected ? "1px solid rgba(124, 92, 255, 0.58)" : venueCardStyle.border,
 													background: isSelected
-														? "radial-gradient(circle at 12% 0%, rgba(221, 214, 254, 0.78), transparent 42%), radial-gradient(circle at 100% 10%, rgba(186, 230, 253, 0.52), transparent 38%), linear-gradient(145deg, rgba(255,255,255,0.99), rgba(247,244,255,0.96))"
+														? "radial-gradient(circle at 8% 0%, rgba(221, 214, 254, 0.82), transparent 42%), radial-gradient(circle at 100% 8%, rgba(186, 230, 253, 0.58), transparent 38%), linear-gradient(145deg, rgba(255,255,255,0.99), rgba(247,244,255,0.96))"
 														: venueCardStyle.background,
 													boxShadow: isSelected ? "0 20px 38px rgba(17,64,92,0.14)" : venueCardStyle.boxShadow,
 												}}
