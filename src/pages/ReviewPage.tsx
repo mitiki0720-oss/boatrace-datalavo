@@ -260,14 +260,9 @@ const summaryValueStyle: CSSProperties = {
 	lineHeight: 1.2,
 };
 
-const venueRowsStyle: CSSProperties = {
+const venueGridStyle: CSSProperties = {
 	display: "grid",
-	gap: "16px",
-};
-
-const venueRowStyle: CSSProperties = {
-	display: "grid",
-	gridTemplateColumns: "repeat(auto-fill, minmax(250px, 270px))",
+	gridTemplateColumns: "repeat(auto-fill, minmax(260px, 280px))",
 	gap: "18px",
 	alignItems: "stretch",
 	justifyContent: "start",
@@ -295,7 +290,7 @@ const venueCardStyle: CSSProperties = {
 const metricGridStyle: CSSProperties = {
 	display: "grid",
 	gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-	gap: "9px",
+	gap: "8px",
 	alignSelf: "end",
 };
 
@@ -319,7 +314,7 @@ const metricLabelStyle: CSSProperties = {
 const metricValueStyle: CSSProperties = {
 	margin: 0,
 	color: boatTheme.colors.navy,
-	fontSize: "0.95rem",
+	fontSize: "0.98rem",
 	fontWeight: 950,
 	lineHeight: 1.15,
 };
@@ -507,12 +502,6 @@ function getMonthDates(dateSet: Set<string>, selectedDate: string): string[] {
 		.sort((a, b) => a.localeCompare(b));
 }
 
-function formatFileSize(sizeBytes: number | null | undefined): string {
-	if (!sizeBytes || sizeBytes <= 0) return "-";
-	if (sizeBytes < 1024) return `${sizeBytes}B`;
-	return `${(sizeBytes / 1024).toFixed(sizeBytes >= 10 * 1024 ? 0 : 1)}KB`;
-}
-
 export function ReviewPage() {
 	const operationalToday = useMemo(() => getBoatOperationDate(), []);
 	const operationalYesterday = useMemo(() => shiftBoatOperationDate(operationalToday, -1), [operationalToday]);
@@ -620,11 +609,6 @@ export function ReviewPage() {
 
 	return mergedGroups;
 }, [archiveGroups, archiveItemMap, liveGroups, mode]);
-	const venueRows = useMemo(() => {
-		if (groups.length <= 1) return groups.length === 1 ? [groups] : [];
-		const firstRowCount = Math.ceil(groups.length / 2);
-		return [groups.slice(0, firstRowCount), groups.slice(firstRowCount)].filter((row) => row.length > 0);
-	}, [groups]);
 	const selectedGroup = useMemo(() => {
 		if (groups.length === 0) return undefined;
 		return groups.find((group) => group.key === selectedVenueKey) ?? groups[0];
@@ -892,138 +876,111 @@ export function ReviewPage() {
 						<p style={{ ...textStyle, fontSize: "0.82rem", textAlign: "right" }}>会場カードを押すと、予想全文・結果全文・summary全文が下の欄で切り替わります。</p>
 					</div>
 					{groups.length > 0 ? (
-						<div style={venueRowsStyle}>
-							{venueRows.map((row, rowIndex) => (
-								<div
-									key={`venue-row-${rowIndex}`}
-									className="boat-review-venue-row"
-									style={venueRowStyle}
-								>
-									{row.map((group) => {
-										const isSelected = selectedGroup?.key === group.key;
-										const itemMetrics = getBoatReviewVenueMetrics(group);
-										return (
-											<button
-												key={group.key}
-												type="button"
-												className="boat-review-venue-card"
-												onClick={() => setSelectedVenueKey(group.key)}
-												style={{
-													...venueCardStyle,
-													border: isSelected ? "1px solid rgba(124, 92, 255, 0.58)" : venueCardStyle.border,
-													background: isSelected
-														? "radial-gradient(circle at 8% 0%, rgba(221, 214, 254, 0.82), transparent 42%), radial-gradient(circle at 100% 8%, rgba(186, 230, 253, 0.58), transparent 38%), linear-gradient(145deg, rgba(255,255,255,0.99), rgba(247,244,255,0.96))"
-														: venueCardStyle.background,
-													boxShadow: isSelected ? "0 20px 38px rgba(17,64,92,0.14)" : venueCardStyle.boxShadow,
-												}}
-																						>
-												<div style={{ display: "grid", gap: "8px" }}>
-													<div style={{ display: "flex", justifyContent: "space-between", gap: "10px", alignItems: "flex-start" }}>
-														<div style={{ display: "grid", gap: "4px", minWidth: 0 }}>
-															<p
-																style={{
-																	margin: 0,
-																	color: "#7c5cff",
-																	fontSize: "0.72rem",
-																	fontWeight: 950,
-																	letterSpacing: "0.08em",
-																}}
-															>
-																{formatVenueCardDate(group.date)}
-															</p>
-															<strong
-																style={{
-																	color: boatTheme.colors.navy,
-																	fontSize: "1.45rem",
-																	lineHeight: 1.05,
-																	letterSpacing: "-0.04em",
-																}}
-															>
-																{group.venueName}
-															</strong>
-															<p
-																style={{
-																	margin: 0,
-																	color: boatTheme.colors.muted,
-																	fontSize: "0.78rem",
-																	fontWeight: 700,
-																	whiteSpace: "nowrap",
-																	overflow: "hidden",
-																	textOverflow: "ellipsis",
-																}}
-															>
-																{group.title || `${group.venueName} 出走表一覧`}
-															</p>
-														</div>
+						<div className="review-venue-grid" style={venueGridStyle}>
+							{groups.map((group) => {
+								const isSelected = selectedGroup?.key === group.key;
+								const itemMetrics = getBoatReviewVenueMetrics(group);
+								const sessionLabel = getVenueSessionLabel(group);
+								return (
+									<button
+										key={group.key}
+										type="button"
+										className="boat-review-venue-card"
+										onClick={() => setSelectedVenueKey(group.key)}
+										style={{
+											...venueCardStyle,
+											border: isSelected ? "1px solid rgba(124, 92, 255, 0.58)" : venueCardStyle.border,
+											background: isSelected
+												? "radial-gradient(circle at 8% 0%, rgba(221, 214, 254, 0.82), transparent 42%), radial-gradient(circle at 100% 8%, rgba(186, 230, 253, 0.58), transparent 38%), linear-gradient(145deg, rgba(255,255,255,0.99), rgba(247,244,255,0.96))"
+												: venueCardStyle.background,
+											boxShadow: isSelected ? "0 18px 42px rgba(124, 92, 255, 0.16)" : venueCardStyle.boxShadow,
+										}}
+									>
+										<div style={{ display: "grid", gap: "12px", alignContent: "start" }}>
+											<div style={{ display: "grid", gap: "4px", minWidth: 0 }}>
+												<p
+													style={{
+														margin: 0,
+														color: "#7c5cff",
+														fontSize: "0.72rem",
+														fontWeight: 950,
+														letterSpacing: "0.08em",
+													}}
+												>
+													{formatVenueCardDate(group.date)}
+												</p>
+												<strong
+													style={{
+														color: boatTheme.colors.navy,
+														fontSize: "1.4rem",
+														lineHeight: 1.05,
+														letterSpacing: "-0.04em",
+													}}
+												>
+													{group.venueName}
+												</strong>
+												<p
+													style={{
+														margin: 0,
+														color: boatTheme.colors.muted,
+														fontSize: "0.78rem",
+														fontWeight: 700,
+														lineHeight: 1.45,
+													}}
+												>
+													{group.title || `${group.venueName} 出走表一覧`}
+												</p>
+											</div>
 
-														<div style={{ display: "grid", gap: "7px", justifyItems: "end", flexShrink: 0 }}>
-															<span
-																style={{
-																	...chipStyle,
-																	padding: "6px 10px",
-																	fontSize: "0.68rem",
-																	background: "rgba(238, 232, 255, 0.96)",
-																	border: "1px solid rgba(167, 139, 250, 0.38)",
-																	color: "#5b4ab5",
-																}}
-															>
-																{getVenueStageLabel(group)}
-															</span>
-															{getVenueSessionLabel(group) ? (
-																<span
-																	style={{
-																		margin: 0,
-																		color: "#9a6a1a",
-																		fontSize: "0.72rem",
-																		fontWeight: 850,
-																	}}
-																>
-																	{getVenueSessionLabel(group)}
-																</span>
-															) : null}
-														</div>
-													</div>
-												</div>
+											<div style={{ display: "grid", gap: "4px" }}>
+												<p style={{ margin: 0, color: boatTheme.colors.navy, fontSize: "0.82rem", fontWeight: 900 }}>
+													{getVenueStageLabel(group)}
+												</p>
+												{sessionLabel ? (
+													<p style={{ margin: 0, color: "#9a6a1a", fontSize: "0.76rem", fontWeight: 850 }}>
+														{sessionLabel}
+													</p>
+												) : null}
+											</div>
+										</div>
 
-												<div style={metricGridStyle}>
-													{[
-														["払戻", formatYen(itemMetrics.payout), "払い戻し合計"],
-														["収支", formatSignedYen(itemMetrics.profit), itemMetrics.profit >= 0 ? "プラス収支" : "マイナス収支"],
-														["的中率", formatPercent(itemMetrics.practiceCount > 0 ? itemMetrics.hitCount / itemMetrics.practiceCount * 100 : 0), getVenueHitLine(itemMetrics)],
-													].map(([label, value, caption]) => (
-														<div key={label} style={metricStyle}>
-															<p style={metricLabelStyle}>{label}</p>
-															<p
-																style={{
-																	...metricValueStyle,
-																	color:
-																		label === "収支"
-																			? itemMetrics.profit >= 0
-																				? "#0f75a8"
-																				: "#7f3150"
-																			: boatTheme.colors.navy,
-																}}
-															>
-																{value}
-															</p>
-															<p
-																style={{
-																	margin: 0,
-																	color: boatTheme.colors.muted,
-																	fontSize: "0.58rem",
-																	fontWeight: 750,
-																}}
-															>
-																{caption}
-															</p>
-														</div>
-													))}
+										<div style={metricGridStyle}>
+											{[
+												["払戻", formatYen(itemMetrics.payout), "払い戻し合計"],
+												["収支", formatSignedYen(itemMetrics.profit), itemMetrics.profit >= 0 ? "プラス収支" : "マイナス収支"],
+												["的中率", formatPercent(itemMetrics.practiceCount > 0 ? itemMetrics.hitCount / itemMetrics.practiceCount * 100 : 0), getVenueHitLine(itemMetrics)],
+											].map(([label, value, caption]) => (
+												<div key={label} style={metricStyle}>
+													<p style={metricLabelStyle}>{label}</p>
+													<p
+														style={{
+															...metricValueStyle,
+															color:
+																label === "収支"
+																	? itemMetrics.profit >= 0
+																		? "#0f75a8"
+																		: "#7f3150"
+																	: boatTheme.colors.navy,
+														}}
+													>
+														{value}
+													</p>
+													<p
+														style={{
+															margin: 0,
+															color: boatTheme.colors.muted,
+															fontSize: "0.58rem",
+															fontWeight: 750,
+														}}
+													>
+														{caption}
+													</p>
 												</div>
-											</button>
-										);
-									})}
-								</div>
-							))}
+											))}
+										</div>
+									</button>
+								);
+							})}
 						</div>
 					) : (
 						<p style={emptyStyle}>この日付の会場データは未登録です。今日・昨日は localStorage を優先し、過去日は public/data/reviews/index.json から txt を読み込みます。</p>
@@ -1118,11 +1075,6 @@ export function ReviewPage() {
 						z-index: 1;
 					}
 
-					@media (max-width: 1380px) {
-						.boat-review-venue-row {
-							grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
-						}
-					}
 					@media (max-width: 1180px) {
 						.boat-review-top,
 						.boat-review-copy-grid {
@@ -1132,12 +1084,14 @@ export function ReviewPage() {
 							grid-template-columns: 1fr !important;
 						}
 					}
+					@media (max-width: 720px) {
+						.review-venue-grid {
+							grid-template-columns: 1fr !important;
+						}
+					}
 					@media (max-width: 760px) {
 						.boat-review-workbench {
 							padding-inline: 4px !important;
-						}
-						.boat-review-venue-row {
-							grid-template-columns: 1fr !important;
 						}
 					}
 				`}</style>
