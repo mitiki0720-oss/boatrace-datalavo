@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { parseBoatBets, type ParsedBoatBet } from "../lib/boatBetParser";
 import { withBasePath } from "../lib/assetPath";
+import { BOAT_JOHNSON_PREDICTION_STORAGE_KEY } from "../lib/boatJohnsonPredictionStorage";
 
 const MOBILE_PAGE_BACKGROUND_URL = withBasePath("mobile-page/backgrounds/mobile-page-bg-water-sky.png");
 
@@ -24,6 +25,7 @@ type MobilePredictionRecord = AnyRecord & {
   venueCode?: string;
   raceNo?: number;
   predictionText?: string;
+  sourceType?: "johnson" | "prediction" | "practice";
 };
 
 type MobilePracticeRecord = AnyRecord & {
@@ -62,6 +64,7 @@ type MobileTab = "entry" | "prediction" | "result" | "info";
 const TODAY_DETAILS_URL = withBasePath("data/boatrace/today-race-details.generated.json");
 const TODAY_FALLBACK_URL = withBasePath("data/boatrace/today.generated.json");
 const VENUE_EXTRAS_URL = withBasePath("data/boatrace/venue-extras.generated.json");
+const JOHNSON_STORAGE_KEY = BOAT_JOHNSON_PREDICTION_STORAGE_KEY;
 const PREDICTION_STORAGE_KEY = "kurari-boat-data-labo-prediction-records";
 const PRACTICE_STORAGE_KEY = "kurari-boat-data-labo-practice-results";
 
@@ -227,7 +230,19 @@ const loadPredictionRecords = (): MobilePredictionRecord[] => {
   if (typeof window === "undefined") return [];
   try {
     const parsed: unknown = JSON.parse(window.localStorage.getItem(PREDICTION_STORAGE_KEY) || "{}");
-    return asArray<MobilePredictionRecord>(parsed);
+    return asArray<MobilePredictionRecord>(parsed).map((record) => ({ ...record, sourceType: "prediction" }));
+  } catch {
+    return [];
+  }
+};
+
+const loadJohnsonPredictionRecords = (): MobilePredictionRecord[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const parsed: unknown = JSON.parse(window.localStorage.getItem(JOHNSON_STORAGE_KEY) || "{}");
+    const root = asRecord(parsed);
+    const records = asArray<MobilePredictionRecord>(root.records ?? parsed);
+    return records.map((record) => ({ ...record, sourceType: "johnson" }));
   } catch {
     return [];
   }
@@ -241,6 +256,59 @@ const loadPracticeRecords = (): MobilePracticeRecord[] => {
   } catch {
     return [];
   }
+};
+
+const buildPredictionSourceKey = (record: { date?: string; venueName?: string; venueCode?: string; raceNo?: number }): string =>
+  [
+    readString(record.date),
+    readString(record.venueCode) || normalizeVenue(record.venueName),
+    String(readNumber(record.raceNo)),
+  ].join(":");
+
+const buildPracticePredictionFallbacks = (records: MobilePracticeRecord[]): MobilePredictionRecord[] =>
+  records.map((record) => {
+    const hitBetType = readString(record.hitBetType) || "保存済み実践";
+    const hitBetNumbers = normalizeCombo(record.hitBetNumbers);
+    const finishOrder = normalizeCombo(record.finishOrder ?? record.actualOrder);
+    const lines = [
+      hitBetNumbers ? `${hitBetType} ${hitBetNumbers}` : hitBetType,
+      finishOrder ? `結果 ${finishOrder}` : "",
+      readString(record.practiceMemo ?? record.memo),
+    ].filter(Boolean);
+
+    return {
+      ...record,
+      predictionText: lines.join("\n"),
+      sourceType: "practice",
+    };
+  });
+
+const mergePredictionSources = (
+  johnsonRecords: MobilePredictionRecord[],
+  predictionRecords: MobilePredictionRecord[],
+  practiceRecords: MobilePracticeRecord[],
+): MobilePredictionRecord[] => {
+  const merged = new Map<string, MobilePredictionRecord>();
+
+  for (const record of johnsonRecords) {
+    merged.set(buildPredictionSourceKey(record), record);
+  }
+
+  for (const record of predictionRecords) {
+    const key = buildPredictionSourceKey(record);
+    if (!merged.has(key)) {
+      merged.set(key, record);
+    }
+  }
+
+  for (const record of buildPracticePredictionFallbacks(practiceRecords)) {
+    const key = buildPredictionSourceKey(record);
+    if (!merged.has(key)) {
+      merged.set(key, record);
+    }
+  }
+
+  return Array.from(merged.values());
 };
 
 const getRaceNo = (race: AnyRecord): number => readNumber(race.raceNo ?? race.raceNumber ?? race.number);
@@ -521,6 +589,7 @@ function MobileBottomNav({ activeTab, onTab }: { activeTab: MobileTab; onTab: (t
 export function MobilePage() {
   const [feed, setFeed] = useState<MobileFeed | null>(null);
   const [extraVenues, setExtraVenues] = useState<AnyRecord[]>([]);
+  const [johnsonRecords, setJohnsonRecords] = useState<MobilePredictionRecord[]>(() => loadJohnsonPredictionRecords());
   const [predictionRecords, setPredictionRecords] = useState<MobilePredictionRecord[]>(() => loadPredictionRecords());
   const [practiceRecords, setPracticeRecords] = useState<MobilePracticeRecord[]>(() => loadPracticeRecords());
   const [selectedVenueIndex, setSelectedVenueIndex] = useState(0);
@@ -541,6 +610,7 @@ export function MobilePage() {
 
   useEffect(() => {
     const refreshStorage = () => {
+      setJohnsonRecords(loadJohnsonPredictionRecords());
       setPredictionRecords(loadPredictionRecords());
       setPracticeRecords(loadPracticeRecords());
     };
@@ -558,6 +628,10 @@ export function MobilePage() {
   const selectedVenue = venues[selectedVenueIndex] ?? venues[0];
   const selectedRace = selectedVenue?.races.find((race) => getRaceNo(race) === selectedRaceNo) ?? selectedVenue?.races[0];
   const selectedRaceNumber = selectedRace ? getRaceNo(selectedRace) : selectedRaceNo;
+  const prioritizedPredictionRecords = useMemo(
+    () => mergePredictionSources(johnsonRecords, predictionRecords, practiceRecords),
+    [johnsonRecords, predictionRecords, practiceRecords],
+  );
   const extraVenue = useMemo(() => findExtraVenue(extraVenues, selectedVenue), [extraVenues, selectedVenue]);
   const extraRace = useMemo(() => findExtraRace(extraVenue, selectedRaceNumber), [extraVenue, selectedRaceNumber]);
   const currentDate = feed?.date ?? new Date().toISOString().slice(0, 10);
@@ -586,15 +660,22 @@ export function MobilePage() {
   const venueSummaries = useMemo(() => {
     return venues.map((venue) => {
       const normalized = normalizeVenue(venue.venueName);
-      const predictions = predictionRecords.filter((record) => readString(record.date) === currentDate && normalizeVenue(record.venueName) === normalized);
+      const predictions = prioritizedPredictionRecords.filter((record) => readString(record.date) === currentDate && normalizeVenue(record.venueName) === normalized);
       const results = venue.races.filter(isRaceConfirmed);
       const practice = dayPracticeRecords.filter((record) => normalizeVenue(record.venueName) === normalized || readString(record.venueCode) === venue.venueCode);
       return { predictions: predictions.length, results: results.length, practice: practice.length, hits: practice.filter(isHitPractice).length };
     });
-  }, [venues, predictionRecords, currentDate, dayPracticeRecords]);
+  }, [venues, prioritizedPredictionRecords, currentDate, dayPracticeRecords]);
 
-  const selectedPrediction = findPrediction(predictionRecords, currentDate, selectedVenue, selectedRaceNumber);
+  const selectedPrediction = findPrediction(prioritizedPredictionRecords, currentDate, selectedVenue, selectedRaceNumber);
   const selectedPractice = findPractice(practiceRecords, currentDate, selectedVenue, selectedRaceNumber);
+  const selectedPredictionSourceLabel = selectedPrediction?.sourceType === "johnson"
+    ? "johnson保存"
+    : selectedPrediction?.sourceType === "practice"
+      ? "実践結果由来"
+      : selectedPrediction?.sourceType === "prediction"
+        ? "通常保存"
+        : "未保存";
   const predictionText = readString(selectedPrediction?.predictionText);
   const betSummary = useMemo(() => parseBoatBets(predictionText), [predictionText]);
   const finishOrder = readFinishOrder(selectedRace ?? {});
@@ -688,7 +769,7 @@ export function MobilePage() {
             {(selectedVenue?.races ?? []).map((race) => {
               const raceNo = getRaceNo(race);
               const active = raceNo === selectedRaceNumber;
-              const hasPrediction = Boolean(findPrediction(predictionRecords, currentDate, selectedVenue, raceNo));
+              const hasPrediction = Boolean(findPrediction(prioritizedPredictionRecords, currentDate, selectedVenue, raceNo));
               const hasPractice = Boolean(findPractice(practiceRecords, currentDate, selectedVenue, raceNo));
               return (
                 <button key={`${selectedVenue?.venueName}-${raceNo}`} type="button" onClick={() => setSelectedRaceNo(raceNo)} style={{ flex: "0 0 52px", width: "52px", height: "52px", borderRadius: "17px", border: active ? "1px solid rgba(255,255,255,0.62)" : "1px solid rgba(125,211,252,0.58)", background: active ? "linear-gradient(135deg, #082f49, #0e7490)" : "#ffffff", color: active ? "#ffffff" : "#0f2743", fontSize: "12px", fontWeight: 950, boxShadow: active ? "0 14px 26px rgba(8,47,73,0.24)" : "0 7px 15px rgba(14,116,144,0.08)", cursor: "pointer", fontFamily: "inherit", position: "relative" }}>
@@ -757,7 +838,7 @@ export function MobilePage() {
                     <div style={{ fontSize: "10px", fontWeight: 950, letterSpacing: "0.16em", color: "#67e8f9" }}>BET SLIP</div>
                     <div style={{ marginTop: "4px", fontSize: "17px", fontWeight: 950 }}>{betSummary.totalBets}点 / {formatYen(betSummary.totalStakeYen)}</div>
                   </div>
-                  <span style={{ borderRadius: "999px", padding: "7px 10px", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)", fontSize: "11px", fontWeight: 950 }}>{predictionText ? "保存済み" : "未保存"}</span>
+                  <span style={{ borderRadius: "999px", padding: "7px 10px", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)", fontSize: "11px", fontWeight: 950 }}>{predictionText ? selectedPredictionSourceLabel : "未保存"}</span>
                 </div>
                 {predictionText ? (
                   <>
@@ -780,7 +861,7 @@ export function MobilePage() {
                     </div>
                     <pre style={{ margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", maxHeight: "180px", overflow: "auto", borderRadius: "18px", border: "1px solid #dbeafe", background: "#f8fdff", color: "#334155", fontSize: "11px", lineHeight: 1.65, padding: "12px", fontFamily: "inherit", fontWeight: 750 }}>{predictionText}</pre>
                   </>
-                ) : <div style={{ borderRadius: "18px", border: "1px dashed #bae6fd", background: "#f0faff", padding: "14px", color: "#075985", fontSize: "12px", fontWeight: 850 }}>このレースの保存済み予想はまだありません。PredictionPageで保存するとここに表示されます。</div>}
+                ) : <div style={{ borderRadius: "18px", border: "1px dashed #bae6fd", background: "#f0faff", padding: "14px", color: "#075985", fontSize: "12px", fontWeight: 850 }}>このレースの保存済み予想はまだありません。PredictionPage で johnson 保存または通常保存するとここに表示されます。</div>}
               </div>
             )}
 

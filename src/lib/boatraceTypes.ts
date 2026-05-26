@@ -287,6 +287,40 @@ export type BoatPredictionRecord = {
 	savedAt: string;
 };
 
+export type BoatJohnsonPredictionRecord = {
+	raceKey: string;
+	raceId?: string;
+	venueCode?: string;
+	venueName: string;
+	date: string;
+	raceNo: number;
+	predictionText: string;
+	tickets?: BoatPredictionTicket[];
+	parsedBets?: ParsedBoatBet[];
+	betSummary?: ParsedBoatBetSummary;
+	totalStakeYen?: number;
+	resultStatus?: string;
+	hitBetType?: string;
+	hitBetNumbers?: string;
+	finishOrder?: string;
+	payoutYen?: number;
+	profitYen?: number;
+	roi?: number;
+	mobileMemo?: string;
+	sourceRecordSavedAt?: string;
+	updatedAt?: string;
+	savedAt: string;
+};
+
+export type BoatJohnsonPredictionPayload = {
+	version: number;
+	updatedAt: string;
+	source: string;
+	records: Record<string, BoatJohnsonPredictionRecord>;
+	notifiedSlackHitKeys?: string[];
+	slackNotifiedAt?: string;
+};
+
 export type BoatPredictionResultRecord = {
 	raceKey: string;
 	raceId?: string;

@@ -1,0 +1,43 @@
+name: notify-boat-slack-hits
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - public/data/boatrace/johnson-predictions.generated.json
+      - public/data/boatrace/today-race-details.generated.json
+      - scripts/notifyBoatSlackHits.mjs
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Notify Slack hits
+        env:
+          BOAT_SLACK_WEBHOOK_URL: ${{ secrets.BOAT_SLACK_WEBHOOK_URL }}
+        run: npm run notify:boat-slack-hits
+
+      - name: Commit notified keys
+        run: |
+          if git diff --quiet -- public/data/boatrace/johnson-predictions.generated.json; then
+            exit 0
+          fi
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add public/data/boatrace/johnson-predictions.generated.json
+          git commit -m "Update boat slack notified keys"
+          git push

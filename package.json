@@ -13,7 +13,8 @@
     "generate:boat-review-index": "node scripts/generateBoatReviewArchiveIndex.mjs",
     "generate:boat-review-archives": "node scripts/generateBoatReviewArchiveIndex.mjs",
     "check:mojibake": "node scripts/check-mojibake.mjs",
-    "check:boatrace-racers": "node scripts/checkBoatRaceRacers.mjs"
+    "check:boatrace-racers": "node scripts/checkBoatRaceRacers.mjs",
+    "notify:boat-slack-hits": "node scripts/notifyBoatSlackHits.mjs"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
