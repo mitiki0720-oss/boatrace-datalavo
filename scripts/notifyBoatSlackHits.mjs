@@ -9,7 +9,6 @@ const ROOT_DIR = path.resolve(__dirname, "..");
 const PREDICTIONS_FILE = path.join(ROOT_DIR, "public", "data", "boatrace", "johnson-predictions.generated.json");
 const TODAY_DETAILS_FILE = path.join(ROOT_DIR, "public", "data", "boatrace", "today-race-details.generated.json");
 const SLACK_WEBHOOK_URL = process.env.BOATRACE_SLACK_WEBHOOK_URL?.trim() ?? "";
-const SITE_URL = "https://mitiki0720-oss.github.io/boatrace-datalavo/#mobile-page";
 
 const args = new Set(process.argv.slice(2));
 const DRY_RUN = args.has("--dry-run");
@@ -310,91 +309,98 @@ function formatSignedYen(value) {
   return `${value > 0 ? "+" : value < 0 ? "-" : ""}${Math.abs(value).toLocaleString("ja-JP")}円`;
 }
 
-function buildSlackText(results) {
-  return results.map((item) => {
-    if (item.status === "hit") {
-      return [
-        `🚤🎯 ボート的中`,
-        `${item.venueName} ${item.raceNo}R`,
-        ``,
-        `${item.hitBetType} ${item.hitBetNumbers}`,
-        `払戻 ${formatYen(item.payoutYen)}`,
-        `収支 ${formatSignedYen(item.profitYen)}`,
-        `投資 ${formatYen(item.totalStakeYen)}`,
-        ``,
-        `日付：${item.date}`,
-        `結果：${item.finishOrder}`,
-      ].join("\n");
-    }
-
-    return [
-      `🚤☔ ボート外れ`,
-      `${item.venueName} ${item.raceNo}R`,
-      ``,
-      `予想：${item.predictionSummary || "買い目未取得"}`,
-      `結果：${item.finishOrder}`,
-      `投資 ${formatYen(item.totalStakeYen)}`,
-      `払戻 ${formatYen(item.payoutYen)}`,
-      `収支 ${formatSignedYen(item.profitYen)}`,
-      ``,
-      `日付：${item.date}`,
-    ].join("\n");
-  }).join("\n\n---\n\n");
+function formatNotificationKind(item) {
+  return item.status === "hit" ? "HIT" : "MISS";
 }
 
-async function postToSlack(results) {
-  if (!SHOULD_SEND || results.length === 0) {
-    return { delivered: !SHOULD_SEND, reason: SHOULD_SEND ? "no-results" : "send-disabled" };
+function buildSlackText(item) {
+  if (item.status === "hit") {
+    return [
+      "🚤🎯 ボート的中",
+      `${item.venueName} ${item.raceNo}R`,
+      "",
+      `結果：${item.finishOrder}`,
+      `的中：${item.hitBetNumbers}`,
+      `払戻：${formatYen(item.payoutYen)}`,
+      `投資：${formatYen(item.totalStakeYen)}`,
+      `収支：${formatSignedYen(item.profitYen)}`,
+    ].join("\n");
   }
 
-  if (!SLACK_WEBHOOK_URL) {
-    console.log("[notify-boat-slack-hits] BOATRACE_SLACK_WEBHOOK_URL は未設定です。送信をスキップします。");
-    return { delivered: false, reason: "webhook-missing" };
-  }
+  return [
+    "🚤☔ ボート外れ",
+    `${item.venueName} ${item.raceNo}R`,
+    "",
+    `結果：${item.finishOrder}`,
+    `投資：${formatYen(item.totalStakeYen)}`,
+    `払戻：${formatYen(item.payoutYen)}`,
+    `収支：${formatSignedYen(item.profitYen)}`,
+  ].join("\n");
+}
 
-  const payload = {
-    text: `🚤 ボート結果通知 ${results.length}件`,
-    blocks: [
-      {
-        type: "header",
-        text: {
-          type: "plain_text",
-          text: `🚤 ボート結果通知 ${results.length}件`,
-          emoji: true,
-        },
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: buildSlackText(results),
-        },
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `<${SITE_URL}|MobilePage を開く>`,
-        },
-      },
-    ],
-  };
-
+async function postToSlack(item) {
+  const text = buildSlackText(item);
   const response = await fetch(SLACK_WEBHOOK_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ text }),
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Slack webhook failed: ${response.status} ${text}`);
+    const responseText = await response.text();
+    const error = new Error(`Slack webhook failed: ${response.status} ${responseText}`);
+    error.status = response.status;
+    error.responseText = responseText;
+    error.textLength = text.length;
+    throw error;
   }
 
-  console.log(`[notify-boat-slack-hits] Sent ${results.length} result notification(s) to Slack.`);
-  return { delivered: true, reason: "sent" };
+  return { delivered: true, textLength: text.length };
+}
+
+async function postNotificationsToSlack(notifications) {
+  const deliveredKeys = [];
+  const deliveredHitKeys = [];
+  let failureCount = 0;
+
+  if (!SHOULD_SEND || notifications.length === 0) {
+    return {
+      deliveredKeys,
+      deliveredHitKeys,
+      failureCount,
+      reason: SHOULD_SEND ? "no-results" : "send-disabled",
+    };
+  }
+
+  if (!SLACK_WEBHOOK_URL) {
+    console.log("[notify-boat-slack-hits] BOATRACE_SLACK_WEBHOOK_URL is not set. Slack notifications were skipped.");
+    return { deliveredKeys, deliveredHitKeys, failureCount: notifications.length, reason: "webhook-missing" };
+  }
+
+  for (const item of notifications) {
+    const kind = formatNotificationKind(item);
+    const textLength = buildSlackText(item).length;
+
+    try {
+      await postToSlack(item);
+      deliveredKeys.push(item.dedupeKey);
+      if (item.status === "hit") {
+        deliveredHitKeys.push(item.dedupeKey);
+      }
+      console.log(`[notify-boat-slack-hits] Slack sent: ${kind} ${item.venueName} ${item.raceNo}R`);
+    } catch (error) {
+      failureCount += 1;
+      const status = error?.status ?? "unknown";
+      const responseText = error?.responseText != null ? String(error.responseText) : `${error?.name ?? "Error"}: ${error?.code ?? "request failed"}`;
+      console.error(
+        `[notify-boat-slack-hits] Slack failed: ${kind} ${item.venueName} ${item.raceNo}R status=${status} response=${responseText} textLength=${error?.textLength ?? textLength}`,
+      );
+    }
+  }
+
+  return { deliveredKeys, deliveredHitKeys, failureCount, reason: failureCount > 0 ? "partial-or-failed" : "sent" };
 }
 
 async function main() {
@@ -450,8 +456,8 @@ async function main() {
     }
   }
 
-  const sendResult = await postToSlack(notifications);
-  const canPersistNotificationKeys = notifications.length > 0 && SHOULD_WRITE && (sendResult.delivered || !SHOULD_SEND);
+  const sendResult = await postNotificationsToSlack(notifications);
+  const canPersistNotificationKeys = SHOULD_WRITE && sendResult.deliveredKeys.length > 0;
 
   const nextPayload = {
     ...createEmptyPayload(),
@@ -462,13 +468,13 @@ async function main() {
     notifiedSlackResultKeys: canPersistNotificationKeys
       ? Array.from(new Set([
           ...asArray(predictionsPayload.notifiedSlackResultKeys).map((item) => String(item)),
-          ...notifications.map((item) => item.dedupeKey),
+          ...sendResult.deliveredKeys,
         ])).slice(-1000)
       : asArray(predictionsPayload.notifiedSlackResultKeys).map((item) => String(item)),
     notifiedSlackHitKeys: canPersistNotificationKeys
       ? Array.from(new Set([
           ...asArray(predictionsPayload.notifiedSlackHitKeys).map((item) => String(item)),
-          ...notifications.filter((item) => item.status === "hit").map((item) => item.dedupeKey),
+          ...sendResult.deliveredHitKeys,
         ])).slice(-1000)
       : asArray(predictionsPayload.notifiedSlackHitKeys).map((item) => String(item)),
     slackNotifiedAt: canPersistNotificationKeys ? new Date().toISOString() : predictionsPayload.slackNotifiedAt,
