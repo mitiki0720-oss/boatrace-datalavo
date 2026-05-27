@@ -2,6 +2,15 @@ name: notify-boat-slack-hits
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: notify mode
+        required: false
+        default: send
+        type: choice
+        options:
+          - dry-run
+          - send
   push:
     branches:
       - main
@@ -26,10 +35,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Notify Slack hits
+      - name: Notify boat results
         env:
           BOAT_SLACK_WEBHOOK_URL: ${{ secrets.BOAT_SLACK_WEBHOOK_URL }}
-        run: npm run notify:boat-slack-hits
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.mode || 'send' }}" = "dry-run" ]; then
+            npm run notify:boat-slack-hits -- --dry-run
+          else
+            npm run notify:boat-slack-hits -- --send --write
+          fi
 
       - name: Commit notified keys
         run: |

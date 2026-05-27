@@ -25,7 +25,7 @@ type MobilePredictionRecord = AnyRecord & {
   venueCode?: string;
   raceNo?: number;
   predictionText?: string;
-  sourceType?: "johnson" | "prediction" | "practice";
+  sourceType?: "public-johnson" | "johnson" | "prediction" | "practice";
 };
 
 type MobilePracticeRecord = AnyRecord & {
@@ -64,6 +64,7 @@ type MobileTab = "entry" | "prediction" | "result" | "info";
 const TODAY_DETAILS_URL = withBasePath("data/boatrace/today-race-details.generated.json");
 const TODAY_FALLBACK_URL = withBasePath("data/boatrace/today.generated.json");
 const VENUE_EXTRAS_URL = withBasePath("data/boatrace/venue-extras.generated.json");
+const PUBLIC_JOHNSON_PREDICTIONS_URL = withBasePath("data/boatrace/johnson-predictions.generated.json");
 const JOHNSON_STORAGE_KEY = BOAT_JOHNSON_PREDICTION_STORAGE_KEY;
 const PREDICTION_STORAGE_KEY = "kurari-boat-data-labo-prediction-records";
 const PRACTICE_STORAGE_KEY = "kurari-boat-data-labo-practice-results";
@@ -248,6 +249,13 @@ const loadJohnsonPredictionRecords = (): MobilePredictionRecord[] => {
   }
 };
 
+const loadPublicJohnsonPredictionRecords = async (): Promise<MobilePredictionRecord[]> => {
+  const payload = await fetchJson(PUBLIC_JOHNSON_PREDICTIONS_URL);
+  const root = asRecord(payload);
+  const records = asArray<MobilePredictionRecord>(root.records);
+  return records.map((record) => ({ ...record, sourceType: "public-johnson" }));
+};
+
 const loadPracticeRecords = (): MobilePracticeRecord[] => {
   if (typeof window === "undefined") return [];
   try {
@@ -284,11 +292,16 @@ const buildPracticePredictionFallbacks = (records: MobilePracticeRecord[]): Mobi
   });
 
 const mergePredictionSources = (
+  publicJohnsonRecords: MobilePredictionRecord[],
   johnsonRecords: MobilePredictionRecord[],
   predictionRecords: MobilePredictionRecord[],
   practiceRecords: MobilePracticeRecord[],
 ): MobilePredictionRecord[] => {
   const merged = new Map<string, MobilePredictionRecord>();
+
+  for (const record of publicJohnsonRecords) {
+    merged.set(buildPredictionSourceKey(record), record);
+  }
 
   for (const record of johnsonRecords) {
     merged.set(buildPredictionSourceKey(record), record);
@@ -589,6 +602,7 @@ function MobileBottomNav({ activeTab, onTab }: { activeTab: MobileTab; onTab: (t
 export function MobilePage() {
   const [feed, setFeed] = useState<MobileFeed | null>(null);
   const [extraVenues, setExtraVenues] = useState<AnyRecord[]>([]);
+  const [publicJohnsonRecords, setPublicJohnsonRecords] = useState<MobilePredictionRecord[]>([]);
   const [johnsonRecords, setJohnsonRecords] = useState<MobilePredictionRecord[]>(() => loadJohnsonPredictionRecords());
   const [predictionRecords, setPredictionRecords] = useState<MobilePredictionRecord[]>(() => loadPredictionRecords());
   const [practiceRecords, setPracticeRecords] = useState<MobilePracticeRecord[]>(() => loadPracticeRecords());
@@ -598,10 +612,11 @@ export function MobilePage() {
 
   useEffect(() => {
     let mounted = true;
-    void Promise.all([loadTodayFeed(), loadVenueExtras()]).then(([nextFeed, nextExtras]) => {
+    void Promise.all([loadTodayFeed(), loadVenueExtras(), loadPublicJohnsonPredictionRecords()]).then(([nextFeed, nextExtras, nextPublicJohnson]) => {
       if (!mounted) return;
       setFeed(nextFeed);
       setExtraVenues(nextExtras);
+      setPublicJohnsonRecords(nextPublicJohnson);
     });
     return () => {
       mounted = false;
@@ -610,6 +625,7 @@ export function MobilePage() {
 
   useEffect(() => {
     const refreshStorage = () => {
+      void loadPublicJohnsonPredictionRecords().then((records) => setPublicJohnsonRecords(records));
       setJohnsonRecords(loadJohnsonPredictionRecords());
       setPredictionRecords(loadPredictionRecords());
       setPracticeRecords(loadPracticeRecords());
@@ -629,8 +645,8 @@ export function MobilePage() {
   const selectedRace = selectedVenue?.races.find((race) => getRaceNo(race) === selectedRaceNo) ?? selectedVenue?.races[0];
   const selectedRaceNumber = selectedRace ? getRaceNo(selectedRace) : selectedRaceNo;
   const prioritizedPredictionRecords = useMemo(
-    () => mergePredictionSources(johnsonRecords, predictionRecords, practiceRecords),
-    [johnsonRecords, predictionRecords, practiceRecords],
+    () => mergePredictionSources(publicJohnsonRecords, johnsonRecords, predictionRecords, practiceRecords),
+    [publicJohnsonRecords, johnsonRecords, predictionRecords, practiceRecords],
   );
   const extraVenue = useMemo(() => findExtraVenue(extraVenues, selectedVenue), [extraVenues, selectedVenue]);
   const extraRace = useMemo(() => findExtraRace(extraVenue, selectedRaceNumber), [extraVenue, selectedRaceNumber]);
@@ -671,6 +687,8 @@ export function MobilePage() {
   const selectedPractice = findPractice(practiceRecords, currentDate, selectedVenue, selectedRaceNumber);
   const selectedPredictionSourceLabel = selectedPrediction?.sourceType === "johnson"
     ? "johnson保存"
+    : selectedPrediction?.sourceType === "public-johnson"
+      ? "公開johnson"
     : selectedPrediction?.sourceType === "practice"
       ? "実践結果由来"
       : selectedPrediction?.sourceType === "prediction"

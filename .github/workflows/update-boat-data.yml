@@ -57,6 +57,11 @@ jobs:
       - name: Update BOATRACE generated data
         run: node scripts/updateBoatData.mjs --mode "${{ inputs.mode }}" --target-session "${{ inputs.targetSession }}"
 
+      - name: Notify boat results
+        env:
+          BOAT_SLACK_WEBHOOK_URL: ${{ secrets.BOAT_SLACK_WEBHOOK_URL }}
+        run: node scripts/notifyBoatSlackHits.mjs --send --write
+
       - name: Check generated files
         run: |
           echo "=== today.generated.json ==="

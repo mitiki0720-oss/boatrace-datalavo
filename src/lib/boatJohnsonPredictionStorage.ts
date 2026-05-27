@@ -15,6 +15,14 @@ const readSavedDateValue = (record: BoatJohnsonPredictionRecord): number => {
 	return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const normalizeBoatJohnsonPredictionRecord = (record: BoatJohnsonPredictionRecord): BoatJohnsonPredictionRecord => ({
+	...record,
+	johnsonText: record.johnsonText ?? record.predictionText,
+	ticketsCount: record.ticketsCount ?? (Array.isArray(record.tickets) ? record.tickets.length : 0),
+	parsedBetsCount: record.parsedBetsCount ?? (Array.isArray(record.parsedBets) ? record.parsedBets.length : 0),
+	updatedAt: record.updatedAt ?? record.savedAt,
+});
+
 const sortBoatJohnsonPredictionRecordsByRecency = (records: BoatJohnsonPredictionRecord[]): BoatJohnsonPredictionRecord[] =>
 	[...records].sort((left, right) => {
 		if (left.date !== right.date) {
@@ -27,7 +35,7 @@ const sortBoatJohnsonPredictionRecordsByRecency = (records: BoatJohnsonPredictio
 const reduceBoatJohnsonPredictionRecords = (records: BoatJohnsonPredictionRecord[]): BoatJohnsonPredictionRecordMap =>
 	records.reduce<BoatJohnsonPredictionRecordMap>((acc, record) => {
 		if (record.raceKey) {
-			acc[record.raceKey] = record;
+			acc[record.raceKey] = normalizeBoatJohnsonPredictionRecord(record);
 		}
 
 		return acc;
@@ -123,10 +131,15 @@ export function upsertBoatJohnsonPredictionRecord(record: BoatJohnsonPredictionR
 }
 
 export function buildBoatJohnsonPredictionPayload(records: BoatJohnsonPredictionRecordMap): BoatJohnsonPredictionPayload {
+	const sortedRecords = sortBoatJohnsonPredictionRecordsByRecency(Object.values(records)).map(normalizeBoatJohnsonPredictionRecord);
+
 	return {
 		version: 1,
+		generatedAt: new Date().toISOString(),
 		updatedAt: new Date().toISOString(),
 		source: "kurari-boat-prediction-page",
-		records: reduceBoatJohnsonPredictionRecords(sortBoatJohnsonPredictionRecordsByRecency(Object.values(records))),
+		records: sortedRecords,
+		notifiedSlackResultKeys: [],
+		notifiedSlackHitKeys: [],
 	};
 }

@@ -295,9 +295,12 @@ export type BoatJohnsonPredictionRecord = {
 	date: string;
 	raceNo: number;
 	predictionText: string;
+	johnsonText?: string;
 	tickets?: BoatPredictionTicket[];
 	parsedBets?: ParsedBoatBet[];
 	betSummary?: ParsedBoatBetSummary;
+	ticketsCount?: number;
+	parsedBetsCount?: number;
 	totalStakeYen?: number;
 	resultStatus?: string;
 	hitBetType?: string;
@@ -314,9 +317,11 @@ export type BoatJohnsonPredictionRecord = {
 
 export type BoatJohnsonPredictionPayload = {
 	version: number;
-	updatedAt: string;
+	generatedAt: string;
+	updatedAt?: string;
 	source: string;
-	records: Record<string, BoatJohnsonPredictionRecord>;
+	records: BoatJohnsonPredictionRecord[];
+	notifiedSlackResultKeys?: string[];
 	notifiedSlackHitKeys?: string[];
 	slackNotifiedAt?: string;
 };

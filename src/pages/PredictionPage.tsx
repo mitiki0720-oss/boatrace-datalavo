@@ -298,6 +298,7 @@ const formatJohnsonHitBetNumbers = (value: unknown): string => {
 		.replace(/^-|-$/g, "");
 };
 
+// localStorage だけではスマホや GitHub Actions から読めないため、watcher が拾う JSON も書き出す。
 const downloadJsonFile = (filename: string, text: string): void => {
 	if (typeof window === "undefined") {
 		return;
@@ -1847,9 +1848,12 @@ const handleSelectRace = (raceId: string) => {
 			date: activePredictionDate,
 			raceNo: selectedRace.raceNo,
 			predictionText: params.predictionTextValue,
+			johnsonText: params.predictionTextValue,
 			tickets: params.tickets,
 			parsedBets: params.betSummary.bets,
 			betSummary: params.betSummary,
+			ticketsCount: params.tickets.length,
+			parsedBetsCount: params.betSummary.bets.length,
 			totalStakeYen: params.betSummary.totalStakeYen,
 			resultStatus: practiceRecord?.resultStatus,
 			hitBetType: practiceRecord?.hitBetType,
@@ -1865,7 +1869,7 @@ const handleSelectRace = (raceId: string) => {
 		};
 	};
 
-	const saveJohnsonPrediction = (options?: { downloadJson?: boolean; copyJson?: boolean }) => {
+	const saveJohnsonPrediction = (options?: { downloadJson?: boolean; copyJson?: boolean; buttonLabel?: string }) => {
 		if (!selectedVenue || !selectedRace || !selectedRaceKey) {
 			return;
 		}
@@ -1925,11 +1929,11 @@ const handleSelectRace = (raceId: string) => {
 
 		const payload = buildBoatJohnsonPredictionPayload(johnsonSaveResult.records);
 		const payloadText = `${JSON.stringify(payload, null, 2)}\n`;
-		let message = "ジョンソン化して保存しました";
+		let message = `${options?.buttonLabel ?? "ジョンソン化して保存"}しました`;
 
 		if (options?.downloadJson) {
-			downloadJsonFile("johnson-predictions.generated.json", payloadText);
-			message = "モバイル用にジョンソン化しました（JSON をダウンロード）";
+			downloadJsonFile("boat-johnson-predictions.generated.json", payloadText);
+			message = `${options?.buttonLabel ?? "ジョンソン化"}し、黒い画面 watcher 用 JSON を Downloads へ書き出しました`;
 		}
 
 		if (options?.copyJson) {
@@ -1948,11 +1952,11 @@ const handleSelectRace = (raceId: string) => {
 	};
 
 	const handleSaveJohnsonPrediction = () => {
-		saveJohnsonPrediction();
+		saveJohnsonPrediction({ downloadJson: true, buttonLabel: "ジョンソン化して保存" });
 	};
 
 	const handleExportJohnsonPrediction = () => {
-		saveJohnsonPrediction({ downloadJson: true });
+		saveJohnsonPrediction({ downloadJson: true, buttonLabel: "モバイル用にジョンソン化" });
 	};
 
 	const handleCopyJohnsonJson = () => {
