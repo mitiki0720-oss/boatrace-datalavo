@@ -8,7 +8,7 @@ const ROOT_DIR = path.resolve(__dirname, "..");
 
 const PREDICTIONS_FILE = path.join(ROOT_DIR, "public", "data", "boatrace", "johnson-predictions.generated.json");
 const TODAY_DETAILS_FILE = path.join(ROOT_DIR, "public", "data", "boatrace", "today-race-details.generated.json");
-const SLACK_WEBHOOK_URL = process.env.BOAT_SLACK_WEBHOOK_URL?.trim() ?? "";
+const SLACK_WEBHOOK_URL = process.env.BOATRACE_SLACK_WEBHOOK_URL?.trim() ?? "";
 const SITE_URL = "https://mitiki0720-oss.github.io/boatrace-datalavo/#mobile-page";
 
 const args = new Set(process.argv.slice(2));
@@ -348,7 +348,7 @@ async function postToSlack(results) {
   }
 
   if (!SLACK_WEBHOOK_URL) {
-    console.log("[notify-boat-slack-hits] BOAT_SLACK_WEBHOOK_URL は未設定です。送信をスキップします。");
+    console.log("[notify-boat-slack-hits] BOATRACE_SLACK_WEBHOOK_URL は未設定です。送信をスキップします。");
     return { delivered: false, reason: "webhook-missing" };
   }
 

@@ -37,7 +37,7 @@ jobs:
 
       - name: Notify boat results
         env:
-          BOAT_SLACK_WEBHOOK_URL: ${{ secrets.BOAT_SLACK_WEBHOOK_URL }}
+          BOATRACE_SLACK_WEBHOOK_URL: ${{ secrets.BOATRACE_SLACK_WEBHOOK_URL }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.mode || 'send' }}" = "dry-run" ]; then
             npm run notify:boat-slack-hits -- --dry-run

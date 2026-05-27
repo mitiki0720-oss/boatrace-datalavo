@@ -59,7 +59,7 @@ jobs:
 
       - name: Notify boat results
         env:
-          BOAT_SLACK_WEBHOOK_URL: ${{ secrets.BOAT_SLACK_WEBHOOK_URL }}
+          BOATRACE_SLACK_WEBHOOK_URL: ${{ secrets.BOATRACE_SLACK_WEBHOOK_URL }}
         run: node scripts/notifyBoatSlackHits.mjs --send --write
 
       - name: Check generated files
