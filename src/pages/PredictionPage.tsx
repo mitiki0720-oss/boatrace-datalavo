@@ -335,6 +335,16 @@ const downloadJsonFile = (filename: string, text: string): void => {
 	URL.revokeObjectURL(url);
 };
 
+const buildDownloadableJohnsonPayloadText = (payload: unknown): string | null => {
+	try {
+		const safePayload = JSON.parse(JSON.stringify(payload));
+		return `${JSON.stringify(safePayload, null, 2)}\n`;
+	} catch (error) {
+		console.error("[boat-johnson-export] failed to serialize payload", error);
+		return null;
+	}
+};
+
 const resolvePracticeStakeYen = (record: BoatPracticeResultRecord): number =>
 	readPracticeNumber(record.totalStakeYen ?? record.betSummary?.totalStakeYen ?? record.investmentAmount);
 
@@ -1935,7 +1945,11 @@ const handleSelectRace = (raceId: string) => {
 			return;
 		}
 
-		const payloadText = `${JSON.stringify(payload, null, 2)}\n`;
+		const payloadText = buildDownloadableJohnsonPayloadText(payload);
+		if (!payloadText) {
+			setSavedMessage("ジョンソン JSON の生成に失敗しました");
+			return;
+		}
 		const convertedCount = todayPredictionRecords.length;
 		let message = `${convertedCount}件をジョンソン化しました`;
 

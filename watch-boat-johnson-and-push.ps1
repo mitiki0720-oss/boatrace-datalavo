@@ -43,17 +43,48 @@ function Invoke-GitCommand {
 function Wait-FileReady {
   param([string]$Path)
 
-  for ($i = 0; $i -lt 20; $i++) {
+  for ($i = 0; $i -lt 10; $i++) {
     try {
-      $stream = [System.IO.File]::Open($Path, "Open", "Read", "None")
+      $stream = [System.IO.File]::Open($Path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::None)
       $stream.Close()
-      return $true
+
+      $firstSize = (Get-Item -LiteralPath $Path).Length
+      Start-Sleep -Milliseconds 500
+      $secondSize = (Get-Item -LiteralPath $Path).Length
+
+      if ($firstSize -eq $secondSize -and $secondSize -gt 0) {
+        return $true
+      }
     } catch {
       Start-Sleep -Milliseconds 500
     }
   }
 
   return $false
+}
+
+function Get-JsonPreviewText {
+  param([string]$Text)
+
+  if ([string]::IsNullOrEmpty($Text)) {
+    return ""
+  }
+
+  if ($Text.Length -le 200) {
+    return $Text.Replace("`r", "\\r").Replace("`n", "\\n")
+  }
+
+  return $Text.Substring(0, 200).Replace("`r", "\\r").Replace("`n", "\\n")
+}
+
+function Convert-FromJsonCompat {
+  param([string]$Text)
+
+  if ($PSVersionTable.PSVersion.Major -ge 6) {
+    return $Text | ConvertFrom-Json -Depth 100
+  }
+
+  return $Text | ConvertFrom-Json
 }
 
 function New-EmptyPayload {
@@ -90,7 +121,7 @@ function Load-JsonObject {
   }
 
   try {
-    $raw = Get-Content -Path $Path -Raw -Encoding UTF8
+    $raw = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
     if ([string]::IsNullOrWhiteSpace($raw)) {
       return [pscustomobject]@{
         Success = $true
@@ -100,10 +131,25 @@ function Load-JsonObject {
 
     return [pscustomobject]@{
       Success = $true
-      Payload = ($raw | ConvertFrom-Json -Depth 100)
+      Payload = (Convert-FromJsonCompat -Text $raw)
     }
   } catch {
     Write-Log "JSON parse failed: $Path"
+    try {
+      $item = Get-Item -LiteralPath $Path -ErrorAction Stop
+      Write-Log "JSON file size: $($item.Length) bytes"
+    } catch {
+      Write-Log "JSON file size: unavailable"
+    }
+
+    try {
+      $previewRaw = Get-Content -LiteralPath $Path -Raw -Encoding UTF8 -ErrorAction Stop
+      Write-Log "JSON preview: $(Get-JsonPreviewText -Text $previewRaw)"
+    } catch {
+      Write-Log "JSON preview: unavailable"
+    }
+
+    Write-Log "ConvertFrom-Json error: $($_.Exception.Message)"
     return [pscustomobject]@{
       Success = $false
       Payload = $null
@@ -217,7 +263,7 @@ function Archive-ProcessedJson {
   $extension = [System.IO.Path]::GetExtension($SourceFile)
   $archiveName = "{0}-{1}{2}" -f $baseName, (Get-Date -Format "yyyyMMdd-HHmmssfff"), $extension
   $archivePath = Join-Path $ProcessedDir $archiveName
-  Move-Item -Path $SourceFile -Destination $archivePath -Force
+  Move-Item -LiteralPath $SourceFile -Destination $archivePath -Force
   Write-Log "Archived processed json: $archivePath"
 }
 
@@ -278,6 +324,7 @@ function Publish-PredictionJson {
 }
 
 Write-Log "Watcher started."
+Write-Log "PowerShell version: $($PSVersionTable.PSVersion.ToString())"
 Write-Log "Download directory: $DownloadDir"
 Write-Log "Target file: $TargetFile"
 Write-Log "Watching boat-johnson-predictions.generated*.json"
