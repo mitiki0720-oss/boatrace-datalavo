@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 # localStorage だけではスマホや GitHub Actions から読めないため、Downloads に出た JSON を repo の generated JSON へ橋渡しする。
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $DownloadDir = Join-Path $env:USERPROFILE "Downloads"
+$ProcessedDir = Join-Path $DownloadDir "processed-boat-johnson"
 $TargetDir = Join-Path $ProjectRoot "public\data\boatrace"
 $TargetFile = Join-Path $TargetDir "johnson-predictions.generated.json"
 $LogFile = Join-Path $ProjectRoot "scripts\boat-johnson-auto-push-log.txt"
@@ -68,22 +69,45 @@ function New-EmptyPayload {
 }
 
 function Load-JsonObject {
-  param([string]$Path)
+  param(
+    [string]$Path,
+    [switch]$AllowMissing
+  )
 
   if (!(Test-Path $Path)) {
-    return (New-EmptyPayload)
+    if ($AllowMissing) {
+      return [pscustomobject]@{
+        Success = $true
+        Payload = (New-EmptyPayload)
+      }
+    }
+
+    Write-Log "JSON file not found: $Path"
+    return [pscustomobject]@{
+      Success = $false
+      Payload = $null
+    }
   }
 
   try {
     $raw = Get-Content -Path $Path -Raw -Encoding UTF8
     if ([string]::IsNullOrWhiteSpace($raw)) {
-      return (New-EmptyPayload)
+      return [pscustomobject]@{
+        Success = $true
+        Payload = (New-EmptyPayload)
+      }
     }
 
-    return $raw | ConvertFrom-Json -Depth 100
+    return [pscustomobject]@{
+      Success = $true
+      Payload = ($raw | ConvertFrom-Json -Depth 100)
+    }
   } catch {
     Write-Log "JSON parse failed: $Path"
-    return (New-EmptyPayload)
+    return [pscustomobject]@{
+      Success = $false
+      Payload = $null
+    }
   }
 }
 
@@ -127,10 +151,28 @@ function Convert-ToSortedRecords {
 function Save-MergedPredictionJson {
   param([string]$SourceFile)
 
-  $incomingPayload = Load-JsonObject -Path $SourceFile
-  $targetPayload = Load-JsonObject -Path $TargetFile
+  $incomingLoadResult = Load-JsonObject -Path $SourceFile
+  if (!$incomingLoadResult.Success) {
+    Write-Log "Skip update because incoming JSON could not be parsed."
+    return $null
+  }
+
+  $targetLoadResult = Load-JsonObject -Path $TargetFile -AllowMissing
+  if (!$targetLoadResult.Success) {
+    Write-Log "Skip update because target JSON could not be parsed."
+    return $null
+  }
+
+  $incomingPayload = $incomingLoadResult.Payload
+  $targetPayload = $targetLoadResult.Payload
 
   $incomingRecords = Convert-ToRecordMap -Payload $incomingPayload
+  Write-Log "Parsed incoming records: $($incomingRecords.Count)"
+  if ($incomingRecords.Count -le 0) {
+    Write-Log "Incoming records are 0. Skip update."
+    return $null
+  }
+
   $targetRecords = Convert-ToRecordMap -Payload $targetPayload
 
   foreach ($key in $incomingRecords.Keys) {
@@ -154,6 +196,29 @@ function Save-MergedPredictionJson {
   $json = $nextPayload | ConvertTo-Json -Depth 100
   [System.IO.File]::WriteAllText($TargetFile, "$json`n", [System.Text.UTF8Encoding]::new($false))
   Write-Log "Updated johnson-predictions.generated.json with $($incomingRecords.Count) incoming record(s)."
+
+  return [pscustomobject]@{
+    IncomingCount = $incomingRecords.Count
+  }
+}
+
+function Archive-ProcessedJson {
+  param([string]$SourceFile)
+
+  if (!(Test-Path $SourceFile)) {
+    return
+  }
+
+  if (!(Test-Path $ProcessedDir)) {
+    New-Item -ItemType Directory -Path $ProcessedDir -Force | Out-Null
+  }
+
+  $baseName = [System.IO.Path]::GetFileNameWithoutExtension($SourceFile)
+  $extension = [System.IO.Path]::GetExtension($SourceFile)
+  $archiveName = "{0}-{1}{2}" -f $baseName, (Get-Date -Format "yyyyMMdd-HHmmssfff"), $extension
+  $archivePath = Join-Path $ProcessedDir $archiveName
+  Move-Item -Path $SourceFile -Destination $archivePath -Force
+  Write-Log "Archived processed json: $archivePath"
 }
 
 function Publish-PredictionJson {
@@ -170,7 +235,12 @@ function Publish-PredictionJson {
       return
     }
 
-    Save-MergedPredictionJson -SourceFile $SourceFile
+    $mergeResult = Save-MergedPredictionJson -SourceFile $SourceFile
+    if ($null -eq $mergeResult) {
+      return
+    }
+
+    Archive-ProcessedJson -SourceFile $SourceFile
 
     $addExit = Invoke-GitCommand "add public/data/boatrace/johnson-predictions.generated.json"
     if ($addExit -ne 0) {
@@ -233,7 +303,7 @@ $action = {
   $script:lastHandledPath = $path
   $script:lastHandledAt = $now
 
-  Start-Sleep -Seconds 1
+  Start-Sleep -Milliseconds 800
   Write-Log "Detected json: $path"
   Publish-PredictionJson -SourceFile $path
 }

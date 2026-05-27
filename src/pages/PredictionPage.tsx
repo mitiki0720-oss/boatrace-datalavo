@@ -59,9 +59,10 @@ import {
 	upsertBoatPredictionRecord,
 } from "../lib/boatPredictionStorage";
 import {
-	buildBoatJohnsonPredictionPayload,
+	buildBoatJohnsonGeneratedPayload,
+	buildBoatJohnsonRecordsFromPredictionRecords,
 	loadBoatJohnsonPredictionRecords,
-	upsertBoatJohnsonPredictionRecord,
+	saveBoatJohnsonPredictionRecords,
 } from "../lib/boatJohnsonPredictionStorage";
 
 const panelGridClassName = "prediction-page-main-panels";
@@ -133,6 +134,25 @@ const johnsonSecondaryButtonStyle = {
 	fontWeight: 900,
 	cursor: "pointer",
 	boxShadow: "0 10px 20px rgba(17, 64, 92, 0.06)",
+};
+
+const johnsonSummaryStyle = {
+	display: "flex",
+	gap: "8px",
+	flexWrap: "wrap" as const,
+	justifyContent: "flex-end",
+	alignItems: "center",
+	margin: "2px 0 0",
+	fontSize: "0.76rem",
+	fontWeight: 800,
+	color: "#345166",
+};
+
+const johnsonSummaryChipStyle = {
+	padding: "6px 10px",
+	borderRadius: "999px",
+	background: "rgba(240, 248, 253, 0.96)",
+	border: "1px solid rgba(93, 199, 232, 0.18)",
 };
 
 const MAX_AUTO_SETTLE_PER_RUN = 12;
@@ -762,6 +782,22 @@ export function PredictionPage() {
 		() => (dataUpdatedAt ? resolveActiveBoatOperationDate(todayFeed.date) : getBoatOperationDate()),
 		[dataUpdatedAt, todayFeed.date],
 	);
+	const johnsonCoverageSummary = useMemo(() => {
+		const savedPredictionRecords = Object.values(loadBoatPredictionRecords())
+			.filter((record) => record.date === activePredictionDate && Boolean(record.predictionText?.trim()));
+		const johnsonRaceKeySet = new Set(
+			Object.values(loadBoatJohnsonPredictionRecords())
+				.filter((record) => record.date === activePredictionDate)
+				.map((record) => record.raceKey),
+		);
+		const johnsonizedCount = savedPredictionRecords.filter((record) => johnsonRaceKeySet.has(record.raceKey)).length;
+
+		return {
+			savedCount: savedPredictionRecords.length,
+			johnsonizedCount,
+			pendingCount: Math.max(savedPredictionRecords.length - johnsonizedCount, 0),
+		};
+	}, [activePredictionDate, predictionRecordsVersion]);
 	const previousPredictionDate = useMemo(() => shiftBoatOperationDate(activePredictionDate, -1), [activePredictionDate]);
 	const selectedVenueRaces = useMemo(() => getVenueRaces(selectedVenue), [selectedVenue]);
 	const selectedRace =
@@ -1828,118 +1864,92 @@ const handleSelectRace = (raceId: string) => {
 		setSavedMessage("予想を保存しました");
 	};
 
-	const buildJohnsonRecordFromCurrentState = (params: {
-		savedAt: string;
-		predictionTextValue: string;
-		tickets: BoatPredictionTicket[];
-		betSummary: ParsedBoatBetSummary;
-	}) => {
-		if (!selectedVenue || !selectedRace || !selectedRaceKey) {
-			return null;
+	const saveJohnsonPrediction = (options?: { includeCurrentDraft?: boolean; downloadJson?: boolean; copyJson?: boolean; buttonLabel?: string }) => {
+		let predictionRecords = loadBoatPredictionRecords();
+
+		if (options?.includeCurrentDraft) {
+			if (!selectedVenue || !selectedRace || !selectedRaceKey) {
+				setSavedMessage("ジョンソン化に必要な会場・レース情報を取得できませんでした");
+				return;
+			}
+
+			if (!predictionText.trim()) {
+				setSavedMessage("予想本文が空です");
+				return;
+			}
+
+			const synced = syncPredictionTicketsFromText(predictionText, {
+				applyInvestment: !savedPracticeResultRecord && !isInvestmentAmountManual,
+			});
+			const savedAt = new Date().toISOString();
+			const predictionRecord: BoatPredictionRecord = {
+				raceKey: selectedRaceKey,
+				raceId: selectedRace.raceId,
+				venueCode: selectedVenue.venueCode,
+				venueName: selectedVenue.venueName,
+				date: activePredictionDate,
+				raceNo: selectedRace.raceNo,
+				predictionText,
+				tickets: synced.tickets,
+				parsedBets: synced.betSummary.bets,
+				betSummary: synced.betSummary,
+				totalStakeYen: synced.betSummary.totalStakeYen,
+				updatedAt: savedAt,
+				savedAt,
+			};
+
+			predictionRecords = upsertBoatPredictionRecord(predictionRecord);
+			setSavedPredictionRecord(predictionRecord);
+
+			if (synced.betSummary.totalStakeYen > 0 && !isInvestmentAmountManual) {
+				setInvestmentAmount(synced.betSummary.totalStakeYen);
+				setIsBetAutoApplied(true);
+			}
 		}
 
-		const practiceRecord = savedPracticeResultRecord?.date === activePredictionDate ? savedPracticeResultRecord : undefined;
+		const todayPredictionRecords = Object.values(predictionRecords)
+			.filter((record) => record.date === activePredictionDate && Boolean(record.predictionText?.trim()));
 
-		return {
-			raceKey: selectedRaceKey,
-			raceId: selectedRace.raceId,
-			venueCode: selectedVenue.venueCode,
-			venueName: selectedVenue.venueName,
-			date: activePredictionDate,
-			raceNo: selectedRace.raceNo,
-			predictionText: params.predictionTextValue,
-			johnsonText: params.predictionTextValue,
-			tickets: params.tickets,
-			parsedBets: params.betSummary.bets,
-			betSummary: params.betSummary,
-			ticketsCount: params.tickets.length,
-			parsedBetsCount: params.betSummary.bets.length,
-			totalStakeYen: params.betSummary.totalStakeYen,
-			resultStatus: practiceRecord?.resultStatus,
-			hitBetType: practiceRecord?.hitBetType,
-			hitBetNumbers: formatJohnsonHitBetNumbers(practiceRecord?.hitBetNumbers),
-			finishOrder: practiceRecord?.finishOrder ?? practiceRecord?.actualOrder,
-			payoutYen: practiceRecord ? resolvePracticePayoutYen(practiceRecord) : undefined,
-			profitYen: practiceRecord ? resolvePracticeProfitYen(practiceRecord) : undefined,
-			roi: practiceRecord ? readPracticeNumber(practiceRecord.roi) : undefined,
-			mobileMemo: practiceRecord?.practiceMemo || practiceRecord?.memo || "",
-			sourceRecordSavedAt: savedPredictionRecord?.savedAt,
-			updatedAt: params.savedAt,
-			savedAt: params.savedAt,
-		};
-	};
-
-	const saveJohnsonPrediction = (options?: { downloadJson?: boolean; copyJson?: boolean; buttonLabel?: string }) => {
-		if (!selectedVenue || !selectedRace || !selectedRaceKey) {
+		if (todayPredictionRecords.length <= 0) {
+			setSavedMessage("ジョンソン化できる保存済み予想がありません");
 			return;
 		}
 
-		if (!predictionText.trim()) {
-			setSavedMessage("予想本文が空です");
-			return;
-		}
-
-		const synced = syncPredictionTicketsFromText(predictionText, {
-			applyInvestment: !savedPracticeResultRecord && !isInvestmentAmountManual,
+		const mergedJohnsonRecords = buildBoatJohnsonRecordsFromPredictionRecords(todayPredictionRecords, {
+			existingRecords: loadBoatJohnsonPredictionRecords(),
+			practiceResultRecords: loadBoatPracticeResultRecords(),
+			updatedAt: new Date().toISOString(),
 		});
-		const savedAt = new Date().toISOString();
-		const predictionRecord: BoatPredictionRecord = {
-			raceKey: selectedRaceKey,
-			raceId: selectedRace.raceId,
-			venueCode: selectedVenue.venueCode,
-			venueName: selectedVenue.venueName,
-			date: activePredictionDate,
-			raceNo: selectedRace.raceNo,
-			predictionText,
-			tickets: synced.tickets,
-			parsedBets: synced.betSummary.bets,
-			betSummary: synced.betSummary,
-			totalStakeYen: synced.betSummary.totalStakeYen,
-			updatedAt: savedAt,
-			savedAt,
-		};
-
-		upsertBoatPredictionRecord(predictionRecord);
-		setSavedPredictionRecord(predictionRecord);
-
-		const johnsonRecord = buildJohnsonRecordFromCurrentState({
-			savedAt,
-			predictionTextValue: predictionText,
-			tickets: synced.tickets,
-			betSummary: synced.betSummary,
-		});
-
-		if (!johnsonRecord) {
-			setSavedMessage("ジョンソン化に必要な会場・レース情報を取得できませんでした");
-			return;
-		}
-
-		const johnsonSaveResult = upsertBoatJohnsonPredictionRecord(johnsonRecord);
-		setPredictionRecordsVersion((current) => current + 1);
+		const johnsonSaveResult = saveBoatJohnsonPredictionRecords(mergedJohnsonRecords);
 
 		if (!johnsonSaveResult.ok) {
 			setSavedMessage("保存容量がいっぱいのため、ジョンソン化を保存できませんでした");
 			return;
 		}
 
-		if (synced.betSummary.totalStakeYen > 0 && !isInvestmentAmountManual) {
-			setInvestmentAmount(synced.betSummary.totalStakeYen);
-			setIsBetAutoApplied(true);
+		const payload = buildBoatJohnsonGeneratedPayload(johnsonSaveResult.records);
+		const recordCount = payload.records.length;
+
+		if (recordCount <= 0) {
+			setSavedMessage("ジョンソン化できる保存済み予想がありません");
+			return;
 		}
 
-		const payload = buildBoatJohnsonPredictionPayload(johnsonSaveResult.records);
 		const payloadText = `${JSON.stringify(payload, null, 2)}\n`;
-		let message = `${options?.buttonLabel ?? "ジョンソン化して保存"}しました`;
+		const convertedCount = todayPredictionRecords.length;
+		let message = `${convertedCount}件をジョンソン化しました`;
+
+		setPredictionRecordsVersion((current) => current + 1);
 
 		if (options?.downloadJson) {
 			downloadJsonFile("boat-johnson-predictions.generated.json", payloadText);
-			message = `${options?.buttonLabel ?? "ジョンソン化"}し、黒い画面 watcher 用 JSON を Downloads へ書き出しました`;
+			message = `${convertedCount}件をジョンソン化し、boat-johnson-predictions.generated.json をダウンロードしました`;
 		}
 
 		if (options?.copyJson) {
 			void navigator.clipboard.writeText(payloadText).then(
 				() => {
-					setSavedMessage("ジョンソン JSON をコピーしました");
+					setSavedMessage(`${convertedCount}件をジョンソン化し、ジョンソン JSON をコピーしました`);
 				},
 				() => {
 					setSavedMessage(message);
@@ -1952,24 +1962,15 @@ const handleSelectRace = (raceId: string) => {
 	};
 
 	const handleSaveJohnsonPrediction = () => {
-		saveJohnsonPrediction({ downloadJson: true, buttonLabel: "ジョンソン化して保存" });
+		saveJohnsonPrediction({ includeCurrentDraft: true, downloadJson: true, buttonLabel: "ジョンソン化して保存" });
 	};
 
 	const handleExportJohnsonPrediction = () => {
-		saveJohnsonPrediction({ downloadJson: true, buttonLabel: "モバイル用にジョンソン化" });
+		saveJohnsonPrediction({ downloadJson: true, buttonLabel: "今日の保存済み予想を全部ジョンソン化" });
 	};
 
 	const handleCopyJohnsonJson = () => {
-		const records = loadBoatJohnsonPredictionRecords();
-		const payload = buildBoatJohnsonPredictionPayload(records);
-		void navigator.clipboard.writeText(`${JSON.stringify(payload, null, 2)}\n`).then(
-			() => {
-				setSavedMessage("ジョンソン JSON をコピーしました");
-			},
-			() => {
-				setSavedMessage("ジョンソン JSON のコピーに失敗しました");
-			},
-		);
+		saveJohnsonPrediction({ copyJson: true, buttonLabel: "今日の保存済み予想を全部ジョンソン化" });
 	};
 
 	const handleClearPrediction = () => {
@@ -2765,9 +2766,14 @@ body:has(.prediction-page-root) {
 							onChange={handleChangePredictionText}
 							onClear={handleClearPrediction}
 						/>
+						<div style={johnsonSummaryStyle}>
+							<span style={johnsonSummaryChipStyle}>保存済み予想 {johnsonCoverageSummary.savedCount}件</span>
+							<span style={johnsonSummaryChipStyle}>ジョンソン化済み {johnsonCoverageSummary.johnsonizedCount}件</span>
+							<span style={johnsonSummaryChipStyle}>未ジョンソン化 {johnsonCoverageSummary.pendingCount}件</span>
+						</div>
 						<div style={johnsonActionRowStyle}>
 							<button type="button" style={johnsonPrimaryButtonStyle} onClick={handleSaveJohnsonPrediction}>ジョンソン化して保存</button>
-							<button type="button" style={johnsonSecondaryButtonStyle} onClick={handleExportJohnsonPrediction}>モバイル用にジョンソン化</button>
+							<button type="button" style={johnsonSecondaryButtonStyle} onClick={handleExportJohnsonPrediction}>今日の保存済み予想を全部ジョンソン化</button>
 							<button type="button" style={johnsonSecondaryButtonStyle} onClick={handleCopyJohnsonJson}>JSONコピー</button>
 						</div>
 					</div>

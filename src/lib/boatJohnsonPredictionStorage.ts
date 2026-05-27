@@ -1,10 +1,62 @@
-import type { BoatJohnsonPredictionPayload, BoatJohnsonPredictionRecord } from "./boatraceTypes";
+import type { BoatPredictionRecord, BoatJohnsonPredictionPayload, BoatJohnsonPredictionRecord } from "./boatraceTypes";
+import type { BoatPracticeResultRecord, BoatPracticeResultRecordMap } from "./boatPracticeResultStorage";
+import { hydrateBoatPredictionRecord, type BoatPredictionRecordMap } from "./boatPredictionStorage";
 
 export const BOAT_JOHNSON_PREDICTION_STORAGE_KEY = "kurari-boat-data-labo-johnson-predictions";
 
 export type BoatJohnsonPredictionRecordMap = Record<string, BoatJohnsonPredictionRecord>;
 
 const BOAT_JOHNSON_FALLBACK_KEEP_DAYS = 2;
+
+const readPracticeNumber = (value: unknown): number => {
+	if (typeof value === "number" && Number.isFinite(value)) {
+		return value;
+	}
+
+	if (typeof value === "string") {
+		const parsed = Number(value.replace(/[^\d.-]/g, ""));
+		return Number.isFinite(parsed) ? parsed : 0;
+	}
+
+	return 0;
+};
+
+const formatJohnsonHitBetNumbers = (value: unknown): string => {
+	if (Array.isArray(value)) {
+		return value.map((item) => readPracticeNumber(item)).filter((item) => item > 0).join("-");
+	}
+
+	return String(value ?? "")
+		.trim()
+		.replace(/[\s,、/]+/g, "-")
+		.replace(/-+/g, "-")
+		.replace(/^-|-$/g, "");
+};
+
+const resolvePracticeStakeYen = (record: BoatPracticeResultRecord): number =>
+	readPracticeNumber(record.totalStakeYen ?? record.betSummary?.totalStakeYen ?? record.investmentAmount);
+
+const resolvePracticePayoutYen = (record: BoatPracticeResultRecord): number =>
+	readPracticeNumber(record.payoutYen ?? record.payoutAmount);
+
+const resolvePracticeProfitYen = (record: BoatPracticeResultRecord): number => {
+	const storedProfit = record.profitYen ?? record.profitLoss;
+	if (storedProfit !== undefined) {
+		return readPracticeNumber(storedProfit);
+	}
+
+	return resolvePracticePayoutYen(record) - resolvePracticeStakeYen(record);
+};
+
+const toPredictionRecordArray = (records: BoatPredictionRecordMap | BoatPredictionRecord[]): BoatPredictionRecord[] =>
+	Array.isArray(records) ? records : Object.values(records);
+
+const buildRecordSortValue = (record: { date?: string; venueName?: string; raceNo?: number; updatedAt?: string; savedAt?: string }) => ({
+	date: String(record.date ?? ""),
+	venueName: String(record.venueName ?? ""),
+	raceNo: Number(record.raceNo ?? 0),
+	updatedAt: String(record.updatedAt ?? record.savedAt ?? ""),
+});
 
 const canUseStorage = () => typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 
@@ -130,7 +182,118 @@ export function upsertBoatJohnsonPredictionRecord(record: BoatJohnsonPredictionR
 	});
 }
 
-export function buildBoatJohnsonPredictionPayload(records: BoatJohnsonPredictionRecordMap): BoatJohnsonPredictionPayload {
+export function buildBoatJohnsonRecordFromPredictionRecord(
+	predictionRecord: BoatPredictionRecord,
+	options?: {
+		existingRecord?: BoatJohnsonPredictionRecord;
+		practiceRecord?: BoatPracticeResultRecord;
+		updatedAt?: string;
+	},
+): BoatJohnsonPredictionRecord | null {
+	const hydratedRecord = hydrateBoatPredictionRecord(predictionRecord);
+	const predictionText = hydratedRecord.predictionText?.trim() ?? "";
+
+	if (!hydratedRecord.raceKey || !hydratedRecord.date || !hydratedRecord.venueName || !hydratedRecord.raceNo || !predictionText) {
+		return null;
+	}
+
+	const existingRecord = options?.existingRecord;
+	const practiceRecord = options?.practiceRecord;
+	const updatedAt = options?.updatedAt ?? new Date().toISOString();
+	const tickets = Array.isArray(hydratedRecord.tickets) ? hydratedRecord.tickets : existingRecord?.tickets;
+	const parsedBets = Array.isArray(hydratedRecord.parsedBets) ? hydratedRecord.parsedBets : existingRecord?.parsedBets;
+	const betSummary = hydratedRecord.betSummary ?? existingRecord?.betSummary;
+	const hitBetNumbers = formatJohnsonHitBetNumbers(practiceRecord?.hitBetNumbers);
+
+	return normalizeBoatJohnsonPredictionRecord({
+		raceKey: hydratedRecord.raceKey,
+		raceId: hydratedRecord.raceId ?? existingRecord?.raceId,
+		venueCode: hydratedRecord.venueCode ?? existingRecord?.venueCode,
+		venueName: hydratedRecord.venueName,
+		date: hydratedRecord.date,
+		raceNo: hydratedRecord.raceNo,
+		predictionText,
+		johnsonText: predictionText,
+		tickets,
+		parsedBets,
+		betSummary,
+		ticketsCount: Array.isArray(tickets) ? tickets.length : 0,
+		parsedBetsCount: Array.isArray(parsedBets) ? parsedBets.length : 0,
+		totalStakeYen: hydratedRecord.totalStakeYen ?? betSummary?.totalStakeYen ?? existingRecord?.totalStakeYen ?? 0,
+		resultStatus: practiceRecord?.resultStatus ?? existingRecord?.resultStatus,
+		hitBetType: practiceRecord?.hitBetType ?? existingRecord?.hitBetType,
+		hitBetNumbers: hitBetNumbers || existingRecord?.hitBetNumbers,
+		finishOrder: practiceRecord?.finishOrder ?? practiceRecord?.actualOrder ?? existingRecord?.finishOrder,
+		payoutYen: practiceRecord ? resolvePracticePayoutYen(practiceRecord) : existingRecord?.payoutYen,
+		profitYen: practiceRecord ? resolvePracticeProfitYen(practiceRecord) : existingRecord?.profitYen,
+		roi: practiceRecord ? readPracticeNumber(practiceRecord.roi) : existingRecord?.roi,
+		mobileMemo: practiceRecord?.practiceMemo || practiceRecord?.memo || existingRecord?.mobileMemo || "",
+		sourceRecordSavedAt: hydratedRecord.savedAt,
+		updatedAt,
+		savedAt: existingRecord?.savedAt ?? updatedAt,
+	});
+}
+
+export function mergeBoatJohnsonRecords(
+	existingRecords: BoatJohnsonPredictionRecordMap,
+	nextRecords: BoatJohnsonPredictionRecordMap,
+): BoatJohnsonPredictionRecordMap {
+	return reduceBoatJohnsonPredictionRecords(
+		sortBoatJohnsonPredictionRecordsByRecency(Object.values({
+			...existingRecords,
+			...nextRecords,
+		})),
+	);
+}
+
+export function buildBoatJohnsonRecordsFromPredictionRecords(
+	predictionRecords: BoatPredictionRecordMap | BoatPredictionRecord[],
+	options?: {
+		existingRecords?: BoatJohnsonPredictionRecordMap;
+		practiceResultRecords?: BoatPracticeResultRecordMap;
+		updatedAt?: string;
+	},
+): BoatJohnsonPredictionRecordMap {
+	const existingRecords = options?.existingRecords ?? {};
+	const practiceResultRecords = options?.practiceResultRecords ?? {};
+	const updatedAt = options?.updatedAt ?? new Date().toISOString();
+	const nextRecords = toPredictionRecordArray(predictionRecords)
+		.sort((left, right) => {
+			const leftSort = buildRecordSortValue(left);
+			const rightSort = buildRecordSortValue(right);
+
+			if (leftSort.date !== rightSort.date) {
+				return rightSort.date.localeCompare(leftSort.date);
+			}
+
+			if (leftSort.venueName !== rightSort.venueName) {
+				return leftSort.venueName.localeCompare(rightSort.venueName, "ja");
+			}
+
+			if (leftSort.raceNo !== rightSort.raceNo) {
+				return leftSort.raceNo - rightSort.raceNo;
+			}
+
+			return rightSort.updatedAt.localeCompare(leftSort.updatedAt);
+		})
+		.reduce<BoatJohnsonPredictionRecordMap>((acc, record) => {
+			const nextRecord = buildBoatJohnsonRecordFromPredictionRecord(record, {
+				existingRecord: acc[record.raceKey] ?? existingRecords[record.raceKey],
+				practiceRecord: practiceResultRecords[record.raceKey],
+				updatedAt,
+			});
+
+			if (nextRecord) {
+				acc[nextRecord.raceKey] = nextRecord;
+			}
+
+			return acc;
+		}, {});
+
+	return mergeBoatJohnsonRecords(existingRecords, nextRecords);
+}
+
+export function buildBoatJohnsonGeneratedPayload(records: BoatJohnsonPredictionRecordMap): BoatJohnsonPredictionPayload {
 	const sortedRecords = sortBoatJohnsonPredictionRecordsByRecency(Object.values(records)).map(normalizeBoatJohnsonPredictionRecord);
 
 	return {
@@ -142,4 +305,8 @@ export function buildBoatJohnsonPredictionPayload(records: BoatJohnsonPrediction
 		notifiedSlackResultKeys: [],
 		notifiedSlackHitKeys: [],
 	};
+}
+
+export function buildBoatJohnsonPredictionPayload(records: BoatJohnsonPredictionRecordMap): BoatJohnsonPredictionPayload {
+	return buildBoatJohnsonGeneratedPayload(records);
 }
