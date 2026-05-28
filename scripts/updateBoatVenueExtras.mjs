@@ -85,6 +85,10 @@ const MIYAJIMA_SCORE_RATE_URL = "https://www.boatrace-miyajima.com/yosen_point_r
 const MIYAJIMA_WEATHER_LIVE_URL = "https://www.boatrace-miyajima.com/weather_live/data/weather.txt";
 const FUKUOKA_VENUE_NAME = "福岡";
 const FUKUOKA_SOURCE = "boatrace-fukuoka.com";
+const HAMANAKO_VENUE_NAME = "浜名湖";
+const HAMANAKO_SOURCE = "boatrace-hamanako.jp";
+const HAMANAKO_YOSOU_BASE_URL = "https://www.boatrace-hamanako.jp/modules/yosou/";
+const HAMANAKO_WATER_SURFACE_URL = "https://www.boatrace-hamanako.jp/modules/datafile/?page=index_suimen";
 const KOJIMA_VENUE_NAME = "児島";
 const KOJIMA_SOURCE = "kojimaboat.jp";
 const BIWAKO_VENUE_NAME = "びわこ";
@@ -720,6 +724,23 @@ async function fetchTsuPageHtml(url) {
 			"user-agent": "Mozilla/5.0",
 			"accept-language": "ja,en;q=0.8",
 			referer: "https://www.boatrace-tsu.com/sp/index.php",
+		},
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status} ${response.statusText}`);
+	}
+
+	return response.text();
+}
+
+async function fetchHamanakoHtml(url) {
+	const response = await fetch(url, {
+		headers: {
+			"user-agent": "Mozilla/5.0",
+			"accept-language": "ja,en;q=0.8",
+			referer: "https://www.boatrace-hamanako.jp/",
 		},
 		signal: AbortSignal.timeout(15000),
 	});
@@ -5341,6 +5362,618 @@ function parseFukuokaNationalRecent3() {
 
 function parseFukuokaLocalRecent3() {
 	return [];
+}
+
+function toHamanakoDay(date) {
+	return String(date ?? "").replaceAll("-", "");
+}
+
+function toHamanakoRaceTabUrl({ date, raceNo, group, kind = 0 }) {
+	const params = new URLSearchParams({
+		day: toHamanakoDay(date),
+		race: String(raceNo),
+		kind: String(kind),
+		if: "1",
+	});
+	return `${HAMANAKO_YOSOU_BASE_URL}${group}.php?${params.toString()}`;
+}
+
+function getDirectTableRows($, table) {
+	const bodyRows = $(table).find("> tbody > tr").toArray();
+	return bodyRows.length ? bodyRows : $(table).children("tr").toArray();
+}
+
+function splitHamanakoRateCell($, cell) {
+	const values = $(cell)
+		.find(".s_2rentan")
+		.map((_, element) => readCellText($, element))
+		.get()
+		.filter(Boolean);
+	if (values.length >= 2) {
+		return values;
+	}
+	return readCellText($, cell).split(/\s+/).filter(Boolean);
+}
+
+function parseHamanakoIdentity($, cell) {
+	const className = readCellText($, $(cell).find(".par-ico_kyubetu").first());
+	const tobanText = readCellText($, $(cell).find(".com-toban").first());
+	const registrationNo = compactText(tobanText.replace(className, "").replace("/", ""));
+	const playerName = readCellText($, $(cell).find(".com-rname").first());
+	const profile = readCellText($, $(cell).find(".com-subinfo").first());
+	const profileParts = profile.split("/").map((part) => compactText(part));
+	return {
+		className,
+		registrationNo,
+		registerNo: registrationNo,
+		playerName,
+		racerName: playerName,
+		branch: profileParts[0] ?? "",
+		hometown: profileParts[1] ?? "",
+		age: profileParts[2] ?? "",
+	};
+}
+
+function readHamanakoNodeText(node) {
+	if (!node) {
+		return "";
+	}
+	if (node.type === "text") {
+		return node.data ?? "";
+	}
+	return Array.isArray(node.children)
+		? node.children.map((child) => readHamanakoNodeText(child)).join("")
+		: "";
+}
+
+function isHamanakoFrameRow(cells, frameIndex = 0) {
+	return Boolean(parseFrameNo(readHamanakoNodeText(cells[frameIndex])));
+}
+
+function parseHamanakoRacerResults(html) {
+	const $ = load(html);
+	const table = $("table").first();
+	const rows = getDirectTableRows($, table);
+	const results = [];
+
+	for (const row of rows) {
+		const cells = $(row).children("th,td").toArray();
+		if (cells.length < 12 || !isHamanakoFrameRow(cells, 1)) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, cells[1]));
+		const identity = parseHamanakoIdentity($, cells[2]);
+		const nationalRates = splitHamanakoRateCell($, cells[5]);
+		const localRates = splitHamanakoRateCell($, cells[6]);
+		const motorRates = splitHamanakoRateCell($, cells[7]);
+		const boatRates = splitHamanakoRateCell($, cells[8]);
+		const comments = [];
+		$(cells[9]).find(".comment-table01 tr").each((_, commentRow) => {
+			const commentCells = $(commentRow).children("th,td").toArray();
+			const label = readCellText($, commentCells[0]);
+			const comment = readCellText($, commentCells[1]);
+			if (comment) {
+				comments.push(label ? `${label}: ${comment}` : comment);
+			}
+		});
+
+		results.push({
+			frameNo,
+			...identity,
+			fl: readCellText($, cells[3]),
+			averageStart: readCellText($, cells[4]),
+			winRate: nationalRates[0] ?? "",
+			secondRate: nationalRates[1] ?? "",
+			localWinRate: localRates[0] ?? "",
+			localSecondRate: localRates[1] ?? "",
+			motorNo: motorRates[0] ?? "",
+			motorSecondRate: motorRates[1] ?? "",
+			boatNo: boatRates[0] ?? "",
+			boatSecondRate: boatRates[1] ?? "",
+			comment: comments.join(" / "),
+			motorEvaluation: [
+				readCellText($, cells[10]),
+				readCellText($, $(row).nextAll("tr").eq(2).children("td").first()),
+				readCellText($, $(row).nextAll("tr").eq(3).children("td").first()),
+			].filter(Boolean).join(" / "),
+			quickRaceNo: readCellText($, cells[11]),
+			source: HAMANAKO_SOURCE,
+		});
+	}
+
+	return results;
+}
+
+function parseHamanakoBeforeInfo(html) {
+	const $ = load(html);
+	const rows = getDirectTableRows($, $("table").first());
+	const beforeRows = [];
+
+	for (let index = 0; index < rows.length; index += 1) {
+		const cells = $(rows[index]).children("th,td").toArray();
+		if (cells.length < 9 || !isHamanakoFrameRow(cells, 0)) {
+			continue;
+		}
+
+		const frameNo = parseFrameNo(readCellText($, cells[0]));
+		const identity = parseHamanakoIdentity($, cells[1]);
+		const adjustmentCells = $(rows[index + 1]).children("th,td").toArray();
+		const weightAdjustment = adjustmentCells.length === 1 ? readCellText($, adjustmentCells[0]) : "";
+		beforeRows.push({
+			frameNo,
+			...identity,
+			exhibitionTime: readCellText($, cells[2]),
+			weight: readCellText($, cells[3]),
+			weightAdjustment,
+			adjustment: weightAdjustment,
+			tilt: readCellText($, cells[4]),
+			previousRaceNo: readCellText($, cells[5]),
+			previousRaceCourse: readCellText($, cells[6]),
+			previousRaceStartTiming: readCellText($, cells[7]),
+			previousRaceFinishOrder: readCellText($, cells[8]),
+			partsExchange: readCellText($, cells[9]),
+			memo: "",
+			source: HAMANAKO_SOURCE,
+		});
+	}
+
+	return beforeRows;
+}
+
+function parseHamanakoStartExhibition(html) {
+	const $ = load(html);
+	const table = $("table").first();
+	const rows = getDirectTableRows($, table);
+	const startVisualRows = table.find(".suimen_div").toArray();
+	const startRows = [];
+
+	for (const row of rows) {
+		const cells = $(row).children("th,td").toArray();
+		if (cells.length < 5 || !isHamanakoFrameRow(cells, 1)) {
+			continue;
+		}
+
+		const course = parseFrameNo(readCellText($, cells[0]));
+		const frameNo = parseFrameNo(readCellText($, cells[1]));
+		const identity = parseHamanakoIdentity($, cells[2]);
+		const visual = startVisualRows[course - 1];
+		startRows.push({
+			course,
+			frameNo,
+			...identity,
+			currentAverageStart: readCellText($, cells[3]),
+			startOrder: readCellText($, cells[4]),
+			style: visual ? readCellText($, $(visual).find(".sd_area").first()) : "",
+			startTiming: visual ? readCellText($, $(visual).find(".st_area").first()) : "",
+			source: HAMANAKO_SOURCE,
+		});
+	}
+
+	return startRows;
+}
+
+function parseHamanakoOriginalExhibition(html) {
+	const $ = load(html);
+	const rows = getDirectTableRows($, $("table").first());
+	const exhibitionRows = [];
+
+	for (const row of rows) {
+		const cells = $(row).children("th,td").toArray();
+		if (cells.length < 9 || !isHamanakoFrameRow(cells, 0)) {
+			continue;
+		}
+
+		const identity = parseHamanakoIdentity($, cells[1]);
+		exhibitionRows.push({
+			frameNo: parseFrameNo(readCellText($, cells[0])),
+			...identity,
+			weight: readCellText($, cells[2]),
+			weightAdjustment: readCellText($, cells[3]),
+			adjustment: readCellText($, cells[3]),
+			tilt: readCellText($, cells[4]),
+			exhibitionTime: readCellText($, cells[5]),
+			oneLapTime: readCellText($, cells[6]),
+			turnTime: readCellText($, cells[7]),
+			straightTime: readCellText($, cells[8]),
+			exhibitionEvaluation: "",
+			memo: "浜名湖公式オリジナル展示データ",
+			source: HAMANAKO_SOURCE,
+		});
+	}
+
+	return exhibitionRows;
+}
+
+function parseHamanakoSeriesResults(html) {
+	const $ = load(html);
+	const rows = getDirectTableRows($, $("table").first());
+	const results = [];
+
+	for (let index = 0; index < rows.length; index += 4) {
+		const raceCells = $(rows[index]).children("th,td").toArray();
+		if (raceCells.length < 4 || !isHamanakoFrameRow(raceCells, 0)) {
+			continue;
+		}
+		const courseCells = $(rows[index + 1]).children("th,td").toArray();
+		const startCells = $(rows[index + 2]).children("th,td").toArray();
+		const finishCells = $(rows[index + 3]).children("th,td").toArray();
+		results.push({
+			frameNo: parseFrameNo(readCellText($, raceCells[0])),
+			...parseHamanakoIdentity($, raceCells[1]),
+			raceNumbers: raceCells.slice(3, 15).map((cell) => readCellText($, cell)),
+			courses: courseCells.slice(1, 13).map((cell) => readCellText($, cell)),
+			startTimings: startCells.slice(1, 13).map((cell) => readCellText($, cell)),
+			finishOrders: finishCells.slice(1, 13).map((cell) => readCellText($, cell)),
+			source: HAMANAKO_SOURCE,
+		});
+	}
+
+	return results;
+}
+
+function parseHamanakoRecent3(html, { local = false } = {}) {
+	const $ = load(html);
+	const rows = getDirectTableRows($, $("table").first());
+	const results = [];
+
+	for (let index = 0; index < rows.length; index += 2) {
+		const infoCells = $(rows[index]).children("th,td").toArray();
+		if (infoCells.length < 5 || !isHamanakoFrameRow(infoCells, 0)) {
+			continue;
+		}
+		const resultCells = $(rows[index + 1]).children("th,td").toArray();
+		const histories = [0, 1, 2].map((historyIndex) => {
+			const raw = readCellText($, infoCells[historyIndex + 2]);
+			const result = readCellText($, resultCells[historyIndex]);
+			return raw || result
+				? {
+						venueName: local ? HAMANAKO_VENUE_NAME : "",
+						grade: raw.match(/^(SG|ＧⅠ|ＧⅡ|ＧⅢ|一般)/)?.[1] ?? "",
+						dateRange: raw.match(/\d{2}\/\d{2}\/\d{2}～\d{2}\/\d{2}\/\d{2}/)?.[0] ?? "",
+						results: result,
+						raw,
+					}
+				: null;
+		}).filter(Boolean);
+
+		results.push({
+			frameNo: parseFrameNo(readCellText($, infoCells[0])),
+			...parseHamanakoIdentity($, infoCells[1]),
+			histories,
+			source: HAMANAKO_SOURCE,
+		});
+	}
+
+	return results;
+}
+
+function parseHamanakoNationalRecent3(html) {
+	return parseHamanakoRecent3(html, { local: false });
+}
+
+function parseHamanakoLocalRecent3(html) {
+	return parseHamanakoRecent3(html, { local: true });
+}
+
+function parseHamanakoFramePast10(html) {
+	const $ = load(html);
+	const rows = getDirectTableRows($, $("table").first());
+	const results = [];
+
+	for (let index = 0; index < rows.length; index += 2) {
+		const courseCells = $(rows[index]).children("th,td").toArray();
+		if (courseCells.length < 16 || !isHamanakoFrameRow(courseCells, 0)) {
+			continue;
+		}
+		const finishCells = $(rows[index + 1]).children("th,td").toArray();
+		results.push({
+			frameNo: parseFrameNo(readCellText($, courseCells[0])),
+			...parseHamanakoIdentity($, courseCells[1]),
+			courseHistory: courseCells.slice(3, 13).map((cell) => readCellText($, cell)),
+			finishHistory: finishCells.slice(1, 11).map((cell) => readCellText($, cell)),
+			startTimingHistory: [],
+			frameWinRate: readCellText($, courseCells[13]),
+			frameAverageStart: readCellText($, courseCells[14]),
+			frameStartOrder: readCellText($, courseCells[15]),
+			source: HAMANAKO_SOURCE,
+		});
+	}
+
+	return results;
+}
+
+function parseHamanakoScoreRateGuide(html, racerResults = []) {
+	const $ = load(html);
+	const rows = getDirectTableRows($, $("table").first());
+	const resultByFrame = new Map(racerResults.map((row) => [row.frameNo, row]));
+	const scoreRows = [];
+
+	for (const row of rows) {
+		const cells = $(row).children("th,td").toArray();
+		if (cells.length < 11 || !isHamanakoFrameRow(cells, 0)) {
+			continue;
+		}
+		const frameNo = parseFrameNo(readCellText($, cells[0]));
+		const entry = resultByFrame.get(frameNo) ?? {};
+		scoreRows.push({
+			frameNo,
+			...parseHamanakoIdentity($, cells[1]),
+			averageStart: entry.averageStart ?? "",
+			winRate: entry.winRate ?? "",
+			secondRate: entry.secondRate ?? "",
+			localWinRate: entry.localWinRate ?? "",
+			localSecondRate: entry.localSecondRate ?? "",
+			motorNo: entry.motorNo ?? "",
+			motorSecondRate: entry.motorSecondRate ?? "",
+			scoreRate: readCellText($, cells[2]),
+			rank: readCellText($, cells[3]),
+			firstPlaceScoreRate: readCellText($, cells[4]),
+			secondPlaceScoreRate: readCellText($, cells[5]),
+			thirdPlaceScoreRate: readCellText($, cells[6]),
+			fourthPlaceScoreRate: readCellText($, cells[7]),
+			fifthPlaceScoreRate: readCellText($, cells[8]),
+			sixthPlaceScoreRate: readCellText($, cells[9]),
+			quickRaceNo: readCellText($, cells[10]),
+			source: HAMANAKO_SOURCE,
+		});
+	}
+
+	return scoreRows;
+}
+
+function parseHamanakoMotorHistory(html) {
+	const $ = load(html);
+	const rows = getDirectTableRows($, $("table").first());
+	const motorRows = [];
+
+	for (let index = 0; index < rows.length; index += 3) {
+		const cells = $(rows[index]).children("th,td").toArray();
+		if (cells.length < 10 || !isHamanakoFrameRow(cells, 0)) {
+			continue;
+		}
+		const historyEntries = [];
+		const firstHistory = cells.slice(5, 10).map((cell) => readCellText($, cell));
+		if (firstHistory.some(Boolean)) {
+			historyEntries.push({
+				label: firstHistory[0],
+				motorGrade: firstHistory[1],
+				playerName: firstHistory[2],
+				results: firstHistory[3],
+				comment: firstHistory[4],
+			});
+		}
+		for (const offset of [1, 2]) {
+			const historyCells = $(rows[index + offset]).children("th,td").toArray();
+			const values = historyCells.map((cell) => readCellText($, cell));
+			if (values.some(Boolean)) {
+				historyEntries.push({
+					label: values[0] ?? "",
+					motorGrade: values[1] ?? "",
+					playerName: values[2] ?? "",
+					results: values[3] ?? "",
+					comment: values[4] ?? "",
+				});
+			}
+		}
+
+		const motorNoAndRate = readCellText($, cells[3]);
+		motorRows.push({
+			frameNo: parseFrameNo(readCellText($, cells[0])),
+			...parseHamanakoIdentity($, cells[1]),
+			motorGrade: readCellText($, cells[2]),
+			motorNo: motorNoAndRate.slice(0, -4) || motorNoAndRate,
+			motorSecondRate: motorNoAndRate.slice(-4),
+			comment: historyEntries[0]?.comment ?? "",
+			historyEntries,
+			source: HAMANAKO_SOURCE,
+		});
+	}
+
+	return motorRows;
+}
+
+function parseHamanakoWaterSurfaceInfo(html) {
+	const $ = load(html);
+	const text = compactText($("main, body").text());
+	return text
+		? {
+				source: HAMANAKO_SOURCE,
+				surfaceFeature: text.slice(0, 600),
+			}
+		: null;
+}
+
+function parseHamanakoWeatherCondition(html) {
+	const $ = load(html);
+	const table = $("table").eq(1);
+	const cells = table.find("tr").last().children("th,td").toArray().map((cell) => readCellText($, cell));
+	return cells.some(Boolean)
+		? {
+				weather: cells[0] ?? "",
+				windDirection: cells[1] ?? "",
+				windSpeed: cells[2] ?? "",
+				waveHeight: cells[3] ?? "",
+				temperature: cells[4] ?? "",
+				waterTemperature: cells[5] ?? "",
+				source: HAMANAKO_SOURCE,
+			}
+		: null;
+}
+
+async function fetchHamanakoVenueExtras({ date, raceNo }) {
+	const settled = await Promise.allSettled([
+		fetchHamanakoHtml(toHamanakoRaceTabUrl({ date, raceNo, group: "group-syussou", kind: 0 })),
+		fetchHamanakoHtml(toHamanakoRaceTabUrl({ date, raceNo, group: "group-syussou", kind: 1 })),
+		fetchHamanakoHtml(toHamanakoRaceTabUrl({ date, raceNo, group: "group-syussou", kind: 2 })),
+		fetchHamanakoHtml(toHamanakoRaceTabUrl({ date, raceNo, group: "group-syussou", kind: 3 })),
+		fetchHamanakoHtml(toHamanakoRaceTabUrl({ date, raceNo, group: "group-syussou", kind: 4 })),
+		fetchHamanakoHtml(toHamanakoRaceTabUrl({ date, raceNo, group: "group-syussou", kind: 5 })),
+		fetchHamanakoHtml(toHamanakoRaceTabUrl({ date, raceNo, group: "group-cyokuzen", kind: 0 })),
+		fetchHamanakoHtml(toHamanakoRaceTabUrl({ date, raceNo, group: "group-cyokuzen", kind: 1 })),
+		fetchHamanakoHtml(toHamanakoRaceTabUrl({ date, raceNo, group: "group-cyokuzen", kind: 2 })),
+		fetchHamanakoHtml(toHamanakoRaceTabUrl({ date, raceNo, group: "group-yosou", kind: 3 })),
+	]);
+
+	const [
+		racerHtml,
+		seriesHtml,
+		nationalHtml,
+		localHtml,
+		frame10Html,
+		scoreHtml,
+		beforeHtml,
+		startHtml,
+		originalHtml,
+		motorHtml,
+	] = settled.map((result) => result.status === "fulfilled" ? result.value : "");
+
+	const hamanakoRacerResults = parseHamanakoRacerResults(racerHtml);
+	const hamanakoSeriesResults = parseHamanakoSeriesResults(seriesHtml);
+	const hamanakoNationalRecent3 = parseHamanakoNationalRecent3(nationalHtml);
+	const hamanakoLocalRecent3 = parseHamanakoLocalRecent3(localHtml);
+	const hamanakoFramePast10 = parseHamanakoFramePast10(frame10Html);
+	const hamanakoScoreRateGuide = parseHamanakoScoreRateGuide(scoreHtml, hamanakoRacerResults);
+	const hamanakoBeforeInfo = parseHamanakoBeforeInfo(beforeHtml).map((row) => {
+		const entry = hamanakoRacerResults.find((item) => item.frameNo === row.frameNo) ?? {};
+		return {
+			...row,
+			motorNo: entry.motorNo ?? "",
+			motorSecondRate: entry.motorSecondRate ?? "",
+			boatNo: entry.boatNo ?? "",
+			boatSecondRate: entry.boatSecondRate ?? "",
+		};
+	});
+	const startExhibition = parseHamanakoStartExhibition(startHtml);
+	const originalExhibition = parseHamanakoOriginalExhibition(originalHtml).map((row) => {
+		const entry = hamanakoRacerResults.find((item) => item.frameNo === row.frameNo) ?? {};
+		return {
+			...row,
+			motorNo: entry.motorNo ?? "",
+			motorSecondRate: entry.motorSecondRate ?? "",
+			boatNo: entry.boatNo ?? "",
+			boatSecondRate: entry.boatSecondRate ?? "",
+		};
+	});
+	const hamanakoMotorHistory = parseHamanakoMotorHistory(motorHtml);
+	const weatherCondition = parseHamanakoWeatherCondition(startHtml);
+	const racerComments = hamanakoRacerResults
+		.filter((row) => row.comment)
+		.map((row) => ({ frameNo: row.frameNo, comment: row.comment, source: HAMANAKO_SOURCE }));
+	const motorSummary = hamanakoMotorHistory.length
+		? hamanakoMotorHistory
+		: hamanakoRacerResults
+			.filter((row) => row.motorNo)
+			.map((row) => ({
+				frameNo: row.frameNo,
+				motorNo: row.motorNo,
+				motorGrade: row.motorEvaluation,
+				comment: row.comment,
+				source: HAMANAKO_SOURCE,
+			}));
+	const officialBeforeInfo = hamanakoBeforeInfo.length || startExhibition.length || hamanakoScoreRateGuide.length
+		? {
+				status: "available",
+				source: HAMANAKO_SOURCE,
+				exhibitionRows: hamanakoBeforeInfo,
+				startExhibition,
+				scoreQuickLook: hamanakoScoreRateGuide,
+			}
+		: null;
+	const hasAny = [
+		hamanakoRacerResults,
+		hamanakoSeriesResults,
+		hamanakoNationalRecent3,
+		hamanakoLocalRecent3,
+		hamanakoFramePast10,
+		hamanakoScoreRateGuide,
+		hamanakoBeforeInfo,
+		startExhibition,
+		originalExhibition,
+		hamanakoMotorHistory,
+	].some((rows) => rows.length > 0);
+
+	console.log(
+		`[venue-extras] hamanako ${raceNo}R: racer ${hamanakoRacerResults.length} / series ${hamanakoSeriesResults.length} / national3 ${hamanakoNationalRecent3.length} / local3 ${hamanakoLocalRecent3.length} / frame10 ${hamanakoFramePast10.length} / score ${hamanakoScoreRateGuide.length} / before ${hamanakoBeforeInfo.length} / start ${startExhibition.length} / exhibition ${originalExhibition.length} / motor ${motorSummary.length}`,
+	);
+
+	return {
+		raceNo,
+		status: hasAny ? "available" : "waiting",
+		source: HAMANAKO_SOURCE,
+		sourceType: "hamanako-official-extras",
+		officialBeforeInfo,
+		weatherCondition,
+		beforeInfo: hamanakoBeforeInfo,
+		hamanakoBeforeInfo,
+		startExhibition,
+		originalExhibition,
+		hamanakoRacerResults,
+		racerComments,
+		motorSummary,
+		hamanakoMotorHistory,
+		hamanakoSeriesResults,
+		sectionResults: hamanakoSeriesResults,
+		hamanakoNationalRecent3,
+		nationalRecent3: hamanakoNationalRecent3,
+		hamanakoLocalRecent3,
+		localRecent3: hamanakoLocalRecent3,
+		hamanakoFramePast10,
+		frameLast10: hamanakoFramePast10,
+		hamanakoScoreRateGuide,
+		scoreRateGuide: hamanakoScoreRateGuide,
+	};
+}
+
+async function buildHamanakoVenueExtras(feed, date) {
+	const hamanakoVenue = findVenue(feed, HAMANAKO_VENUE_NAME);
+
+	if (!hamanakoVenue) {
+		console.log("[venue-extras] hamanako: not held today");
+		return null;
+	}
+
+	try {
+		const races = getRaceList(hamanakoVenue);
+		const waterSurfaceInfo = await fetchHamanakoHtml(HAMANAKO_WATER_SURFACE_URL)
+			.then(parseHamanakoWaterSurfaceInfo)
+			.catch((error) => {
+				console.warn(`[venue-extras] hamanako water surface failed: ${error.message}`);
+				return null;
+			});
+		const raceExtras = [];
+
+		for (const race of races) {
+			raceExtras.push(await fetchHamanakoVenueExtras({ date, raceNo: race.raceNo }));
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+		return {
+			venueCode: String(hamanakoVenue.venueCode ?? "06"),
+			venueName: HAMANAKO_VENUE_NAME,
+			source: HAMANAKO_SOURCE,
+			isAvailable: availableRaceCount > 0,
+			status: availableRaceCount > 0 ? "available" : "waiting-hamanako-data",
+			waterSurfaceInfo,
+			note: "浜名湖公式の出走表、直前情報、スタート展示、オリジナル展示、節間成績、過去3節、枠番別10走、得点率早見、モーター評価を取得。",
+			races: raceExtras.map((race) => ({
+				...race,
+				waterSurfaceInfo,
+			})),
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] hamanako failed: ${error.message}`);
+		return {
+			venueCode: String(hamanakoVenue.venueCode ?? "06"),
+			venueName: HAMANAKO_VENUE_NAME,
+			source: HAMANAKO_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `浜名湖公式データの取得に失敗しました: ${error.message}`,
+			races: [],
+		};
+	}
 }
 
 async function fetchFukuokaRaceExtra({ date, raceNo, sharedScoreHtml = "" }) {
@@ -12764,6 +13397,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const miyajimaVenue = await createMiyajimaVenue(feed, date);
 	if (miyajimaVenue) {
 		venueMap.set(miyajimaVenue.venueName, mergeVenueRecord(venueMap.get(miyajimaVenue.venueName) ?? null, miyajimaVenue));
+	}
+
+	const hamanakoVenue = await buildHamanakoVenueExtras(feed, date);
+	if (hamanakoVenue) {
+		venueMap.set(hamanakoVenue.venueName, mergeVenueRecord(venueMap.get(hamanakoVenue.venueName) ?? null, hamanakoVenue));
 	}
 
 	const fukuokaVenue = await createFukuokaVenue(feed, date);

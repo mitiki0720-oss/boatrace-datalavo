@@ -5032,6 +5032,7 @@ const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
 	桐生: "complete",
 	津: "complete",
 	宮島: "complete",
+	浜名湖: "complete",
 };
 
 const venueOfficialLinkStatusMeta: Record<
