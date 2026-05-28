@@ -396,6 +396,61 @@ const buildScoreQuickLookBlock = (racers: BoatRacerItem[], raceExtra?: BoatVenue
 		.join("\n");
 };
 
+const buildVenueRecordDetailsBlock = (racers: BoatRacerItem[], raceExtra?: BoatVenueExtraRace | null) => {
+	const racerNameMap = buildRacerNameMap(racers);
+	const readArrayText = (value: unknown) => Array.isArray(value)
+		? value.map((item) => readMaterialString(item)).filter(Boolean).join(" ")
+		: readMaterialString(value);
+	const renderRows = (label: string, key: string, formatter: (row: MaterialRecord) => string) => {
+		const rows = sortByFrameNo(toMaterialRecordArray((raceExtra as MaterialRecord | null | undefined)?.[key]));
+		if (rows.length === 0) {
+			return "";
+		}
+		return [
+			`${label}:`,
+			...rows.map((row) => {
+				const frameNo = readMaterialNumber(row.frameNo);
+				const playerName = resolvePlayerName(frameNo, racerNameMap, row.playerName, row.name);
+				return `- ${getFrameLabel(frameNo)} ${playerName} / ${formatter(row)}`;
+			}),
+		].join("\n");
+	};
+	const blocks = [
+		renderRows("\u7bc0\u9593\u6210\u7e3e", "sectionResults", (row) => [
+			readArrayText(row.raceNumbers) ? `R ${readArrayText(row.raceNumbers)}` : "",
+			readArrayText(row.courses) ? `\u9032\u5165 ${readArrayText(row.courses)}` : "",
+			readArrayText(row.startTimings) ? `ST ${readArrayText(row.startTimings)}` : "",
+			readArrayText(row.finishOrders) ? `\u7740 ${readArrayText(row.finishOrders)}` : "",
+		].filter(Boolean).join(" / ")),
+		renderRows("\u5168\u56fd\u904e\u53bb3\u7bc0", "nationalRecent3", (row) =>
+			toMaterialRecordArray(row.histories)
+				.map((history) => [readMaterialString(history.venueName), readMaterialString(history.grade), readMaterialString(history.dateRange), readMaterialString(history.results)].filter(Boolean).join(" "))
+				.filter(Boolean)
+				.join(" / "),
+		),
+		renderRows("\u5f53\u5730\u904e\u53bb3\u7bc0", "localRecent3", (row) =>
+			toMaterialRecordArray(row.histories)
+				.map((history) => [readMaterialString(history.venueName), readMaterialString(history.grade), readMaterialString(history.dateRange), readMaterialString(history.results)].filter(Boolean).join(" "))
+				.filter(Boolean)
+				.join(" / "),
+		),
+		renderRows("\u67a0\u756a\u5225\u904e\u53bb10\u8d70", "frameLast10", (row) => [
+			readArrayText(row.courseHistory) ? `\u9032\u5165 ${readArrayText(row.courseHistory)}` : "",
+			readArrayText(row.startTimingHistory) ? `ST ${readArrayText(row.startTimingHistory)}` : "",
+			readArrayText(row.finishHistory) ? `\u7740 ${readArrayText(row.finishHistory)}` : "",
+			readMaterialString(row.frameWinRate) ? `\u7387 ${readMaterialString(row.frameWinRate)}` : "",
+			readMaterialString(row.frameAverageStart) ? `AvgST ${readMaterialString(row.frameAverageStart)}` : "",
+		].filter(Boolean).join(" / ")),
+		renderRows("\u5f97\u70b9\u7387\u65e9\u898b", "scoreRateGuide", (row) => [
+			readMaterialString(row.rank) ? `\u9806\u4f4d ${readMaterialString(row.rank)}` : "",
+			readMaterialString(row.scoreRate) ? `\u5f97\u70b9\u7387 ${readMaterialString(row.scoreRate)}` : "",
+			readMaterialString(row.score) ? `\u5f97\u70b9 ${readMaterialString(row.score)}` : "",
+		].filter(Boolean).join(" / ")),
+	].filter(Boolean);
+
+	return blocks.length > 0 ? blocks.join("\n\n") : buildMissingBlock();
+};
+
 const buildOriginalExhibitionBlock = (racers: BoatRacerItem[], raceExtra?: BoatVenueExtraRace | null) => {
 	const originalExhibitionRows = sortByFrameNo(toMaterialRecordArray(raceExtra?.originalExhibition));
 	if (originalExhibitionRows.length === 0) {
@@ -1033,7 +1088,10 @@ export function buildBoatPredictionMaterial(params: {
 		].join("\n"),
 		[
 			"[M. 成績・勝率]",
-			buildScoreQuickLookBlock(racers, raceExtra),
+			[
+				buildScoreQuickLookBlock(racers, raceExtra),
+				buildVenueRecordDetailsBlock(racers, raceExtra),
+			].filter((block) => block !== buildMissingBlock()).join("\n\n") || buildMissingBlock(),
 		].join("\n"),
 		[
 			"[N. 会場独自展示]",

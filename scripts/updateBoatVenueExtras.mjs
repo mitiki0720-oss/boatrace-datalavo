@@ -89,6 +89,11 @@ const HAMANAKO_VENUE_NAME = "浜名湖";
 const HAMANAKO_SOURCE = "boatrace-hamanako.jp";
 const HAMANAKO_YOSOU_BASE_URL = "https://www.boatrace-hamanako.jp/modules/yosou/";
 const HAMANAKO_WATER_SURFACE_URL = "https://www.boatrace-hamanako.jp/modules/datafile/?page=index_suimen";
+const TODA_VENUE_NAME = "\u6238\u7530";
+const TODA_SOURCE = "boatrace-toda.jp";
+const TODA_BASE_URL = "https://www.boatrace-toda.jp/";
+const TODA_XML_BASE_URL = `${TODA_BASE_URL}xml/`;
+const TODA_WEATHER_URL = `${TODA_XML_BASE_URL}weather.xml`;
 const KOJIMA_VENUE_NAME = "児島";
 const KOJIMA_SOURCE = "kojimaboat.jp";
 const BIWAKO_VENUE_NAME = "びわこ";
@@ -741,6 +746,23 @@ async function fetchHamanakoHtml(url) {
 			"user-agent": "Mozilla/5.0",
 			"accept-language": "ja,en;q=0.8",
 			referer: "https://www.boatrace-hamanako.jp/",
+		},
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status} ${response.statusText}`);
+	}
+
+	return response.text();
+}
+
+async function fetchTodaXml(url) {
+	const response = await fetch(url, {
+		headers: {
+			"user-agent": "Mozilla/5.0",
+			"accept-language": "ja,en;q=0.8",
+			referer: TODA_BASE_URL,
 		},
 		signal: AbortSignal.timeout(15000),
 	});
@@ -5971,6 +5993,612 @@ async function buildHamanakoVenueExtras(feed, date) {
 			isAvailable: false,
 			status: "fetch-failed",
 			note: `浜名湖公式データの取得に失敗しました: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
+function toTodaDay(date) {
+	return String(date ?? "").replaceAll("-", "");
+}
+
+function toTodaRaceNo(raceNo) {
+	return String(raceNo).padStart(2, "0");
+}
+
+function toTodaRaceXmlUrl({ date, raceNo, name }) {
+	return `${TODA_XML_BASE_URL}kaisai/${toTodaDay(date)}/${name}_${toTodaRaceNo(raceNo)}.xml`;
+}
+
+function loadTodaXml(xml) {
+	return load(String(xml ?? ""), { xmlMode: true });
+}
+
+function readTodaText($, scope, tagName) {
+	return compactText($(scope).children(tagName).first().text());
+}
+
+function readTodaRecordFrameNo($, record) {
+	return parseFrameNo(readTodaText($, record, "teiban"));
+}
+
+function createTodaEntryMap(entryRows = []) {
+	return new Map((Array.isArray(entryRows) ? entryRows : []).map((row) => [row.frameNo, row]));
+}
+
+function readTodaEntryIdentity($, record, entryRows = []) {
+	const frameNo = readTodaRecordFrameNo($, record);
+	const entry = createTodaEntryMap(entryRows).get(frameNo) ?? {};
+	const registrationNo = readTodaText($, record, "toban") || entry.registrationNo || entry.registerNo || "";
+	const playerName = readTodaText($, record, "name") || entry.playerName || entry.racerName || "";
+	return {
+		frameNo,
+		registrationNo,
+		registerNo: registrationNo,
+		playerName,
+		racerName: playerName,
+		className: readTodaText($, record, "kyu") || entry.className || "",
+	};
+}
+
+function parseTodaEntryTable(xml) {
+	const $ = loadTodaXml(xml);
+	return $("record")
+		.toArray()
+		.map((record) => {
+			const frameNo = readTodaRecordFrameNo($, record);
+			if (!frameNo) {
+				return null;
+			}
+			const fCount = Number.parseInt(readTodaText($, record, "fsu") || "0", 10);
+			const lCount = Number.parseInt(readTodaText($, record, "lsu") || "0", 10);
+			const fl = [
+				Number.isFinite(fCount) && fCount > 0 ? `F${fCount}` : "",
+				Number.isFinite(lCount) && lCount > 0 ? `L${lCount}` : "",
+			].filter(Boolean).join(" ");
+			const registrationNo = readTodaText($, record, "toban");
+			const playerName = readTodaText($, record, "name");
+			return {
+				frameNo,
+				registrationNo,
+				registerNo: registrationNo,
+				playerName,
+				racerName: playerName,
+				className: readTodaText($, record, "kyu"),
+				branch: readTodaText($, record, "syusin"),
+				hometown: readTodaText($, record, "syussinchi"),
+				age: readTodaText($, record, "nenrei"),
+				weight: readTodaText($, record, "taiju"),
+				fl,
+				averageStart: readTodaText($, record, "p_st"),
+				winRate: readTodaText($, record, "zsyo"),
+				secondRate: readTodaText($, record, "z2ren"),
+				thirdRate: readTodaText($, record, "z3ren"),
+				localWinRate: readTodaText($, record, "jsyo"),
+				localSecondRate: readTodaText($, record, "j2ren"),
+				localThirdRate: readTodaText($, record, "j3ren"),
+				motorNo: readTodaText($, record, "mno"),
+				motorSecondRate: readTodaText($, record, "m2ren"),
+				boatNo: readTodaText($, record, "bno"),
+				boatSecondRate: readTodaText($, record, "b2ren"),
+				quickRaceNo: readTodaText($, record, "haya"),
+				comment: readTodaText($, record, "com1"),
+				source: TODA_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTodaSeriesResults(xml, entryRows = []) {
+	const $ = loadTodaXml(xml);
+	const entryByFrame = createTodaEntryMap(entryRows);
+	return $("record")
+		.toArray()
+		.map((record) => {
+			const identity = readTodaEntryIdentity($, record, entryRows);
+			if (!identity.frameNo) {
+				return null;
+			}
+			const entries = [];
+			const raceNumbers = [];
+			const courses = [];
+			const startTimings = [];
+			const finishOrders = [];
+			for (let day = 1; day <= 7; day += 1) {
+				for (let run = 1; run <= 2; run += 1) {
+					const suffix = `${day}-${run}`;
+					const raceNumber = readTodaText($, record, `teiban${suffix}`);
+					const course = readTodaText($, record, `sin${suffix}`);
+					const startTiming = readTodaText($, record, `st${suffix}`);
+					const finishOrder = readTodaText($, record, `chaku${suffix}`);
+					if ([raceNumber, course, startTiming, finishOrder].some(Boolean)) {
+						entries.push({ day, raceNumber, course, startTiming, finishOrder });
+					}
+					raceNumbers.push(raceNumber);
+					courses.push(course);
+					startTimings.push(startTiming);
+					finishOrders.push(finishOrder);
+				}
+			}
+			return {
+				...entryByFrame.get(identity.frameNo),
+				...identity,
+				raceNumbers,
+				courses,
+				startTimings,
+				finishOrders,
+				entries,
+				source: TODA_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTodaRecent3(xml, entryRows = [], { local = false } = {}) {
+	const $ = loadTodaXml(xml);
+	return $("record")
+		.toArray()
+		.map((record) => {
+			const identity = readTodaEntryIdentity($, record, entryRows);
+			if (!identity.frameNo) {
+				return null;
+			}
+			const histories = [1, 2, 3]
+				.map((index) => {
+					const grade = readTodaText($, record, `grade${index}`);
+					const venueName = readTodaText($, record, `jyo${index}`) || (local ? TODA_VENUE_NAME : "");
+					const dateRange = readTodaText($, record, `term${index}`);
+					const results = readTodaText($, record, `chaku${index}`);
+					return [grade, venueName, dateRange, results].some(Boolean)
+						? { grade, venueName, dateRange, results, raw: [grade, venueName, dateRange, results].filter(Boolean).join(" ") }
+						: null;
+				})
+				.filter(Boolean);
+			return {
+				...createTodaEntryMap(entryRows).get(identity.frameNo),
+				...identity,
+				histories,
+				source: TODA_SOURCE,
+			};
+		})
+		.filter((row) => row && row.histories.length > 0)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTodaNationalRecent3(xml, entryRows = []) {
+	return parseTodaRecent3(xml, entryRows, { local: false });
+}
+
+function parseTodaLocalRecent3(xml, entryRows = []) {
+	return parseTodaRecent3(xml, entryRows, { local: true });
+}
+
+function parseTodaMotorRecent3(xml, entryRows = []) {
+	const $ = loadTodaXml(xml);
+	const entryByFrame = createTodaEntryMap(entryRows);
+	return $("record")
+		.toArray()
+		.map((record) => {
+			const identity = readTodaEntryIdentity($, record, entryRows);
+			if (!identity.frameNo) {
+				return null;
+			}
+			const entry = entryByFrame.get(identity.frameNo) ?? {};
+			const historyEntries = [1, 2, 3]
+				.map((index) => {
+					const grade = readTodaText($, record, `grade${index}`);
+					const playerName = readTodaText($, record, `name${index}`);
+					const className = readTodaText($, record, `kyu${index}`);
+					const results = readTodaText($, record, `chaku${index}`);
+					return [grade, playerName, className, results].some(Boolean)
+						? { grade, playerName, className, results }
+						: null;
+				})
+				.filter(Boolean);
+			return {
+				...entry,
+				...identity,
+				motorNo: entry.motorNo ?? "",
+				motorSecondRate: entry.motorSecondRate ?? "",
+				boatNo: entry.boatNo ?? "",
+				boatSecondRate: entry.boatSecondRate ?? "",
+				comment: historyEntries[0]?.results ? `直近使用: ${historyEntries[0].playerName} ${historyEntries[0].results}` : "",
+				historyEntries,
+				source: TODA_SOURCE,
+			};
+		})
+		.filter((row) => row && row.historyEntries.length > 0)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTodaFramePast10(xml, entryRows = []) {
+	const $ = loadTodaXml(xml);
+	const entryByFrame = createTodaEntryMap(entryRows);
+	return $("record")
+		.toArray()
+		.map((record) => {
+			const identity = readTodaEntryIdentity($, record, entryRows);
+			if (!identity.frameNo) {
+				return null;
+			}
+			const courseHistory = [];
+			const startTimingHistory = [];
+			const finishHistory = [];
+			for (let index = 1; index <= 10; index += 1) {
+				const suffix = String(index).padStart(2, "0");
+				courseHistory.push(readTodaText($, record, `sin${suffix}`));
+				startTimingHistory.push(readTodaText($, record, `st${suffix}`));
+				finishHistory.push(readTodaText($, record, `chaku${suffix}`));
+			}
+			return {
+				...entryByFrame.get(identity.frameNo),
+				...identity,
+				courseHistory,
+				startTimingHistory,
+				finishHistory,
+				frameWinRate: readTodaText($, record, "rate"),
+				frameAverageStart: readTodaText($, record, "avrg"),
+				source: TODA_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTodaScoreRateGuide(xml, entryRows = []) {
+	const $ = loadTodaXml(xml);
+	const entryByFrame = createTodaEntryMap(entryRows);
+	return $("record")
+		.toArray()
+		.map((record) => {
+			const identity = readTodaEntryIdentity($, record, entryRows);
+			const frameNo = identity.frameNo || parseFrameNo(readTodaText($, record, "waku"));
+			if (!frameNo) {
+				return null;
+			}
+			const entry = entryByFrame.get(frameNo) ?? {};
+			const scoreRate = readTodaText($, record, "tokutenritu") || readTodaText($, record, "rate") || readTodaText($, record, "scoreRate");
+			const score = readTodaText($, record, "tokuten") || readTodaText($, record, "score");
+			const rank = readTodaText($, record, "rank") || readTodaText($, record, "juni");
+			if (![scoreRate, score, rank].some(Boolean)) {
+				return null;
+			}
+			return {
+				...entry,
+				...identity,
+				frameNo,
+				scoreRate,
+				score,
+				rank,
+				startCount: readTodaText($, record, "syusso") || readTodaText($, record, "raceCount"),
+				deduction: readTodaText($, record, "gen") || readTodaText($, record, "deduction"),
+				source: TODA_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function readTodaPartsExchange($, record) {
+	const parts = [];
+	for (let index = 1; index <= 8; index += 1) {
+		const code = readTodaText($, record, `bcd${index}`);
+		const count = readTodaText($, record, `bsu${index}`);
+		if (code || (count && count !== "00")) {
+			parts.push(count && count !== "00" ? `${code || "部品"}${count}` : code);
+		}
+	}
+	return parts.join(" / ");
+}
+
+function parseTodaBeforeInfo(xml, entryRows = []) {
+	const $ = loadTodaXml(xml);
+	const entryByFrame = createTodaEntryMap(entryRows);
+	return $("record")
+		.toArray()
+		.map((record) => {
+			const identity = readTodaEntryIdentity($, record, entryRows);
+			if (!identity.frameNo) {
+				return null;
+			}
+			const entry = entryByFrame.get(identity.frameNo) ?? {};
+			return {
+				...entry,
+				...identity,
+				weight: readTodaText($, record, "taiju") || entry.weight || "",
+				weightAdjustment: readTodaText($, record, "ctaiju"),
+				adjustment: readTodaText($, record, "ctaiju"),
+				exhibitionTime: readTodaText($, record, "ttime"),
+				tilt: readTodaText($, record, "tiltc"),
+				course: readTodaText($, record, "scs"),
+				startTiming: readTodaText($, record, "sst"),
+				style: readTodaText($, record, "skubun"),
+				partsExchange: readTodaPartsExchange($, record),
+				propeller: readTodaText($, record, "propeller"),
+				memo: readTodaText($, record, "sjiko"),
+				motorNo: readTodaText($, record, "mno") || entry.motorNo || "",
+				motorSecondRate: readTodaText($, record, "m2ren") || entry.motorSecondRate || "",
+				boatNo: readTodaText($, record, "bno") || entry.boatNo || "",
+				boatSecondRate: readTodaText($, record, "b2ren") || entry.boatSecondRate || "",
+				source: TODA_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTodaStartExhibition(xml, entryRows = []) {
+	const $ = loadTodaXml(xml);
+	const entryByFrame = createTodaEntryMap(entryRows);
+	return $("record")
+		.toArray()
+		.map((record) => {
+			const identity = readTodaEntryIdentity($, record, entryRows);
+			if (!identity.frameNo) {
+				return null;
+			}
+			const entry = entryByFrame.get(identity.frameNo) ?? {};
+			return {
+				...identity,
+				course: parseFrameNo(readTodaText($, record, "scs")) ?? identity.frameNo,
+				currentAverageStart: entry.averageStart ?? "",
+				startTiming: readTodaText($, record, "sst"),
+				style: readTodaText($, record, "skubun"),
+				source: TODA_SOURCE,
+			};
+		})
+		.filter((row) => row && (row.startTiming || row.course))
+		.sort((left, right) => (left.course ?? left.frameNo) - (right.course ?? right.frameNo));
+}
+
+function parseTodaReporterComment(xml, entryRows = []) {
+	const $ = loadTodaXml(xml);
+	const entryByFrame = createTodaEntryMap(entryRows);
+	return $("record")
+		.toArray()
+		.map((record) => {
+			const identity = readTodaEntryIdentity($, record, entryRows);
+			const comment = readTodaText($, record, "comment");
+			if (!identity.frameNo || !comment) {
+				return null;
+			}
+			const entry = entryByFrame.get(identity.frameNo) ?? {};
+			return {
+				frameNo: identity.frameNo,
+				registrationNo: identity.registrationNo || entry.registrationNo || "",
+				playerName: identity.playerName || entry.playerName || "",
+				comment,
+				source: TODA_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTodaOriginalExhibition(xml, entryRows = []) {
+	const $ = loadTodaXml(xml);
+	const entryByFrame = createTodaEntryMap(entryRows);
+	return $("record")
+		.toArray()
+		.map((record) => {
+			const identity = readTodaEntryIdentity($, record, entryRows);
+			if (!identity.frameNo) {
+				return null;
+			}
+			const entry = entryByFrame.get(identity.frameNo) ?? {};
+			const rankMemo = [
+				`展示順位:${readTodaText($, record, "ttm_rank")}`,
+				`直線順位:${readTodaText($, record, "str_rank")}`,
+				`回り足順位:${readTodaText($, record, "cnr_rank")}`,
+				`一周順位:${readTodaText($, record, "rnd_rank")}`,
+			].filter((value) => !value.endsWith(":")).join(" / ");
+			return {
+				...entry,
+				...identity,
+				weight: readTodaText($, record, "taiju") || entry.weight || "",
+				weightAdjustment: readTodaText($, record, "ctaiju"),
+				adjustment: readTodaText($, record, "ctaiju"),
+				tilt: readTodaText($, record, "tiltc"),
+				exhibitionTime: readTodaText($, record, "ttime"),
+				straightTime: readTodaText($, record, "str"),
+				turnTime: readTodaText($, record, "cnr"),
+				oneLapTime: readTodaText($, record, "rnd"),
+				exhibitionEvaluation: rankMemo,
+				memo: "\u6238\u7530\u516c\u5f0f\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a\u30c7\u30fc\u30bf",
+				source: TODA_SOURCE,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseTodaWeatherCondition(xml) {
+	const $ = loadTodaXml(xml);
+	const record = $("record").first();
+	if (!record.length) {
+		return null;
+	}
+	return {
+		weather: readTodaText($, record, "tenko"),
+		windDirection: [readTodaText($, record, "fuko1"), readTodaText($, record, "fuko2")].filter(Boolean).join(" "),
+		windSpeed: readTodaText($, record, "fusoku"),
+		waveHeight: readTodaText($, record, "hako"),
+		temperature: readTodaText($, record, "kion"),
+		waterTemperature: readTodaText($, record, "suion"),
+		waterLevel: readTodaText($, record, "suii"),
+		source: TODA_SOURCE,
+	};
+}
+
+function parseTodaWaterSurfaceInfo(xml) {
+	const weather = parseTodaWeatherCondition(xml);
+	return weather
+		? {
+				source: TODA_SOURCE,
+				surfaceFeature: [
+					weather.weather ? `天候 ${weather.weather}` : "",
+					weather.windDirection ? `風向 ${weather.windDirection}` : "",
+					weather.windSpeed ? `風速 ${weather.windSpeed}m` : "",
+					weather.waveHeight ? `波高 ${weather.waveHeight}cm` : "",
+					weather.temperature ? `気温 ${weather.temperature}℃` : "",
+					weather.waterTemperature ? `水温 ${weather.waterTemperature}℃` : "",
+				].filter(Boolean).join(" / "),
+			}
+		: null;
+}
+
+async function fetchTodaVenueExtras({ date, raceNo, weatherXml = "" }) {
+	const sources = [
+		["entry", "race_table"],
+		["series", "race_table_series"],
+		["national3", "race_table_all3"],
+		["local3", "race_table_toda"],
+		["motor3", "race_table_3series_moter"],
+		["frame10", "race_table_10race"],
+		["score", "race_table_point"],
+		["before", "race_table_before"],
+		["original", "race_table_original"],
+		["comment", "race_table_comment"],
+	];
+	const settled = await Promise.allSettled(
+		sources.map(([, name]) => fetchTodaXml(toTodaRaceXmlUrl({ date, raceNo, name }))),
+	);
+	const htmlByKey = Object.fromEntries(sources.map(([key], index) => [key, settled[index].status === "fulfilled" ? settled[index].value : ""]));
+	const sourceStatus = Object.fromEntries(sources.map(([key], index) => [key, settled[index].status === "fulfilled" ? "available" : "missing"]));
+	const warnings = sources
+		.map(([key], index) => settled[index].status === "rejected" ? `${key}: ${settled[index].reason.message}` : "")
+		.filter(Boolean);
+
+	const todaEntryTable = parseTodaEntryTable(htmlByKey.entry);
+	const todaSeriesResults = parseTodaSeriesResults(htmlByKey.series, todaEntryTable);
+	const todaNationalRecent3 = parseTodaNationalRecent3(htmlByKey.national3, todaEntryTable);
+	const todaLocalRecent3 = parseTodaLocalRecent3(htmlByKey.local3, todaEntryTable);
+	const todaMotorRecent3 = parseTodaMotorRecent3(htmlByKey.motor3, todaEntryTable);
+	const todaFramePast10 = parseTodaFramePast10(htmlByKey.frame10, todaEntryTable);
+	const todaScoreRateGuide = parseTodaScoreRateGuide(htmlByKey.score, todaEntryTable);
+	const todaBeforeInfo = parseTodaBeforeInfo(htmlByKey.before, todaEntryTable);
+	const startExhibition = parseTodaStartExhibition(htmlByKey.before, todaEntryTable);
+	const originalExhibition = parseTodaOriginalExhibition(htmlByKey.original, todaEntryTable);
+	const racerComments = parseTodaReporterComment(htmlByKey.comment, todaEntryTable);
+	const weatherCondition = parseTodaWeatherCondition(weatherXml);
+	const motorSummary = todaMotorRecent3.length
+		? todaMotorRecent3
+		: todaEntryTable
+			.filter((row) => row.motorNo)
+			.map((row) => ({
+				frameNo: row.frameNo,
+				playerName: row.playerName,
+				motorNo: row.motorNo,
+				motorSecondRate: row.motorSecondRate,
+				boatNo: row.boatNo,
+				boatSecondRate: row.boatSecondRate,
+				source: TODA_SOURCE,
+			}));
+	const officialBeforeInfo = todaBeforeInfo.length || startExhibition.length || todaScoreRateGuide.length
+		? {
+				status: "available",
+				source: TODA_SOURCE,
+				exhibitionRows: todaBeforeInfo,
+				startExhibition,
+				scoreQuickLook: todaScoreRateGuide,
+				weatherCondition,
+			}
+		: null;
+	const hasAny = [
+		todaEntryTable,
+		todaSeriesResults,
+		todaNationalRecent3,
+		todaLocalRecent3,
+		todaMotorRecent3,
+		todaFramePast10,
+		todaScoreRateGuide,
+		todaBeforeInfo,
+		startExhibition,
+		originalExhibition,
+		racerComments,
+	].some((rows) => rows.length > 0);
+
+	console.log(
+		`[venue-extras] toda ${raceNo}R: entry ${todaEntryTable.length} / series ${todaSeriesResults.length} / national3 ${todaNationalRecent3.length} / local3 ${todaLocalRecent3.length} / motor3 ${todaMotorRecent3.length} / frame10 ${todaFramePast10.length} / score ${todaScoreRateGuide.length} / before ${todaBeforeInfo.length} / start ${startExhibition.length} / comments ${racerComments.length} / exhibition ${originalExhibition.length}`,
+	);
+
+	return {
+		raceNo,
+		status: hasAny ? "available" : "waiting",
+		source: TODA_SOURCE,
+		sourceType: "toda-official-extras",
+		sourceStatus,
+		warnings,
+		officialBeforeInfo,
+		weatherCondition,
+		beforeInfo: todaBeforeInfo,
+		todaEntryTable,
+		todaSeriesResults,
+		sectionResults: todaSeriesResults,
+		todaNationalRecent3,
+		nationalRecent3: todaNationalRecent3,
+		todaLocalRecent3,
+		localRecent3: todaLocalRecent3,
+		todaMotorRecent3,
+		motorSummary,
+		todaFramePast10,
+		frameLast10: todaFramePast10,
+		todaScoreRateGuide,
+		scoreRateGuide: todaScoreRateGuide,
+		todaBeforeInfo,
+		startExhibition,
+		originalExhibition,
+		racerComments,
+	};
+}
+
+async function buildTodaVenueExtras(feed, date) {
+	const todaVenue = findVenue(feed, TODA_VENUE_NAME);
+
+	if (!todaVenue) {
+		console.log("[venue-extras] toda: not held today");
+		return null;
+	}
+
+	try {
+		const races = getRaceList(todaVenue);
+		const weatherXml = await fetchTodaXml(TODA_WEATHER_URL).catch((error) => {
+			console.warn(`[venue-extras] toda weather failed: ${error.message}`);
+			return "";
+		});
+		const waterSurfaceInfo = parseTodaWaterSurfaceInfo(weatherXml);
+		const raceExtras = [];
+
+		for (const race of races) {
+			raceExtras.push(await fetchTodaVenueExtras({ date, raceNo: race.raceNo, weatherXml }));
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+		return {
+			venueCode: String(todaVenue.venueCode ?? "02"),
+			venueName: TODA_VENUE_NAME,
+			source: TODA_SOURCE,
+			isAvailable: availableRaceCount > 0,
+			status: availableRaceCount > 0 ? "available" : "waiting-toda-data",
+			waterSurfaceInfo,
+			note: "\u6238\u7530\u516c\u5f0fXML\u306e\u51fa\u8d70\u8868\u3001\u7bc0\u9593\u6210\u7e3e\u3001\u5168\u56fd/\u6238\u7530\u904e\u53bb3\u7bc0\u3001\u30e2\u30fc\u30bf\u30fc3\u7bc0\u5c65\u6b74\u3001\u67a0\u756a\u5225\u904e\u53bb10\u8d70\u3001\u5f97\u70b9\u7387\u65e9\u898b\u8868\u3001\u5c55\u793a\u60c5\u5831\u3001\u8a18\u8005\u5bf8\u8a55\u3001\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a\u30c7\u30fc\u30bf\u3092\u53d6\u5f97\u3002",
+			races: raceExtras.map((race) => ({
+				...race,
+				waterSurfaceInfo,
+			})),
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] toda failed: ${error.message}`);
+		return {
+			venueCode: String(todaVenue.venueCode ?? "02"),
+			venueName: TODA_VENUE_NAME,
+			source: TODA_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `\u6238\u7530\u516c\u5f0f\u30c7\u30fc\u30bf\u306e\u53d6\u5f97\u306b\u5931\u6557\u3057\u307e\u3057\u305f: ${error.message}`,
 			races: [],
 		};
 	}
@@ -13402,6 +14030,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const hamanakoVenue = await buildHamanakoVenueExtras(feed, date);
 	if (hamanakoVenue) {
 		venueMap.set(hamanakoVenue.venueName, mergeVenueRecord(venueMap.get(hamanakoVenue.venueName) ?? null, hamanakoVenue));
+	}
+
+	const todaVenue = await buildTodaVenueExtras(feed, date);
+	if (todaVenue) {
+		venueMap.set(todaVenue.venueName, mergeVenueRecord(venueMap.get(todaVenue.venueName) ?? null, todaVenue));
 	}
 
 	const fukuokaVenue = await createFukuokaVenue(feed, date);

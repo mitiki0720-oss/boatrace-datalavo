@@ -5033,6 +5033,7 @@ const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
 	津: "complete",
 	宮島: "complete",
 	浜名湖: "complete",
+	戸田: "complete",
 };
 
 const venueOfficialLinkStatusMeta: Record<
