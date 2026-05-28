@@ -7,6 +7,12 @@ import { getBoatOperationDate, resolveActiveBoatOperationDate, shiftBoatOperatio
 import { loadBoatPredictionRecords } from "../lib/boatPredictionStorage";
 import { loadBoatPracticeResultRecords } from "../lib/boatPracticeResultStorage";
 import {
+	loadBoatVenueExtrasFeed,
+	type BoatVenueExtraRace,
+	type BoatVenueExtraVenue,
+	type BoatVenueExtrasFeed,
+} from "../lib/boatVenueExtrasFeed";
+import {
 	getBoatReviewArchiveDates,
 	getBoatReviewArchiveItemsByDate,
 	loadBoatReviewArchiveIndex,
@@ -496,6 +502,117 @@ function getReviewFileName(date: string, venueSlug: string, suffix: "predictions
 	return `${date}-${venueSlug}-${suffix}.${ext}`;
 }
 
+type ReviewExtraRecord = Record<string, unknown>;
+
+function toReviewRecordArray(value: unknown): ReviewExtraRecord[] {
+	if (Array.isArray(value)) {
+		return value.filter((item): item is ReviewExtraRecord => Boolean(item) && typeof item === "object");
+	}
+	if (value && typeof value === "object") {
+		return Object.values(value as Record<string, unknown>).filter((item): item is ReviewExtraRecord => Boolean(item) && typeof item === "object");
+	}
+	return [];
+}
+
+function readReviewString(value: unknown): string {
+	return typeof value === "string" || typeof value === "number" ? String(value).trim() : "";
+}
+
+function normalizeReviewVenueName(value: unknown): string {
+	return readReviewString(value).normalize("NFKC").replace(/\s+/g, "");
+}
+
+function readReviewFrameNo(value: unknown): number | null {
+	const match = readReviewString(value).normalize("NFKC").match(/^[1-6]$/);
+	return match ? Number(match[0]) : null;
+}
+
+function readReviewFirstString(row: ReviewExtraRecord | null | undefined, keys: string[]): string {
+	if (!row) return "";
+	for (const key of keys) {
+		const value = readReviewString(row[key]);
+		if (value) return value;
+	}
+	return "";
+}
+
+function createReviewFrameMap(rows: unknown): Map<number, ReviewExtraRecord> {
+	const map = new Map<number, ReviewExtraRecord>();
+	for (const row of toReviewRecordArray(rows)) {
+		const frameNo = readReviewFrameNo(row.frameNo ?? row.teiban ?? row.waku ?? row.boatNo);
+		if (frameNo) {
+			map.set(frameNo, row);
+		}
+	}
+	return map;
+}
+
+function findReviewVenueExtra(feed: BoatVenueExtrasFeed | null, group: BoatReviewVenueGroup | undefined): BoatVenueExtraVenue | null {
+	if (!feed || !group || feed.date !== group.date) {
+		return null;
+	}
+	const venues = toReviewRecordArray(feed.venues) as BoatVenueExtraVenue[];
+	const venueCode = readReviewString(group.venueCode || group.venue?.venueCode);
+	if (venueCode) {
+		const matched = venues.find((venue) => readReviewString(venue.venueCode) === venueCode);
+		if (matched) return matched;
+	}
+	const venueName = normalizeReviewVenueName(group.venueName || group.venue?.venueName);
+	return venues.find((venue) => normalizeReviewVenueName(venue.venueName || venue.venue || venue.name) === venueName) ?? null;
+}
+
+function findReviewRaceExtra(venueExtra: BoatVenueExtraVenue | null, raceNo: number): BoatVenueExtraRace | null {
+	return toReviewRecordArray(venueExtra?.races).find((race) => Number(race.raceNo) === Number(raceNo)) as BoatVenueExtraRace | null ?? null;
+}
+
+function buildReviewRaceExhibitionLines(raceExtra: BoatVenueExtraRace | null): string[] {
+	if (!raceExtra) return [];
+	const officialBeforeInfo = raceExtra.officialBeforeInfo as ReviewExtraRecord | undefined;
+	const beforeRows = [
+		...toReviewRecordArray(officialBeforeInfo?.exhibitionRows),
+		...toReviewRecordArray(raceExtra.beforeInfo),
+	];
+	const beforeByFrame = createReviewFrameMap(beforeRows);
+	const originalByFrame = createReviewFrameMap(raceExtra.originalExhibition);
+	const lines = [];
+
+	for (let frameNo = 1; frameNo <= 6; frameNo += 1) {
+		const before = beforeByFrame.get(frameNo);
+		const original = originalByFrame.get(frameNo);
+		const exhibitionTime = readReviewFirstString(before, ["exhibitionTime", "tenjiTime", "displayTime", "exhibition", "\u5c55\u793a", "\u5c55\u793a\u30bf\u30a4\u30e0"])
+			|| readReviewFirstString(original, ["exhibitionTime", "tenjiTime", "displayTime", "exhibition", "\u5c55\u793a", "\u5c55\u793a\u30bf\u30a4\u30e0"]);
+		const lapTime = readReviewFirstString(original, ["oneLapTime", "lapTime", "roundTime", "oneLap", "lap", "\u4e00\u5468"]);
+		const turnTime = readReviewFirstString(original, ["turnTime", "turn", "mawariashi", "\u56de\u308a\u8db3"]);
+		const straightTime = readReviewFirstString(original, ["straightTime", "straight", "chokuren", "\u76f4\u7dda"]);
+		if (![exhibitionTime, lapTime, turnTime, straightTime].some(Boolean)) {
+			continue;
+		}
+		lines.push(`${frameNo}\u53f7\u8247\u3000\u5c55\u793a ${exhibitionTime || "--"}\u3000\u4e00\u5468 ${lapTime || "--"}\u3000\u56de\u308a\u8db3 ${turnTime || "--"}\u3000\u76f4\u7dda ${straightTime || "--"}`);
+	}
+
+	return lines.length > 0 ? ["\u3010\u5c55\u793a\u3011", ...lines] : [];
+}
+
+function appendReviewExhibitionBlocks(resultSummary: string, group: BoatReviewVenueGroup | undefined, venueExtrasFeed: BoatVenueExtrasFeed | null): string {
+	const venueExtra = findReviewVenueExtra(venueExtrasFeed, group);
+	if (!group || !venueExtra) {
+		return resultSummary;
+	}
+	const sections = resultSummary.split("\n----");
+	if (sections.length <= 1) {
+		return resultSummary;
+	}
+	const enhancedSections = sections.map((section, index) => {
+		const entry = group.races[index - 1];
+		if (index === 0 || !entry || section.includes("\u3010\u5c55\u793a\u3011")) {
+			return section;
+		}
+		const lines = buildReviewRaceExhibitionLines(findReviewRaceExtra(venueExtra, entry.raceNo));
+		return lines.length > 0 ? `${section.trimEnd()}\n\n${lines.join("\n")}` : section;
+	});
+	return enhancedSections.join("\n----");
+}
+
 function getMonthDates(dateSet: Set<string>, selectedDate: string): string[] {
 	return Array.from(dateSet)
 		.filter((date) => date.slice(0, 7) === selectedDate.slice(0, 7))
@@ -509,6 +626,7 @@ export function ReviewPage() {
 	const [calendarMonth, setCalendarMonth] = useState(operationalToday.slice(0, 7));
 	const [archiveIndex, setArchiveIndex] = useState<BoatReviewArchiveIndex>({ items: [] });
 	const [todayFeed, setTodayFeed] = useState<BoatTodayFeed | null>(null);
+	const [venueExtrasFeed, setVenueExtrasFeed] = useState<BoatVenueExtrasFeed | null>(null);
 	const [predictionPayload, setPredictionPayload] = useState(() => loadBoatPredictionRecords());
 	const [practicePayload, setPracticePayload] = useState(() => loadBoatPracticeResultRecords());
 	const [archiveGroups, setArchiveGroups] = useState<BoatReviewVenueGroup[]>([]);
@@ -522,10 +640,12 @@ export function ReviewPage() {
 		Promise.all([
 			loadBoatTodayRaceDetailsFeed(),
 			loadBoatReviewArchiveIndex(),
-		]).then(([feed, index]) => {
+			loadBoatVenueExtrasFeed(),
+		]).then(([feed, index, venueExtras]) => {
 			if (!active) return;
 			setTodayFeed(feed);
 			setArchiveIndex(index);
+			setVenueExtrasFeed(venueExtras);
 		});
 		return () => {
 			active = false;
@@ -699,12 +819,12 @@ export function ReviewPage() {
 		if (selectedLiveGroup) {
 			const hasLiveResult = selectedLiveGroup.races.some((entry) => entry.practiceResult || entry.race?.result);
 			if (hasLiveResult || !selectedArchiveGroup?.resultFileText?.trim()) {
-				return buildBoatResultSummaryText(selectedLiveGroup);
+				return appendReviewExhibitionBlocks(buildBoatResultSummaryText(selectedLiveGroup), selectedLiveGroup, venueExtrasFeed);
 			}
 		}
 
 		return selectedArchiveGroup ? buildBoatResultSummaryText(selectedArchiveGroup) : "結果ファイル未登録";
-	}, [mode, selectedArchiveGroup, selectedGroup, selectedLiveGroup]);
+	}, [mode, selectedArchiveGroup, selectedGroup, selectedLiveGroup, venueExtrasFeed]);
 	const calendarCells = useMemo(() => buildCalendarCells(calendarMonth), [calendarMonth]);
 	const monthRegisteredDates = useMemo(() => getMonthDates(selectableDateSet, `${calendarMonth}-01`), [calendarMonth, selectableDateSet]);
 	const modeLabel = mode === "archive" ? "ARCHIVE FILE" : selectedDate === operationalToday ? "TODAY LIVE" : "YESTERDAY LIVE";
@@ -725,6 +845,7 @@ export function ReviewPage() {
 		setPredictionPayload(loadBoatPredictionRecords());
 		setPracticePayload(loadBoatPracticeResultRecords());
 		void loadBoatTodayRaceDetailsFeed().then(setTodayFeed);
+		void loadBoatVenueExtrasFeed().then(setVenueExtrasFeed);
 		setStatusMessage("今日・昨日のlocalStorageを優先しつつ、必要なら archive も再読み込みしました");
 	};
 
