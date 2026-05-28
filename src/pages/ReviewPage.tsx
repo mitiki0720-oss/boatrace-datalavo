@@ -593,6 +593,12 @@ function buildReviewRaceExhibitionLines(raceExtra: BoatVenueExtraRace | null): s
 	return lines.length > 0 ? ["\u3010\u5c55\u793a\u3011", ...lines] : [];
 }
 
+function readReviewSectionRaceNo(section: string): number | null {
+	const headerLine = section.split(/\r?\n/).find((line) => line.trim().startsWith("■"));
+	const match = headerLine?.match(/(?:^|\s)([1-9]|1[0-2])R(?:\s|$)/);
+	return match ? Number(match[1]) : null;
+}
+
 function appendReviewExhibitionBlocks(resultSummary: string, group: BoatReviewVenueGroup | undefined, venueExtrasFeed: BoatVenueExtrasFeed | null): string {
 	const venueExtra = findReviewVenueExtra(venueExtrasFeed, group);
 	if (!group || !venueExtra) {
@@ -602,12 +608,12 @@ function appendReviewExhibitionBlocks(resultSummary: string, group: BoatReviewVe
 	if (sections.length <= 1) {
 		return resultSummary;
 	}
-	const enhancedSections = sections.map((section, index) => {
-		const entry = group.races[index - 1];
-		if (index === 0 || !entry || section.includes("\u3010\u5c55\u793a\u3011")) {
+	const enhancedSections = sections.map((section) => {
+		const raceNo = readReviewSectionRaceNo(section);
+		if (!raceNo || section.includes("\u3010\u5c55\u793a\u3011")) {
 			return section;
 		}
-		const lines = buildReviewRaceExhibitionLines(findReviewRaceExtra(venueExtra, entry.raceNo));
+		const lines = buildReviewRaceExhibitionLines(findReviewRaceExtra(venueExtra, raceNo));
 		return lines.length > 0 ? `${section.trimEnd()}\n\n${lines.join("\n")}` : section;
 	});
 	return enhancedSections.join("\n----");
