@@ -28,6 +28,13 @@ type SessionTone = {
 	topLine: string;
 };
 
+type BoatVenueCancelSummary = {
+	level: "none" | "warning" | "danger";
+	label: string;
+	cancelledRaceNos: number[];
+	reason?: string;
+};
+
 const wrapStyle: CSSProperties = {
 	padding: "20px",
 	borderRadius: "28px",
@@ -118,6 +125,23 @@ const chipStyle: CSSProperties = {
 	boxSizing: "border-box",
 };
 
+const dayChipStyle: CSSProperties = {
+	...chipStyle,
+	background: "rgba(255, 255, 255, 0.92)",
+	border: "1px solid rgba(176, 198, 214, 0.32)",
+	color: "#345166",
+};
+
+const cancelChipBaseStyle: CSSProperties = {
+	...chipStyle,
+	padding: "6px 10px",
+	fontSize: "0.76rem",
+	border: "1px solid rgba(248, 113, 113, 0.42)",
+	color: "#991b1b",
+	background: "rgba(254, 226, 226, 0.96)",
+	boxShadow: "0 8px 18px rgba(248, 113, 113, 0.16)",
+};
+
 const weatherLineStyle: CSSProperties = {
 	display: "flex",
 	flexWrap: "wrap",
@@ -166,6 +190,170 @@ const raceCardBaseStyle: CSSProperties = {
 	boxSizing: "border-box",
 	boxShadow: "0 10px 22px rgba(17, 64, 92, 0.05)",
 	transition: "transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease",
+};
+
+const toLooseRecord = (value: unknown): Record<string, unknown> =>
+	value && typeof value === "object" && !Array.isArray(value)
+		? value as Record<string, unknown>
+		: {};
+
+const readLooseString = (value: unknown): string => {
+	if (typeof value === "string") return value.trim();
+	if (typeof value === "number" && Number.isFinite(value)) return String(value);
+	return "";
+};
+
+const normalizeLooseText = (value: unknown): string => readLooseString(value).normalize("NFKC").trim();
+
+const extractBoatSeriesDayLabel = (value: unknown): string => {
+	const rawText = readLooseString(value).replace(/\s+/g, "");
+	const dayText = rawText.replace(/^.*\d{1,2}\/\d{1,2}/, "");
+	const normalized = normalizeLooseText(dayText || rawText).replace(/\s+/g, "");
+	if (!normalized) return "";
+
+	if (normalized.includes("優勝戦")) return "優勝戦日";
+	if (normalized.includes("準優")) return "準優日";
+	if (normalized.includes("最終日")) return "最終日";
+	if (normalized.includes("初日")) return "初日";
+
+	const dayMatch = normalized.match(/([0-9]+)日目/);
+	if (dayMatch) return `${Number(dayMatch[1])}日目`;
+
+	const bareNumberMatch = normalized.match(/^([0-9]+)$/);
+	if (bareNumberMatch) return `${Number(bareNumberMatch[1])}日目`;
+
+	return "";
+};
+
+const getBoatVenueSeriesDayLabel = (venue: BoatTodayVenueItem, races: BoatRaceItem[]): string => {
+	const venueRecord = toLooseRecord(venue);
+	const dayFieldNames = ["seriesDayLabel", "dayLabel", "eventDayLabel", "roundDayLabel", "dayText"];
+	for (const fieldName of dayFieldNames) {
+		const extractedVenueLabel = extractBoatSeriesDayLabel(venueRecord[fieldName]);
+		if (extractedVenueLabel) return extractedVenueLabel;
+	}
+
+	for (const race of races) {
+		const raceRecord = toLooseRecord(race);
+		for (const fieldName of dayFieldNames) {
+			const extractedRaceLabel = extractBoatSeriesDayLabel(raceRecord[fieldName]);
+			if (extractedRaceLabel) return extractedRaceLabel;
+		}
+	}
+
+	const textFields = ["seriesName", "eventName", "title", "raceName", "name"];
+	for (const record of [venueRecord, ...races.map(toLooseRecord)]) {
+		for (const fieldName of textFields) {
+			const extractedLabel = extractBoatSeriesDayLabel(record[fieldName]);
+			if (extractedLabel) return extractedLabel;
+		}
+	}
+
+	for (const record of [venueRecord, ...races.map(toLooseRecord)]) {
+		for (const fieldName of ["day", "eventDay", "seriesDay", "roundDay"]) {
+			const value = Number(normalizeLooseText(record[fieldName]));
+			if (Number.isFinite(value) && value > 0) return `${value}日目`;
+		}
+	}
+
+	return "日目未取得";
+};
+
+const cancelFieldNames = [
+	"status",
+	"statusText",
+	"cancelStatus",
+	"cancelReason",
+	"raceStatus",
+	"resultStatus",
+	"resultLookupStatus",
+	"notes",
+	"memo",
+	"resultText",
+	"decision",
+	"raceName",
+];
+
+const getCancelReasonLabel = (value: unknown): string => {
+	const normalized = normalizeLooseText(value);
+	const lowerText = normalized.toLowerCase();
+	if (!normalized) return "";
+
+	if (normalized.includes("順延")) return "順延";
+	if (normalized.includes("発売中止")) return "発売中止";
+	if (normalized.includes("荒天中止")) return "荒天中止";
+	if (normalized.includes("開催中止")) return "開催中止";
+	if (normalized.includes("欠航")) return "欠航";
+	if (normalized.includes("不成立")) return "不成立";
+	if (normalized.includes("打切") || normalized.includes("打ち切り")) return "打切";
+	if (normalized.includes("中止")) return "開催中止";
+	if (
+		lowerText.includes("cancelled") ||
+		lowerText.includes("canceled") ||
+		lowerText.includes("suspend") ||
+		lowerText.includes("abort") ||
+		lowerText.includes("no race") ||
+		lowerText.includes("norace")
+	) {
+		return "開催中止";
+	}
+
+	return "";
+};
+
+const readCancelReasonFromRecord = (record: Record<string, unknown>): string => {
+	for (const fieldName of cancelFieldNames) {
+		const label = getCancelReasonLabel(record[fieldName]);
+		if (label) return label;
+	}
+
+	const resultRecord = toLooseRecord(record.result);
+	for (const fieldName of ["status", "cancelReason", "remarks", "notes", "refundText", "decision"]) {
+		const label = getCancelReasonLabel(resultRecord[fieldName]);
+		if (label) return label;
+	}
+
+	return "";
+};
+
+const isBoatRaceCancelled = (race: BoatRaceItem): boolean => Boolean(readCancelReasonFromRecord(toLooseRecord(race)));
+
+const getBoatVenueCancelStatus = (venue: BoatTodayVenueItem, races: BoatRaceItem[]): BoatVenueCancelSummary => {
+	const venueReason = readCancelReasonFromRecord(toLooseRecord(venue));
+	const cancelledRaceNos = races
+		.filter(isBoatRaceCancelled)
+		.map((race) => Number(race.raceNo))
+		.filter((raceNo) => Number.isFinite(raceNo) && raceNo > 0)
+		.sort((a, b) => a - b);
+	const uniqueCancelledRaceNos = Array.from(new Set(cancelledRaceNos));
+	const allRacesCancelled = races.length > 0 && uniqueCancelledRaceNos.length === races.length;
+
+	if (venueReason || allRacesCancelled) {
+		return {
+			level: "danger",
+			label: venueReason || "開催中止",
+			cancelledRaceNos: uniqueCancelledRaceNos,
+			reason: venueReason || undefined,
+		};
+	}
+
+	if (uniqueCancelledRaceNos.length > 0) {
+		const raceLabel = uniqueCancelledRaceNos.length <= 2
+			? uniqueCancelledRaceNos.map((raceNo) => `${raceNo}R`).join("・")
+			: `${uniqueCancelledRaceNos.length}件`;
+
+		return {
+			level: "warning",
+			label: `中止あり ${raceLabel}`,
+			cancelledRaceNos: uniqueCancelledRaceNos,
+		};
+	}
+
+	return {
+		level: "none",
+		label: "",
+		cancelledRaceNos: [],
+	};
 };
 
 const getSessionLabel = (session?: string) => {
@@ -444,19 +632,58 @@ export function BoatPredictionVenueRaceChooser({
 						const racesForVenue = getVenueRaces(venue);
 						const weather = getVenueWeather(venue);
 						const statusLabels = getVenueStatusLabels(racesForVenue);
+						const dayLabel = getBoatVenueSeriesDayLabel(venue, racesForVenue);
+						const cancelStatus = getBoatVenueCancelStatus(venue, racesForVenue);
+						const cancelTone = cancelStatus.level === "danger"
+							? {
+								background: "linear-gradient(180deg, rgba(255, 241, 242, 0.98) 0%, rgba(255, 255, 255, 0.96) 100%)",
+								border: "rgba(248, 113, 113, 0.62)",
+								shadow: "0 16px 32px rgba(185, 28, 28, 0.12)",
+							}
+							: cancelStatus.level === "warning"
+								? {
+									background: "linear-gradient(180deg, rgba(255, 251, 235, 0.98) 0%, rgba(255, 255, 255, 0.96) 100%)",
+									border: "rgba(245, 158, 11, 0.54)",
+									shadow: "0 16px 32px rgba(180, 83, 9, 0.10)",
+								}
+								: null;
 						const style: CSSProperties = {
 							...venueCardBaseStyle,
-							background: isSelected
+							background: cancelTone
+								? cancelTone.background
+								: isSelected
 								? "linear-gradient(180deg, rgba(231, 243, 252, 0.98), rgba(225, 246, 241, 0.96))"
 								: sessionTone.background,
-							border: isSelected ? `1px solid ${boatTheme.colors.aquaDeep}` : `1px solid ${sessionTone.border}`,
-							boxShadow: isSelected ? "0 20px 42px rgba(17, 122, 146, 0.16)" : sessionTone.shadow,
+							border: cancelTone
+								? `1px solid ${cancelTone.border}`
+								: isSelected
+									? `1px solid ${boatTheme.colors.aquaDeep}`
+									: `1px solid ${sessionTone.border}`,
+							boxShadow: cancelTone
+								? cancelTone.shadow
+								: isSelected
+									? "0 20px 42px rgba(17, 122, 146, 0.16)"
+									: sessionTone.shadow,
+							opacity: cancelStatus.level === "danger" ? 0.92 : 1,
 						};
 						const sessionChipStyle: CSSProperties = {
 							...chipStyle,
 							background: sessionTone.badgeBackground,
 							color: sessionTone.badgeColor,
 							border: `1px solid ${sessionTone.badgeBorder}`,
+						};
+						const cancelChipStyle: CSSProperties = {
+							...cancelChipBaseStyle,
+							background: cancelStatus.level === "warning"
+								? "rgba(254, 243, 199, 0.96)"
+								: cancelChipBaseStyle.background,
+							border: cancelStatus.level === "warning"
+								? "1px solid rgba(245, 158, 11, 0.44)"
+								: cancelChipBaseStyle.border,
+							color: cancelStatus.level === "warning" ? "#92400e" : "#991b1b",
+							boxShadow: cancelStatus.level === "warning"
+								? "0 8px 18px rgba(245, 158, 11, 0.12)"
+								: cancelChipBaseStyle.boxShadow,
 						};
 
 						return (
@@ -476,7 +703,12 @@ export function BoatPredictionVenueRaceChooser({
 								<div style={venueMetaStyle}>
 									<span>{racesForVenue.length}R</span>
 									<span style={sessionChipStyle}>{getSessionLabel(venue.session)}</span>
+									<span style={dayChipStyle}>{dayLabel}</span>
 								</div>
+
+								{cancelStatus.level !== "none" ? (
+									<span style={cancelChipStyle}>{cancelStatus.label}</span>
+								) : null}
 
 								<div style={weatherLineStyle}>
 									<span style={chipStyle}>{weather.weather}</span>
@@ -519,14 +751,25 @@ export function BoatPredictionVenueRaceChooser({
 						const raceKey = getRaceKey(selectedVenue.id, race);
 						const isSelected = raceKey === selectedRaceId;
 						const exhibitionStatus = raceExhibitionStatusMap[raceKey];
+						const isCancelled = isBoatRaceCancelled(race);
 						const style: CSSProperties = {
 							...raceCardBaseStyle,
 							background: isSelected
-							? "linear-gradient(180deg, #183a59 0%, #244a73 100%)"
-							: "linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 252, 255, 0.94) 100%)",
-							border: isSelected ? `1px solid #183a59` : `1px solid rgba(176, 198, 214, 0.42)`,
+								? "linear-gradient(180deg, #183a59 0%, #244a73 100%)"
+								: isCancelled
+									? "linear-gradient(180deg, rgba(255, 241, 242, 0.98) 0%, rgba(255, 255, 255, 0.94) 100%)"
+									: "linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 252, 255, 0.94) 100%)",
+							border: isSelected
+								? `1px solid #183a59`
+								: isCancelled
+									? "1px solid rgba(248, 113, 113, 0.50)"
+									: `1px solid rgba(176, 198, 214, 0.42)`,
 							color: isSelected ? "#ffffff" : boatTheme.colors.navy,
-							boxShadow: isSelected ? "0 16px 34px rgba(24, 58, 89, 0.22)" : "0 10px 22px rgba(17, 64, 92, 0.05)",
+							boxShadow: isSelected
+								? "0 16px 34px rgba(24, 58, 89, 0.22)"
+								: isCancelled
+									? "0 12px 24px rgba(248, 113, 113, 0.10)"
+									: "0 10px 22px rgba(17, 64, 92, 0.05)",
 							};
 
 						return (
@@ -571,6 +814,25 @@ export function BoatPredictionVenueRaceChooser({
 >
 	{exhibitionStatus?.shortLabel ?? "展示未取得"}
 </span>
+
+								{isCancelled ? (
+									<span
+										style={{
+											...cancelChipBaseStyle,
+											justifySelf: "center",
+											padding: "4px 8px",
+											fontSize: "0.66rem",
+											background: isSelected ? "rgba(254, 226, 226, 0.20)" : "rgba(254, 226, 226, 0.96)",
+											color: isSelected ? "#fecaca" : "#991b1b",
+											border: isSelected
+												? "1px solid rgba(254, 202, 202, 0.34)"
+												: "1px solid rgba(248, 113, 113, 0.42)",
+											boxShadow: "none",
+										}}
+									>
+										中止
+									</span>
+								) : null}
 							</button>
 						);
 					})}
