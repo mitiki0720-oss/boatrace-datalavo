@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import type { BoatPredictionRecord, BoatPredictionTicket } from "../lib/boatraceTypes";
 import { BoatGptMaterialPanel } from "../components/boatrace/BoatGptMaterialPanel";
 import { BoatPracticeResultPanel } from "../components/boatrace/BoatPracticeResultPanel";
@@ -158,6 +159,7 @@ const johnsonSummaryChipStyle = {
 const MAX_AUTO_SETTLE_PER_RUN = 12;
 const AUTO_SETTLE_STORAGE_LIMIT_KB = 4500;
 const LOCAL_STORAGE_WARNING_KB = 4000;
+const MIN_HIT_TICKER_CARD_COUNT = 6;
 
 const getRaceKey = (venueId: string, raceId: string | undefined, raceNo: number) => raceId ?? `${venueId}-${raceNo}`;
 
@@ -1206,7 +1208,6 @@ const practiceSummary = useMemo(() => {
 	.sort((left, right) =>
 		String(right.updatedAt ?? right.savedAt ?? right.autoSettledAt ?? "").localeCompare(String(left.updatedAt ?? left.savedAt ?? left.autoSettledAt ?? ""))
 	)
-	.slice(0, 5)
 	.map((record) => {
 		const payoutYen = resolvePracticePayoutYen(record);
 		const profitYen = resolvePracticeProfitYen(record);
@@ -1225,6 +1226,23 @@ const practiceSummary = useMemo(() => {
 			profitLabel: formatPracticeProfit(profitYen),
 		};
 	});
+
+	const hitTickerLoopItems = useMemo(() => {
+		if (hitNotificationItems.length <= 1) {
+			return hitNotificationItems.map((item) => ({ ...item, tickerRepeatIndex: 0 }));
+		}
+
+		const repeatCount = Math.max(1, Math.ceil(MIN_HIT_TICKER_CARD_COUNT / hitNotificationItems.length));
+
+		return Array.from({ length: repeatCount }).flatMap((_, repeatIndex) =>
+			hitNotificationItems.map((item) => ({
+				...item,
+				tickerRepeatIndex: repeatIndex,
+			})),
+		);
+	}, [hitNotificationItems]);
+	const isHitTickerAnimated = hitNotificationItems.length > 1;
+	const hitTickerDurationSec = Math.max(48, hitTickerLoopItems.length * 9);
 
 	const refreshTodayFeed = async (options?: { silent?: boolean; isActive?: () => boolean }) => {
 		const isSilent = options?.silent ?? false;
@@ -2495,13 +2513,86 @@ body:has(.prediction-page-root) {
 
 					.prediction-notification-grid {
 						display: grid;
-						grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-						gap: 12px;
+						padding: 2px 0 6px;
+						width: 100%;
+						max-width: 100%;
+						min-width: 0;
+					}
+
+					.prediction-notification-marquee {
+						position: relative;
+						overflow: hidden;
+						width: 100%;
+						max-width: 100%;
+						min-width: 0;
 						padding: 2px 0 6px;
 					}
 
+					.prediction-notification-marquee::before,
+					.prediction-notification-marquee::after {
+						content: "";
+						position: absolute;
+						top: 0;
+						bottom: 0;
+						width: 52px;
+						z-index: 2;
+						pointer-events: none;
+					}
+
+					.prediction-notification-marquee::before {
+						left: 0;
+						background: linear-gradient(90deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0));
+					}
+
+					.prediction-notification-marquee::after {
+						right: 0;
+						background: linear-gradient(270deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0));
+					}
+
+					.prediction-notification-track {
+						display: flex;
+						width: max-content;
+						max-width: none;
+						will-change: transform;
+					}
+
+					.prediction-notification-track.is-animated {
+						animation: prediction-notification-scroll var(--hit-log-duration, 60s) linear infinite;
+					}
+
+					.prediction-notification-marquee:hover .prediction-notification-track.is-animated {
+						animation-play-state: paused;
+					}
+
+					.prediction-notification-track.is-static {
+						width: 100%;
+					}
+
+					.prediction-notification-group {
+						display: flex;
+						flex-shrink: 0;
+						gap: 12px;
+						padding-right: 12px;
+					}
+
+					.prediction-notification-track.is-static .prediction-notification-group {
+						width: 100%;
+						padding-right: 0;
+					}
+
+					@keyframes prediction-notification-scroll {
+						from {
+							transform: translateX(0);
+						}
+
+						to {
+							transform: translateX(-50%);
+						}
+					}
+
 					.prediction-notification-card {
-						min-width: 0;
+						width: clamp(280px, 34vw, 360px);
+						min-width: 280px;
 						padding: 14px 16px;
 						border-radius: 18px;
 						border: 1px solid rgba(129, 140, 248, 0.28);
@@ -2511,6 +2602,7 @@ body:has(.prediction-page-root) {
 						grid-template-columns: auto minmax(0, 1fr);
 						gap: 12px;
 						align-items: start;
+						flex: 0 0 auto;
 					}
 
 					.prediction-notification-empty {
@@ -2581,6 +2673,17 @@ body:has(.prediction-page-root) {
 						margin: 0;
 						font-size: 0.9rem;
 						font-weight: 900;
+					}
+
+					@media (prefers-reduced-motion: reduce) {
+						.prediction-notification-track {
+							animation: none !important;
+							transform: none !important;
+						}
+
+						.prediction-notification-marquee {
+							overflow-x: auto;
+						}
 					}
 
 					.prediction-quick-head {
@@ -2716,26 +2819,44 @@ body:has(.prediction-page-root) {
 
 					<div className="prediction-notification-grid">
 						{hitNotificationItems.length > 0 ? (
-							<>
-								{hitNotificationItems.map((item) => (
-									<article key={item.key} className="prediction-notification-card">
-										<span className="prediction-notification-icon" aria-hidden="true">🎯</span>
-										<div className="prediction-notification-body">
-											<p className="prediction-notification-title">{item.venueRaceLabel} 的中</p>
-											<p className="prediction-notification-time">{item.dateLabel} / {item.timeLabel}</p>
-											<p className="prediction-notification-bet-type">{item.betTypeLabel}</p>
-											<p className="prediction-notification-line">{item.hitBetNumbers}</p>
-											<p className="prediction-notification-payout">払戻 {item.payoutLabel}</p>
-											<p
-												className="prediction-notification-profit"
-												style={{ color: item.profitLabel.startsWith("+") ? "#0284c7" : "#b91c1c" }}
-											>
-												収支 {item.profitLabel}
-											</p>
+							<div
+								className="prediction-notification-marquee"
+								style={{ "--hit-log-duration": `${hitTickerDurationSec}s` } as CSSProperties}
+							>
+								<div
+									className={`prediction-notification-track ${isHitTickerAnimated ? "is-animated" : "is-static"}`}
+								>
+									{[0, ...(isHitTickerAnimated ? [1] : [])].map((groupIndex) => (
+										<div
+											key={`hit-notification-group-${groupIndex}`}
+											className="prediction-notification-group"
+											aria-hidden={groupIndex > 0 ? "true" : undefined}
+										>
+											{hitTickerLoopItems.map((item) => (
+												<article
+													key={`${item.key}-${item.tickerRepeatIndex}-${groupIndex}`}
+													className="prediction-notification-card"
+												>
+													<span className="prediction-notification-icon" aria-hidden="true">🎯</span>
+													<div className="prediction-notification-body">
+														<p className="prediction-notification-title">{item.venueRaceLabel} 的中</p>
+														<p className="prediction-notification-time">{item.dateLabel} / {item.timeLabel}</p>
+														<p className="prediction-notification-bet-type">{item.betTypeLabel}</p>
+														<p className="prediction-notification-line">{item.hitBetNumbers}</p>
+														<p className="prediction-notification-payout">払戻 {item.payoutLabel}</p>
+														<p
+															className="prediction-notification-profit"
+															style={{ color: item.profitLabel.startsWith("+") ? "#0284c7" : "#b91c1c" }}
+														>
+															収支 {item.profitLabel}
+														</p>
+													</div>
+												</article>
+											))}
 										</div>
-									</article>
-								))}
-							</>
+									))}
+								</div>
+							</div>
 						) : (
 							<div className="prediction-notification-empty">
 								<span className="prediction-badge">保存済み実践結果から自動表示</span>
