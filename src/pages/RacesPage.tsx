@@ -202,6 +202,9 @@ const pageContentStyle = {
 const openSectionStyle = {
 	display: "grid",
 	gap: "18px",
+	width: "100%",
+	maxWidth: "calc(100vw - 48px)",
+	minWidth: 0,
 };
 
 const detailIntroCardStyle = {

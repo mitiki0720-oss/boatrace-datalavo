@@ -1,4 +1,5 @@
 import type { BoatTodayVenueItem } from "../../lib/boatraceTypes";
+import { resolveBoatVenueDayLabel } from "../../lib/boatVenueDayLabel";
 import { boatTheme } from "../../lib/theme";
 
 type BoatVenueSelectorPanelProps = {
@@ -7,42 +8,12 @@ type BoatVenueSelectorPanelProps = {
 	onSelectVenue: (venueId: string) => void;
 };
 
-function getVenueDayBadge(venue: BoatTodayVenueItem & { dayText?: string }): string {
-	const dayText = String(venue.dayText ?? "").trim();
-
-	if (!dayText) {
-		return "";
-	}
-
-	const normalizedDayText = dayText
-		.replace(/[０-９]/g, (value) => String.fromCharCode(value.charCodeAt(0) - 0xfee0))
-		.replace(/\s/g, "");
-
-	const dayOnlyText = normalizedDayText.replace(
-		/\d{1,2}\/\d{1,2}[-ー〜~]\d{1,2}\/\d{1,2}/g,
-		"",
-	);
-
-	if (dayOnlyText.includes("初日")) {
-		return "初日";
-	}
-
-	if (dayOnlyText.includes("最終")) {
-		return "最終日";
-	}
-
-	const dayMatch = dayOnlyText.match(/([1-9][0-9]?)日目/);
-
-	if (dayMatch?.[1]) {
-		return `${dayMatch[1]}日目`;
-	}
-
-	return "";
-}
-
 const sectionStyle = {
 	display: "grid",
 	gap: "16px",
+	width: "100%",
+	maxWidth: "calc(100vw - 48px)",
+	minWidth: 0,
 };
 
 const headingStyle = {
@@ -87,6 +58,9 @@ const gridStyle = {
 	display: "grid",
 	gridTemplateColumns: "repeat(auto-fit, minmax(242px, 1fr))",
 	gap: "14px",
+	width: "100%",
+	maxWidth: "calc(100vw - 48px)",
+	minWidth: 0,
 };
 
 const spotlightTextColumnStyle = {
@@ -161,6 +135,12 @@ const venueDayBadgeStyle = {
 	fontSize: "0.72rem",
 	fontWeight: 900,
 	lineHeight: 1,
+};
+
+const venueDayBadgeMissingStyle = {
+	background: "rgba(248, 250, 252, 0.95)",
+	border: "1px solid rgba(148, 163, 184, 0.32)",
+	color: "#64748b",
 };
 
 function getSessionLabel(session?: string): string {
@@ -323,15 +303,16 @@ export function BoatVenueSelectorPanel({ venues, selectedVenueId, onSelectVenue 
 			</div>
 
 			<div style={gridStyle}>
-				{venues.map((venue) => {
+				{venues.map((venue, venueIndex) => {
 					const isSelected = venue.id === selectedVenueId;
 					const gradeLabel = getGradeLabel(venue.title);
-					const dayBadge = getVenueDayBadge(venue);
+					const dayBadge = resolveBoatVenueDayLabel(venue, venue.races);
+					const isDayBadgeMissing = dayBadge === "日目未取得";
 					const sessionCardTone = getSessionCardTone(venue.session);
 
 					return (
 						<button
-							key={venue.id}
+							key={`${venue.id}-${dayBadge}-${venue.title ?? venueIndex}`}
 							type="button"
 							onClick={() => {
 								onSelectVenue(venue.id);
@@ -349,6 +330,9 @@ export function BoatVenueSelectorPanel({ venues, selectedVenueId, onSelectVenue 
 								textAlign: "left" as const,
 								cursor: "pointer",
 								minHeight: "182px",
+								width: "100%",
+								minWidth: 0,
+								boxSizing: "border-box" as const,
 								alignContent: "space-between",
 								position: "relative" as const,
 								overflow: "hidden",
@@ -386,9 +370,7 @@ export function BoatVenueSelectorPanel({ venues, selectedVenueId, onSelectVenue 
 											{getSessionLabel(venue.session)}
 										</span>
 
-										{dayBadge ? (
-											<span style={venueDayBadgeStyle}>{dayBadge}</span>
-										) : null}
+										<span style={{ ...venueDayBadgeStyle, ...(isDayBadgeMissing ? venueDayBadgeMissingStyle : null) }}>{dayBadge}</span>
 									</div>
 									<p style={{ margin: 0, color: boatTheme.colors.muted, lineHeight: 1.45, fontSize: "0.86rem" }}>{venue.title || "開催情報確認中"}</p>
 								</div>
