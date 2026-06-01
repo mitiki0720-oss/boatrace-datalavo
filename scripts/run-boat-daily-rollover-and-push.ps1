@@ -249,7 +249,13 @@ if ($rolloverOutput -match "result archive verified") {
 if ($rolloverOutput -match "summary not found: optional, continue") {
 	Write-Step "summary not found: optional, continue"
 }
-if ($rolloverOutput -match "prune active data") {
+if ($rolloverOutput -match "active refresh verified") {
+	Write-Step "active refresh verified"
+}
+if ($rolloverOutput -match "atomic replace completed") {
+	Write-Step "atomic replace completed"
+}
+if ($rolloverOutput -match "active prune completed") {
 	Write-Step "active prune completed"
 }
 

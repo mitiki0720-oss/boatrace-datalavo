@@ -44,6 +44,13 @@ function parseCliArgs(argv = process.argv.slice(2)) {
 					index += 1;
 				}
 				break;
+			case "outputDir":
+			case "output-dir":
+				parsed.outputDir = value;
+				if (separatorIndex < 0) {
+					index += 1;
+				}
+				break;
 			default:
 				break;
 		}
@@ -86,6 +93,13 @@ function buildTodayDetailsArgs({ mode, targetSession, targetDate }) {
 	return args;
 }
 
+function appendOutputDir(args, outputDir) {
+	if (outputDir) {
+		args.push("--output-dir", outputDir);
+	}
+	return args;
+}
+
 function buildVenueExtrasArgs({ mode, targetDate }) {
 	if (mode !== "initial" && mode !== "active" && mode !== "final") {
 		return null;
@@ -121,6 +135,7 @@ export function parseUpdateBoatDataOptions(argv = process.argv.slice(2), env = p
 		mode: normalizeMode(cliArgs.mode ?? env.BOAT_RACE_MODE),
 		targetSession: normalizeTargetSession(cliArgs.targetSession ?? env.BOAT_RACE_TARGET_SESSION),
 		targetDate: normalizeTargetDate(cliArgs.targetDate ?? env.BOAT_RACE_TARGET_DATE, fallbackTargetDate),
+		outputDir: cliArgs.outputDir ?? env.BOAT_RACE_OUTPUT_DIR,
 	};
 }
 
@@ -141,12 +156,12 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 		console.log("[update-boat-data] final mode runs all-race result completion, beforeinfo backfill, and a final venue-extras refresh.");
 	}
 
-	await runNodeScript(buildTodayDetailsArgs(options));
+	await runNodeScript(appendOutputDir(buildTodayDetailsArgs(options), rawOptions.outputDir));
 
 	const venueExtrasArgs = buildVenueExtrasArgs(options);
 	if (venueExtrasArgs) {
 		console.log(`[update-boat-data] venue extras update enabled for mode=${options.mode}`);
-		await runNodeScript(venueExtrasArgs);
+		await runNodeScript(appendOutputDir(venueExtrasArgs, rawOptions.outputDir));
 	} else {
 		console.log(`[update-boat-data] skipping venue extras for mode=${options.mode}`);
 	}

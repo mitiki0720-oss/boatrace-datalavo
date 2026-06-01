@@ -7,20 +7,15 @@ import { getJstTimestamp as getSharedJstTimestamp, getJstTimestampParts, normali
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
+let outputDirectory = path.join(projectRoot, "public", "data", "boatrace");
 
-const todayRaceDetailsPath = path.join(
-	projectRoot,
-	"public",
-	"data",
-	"boatrace",
+let todayRaceDetailsPath = path.join(
+	outputDirectory,
 	"today-race-details.generated.json",
 );
 
-const venueExtrasPath = path.join(
-	projectRoot,
-	"public",
-	"data",
-	"boatrace",
+let venueExtrasPath = path.join(
+	outputDirectory,
 	"venue-extras.generated.json",
 );
 
@@ -148,6 +143,13 @@ function parseCliArgs(argv = process.argv.slice(2)) {
 					index += 1;
 				}
 				break;
+			case "output-dir":
+			case "outputDir":
+				parsed.outputDir = value;
+				if (separatorIndex < 0) {
+					index += 1;
+				}
+				break;
 			default:
 				break;
 		}
@@ -160,7 +162,14 @@ function parseUpdateBoatVenueExtrasOptions(argv = process.argv.slice(2), env = p
 	const cliArgs = parseCliArgs(argv);
 	return {
 		targetDate: normalizeTargetDate(cliArgs.targetDate ?? env.BOAT_RACE_TARGET_DATE),
+		outputDir: cliArgs.outputDir ? path.resolve(projectRoot, cliArgs.outputDir) : outputDirectory,
 	};
+}
+
+function setOutputDirectory(nextOutputDirectory) {
+	outputDirectory = path.resolve(projectRoot, nextOutputDirectory || outputDirectory);
+	todayRaceDetailsPath = path.join(outputDirectory, "today-race-details.generated.json");
+	venueExtrasPath = path.join(outputDirectory, "venue-extras.generated.json");
 }
 
 function sleep(ms) {
@@ -14624,6 +14633,7 @@ async function createTokonameVenue(feed) {
 }
 
 async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
+	setOutputDirectory(rawOptions.outputDir);
 	const timestamps = getJstTimestampParts(rawOptions.targetDate);
 	const generatedAt = getJstTimestamp();
 	const feed = await readTodayRaceDetails();

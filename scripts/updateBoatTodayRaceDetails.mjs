@@ -7,8 +7,9 @@ import { getJstTimestampParts, normalizeTargetDate } from "./boatRaceDate.mjs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
-const todayOutputPath = path.join(projectRoot, "public", "data", "boatrace", "today.generated.json");
-const outputPath = path.join(projectRoot, "public", "data", "boatrace", "today-race-details.generated.json");
+let outputDirectory = path.join(projectRoot, "public", "data", "boatrace");
+let todayOutputPath = path.join(outputDirectory, "today.generated.json");
+let outputPath = path.join(outputDirectory, "today-race-details.generated.json");
 
 const OFFICIAL_ORIGIN = "https://www.boatrace.jp";
 const ENABLE_REMOTE_FETCH = process.env.BOAT_RACE_ENABLE_REMOTE_FETCH !== "0";
@@ -84,6 +85,8 @@ function parseCliArgs(argv = process.argv.slice(2)) {
 			case "target-races":
 			case "fetch-sections":
 			case "skip-sections":
+			case "output-dir":
+			case "outputDir":
 				parsed[key] = value;
 				if (separatorIndex < 0) {
 					index += 1;
@@ -170,6 +173,7 @@ function normalizeUpdateOptions(rawOptions = {}) {
 		targetVenues: Array.from(new Set(parseCsvList(rawOptions.targetVenues).map((item) => item.toLowerCase()))),
 		targetRaceNumbers: normalizeTargetRaceNumbers(Array.isArray(rawOptions.targetRaceNumbers) ? rawOptions.targetRaceNumbers : parseCsvList(rawOptions.targetRaceNumbers)),
 		fetchSections,
+		outputDir: rawOptions.outputDir ? path.resolve(projectRoot, rawOptions.outputDir) : outputDirectory,
 	};
 }
 
@@ -182,7 +186,14 @@ export function parseUpdateOptionsFromArgv(argv = process.argv.slice(2), env = p
 		targetVenues: cliArgs["target-venues"] ?? env.BOAT_RACE_TARGET_VENUES,
 		targetRaceNumbers: cliArgs["target-races"] ?? env.BOAT_RACE_TARGET_RACES,
 		fetchSections: parseFetchSectionOptions(cliArgs["fetch-sections"] ?? env.BOAT_RACE_FETCH_SECTIONS, cliArgs["skip-sections"] ?? env.BOAT_RACE_SKIP_SECTIONS),
+		outputDir: cliArgs["output-dir"] ?? env.BOAT_RACE_OUTPUT_DIR,
 	});
+}
+
+function setOutputDirectory(nextOutputDirectory) {
+	outputDirectory = path.resolve(projectRoot, nextOutputDirectory || outputDirectory);
+	todayOutputPath = path.join(outputDirectory, "today.generated.json");
+	outputPath = path.join(outputDirectory, "today-race-details.generated.json");
 }
 
 function createEmbeddedFallbackFeed({ date, generatedAt }) {
@@ -2830,6 +2841,7 @@ export async function writeTodayRaceDetailsJson(feed) {
 
 export async function main(rawOptions = {}) {
 	const baseOptions = normalizeUpdateOptions(rawOptions);
+	setOutputDirectory(baseOptions.outputDir);
 	const timestamps = getJstTimestampParts(baseOptions.targetDate);
 	const existingFeedRaw = await readExistingFeed(timestamps);
 	const existingFeed = existingFeedRaw?.date === timestamps.date ? existingFeedRaw : null;

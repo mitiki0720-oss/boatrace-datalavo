@@ -1,5 +1,5 @@
-import { execFile } from "node:child_process";
-import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { execFile, spawn } from "node:child_process";
+import { mkdir, readdir, readFile, rename, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
@@ -349,6 +349,129 @@ function pruneDatedFeed(payload, currentDate, now) {
 	};
 }
 
+function countRaces(payload) {
+	return toArray(payload?.venues).reduce((total, venue) => total + toArray(venue?.races).length, 0);
+}
+
+function hasValidGeneratedAt(payload) {
+	return typeof payload?.generatedAt === "string" && !Number.isNaN(Date.parse(payload.generatedAt));
+}
+
+function isNoRacingPayload(payload) {
+	const status = String(payload?.sourceStatus || payload?.status || "").toLowerCase();
+	return ["no-races", "no-racing", "closed", "not-held"].includes(status);
+}
+
+function validateActiveFeed(name, payload, currentDate) {
+	if (!payload || typeof payload !== "object") {
+		throw new Error(`${name} is not a JSON object`);
+	}
+	if (payload.date !== currentDate) {
+		throw new Error(`${name} date mismatch: expected ${currentDate}, got ${payload.date || "missing"}`);
+	}
+	if (!hasValidGeneratedAt(payload)) {
+		throw new Error(`${name} generatedAt is missing or invalid`);
+	}
+
+	const venues = toArray(payload.venues);
+	const races = countRaces(payload);
+	if (!isNoRacingPayload(payload) && (venues.length <= 0 || races <= 0)) {
+		throw new Error(`${name} has empty active data without no-racing status`);
+	}
+	return { venues: venues.length, races };
+}
+
+async function runCommand(command, args, cwd) {
+	return new Promise((resolve, reject) => {
+		const child = spawn(command, args, {
+			cwd,
+			stdio: "inherit",
+			env: process.env,
+		});
+
+		child.on("error", reject);
+		child.on("exit", (code) => {
+			if (code === 0) {
+				resolve();
+				return;
+			}
+			reject(new Error(`${command} ${args.join(" ")} failed with exit code ${code ?? "unknown"}`));
+		});
+	});
+}
+
+async function atomicReplaceJson(sourcePath, destinationPath) {
+	const payload = JSON.parse((await readFile(sourcePath, "utf8")).replace(/^\uFEFF/, ""));
+	await mkdir(path.dirname(destinationPath), { recursive: true });
+	const replacePath = `${destinationPath}.next`;
+	await writeFile(replacePath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+	JSON.parse(await readFile(replacePath, "utf8"));
+	await rename(replacePath, destinationPath);
+}
+
+async function refreshActiveFeeds(root, currentDate, options, changedFiles) {
+	const tempDir = path.join(root, ".tmp", "boat-daily-rollover", currentDate);
+	const todayPath = path.join(tempDir, "today.generated.json");
+	const detailsPath = path.join(tempDir, "today-race-details.generated.json");
+	const extrasPath = path.join(tempDir, "venue-extras.generated.json");
+
+	if (options.dryRun) {
+		console.log("[boat-daily-rollover] active refresh planned");
+		console.log(`[boat-daily-rollover] temp output: ${path.relative(root, tempDir).replaceAll("\\", "/")}`);
+		for (const key of ["today", "raceDetails", "venueExtras"]) {
+			changedFiles.add(path.relative(root, resolveDataPath(root, key)).replaceAll("\\", "/"));
+		}
+		return;
+	}
+
+	console.log("[boat-daily-rollover] active refresh started");
+	try {
+		await mkdir(tempDir, { recursive: true });
+		await runCommand(process.execPath, [
+			path.join("scripts", "updateBoatData.mjs"),
+			"--mode",
+			"initial",
+			"--target-session",
+			"auto",
+			"--target-date",
+			currentDate,
+			"--output-dir",
+			tempDir,
+		], root);
+
+		const todayPayload = await readJsonIfExists(todayPath, null);
+		const detailsPayload = await readJsonIfExists(detailsPath, null);
+		const extrasPayload = await readJsonIfExists(extrasPath, null);
+		const todayStats = validateActiveFeed("today.generated.json", todayPayload, currentDate);
+		const detailsStats = validateActiveFeed("today-race-details.generated.json", detailsPayload, currentDate);
+		const extrasStats = validateActiveFeed("venue-extras.generated.json", extrasPayload, currentDate);
+
+		if (todayStats.venues !== detailsStats.venues || todayStats.races !== detailsStats.races) {
+			throw new Error(`today/details count mismatch: today=${todayStats.venues}/${todayStats.races}, details=${detailsStats.venues}/${detailsStats.races}`);
+		}
+
+		console.log(`[boat-daily-rollover] today venues: ${todayStats.venues}`);
+		console.log(`[boat-daily-rollover] today races: ${todayStats.races}`);
+		console.log(`[boat-daily-rollover] extras venues: ${extrasStats.venues}`);
+		console.log("[boat-daily-rollover] active refresh verified");
+
+		await atomicReplaceJson(todayPath, resolveDataPath(root, "today"));
+		await atomicReplaceJson(detailsPath, resolveDataPath(root, "raceDetails"));
+		await atomicReplaceJson(extrasPath, resolveDataPath(root, "venueExtras"));
+
+		for (const key of ["today", "raceDetails", "venueExtras"]) {
+			changedFiles.add(path.relative(root, resolveDataPath(root, key)).replaceAll("\\", "/"));
+		}
+		console.log("[boat-daily-rollover] atomic replace completed");
+	} catch (error) {
+		console.error("[boat-daily-rollover] active refresh validation failed");
+		console.error(`[boat-daily-rollover] ${error instanceof Error ? error.message : String(error)}`);
+		console.error("[boat-daily-rollover] keep existing active JSON");
+		console.error("[boat-daily-rollover] skip commit/push to prevent publishing empty active data");
+		throw error;
+	}
+}
+
 function pruneScheduleItems(payload, now) {
 	if (!payload || typeof payload !== "object") {
 		return payload;
@@ -406,18 +529,12 @@ async function main() {
 		console.log("[boat-rollover] archive verified");
 	}
 
+	await refreshActiveFeeds(options.root, currentDate, options, changedFiles);
+
 	if (!options.dryRun) {
 		await generateReviewIndex(options.root, options, changedFiles);
 	} else {
 		changedFiles.add(path.relative(options.root, resolveDataPath(options.root, "reviewIndex")).replaceAll("\\", "/"));
-	}
-
-	for (const key of ["today", "raceDetails", "venueExtras"]) {
-		const filePath = resolveDataPath(options.root, key);
-		const payload = await readJsonIfExists(filePath, null);
-		if (payload) {
-			await writeJson(filePath, pruneDatedFeed(payload, currentDate, options.now), options, changedFiles);
-		}
 	}
 
 	await writeJson(johnsonPath, {
@@ -435,7 +552,7 @@ async function main() {
 		await writeJson(schedulePath, pruneScheduleItems(schedulePayload, options.now), options, changedFiles);
 	}
 
-	console.log("[boat-rollover] prune active data");
+	console.log("[boat-rollover] active prune completed");
 	console.log("[boat-rollover] changed candidates:");
 	for (const file of Array.from(changedFiles).sort()) {
 		console.log(`  ${file}`);
