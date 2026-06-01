@@ -309,7 +309,117 @@ const getSessionLabel = (session?: string) => {
 	if (session === "day") return "デイ";
 	if (session === "morning") return "モーニング";
 	if (session === "relay") return "シリーズ";
-	return "未設定";
+	return "時間帯未取得";
+};
+
+const sessionTextFieldNames = [
+	"sessionLabel",
+	"sessionType",
+	"timeZoneLabel",
+	"category",
+	"session",
+	"title",
+	"seriesName",
+	"eventName",
+	"name",
+];
+
+const normalizeBoatVenueSessionText = (value: unknown): string => normalizeLooseText(value).replace(/\s+/g, "").toLowerCase();
+
+const readExplicitSession = (value: unknown): string => {
+	const normalized = normalizeBoatVenueSessionText(value);
+	if (!normalized) return "";
+
+	if (normalized.includes("midnight") || normalized.includes("ミッドナイト") || normalized.includes("mnb")) return "midnight";
+	if (normalized.includes("morning") || normalized.includes("モーニング")) return "morning";
+	if (normalized.includes("night") || normalized.includes("ナイター")) return "night";
+	if (normalized.includes("day") || normalized.includes("デイ")) return "day";
+	if (normalized === "midnight" || normalized === "morning" || normalized === "night" || normalized === "day") return normalized;
+
+	return "";
+};
+
+const parseBoatRaceTimeToMinutes = (value: unknown): number | null => {
+	const rawValue = readLooseString(value).normalize("NFKC");
+	const match = rawValue.match(/(\d{1,2}):(\d{2})/);
+	if (!match) return null;
+
+	const hours = Number(match[1]);
+	const minutes = Number(match[2]);
+	if (!Number.isInteger(hours) || !Number.isInteger(minutes) || hours < 0 || hours > 29 || minutes < 0 || minutes > 59) {
+		return null;
+	}
+
+	return hours * 60 + minutes;
+};
+
+const getRaceDisplayTimeMinutes = (race: BoatRaceItem): number | null => {
+	const raceRecord = toLooseRecord(race);
+	for (const fieldName of ["deadlineTime", "deadline", "closeTime", "startTime", "time"]) {
+		const minutes = parseBoatRaceTimeToMinutes(raceRecord[fieldName]);
+		if (minutes !== null) return minutes;
+	}
+
+	return null;
+};
+
+const resolveBoatVenueSession = (venue: BoatTodayVenueItem): string => {
+	const venueRecord = toLooseRecord(venue);
+	const races = getVenueRaces(venue);
+	let hasExplicitDay = false;
+
+	for (const fieldName of sessionTextFieldNames) {
+		const session = readExplicitSession(venueRecord[fieldName]);
+		if (session && session !== "day") return session;
+		if (session === "day") hasExplicitDay = true;
+	}
+
+	for (const race of races) {
+		const raceRecord = toLooseRecord(race);
+		for (const fieldName of sessionTextFieldNames) {
+			const session = readExplicitSession(raceRecord[fieldName]);
+			if (session && session !== "day") return session;
+			if (session === "day") hasExplicitDay = true;
+		}
+	}
+
+	const raceTimes = races
+		.map((race, index) => ({
+			raceNo: Number((race as { raceNo?: unknown }).raceNo) || index + 1,
+			minutes: getRaceDisplayTimeMinutes(race),
+		}))
+		.filter((entry): entry is { raceNo: number; minutes: number } => entry.minutes !== null);
+	const finalRaceTime = raceTimes.reduce<{ raceNo: number; minutes: number } | null>((latest, entry) => {
+		if (!latest || entry.raceNo > latest.raceNo) return entry;
+		return latest;
+	}, null);
+	const firstRaceTime = raceTimes.reduce<{ raceNo: number; minutes: number } | null>((earliest, entry) => {
+		if (!earliest || entry.raceNo < earliest.raceNo) return entry;
+		return earliest;
+	}, null);
+
+	if (finalRaceTime) {
+		if (finalRaceTime.minutes >= 22 * 60) return "midnight";
+		if (hasExplicitDay) return "day";
+		if (finalRaceTime.minutes >= 17 * 60) return "night";
+		if (firstRaceTime && firstRaceTime.minutes < 10 * 60 && finalRaceTime.minutes <= 15 * 60) return "morning";
+		return "day";
+	}
+
+	for (const fieldName of sessionTextFieldNames) {
+		const session = readExplicitSession(venueRecord[fieldName]);
+		if (session) return session;
+	}
+
+	for (const race of races) {
+		const raceRecord = toLooseRecord(race);
+		for (const fieldName of sessionTextFieldNames) {
+			const session = readExplicitSession(raceRecord[fieldName]);
+			if (session) return session;
+		}
+	}
+
+	return "unknown";
 };
 
 const getSessionTone = (session?: string): SessionTone => {
@@ -351,13 +461,13 @@ const getSessionTone = (session?: string): SessionTone => {
 
 	if (session === "midnight") {
 		return {
-			background: "linear-gradient(180deg, rgba(246, 240, 255, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%)",
-			border: "rgba(159, 137, 216, 0.42)",
-			shadow: "0 12px 26px rgba(159, 137, 216, 0.1)",
-			badgeBackground: "rgba(243, 232, 255, 0.96)",
-			badgeColor: "#7c3aed",
-			badgeBorder: "rgba(159, 137, 216, 0.32)",
-			topLine: "linear-gradient(90deg, #7c3aed 0%, #c4b5fd 100%)",
+			background: "linear-gradient(180deg, rgba(238, 242, 255, 0.98) 0%, rgba(248, 245, 255, 0.98) 100%)",
+			border: "rgba(67, 56, 202, 0.42)",
+			shadow: "0 12px 28px rgba(49, 46, 129, 0.12)",
+			badgeBackground: "rgba(49, 46, 129, 0.96)",
+			badgeColor: "#ffffff",
+			badgeBorder: "rgba(99, 102, 241, 0.38)",
+			topLine: "linear-gradient(90deg, #111827 0%, #4c1d95 54%, #8b5cf6 100%)",
 		};
 	}
 
@@ -499,9 +609,9 @@ export function BoatPredictionVenueRaceChooser({
 }: BoatPredictionVenueRaceChooserProps) {
 	const selectedVenue = venues.find((venue) => venue.id === selectedVenueId) ?? venues[0];
 	const sortedVenues = venues
-		.map((venue, index) => ({ venue, index }))
+		.map((venue, index) => ({ venue, index, session: resolveBoatVenueSession(venue) }))
 		.sort((a, b) => {
-			const sessionDiff = getSessionSortOrder(a.venue.session) - getSessionSortOrder(b.venue.session);
+			const sessionDiff = getSessionSortOrder(a.session) - getSessionSortOrder(b.session);
 			if (sessionDiff !== 0) return sessionDiff;
 			return a.index - b.index;
 		})
@@ -575,7 +685,8 @@ export function BoatPredictionVenueRaceChooser({
 				<div className="boat-prediction-venue-grid" style={venueRowStyle}>
 					{sortedVenues.map((venue) => {
 						const isSelected = venue.id === selectedVenue.id;
-						const sessionTone = getSessionTone(venue.session);
+						const displaySession = resolveBoatVenueSession(venue);
+						const sessionTone = getSessionTone(displaySession);
 						const racesForVenue = getVenueRaces(venue);
 						const weather = getVenueWeather(venue);
 						const statusLabels = getVenueStatusLabels(racesForVenue);
@@ -635,7 +746,7 @@ export function BoatPredictionVenueRaceChooser({
 
 						return (
 							<button
-								key={`${venue.id}-${dayLabel}-${venue.title ?? venue.venueName}`}
+								key={`${venue.id}-${displaySession}-${dayLabel}-${venue.title ?? venue.venueName}`}
 								type="button"
 								className="boat-prediction-venue-card"
 								style={style}
@@ -649,7 +760,7 @@ export function BoatPredictionVenueRaceChooser({
 
 								<div style={venueMetaStyle}>
 									<span>{racesForVenue.length}R</span>
-									<span style={sessionChipStyle}>{getSessionLabel(venue.session)}</span>
+									<span style={sessionChipStyle}>{getSessionLabel(displaySession)}</span>
 									<span style={dayChipStyle}>{dayLabel}</span>
 								</div>
 
