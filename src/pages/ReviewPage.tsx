@@ -668,7 +668,7 @@ export function ReviewPage() {
 	const activeLiveDate = useMemo(() => resolveActiveBoatOperationDate(todayFeed?.date), [todayFeed?.date]);
 	const liveDateSet = useMemo(() => new Set([activeLiveDate].filter(Boolean) as string[]), [activeLiveDate]);
 	const selectableDateSet = useMemo(() => new Set([...liveDateSet, ...archiveDateSet]), [archiveDateSet, liveDateSet]);
-	const mode: ReviewDataMode = liveDateSet.has(selectedDate) ? "live" : "archive";
+	const mode: ReviewDataMode = selectedDate < operationalToday ? "archive" : liveDateSet.has(selectedDate) ? "live" : "archive";
 	const predictionRecords = useMemo(() => normalizeBoatPredictionRecordList(predictionPayload), [predictionPayload]);
 	const practiceRecords = useMemo(() => normalizeBoatPracticeResultList(practicePayload), [practicePayload]);
 
@@ -838,12 +838,10 @@ export function ReviewPage() {
 	}, [mode, selectedArchiveGroup, selectedGroup, selectedLiveGroup, venueExtrasFeed]);
 	const calendarCells = useMemo(() => buildCalendarCells(calendarMonth), [calendarMonth]);
 	const monthRegisteredDates = useMemo(() => getMonthDates(selectableDateSet, `${calendarMonth}-01`), [calendarMonth, selectableDateSet]);
-	const modeLabel = mode === "archive" ? "ARCHIVE FILE" : selectedDate === operationalToday ? "TODAY LIVE" : "YESTERDAY LIVE";
+	const modeLabel = mode === "archive" ? "ARCHIVE FILE" : selectedDate === operationalToday ? "TODAY LIVE" : "LIVE";
 	const sourceLabel = mode === "archive"
 		? "archive txt"
-		: selectedDate === operationalYesterday
-			? "localStorage優先 / archive fallback"
-			: "today localStorage";
+		: "today localStorage";
 
 	const selectDate = (date: string) => {
 		if (date > operationalToday) return;

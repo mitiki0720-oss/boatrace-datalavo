@@ -3,8 +3,10 @@
 //   Command: npm.cmd run generate:boat-review-index
 //   Schedule: every day 23:00 and 09:00
 
+import { execFile } from "node:child_process";
 import { readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -42,6 +44,7 @@ const VENUE_SLUG_TO_NAME = {
 
 const DATE_DIR_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const FILE_PATTERN = /^(.+)-(predictions|results|summary)\.txt$/;
+const execFileAsync = promisify(execFile);
 
 function getJstIsoString(date = new Date()) {
 	const formatter = new Intl.DateTimeFormat("sv-SE", {
@@ -76,22 +79,65 @@ async function getFileSize(filePath) {
 	}
 }
 
-async function main() {
-	await stat(archiveRoot).catch(async () => {
-		throw new Error(`archive directory not found: ${archiveRoot}`);
-	});
+async function listGitTrackedReviewArchiveFiles() {
+	try {
+		const { stdout } = await execFileAsync("git", ["-C", projectRoot, "ls-files", "public/data/reviews"], { encoding: "utf8" });
+		return stdout
+			.split(/\r?\n/)
+			.map((line) => line.trim().replaceAll("\\", "/"))
+			.filter((line) => /^public\/data\/reviews\/\d{4}-\d{2}-\d{2}\/.+\.txt$/.test(line));
+	} catch {
+		return null;
+	}
+}
 
+async function collectReviewArchiveFiles() {
+	const trackedFiles = await listGitTrackedReviewArchiveFiles();
+	if (trackedFiles) {
+		return trackedFiles
+			.map((file) => file.replace(/^public\/data\/reviews\//, ""))
+			.sort();
+	}
+
+	const files = [];
 	const dateDirs = (await readdir(archiveRoot, { withFileTypes: true }))
 		.filter((entry) => entry.isDirectory() && DATE_DIR_PATTERN.test(entry.name))
 		.map((entry) => entry.name)
 		.sort();
 
-	const items = [];
-	const warnings = [];
-
 	for (const date of dateDirs) {
 		const datePath = path.join(archiveRoot, date);
-		const files = (await readdir(datePath, { withFileTypes: true })).filter((entry) => entry.isFile()).map((entry) => entry.name);
+		const dateFiles = (await readdir(datePath, { withFileTypes: true })).filter((entry) => entry.isFile()).map((entry) => entry.name);
+		for (const file of dateFiles) {
+			files.push(`${date}/${file}`);
+		}
+	}
+
+	return files.sort();
+}
+
+async function main() {
+	await stat(archiveRoot).catch(async () => {
+		throw new Error(`archive directory not found: ${archiveRoot}`);
+	});
+
+	const items = [];
+	const warnings = [];
+	const archiveFiles = await collectReviewArchiveFiles();
+	const filesByDate = new Map();
+
+	for (const archiveFile of archiveFiles) {
+		const [date, file] = archiveFile.split("/");
+		if (!DATE_DIR_PATTERN.test(date) || !file) {
+			continue;
+		}
+		const files = filesByDate.get(date) ?? [];
+		files.push(file);
+		filesByDate.set(date, files);
+	}
+
+	for (const [date, files] of Array.from(filesByDate.entries()).sort(([left], [right]) => left.localeCompare(right))) {
+		const datePath = path.join(archiveRoot, date);
 		const slugs = new Set();
 
 		for (const file of files) {

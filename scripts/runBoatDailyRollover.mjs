@@ -1,5 +1,7 @@
+import { execFile } from "node:child_process";
 import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import {
 	formatJstDateKey,
@@ -24,6 +26,7 @@ const BOATRACE_DATA_FILES = {
 	schedule: ["public", "data", "boatrace", "upcoming-schedule.generated.json"],
 	reviewIndex: ["public", "data", "reviews", "index.json"],
 };
+const execFileAsync = promisify(execFile);
 
 function parseArgs(argv) {
 	const options = {
@@ -221,20 +224,58 @@ async function verifyArchive(root, date, options) {
 async function generateReviewIndex(root, options, changedFiles) {
 	const archiveRoot = path.join(root, "public", "data", "reviews");
 	const items = [];
-	let dateDirs = [];
+	let archiveFiles = null;
 
 	try {
-		dateDirs = (await readdir(archiveRoot, { withFileTypes: true }))
-			.filter((entry) => entry.isDirectory() && DATE_DIR_PATTERN.test(entry.name))
-			.map((entry) => entry.name)
-			.sort();
+		const { stdout } = await execFileAsync("git", ["-C", root, "ls-files", "public/data/reviews"], { encoding: "utf8" });
+		archiveFiles = stdout
+			.split(/\r?\n/)
+			.map((line) => line.trim().replaceAll("\\", "/"))
+			.filter((line) => /^public\/data\/reviews\/\d{4}-\d{2}-\d{2}\/.+\.txt$/.test(line))
+			.map((line) => line.replace(/^public\/data\/reviews\//, ""));
 	} catch {
-		dateDirs = [];
+		archiveFiles = null;
 	}
 
-	for (const date of dateDirs) {
+	if (!archiveFiles) {
+		archiveFiles = [];
+		let dateDirs = [];
+		try {
+			dateDirs = (await readdir(archiveRoot, { withFileTypes: true }))
+				.filter((entry) => entry.isDirectory() && DATE_DIR_PATTERN.test(entry.name))
+				.map((entry) => entry.name)
+				.sort();
+		} catch {
+			dateDirs = [];
+		}
+
+		for (const date of dateDirs) {
+			const datePath = path.join(archiveRoot, date);
+			const files = (await readdir(datePath, { withFileTypes: true })).filter((entry) => entry.isFile()).map((entry) => entry.name);
+			archiveFiles.push(...files.map((file) => `${date}/${file}`));
+		}
+	}
+
+	for (const changedFile of changedFiles) {
+		const normalized = changedFile.replaceAll("\\", "/");
+		if (/^public\/data\/reviews\/\d{4}-\d{2}-\d{2}\/.+\.txt$/.test(normalized)) {
+			archiveFiles.push(normalized.replace(/^public\/data\/reviews\//, ""));
+		}
+	}
+
+	const filesByDate = new Map();
+	for (const archiveFile of Array.from(new Set(archiveFiles)).sort()) {
+		const [date, file] = archiveFile.split("/");
+		if (!DATE_DIR_PATTERN.test(date) || !file) {
+			continue;
+		}
+		const files = filesByDate.get(date) ?? [];
+		files.push(file);
+		filesByDate.set(date, files);
+	}
+
+	for (const [date, files] of Array.from(filesByDate.entries()).sort(([left], [right]) => left.localeCompare(right))) {
 		const datePath = path.join(archiveRoot, date);
-		const files = (await readdir(datePath, { withFileTypes: true })).filter((entry) => entry.isFile()).map((entry) => entry.name);
 		const slugs = new Set();
 		for (const file of files) {
 			const match = file.match(FILE_PATTERN);
