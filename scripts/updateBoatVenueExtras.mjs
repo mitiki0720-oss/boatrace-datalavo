@@ -98,6 +98,15 @@ const KOJIMA_VENUE_NAME = "児島";
 const KOJIMA_SOURCE = "kojimaboat.jp";
 const BIWAKO_VENUE_NAME = "びわこ";
 const BIWAKO_SOURCE = "boatrace-biwako.jp";
+const BIWAKO_DATAFILE_URL = "https://www.boatrace-biwako.jp/modules/datafile/";
+const BIWAKO_RESULT_LIST_URL = "https://www.boatrace-biwako.jp/modules/datafile/?page=index_resultlist";
+const BIWAKO_SCORE_RANK_URL = "https://www.boatrace-biwako.jp/modules/raceinfo/?page=index_tokutenrank";
+const BIWAKO_WATER_SURFACE_URL = "https://www.boatrace-biwako.jp/modules/datafile/?page=index_suimen";
+const BIWAKO_TIMERANK_URL = "https://www.boatrace-biwako.jp/modules/raceinfo/?page=index_timerank";
+const BIWAKO_MOTOR_RANK_URL = "https://www.boatrace-biwako.jp/modules/datafile/?page=index_motorrank";
+const BIWAKO_COURSE_URL = "https://www.boatrace-biwako.jp/modules/raceinfo/?page=index_racecourse";
+const BIWAKO_CURRENT_SERIES_URL = "https://www.boatrace-biwako.jp/modules/raceinfo/?page=index_konsetsu";
+const BIWAKO_BOAT_DATA_URL = "https://www.boatrace-biwako.jp/modules/datafile/?page=index_boat";
 const BOATRACE_OFFICIAL_SOURCE = "boatrace.jp";
 const NARUTO_MOTOR_DATA_URL = "https://www.n14.jp/modules/datafile/";
 const NARUTO_TIDE_URL = "https://www.n14.jp/modules/datafile/?page=index_tide_table";
@@ -3084,6 +3093,60 @@ function parseBiwakoPartsExchangeMap(html) {
 	return rowMap;
 }
 
+function parseBiwakoBeforeInfo(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["展示タイム", "体重", "チルト", "部品交換"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+
+	$(table)
+		.find("tbody")
+		.each((_, tbody) => {
+			const trList = $(tbody).find("tr").toArray();
+			const firstCells = $(trList[0]).children("td,th").toArray();
+			const secondCells = trList[1] ? $(trList[1]).children("td,th").toArray() : [];
+			const partsCell = trList[2] ? $(trList[2]).children("td,th").first() : null;
+
+			if (firstCells.length < 7) {
+				return;
+			}
+
+			const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+			if (!frameNo) {
+				return;
+			}
+
+			const identity = parseBiwakoIdentity($, firstCells[1]);
+
+			rows.push({
+				frameNo,
+				registrationNo: identity.registrationNo,
+				registerNo: identity.registrationNo,
+				playerName: identity.playerName,
+				className: identity.className,
+				profile: identity.profile,
+				exhibitionTime: readCellText($, firstCells[2]),
+				weight: readCellText($, firstCells[3]),
+				adjustmentWeight: readCellText($, secondCells[0]),
+				liner: readCellText($, firstCells[4]),
+				transom: readCellText($, firstCells[5]),
+				tilt: readCellText($, firstCells[6]),
+				previousRaceNo: readCellText($, firstCells[7]),
+				previousCourse: readCellText($, firstCells[8]),
+				previousStartTiming: readCellText($, firstCells[9]),
+				previousFinish: readCellText($, firstCells[10]),
+				partsExchange: readCellText($, partsCell),
+				source: BIWAKO_SOURCE,
+			});
+		});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
 function parseBiwakoOriginalExhibition(html) {
 	const $ = load(html);
 	const table =
@@ -3346,6 +3409,489 @@ function parseBiwakoSeriesResults(html) {
 	}
 
 	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseBiwakoTimerank(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["前検タイム", "モーター", "ボート"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 8) {
+				return;
+			}
+
+			const rank = readCellText($, cells[0]);
+			const registrationNo = readCellText($, cells[1]);
+			if (!/^\d+$/.test(rank) || !/^\d{4}$/.test(registrationNo)) {
+				return;
+			}
+
+			rows.push({
+				rank,
+				registrationNo,
+				playerName: readCellText($, cells[2]),
+				motorNo: readCellText($, cells[3]),
+				motorSecondRate: readCellText($, cells[4]),
+				boatNo: readCellText($, cells[5]),
+				boatSecondRate: readCellText($, cells[6]),
+				precheckTime: readCellText($, cells[7]),
+				source: BIWAKO_SOURCE,
+			});
+		});
+
+	return rows;
+}
+
+function parseBiwakoMotorRanking(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["モーター番号", "2連対率", "勝率"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 7) {
+				return;
+			}
+
+			const rank = readCellText($, cells[0]);
+			const motorNo = readCellText($, cells[2]);
+			if (!/^\d+$/.test(rank) || !/^\d+$/.test(motorNo)) {
+				return;
+			}
+
+			rows.push({
+				rank,
+				previousRank: readCellText($, cells[1]).replace(/[()]/g, ""),
+				motorNo,
+				motorSecondRate: readCellText($, cells[3]),
+				motorWinRate: readCellText($, cells[4]),
+				motorFinalCount: readCellText($, cells[5]),
+				motorChampionshipCount: readCellText($, cells[6]),
+				source: BIWAKO_SOURCE,
+			});
+		});
+
+	return rows;
+}
+
+function parseBiwakoBoatData(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["ボート番号", "2連対率", "事故率"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 12) {
+				return;
+			}
+
+			const boatNo = readCellText($, cells[0]);
+			if (!/^\d+$/.test(boatNo)) {
+				return;
+			}
+
+			rows.push({
+				boatNo,
+				calculationPeriod: readCellText($, cells[1]),
+				sections: readCellText($, cells[2]),
+				boatSecondRate: readCellText($, cells[3]),
+				boatWinRate: readCellText($, cells[4]),
+				boatAccidentRate: readCellText($, cells[5]),
+				firstCount: readCellText($, cells[6]),
+				secondCount: readCellText($, cells[7]),
+				thirdCount: readCellText($, cells[8]),
+				boatStarts: readCellText($, cells[9]),
+				boatFinalCount: readCellText($, cells[10]),
+				boatChampionshipCount: readCellText($, cells[11]),
+				source: BIWAKO_SOURCE,
+			});
+		});
+
+	return rows;
+}
+
+function parseBiwakoScoreRanking(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["順位", "登録番号", "得点率", "節間成績"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 7) {
+				return;
+			}
+
+			const rank = readCellText($, cells[0]);
+			const registrationNo = readCellText($, cells[1]);
+			if (!/^\d+$/.test(rank) || !/^\d{4}$/.test(registrationNo)) {
+				return;
+			}
+
+			rows.push({
+				rank,
+				registrationNo,
+				playerName: readCellText($, cells[2]),
+				scoreRate: readCellText($, cells[3]),
+				score: readCellText($, cells[4]),
+				penalty: readCellText($, cells[5]),
+				starts: readCellText($, cells[6]),
+				sectionResults: readCellText($, cells[7]),
+				source: BIWAKO_SOURCE,
+			});
+		});
+
+	return rows;
+}
+
+function parseBiwakoRacerCourseStats(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["進入率", "平均ST", "1着率", "6着率"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	let currentFrameNo = null;
+	let currentPlayerName = "";
+
+	$(table)
+		.find("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length === 11) {
+				currentFrameNo = parseFrameNo(readCellText($, cells[0]));
+				currentPlayerName = readCellText($, cells[1]);
+				if (!currentFrameNo) {
+					return;
+				}
+				rows.push({
+					frameNo: currentFrameNo,
+					playerName: currentPlayerName,
+					course: readCellText($, cells[2]),
+					entryRate: readCellText($, cells[3]),
+					averageStartTiming: readCellText($, cells[4]),
+					firstRate: readCellText($, cells[5]),
+					secondRate: readCellText($, cells[6]),
+					thirdRate: readCellText($, cells[7]),
+					fourthRate: readCellText($, cells[8]),
+					fifthRate: readCellText($, cells[9]),
+					sixthRate: readCellText($, cells[10]),
+					source: BIWAKO_SOURCE,
+				});
+				return;
+			}
+
+			if (cells.length === 9 && currentFrameNo) {
+				rows.push({
+					frameNo: currentFrameNo,
+					playerName: currentPlayerName,
+					course: readCellText($, cells[0]),
+					entryRate: readCellText($, cells[1]),
+					averageStartTiming: readCellText($, cells[2]),
+					firstRate: readCellText($, cells[3]),
+					secondRate: readCellText($, cells[4]),
+					thirdRate: readCellText($, cells[5]),
+					fourthRate: readCellText($, cells[6]),
+					fifthRate: readCellText($, cells[7]),
+					sixthRate: readCellText($, cells[8]),
+					source: BIWAKO_SOURCE,
+				});
+			}
+		});
+
+	return rows;
+}
+
+function parseBiwakoCurrentSeriesCourseStats(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["開催", "コース", "着"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	let currentDayLabel = "";
+
+	$(table)
+		.find("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 7) {
+				return;
+			}
+
+			const hasDay = cells.length >= 8;
+			const offset = hasDay ? 1 : 0;
+			if (hasDay) {
+				currentDayLabel = readCellText($, cells[0]);
+			}
+
+			const course = readCellText($, cells[offset]);
+			if (!/^[1-6]$/.test(course)) {
+				return;
+			}
+
+			rows.push({
+				dayLabel: currentDayLabel,
+				course,
+				firstCount: readCellText($, cells[offset + 1]),
+				secondCount: readCellText($, cells[offset + 2]),
+				thirdCount: readCellText($, cells[offset + 3]),
+				fourthCount: readCellText($, cells[offset + 4]),
+				fifthCount: readCellText($, cells[offset + 5]),
+				sixthCount: readCellText($, cells[offset + 6]),
+				source: BIWAKO_SOURCE,
+			});
+		});
+
+	return rows;
+}
+
+function parseBiwakoCurrentSeriesWinningMethods(html) {
+	const $ = load(html);
+	const table = $("table").toArray().find((element) => compactText($(element).text()).includes("決まり手")) ?? null;
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 7) {
+				return;
+			}
+
+			const dayLabel = readCellText($, cells[0]);
+			if (!dayLabel || dayLabel === "決まり手") {
+				return;
+			}
+
+			rows.push({
+				dayLabel,
+				nige: readCellText($, cells[1]),
+				makuri: readCellText($, cells[2]),
+				sashi: readCellText($, cells[3]),
+				makuriSashi: readCellText($, cells[4]),
+				nuki: readCellText($, cells[5]),
+				megumare: readCellText($, cells[6]),
+				source: BIWAKO_SOURCE,
+			});
+		});
+
+	return rows;
+}
+
+function parseBiwakoWaterSurface(html) {
+	const $ = load(html);
+	const overviewTable = findTableByKeywords($, ["水質", "チルト角度"]);
+	const featureTable = findTableByKeywords($, ["水面特性", "レースの特徴"]);
+
+	const readTwoColumnValue = (table, label) => {
+		if (!table) {
+			return "";
+		}
+
+		let value = "";
+		$(table)
+			.find("tr")
+			.each((_, rowElement) => {
+				const cells = $(rowElement).children("td,th").toArray();
+				if (cells.length < 2 || readCellText($, cells[0]) !== label) {
+					return;
+				}
+
+				value = cells.slice(1).map((cell) => readCellText($, cell)).filter(Boolean).join(" / ");
+			});
+		return value;
+	};
+
+	const waterType = readTwoColumnValue(overviewTable, "水質");
+	const waterLevelChange = readTwoColumnValue(overviewTable, "流れ・水位変化");
+	const allowedTiltAngles = readTwoColumnValue(overviewTable, "チルト角度");
+	const characteristics = readTwoColumnValue(featureTable, "水面特性");
+	const raceCharacteristics = readTwoColumnValue(featureTable, "レースの特徴");
+
+	if (!waterType && !waterLevelChange && !allowedTiltAngles && !characteristics && !raceCharacteristics) {
+		return null;
+	}
+
+	return {
+		waterType,
+		waterLevelChange,
+		allowedTiltAngles,
+		characteristics,
+		raceCharacteristics,
+		surfaceSummary: [waterType ? `水質 ${waterType}` : "", waterLevelChange ? `水位変化 ${waterLevelChange}` : ""].filter(Boolean).join(" / "),
+		featureSummary: characteristics,
+		courseSummary: raceCharacteristics,
+		source: BIWAKO_SOURCE,
+	};
+}
+
+function parseBiwakoResultList(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["レース", "2連勝単式", "3連勝単式"]);
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 5) {
+				return;
+			}
+
+			const raceLabel = readCellText($, cells[0]);
+			const raceNoMatch = raceLabel.match(/^(\d+)R$/);
+			if (!raceNoMatch) {
+				return;
+			}
+
+			rows.push({
+				raceNo: Number(raceNoMatch[1]),
+				exacta: readCellText($, cells[1]),
+				exactaPayout: readCellText($, cells[2]),
+				trifecta: readCellText($, cells[3]),
+				trifectaPayout: readCellText($, cells[4]),
+				note: readCellText($, cells[5]),
+				source: BIWAKO_SOURCE,
+			});
+		});
+
+	return rows;
+}
+
+function getBiwakoRaceEntries(race) {
+	const racers = Array.isArray(race?.racers) ? race.racers : [];
+	return racers
+		.map((racer) => ({
+			frameNo: Number(racer.frameNo ?? racer.frame ?? racer.boatNumber),
+			registrationNo: compactText(racer.registrationNo ?? racer.registerNo ?? racer.racerId),
+			playerName: compactText(racer.playerName ?? racer.name ?? racer.boatRacerName),
+			className: compactText(racer.class ?? racer.grade ?? racer.className),
+			motorNo: compactText(racer.motorNo ?? racer.motorNumber),
+			motorSecondRate: compactText(racer.motorSecondRate ?? racer.motorTwoRate),
+			boatNo: compactText(racer.boatNo ?? racer.boatMotorNo ?? racer.boatEquipmentNo),
+			boatSecondRate: compactText(racer.boatSecondRate ?? racer.boatTwoRate),
+		}))
+		.filter((row) => row.frameNo >= 1 && row.frameNo <= 6);
+}
+
+function findBiwakoByEntry(rows, entry, key) {
+	return rows.find((row) =>
+		(entry.registrationNo && row.registrationNo === entry.registrationNo) ||
+		(entry[key] && row[key] === entry[key]) ||
+		(entry.playerName && row.playerName === entry.playerName)
+	) ?? null;
+}
+
+function createBiwakoMotorSummary(race, timerankRows, motorRows, boatRows) {
+	return getBiwakoRaceEntries(race).map((entry) => {
+		const timerank = findBiwakoByEntry(timerankRows, entry, "registrationNo");
+		const motorNo = timerank?.motorNo || entry.motorNo;
+		const boatNo = timerank?.boatNo || entry.boatNo;
+		const motor = motorRows.find((row) => row.motorNo === motorNo) ?? null;
+		const boat = boatRows.find((row) => row.boatNo === boatNo) ?? null;
+
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			playerName: entry.playerName,
+			className: entry.className,
+			motorNo,
+			motorSecondRate: motor?.motorSecondRate || timerank?.motorSecondRate || entry.motorSecondRate,
+			motorWinRate: motor?.motorWinRate || "",
+			motorFinalCount: motor?.motorFinalCount || "",
+			motorChampionshipCount: motor?.motorChampionshipCount || "",
+			previousRank: motor?.previousRank || "",
+			boatNo,
+			boatSecondRate: boat?.boatSecondRate || timerank?.boatSecondRate || entry.boatSecondRate,
+			boatWinRate: boat?.boatWinRate || "",
+			boatAccidentRate: boat?.boatAccidentRate || "",
+			boatStarts: boat?.boatStarts || "",
+			boatFinalCount: boat?.boatFinalCount || "",
+			boatChampionshipCount: boat?.boatChampionshipCount || "",
+			precheckTime: timerank?.precheckTime || "",
+			comment: [
+				`M${motorNo || "-"} 2連率 ${motor?.motorSecondRate || timerank?.motorSecondRate || entry.motorSecondRate || "-"}`,
+				motor?.motorWinRate ? `勝率 ${motor.motorWinRate}` : "",
+				`B${boatNo || "-"} 2連率 ${boat?.boatSecondRate || timerank?.boatSecondRate || entry.boatSecondRate || "-"}`,
+				timerank?.precheckTime ? `前検 ${timerank.precheckTime}` : "",
+			].filter(Boolean).join(" / "),
+			source: BIWAKO_SOURCE,
+		};
+	});
+}
+
+function createBiwakoRaceScoreRows(race, scoreRows, timerankRows) {
+	return getBiwakoRaceEntries(race).map((entry) => {
+		const scoreRow = findBiwakoByEntry(scoreRows, entry, "registrationNo");
+		const timerank = findBiwakoByEntry(timerankRows, entry, "registrationNo");
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			playerName: entry.playerName,
+			className: entry.className,
+			motorNo: timerank?.motorNo || entry.motorNo,
+			motorSecondRate: timerank?.motorSecondRate || entry.motorSecondRate,
+			boatNo: timerank?.boatNo || entry.boatNo,
+			boatSecondRate: timerank?.boatSecondRate || entry.boatSecondRate,
+			scoreRate: scoreRow?.scoreRate || "",
+			scoreRank: scoreRow?.rank || "",
+			score: scoreRow?.score || "",
+			penalty: scoreRow?.penalty || "",
+			starts: scoreRow?.starts || "",
+			sectionResults: scoreRow?.sectionResults || "",
+			source: scoreRow ? BIWAKO_SOURCE : BOATRACE_OFFICIAL_SOURCE,
+		};
+	});
+}
+
+function createBiwakoRaceCourseStats(race, courseRows) {
+	const entries = getBiwakoRaceEntries(race);
+	const allowedFrames = new Set(entries.map((entry) => entry.frameNo));
+	return courseRows
+		.filter((row) => allowedFrames.has(row.frameNo))
+		.map((row) => ({
+			...row,
+			registrationNo: entries.find((entry) => entry.frameNo === row.frameNo)?.registrationNo || "",
+			playerName: entries.find((entry) => entry.frameNo === row.frameNo)?.playerName || row.playerName,
+		}));
 }
 
 function parseTamagawaEntryTable(html) {
@@ -7592,7 +8138,43 @@ async function createWakamatsuVenue(feed, date) {
 	}
 }
 
-async function fetchBiwakoRaceExtra({ date, raceNo }) {
+function createBiwakoSourceStatus(commonData, raceData) {
+	return {
+		entry: "available",
+		beforeInfo: raceData.beforeInfoRows.length ? "available" : "pending",
+		startExhibition: raceData.startExhibition.length ? "available" : "pending",
+		originalExhibition: raceData.originalExhibition.length ? "available" : "pending",
+		frameLast10: raceData.biwakoFramePast10.length ? "available" : "pending",
+		score: raceData.biwakoScoreRateGuide.length || raceData.scoreQuickLook.length ? "available" : "pending",
+		motor: raceData.motorSummary.length ? "available" : "pending",
+		boat: raceData.motorSummary.some((row) => row.boatNo) ? "available" : "pending",
+		racerCourseStats: raceData.racerCourseStats.length ? "available" : "pending",
+		currentSeriesStats: commonData.currentSeriesCourseStats.length || commonData.currentSeriesWinningMethods.length ? "available" : "pending",
+		waterSurface: commonData.waterSurfaceInfo ? "available" : "pending",
+		resultList: commonData.resultList.length ? "available" : "pending",
+	};
+}
+
+function createBiwakoWarnings(sourceStatus, settledMap) {
+	const warnings = [];
+
+	for (const [label, result] of Object.entries(settledMap)) {
+		if (result?.status === "rejected") {
+			warnings.push(`${label}: ${result.reason?.message ?? "fetch failed"}`);
+		}
+	}
+
+	for (const [label, status] of Object.entries(sourceStatus)) {
+		if (status === "pending") {
+			warnings.push(`${label}: not published or not parsed yet`);
+		}
+	}
+
+	return warnings;
+}
+
+async function fetchBiwakoRaceExtra({ date, race, commonData }) {
+	const raceNo = Number(race?.raceNo);
 	const originalUrl = toBiwakoRaceInfoUrl({ date, raceNo, kind: 2 });
 	const beforeInfoUrl = toBiwakoRaceInfoUrl({ date, raceNo, kind: 0 });
 	const startUrl = toBiwakoRaceInfoUrl({ date, raceNo, kind: 1 });
@@ -7614,6 +8196,7 @@ async function fetchBiwakoRaceExtra({ date, raceNo }) {
 	const frame10Html = settled[4]?.status === "fulfilled" ? settled[4].value : "";
 	const scoreHtml = settled[5]?.status === "fulfilled" ? settled[5].value : "";
 	const partsExchangeMap = parseBiwakoPartsExchangeMap(beforeInfoHtml);
+	const beforeInfoRows = parseBiwakoBeforeInfo(beforeInfoHtml);
 	const originalExhibition = parseBiwakoOriginalExhibition(originalHtml).map((row) => ({
 		...row,
 		partsExchange: partsExchangeMap.get(row.frameNo) ?? "",
@@ -7622,29 +8205,60 @@ async function fetchBiwakoRaceExtra({ date, raceNo }) {
 	const biwakoSeriesResults = parseBiwakoSeriesResults(seriesHtml);
 	const biwakoFramePast10 = parseBiwakoFramePast10(frame10Html);
 	const biwakoScoreRateGuide = parseBiwakoScoreRateGuide(scoreHtml);
-	const officialBeforeInfo = biwakoScoreRateGuide.length
+	const scoreQuickLook = biwakoScoreRateGuide.length
+		? biwakoScoreRateGuide
+		: createBiwakoRaceScoreRows(race, commonData.scoreRanking, commonData.timerankRows);
+	const motorSummary = createBiwakoMotorSummary(race, commonData.timerankRows, commonData.motorRanking, commonData.boatData);
+	const racerCourseStats = createBiwakoRaceCourseStats(race, commonData.racerCourseStats);
+	const sourceStatus = createBiwakoSourceStatus(commonData, {
+		beforeInfoRows,
+		startExhibition,
+		originalExhibition,
+		biwakoFramePast10,
+		biwakoScoreRateGuide,
+		scoreQuickLook,
+		motorSummary,
+		racerCourseStats,
+	});
+	const warnings = createBiwakoWarnings(sourceStatus, {
+		original: settled[0],
+		beforeInfo: settled[1],
+		startExhibition: settled[2],
+		series: settled[3],
+		frameLast10: settled[4],
+		scoreQuickLook: settled[5],
+	});
+	const officialBeforeInfo = beforeInfoRows.length || startExhibition.length || scoreQuickLook.length
 		? {
 				status: "available",
 				source: BIWAKO_SOURCE,
-				scoreQuickLook: biwakoScoreRateGuide,
+				exhibitionRows: beforeInfoRows,
+				startExhibition,
+				scoreQuickLook,
 			}
 		: null;
 
 	console.log(
-		`[venue-extras] biwako ${raceNo}R: exhibition ${originalExhibition.length} / start ${startExhibition.length} / frame10 ${biwakoFramePast10.length} / series ${biwakoSeriesResults.length} / score ${biwakoScoreRateGuide.length}`,
+		`[venue-extras] biwako ${raceNo}R: before ${beforeInfoRows.length} / exhibition ${originalExhibition.length} / start ${startExhibition.length} / frame10 ${biwakoFramePast10.length} / series ${biwakoSeriesResults.length} / score ${scoreQuickLook.length} / motor ${motorSummary.length} / course ${racerCourseStats.length}`,
 	);
 
-	if (!originalExhibition.length && !startExhibition.length && !biwakoFramePast10.length && !biwakoSeriesResults.length && !biwakoScoreRateGuide.length) {
+	if (!beforeInfoRows.length && !originalExhibition.length && !startExhibition.length && !biwakoFramePast10.length && !biwakoSeriesResults.length && !scoreQuickLook.length && !motorSummary.length && !racerCourseStats.length) {
 		return {
 			raceNo,
 			status: "waiting",
 			source: BIWAKO_SOURCE,
 			sourceType: "official-venue-yosou-tabs",
+			sourceStatus,
+			warnings,
+			officialBeforeInfo,
 			startExhibition: [],
 			originalExhibition: [],
+			motorSummary: [],
+			biwakoRacerCourseStats: [],
 			biwakoSeriesResults: [],
 			biwakoFramePast10: [],
 			biwakoScoreRateGuide: [],
+			biwakoScoreRanking: [],
 		};
 	}
 
@@ -7653,12 +8267,17 @@ async function fetchBiwakoRaceExtra({ date, raceNo }) {
 		status: "available",
 		source: BIWAKO_SOURCE,
 		sourceType: "official-venue-yosou-tabs",
+		sourceStatus,
+		warnings,
 		officialBeforeInfo,
 		startExhibition,
 		originalExhibition,
+		motorSummary,
+		biwakoRacerCourseStats: racerCourseStats,
 		biwakoSeriesResults,
 		biwakoFramePast10,
 		biwakoScoreRateGuide,
+		biwakoScoreRanking: scoreQuickLook,
 	};
 }
 
@@ -7673,13 +8292,57 @@ async function createBiwakoVenue(feed, date) {
 	try {
 		const races = getRaceList(biwakoVenue);
 		const raceExtras = [];
+		const commonSettled = await Promise.allSettled([
+			fetchHtml(BIWAKO_DATAFILE_URL),
+			fetchHtml(BIWAKO_RESULT_LIST_URL),
+			fetchHtml(BIWAKO_SCORE_RANK_URL),
+			fetchHtml(BIWAKO_WATER_SURFACE_URL),
+			fetchHtml(BIWAKO_TIMERANK_URL),
+			fetchHtml(BIWAKO_MOTOR_RANK_URL),
+			fetchHtml(BIWAKO_COURSE_URL),
+			fetchHtml(BIWAKO_CURRENT_SERIES_URL),
+			fetchHtml(BIWAKO_BOAT_DATA_URL),
+		]);
+		const commonHtml = commonSettled.map((result) => result.status === "fulfilled" ? result.value : "");
+		const commonData = {
+			resultList: parseBiwakoResultList(commonHtml[1]),
+			scoreRanking: parseBiwakoScoreRanking(commonHtml[2]),
+			waterSurfaceInfo: parseBiwakoWaterSurface(commonHtml[3]),
+			timerankRows: parseBiwakoTimerank(commonHtml[4]),
+			motorRanking: parseBiwakoMotorRanking(commonHtml[5]),
+			racerCourseStats: parseBiwakoRacerCourseStats(commonHtml[6]),
+			currentSeriesCourseStats: parseBiwakoCurrentSeriesCourseStats(commonHtml[7]),
+			currentSeriesWinningMethods: parseBiwakoCurrentSeriesWinningMethods(commonHtml[7]),
+			boatData: parseBiwakoBoatData(commonHtml[8]),
+		};
 
 		for (const race of races) {
-			raceExtras.push(await fetchBiwakoRaceExtra({ date, raceNo: race.raceNo }));
+			raceExtras.push(await fetchBiwakoRaceExtra({ date, race, commonData }));
 			await sleep(REQUEST_INTERVAL_MS);
 		}
 
 		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+		const venueSourceStatus = {
+			resultList: commonData.resultList.length ? "available" : "pending",
+			scoreRanking: commonData.scoreRanking.length ? "available" : "pending",
+			waterSurface: commonData.waterSurfaceInfo ? "available" : "pending",
+			timerank: commonData.timerankRows.length ? "available" : "pending",
+			motorRanking: commonData.motorRanking.length ? "available" : "pending",
+			racerCourseStats: commonData.racerCourseStats.length ? "available" : "pending",
+			currentSeriesStats: commonData.currentSeriesCourseStats.length || commonData.currentSeriesWinningMethods.length ? "available" : "pending",
+			boatData: commonData.boatData.length ? "available" : "pending",
+		};
+		const venueWarnings = createBiwakoWarnings(venueSourceStatus, {
+			seriesIndex: commonSettled[0],
+			resultList: commonSettled[1],
+			scoreRanking: commonSettled[2],
+			waterSurface: commonSettled[3],
+			timerank: commonSettled[4],
+			motorRanking: commonSettled[5],
+			racerCourseStats: commonSettled[6],
+			currentSeriesStats: commonSettled[7],
+			boatData: commonSettled[8],
+		});
 
 		return {
 			venueCode: String(biwakoVenue.venueCode ?? "11"),
@@ -7687,7 +8350,14 @@ async function createBiwakoVenue(feed, date) {
 			source: BIWAKO_SOURCE,
 			isAvailable: availableRaceCount > 0,
 			status: availableRaceCount > 0 ? "available" : "waiting-biwako-data",
-			note: "びわこ公式HPのスタート展示・オリジナル展示・枠番別過去10走・得点率早見を取得",
+			note: "びわこ公式HPの直前情報・スタート展示・オリジナル展示・枠番別過去10走・節間成績・得点率・モーター/ボート・進入コース・水面特性を取得",
+			sourceStatus: venueSourceStatus,
+			warnings: venueWarnings,
+			waterSurfaceInfo: commonData.waterSurfaceInfo,
+			biwakoResultList: commonData.resultList,
+			biwakoScoreRanking: commonData.scoreRanking.slice(0, 60),
+			biwakoCurrentSeriesCourseStats: commonData.currentSeriesCourseStats,
+			biwakoCurrentSeriesWinningMethods: commonData.currentSeriesWinningMethods,
 			races: raceExtras,
 		};
 	} catch (error) {

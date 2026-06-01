@@ -578,6 +578,10 @@ const buildWaterAndCommentsBlock = (
 const extraKeyLabels: Record<string, string> = {
 	biwakoSeriesResults: "びわこ節間成績",
 	biwakoFramePast10: "びわこ枠別過去10走",
+	biwakoRacerCourseStats: "びわこ選手別進入コース成績",
+	biwakoCurrentSeriesCourseStats: "びわこ今節コース傾向",
+	biwakoCurrentSeriesWinningMethods: "びわこ今節決まり手",
+	biwakoScoreRanking: "びわこ得点率ランキング",
 
 	tsuSeriesResults: "津節間成績",
 	tsuNationalRecent3: "津全国直近3節",
@@ -633,6 +637,9 @@ const extraKeyLabels: Record<string, string> = {
 
 const recentPerformanceExtraKeys = [
 	"biwakoSeriesResults",
+	"biwakoScoreRanking",
+	"biwakoCurrentSeriesCourseStats",
+	"biwakoCurrentSeriesWinningMethods",
 	"tsuSeriesResults",
 	"tsuNationalRecent3",
 	"tsuLocalRecent3",
@@ -659,6 +666,7 @@ const recentPerformanceExtraKeys = [
 
 const frameCourseExtraKeys = [
 	"biwakoFramePast10",
+	"biwakoRacerCourseStats",
 	"tsuFramePast10",
 	"wakamatsuCourseStats",
 	"wakamatsuFramePast10",
