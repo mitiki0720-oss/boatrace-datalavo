@@ -10,6 +10,10 @@ export type BuildVenueExtraPanelOptionsInput = VenueExtraVenueFlags & {
 	hasOmuraExhibitionData: boolean;
 	hasBiwakoFramePast10Data: boolean;
 	hasBiwakoSeriesResultsData: boolean;
+	hasBiwakoScoreData: boolean;
+	hasBiwakoCourseStatsData: boolean;
+	hasBiwakoCurrentSeriesData: boolean;
+	hasBiwakoResultListData: boolean;
 	hasTsuBeforeInfoData: boolean;
 	hasTsuRacerCommentsData: boolean;
 	hasTsuSeriesResultsData: boolean;
@@ -140,6 +144,10 @@ export function buildVenueExtraPanelOptions(input: BuildVenueExtraPanelOptionsIn
 
 	appendIf(options, input.isBiwakoVenue, createPanel("biwako-frame10", text.labels.framePast10, text.hints.framePast10, input.hasBiwakoFramePast10Data, text.labels.last10Short));
 	appendIf(options, input.isBiwakoVenue, createPanel("biwako-series", text.labels.interval, text.hints.seriesBiwako, input.hasBiwakoSeriesResultsData, text.labels.intervalShort));
+	appendIf(options, input.isBiwakoVenue, createPanel("biwako-score", text.labels.score, text.hints.scoreBiwako, input.hasBiwakoScoreData, text.labels.scoreShort));
+	appendIf(options, input.isBiwakoVenue, createPanel("biwako-course", text.labels.course, text.hints.courseCompare, input.hasBiwakoCourseStatsData, "進入"));
+	appendIf(options, input.isBiwakoVenue, createPanel("biwako-current", text.labels.overview, text.hints.overview, input.hasBiwakoCurrentSeriesData, text.labels.overviewShort));
+	appendIf(options, input.isBiwakoVenue, createPanel("biwako-result", text.labels.recent, text.hints.recent, input.hasBiwakoResultListData, text.labels.recentShort));
 
 	return options;
 }

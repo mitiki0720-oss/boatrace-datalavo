@@ -38,6 +38,10 @@ export type CreateVenueExtraPanelFlagsInput = {
 	hasOmuraExhibitionData: boolean;
 	hasBiwakoFramePast10Data: boolean;
 	hasBiwakoSeriesResultsData: boolean;
+	hasBiwakoScoreData: boolean;
+	hasBiwakoCourseStatsData: boolean;
+	hasBiwakoCurrentSeriesData: boolean;
+	hasBiwakoResultListData: boolean;
 	hasTsuBeforeInfoData: boolean;
 	hasTsuRacerCommentsData: boolean;
 	hasTsuSeriesResultsData: boolean;
@@ -116,6 +120,10 @@ export type ResolvePreferredVenueExtraPanelInput = VenueExtraVenueFlags & VenueE
 	hasTamagawaScoreRateGuideData: boolean;
 	hasBiwakoFramePast10Data: boolean;
 	hasBiwakoSeriesResultsData: boolean;
+	hasBiwakoScoreData: boolean;
+	hasBiwakoCourseStatsData: boolean;
+	hasBiwakoCurrentSeriesData: boolean;
+	hasBiwakoResultListData: boolean;
 };
 
 export type ResolveInitialVenueExtraPanelInput = Pick<
@@ -152,6 +160,10 @@ export function createVenueExtraPanelFlags(input: CreateVenueExtraPanelFlagsInpu
 		input.hasOmuraExhibitionData ||
 		input.hasBiwakoFramePast10Data ||
 		input.hasBiwakoSeriesResultsData ||
+		input.hasBiwakoScoreData ||
+		input.hasBiwakoCourseStatsData ||
+		input.hasBiwakoCurrentSeriesData ||
+		input.hasBiwakoResultListData ||
 		input.hasTsuBeforeInfoData ||
 		input.hasTsuRacerCommentsData ||
 		input.hasTsuSeriesResultsData ||
@@ -473,6 +485,22 @@ export function resolvePreferredVenueExtraPanel(input: ResolvePreferredVenueExtr
 
 		if (input.hasBiwakoSeriesResultsData) {
 			return "biwako-series";
+		}
+
+		if (input.hasBiwakoScoreData) {
+			return "biwako-score";
+		}
+
+		if (input.hasBiwakoCourseStatsData) {
+			return "biwako-course";
+		}
+
+		if (input.hasBiwakoCurrentSeriesData) {
+			return "biwako-current";
+		}
+
+		if (input.hasBiwakoResultListData) {
+			return "biwako-result";
 		}
 
 		if (input.hasRecordsPanelData) {

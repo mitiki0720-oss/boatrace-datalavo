@@ -1148,6 +1148,66 @@ type BoatBiwakoFramePast10Row = {
 	source?: string | undefined;
 };
 
+type BoatBiwakoScoreRateGuideRow = BoatOfficialBeforeInfoScoreRow & {
+	scoreRank: string;
+	scoreAfterFirst: string;
+	scoreAfterSecond: string;
+	scoreAfterThird: string;
+	scoreAfterFourth: string;
+	scoreAfterFifth: string;
+	scoreAfterSixth: string;
+	scoreBorder: string;
+};
+
+type BoatBiwakoRacerCourseStatsRow = {
+	frameNo: number;
+	registrationNo: string;
+	playerName: string;
+	course: string;
+	entryRate: string;
+	averageStartTiming: string;
+	firstRate: string;
+	secondRate: string;
+	thirdRate: string;
+	fourthRate: string;
+	fifthRate: string;
+	sixthRate: string;
+	source?: string | undefined;
+};
+
+type BoatBiwakoCurrentSeriesCourseStatsRow = {
+	dayLabel: string;
+	course: string;
+	firstCount: string;
+	secondCount: string;
+	thirdCount: string;
+	fourthCount: string;
+	fifthCount: string;
+	sixthCount: string;
+	source?: string | undefined;
+};
+
+type BoatBiwakoCurrentSeriesWinningMethodRow = {
+	dayLabel: string;
+	nige: string;
+	makuri: string;
+	sashi: string;
+	makuriSashi: string;
+	nuki: string;
+	megumare: string;
+	source?: string | undefined;
+};
+
+type BoatBiwakoResultListRow = {
+	raceNo: number;
+	exacta: string;
+	exactaPayout: string;
+	trifecta: string;
+	trifectaPayout: string;
+	note: string;
+	source?: string | undefined;
+};
+
 type BoatTsuBeforeInfoRow = {
 	frameNo: number;
 	registerNo: string;
@@ -3140,6 +3200,153 @@ function getBiwakoFramePast10(raceExtra: BoatVenueExtraRace | null): BoatBiwakoF
 		})
 		.filter(isPresent)
 		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getBiwakoScoreRateGuide(raceExtra: BoatVenueExtraRace | null): BoatBiwakoScoreRateGuideRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.biwakoScoreRateGuide)) {
+		return [];
+	}
+
+	return raceExtra.biwakoScoreRateGuide
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				registrationNo: readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName),
+				className: readVenueExtraString(item.className),
+				averageStart: readVenueExtraString(item.averageStart),
+				winRate: readVenueExtraString(item.winRate),
+				secondRate: readVenueExtraString(item.secondRate),
+				localWinRate: readVenueExtraString(item.localWinRate),
+				localSecondRate: readVenueExtraString(item.localSecondRate),
+				motorNo: readVenueExtraString(item.motorNo),
+				motorSecondRate: readVenueExtraString(item.motorSecondRate),
+				scoreRate: readVenueExtraString(item.scoreRate),
+				sectionResults: readVenueExtraString(item.sectionResults),
+				scoreRank: readVenueExtraString(item.scoreRank),
+				scoreAfterFirst: readVenueExtraString(item.scoreAfterFirst),
+				scoreAfterSecond: readVenueExtraString(item.scoreAfterSecond),
+				scoreAfterThird: readVenueExtraString(item.scoreAfterThird),
+				scoreAfterFourth: readVenueExtraString(item.scoreAfterFourth),
+				scoreAfterFifth: readVenueExtraString(item.scoreAfterFifth),
+				scoreAfterSixth: readVenueExtraString(item.scoreAfterSixth),
+				scoreBorder: readVenueExtraString(item.scoreBorder),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getBiwakoRacerCourseStats(raceExtra: BoatVenueExtraRace | null): BoatBiwakoRacerCourseStatsRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.biwakoRacerCourseStats)) {
+		return [];
+	}
+
+	return raceExtra.biwakoRacerCourseStats
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const frameNo = readVenueExtraNumber(item.frameNo);
+			const course = readVenueExtraString(item.course);
+
+			if (!frameNo || !course) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				registrationNo: readVenueExtraString(item.registrationNo),
+				playerName: readVenueExtraString(item.playerName),
+				course,
+				entryRate: readVenueExtraString(item.entryRate),
+				averageStartTiming: readVenueExtraString(item.averageStartTiming),
+				firstRate: readVenueExtraString(item.firstRate),
+				secondRate: readVenueExtraString(item.secondRate),
+				thirdRate: readVenueExtraString(item.thirdRate),
+				fourthRate: readVenueExtraString(item.fourthRate),
+				fifthRate: readVenueExtraString(item.fifthRate),
+				sixthRate: readVenueExtraString(item.sixthRate),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.frameNo - right.frameNo || Number(left.course) - Number(right.course));
+}
+
+function getBiwakoCurrentSeriesCourseStats(venueExtra: BoatVenueExtraVenue | null): BoatBiwakoCurrentSeriesCourseStatsRow[] {
+	if (!venueExtra || !Array.isArray(venueExtra.biwakoCurrentSeriesCourseStats)) {
+		return [];
+	}
+
+	return venueExtra.biwakoCurrentSeriesCourseStats
+		.filter(isVenueExtraRecord)
+		.map((item) => ({
+			dayLabel: readVenueExtraString(item.dayLabel),
+			course: readVenueExtraString(item.course),
+			firstCount: readVenueExtraString(item.firstCount),
+			secondCount: readVenueExtraString(item.secondCount),
+			thirdCount: readVenueExtraString(item.thirdCount),
+			fourthCount: readVenueExtraString(item.fourthCount),
+			fifthCount: readVenueExtraString(item.fifthCount),
+			sixthCount: readVenueExtraString(item.sixthCount),
+			source: readVenueExtraString(item.source) || undefined,
+		}))
+		.filter((item) => item.dayLabel && item.course);
+}
+
+function getBiwakoCurrentSeriesWinningMethods(venueExtra: BoatVenueExtraVenue | null): BoatBiwakoCurrentSeriesWinningMethodRow[] {
+	if (!venueExtra || !Array.isArray(venueExtra.biwakoCurrentSeriesWinningMethods)) {
+		return [];
+	}
+
+	return venueExtra.biwakoCurrentSeriesWinningMethods
+		.filter(isVenueExtraRecord)
+		.map((item) => ({
+			dayLabel: readVenueExtraString(item.dayLabel),
+			nige: readVenueExtraString(item.nige),
+			makuri: readVenueExtraString(item.makuri),
+			sashi: readVenueExtraString(item.sashi),
+			makuriSashi: readVenueExtraString(item.makuriSashi),
+			nuki: readVenueExtraString(item.nuki),
+			megumare: readVenueExtraString(item.megumare),
+			source: readVenueExtraString(item.source) || undefined,
+		}))
+		.filter((item) => item.dayLabel);
+}
+
+function getBiwakoResultList(venueExtra: BoatVenueExtraVenue | null): BoatBiwakoResultListRow[] {
+	if (!venueExtra || !Array.isArray(venueExtra.biwakoResultList)) {
+		return [];
+	}
+
+	return venueExtra.biwakoResultList
+		.filter(isVenueExtraRecord)
+		.map((item) => {
+			const raceNo = readVenueExtraNumber(item.raceNo);
+
+			if (!raceNo) {
+				return null;
+			}
+
+			return {
+				raceNo,
+				exacta: readVenueExtraString(item.exacta),
+				exactaPayout: readVenueExtraString(item.exactaPayout),
+				trifecta: readVenueExtraString(item.trifecta),
+				trifectaPayout: readVenueExtraString(item.trifectaPayout),
+				note: readVenueExtraString(item.note),
+				source: readVenueExtraString(item.source) || undefined,
+			};
+		})
+		.filter(isPresent)
+		.sort((left, right) => left.raceNo - right.raceNo);
 }
 
 function getTsuBeforeInfo(raceExtra: BoatVenueExtraRace | null): BoatTsuBeforeInfoRow[] {
@@ -5515,6 +5722,31 @@ const selectedBiwakoFramePast10 = useMemo(
 	[selectedRaceExtra],
 );
 
+const selectedBiwakoScoreRateGuide = useMemo(
+	() => getBiwakoScoreRateGuide(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedBiwakoRacerCourseStats = useMemo(
+	() => getBiwakoRacerCourseStats(selectedRaceExtra),
+	[selectedRaceExtra],
+);
+
+const selectedBiwakoCurrentSeriesCourseStats = useMemo(
+	() => getBiwakoCurrentSeriesCourseStats(selectedVenueExtra),
+	[selectedVenueExtra],
+);
+
+const selectedBiwakoCurrentSeriesWinningMethods = useMemo(
+	() => getBiwakoCurrentSeriesWinningMethods(selectedVenueExtra),
+	[selectedVenueExtra],
+);
+
+const selectedBiwakoResultList = useMemo(
+	() => getBiwakoResultList(selectedVenueExtra),
+	[selectedVenueExtra],
+);
+
 const selectedTsuBeforeInfo = useMemo(
 	() => getTsuBeforeInfo(selectedRaceExtra),
 	[selectedRaceExtra],
@@ -5791,6 +6023,10 @@ const hasOmuraCommentsMotorData = selectedOmuraRacerCommentsMotor.length > 0;
 const hasOmuraExhibitionData = omuraExhibitionInfoDisplay.length >= 6;
 const hasBiwakoFramePast10Data = selectedBiwakoFramePast10.length > 0;
 const hasBiwakoSeriesResultsData = selectedBiwakoSeriesResults.length > 0;
+const hasBiwakoScoreData = Boolean(selectedBiwakoScoreRateGuide.length || selectedOfficialBeforeInfo?.scoreQuickLook.length);
+const hasBiwakoCourseStatsData = selectedBiwakoRacerCourseStats.length > 0;
+const hasBiwakoCurrentSeriesData = selectedBiwakoCurrentSeriesCourseStats.length > 0 || selectedBiwakoCurrentSeriesWinningMethods.length > 0;
+const hasBiwakoResultListData = selectedBiwakoResultList.length > 0;
 const hasTsuBeforeInfoData = selectedTsuBeforeInfo.length > 0;
 const hasTsuRacerCommentsData = selectedTsuRacerComments.length > 0;
 const hasTsuSeriesResultsData = selectedTsuSeriesResults.length > 0;
@@ -5924,6 +6160,10 @@ const venueExtraPanelFlags = useMemo(
 		hasOmuraExhibitionData,
 		hasBiwakoFramePast10Data,
 		hasBiwakoSeriesResultsData,
+		hasBiwakoScoreData,
+		hasBiwakoCourseStatsData,
+		hasBiwakoCurrentSeriesData,
+		hasBiwakoResultListData,
 		hasTsuBeforeInfoData,
 		hasTsuRacerCommentsData,
 		hasTsuSeriesResultsData,
@@ -5987,6 +6227,10 @@ const venueExtraPanelFlags = useMemo(
 		hasOmuraExhibitionData,
 		hasBiwakoFramePast10Data,
 		hasBiwakoSeriesResultsData,
+		hasBiwakoScoreData,
+		hasBiwakoCourseStatsData,
+		hasBiwakoCurrentSeriesData,
+		hasBiwakoResultListData,
 		hasTsuBeforeInfoData,
 		hasTsuRacerCommentsData,
 		hasTsuSeriesResultsData,
@@ -6038,6 +6282,65 @@ const hasOfficialWeightData = Boolean(selectedOfficialBeforeInfo?.exhibitionRows
 const tamagawaScoreRows = selectedTamagawaScoreRateGuide.length
 	? selectedTamagawaScoreRateGuide
 	: selectedOfficialBeforeInfo?.scoreQuickLook ?? [];
+
+const biwakoScoreRows = useMemo(() => {
+	const officialRows = selectedOfficialBeforeInfo?.scoreQuickLook ?? [];
+	const officialByFrameNo = new Map(officialRows.map((row) => [row.frameNo, row] as const));
+
+	if (selectedBiwakoScoreRateGuide.length === 0) {
+		return officialRows.map((row) => ({
+			frameNo: row.frameNo,
+			registrationNo: row.registrationNo,
+			playerName: row.playerName,
+			className: row.className,
+			averageStart: row.averageStart,
+			winRate: row.winRate,
+			secondRate: row.secondRate,
+			localWinRate: row.localWinRate,
+			localSecondRate: row.localSecondRate,
+			motorNo: row.motorNo,
+			motorSecondRate: row.motorSecondRate,
+			scoreRate: row.scoreRate || "",
+			scoreRank: "",
+			scoreBorder: "",
+			scoreAfterFirst: "",
+			scoreAfterSecond: "",
+			scoreAfterThird: "",
+			scoreAfterFourth: "",
+			scoreAfterFifth: "",
+			scoreAfterSixth: "",
+			source: row.source,
+		}));
+	}
+
+	return selectedBiwakoScoreRateGuide.map((row) => {
+		const officialRow = officialByFrameNo.get(row.frameNo);
+
+		return {
+			frameNo: row.frameNo,
+			registrationNo: row.registrationNo || officialRow?.registrationNo || "",
+			playerName: row.playerName || officialRow?.playerName || "",
+			className: row.className || officialRow?.className || "",
+			averageStart: row.averageStart || officialRow?.averageStart || "",
+			winRate: row.winRate || officialRow?.winRate || "",
+			secondRate: row.secondRate || officialRow?.secondRate || "",
+			localWinRate: row.localWinRate || officialRow?.localWinRate || "",
+			localSecondRate: row.localSecondRate || officialRow?.localSecondRate || "",
+			motorNo: row.motorNo || officialRow?.motorNo || "",
+			motorSecondRate: row.motorSecondRate || officialRow?.motorSecondRate || "",
+			scoreRate: row.scoreRate || officialRow?.scoreRate || "",
+			scoreRank: row.scoreRank || "",
+			scoreBorder: row.scoreBorder || "",
+			scoreAfterFirst: row.scoreAfterFirst || "",
+			scoreAfterSecond: row.scoreAfterSecond || "",
+			scoreAfterThird: row.scoreAfterThird || "",
+			scoreAfterFourth: row.scoreAfterFourth || "",
+			scoreAfterFifth: row.scoreAfterFifth || "",
+			scoreAfterSixth: row.scoreAfterSixth || "",
+			source: row.source || officialRow?.source,
+		};
+	}).sort((left, right) => left.frameNo - right.frameNo);
+}, [selectedOfficialBeforeInfo, selectedBiwakoScoreRateGuide]);
 
 const tsuScoreRows = useMemo(() => {
 	const officialRows = selectedOfficialBeforeInfo?.scoreQuickLook ?? [];
@@ -6308,6 +6611,10 @@ const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(
 		hasTamagawaScoreRateGuideData,
 		hasBiwakoFramePast10Data,
 		hasBiwakoSeriesResultsData,
+		hasBiwakoScoreData,
+		hasBiwakoCourseStatsData,
+		hasBiwakoCurrentSeriesData,
+		hasBiwakoResultListData,
 	}),
 	[
 		isNarutoVenue,
@@ -6360,6 +6667,10 @@ const preferredVenueExtraPanel = useMemo<VenueExtraPanelKey>(
 		hasTamagawaScoreRateGuideData,
 		hasBiwakoFramePast10Data,
 		hasBiwakoSeriesResultsData,
+		hasBiwakoScoreData,
+		hasBiwakoCourseStatsData,
+		hasBiwakoCurrentSeriesData,
+		hasBiwakoResultListData,
 	],
 );
 
@@ -6403,6 +6714,10 @@ const venueExtraPanelOptions = useMemo(
 		hasOmuraExhibitionData,
 		hasBiwakoFramePast10Data,
 		hasBiwakoSeriesResultsData,
+		hasBiwakoScoreData,
+		hasBiwakoCourseStatsData,
+		hasBiwakoCurrentSeriesData,
+		hasBiwakoResultListData,
 		hasTsuBeforeInfoData,
 		hasTsuRacerCommentsData,
 		hasTsuSeriesResultsData,
@@ -6452,6 +6767,10 @@ const venueExtraPanelOptions = useMemo(
 		isBiwakoVenue,
 	    hasBiwakoFramePast10Data,
 		hasBiwakoSeriesResultsData,
+		hasBiwakoScoreData,
+		hasBiwakoCourseStatsData,
+		hasBiwakoCurrentSeriesData,
+		hasBiwakoResultListData,
 	    hasOmuraPreviousDayData,
 		hasOmuraNationalFrameStatsData,
 		hasOmuraFrameLast10Data,
@@ -9672,6 +9991,225 @@ body:has(.races-page-root) {
 				</div>
 			) : (
 				<p style={venueExtrasEmptyStyle}>びわこ公式の節間成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isBiwakoVenue && selectedVenueExtraPanel === "biwako-score" ? (
+			hasBiwakoScoreData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>得点率早見</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1320px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>登録番号</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>級別</th>
+										<th style={venueExtrasHeadCellStyle}>得点率</th>
+										<th style={venueExtrasHeadCellStyle}>順位</th>
+										<th style={venueExtrasHeadCellStyle}>1着後</th>
+										<th style={venueExtrasHeadCellStyle}>2着後</th>
+										<th style={venueExtrasHeadCellStyle}>3着後</th>
+										<th style={venueExtrasHeadCellStyle}>4着後</th>
+										<th style={venueExtrasHeadCellStyle}>5着後</th>
+										<th style={venueExtrasHeadCellStyle}>6着後</th>
+										<th style={venueExtrasHeadCellStyle}>ボーダー</th>
+									</tr>
+								</thead>
+								<tbody>
+									{biwakoScoreRows.map((item) => (
+										<tr key={`biwako-score-${item.frameNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.registrationNo || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.playerName || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.className || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.scoreRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.scoreRank || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.scoreAfterFirst || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.scoreAfterSecond || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.scoreAfterThird || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.scoreAfterFourth || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.scoreAfterFifth || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.scoreAfterSixth || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.scoreBorder || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>びわこ公式の得点率早見は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isBiwakoVenue && selectedVenueExtraPanel === "biwako-course" ? (
+			hasBiwakoCourseStatsData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>選手別進入コース成績</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "1320px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>枠</th>
+										<th style={venueExtrasHeadCellStyle}>選手</th>
+										<th style={venueExtrasHeadCellStyle}>コース</th>
+										<th style={venueExtrasHeadCellStyle}>進入率</th>
+										<th style={venueExtrasHeadCellStyle}>平均ST</th>
+										<th style={venueExtrasHeadCellStyle}>1着</th>
+										<th style={venueExtrasHeadCellStyle}>2着</th>
+										<th style={venueExtrasHeadCellStyle}>3着</th>
+										<th style={venueExtrasHeadCellStyle}>4着</th>
+										<th style={venueExtrasHeadCellStyle}>5着</th>
+										<th style={venueExtrasHeadCellStyle}>6着</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedBiwakoRacerCourseStats.map((item) => (
+										<tr key={`biwako-course-${item.frameNo}-${item.course}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+											<td style={venueExtrasBodyCellStyle}>
+												<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
+													<strong>{item.playerName || `枠${item.frameNo}`}</strong>
+													<span style={{ fontSize: "0.72rem", color: boatTheme.colors.muted }}>
+														{item.registrationNo || "-"}
+													</span>
+												</div>
+											</td>
+											<td style={venueExtrasBodyCellStyle}>{item.course || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.entryRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.averageStartTiming || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.firstRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.secondRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.thirdRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.fourthRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.fifthRate || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.sixthRate || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>びわこ公式の進入コース別選手成績は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isBiwakoVenue && selectedVenueExtraPanel === "biwako-current" ? (
+			hasBiwakoCurrentSeriesData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>今節の進入コース別成績</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "980px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>日</th>
+										<th style={venueExtrasHeadCellStyle}>コース</th>
+										<th style={venueExtrasHeadCellStyle}>1着</th>
+										<th style={venueExtrasHeadCellStyle}>2着</th>
+										<th style={venueExtrasHeadCellStyle}>3着</th>
+										<th style={venueExtrasHeadCellStyle}>4着</th>
+										<th style={venueExtrasHeadCellStyle}>5着</th>
+										<th style={venueExtrasHeadCellStyle}>6着</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedBiwakoCurrentSeriesCourseStats.map((item) => (
+										<tr key={`biwako-current-course-${item.dayLabel}-${item.course}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.dayLabel || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.course || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.firstCount || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.secondCount || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.thirdCount || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.fourthCount || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.fifthCount || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.sixthCount || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>今節の決まり手</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "860px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>日</th>
+										<th style={venueExtrasHeadCellStyle}>逃げ</th>
+										<th style={venueExtrasHeadCellStyle}>まくり</th>
+										<th style={venueExtrasHeadCellStyle}>差し</th>
+										<th style={venueExtrasHeadCellStyle}>まくり差し</th>
+										<th style={venueExtrasHeadCellStyle}>抜き</th>
+										<th style={venueExtrasHeadCellStyle}>恵まれ</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedBiwakoCurrentSeriesWinningMethods.map((item) => (
+										<tr key={`biwako-current-method-${item.dayLabel}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.dayLabel || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.nige || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.makuri || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.sashi || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.makuriSashi || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.nuki || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.megumare || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>びわこ公式の今節傾向は未取得待ちです。</p>
+			)
+		) : null}
+
+		{isBiwakoVenue && selectedVenueExtraPanel === "biwako-result" ? (
+			hasBiwakoResultListData ? (
+				<div style={venueExtrasDataGridStyle}>
+					<section style={venueExtrasPanelStyle}>
+						<h4 style={venueExtrasPanelTitleStyle}>今節の結果一覧</h4>
+						<div style={venueExtrasTableWrapStyle}>
+							<table style={{ ...venueExtrasTableStyle, minWidth: "760px" }}>
+								<thead>
+									<tr>
+										<th style={venueExtrasHeadCellStyle}>R</th>
+										<th style={venueExtrasHeadCellStyle}>2連単</th>
+										<th style={venueExtrasHeadCellStyle}>払戻</th>
+										<th style={venueExtrasHeadCellStyle}>3連単</th>
+										<th style={venueExtrasHeadCellStyle}>払戻</th>
+										<th style={venueExtrasHeadCellStyle}>備考</th>
+									</tr>
+								</thead>
+								<tbody>
+									{selectedBiwakoResultList.map((item) => (
+										<tr key={`biwako-result-${item.raceNo}`}>
+											<td style={venueExtrasBodyCellStyle}>{item.raceNo}R</td>
+											<td style={venueExtrasBodyCellStyle}>{item.exacta || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.exactaPayout || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.trifecta || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.trifectaPayout || "-"}</td>
+											<td style={venueExtrasBodyCellStyle}>{item.note || "-"}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				</div>
+			) : (
+				<p style={venueExtrasEmptyStyle}>びわこ公式の今節結果一覧は未取得待ちです。</p>
 			)
 		) : null}
 
