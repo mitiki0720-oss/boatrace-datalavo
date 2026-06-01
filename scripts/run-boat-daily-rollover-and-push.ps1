@@ -135,13 +135,21 @@ function Get-PruneTargetDate {
 }
 
 function Select-AllowedRolloverFiles {
-	param([string[]]$Candidates)
+	param(
+		[string[]]$Candidates,
+		[string]$ArchiveDate = ""
+	)
 
 	$allowed = New-Object System.Collections.Generic.List[string]
 	foreach ($candidate in $Candidates) {
 		$path = $candidate.Replace("\", "/")
+		$archivePattern = if ($ArchiveDate) {
+			"^public/data/reviews/$([regex]::Escape($ArchiveDate))/[^/]+-(predictions|results|summary)\.txt$"
+		} else {
+			"^public/data/reviews/\d{4}-\d{2}-\d{2}/[^/]+-(predictions|results|summary)\.txt$"
+		}
 		if ($path -eq "public/data/reviews/index.json" -or
-			$path -match "^public/data/reviews/\d{4}-\d{2}-\d{2}/[^/]+-(predictions|results|summary)\.txt$" -or
+			$path -match $archivePattern -or
 			$path -eq "public/data/boatrace/today.generated.json" -or
 			$path -eq "public/data/boatrace/today-race-details.generated.json" -or
 			$path -eq "public/data/boatrace/venue-extras.generated.json" -or
@@ -153,23 +161,33 @@ function Select-AllowedRolloverFiles {
 	return @($allowed | Sort-Object -Unique)
 }
 
-function Get-GitDirtyPathSet {
-	$set = @{}
-	$status = & git -C $RepoRoot status --porcelain -uall
-	foreach ($line in $status) {
-		if ($line.Length -lt 4) {
-			continue
-		}
-		$pathText = $line.Substring(3).Trim()
-		if ($pathText -match " -> ") {
-			$pathText = ($pathText -split " -> ")[-1]
-		}
-		$pathText = $pathText.Trim('"').Replace("\", "/")
-		if ($pathText) {
-			$set[$pathText] = $true
-		}
+function Get-StagedFiles {
+	$files = & git -C $RepoRoot diff --cached --name-only
+	return @($files | ForEach-Object { $_.Replace("\", "/") } | Where-Object { $_ })
+}
+
+function Assert-StagedFilesAreAllowed {
+	param([string[]]$AllowedFiles)
+
+	$allowedSet = @{}
+	foreach ($file in $AllowedFiles) {
+		$allowedSet[$file] = $true
 	}
-	return $set
+
+	$stagedFiles = Get-StagedFiles
+	$unexpected = @($stagedFiles | Where-Object { -not $allowedSet.ContainsKey($_) })
+	if ($unexpected.Count -gt 0) {
+		Write-Step "unexpected staged files detected; skip commit/push"
+		foreach ($file in $unexpected) {
+			Write-Step "unexpected staged: $file"
+		}
+		exit 1
+	}
+
+	Write-Step "staged rollover files:"
+	foreach ($file in $stagedFiles) {
+		Write-Step $file
+	}
 }
 
 Set-Location -LiteralPath $RepoRoot
@@ -188,8 +206,9 @@ if ($DryRun) {
 		Stop-Safely "DryRun: rollover dry-run failed"
 	}
 	$candidates = Get-RolloverCandidates -Output $dry.Output
-	$allowed = Select-AllowedRolloverFiles -Candidates $candidates
-	Write-Step "DryRun archive target: $(Get-ArchiveTargetDate -Output $dry.Output)"
+	$archiveDate = Get-ArchiveTargetDate -Output $dry.Output
+	$allowed = Select-AllowedRolloverFiles -Candidates $candidates -ArchiveDate $archiveDate
+	Write-Step "DryRun archive target: $archiveDate"
 	Write-Step "DryRun prune target: $(Get-PruneTargetDate -Output $dry.Output)"
 	Write-Step "DryRun add planned files:"
 	foreach ($file in $allowed) {
@@ -203,7 +222,17 @@ if ($DryRun) {
 	exit 0
 }
 
-$preRolloverDirtyPaths = Get-GitDirtyPathSet
+Write-Step "sync latest main before rollover"
+& git -C $RepoRoot fetch origin main
+if ($LASTEXITCODE -ne 0) {
+	Stop-Safely "git fetch failed before rollover"
+}
+
+& git -C $RepoRoot rebase --autostash origin/main
+if ($LASTEXITCODE -ne 0) {
+	Stop-Safely "git rebase failed or conflicted before rollover; force push is disabled"
+}
+Write-Step "latest main synced"
 
 $rollover = Invoke-LoggedCommand -FilePath "npm.cmd" -Arguments @("run", "rollover:boat-daily")
 if ($rollover.ExitCode -ne 0) {
@@ -224,28 +253,24 @@ if ($rolloverOutput -match "prune active data") {
 	Write-Step "active prune completed"
 }
 
+$archiveDate = Get-ArchiveTargetDate -Output $rolloverOutput
 $candidates = Get-RolloverCandidates -Output $rolloverOutput
-$allowedFiles = Select-AllowedRolloverFiles -Candidates $candidates
+$allowedFiles = Select-AllowedRolloverFiles -Candidates $candidates -ArchiveDate $archiveDate
 
 if ($allowedFiles.Count -eq 0) {
 	Write-Step "no allowed rollover files changed; exit without commit"
 	exit 0
 }
 
-$preExistingAllowedFiles = @($allowedFiles | Where-Object { $preRolloverDirtyPaths.ContainsKey($_) })
-if ($preExistingAllowedFiles.Count -gt 0) {
-	Write-Step "pre-existing dirty rollover files detected; skip commit/push to avoid mixing manual work"
-	foreach ($file in $preExistingAllowedFiles) {
-		Write-Step "pre-existing dirty: $file"
-	}
-	exit 1
-}
+Write-Step "pre-existing allowed rollover changes detected: include in rollover commit"
 
 Write-Step "git add selected rollover files"
 & git -C $RepoRoot add -- @allowedFiles
 if ($LASTEXITCODE -ne 0) {
 	Stop-Safely "git add failed"
 }
+
+Assert-StagedFilesAreAllowed -AllowedFiles $allowedFiles
 
 & git -C $RepoRoot diff --cached --quiet
 if ($LASTEXITCODE -eq 0) {
