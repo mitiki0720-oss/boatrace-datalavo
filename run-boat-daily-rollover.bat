@@ -1,4 +1,4 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-npm.cmd run rollover:boat-daily -- %*
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\run-boat-daily-rollover-and-push.ps1" %*
