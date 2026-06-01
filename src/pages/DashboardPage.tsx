@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import {
+	filterBoatUpcomingScheduleByDateRange,
 	loadBoatTodayFeed,
 	loadBoatUpcomingSchedule,
 	type BoatUpcomingScheduleItem,
@@ -535,7 +536,7 @@ export function DashboardPage() {
 			}
 
 			if (scheduleResult) {
-				setUpcomingSchedules(scheduleResult.items ?? []);
+				setUpcomingSchedules(filterBoatUpcomingScheduleByDateRange(scheduleResult.items ?? []));
 				setUpcomingUpdatedAt(scheduleResult.generatedAt ?? "");
 			}
 		};

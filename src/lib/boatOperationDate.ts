@@ -1,4 +1,5 @@
 const JST_TIME_ZONE = "Asia/Tokyo";
+export const BOAT_OPERATIONAL_DAY_ROLLOVER_HOUR = 6;
 
 export function formatBoatOperationDate(date: Date): string {
 	return new Intl.DateTimeFormat("sv-SE", {
@@ -10,14 +11,15 @@ export function formatBoatOperationDate(date: Date): string {
 }
 
 export function getBoatOperationDate(baseDate = new Date()): string {
-	const hour = Number(new Intl.DateTimeFormat("ja-JP", {
+	const hourPart = new Intl.DateTimeFormat("ja-JP", {
 		timeZone: JST_TIME_ZONE,
 		hour: "2-digit",
 		hour12: false,
-	}).format(baseDate));
+	}).formatToParts(baseDate).find((part) => part.type === "hour")?.value ?? "0";
+	const hour = Number(hourPart);
 	const operationalDate = new Date(baseDate);
 
-	if (hour < 6) {
+	if (hour < BOAT_OPERATIONAL_DAY_ROLLOVER_HOUR) {
 		operationalDate.setDate(operationalDate.getDate() - 1);
 	}
 
@@ -32,4 +34,8 @@ export function shiftBoatOperationDate(dateText: string, days: number): string {
 
 export function resolveActiveBoatOperationDate(feedDate?: string | null): string {
 	return String(feedDate || "").trim() || getBoatOperationDate();
+}
+
+export function getPreviousBoatOperationDate(baseDate = new Date()): string {
+	return shiftBoatOperationDate(getBoatOperationDate(baseDate), -1);
 }

@@ -1,5 +1,6 @@
 import type { BoatRaceItem, BoatTodayFeed } from "./boatraceTypes";
 import { withBasePath } from "./assetPath";
+import { formatBoatOperationDate, shiftBoatOperationDate } from "./boatOperationDate";
 
 export type BoatUpcomingScheduleItem = {
 	id: string;
@@ -23,6 +24,32 @@ export type BoatUpcomingScheduleFeed = {
 export const BOAT_TODAY_FEED_URL = withBasePath("data/boatrace/today.generated.json");
 export const BOAT_UPCOMING_SCHEDULE_URL = withBasePath("data/boatrace/upcoming-schedule.generated.json");
 export const BOAT_TODAY_RACE_DETAILS_URL = withBasePath("data/boatrace/today-race-details.generated.json");
+
+export function getBoatScheduleVisibleDateRange(baseDate = new Date()): { startDate: string; endDate: string } {
+	const startDate = formatBoatOperationDate(baseDate);
+	return {
+		startDate,
+		endDate: shiftBoatOperationDate(startDate, 31),
+	};
+}
+
+export function filterBoatUpcomingScheduleByDateRange(
+	items: BoatUpcomingScheduleItem[],
+	range = getBoatScheduleVisibleDateRange(),
+): BoatUpcomingScheduleItem[] {
+	return items.filter((item) => {
+		const startDate = String(item.startDate ?? "").trim();
+		const endDate = String(item.endDate || item.startDate || "").trim();
+
+		if (!startDate && !endDate) {
+			return false;
+		}
+
+		const effectiveStartDate = startDate || endDate;
+		const effectiveEndDate = endDate || startDate;
+		return effectiveEndDate >= range.startDate && effectiveStartDate <= range.endDate;
+	});
+}
 
 function buildNoCacheFeedUrl(url: string): string {
 	const separator = url.includes("?") ? "&" : "?";

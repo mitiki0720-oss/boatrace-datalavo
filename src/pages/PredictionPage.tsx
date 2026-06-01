@@ -1346,14 +1346,14 @@ const practiceSummary = useMemo(() => {
 	const handlePruneBoatLocalStorage = () => {
 		const pruneResult = pruneBoatLocalRecordsByDate({
 			activeDate: activePredictionDate,
-			keepDates: [activePredictionDate, previousPredictionDate],
+			keepDates: [activePredictionDate],
 		});
 		autoSettledFingerprintRef.current.clear();
 		setPredictionRecordsVersion((current) => current + 1);
 		applyPracticeResultRecords(pruneResult.practice.records);
 		setPracticeMessage(
-			pruneResult.prediction.ok && pruneResult.practice.ok
-				? `競艇の保存データを ${activePredictionDate} / ${previousPredictionDate} に整理しました`
+			pruneResult.prediction.ok && pruneResult.practice.ok && pruneResult.johnson.ok
+				? `競艇の保存データを ${activePredictionDate} に整理しました`
 				: "保存容量の都合で一部整理に失敗しました。ブラウザの保存状況を確認してください。",
 		);
 	};
@@ -1633,11 +1633,11 @@ const practiceSummary = useMemo(() => {
 		autoSettledFingerprintRef.current.clear();
 		const pruneResult = pruneBoatLocalRecordsByDate({
 			activeDate: activePredictionDate,
-			keepDates: [activePredictionDate, previousPredictionDate],
+			keepDates: [activePredictionDate],
 		});
 		applyPracticeResultRecords(pruneResult.practice.records);
 		setPredictionRecordsVersion((current) => current + 1);
-	}, [activePredictionDate, previousPredictionDate]);
+	}, [activePredictionDate]);
 
 	useEffect(() => {
 		if (!todayFeed?.venues?.length) {
@@ -2799,7 +2799,7 @@ body:has(.prediction-page-root) {
 					<span style={autoSettleChipStyle}>結果待ち {autoSettleState.pendingCount}R</span>
 					<span style={autoSettleChipStyle}>最終照合 {formatJstDateTimeLabel(autoSettleState.lastRunAt)}</span>
 					<button type="button" style={autoSettleButtonStyle} onClick={handleCompactPracticeResults}>古い実践結果を整理</button>
-					<button type="button" style={autoSettleButtonStyle} onClick={handlePruneBoatLocalStorage}>今日/昨日以外の競艇予想を整理</button>
+					<button type="button" style={autoSettleButtonStyle} onClick={handlePruneBoatLocalStorage}>運用日以外の競艇予想を整理</button>
 				</div>
 					{localStorageWarningText ? <p style={practiceMessageStyle}>{localStorageWarningText}</p> : null}
 					{autoSettleState.warning ? <p style={practiceMessageStyle}>{autoSettleState.warning}</p> : null}

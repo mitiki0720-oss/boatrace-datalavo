@@ -665,7 +665,7 @@ export function ReviewPage() {
 	);
 	const archiveDateSet = useMemo(() => new Set(archiveDates), [archiveDates]);
 	const activeLiveDate = useMemo(() => resolveActiveBoatOperationDate(todayFeed?.date), [todayFeed?.date]);
-	const liveDateSet = useMemo(() => new Set([activeLiveDate, shiftBoatOperationDate(activeLiveDate, -1)].filter(Boolean) as string[]), [activeLiveDate]);
+	const liveDateSet = useMemo(() => new Set([activeLiveDate].filter(Boolean) as string[]), [activeLiveDate]);
 	const selectableDateSet = useMemo(() => new Set([...liveDateSet, ...archiveDateSet]), [archiveDateSet, liveDateSet]);
 	const mode: ReviewDataMode = liveDateSet.has(selectedDate) ? "live" : "archive";
 	const predictionRecords = useMemo(() => normalizeBoatPredictionRecordList(predictionPayload), [predictionPayload]);

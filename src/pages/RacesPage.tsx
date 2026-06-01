@@ -35,6 +35,7 @@ import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import { withBasePath } from "../lib/assetPath";
 import type { BoatOddsPreviewGroup, BoatRacerItem, BoatTodayVenueItem, BoatWeatherActual } from "../lib/boatraceTypes";
 import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
+import { pruneBoatOperationalLocalStorage } from "../lib/boatOperationalStoragePrune";
 import { buildCommonRaceFallbackRacers, isRaceEntryMissingOrThin } from "../lib/boatRaceRacerNormalizer";
 import { boatTheme } from "../lib/theme";
 
@@ -5107,6 +5108,10 @@ export function RacesPage() {
 	const initialRace = initialVenue ? getFirstSelectableRace(initialVenue.races) : undefined;
 	const [selectedVenueId, setSelectedVenueId] = useState<string>(initialVenue?.id ?? "");
 	const [selectedRaceId, setSelectedRaceId] = useState<string>(getRaceKey(initialVenue?.id ?? "", initialRace?.raceId, initialRace?.raceNo ?? 0));
+
+	useEffect(() => {
+		pruneBoatOperationalLocalStorage();
+	}, []);
 
 	const refreshTodayFeed = async (options?: { silent?: boolean; cancelled?: () => boolean }) => {
 		if (!options?.silent) {

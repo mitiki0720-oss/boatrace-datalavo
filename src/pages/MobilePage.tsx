@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { parseBoatBets, type ParsedBoatBet } from "../lib/boatBetParser";
 import { withBasePath } from "../lib/assetPath";
 import { BOAT_JOHNSON_PREDICTION_STORAGE_KEY } from "../lib/boatJohnsonPredictionStorage";
+import { getBoatOperationDate } from "../lib/boatOperationDate";
+import { pruneBoatOperationalLocalStorage } from "../lib/boatOperationalStoragePrune";
 
 const MOBILE_PAGE_BACKGROUND_URL = withBasePath("mobile-page/backgrounds/mobile-page-bg-water-sky.png");
 
@@ -650,7 +652,14 @@ export function MobilePage() {
   );
   const extraVenue = useMemo(() => findExtraVenue(extraVenues, selectedVenue), [extraVenues, selectedVenue]);
   const extraRace = useMemo(() => findExtraRace(extraVenue, selectedRaceNumber), [extraVenue, selectedRaceNumber]);
-  const currentDate = feed?.date ?? new Date().toISOString().slice(0, 10);
+  const currentDate = feed?.date ?? getBoatOperationDate();
+
+  useEffect(() => {
+    pruneBoatOperationalLocalStorage({ activeDate: currentDate });
+    setJohnsonRecords(loadJohnsonPredictionRecords());
+    setPredictionRecords(loadPredictionRecords());
+    setPracticeRecords(loadPracticeRecords());
+  }, [currentDate]);
 
   useEffect(() => {
     if (!selectedVenue) return;
