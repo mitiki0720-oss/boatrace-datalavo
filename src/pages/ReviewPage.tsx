@@ -38,6 +38,7 @@ type ReviewDataMode = "live" | "archive";
 
 const REVIEW_DRAFT_STORAGE_KEY = "kurari-boat-data-labo-review-summary-drafts";
 const HERO_IMAGE_PATH = "review-page/hero/review-hero-boat-summary-kurari-funako.png";
+const ARCHIVE_SUMMARY_MISSING_TEXT = "summary未作成\n予想・結果の保存は完了しています。";
 const REVIEW_PAGE_BACKGROUND_URL = withBasePath("review-page/backgrounds/review-page-bg-water-archive.png");
 const WEEKDAY_LABELS = ["月", "火", "水", "木", "金", "土", "日"];
 
@@ -747,6 +748,10 @@ export function ReviewPage() {
 		() => selectedGroup ? archiveGroupMap.get(selectedGroup.key) : undefined,
 		[archiveGroupMap, selectedGroup],
 	);
+	const selectedArchiveItem = useMemo(
+		() => selectedGroup ? archiveItemMap.get(selectedGroup.key) : undefined,
+		[archiveItemMap, selectedGroup],
+	);
 
 	useEffect(() => {
 		if (!selectedGroup) {
@@ -764,11 +769,11 @@ export function ReviewPage() {
 			return;
 		}
 		if (mode === "archive") {
-			setSummaryDraft(selectedArchiveGroup?.summaryFileText || selectedGroup.summaryFileText || "summary未登録");
+			setSummaryDraft(selectedArchiveGroup?.summaryFileText || selectedGroup.summaryFileText || ARCHIVE_SUMMARY_MISSING_TEXT);
 			return;
 		}
 		const draftKey = `${selectedGroup.date}:${selectedGroup.venueSlug}`;
-		setSummaryDraft(readDrafts()[draftKey] ?? selectedArchiveGroup?.summaryFileText ?? "summary未登録");
+		setSummaryDraft(readDrafts()[draftKey] ?? selectedArchiveGroup?.summaryFileText ?? ARCHIVE_SUMMARY_MISSING_TEXT);
 	}, [mode, selectedArchiveGroup, selectedGroup]);
 
 	const metrics = useMemo(() => {
@@ -1153,7 +1158,11 @@ export function ReviewPage() {
 								<p style={eyebrowStyle}>GPT Review Summary</p>
 								<h2 style={sectionTitleStyle}>GPTレビュー貼り付け欄</h2>
 							</div>
-							{mode === "archive" ? <span style={chipStyle}>保存ファイル表示</span> : <span style={chipStyle}>localStorage下書き / archive fallback</span>}
+							{mode === "archive" ? (
+								<span style={chipStyle}>
+									{selectedArchiveItem?.summaryStatus === "ready" || selectedArchiveGroup?.summaryFileText ? "summary ready" : "summary未作成"}
+								</span>
+							) : <span style={chipStyle}>localStorage下書き / archive fallback</span>}
 						</div>
 						<textarea
 							style={summaryTextareaStyle}

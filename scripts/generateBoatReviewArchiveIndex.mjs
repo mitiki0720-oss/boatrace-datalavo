@@ -120,7 +120,7 @@ async function main() {
 
 			if (!hasPrediction) warnings.push(`[warn] missing prediction file: ${date}/${predictionFile}`);
 			if (!hasResult) warnings.push(`[warn] missing result file: ${date}/${resultFile}`);
-			if (!hasSummaryTxt) warnings.push(`[warn] missing summary file: ${date}/${summaryTxtFile}`);
+			if (!hasSummaryTxt) warnings.push(`[info] missing optional summary file: ${date}/${summaryTxtFile}`);
 
 			items.push({
 				date,
@@ -129,6 +129,9 @@ async function main() {
 				predictionFile: hasPrediction ? `${date}/${predictionFile}` : null,
 				resultFile: hasResult ? `${date}/${resultFile}` : null,
 				summaryFile: hasSummaryTxt ? `${date}/${summaryTxtFile}` : null,
+				predictionStatus: hasPrediction ? "ready" : "missing",
+				resultStatus: hasResult ? "ready" : "missing",
+				summaryStatus: hasSummaryTxt ? "ready" : "missing",
 				predictionSizeBytes,
 				resultSizeBytes,
 				summarySizeBytes,

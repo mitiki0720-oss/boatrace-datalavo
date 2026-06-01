@@ -7,6 +7,9 @@ export type BoatReviewArchiveItem = {
 	predictionFile?: string | null;
 	resultFile?: string | null;
 	summaryFile?: string | null;
+	predictionStatus?: "ready" | "missing" | string;
+	resultStatus?: "ready" | "missing" | string;
+	summaryStatus?: "ready" | "missing" | string;
 	predictionSizeBytes?: number | null;
 	resultSizeBytes?: number | null;
 	summarySizeBytes?: number | null;

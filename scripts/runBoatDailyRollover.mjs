@@ -113,10 +113,6 @@ function formatRaceLine(record) {
 
 function buildArchiveTexts(date, group) {
 	const sortedRecords = [...group.records].sort((left, right) => Number(left.raceNo || 0) - Number(right.raceNo || 0));
-	const totalStake = sortedRecords.reduce((sum, record) => sum + Number(record.totalStakeYen || record.betSummary?.totalStakeYen || 0), 0);
-	const totalPayout = sortedRecords.reduce((sum, record) => sum + Number(record.payoutYen || 0), 0);
-	const hitCount = sortedRecords.filter((record) => String(record.resultStatus || "").includes("hit") || Number(record.payoutYen || 0) > 0).length;
-	const profit = totalPayout - totalStake;
 
 	return {
 		predictions: [
@@ -137,18 +133,6 @@ function buildArchiveTexts(date, group) {
 				const title = raceNo > 0 ? `${raceNo}R` : "race";
 				return `${title} | finish=${String(record.finishOrder || "").trim() || "-"} | payout=${Number(record.payoutYen || 0)} | profit=${Number(record.profitYen ?? Number(record.payoutYen || 0) - Number(record.totalStakeYen || 0))}`;
 			}),
-			"",
-		].join("\n"),
-		summary: [
-			`date: ${date}`,
-			`venue: ${group.venueName}`,
-			"kind: summary",
-			"",
-			`races=${sortedRecords.length}`,
-			`hits=${hitCount}`,
-			`stake=${totalStake}`,
-			`payout=${totalPayout}`,
-			`profit=${profit}`,
 			"",
 		].join("\n"),
 	};
@@ -191,7 +175,7 @@ async function verifyArchive(root, date, options) {
 		return { ok: false, reason: `archive directory missing: public/data/reviews/${date}` };
 	}
 
-	const kinds = new Set();
+	const venueKinds = new Map();
 	for (const file of files) {
 		const match = file.match(FILE_PATTERN);
 		if (!match) {
@@ -202,16 +186,36 @@ async function verifyArchive(root, date, options) {
 		if (info.size <= 0) {
 			return { ok: false, reason: `archive file is empty: ${date}/${file}` };
 		}
+		const slug = match[1];
+		const kinds = venueKinds.get(slug) ?? new Set();
 		kinds.add(match[2]);
+		venueKinds.set(slug, kinds);
 	}
 
-	for (const kind of ["predictions", "results", "summary"]) {
-		if (!kinds.has(kind)) {
-			return { ok: false, reason: `archive ${kind} file missing for ${date}` };
+	if (venueKinds.size <= 0) {
+		return { ok: false, reason: `archive files missing for ${date}` };
+	}
+
+	let hasMissingSummary = false;
+	for (const [slug, kinds] of venueKinds) {
+		for (const kind of ["predictions", "results"]) {
+			if (!kinds.has(kind)) {
+				return { ok: false, reason: `archive ${kind} file missing for ${date}/${slug}` };
+			}
+		}
+		if (!kinds.has("summary")) {
+			hasMissingSummary = true;
 		}
 	}
 
-	return { ok: true, reason: "archive verified" };
+	const summaryStatus = hasMissingSummary ? "missing" : "ready";
+	return {
+		ok: true,
+		reason: summaryStatus === "ready"
+			? "archive verified"
+			: "summary not found: optional, continue",
+		summaryStatus,
+	};
 }
 
 async function generateReviewIndex(root, options, changedFiles) {
@@ -243,13 +247,19 @@ async function generateReviewIndex(root, options, changedFiles) {
 			const predictionFile = `${slug}-predictions.txt`;
 			const resultFile = `${slug}-results.txt`;
 			const summaryFile = `${slug}-summary.txt`;
+			const hasPrediction = files.includes(predictionFile);
+			const hasResult = files.includes(resultFile);
+			const hasSummary = files.includes(summaryFile);
 			items.push({
 				date,
 				venueName: slug,
 				venueSlug: slug,
-				predictionFile: files.includes(predictionFile) ? `${date}/${predictionFile}` : null,
-				resultFile: files.includes(resultFile) ? `${date}/${resultFile}` : null,
-				summaryFile: files.includes(summaryFile) ? `${date}/${summaryFile}` : null,
+				predictionFile: hasPrediction ? `${date}/${predictionFile}` : null,
+				resultFile: hasResult ? `${date}/${resultFile}` : null,
+				summaryFile: hasSummary ? `${date}/${summaryFile}` : null,
+				predictionStatus: hasPrediction ? "ready" : "missing",
+				resultStatus: hasResult ? "ready" : "missing",
+				summaryStatus: hasSummary ? "ready" : "missing",
 			});
 		}
 	}
@@ -340,10 +350,19 @@ async function main() {
 		if (options.dryRun) {
 			console.warn(`[boat-rollover] dry-run warning: archive verification would fail before pruning: ${archiveCheck.reason}`);
 		} else {
+			console.error("[boat-rollover] archive verification failed");
+			console.error("[boat-rollover] skip prune to protect review data");
 			throw new Error(`archive verification failed before pruning: ${archiveCheck.reason}`);
 		}
 	} else {
-		console.log(`[boat-rollover] archive verification: ${archiveCheck.reason}`);
+		if (archiveCheck.summaryStatus === "ready") {
+			console.log("[boat-rollover] summary found");
+		} else if (archiveCheck.summaryStatus === "missing") {
+			console.log("[boat-rollover] summary not found: optional, continue");
+		}
+		console.log("[boat-rollover] prediction archive verified");
+		console.log("[boat-rollover] result archive verified");
+		console.log("[boat-rollover] archive verified");
 	}
 
 	if (!options.dryRun) {
@@ -375,10 +394,12 @@ async function main() {
 		await writeJson(schedulePath, pruneScheduleItems(schedulePayload, options.now), options, changedFiles);
 	}
 
+	console.log("[boat-rollover] prune active data");
 	console.log("[boat-rollover] changed candidates:");
 	for (const file of Array.from(changedFiles).sort()) {
 		console.log(`  ${file}`);
 	}
+	console.log("[boat-rollover] completed");
 }
 
 main().catch((error) => {
