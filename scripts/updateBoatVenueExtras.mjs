@@ -23,6 +23,17 @@ const OMURA_VENUE_NAME = "大村";
 const OMURA_SOURCE = "omurakyotei.jp";
 const KARATSU_VENUE_NAME = "唐津";
 const KARATSU_SOURCE = "boatrace-karatsu.jp";
+const KARATSU_TIMERANK_URL = "https://www.boatrace-karatsu.jp/modules/raceinfo/?page=index_timerank";
+const KARATSU_NATIONAL_RECENT5_URL = "https://www.boatrace-karatsu.jp/modules/raceinfo/?page=index_zensou";
+const KARATSU_RACER_COURSE_STATS_URL = "https://www.boatrace-karatsu.jp/modules/raceinfo/?page=index_racecourse";
+const KARATSU_CURRENT_SERIES_URL = "https://www.boatrace-karatsu.jp/modules/raceinfo/?page=index_konsetsu";
+const KARATSU_SCORE_RANKING_URL = "https://www.boatrace-karatsu.jp/modules/raceinfo/?page=index_tokutenrank";
+const KARATSU_ALL_RACER_COMMENTS_URL = "https://www.boatrace-karatsu.jp/modules/raceinfo/?page=index_racers_comment";
+const KARATSU_MARUTOKU_URL = "https://www.boatrace-karatsu.jp/modules/raceinfo/?page=index_marutoku";
+const KARATSU_RESULT_LIST_URL = "https://www.boatrace-karatsu.jp/modules/raceinfo/?page=index_resultlist";
+const KARATSU_MOTOR_DATA_URL = "https://www.boatrace-karatsu.jp/modules/datafile/";
+const KARATSU_BOAT_DATA_URL = "https://www.boatrace-karatsu.jp/modules/datafile/?page=index_boat";
+const KARATSU_WATER_SURFACE_URL = "https://www.boatrace-karatsu.jp/modules/datafile/?page=index_suimen";
 const MARUGAME_VENUE_NAME = "丸亀";
 const MARUGAME_SOURCE = "marugameboat.jp";
 const TOKUYAMA_VENUE_NAME = "徳山";
@@ -640,6 +651,732 @@ function mergeVenueRecord(baseVenue, overlayVenue) {
 		...overlayVenue,
 		races: mergeVenueRaceRecords(baseVenue.races, overlayVenue.races),
 	};
+}
+
+function normalizeKaratsuCell(value) {
+	return compactText(value)
+		.replace(/[％%]/g, "%")
+		.replace(/[－ー―−]/g, "-");
+}
+
+function normalizeKaratsuRacerName(value) {
+	return compactText(value)
+		.normalize("NFKC")
+		.replace(/\s+/g, "");
+}
+
+function parseKaratsuIdentityCell(value) {
+	const normalized = normalizeKaratsuCell(value);
+	const match = normalized.match(/^(\d{4})\s*\/\s*([AB]\d)\s+(.+)$/i);
+
+	if (!match) {
+		return {
+			registrationNo: "",
+			className: "",
+			racerName: normalized,
+		};
+	}
+
+	return {
+		registrationNo: match[1],
+		className: match[2].toUpperCase(),
+		racerName: compactText(match[3]),
+	};
+}
+
+function isKaratsuNotPublished(html) {
+	const text = compactText(html ?? "");
+	return text.includes("更新までしばらくお待ちください") || text.includes("予選最終日までの表示");
+}
+
+function parseKaratsuBeforeInfo(html) {
+	const $ = load(html);
+	const heading = $("h1,h2,h3,h4,dt,div,p")
+		.toArray()
+		.map((element) => ({
+			element,
+			text: compactText($(element).text()),
+		}))
+		.find((item) => item.text.includes("水面気象状況"));
+	const table = findTableByKeywords($, ["天候", "風向", "風速", "波高", "気温", "水温"]);
+
+	if (!heading && !table) {
+		return null;
+	}
+
+	let weather = "";
+	let windDirection = "";
+	let windLabel = "";
+	let windSpeed = "";
+	let waveHeight = "";
+	let temperature = "";
+	let waterTemperature = "";
+
+	if (table) {
+		$(table)
+			.find("tr")
+			.each((_, rowElement) => {
+				const cells = $(rowElement).children("td,th").toArray();
+				if (cells.length < 6) {
+					return;
+				}
+
+				const firstCell = readCellText($, cells[0]);
+				if (firstCell === "天候") {
+					return;
+				}
+
+				weather = readCellText($, cells[0]);
+				const windCell = readCellText($, cells[1]);
+				const windMatch = windCell.match(/^(.+?)(?:\((.+)\))?$/);
+				windDirection = compactText(windMatch?.[1] ?? windCell);
+				windLabel = compactText(windMatch?.[2] ?? "");
+				windSpeed = readCellText($, cells[2]);
+				waveHeight = readCellText($, cells[3]);
+				temperature = readCellText($, cells[4]);
+				waterTemperature = readCellText($, cells[5]);
+			});
+	}
+
+	const updatedAt = compactText(heading?.text ?? "").match(/(\d{1,2}[：:]\d{2})\s*現在/)
+		? compactText(heading.text).match(/(\d{1,2}[：:]\d{2})\s*現在/)?.[1]?.replace("：", ":") ?? ""
+		: "";
+	const bodyText = compactText($("body").text());
+	const stableBoardUsed = bodyText.includes("安定板") && bodyText.includes("使用") ? "使用" : "";
+
+	return {
+		officialBeforeInfo: {
+			status: weather || windDirection || updatedAt ? "available" : "pending",
+			source: KARATSU_SOURCE,
+			weather,
+			windDirection,
+			windLabel,
+			windSpeed,
+			waveHeight,
+			temperature,
+			waterTemperature,
+			stableBoardUsed,
+			updatedAt,
+		},
+		weatherCondition: {
+			weather,
+			windDirection,
+			windDirectionText: windDirection,
+			windLabel,
+			windSpeed,
+			waveHeight,
+			temperature,
+			airTemperature: temperature,
+			waterTemperature,
+			observedAt: updatedAt,
+			updatedAt,
+			source: KARATSU_SOURCE,
+			sourceLabel: "Karatsu official cyokuzen weather",
+		},
+	};
+}
+
+function parseKaratsuPreRacePrediction(html) {
+	const lines = readCleanLines(load(html)("body"));
+	const startIndex = lines.findIndex((line) => line.includes("記者予想（前日）"));
+	if (startIndex < 0) {
+		return null;
+	}
+
+	const endIndex = lines.findIndex((line, index) => index > startIndex && line.includes("JLCデータ予想"));
+	const scopedLines = lines.slice(startIndex + 1, endIndex > startIndex ? endIndex : undefined);
+	const confidenceLine = scopedLines.find((line) => /\d+%/.test(line)) ?? "";
+	const confidence = confidenceLine.match(/(\d+%)/)?.[1] ?? "";
+	const entryPrediction = scopedLines.find((line) => /[１２３４５６1-6].*\//.test(line) || /[１-６1-6]\s+[１-６1-6]\s+[１-６1-6]/.test(line)) ?? "";
+	const focusIndex = scopedLines.findIndex((line) => line.includes("フォーカス"));
+	const commentIndex = scopedLines.findIndex((line) => line.includes("コメント"));
+	const focusBets = focusIndex >= 0
+		? scopedLines
+			.slice(focusIndex + 1, commentIndex > focusIndex ? commentIndex : focusIndex + 3)
+			.map((line) => compactText(line.replace(/\s+/g, "")))
+			.filter(Boolean)
+		: [];
+	const comment = commentIndex >= 0
+		? compactText(scopedLines.slice(commentIndex + 1).join(" "))
+		: compactText(scopedLines.filter((line) => !line.includes("進入") && !line.includes("自信度") && !line.includes("フォーカス") && !/^\d+%$/.test(line)).join(" "));
+
+	const jlcStartIndex = endIndex;
+	if (jlcStartIndex < 0) {
+		return confidence || focusBets.length || comment || entryPrediction ? {
+			entryPrediction,
+			confidence,
+			focusBets,
+			comment,
+			source: KARATSU_SOURCE,
+		} : null;
+	}
+
+	const jlcEndIndex = lines.findIndex((line, index) => index > jlcStartIndex && (line.includes("左右にスワイプ") || line.includes("今節出場選手のマル得情報") || line === "OK"));
+	const jlcLines = lines.slice(jlcStartIndex + 1, jlcEndIndex > jlcStartIndex ? jlcEndIndex : undefined);
+	const jlcConfidence = (jlcLines.find((line) => /\d+%/.test(line)) ?? "").match(/(\d+%)/)?.[1] ?? "";
+	const jlcEntryPrediction = jlcLines.find((line) => /[１２３４５６1-6].*[１２３４５６1-6]/.test(line)) ?? "";
+	const jlcFocusIndex = jlcLines.findIndex((line) => line.includes("フォーカス"));
+	const jlcFocusBets = jlcFocusIndex >= 0
+		? jlcLines
+			.slice(jlcFocusIndex + 1)
+			.map((line) => compactText(line.replace(/\s+/g, "")))
+			.filter((line) => line.includes("-") || /^[１２３４５６1-6]+$/.test(line))
+		: [];
+
+	if (!confidence && !focusBets.length && !comment && !entryPrediction && !jlcConfidence && !jlcFocusBets.length && !jlcEntryPrediction) {
+		return null;
+	}
+
+	return {
+		entryPrediction,
+		confidence,
+		focusBets,
+		comment,
+		jlcEntryPrediction,
+		jlcConfidence,
+		jlcFocusBets,
+		source: KARATSU_SOURCE,
+	};
+}
+
+function parseKaratsuTimerank(html) {
+	const rows = readTokonameTableRows(html);
+	return rows.flatMap((cells) => {
+		if (cells.length < 10 || !/^\d+$/.test(cells[0] ?? "") || !/^\d{4}$/.test(cells[1] ?? "")) {
+			return [];
+		}
+
+		return [{
+			rank: cells[0] ?? "",
+			registrationNo: cells[1] ?? "",
+			racerName: cells[2] ?? "",
+			className: cells[3] ?? "",
+			motorNo: cells[4] ?? "",
+			motorSecondRate: cells[5] ?? "",
+			motorNature: cells[6] ?? "",
+			boatNo: cells[7] ?? "",
+			boatSecondRate: cells[8] ?? "",
+			precheckTime: cells[9] ?? "",
+			source: KARATSU_SOURCE,
+		}];
+	});
+}
+
+function parseKaratsuNationalRecent5(html) {
+	const rows = readTokonameTableRows(html);
+	const items = [];
+	let current = null;
+
+	for (const cells of rows) {
+		if (cells.length >= 6 && /^\d+$/.test(cells[0] ?? "")) {
+			const identity = parseKaratsuIdentityCell(cells[1]);
+			current = {
+				frameNo: Number.parseInt(cells[0], 10),
+				registrationNo: identity.registrationNo,
+				racerName: identity.racerName,
+				className: identity.className,
+				recentSeries: [],
+				source: KARATSU_SOURCE,
+			};
+			items.push(current);
+		}
+
+		if (!current) {
+			continue;
+		}
+
+		const offset = /^\d+$/.test(cells[0] ?? "") ? 2 : 0;
+		const startDate = cells[offset] ?? "";
+		if (!/^\d{4}\/\d{2}\/\d{2}/.test(startDate)) {
+			continue;
+		}
+
+		current.recentSeries.push({
+			startDate,
+			venue: cells[offset + 1] ?? "",
+			grade: cells[offset + 2] ?? "",
+			results: cells[offset + 3] ?? "",
+		});
+	}
+
+	return items.filter((item) => item.recentSeries.length > 0);
+}
+
+function parseKaratsuRacerCourseStats(html) {
+	const rows = readTokonameTableRows(html);
+	const items = [];
+	let currentFrameNo = null;
+	let currentRacerName = "";
+
+	for (const cells of rows) {
+		if (cells.length >= 10 && /^[1-6]$/.test(cells[0] ?? "")) {
+			currentFrameNo = Number.parseInt(cells[0], 10);
+			currentRacerName = cells[1] ?? "";
+			items.push({
+				frameNo: currentFrameNo,
+				racerName: currentRacerName,
+				course: cells[2] ?? "",
+				entryRate: cells[3] ?? "",
+				averageStartTiming: cells[4] ?? "",
+				firstRate: cells[5] ?? "",
+				secondRate: cells[6] ?? "",
+				thirdRate: cells[7] ?? "",
+				fourthRate: cells[8] ?? "",
+				fifthRate: cells[9] ?? "",
+				sixthRate: cells[10] ?? "",
+				source: KARATSU_SOURCE,
+			});
+			continue;
+		}
+
+		if (currentFrameNo && cells.length >= 8 && /^[1-6]$/.test(cells[0] ?? "")) {
+			items.push({
+				frameNo: currentFrameNo,
+				racerName: currentRacerName,
+				course: cells[0] ?? "",
+				entryRate: cells[1] ?? "",
+				averageStartTiming: cells[2] ?? "",
+				firstRate: cells[3] ?? "",
+				secondRate: cells[4] ?? "",
+				thirdRate: cells[5] ?? "",
+				fourthRate: cells[6] ?? "",
+				fifthRate: cells[7] ?? "",
+				sixthRate: cells[8] ?? "",
+				source: KARATSU_SOURCE,
+			});
+		}
+	}
+
+	return items;
+}
+
+function parseKaratsuCurrentSeriesCourseStats(html) {
+	const rows = readTokonameTableRows(html);
+	const items = [];
+	let currentDayLabel = "";
+
+	for (const cells of rows) {
+		if (cells.length < 7) {
+			continue;
+		}
+
+		const hasDayLabel = !/^[1-6]$/.test(cells[0] ?? "") && /^[1-6]$/.test(cells[1] ?? "");
+		if (hasDayLabel) {
+			currentDayLabel = cells[0] ?? "";
+		}
+
+		const offset = hasDayLabel ? 1 : 0;
+		const course = cells[offset] ?? "";
+		if (!/^[1-6]$/.test(course)) {
+			continue;
+		}
+
+		items.push({
+			dayLabel: currentDayLabel,
+			course,
+			firstCount: cells[offset + 1] ?? "",
+			secondCount: cells[offset + 2] ?? "",
+			thirdCount: cells[offset + 3] ?? "",
+			fourthCount: cells[offset + 4] ?? "",
+			fifthCount: cells[offset + 5] ?? "",
+			sixthCount: cells[offset + 6] ?? "",
+			source: KARATSU_SOURCE,
+		});
+	}
+
+	return items;
+}
+
+function parseKaratsuCurrentSeriesWinningMethods(html) {
+	const $ = load(html);
+	const table = $("table")
+		.toArray()
+		.find((element) => compactText($(element).text()).includes("今節の決まり手"))
+		?? $("table").toArray().find((element) => compactText($(element).text()).includes("逃げ") && compactText($(element).text()).includes("恵まれ"))
+		?? null;
+
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 7) {
+				return;
+			}
+
+			const dayLabel = readCellText($, cells[0]);
+			if (!dayLabel || dayLabel === "決まり手") {
+				return;
+			}
+
+			rows.push({
+				dayLabel,
+				nige: readCellText($, cells[1]),
+				makuri: readCellText($, cells[2]),
+				sashi: readCellText($, cells[3]),
+				makuriSashi: readCellText($, cells[4]),
+				nuki: readCellText($, cells[5]),
+				megumare: readCellText($, cells[6]),
+				source: KARATSU_SOURCE,
+			});
+		});
+
+	return rows;
+}
+
+function parseKaratsuScoreRanking(html) {
+	if (isKaratsuNotPublished(html)) {
+		return {
+			status: "not-published",
+			rows: [],
+			warning: "scoreRanking: not published after qualifying period",
+		};
+	}
+
+	const rows = readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 8 || !/^\d+$/.test(cells[0] ?? "") || !/^\d{4}$/.test(cells[1] ?? "")) {
+			return [];
+		}
+
+		return [{
+			rank: cells[0] ?? "",
+			registrationNo: cells[1] ?? "",
+			racerName: cells[2] ?? "",
+			className: cells[3] ?? "",
+			scoreRate: cells[4] ?? "",
+			score: cells[5] ?? "",
+			penalty: cells[6] ?? "",
+			starts: cells[7] ?? "",
+			sectionResults: cells[8] ?? "",
+			source: KARATSU_SOURCE,
+		}];
+	});
+
+	return {
+		status: rows.length > 0 ? "available" : "pending",
+		rows,
+		warning: rows.length === 0 ? "scoreRanking: not published or not parsed yet" : "",
+	};
+}
+
+function parseKaratsuEvaluationText(value) {
+	const text = normalizeKaratsuCell(value);
+	const out = text.match(/出足\s*：\s*([A-DＡ-Ｄ\-－]?)/)?.[1] ?? "";
+	const stretch = text.match(/伸び足\s*：\s*([A-DＡ-Ｄ\-－]?)/)?.[1] ?? "";
+	const nature = text.match(/素性\s*：\s*([A-DＡ-Ｄ\-－]?)/)?.[1] ?? "";
+	return {
+		motorOutEvaluation: normalizeKaratsuMotorGrade(out),
+		motorStretchEvaluation: normalizeKaratsuMotorGrade(stretch),
+		motorNatureEvaluation: normalizeKaratsuMotorGrade(nature),
+		rawEvaluationLabels: text,
+	};
+}
+
+function parseKaratsuAllRacerComments(html) {
+	return readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 3 || !/^\d{4}/.test(cells[0] ?? "")) {
+			return [];
+		}
+
+		const identity = parseKaratsuIdentityCell(cells[0]);
+		const evaluation = parseKaratsuEvaluationText(cells[1] ?? "");
+
+		return [{
+			registrationNo: identity.registrationNo,
+			racerName: identity.racerName,
+			className: identity.className,
+			...evaluation,
+			comment: cells[2] ?? "",
+			source: KARATSU_SOURCE,
+		}];
+	});
+}
+
+function parseKaratsuMarutoku(html) {
+	const $ = load(html);
+	const sections = [];
+
+	$("h3,h4")
+		.each((_, headingElement) => {
+			const category = compactText($(headingElement).text());
+			if (!category || category.includes("今節出場選手のマル得情報") || category === "Information") {
+				return;
+			}
+
+			let table = $(headingElement).nextAll("table").first();
+			if (!table.length) {
+				return;
+			}
+
+			const rows = [];
+			table.find("tr").each((__, rowElement) => {
+				const cells = $(rowElement).children("td,th").toArray().map((cell) => readCellText($, cell));
+				if (cells.length < 4 || !/^\d{4}$/.test(cells[0] ?? "")) {
+					return;
+				}
+
+				rows.push({
+					category,
+					registrationNo: cells[0] ?? "",
+					racerName: cells[1] ?? "",
+					className: cells[2] ?? "",
+					branch: cells[3] ?? "",
+					period: cells[4] ?? "",
+					note: cells[5] ?? cells[4] ?? "",
+					source: KARATSU_SOURCE,
+				});
+			});
+
+			sections.push(...rows);
+		});
+
+	return sections;
+}
+
+function parseKaratsuMotorData(html) {
+	return readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 14 || !/^\d+$/.test(cells[0] ?? "")) {
+			return [];
+		}
+
+		return [{
+			motorNo: cells[0] ?? "",
+			motorNature: cells[1] ?? "",
+			calculationPeriod: cells[2] ?? "",
+			sections: cells[3] ?? "",
+			secondRate: cells[4] ?? "",
+			winRate: cells[5] ?? "",
+			accidentRate: cells[6] ?? "",
+			firstCount: cells[7] ?? "",
+			secondCount: cells[8] ?? "",
+			thirdCount: cells[9] ?? "",
+			starts: cells[10] ?? "",
+			finalCount: cells[11] ?? "",
+			championshipCount: cells[12] ?? "",
+			bestTime: cells[13] ?? "",
+			source: KARATSU_SOURCE,
+		}];
+	});
+}
+
+function parseKaratsuBoatData(html) {
+	return readTokonameTableRows(html).flatMap((cells) => {
+		if (cells.length < 12 || !/^\d+$/.test(cells[0] ?? "")) {
+			return [];
+		}
+
+		return [{
+			boatNo: cells[0] ?? "",
+			calculationPeriod: cells[1] ?? "",
+			sections: cells[2] ?? "",
+			secondRate: cells[3] ?? "",
+			winRate: cells[4] ?? "",
+			accidentRate: cells[5] ?? "",
+			firstCount: cells[6] ?? "",
+			secondCount: cells[7] ?? "",
+			thirdCount: cells[8] ?? "",
+			starts: cells[9] ?? "",
+			finalCount: cells[10] ?? "",
+			championshipCount: cells[11] ?? "",
+			source: KARATSU_SOURCE,
+		}];
+	});
+}
+
+function parseKaratsuResultList(html) {
+	const $ = load(html);
+	const table = findTableByKeywords($, ["レース", "2連勝単式", "3連勝単式"]);
+	if (!table) {
+		return [];
+	}
+
+	const rows = [];
+	$(table)
+		.find("tr")
+		.each((_, rowElement) => {
+			const cells = $(rowElement).children("td,th").toArray();
+			if (cells.length < 5) {
+				return;
+			}
+
+			const raceLabel = readCellText($, cells[0]);
+			const raceNo = raceLabel.match(/^(\d+)R$/)?.[1];
+			if (!raceNo) {
+				return;
+			}
+
+			rows.push({
+				raceNo: Number.parseInt(raceNo, 10),
+				trifecta: readCellText($, cells[1]),
+				trifectaPayout: readCellText($, cells[2]),
+				exacta: readCellText($, cells[3]),
+				exactaPayout: readCellText($, cells[4]),
+				note: readCellText($, cells[5]),
+				source: KARATSU_SOURCE,
+			});
+		});
+
+	return rows;
+}
+
+function parseKaratsuWaterSurface(html) {
+	const $ = load(html);
+	const bodyText = compactText($("body").text());
+	if (!bodyText.includes("水面特性")) {
+		return null;
+	}
+
+	const headings = $("h3,h4")
+		.toArray()
+		.map((element) => compactText($(element).text()))
+		.filter((text) => text && !text.includes("最近3ヶ月") && !text.includes("季節別") && !text.includes("水面特性・進入コース別情報"));
+	const paragraphTexts = $("p")
+		.toArray()
+		.map((element) => compactText($(element).text()))
+		.filter(Boolean);
+	const rawSummary = [
+		...headings.slice(0, 6),
+		...paragraphTexts.filter((text) => text.includes("唐津") || text.includes("向かい風") || text.includes("追い風") || text.includes("佐賀") || text.includes("1R") || text.includes("イン1着率")).slice(0, 6),
+	].join(" / ");
+
+	const surfaceSummary = paragraphTexts.find((text) => text.includes("唐津") && text.includes("年間では追い風")) ?? "";
+	const featureSummary = paragraphTexts.find((text) => text.includes("佐賀支部") || text.includes("地元")) ?? "";
+	const courseSummary = paragraphTexts.find((text) => text.includes("1R～4R") || text.includes("5R～12R")) ?? "";
+	const pitPositionNote = bodyText.includes("ピット位置が変更") ? "2025年12月よりピット位置が変更" : "";
+	const windCharacteristics = headings.find((text) => text.includes("風変化")) ?? "";
+	const morningWindCharacteristics = surfaceSummary.includes("早朝特訓") ? "早朝特訓と前半レースは向かい風" : "";
+	const laterRaceWindCharacteristics = surfaceSummary.includes("後半レースは追い風") ? "後半レースは追い風" : "";
+	const localRacerNotes = featureSummary;
+	const morningRaceProgrammingNotes = courseSummary;
+	const insideRateMatch = courseSummary.match(/1R～4Rが(\d+)%.*5R～12Rが(\d+)%/);
+
+	return {
+		waterType: bodyText.includes("淡水") ? "淡水" : bodyText.includes("海水") ? "海水" : "",
+		pitPositionNote,
+		windCharacteristics,
+		morningWindCharacteristics,
+		laterRaceWindCharacteristics,
+		pitToSecondMarkDistance: "",
+		standbyTime: "",
+		allowedTilt: "",
+		localRacerNotes,
+		morningRaceProgrammingNotes,
+		earlyRaceInsideWinRate: insideRateMatch?.[1] ?? "",
+		laterRaceInsideWinRate: insideRateMatch?.[2] ?? "",
+		surfaceSummary,
+		featureSummary,
+		courseSummary,
+		rawSummary,
+		source: KARATSU_SOURCE,
+	};
+}
+
+function createKaratsuRaceEntryTable(race, officialBeforeInfo) {
+	const racerMap = new Map(
+		(Array.isArray(race?.racers) ? race.racers : []).map((racer) => [Number(racer?.frameNo ?? racer?.frame ?? racer?.boatNumber), racer]),
+	);
+	const scoreRows = Array.isArray(officialBeforeInfo?.scoreQuickLook) ? officialBeforeInfo.scoreQuickLook : [];
+	return scoreRows.map((row) => {
+		const frameNo = Number(row?.frameNo);
+		const racer = racerMap.get(frameNo) ?? {};
+		return {
+			frameNo,
+			registrationNo: String(row?.registrationNo ?? ""),
+			racerName: String(row?.playerName ?? racer?.name ?? ""),
+			racerClass: String(row?.className ?? racer?.class ?? ""),
+			branch: String(racer?.branch ?? ""),
+			age: racer?.age ?? "",
+			flyingCount: racer?.fCount ?? "",
+			lateCount: racer?.lCount ?? "",
+			averageStartTiming: String(row?.averageStart ?? racer?.averageStart ?? ""),
+			nationalWinRate: String(row?.winRate ?? racer?.winRate ?? ""),
+			nationalSecondRate: String(row?.secondRate ?? racer?.secondRate ?? ""),
+			localWinRate: String(row?.localWinRate ?? ""),
+			localSecondRate: String(row?.localSecondRate ?? ""),
+			source: KARATSU_SOURCE,
+		};
+	});
+}
+
+function createKaratsuRaceMotorSummary(race, officialBeforeInfo, motorOverallComments, timerankRows, allRacerComments) {
+	const scoreRows = Array.isArray(officialBeforeInfo?.scoreQuickLook) ? officialBeforeInfo.scoreQuickLook : [];
+	const overallByFrame = new Map((Array.isArray(motorOverallComments) ? motorOverallComments : []).map((row) => [row.frameNo, row]));
+	const timerankByRegistration = new Map((Array.isArray(timerankRows) ? timerankRows : []).map((row) => [row.registrationNo, row]));
+	const commentByRegistration = new Map((Array.isArray(allRacerComments) ? allRacerComments : []).map((row) => [row.registrationNo, row]));
+	const racerMap = new Map(
+		(Array.isArray(race?.racers) ? race.racers : []).map((racer) => [Number(racer?.frameNo ?? racer?.frame ?? racer?.boatNumber), racer]),
+	);
+
+	return scoreRows.map((row) => {
+		const frameNo = Number(row?.frameNo);
+		const registrationNo = String(row?.registrationNo ?? "");
+		const timerank = timerankByRegistration.get(registrationNo) ?? null;
+		const overall = overallByFrame.get(frameNo) ?? null;
+		const allComment = commentByRegistration.get(registrationNo) ?? null;
+		const racer = racerMap.get(frameNo) ?? {};
+		return {
+			frameNo,
+			registrationNo,
+			racerName: String(row?.playerName ?? racer?.name ?? ""),
+			motorNo: String(overall?.motorNo ?? timerank?.motorNo ?? row?.motorNo ?? racer?.motorNo ?? ""),
+			motorSecondRate: String(timerank?.motorSecondRate ?? row?.motorSecondRate ?? racer?.motorSecondRate ?? ""),
+			boatNo: String(timerank?.boatNo ?? racer?.boatNo ?? racer?.boatMotorNo ?? ""),
+			boatSecondRate: String(timerank?.boatSecondRate ?? racer?.boatSecondRate ?? ""),
+			motorOutEvaluation: String(allComment?.motorOutEvaluation ?? ""),
+			motorStretchEvaluation: String(allComment?.motorStretchEvaluation ?? ""),
+			motorNatureEvaluation: String(allComment?.motorNatureEvaluation ?? timerank?.motorNature ?? overall?.motorGrade ?? ""),
+			rawEvaluationLabels: String(allComment?.rawEvaluationLabels ?? ""),
+			previousUser: String(overall?.previousUser ?? ""),
+			recentResults: String(overall?.recentResults ?? ""),
+			comment: String(overall?.comment ?? ""),
+			source: KARATSU_SOURCE,
+		};
+	});
+}
+
+function createKaratsuRaceSourceStatus({ officialBeforeInfo, preRacePrediction, originalExhibition, venuePrediction, racerComments, startExhibition, motorSummary, motorOverallComments, abilityIndex, resultList, entryTable, nationalRecent5, racerCourseStats }) {
+	return {
+		entry: entryTable.length ? "available" : "missing",
+		preRacePrediction: preRacePrediction ? "available" : "pending",
+		beforeInfo: officialBeforeInfo ? "available" : "pending",
+		startExhibition: startExhibition.length ? "available" : "pending",
+		originalExhibition: originalExhibition.length ? "available" : "pending",
+		nationalRecent5: nationalRecent5.length ? "available" : "pending",
+		racerCourseStats: racerCourseStats.length ? "available" : "pending",
+		racerComments: racerComments.length ? "available" : "pending",
+		venuePrediction: venuePrediction ? "available" : "pending",
+		motorBoat: motorSummary.length ? "available" : "pending",
+		motorOverallComments: motorOverallComments.length ? "available" : "pending",
+		abilityIndex: abilityIndex.length ? "available" : "pending",
+		resultList: resultList.length ? "available" : "pending",
+		frameLast10: "missing",
+		previousRaceAndParts: "missing",
+	};
+}
+
+function createKaratsuWarnings(sourceStatus, settledMap, extraWarnings = []) {
+	const warnings = [];
+	for (const [label, result] of Object.entries(settledMap)) {
+		if (result?.status === "rejected") {
+			warnings.push(`${label}: ${result.reason?.message ?? "fetch failed"}`);
+		}
+	}
+	for (const [label, status] of Object.entries(sourceStatus)) {
+		if (status === "pending") {
+			warnings.push(`${label}: not published or not parsed yet`);
+		}
+		if (status === "missing") {
+			warnings.push(`${label}: not implemented for karatsu yet`);
+		}
+		if (status === "not-published") {
+			warnings.push(`${label}: not published after qualifying period`);
+		}
+	}
+	return [...warnings, ...extraWarnings.filter(Boolean)];
 }
 
 async function fetchHtml(url) {
@@ -9773,53 +10510,87 @@ function parseKaratsuVenuePrediction(html) {
 async function fetchKaratsuRaceExtra({ raceNo }) {
 	const url = `https://www.boatrace-karatsu.jp/sp/index.php?page=yosou-cyokuzen&race=${raceNo}`;
 	const syussouUrl = `https://www.boatrace-karatsu.jp/sp/index.php?page=yosou-syussou&race=${raceNo}`;
+	const nationalRecent5Url = `${KARATSU_NATIONAL_RECENT5_URL}&race=${raceNo}`;
+	const racerCourseStatsUrl = `${KARATSU_RACER_COURSE_STATS_URL}&race=${raceNo}`;
 
 
 	try {
 		const html = await fetchHtml(url);
+		const beforeInfo = parseKaratsuBeforeInfo(html);
 		const originalExhibition = parseKaratsuOriginalExhibition(html);
 		const venuePrediction = parseKaratsuVenuePrediction(html);
 		const racerComments = parseKaratsuRacerComments(html);
 		const startExhibition = parseKaratsuStartExhibition(html);
 
-		let motorSummary = [];
+		let motorOverallComments = [];
 		let abilityIndex = [];
+		let preRacePrediction = null;
+		let nationalRecent5 = [];
+		let racerCourseStats = [];
 
-		try {
-			const syussouHtml = await fetchHtml(syussouUrl);
-			motorSummary = parseKaratsuMotorSummary(syussouHtml);
-			abilityIndex = parseKaratsuAbilityIndex(syussouHtml);
-			} catch (error) {
-				console.warn(`[venue-extras] karatsu ${raceNo}R motor summary failed: ${error.message}`);
-			}
+		const [syussouResult, nationalRecent5Result, racerCourseStatsResult] = await Promise.allSettled([
+			fetchHtml(syussouUrl),
+			fetchHtml(nationalRecent5Url),
+			fetchHtml(racerCourseStatsUrl),
+		]);
+
+		if (syussouResult.status === "fulfilled") {
+			motorOverallComments = parseKaratsuMotorSummary(syussouResult.value);
+			abilityIndex = parseKaratsuAbilityIndex(syussouResult.value);
+			preRacePrediction = parseKaratsuPreRacePrediction(syussouResult.value);
+		} else {
+			console.warn(`[venue-extras] karatsu ${raceNo}R motor summary failed: ${syussouResult.reason?.message ?? "fetch failed"}`);
+		}
+
+		if (nationalRecent5Result.status === "fulfilled") {
+			nationalRecent5 = parseKaratsuNationalRecent5(nationalRecent5Result.value);
+		} else {
+			console.warn(`[venue-extras] karatsu ${raceNo}R national recent5 failed: ${nationalRecent5Result.reason?.message ?? "fetch failed"}`);
+		}
+
+		if (racerCourseStatsResult.status === "fulfilled") {
+			racerCourseStats = parseKaratsuRacerCourseStats(racerCourseStatsResult.value);
+		} else {
+			console.warn(`[venue-extras] karatsu ${raceNo}R racer course stats failed: ${racerCourseStatsResult.reason?.message ?? "fetch failed"}`);
+		}
 
 		if (
+			!beforeInfo?.officialBeforeInfo &&
 			!originalExhibition.length &&
+			!nationalRecent5.length &&
+			!racerCourseStats.length &&
 			!venuePrediction &&
 			!racerComments.length &&
 			!startExhibition.length &&
-			!motorSummary.length &&
-			!abilityIndex.length
+			!motorOverallComments.length &&
+			!abilityIndex.length &&
+			!preRacePrediction
 		) {
 			console.log(`[venue-extras] karatsu ${raceNo}R: no extra rows yet`);
 			return null;
 		}
 
 		console.log(
-				`[venue-extras] karatsu ${raceNo}R: ${originalExhibition.length} exhibition rows${venuePrediction ? " + prediction" : ""}${racerComments.length ? ` + ${racerComments.length} comments` : ""}${startExhibition.length ? ` + ${startExhibition.length} start rows` : ""}${motorSummary.length ? ` + ${motorSummary.length} motor summaries` : ""}${abilityIndex.length ? ` + ${abilityIndex.length} ability rows` : ""}`,
+				`[venue-extras] karatsu ${raceNo}R: ${originalExhibition.length} exhibition rows${nationalRecent5.length ? ` + ${nationalRecent5.length} national recent5` : ""}${racerCourseStats.length ? ` + ${racerCourseStats.length} course stats` : ""}${venuePrediction ? " + prediction" : ""}${preRacePrediction ? " + pre-race prediction" : ""}${racerComments.length ? ` + ${racerComments.length} comments` : ""}${startExhibition.length ? ` + ${startExhibition.length} start rows` : ""}${motorOverallComments.length ? ` + ${motorOverallComments.length} motor comments` : ""}${abilityIndex.length ? ` + ${abilityIndex.length} ability rows` : ""}`,
 		);
 
 		return {
 			raceNo,
-	        status: "available",
-	        source: KARATSU_SOURCE,
-	        sourceType: "official-venue-beforeinfo",
-	        originalExhibition,
-	        venuePrediction,
-	        racerComments,
-	        startExhibition,
-	        motorSummary,
-	        abilityIndex,
+			status: "available",
+			source: KARATSU_SOURCE,
+			sourceType: "official-venue-beforeinfo",
+			officialBeforeInfo: beforeInfo?.officialBeforeInfo ?? null,
+			weatherCondition: beforeInfo?.weatherCondition ?? null,
+			originalExhibition,
+			nationalRecent5,
+			racerCourseStats,
+			preRacePrediction,
+			venuePrediction,
+			racerComments,
+			startExhibition,
+			motorOverallComments,
+			motorSummary: motorOverallComments,
+			abilityIndex,
 		};
 	} catch (error) {
 		console.warn(`[venue-extras] karatsu ${raceNo}R failed: ${error.message}`);
@@ -9837,20 +10608,154 @@ async function createKaratsuVenue(feed) {
 
 	const races = getRaceList(karatsuVenue);
 	const raceExtras = [];
+	const [
+		timerankResult,
+		currentSeriesResult,
+		scoreRankingResult,
+		allRacerCommentsResult,
+		marutokuResult,
+		resultListResult,
+		motorDataResult,
+		boatDataResult,
+		waterSurfaceResult,
+	] = await Promise.allSettled([
+		fetchHtml(KARATSU_TIMERANK_URL),
+		fetchHtml(KARATSU_CURRENT_SERIES_URL),
+		fetchHtml(KARATSU_SCORE_RANKING_URL),
+		fetchHtml(KARATSU_ALL_RACER_COMMENTS_URL),
+		fetchHtml(KARATSU_MARUTOKU_URL),
+		fetchHtml(KARATSU_RESULT_LIST_URL),
+		fetchHtml(KARATSU_MOTOR_DATA_URL),
+		fetchHtml(KARATSU_BOAT_DATA_URL),
+		fetchHtml(KARATSU_WATER_SURFACE_URL),
+	]);
+	const commonSettledMap = {
+		timerank: timerankResult,
+		currentSeries: currentSeriesResult,
+		scoreRanking: scoreRankingResult,
+		allRacerComments: allRacerCommentsResult,
+		marutoku: marutokuResult,
+		resultList: resultListResult,
+		motorData: motorDataResult,
+		boatData: boatDataResult,
+		waterSurface: waterSurfaceResult,
+	};
+	const scoreRanking = scoreRankingResult.status === "fulfilled"
+		? parseKaratsuScoreRanking(scoreRankingResult.value)
+		: { status: "pending", rows: [], warning: "scoreRanking: fetch failed" };
+	const commonData = {
+		motorLotteryAndPrecheck: timerankResult.status === "fulfilled" ? parseKaratsuTimerank(timerankResult.value) : [],
+		currentSeriesCourseStats: currentSeriesResult.status === "fulfilled" ? parseKaratsuCurrentSeriesCourseStats(currentSeriesResult.value) : [],
+		currentSeriesWinningMethods: currentSeriesResult.status === "fulfilled" ? parseKaratsuCurrentSeriesWinningMethods(currentSeriesResult.value) : [],
+		scoreRanking: scoreRanking.rows,
+		scoreRankingStatus: scoreRanking.status,
+		allRacerComments: allRacerCommentsResult.status === "fulfilled" ? parseKaratsuAllRacerComments(allRacerCommentsResult.value) : [],
+		marutoku: marutokuResult.status === "fulfilled" ? parseKaratsuMarutoku(marutokuResult.value) : [],
+		resultList: resultListResult.status === "fulfilled" ? parseKaratsuResultList(resultListResult.value) : [],
+		motorData: motorDataResult.status === "fulfilled" ? parseKaratsuMotorData(motorDataResult.value) : [],
+		boatData: boatDataResult.status === "fulfilled" ? parseKaratsuBoatData(boatDataResult.value) : [],
+		waterSurface: waterSurfaceResult.status === "fulfilled" ? parseKaratsuWaterSurface(waterSurfaceResult.value) : null,
+	};
 
 	for (const race of races) {
 		const raceExtra = await fetchKaratsuRaceExtra({
 			raceNo: race.raceNo,
 		});
+		const baseOfficialBeforeInfo = buildOfficialBeforeInfoForRace(race);
+		const officialBeforeInfo = mergeOfficialBeforeInfo(baseOfficialBeforeInfo, raceExtra?.officialBeforeInfo);
+		const weatherCondition = mergeVenueWeatherCondition(baseOfficialBeforeInfo?.weatherCondition, raceExtra?.weatherCondition);
+		const resultList = commonData.resultList.filter((item) => Number(item?.raceNo) === Number(race.raceNo));
+		const motorOverallComments = Array.isArray(raceExtra?.motorOverallComments) ? raceExtra.motorOverallComments : [];
+		const motorSummary = createKaratsuRaceMotorSummary(
+			race,
+			officialBeforeInfo,
+			motorOverallComments,
+			commonData.motorLotteryAndPrecheck,
+			commonData.allRacerComments,
+		);
+		const entryTable = createKaratsuRaceEntryTable(race, officialBeforeInfo);
+		const mergedStartExhibition = Array.isArray(raceExtra?.startExhibition) && raceExtra.startExhibition.length
+			? raceExtra.startExhibition
+			: Array.isArray(officialBeforeInfo?.startExhibition)
+				? officialBeforeInfo.startExhibition
+				: [];
+		const sourceStatus = createKaratsuRaceSourceStatus({
+			officialBeforeInfo,
+			preRacePrediction: raceExtra?.preRacePrediction ?? null,
+			originalExhibition: Array.isArray(raceExtra?.originalExhibition) ? raceExtra.originalExhibition : [],
+			nationalRecent5: Array.isArray(raceExtra?.nationalRecent5) ? raceExtra.nationalRecent5 : [],
+			racerCourseStats: Array.isArray(raceExtra?.racerCourseStats) ? raceExtra.racerCourseStats : [],
+			venuePrediction: raceExtra?.venuePrediction ?? null,
+			racerComments: Array.isArray(raceExtra?.racerComments) ? raceExtra.racerComments : [],
+			startExhibition: mergedStartExhibition,
+			motorSummary,
+			motorOverallComments,
+			abilityIndex: Array.isArray(raceExtra?.abilityIndex) ? raceExtra.abilityIndex : [],
+			resultList,
+			entryTable,
+		});
+		const normalizedRaceExtra = {
+			raceNo: race.raceNo,
+			status: Object.values(sourceStatus).includes("available") ? "available" : "waiting",
+			source: KARATSU_SOURCE,
+			sourceType: "official-venue-beforeinfo",
+			officialBeforeInfo,
+			weatherCondition,
+			entryTable,
+			preRacePrediction: raceExtra?.preRacePrediction ?? null,
+			originalExhibition: Array.isArray(raceExtra?.originalExhibition) ? raceExtra.originalExhibition : [],
+			nationalRecent5: Array.isArray(raceExtra?.nationalRecent5) ? raceExtra.nationalRecent5 : [],
+			racerCourseStats: Array.isArray(raceExtra?.racerCourseStats) ? raceExtra.racerCourseStats : [],
+			venuePrediction: raceExtra?.venuePrediction ?? null,
+			racerComments: Array.isArray(raceExtra?.racerComments) ? raceExtra.racerComments : [],
+			startExhibition: mergedStartExhibition,
+			motorOverallComments,
+			motorSummary,
+			abilityIndex: Array.isArray(raceExtra?.abilityIndex) ? raceExtra.abilityIndex : [],
+			resultList,
+			sourceStatus,
+			warnings: createKaratsuWarnings(sourceStatus, {}, []),
+		};
 
-		if (raceExtra) {
-			raceExtras.push(raceExtra);
+		if (raceExtra || entryTable.length || resultList.length) {
+			raceExtras.push(normalizedRaceExtra);
 		}
 
 		await sleep(REQUEST_INTERVAL_MS);
 	}
 
-	if (!raceExtras.length) {
+	const venueSourceStatus = {
+		entry: raceExtras.some((race) => race.entryTable?.length) ? "available" : "pending",
+		preRacePrediction: raceExtras.some((race) => race.preRacePrediction) ? "available" : "pending",
+		beforeInfo: raceExtras.some((race) => race.officialBeforeInfo) ? "available" : "pending",
+		startExhibition: raceExtras.some((race) => race.startExhibition?.length) ? "available" : "pending",
+		originalExhibition: raceExtras.some((race) => race.originalExhibition?.length) ? "available" : "pending",
+		nationalRecent5: raceExtras.some((race) => race.nationalRecent5?.length) ? "available" : "pending",
+		racerCourseStats: raceExtras.some((race) => race.racerCourseStats?.length) ? "available" : "pending",
+		racerComments: raceExtras.some((race) => race.racerComments?.length) ? "available" : "pending",
+		venuePrediction: raceExtras.some((race) => race.venuePrediction) ? "available" : "pending",
+		motorBoat: raceExtras.some((race) => race.motorSummary?.length) ? "available" : "pending",
+		motorOverallComments: raceExtras.some((race) => race.motorOverallComments?.length) ? "available" : "pending",
+		abilityIndex: raceExtras.some((race) => race.abilityIndex?.length) ? "available" : "pending",
+		resultList: commonData.resultList.length ? "available" : "pending",
+		motorLotteryAndPrecheck: commonData.motorLotteryAndPrecheck.length ? "available" : "pending",
+		currentSeriesCourseStats: commonData.currentSeriesCourseStats.length ? "available" : "pending",
+		currentSeriesWinningMethods: commonData.currentSeriesWinningMethods.length ? "available" : "pending",
+		scoreRanking: commonData.scoreRankingStatus,
+		allRacerComments: commonData.allRacerComments.length ? "available" : "pending",
+		marutoku: commonData.marutoku.length || marutokuResult.status === "fulfilled" ? "available" : "pending",
+		motorData: commonData.motorData.length ? "available" : "pending",
+		boatData: commonData.boatData.length ? "available" : "pending",
+		waterSurface: commonData.waterSurface ? "available" : "pending",
+		frameLast10: "missing",
+		previousRaceAndParts: "missing",
+	};
+	const venueWarnings = createKaratsuWarnings(venueSourceStatus, commonSettledMap, [
+		scoreRanking.warning,
+		commonData.marutoku.length === 0 && marutokuResult.status === "fulfilled" ? "marutoku: no matching entries" : "",
+	]);
+
+	if (!raceExtras.length && !Object.values(commonData).some((value) => Array.isArray(value) ? value.length > 0 : Boolean(value))) {
 		console.log("[venue-extras] karatsu: held today, but no beforeinfo rows are available yet");
 
 		return {
@@ -9860,6 +10765,10 @@ async function createKaratsuVenue(feed) {
 			isAvailable: false,
 			status: "waiting-beforeinfo",
 			note: "唐津公式HPの直前情報・予想はまだ公開前、またはHTML構造が未対応です。",
+			sourceStatus: venueSourceStatus,
+			warnings: venueWarnings,
+			waterSurfaceInfo: commonData.waterSurface,
+			waterSurface: commonData.waterSurface,
 			races: [],
 		};
 	}
@@ -9868,8 +10777,22 @@ async function createKaratsuVenue(feed) {
 		venueCode: String(karatsuVenue.venueCode ?? "23"),
 		venueName: KARATSU_VENUE_NAME,
 		source: KARATSU_SOURCE,
-		isAvailable: true,
-		note: "唐津公式HPの直前情報・予想から、独自展示タイム・展示評価・直前予想を取得",
+		isAvailable: raceExtras.length > 0 || Object.values(venueSourceStatus).includes("available"),
+		status: Object.values(venueSourceStatus).includes("available") ? "available" : "waiting-karatsu-official-data",
+		note: "唐津公式HPの直前情報・直前予想・会場共通データから、レース単位と会場単位の補助情報を取得",
+		motorLotteryAndPrecheck: commonData.motorLotteryAndPrecheck,
+		currentSeriesCourseStats: commonData.currentSeriesCourseStats,
+		currentSeriesWinningMethods: commonData.currentSeriesWinningMethods,
+		scoreRanking: commonData.scoreRanking,
+		allRacerComments: commonData.allRacerComments,
+		marutoku: commonData.marutoku,
+		motorData: commonData.motorData,
+		boatData: commonData.boatData,
+		waterSurfaceInfo: commonData.waterSurface,
+		waterSurface: commonData.waterSurface,
+		resultList: commonData.resultList,
+		sourceStatus: venueSourceStatus,
+		warnings: venueWarnings,
 		races: raceExtras,
 	};
 }

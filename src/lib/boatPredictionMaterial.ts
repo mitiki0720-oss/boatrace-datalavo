@@ -523,9 +523,16 @@ const buildWaterAndCommentsBlock = (
 	raceExtra?: BoatVenueExtraRace | null,
 ) => {
 	const tideInfo = readVenueWaterRecord(raceExtra?.tideInfo) ?? readVenueWaterRecord(venueExtra?.tideInfo);
-	const waterSurfaceInfo = readVenueWaterRecord(raceExtra?.waterSurfaceInfo) ?? readVenueWaterRecord(venueExtra?.waterSurfaceInfo);
+	const waterSurfaceInfo =
+		readVenueWaterRecord(raceExtra?.waterSurfaceInfo) ??
+		readVenueWaterRecord((raceExtra as MaterialRecord | null | undefined)?.waterSurface) ??
+		readVenueWaterRecord(venueExtra?.waterSurfaceInfo) ??
+		readVenueWaterRecord((venueExtra as MaterialRecord | null | undefined)?.waterSurface);
 	const venuePrediction = readVenueWaterRecord(raceExtra?.venuePrediction);
+	const preRacePrediction = readVenueWaterRecord((raceExtra as MaterialRecord | null | undefined)?.preRacePrediction);
 	const racerComments = sortByFrameNo(toMaterialRecordArray(raceExtra?.racerComments));
+	const raceWarnings = toMaterialArray<string>((raceExtra as MaterialRecord | null | undefined)?.warnings).map((item) => readMaterialString(item)).filter(Boolean);
+	const venueWarnings = toMaterialArray<string>((venueExtra as MaterialRecord | null | undefined)?.warnings).map((item) => readMaterialString(item)).filter(Boolean);
 	const racerNameMap = buildRacerNameMap(racers);
 
 	const tideText = [
@@ -550,11 +557,17 @@ const buildWaterAndCommentsBlock = (
 		readMaterialString(venuePrediction?.comment),
 		readMaterialString(venuePrediction?.confidence) ? `信頼度 ${readMaterialString(venuePrediction?.confidence)}` : "",
 		getMainFocus(venuePrediction?.mainFocus).length > 0 ? `注目 ${getMainFocus(venuePrediction?.mainFocus).join("、")}` : "",
+		readMaterialString(preRacePrediction?.focus) ? `直前中心 ${readMaterialString(preRacePrediction?.focus)}` : "",
+		readMaterialString(preRacePrediction?.hole) ? `直前穴 ${readMaterialString(preRacePrediction?.hole)}` : "",
+		Array.isArray(preRacePrediction?.recommendedBets) && preRacePrediction.recommendedBets.length > 0 ? `直前買い目 ${preRacePrediction.recommendedBets.map((item) => readMaterialString(item)).filter(Boolean).join("、")}` : "",
+		readMaterialString(preRacePrediction?.comment),
 		readMaterialString(raceExtra?.memo),
 		readMaterialString(venueExtra?.note),
 	]
 		.filter(Boolean)
 		.join(" / ");
+
+	const warningText = [...raceWarnings, ...venueWarnings].join(" / ");
 
 	const commentLines = racerComments.map((row) => {
 		const frameNo = readMaterialNumber(row.frameNo);
@@ -571,6 +584,7 @@ const buildWaterAndCommentsBlock = (
 		`- 潮汐: ${toDisplay(tideText, "未取得")}`,
 		`- 水面傾向: ${toDisplay(waterText, "未取得")}`,
 		`- 会場コメント: ${toDisplay(venueComment, "未取得")}`,
+		`- 取得注意: ${toDisplay(warningText, "未取得")}`,
 		commentLines.length > 0 ? `- 選手コメント:\n${commentLines.join("\n")}` : "- 選手コメント: 未取得",
 	].join("\n");
 };
@@ -627,6 +641,16 @@ const extraKeyLabels: Record<string, string> = {
 	omuraRacerCommentsMotor: "大村コメント・モーター",
 
 	narutoRacerPerformance: "鳴門選手成績",
+	karatsuNationalRecent5: "唐津全国最近5節成績",
+	karatsuRacerCourseStats: "唐津進入コース別選手成績",
+	karatsuCurrentSeriesCourseStats: "唐津今節進入コース別成績",
+	karatsuCurrentSeriesWinningMethods: "唐津今節決まり手",
+	karatsuScoreRanking: "唐津得点率ランキング",
+	karatsuTimerank: "唐津前検タイム・抽選結果",
+	karatsuAllRacerComments: "唐津全選手コメント・モーター評価",
+	karatsuMarutoku: "唐津マル得情報",
+	karatsuMotorData: "唐津モーターデータ",
+	karatsuBoatData: "唐津ボートデータ",
 
 	originalExhibition: "会場独自展示",
 	motorSummary: "モーター概要",
@@ -662,6 +686,10 @@ const recentPerformanceExtraKeys = [
 	"tamagawaScoreRateGuide",
 	"omuraPreviousDayResults",
 	"narutoRacerPerformance",
+	"karatsuNationalRecent5",
+	"karatsuCurrentSeriesCourseStats",
+	"karatsuCurrentSeriesWinningMethods",
+	"karatsuScoreRanking",
 	"miyajimaScoreRateGuide",
 	"miyajimaSectionResults",
 	"miyajimaNationalRecent3",
@@ -681,6 +709,7 @@ const frameCourseExtraKeys = [
 	"tamagawaFramePast10",
 	"omuraNationalFrameStats",
 	"omuraFrameLast10",
+	"karatsuRacerCourseStats",
 	"miyajimaFrameLast10",
 	"miyajimaCourseResults",
 ];
@@ -692,6 +721,11 @@ const motorExtraKeys = [
 	"kojimaMotorStats",
 	"tamagawaMotorHistory",
 	"omuraRacerCommentsMotor",
+	"karatsuTimerank",
+	"karatsuAllRacerComments",
+	"karatsuMarutoku",
+	"karatsuMotorData",
+	"karatsuBoatData",
 	"miyajimaMotorHistory",
 	"motorSummary",
 	"abilityIndex",
@@ -706,8 +740,12 @@ const formatGenericExtraRow = (row: MaterialRecord, racerNameMap: Map<number, st
 	const playerName = resolvePlayerName(frameNo, racerNameMap, row.playerName, row.name, row.racerName, row.boatRacerName);
 
 	const preferredPairs = [
+		["登録", row.registrationNo],
+		["級別", row.className],
+		["支部", row.branch],
 		["成績", row.result ?? row.results ?? row.seriesResult ?? row.finish],
 		["着順", row.rank ?? row.order ?? row.finishOrder],
+		["日", row.dayLabel],
 		["ST", row.startTiming ?? row.st ?? row.averageStart ?? row.avgSt],
 		["scoreRate", row.scoreRate],
 		["scoreRank", row.scoreRank],
@@ -725,14 +763,21 @@ const formatGenericExtraRow = (row: MaterialRecord, racerNameMap: Map<number, st
 		["勝率", row.winRate ?? row.localWinRate],
 		["2連率", row.secondRate ?? row.twoRate ?? row.localSecondRate],
 		["コース", row.course ?? row.entryCourse ?? row.approachCourse],
+		["カテゴリ", row.category],
+		["期間", row.period],
 		["モーター", row.motorNo ?? row.motorNumber],
 		["M2連率", row.motorSecondRate ?? row.motorTwoRate],
+		["素性", row.motorNature ?? row.motorNatureEvaluation],
+		["前検", row.precheckTime],
+		["ボート", row.boatNo],
+		["B2連率", row.boatSecondRate],
 		["展示", row.exhibitionTime ?? row.displayTime],
 		["一周", row.lapTime ?? row.oneLapTime],
 		["回り足", row.turnTime ?? row.turningTime],
 		["直線", row.straightTime],
 		["評価", row.evaluation ?? row.rankText ?? row.mark],
 		["コメント", row.comment ?? row.memo ?? row.motorComment],
+		["メモ", row.note],
 	];
 
 	const parts = preferredPairs
@@ -757,7 +802,19 @@ const formatGenericExtraRow = (row: MaterialRecord, racerNameMap: Map<number, st
 		parts.push(...genericParts);
 	}
 
-	const label = frameNo ? `${getFrameLabel(frameNo)} ${playerName}` : playerName;
+	const contextualLabel = [
+		readMaterialString(row.racerName),
+		readMaterialString(row.playerName),
+		readMaterialString(row.name),
+		readMaterialString(row.dayLabel) ? `${readMaterialString(row.dayLabel)}日目` : "",
+		readMaterialString(row.course) ? `${readMaterialString(row.course)}コース` : "",
+		readMaterialString(row.category),
+		readMaterialString(row.motorNo) ? `モーター${readMaterialString(row.motorNo)}` : "",
+		readMaterialString(row.boatNo) ? `ボート${readMaterialString(row.boatNo)}` : "",
+	]
+		.filter(Boolean)
+		.join(" ");
+	const label = frameNo ? `${getFrameLabel(frameNo)} ${playerName}` : contextualLabel || playerName || "未取得";
 
 	return `- ${label}: ${parts.length > 0 ? parts.join(" / ") : "詳細未取得"}`;
 };
