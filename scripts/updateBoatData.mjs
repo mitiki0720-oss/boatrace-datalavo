@@ -108,6 +108,10 @@ function buildVenueExtrasArgs({ mode, targetDate }) {
 	return ["scripts/updateBoatVenueExtras.mjs", "--target-date", targetDate];
 }
 
+function buildUpcomingScheduleArgs({ targetDate }) {
+	return ["scripts/updateBoatUpcomingSchedule.mjs", "--target-date", targetDate];
+}
+
 function runNodeScript(args) {
 	return new Promise((resolve, reject) => {
 		const child = spawn(process.execPath, args, {
@@ -165,6 +169,9 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 	} else {
 		console.log(`[update-boat-data] skipping venue extras for mode=${options.mode}`);
 	}
+
+	console.log("[update-boat-data] upcoming schedule update enabled");
+	await runNodeScript(appendOutputDir(buildUpcomingScheduleArgs(options), rawOptions.outputDir));
 }
 
 const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;

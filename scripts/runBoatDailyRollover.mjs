@@ -381,6 +381,43 @@ function validateActiveFeed(name, payload, currentDate) {
 	return { venues: venues.length, races };
 }
 
+function validateScheduleFeed(payload, currentDate, limitDate) {
+	if (!payload || typeof payload !== "object") {
+		throw new Error("upcoming-schedule.generated.json is not a JSON object");
+	}
+	if (!hasValidGeneratedAt(payload)) {
+		throw new Error("upcoming-schedule.generated.json generatedAt is missing or invalid");
+	}
+	const items = toArray(payload.items);
+	if (items.length <= 0 && payload.sourceStatus !== "no-schedule") {
+		throw new Error("upcoming-schedule.generated.json has zero items without sourceStatus=no-schedule");
+	}
+
+	const keys = new Set();
+	for (const item of items) {
+		const date = String(item?.date || "").trim();
+		const venueCode = String(item?.venueCode || "").trim();
+		const startDate = String(item?.startDate || "").trim();
+		const endDate = String(item?.endDate || item?.startDate || "").trim();
+		if (!date || !venueCode || !String(item?.venueName || "").trim() || !String(item?.seriesName || item?.title || "").trim()) {
+			throw new Error(`upcoming schedule item is missing required fields: ${JSON.stringify(item)}`);
+		}
+		if (date < currentDate || date > limitDate) {
+			throw new Error(`upcoming schedule item date out of range: ${date}`);
+		}
+		if (endDate < currentDate || startDate > limitDate) {
+			throw new Error(`upcoming schedule item range out of range: ${startDate}..${endDate}`);
+		}
+		const key = `${date}-${venueCode}`;
+		if (keys.has(key)) {
+			throw new Error(`duplicate upcoming schedule item: ${key}`);
+		}
+		keys.add(key);
+	}
+
+	return { items: items.length };
+}
+
 async function runCommand(command, args, cwd) {
 	return new Promise((resolve, reject) => {
 		const child = spawn(command, args, {
@@ -414,11 +451,12 @@ async function refreshActiveFeeds(root, currentDate, options, changedFiles) {
 	const todayPath = path.join(tempDir, "today.generated.json");
 	const detailsPath = path.join(tempDir, "today-race-details.generated.json");
 	const extrasPath = path.join(tempDir, "venue-extras.generated.json");
+	const schedulePath = path.join(tempDir, "upcoming-schedule.generated.json");
 
 	if (options.dryRun) {
 		console.log("[boat-daily-rollover] active refresh planned");
 		console.log(`[boat-daily-rollover] temp output: ${path.relative(root, tempDir).replaceAll("\\", "/")}`);
-		for (const key of ["today", "raceDetails", "venueExtras"]) {
+		for (const key of ["today", "raceDetails", "venueExtras", "schedule"]) {
 			changedFiles.add(path.relative(root, resolveDataPath(root, key)).replaceAll("\\", "/"));
 		}
 		return;
@@ -442,9 +480,11 @@ async function refreshActiveFeeds(root, currentDate, options, changedFiles) {
 		const todayPayload = await readJsonIfExists(todayPath, null);
 		const detailsPayload = await readJsonIfExists(detailsPath, null);
 		const extrasPayload = await readJsonIfExists(extrasPath, null);
+		const schedulePayload = await readJsonIfExists(schedulePath, null);
 		const todayStats = validateActiveFeed("today.generated.json", todayPayload, currentDate);
 		const detailsStats = validateActiveFeed("today-race-details.generated.json", detailsPayload, currentDate);
 		const extrasStats = validateActiveFeed("venue-extras.generated.json", extrasPayload, currentDate);
+		const scheduleStats = validateScheduleFeed(schedulePayload, currentDate, shiftBoatOperationalDateKey(currentDate, 31));
 
 		if (todayStats.venues !== detailsStats.venues || todayStats.races !== detailsStats.races) {
 			throw new Error(`today/details count mismatch: today=${todayStats.venues}/${todayStats.races}, details=${detailsStats.venues}/${detailsStats.races}`);
@@ -453,13 +493,15 @@ async function refreshActiveFeeds(root, currentDate, options, changedFiles) {
 		console.log(`[boat-daily-rollover] today venues: ${todayStats.venues}`);
 		console.log(`[boat-daily-rollover] today races: ${todayStats.races}`);
 		console.log(`[boat-daily-rollover] extras venues: ${extrasStats.venues}`);
+		console.log(`[boat-daily-rollover] schedule items: ${scheduleStats.items}`);
 		console.log("[boat-daily-rollover] active refresh verified");
 
 		await atomicReplaceJson(todayPath, resolveDataPath(root, "today"));
 		await atomicReplaceJson(detailsPath, resolveDataPath(root, "raceDetails"));
 		await atomicReplaceJson(extrasPath, resolveDataPath(root, "venueExtras"));
+		await atomicReplaceJson(schedulePath, resolveDataPath(root, "schedule"));
 
-		for (const key of ["today", "raceDetails", "venueExtras"]) {
+		for (const key of ["today", "raceDetails", "venueExtras", "schedule"]) {
 			changedFiles.add(path.relative(root, resolveDataPath(root, key)).replaceAll("\\", "/"));
 		}
 		console.log("[boat-daily-rollover] atomic replace completed");
