@@ -1059,7 +1059,7 @@ function parseKaratsuScoreRanking(html) {
 	return {
 		status: rows.length > 0 ? "available" : "pending",
 		rows,
-		warning: rows.length === 0 ? "scoreRanking: not published or not parsed yet" : "",
+		warning: rows.length === 0 ? "scoreRanking: pending next Karatsu meet or not available after event end" : "",
 	};
 }
 
@@ -1339,22 +1339,25 @@ function createKaratsuRaceMotorSummary(race, officialBeforeInfo, motorOverallCom
 }
 
 function createKaratsuRaceSourceStatus({ officialBeforeInfo, preRacePrediction, originalExhibition, venuePrediction, racerComments, startExhibition, motorSummary, motorOverallComments, abilityIndex, resultList, entryTable, nationalRecent5, racerCourseStats }) {
+	const pendingNextMeet = "pending-next-meet";
 	return {
-		entry: entryTable.length ? "available" : "missing",
-		preRacePrediction: preRacePrediction ? "available" : "pending",
-		beforeInfo: officialBeforeInfo ? "available" : "pending",
-		startExhibition: startExhibition.length ? "available" : "pending",
-		originalExhibition: originalExhibition.length ? "available" : "pending",
-		nationalRecent5: nationalRecent5.length ? "available" : "pending",
-		racerCourseStats: racerCourseStats.length ? "available" : "pending",
-		racerComments: racerComments.length ? "available" : "pending",
-		venuePrediction: venuePrediction ? "available" : "pending",
-		motorBoat: motorSummary.length ? "available" : "pending",
-		motorOverallComments: motorOverallComments.length ? "available" : "pending",
-		abilityIndex: abilityIndex.length ? "available" : "pending",
-		resultList: resultList.length ? "available" : "pending",
-		frameLast10: "missing",
-		previousRaceAndParts: "missing",
+		entry: entryTable.length ? "available" : "parse-empty",
+		preRacePrediction: preRacePrediction ? "available" : pendingNextMeet,
+		beforeInfo: officialBeforeInfo ? "available" : pendingNextMeet,
+		startExhibition: startExhibition.length ? "available" : pendingNextMeet,
+		originalExhibition: originalExhibition.length ? "available" : pendingNextMeet,
+		nationalRecent5: nationalRecent5.length ? "available" : pendingNextMeet,
+		racerCourseStats: racerCourseStats.length ? "available" : pendingNextMeet,
+		racerComments: racerComments.length ? "available" : pendingNextMeet,
+		venuePrediction: venuePrediction ? "available" : pendingNextMeet,
+		motorBoat: motorSummary.length ? "available" : pendingNextMeet,
+		motorOverallComments: motorOverallComments.length ? "available" : pendingNextMeet,
+		abilityIndex: abilityIndex.length ? "available" : pendingNextMeet,
+		resultList: resultList.length ? "available" : pendingNextMeet,
+		frameLast10: "not-supported",
+		previousRaceAndParts: "not-supported",
+		sectionResults: "not-supported",
+		scoreQuickLook: "not-supported",
 	};
 }
 
@@ -1367,9 +1370,15 @@ function createKaratsuWarnings(sourceStatus, settledMap, extraWarnings = []) {
 	}
 	for (const [label, status] of Object.entries(sourceStatus)) {
 		if (status === "pending") {
-			warnings.push(`${label}: not published or not parsed yet`);
+			warnings.push(`${label}: pending next Karatsu meet or not available after event end`);
 		}
-		if (status === "missing") {
+		if (status === "pending-next-meet") {
+			warnings.push(`${label}: pending next Karatsu meet or not available after event end`);
+		}
+		if (status === "parse-empty") {
+			warnings.push(`${label}: parser returned empty rows`);
+		}
+		if (status === "not-supported") {
 			warnings.push(`${label}: not implemented for karatsu yet`);
 		}
 		if (status === "not-published") {
@@ -10724,35 +10733,36 @@ async function createKaratsuVenue(feed) {
 		await sleep(REQUEST_INTERVAL_MS);
 	}
 
+	const pendingNextMeet = "pending-next-meet";
 	const venueSourceStatus = {
-		entry: raceExtras.some((race) => race.entryTable?.length) ? "available" : "pending",
-		preRacePrediction: raceExtras.some((race) => race.preRacePrediction) ? "available" : "pending",
-		beforeInfo: raceExtras.some((race) => race.officialBeforeInfo) ? "available" : "pending",
-		startExhibition: raceExtras.some((race) => race.startExhibition?.length) ? "available" : "pending",
-		originalExhibition: raceExtras.some((race) => race.originalExhibition?.length) ? "available" : "pending",
-		nationalRecent5: raceExtras.some((race) => race.nationalRecent5?.length) ? "available" : "pending",
-		racerCourseStats: raceExtras.some((race) => race.racerCourseStats?.length) ? "available" : "pending",
-		racerComments: raceExtras.some((race) => race.racerComments?.length) ? "available" : "pending",
-		venuePrediction: raceExtras.some((race) => race.venuePrediction) ? "available" : "pending",
-		motorBoat: raceExtras.some((race) => race.motorSummary?.length) ? "available" : "pending",
-		motorOverallComments: raceExtras.some((race) => race.motorOverallComments?.length) ? "available" : "pending",
-		abilityIndex: raceExtras.some((race) => race.abilityIndex?.length) ? "available" : "pending",
-		resultList: commonData.resultList.length ? "available" : "pending",
-		motorLotteryAndPrecheck: commonData.motorLotteryAndPrecheck.length ? "available" : "pending",
-		currentSeriesCourseStats: commonData.currentSeriesCourseStats.length ? "available" : "pending",
-		currentSeriesWinningMethods: commonData.currentSeriesWinningMethods.length ? "available" : "pending",
+		entry: raceExtras.some((race) => race.entryTable?.length) ? "available" : "parse-empty",
+		preRacePrediction: raceExtras.some((race) => race.preRacePrediction) ? "available" : pendingNextMeet,
+		beforeInfo: raceExtras.some((race) => race.officialBeforeInfo) ? "available" : pendingNextMeet,
+		startExhibition: raceExtras.some((race) => race.startExhibition?.length) ? "available" : pendingNextMeet,
+		originalExhibition: raceExtras.some((race) => race.originalExhibition?.length) ? "available" : pendingNextMeet,
+		nationalRecent5: raceExtras.some((race) => race.nationalRecent5?.length) ? "available" : pendingNextMeet,
+		racerCourseStats: raceExtras.some((race) => race.racerCourseStats?.length) ? "available" : pendingNextMeet,
+		racerComments: raceExtras.some((race) => race.racerComments?.length) ? "available" : pendingNextMeet,
+		venuePrediction: raceExtras.some((race) => race.venuePrediction) ? "available" : pendingNextMeet,
+		motorBoat: raceExtras.some((race) => race.motorSummary?.length) ? "available" : pendingNextMeet,
+		motorOverallComments: raceExtras.some((race) => race.motorOverallComments?.length) ? "available" : pendingNextMeet,
+		abilityIndex: raceExtras.some((race) => race.abilityIndex?.length) ? "available" : pendingNextMeet,
+		resultList: commonData.resultList.length ? "available" : pendingNextMeet,
+		motorLotteryAndPrecheck: commonData.motorLotteryAndPrecheck.length ? "available" : pendingNextMeet,
+		currentSeriesCourseStats: commonData.currentSeriesCourseStats.length ? "available" : pendingNextMeet,
+		currentSeriesWinningMethods: commonData.currentSeriesWinningMethods.length ? "available" : pendingNextMeet,
 		scoreRanking: commonData.scoreRankingStatus,
-		allRacerComments: commonData.allRacerComments.length ? "available" : "pending",
-		marutoku: commonData.marutoku.length || marutokuResult.status === "fulfilled" ? "available" : "pending",
-		motorData: commonData.motorData.length ? "available" : "pending",
-		boatData: commonData.boatData.length ? "available" : "pending",
-		waterSurface: commonData.waterSurface ? "available" : "pending",
-		frameLast10: "missing",
-		previousRaceAndParts: "missing",
+		allRacerComments: commonData.allRacerComments.length ? "available" : pendingNextMeet,
+		marutoku: commonData.marutoku.length ? "available" : pendingNextMeet,
+		motorData: commonData.motorData.length ? "available" : pendingNextMeet,
+		boatData: commonData.boatData.length ? "available" : pendingNextMeet,
+		waterSurface: commonData.waterSurface ? "available" : pendingNextMeet,
+		frameLast10: "not-supported",
+		previousRaceAndParts: "not-supported",
 	};
 	const venueWarnings = createKaratsuWarnings(venueSourceStatus, commonSettledMap, [
 		scoreRanking.warning,
-		commonData.marutoku.length === 0 && marutokuResult.status === "fulfilled" ? "marutoku: no matching entries" : "",
+		commonData.marutoku.length === 0 && marutokuResult.status === "fulfilled" ? "marutoku: pending next Karatsu meet or not available after event end" : "",
 	]);
 
 	if (!raceExtras.length && !Object.values(commonData).some((value) => Array.isArray(value) ? value.length > 0 : Boolean(value))) {
