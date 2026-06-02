@@ -2118,6 +2118,73 @@ type BoatMikuniWaterSurfaceDisplay = {
 	courseNote: string;
 };
 
+type BoatKaratsuPreRacePredictionDisplay = {
+	entryPrediction: string;
+	confidence: string;
+	focusBets: string[];
+	comment: string;
+	jlcEntryPrediction: string;
+	jlcConfidence: string;
+	jlcFocusBets: string[];
+};
+
+type BoatKaratsuEntryTableRow = {
+	frameNo: number;
+	registrationNo: string;
+	racerName: string;
+	racerClass: string;
+	branch: string;
+	averageStartTiming: string;
+	nationalWinRate: string;
+	nationalSecondRate: string;
+	localWinRate: string;
+	localSecondRate: string;
+	source?: string | undefined;
+};
+
+type BoatKaratsuRecentSeriesItem = {
+	startDate: string;
+	venue: string;
+	grade: string;
+	results: string;
+};
+
+type BoatKaratsuRecentSeriesRow = {
+	frameNo: number;
+	registrationNo: string;
+	racerName: string;
+	className: string;
+	recentSeries: BoatKaratsuRecentSeriesItem[];
+	source?: string | undefined;
+};
+
+type BoatKaratsuCourseStatRow = {
+	frameNo: number;
+	racerName: string;
+	course: string;
+	entryRate: string;
+	averageStartTiming: string;
+	firstRate: string;
+	secondRate: string;
+	thirdRate: string;
+	fourthRate: string;
+	fifthRate: string;
+	sixthRate: string;
+	source?: string | undefined;
+};
+
+type BoatKaratsuResultListRow = {
+	raceNo: number;
+	trifecta: string;
+	trifectaPayout: string;
+	exacta: string;
+	exactaPayout: string;
+	note: string;
+	source?: string | undefined;
+};
+
+type BoatKaratsuCommonTableRow = Record<string, string | number | undefined>;
+
 async function loadBoatVenueExtrasFeed(): Promise<BoatVenueExtrasFeed | null> {
 	try {
 		const response = await fetch(`${withBasePath("data/boatrace/venue-extras.generated.json")}?ts=${Date.now()}`, {
@@ -2590,6 +2657,151 @@ function getVenueWaterMemo(
 		tideInfo,
 		waterSurfaceInfo,
 	};
+}
+
+function getKaratsuPreRacePredictionDisplay(raceExtra: BoatVenueExtraRace | null): BoatKaratsuPreRacePredictionDisplay | null {
+	if (!raceExtra || !isVenueExtraRecord(raceExtra.preRacePrediction)) {
+		return null;
+	}
+
+	const prediction = raceExtra.preRacePrediction;
+	const focusBets = Array.isArray(prediction.focusBets)
+		? prediction.focusBets.map((item) => String(item).trim()).filter(Boolean)
+		: [];
+	const jlcFocusBets = Array.isArray(prediction.jlcFocusBets)
+		? prediction.jlcFocusBets.map((item) => String(item).trim()).filter(Boolean)
+		: [];
+
+	const display = {
+		entryPrediction: readVenueExtraString(prediction.entryPrediction),
+		confidence: readVenueExtraString(prediction.confidence),
+		focusBets,
+		comment: readVenueExtraString(prediction.comment),
+		jlcEntryPrediction: readVenueExtraString(prediction.jlcEntryPrediction),
+		jlcConfidence: readVenueExtraString(prediction.jlcConfidence),
+		jlcFocusBets,
+	};
+
+	if (!display.entryPrediction && !display.confidence && !display.focusBets.length && !display.comment && !display.jlcEntryPrediction && !display.jlcConfidence && !display.jlcFocusBets.length) {
+		return null;
+	}
+
+	return display;
+}
+
+function getKaratsuEntryTable(raceExtra: BoatVenueExtraRace | null): BoatKaratsuEntryTableRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.entryTable)) {
+		return [];
+	}
+
+	return raceExtra.entryTable
+		.filter(isVenueExtraRecord)
+		.map((item) => ({
+			frameNo: readVenueExtraNumber(item.frameNo) ?? 0,
+			registrationNo: readVenueExtraString(item.registrationNo),
+			racerName: readVenueExtraString(item.racerName),
+			racerClass: readVenueExtraString(item.racerClass),
+			branch: readVenueExtraString(item.branch),
+			averageStartTiming: readVenueExtraString(item.averageStartTiming),
+			nationalWinRate: readVenueExtraString(item.nationalWinRate),
+			nationalSecondRate: readVenueExtraString(item.nationalSecondRate),
+			localWinRate: readVenueExtraString(item.localWinRate),
+			localSecondRate: readVenueExtraString(item.localSecondRate),
+			source: readVenueExtraString(item.source) || undefined,
+		}))
+		.filter((item) => item.frameNo > 0)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getKaratsuNationalRecent5(raceExtra: BoatVenueExtraRace | null): BoatKaratsuRecentSeriesRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.nationalRecent5)) {
+		return [];
+	}
+
+	return raceExtra.nationalRecent5
+		.filter(isVenueExtraRecord)
+		.map((item) => ({
+			frameNo: readVenueExtraNumber(item.frameNo) ?? 0,
+			registrationNo: readVenueExtraString(item.registrationNo),
+			racerName: readVenueExtraString(item.racerName),
+			className: readVenueExtraString(item.className),
+			recentSeries: Array.isArray(item.recentSeries)
+				? item.recentSeries.filter(isVenueExtraRecord).map((history) => ({
+					startDate: readVenueExtraString(history.startDate),
+					venue: readVenueExtraString(history.venue),
+					grade: readVenueExtraString(history.grade),
+					results: readVenueExtraString(history.results),
+				}))
+				: [],
+			source: readVenueExtraString(item.source) || undefined,
+		}))
+		.filter((item) => item.frameNo > 0)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function getKaratsuRacerCourseStats(raceExtra: BoatVenueExtraRace | null): BoatKaratsuCourseStatRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.racerCourseStats)) {
+		return [];
+	}
+
+	return raceExtra.racerCourseStats
+		.filter(isVenueExtraRecord)
+		.map((item) => ({
+			frameNo: readVenueExtraNumber(item.frameNo) ?? 0,
+			racerName: readVenueExtraString(item.racerName),
+			course: readVenueExtraString(item.course),
+			entryRate: readVenueExtraString(item.entryRate),
+			averageStartTiming: readVenueExtraString(item.averageStartTiming),
+			firstRate: readVenueExtraString(item.firstRate),
+			secondRate: readVenueExtraString(item.secondRate),
+			thirdRate: readVenueExtraString(item.thirdRate),
+			fourthRate: readVenueExtraString(item.fourthRate),
+			fifthRate: readVenueExtraString(item.fifthRate),
+			sixthRate: readVenueExtraString(item.sixthRate),
+			source: readVenueExtraString(item.source) || undefined,
+		}))
+		.filter((item) => item.frameNo > 0 && item.course)
+		.sort((left, right) => left.frameNo - right.frameNo || Number(left.course) - Number(right.course));
+}
+
+function getKaratsuResultList(raceExtra: BoatVenueExtraRace | null): BoatKaratsuResultListRow[] {
+	if (!raceExtra || !Array.isArray(raceExtra.resultList)) {
+		return [];
+	}
+
+	return raceExtra.resultList
+		.filter(isVenueExtraRecord)
+		.map((item) => ({
+			raceNo: readVenueExtraNumber(item.raceNo) ?? 0,
+			trifecta: readVenueExtraString(item.trifecta),
+			trifectaPayout: readVenueExtraString(item.trifectaPayout),
+			exacta: readVenueExtraString(item.exacta),
+			exactaPayout: readVenueExtraString(item.exactaPayout),
+			note: readVenueExtraString(item.note),
+			source: readVenueExtraString(item.source) || undefined,
+		}))
+		.filter((item) => item.raceNo > 0);
+}
+
+function getKaratsuCommonTableRows(venueExtra: BoatVenueExtraVenue | null, key: string): BoatKaratsuCommonTableRow[] {
+	if (!venueExtra) {
+		return [];
+	}
+
+	const value = (venueExtra as Record<string, unknown>)[key];
+	if (!Array.isArray(value)) {
+		return [];
+	}
+
+	return value.filter(isVenueExtraRecord).map((item) => Object.fromEntries(Object.entries(item).map(([entryKey, entryValue]) => [entryKey, readVenueExtraString(entryValue) || (typeof entryValue === "number" ? entryValue : undefined)])));
+}
+
+function getKaratsuWarnings(value: unknown): string[] {
+	if (!isVenueExtraRecord(value) || !Array.isArray(value.warnings)) {
+		return [];
+	}
+
+	return value.warnings.map((item) => String(item).trim()).filter(Boolean);
 }
 
 function readVenueWeatherCondition(value: unknown): BoatOfficialWeatherCondition | null {
@@ -5539,7 +5751,7 @@ const selectedRacerComments = useMemo(
 	[selectedRaceExtra],
 );
 
-const shouldShowVenuePrediction = false as boolean;
+const shouldShowVenuePrediction = selectedVenue?.venueName === "唐津";
 
 const selectedMotorSummary = useMemo(
 	() => getVenueMotorSummary(selectedRaceExtra),
@@ -5564,6 +5776,81 @@ const selectedAbilityIndexByFrame = useMemo(
 const selectedStartExhibition = useMemo(
 	() => getVenueStartExhibition(selectedRaceExtra),
 	[selectedRaceExtra],
+);
+
+const selectedKaratsuPreRacePrediction = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuPreRacePredictionDisplay(selectedRaceExtra) : null,
+	[selectedVenue?.venueName, selectedRaceExtra],
+);
+
+const selectedKaratsuEntryTable = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuEntryTable(selectedRaceExtra) : [],
+	[selectedVenue?.venueName, selectedRaceExtra],
+);
+
+const selectedKaratsuNationalRecent5 = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuNationalRecent5(selectedRaceExtra) : [],
+	[selectedVenue?.venueName, selectedRaceExtra],
+);
+
+const selectedKaratsuRacerCourseStats = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuRacerCourseStats(selectedRaceExtra) : [],
+	[selectedVenue?.venueName, selectedRaceExtra],
+);
+
+const selectedKaratsuResultList = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuResultList(selectedRaceExtra) : [],
+	[selectedVenue?.venueName, selectedRaceExtra],
+);
+
+const selectedKaratsuTimerank = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuCommonTableRows(selectedVenueExtra, "motorLotteryAndPrecheck") : [],
+	[selectedVenue?.venueName, selectedVenueExtra],
+);
+
+const selectedKaratsuCurrentSeriesCourseStats = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuCommonTableRows(selectedVenueExtra, "currentSeriesCourseStats") : [],
+	[selectedVenue?.venueName, selectedVenueExtra],
+);
+
+const selectedKaratsuCurrentSeriesWinningMethods = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuCommonTableRows(selectedVenueExtra, "currentSeriesWinningMethods") : [],
+	[selectedVenue?.venueName, selectedVenueExtra],
+);
+
+const selectedKaratsuScoreRanking = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuCommonTableRows(selectedVenueExtra, "scoreRanking") : [],
+	[selectedVenue?.venueName, selectedVenueExtra],
+);
+
+const selectedKaratsuAllRacerComments = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuCommonTableRows(selectedVenueExtra, "allRacerComments") : [],
+	[selectedVenue?.venueName, selectedVenueExtra],
+);
+
+const selectedKaratsuMarutoku = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuCommonTableRows(selectedVenueExtra, "marutoku") : [],
+	[selectedVenue?.venueName, selectedVenueExtra],
+);
+
+const selectedKaratsuMotorData = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuCommonTableRows(selectedVenueExtra, "motorData") : [],
+	[selectedVenue?.venueName, selectedVenueExtra],
+);
+
+const selectedKaratsuBoatData = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuCommonTableRows(selectedVenueExtra, "boatData") : [],
+	[selectedVenue?.venueName, selectedVenueExtra],
+);
+
+const selectedKaratsuRaceWarnings = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuWarnings(selectedRaceExtra) : [],
+	[selectedVenue?.venueName, selectedRaceExtra],
+);
+
+const selectedKaratsuVenueWarnings = useMemo(
+	() => selectedVenue?.venueName === "唐津" ? getKaratsuWarnings(selectedVenueExtra) : [],
+	[selectedVenue?.venueName, selectedVenueExtra],
 );
 
 const selectedWaterMemo = useMemo(
@@ -6110,7 +6397,11 @@ const hasStartExhibitionData = selectedStartExhibition.length > 0;
 const hasVenuePredictionFocus = Boolean(
 	shouldShowVenuePrediction &&
 	selectedVenuePrediction &&
-	selectedVenuePrediction.mainFocus.length > 0,
+	(
+		selectedVenuePrediction.mainFocus.length > 0 ||
+		Boolean(selectedVenuePrediction.confidence) ||
+		Boolean(selectedVenuePrediction.comment)
+	),
 );
 const shouldShowOriginalExhibitionWaiting = Boolean(selectedRaceExtra && !hasOriginalExhibitionData);
 const shouldShowVenuePredictionWaiting = Boolean(
@@ -10260,6 +10551,251 @@ body:has(.races-page-root) {
 						</section>
 					) : null}
 
+					{isKaratsuVenue && selectedKaratsuEntryTable.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>唐津出走表サマリー</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "1120px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>枠</th>
+											<th style={venueExtrasHeadCellStyle}>登録番号</th>
+											<th style={venueExtrasHeadCellStyle}>選手</th>
+											<th style={venueExtrasHeadCellStyle}>級別</th>
+											<th style={venueExtrasHeadCellStyle}>支部</th>
+											<th style={venueExtrasHeadCellStyle}>平均ST</th>
+											<th style={venueExtrasHeadCellStyle}>全国勝率</th>
+											<th style={venueExtrasHeadCellStyle}>全国2連率</th>
+											<th style={venueExtrasHeadCellStyle}>当地勝率</th>
+											<th style={venueExtrasHeadCellStyle}>当地2連率</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedKaratsuEntryTable.map((item) => (
+											<tr key={`karatsu-entry-${item.frameNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.registrationNo || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.racerName || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.racerClass || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.branch || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.averageStartTiming || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.nationalWinRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.nationalSecondRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.localWinRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.localSecondRate || "-"}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isKaratsuVenue && selectedKaratsuNationalRecent5.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>全国最近5節成績</h4>
+							<div style={venueExtrasCommentListStyle}>
+								{selectedKaratsuNationalRecent5.map((item) => (
+									<article key={`karatsu-recent5-${item.frameNo}`} style={venueExtrasRacerCommentCardStyle}>
+										<div style={venueExtrasRacerCommentHeaderStyle}>
+											<p style={venueExtrasRacerCommentFrameStyle}>{item.frameNo}号艇 {item.racerName || `枠${item.frameNo}`}</p>
+											{item.className ? <span style={venueExtrasFocusPillStyle}>{item.className}</span> : null}
+										</div>
+										<div style={{ display: "grid", gap: "6px" }}>
+											{item.recentSeries.map((series, index) => (
+												<p key={`karatsu-recent5-row-${item.frameNo}-${index}`} style={venueExtrasCommentStyle}>{series.startDate || "-"} / {series.venue || "-"} / {series.grade || "-"} / {series.results || "-"}</p>
+											))}
+										</div>
+									</article>
+								))}
+							</div>
+						</section>
+					) : null}
+
+					{isKaratsuVenue && selectedKaratsuRacerCourseStats.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>進入コース別選手成績</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "1100px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>枠</th>
+											<th style={venueExtrasHeadCellStyle}>選手</th>
+											<th style={venueExtrasHeadCellStyle}>コース</th>
+											<th style={venueExtrasHeadCellStyle}>進入率</th>
+											<th style={venueExtrasHeadCellStyle}>平均ST</th>
+											<th style={venueExtrasHeadCellStyle}>1着</th>
+											<th style={venueExtrasHeadCellStyle}>2着</th>
+											<th style={venueExtrasHeadCellStyle}>3着</th>
+											<th style={venueExtrasHeadCellStyle}>4着</th>
+											<th style={venueExtrasHeadCellStyle}>5着</th>
+											<th style={venueExtrasHeadCellStyle}>6着</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedKaratsuRacerCourseStats.map((item, index) => (
+											<tr key={`karatsu-course-stat-${item.frameNo}-${item.course}-${index}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.racerName || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.course || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.entryRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.averageStartTiming || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.firstRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.secondRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.thirdRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.fourthRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.fifthRate || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.sixthRate || "-"}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isKaratsuVenue && selectedKaratsuCurrentSeriesCourseStats.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>今節の進入コース別成績</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "940px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>日</th>
+											<th style={venueExtrasHeadCellStyle}>コース</th>
+											<th style={venueExtrasHeadCellStyle}>1着</th>
+											<th style={venueExtrasHeadCellStyle}>2着</th>
+											<th style={venueExtrasHeadCellStyle}>3着</th>
+											<th style={venueExtrasHeadCellStyle}>4着</th>
+											<th style={venueExtrasHeadCellStyle}>5着</th>
+											<th style={venueExtrasHeadCellStyle}>6着</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedKaratsuCurrentSeriesCourseStats.map((item, index) => (
+											<tr key={`karatsu-current-course-${index}`}>
+												<td style={venueExtrasBodyCellStyle}>{String(item.dayLabel ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.course ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.firstCount ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.secondCount ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.thirdCount ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.fourthCount ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.fifthCount ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.sixthCount ?? "-")}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isKaratsuVenue && selectedKaratsuCurrentSeriesWinningMethods.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>今節の決まり手</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "760px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>日</th>
+											<th style={venueExtrasHeadCellStyle}>逃げ</th>
+											<th style={venueExtrasHeadCellStyle}>まくり</th>
+											<th style={venueExtrasHeadCellStyle}>差し</th>
+											<th style={venueExtrasHeadCellStyle}>まくり差し</th>
+											<th style={venueExtrasHeadCellStyle}>抜き</th>
+											<th style={venueExtrasHeadCellStyle}>恵まれ</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedKaratsuCurrentSeriesWinningMethods.map((item, index) => (
+											<tr key={`karatsu-winning-${index}`}>
+												<td style={venueExtrasBodyCellStyle}>{String(item.dayLabel ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.nige ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.makuri ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.sashi ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.makuriSashi ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.nuki ?? "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.megumare ?? "-")}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isKaratsuVenue && (selectedKaratsuScoreRanking.length || selectedKaratsuVenueWarnings.some((warning) => warning.includes("scoreRanking"))) ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>得点率ランキング</h4>
+							{selectedKaratsuScoreRanking.length ? (
+								<div style={venueExtrasTableWrapStyle}>
+									<table style={{ ...venueExtrasTableStyle, minWidth: "960px" }}>
+										<thead>
+											<tr>
+												<th style={venueExtrasHeadCellStyle}>順位</th>
+												<th style={venueExtrasHeadCellStyle}>登録番号</th>
+												<th style={venueExtrasHeadCellStyle}>選手</th>
+												<th style={venueExtrasHeadCellStyle}>級別</th>
+												<th style={venueExtrasHeadCellStyle}>得点率</th>
+												<th style={venueExtrasHeadCellStyle}>得点</th>
+												<th style={venueExtrasHeadCellStyle}>減点</th>
+												<th style={venueExtrasHeadCellStyle}>出走</th>
+												<th style={venueExtrasHeadCellStyle}>節間成績</th>
+											</tr>
+										</thead>
+										<tbody>
+											{selectedKaratsuScoreRanking.map((item, index) => (
+												<tr key={`karatsu-score-${index}`}>
+													<td style={venueExtrasBodyCellStyle}>{String(item.rank ?? "-")}</td>
+													<td style={venueExtrasBodyCellStyle}>{String(item.registrationNo ?? "-")}</td>
+													<td style={venueExtrasBodyCellStyle}>{String(item.racerName ?? "-")}</td>
+													<td style={venueExtrasBodyCellStyle}>{String(item.className ?? "-")}</td>
+													<td style={venueExtrasBodyCellStyle}>{String(item.scoreRate ?? "-")}</td>
+													<td style={venueExtrasBodyCellStyle}>{String(item.score ?? "-")}</td>
+													<td style={venueExtrasBodyCellStyle}>{String(item.penalty ?? "-")}</td>
+													<td style={venueExtrasBodyCellStyle}>{String(item.starts ?? "-")}</td>
+													<td style={venueExtrasBodyCellStyle}>{String(item.sectionResults ?? "-")}</td>
+												</tr>
+											))}
+										</tbody>
+									</table>
+								</div>
+							) : (
+								<p style={venueExtrasEmptyStyle}>唐津公式の得点率ランキングは予選終了後のため現在は非公開です。</p>
+							)}
+						</section>
+					) : null}
+
+					{isKaratsuVenue && selectedKaratsuResultList.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>結果一覧</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "720px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>R</th>
+											<th style={venueExtrasHeadCellStyle}>3連単</th>
+											<th style={venueExtrasHeadCellStyle}>払戻</th>
+											<th style={venueExtrasHeadCellStyle}>2連単</th>
+											<th style={venueExtrasHeadCellStyle}>払戻</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedKaratsuResultList.map((item) => (
+											<tr key={`karatsu-result-${item.raceNo}`}>
+												<td style={venueExtrasBodyCellStyle}>{item.raceNo}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.trifecta || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.trifectaPayout || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.exacta || "-"}</td>
+												<td style={venueExtrasBodyCellStyle}>{item.exactaPayout || "-"}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
 					{isMiyajimaVenue && selectedRaceExtra ? (
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>宮島公式 予想素材データ</h4>
@@ -11046,6 +11582,184 @@ body:has(.races-page-root) {
 						</section>
 					) : null}
 
+					{isKaratsuVenue && selectedKaratsuTimerank.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>前検タイム・抽選結果</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "980px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>順位</th>
+											<th style={venueExtrasHeadCellStyle}>登録番号</th>
+											<th style={venueExtrasHeadCellStyle}>選手</th>
+											<th style={venueExtrasHeadCellStyle}>級別</th>
+											<th style={venueExtrasHeadCellStyle}>モーター</th>
+											<th style={venueExtrasHeadCellStyle}>モーター2連率</th>
+											<th style={venueExtrasHeadCellStyle}>素性</th>
+											<th style={venueExtrasHeadCellStyle}>ボート</th>
+											<th style={venueExtrasHeadCellStyle}>ボート2連率</th>
+											<th style={venueExtrasHeadCellStyle}>前検タイム</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedKaratsuTimerank.map((item, index) => (
+											<tr key={`karatsu-timerank-${String(item.registrationNo || index)}-${index}`}>
+												<td style={venueExtrasBodyCellStyle}>{String(item.rank || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.registrationNo || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.racerName || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.className || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.motorNo || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.motorSecondRate || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.motorNature || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.boatNo || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.boatSecondRate || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.precheckTime || "-")}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isKaratsuVenue && selectedKaratsuAllRacerComments.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>全選手コメント・モーター評価</h4>
+							<div style={venueExtrasCommentListStyle}>
+								{selectedKaratsuAllRacerComments.map((item, index) => (
+									<article key={`karatsu-all-comments-${String(item.registrationNo || index)}-${index}`} style={venueExtrasRacerCommentCardStyle}>
+										<div style={venueExtrasRacerCommentHeaderStyle}>
+											<p style={venueExtrasRacerCommentFrameStyle}>{String(item.racerName || "選手コメント")}</p>
+											{String(item.className || "") ? <span style={venueExtrasFocusPillStyle}>{String(item.className)}</span> : null}
+										</div>
+										<p style={venueExtrasRacerCommentTextStyle}>出足 {String(item.motorOutEvaluation || "-")} / 伸び足 {String(item.motorStretchEvaluation || "-")} / 素性 {String(item.motorNatureEvaluation || "-")}</p>
+										{String(item.comment || "") ? <p style={venueExtrasCommentStyle}>{String(item.comment)}</p> : null}
+									</article>
+								))}
+							</div>
+						</section>
+					) : null}
+
+					{isKaratsuVenue && selectedKaratsuMarutoku.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>今節出場選手のマル得情報</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "980px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>カテゴリ</th>
+											<th style={venueExtrasHeadCellStyle}>登録番号</th>
+											<th style={venueExtrasHeadCellStyle}>選手</th>
+											<th style={venueExtrasHeadCellStyle}>級別</th>
+											<th style={venueExtrasHeadCellStyle}>支部</th>
+											<th style={venueExtrasHeadCellStyle}>期間/メモ</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedKaratsuMarutoku.map((item, index) => (
+											<tr key={`karatsu-marutoku-${index}`}>
+												<td style={venueExtrasBodyCellStyle}>{String(item.category || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.registrationNo || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.racerName || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.className || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.branch || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.note || item.period || "-")}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isKaratsuVenue && selectedKaratsuMotorData.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>モーターデータ</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "1180px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>モーター</th>
+											<th style={venueExtrasHeadCellStyle}>素性</th>
+											<th style={venueExtrasHeadCellStyle}>節数</th>
+											<th style={venueExtrasHeadCellStyle}>2連率</th>
+											<th style={venueExtrasHeadCellStyle}>勝率</th>
+											<th style={venueExtrasHeadCellStyle}>事故率</th>
+											<th style={venueExtrasHeadCellStyle}>1着</th>
+											<th style={venueExtrasHeadCellStyle}>2着</th>
+											<th style={venueExtrasHeadCellStyle}>3着</th>
+											<th style={venueExtrasHeadCellStyle}>出走</th>
+											<th style={venueExtrasHeadCellStyle}>優出</th>
+											<th style={venueExtrasHeadCellStyle}>優勝</th>
+											<th style={venueExtrasHeadCellStyle}>最高タイム</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedKaratsuMotorData.map((item, index) => (
+											<tr key={`karatsu-motor-data-${String(item.motorNo || index)}-${index}`}>
+												<td style={venueExtrasBodyCellStyle}>{String(item.motorNo || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.motorNature || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.sections || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.secondRate || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.winRate || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.accidentRate || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.firstCount || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.secondCount || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.thirdCount || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.starts || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.finalCount || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.championshipCount || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.bestTime || "-")}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
+					{isKaratsuVenue && selectedKaratsuBoatData.length ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>ボートデータ</h4>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "1080px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>ボート</th>
+											<th style={venueExtrasHeadCellStyle}>節数</th>
+											<th style={venueExtrasHeadCellStyle}>2連率</th>
+											<th style={venueExtrasHeadCellStyle}>勝率</th>
+											<th style={venueExtrasHeadCellStyle}>事故率</th>
+											<th style={venueExtrasHeadCellStyle}>1着</th>
+											<th style={venueExtrasHeadCellStyle}>2着</th>
+											<th style={venueExtrasHeadCellStyle}>3着</th>
+											<th style={venueExtrasHeadCellStyle}>出走</th>
+											<th style={venueExtrasHeadCellStyle}>優出</th>
+											<th style={venueExtrasHeadCellStyle}>優勝</th>
+										</tr>
+									</thead>
+									<tbody>
+										{selectedKaratsuBoatData.map((item, index) => (
+											<tr key={`karatsu-boat-data-${String(item.boatNo || index)}-${index}`}>
+												<td style={venueExtrasBodyCellStyle}>{String(item.boatNo || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.sections || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.secondRate || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.winRate || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.accidentRate || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.firstCount || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.secondCount || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.thirdCount || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.starts || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.finalCount || "-")}</td>
+												<td style={venueExtrasBodyCellStyle}>{String(item.championshipCount || "-")}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
 					{isTsuVenue && hasTsuMotorHistoryData ? (
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>津モーター・ボート履歴</h4>
@@ -11149,6 +11863,77 @@ body:has(.races-page-root) {
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>公式予想観点</h4>
 							<p style={venueExtrasEmptyStyle}>公式予想観点は未取得待ちです。</p>
+						</section>
+					) : null}
+
+					{isKaratsuVenue && selectedKaratsuPreRacePrediction ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>直前予想</h4>
+							<div style={venueExtrasStatusGridStyle}>
+								{selectedKaratsuPreRacePrediction.entryPrediction ? (
+									<article style={venueExtrasStatusCardStyle}>
+										<p style={venueExtrasStatusLabelStyle}>進入想定</p>
+										<p style={venueExtrasStatusValueStyle}>{selectedKaratsuPreRacePrediction.entryPrediction}</p>
+									</article>
+								) : null}
+								{selectedKaratsuPreRacePrediction.confidence ? (
+									<article style={venueExtrasStatusCardStyle}>
+										<p style={venueExtrasStatusLabelStyle}>信頼度</p>
+										<p style={venueExtrasStatusValueStyle}>{selectedKaratsuPreRacePrediction.confidence}</p>
+									</article>
+								) : null}
+								{selectedKaratsuPreRacePrediction.jlcEntryPrediction ? (
+									<article style={venueExtrasStatusCardStyle}>
+										<p style={venueExtrasStatusLabelStyle}>JLC進入想定</p>
+										<p style={venueExtrasStatusValueStyle}>{selectedKaratsuPreRacePrediction.jlcEntryPrediction}</p>
+									</article>
+								) : null}
+								{selectedKaratsuPreRacePrediction.jlcConfidence ? (
+									<article style={venueExtrasStatusCardStyle}>
+										<p style={venueExtrasStatusLabelStyle}>JLC信頼度</p>
+										<p style={venueExtrasStatusValueStyle}>{selectedKaratsuPreRacePrediction.jlcConfidence}</p>
+									</article>
+								) : null}
+							</div>
+							{selectedKaratsuPreRacePrediction.focusBets.length ? (
+								<div style={venueExtrasFocusListStyle}>
+									{selectedKaratsuPreRacePrediction.focusBets.map((bet: string) => (
+										<span key={`karatsu-pre-race-bet-${bet}`} style={venueExtrasFocusPillStyle}>{bet}</span>
+									))}
+								</div>
+							) : null}
+							{selectedKaratsuPreRacePrediction.jlcFocusBets.length ? (
+								<div style={venueExtrasFocusListStyle}>
+									{selectedKaratsuPreRacePrediction.jlcFocusBets.map((bet: string) => (
+										<span key={`karatsu-pre-race-jlc-bet-${bet}`} style={venueExtrasFocusPillStyle}>{`JLC ${bet}`}</span>
+									))}
+								</div>
+							) : null}
+							{selectedKaratsuPreRacePrediction.comment ? <p style={venueExtrasCommentStyle}>{selectedKaratsuPreRacePrediction.comment}</p> : null}
+						</section>
+					) : null}
+
+					{isKaratsuVenue && (selectedKaratsuRaceWarnings.length || selectedKaratsuVenueWarnings.length) ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>唐津公式の注意メモ</h4>
+							<div style={venueExtrasCommentListStyle}>
+								{selectedKaratsuRaceWarnings.map((warning, index) => (
+									<article key={`karatsu-race-warning-${index}`} style={venueExtrasRacerCommentCardStyle}>
+										<div style={venueExtrasRacerCommentHeaderStyle}>
+											<p style={venueExtrasRacerCommentFrameStyle}>レース単位</p>
+										</div>
+										<p style={venueExtrasRacerCommentTextStyle}>{warning}</p>
+									</article>
+								))}
+								{selectedKaratsuVenueWarnings.map((warning, index) => (
+									<article key={`karatsu-venue-warning-${index}`} style={venueExtrasRacerCommentCardStyle}>
+										<div style={venueExtrasRacerCommentHeaderStyle}>
+											<p style={venueExtrasRacerCommentFrameStyle}>会場共通</p>
+										</div>
+										<p style={venueExtrasRacerCommentTextStyle}>{warning}</p>
+									</article>
+								))}
+							</div>
 						</section>
 					) : null}
 
