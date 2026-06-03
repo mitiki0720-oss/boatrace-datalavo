@@ -6,6 +6,7 @@ type BoatRaceQuickSelectorProps = {
 	races: BoatRaceItem[];
 	selectedRaceId: string;
 	onSelectRace: (raceId: string) => void;
+	getRaceAlerts?: (race: BoatRaceItem) => { label: string; level: "danger" | "warning" | "info" }[];
 };
 
 function getRaceKey(venueId: string, race: BoatRaceItem): string {
@@ -31,6 +32,7 @@ export function BoatRaceQuickSelector({
 	races,
 	selectedRaceId,
 	onSelectRace,
+	getRaceAlerts,
 }: BoatRaceQuickSelectorProps) {
 	return (
 		<section style={{ display: "grid", gap: "10px", width: "100%", minWidth: 0 }}>
@@ -96,6 +98,8 @@ export function BoatRaceQuickSelector({
 							const raceKey = getRaceKey(venueId, race);
 							const isSelected = raceKey === selectedRaceId;
 							const raceTitle = getRaceTitle(race);
+							const raceAlerts = getRaceAlerts?.(race) ?? [];
+							const primaryAlert = raceAlerts[0];
 
 							return (
 								<button
@@ -115,6 +119,10 @@ export function BoatRaceQuickSelector({
 											: "1px solid rgba(93, 199, 232, 0.18)",
 										background: isSelected
 											? "linear-gradient(180deg, rgba(18, 50, 74, 0.98), rgba(31, 73, 104, 0.96))"
+											: primaryAlert?.level === "danger"
+												? "linear-gradient(180deg, rgba(255, 241, 242, 0.99), rgba(255, 228, 230, 0.95))"
+												: primaryAlert?.level === "warning"
+													? "linear-gradient(180deg, rgba(255, 251, 235, 0.99), rgba(254, 243, 199, 0.95))"
 											: "linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(247, 252, 255, 0.95))",
 										boxShadow: isSelected
 											? "0 14px 26px rgba(18, 50, 74, 0.14)"
@@ -160,6 +168,39 @@ export function BoatRaceQuickSelector({
 										) : (
 											<div style={{ height: "10px" }} />
 										)}
+										{primaryAlert ? (
+											<span
+												style={{
+													display: "inline-flex",
+													alignItems: "center",
+													width: "fit-content",
+													maxWidth: "100%",
+													padding: "3px 7px",
+													borderRadius: "999px",
+													background: primaryAlert.level === "danger"
+														? "rgba(254, 226, 226, 0.96)"
+														: primaryAlert.level === "warning"
+															? "rgba(254, 240, 138, 0.86)"
+															: "rgba(219, 234, 254, 0.88)",
+													border: primaryAlert.level === "danger"
+														? "1px solid rgba(239, 68, 68, 0.28)"
+														: primaryAlert.level === "warning"
+															? "1px solid rgba(245, 158, 11, 0.3)"
+															: "1px solid rgba(59, 130, 246, 0.24)",
+													color: primaryAlert.level === "danger"
+														? "#991b1b"
+														: primaryAlert.level === "warning"
+															? "#92400e"
+															: "#1d4ed8",
+													fontSize: "0.62rem",
+													fontWeight: 900,
+													lineHeight: 1.1,
+													whiteSpace: "normal",
+												}}
+											>
+												{primaryAlert.label}
+											</span>
+										) : null}
 									</div>
 
 									<p

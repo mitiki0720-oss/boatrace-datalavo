@@ -6,6 +6,10 @@ import type {
 } from "./boatraceTypes";
 import type { BoatVenueExtraRace, BoatVenueExtraVenue } from "./boatVenueExtrasFeed";
 import {
+	formatBoatExhibitionParticipationAlertLabel,
+	resolveBoatExhibitionParticipationSummary,
+} from "./boatExhibitionParticipation";
+import {
 	buildBoatVenueFeatureFullMaterial,
 	buildBoatVenueUserInsightMaterial,
 	type BoatVenueFeatureNote,
@@ -286,6 +290,31 @@ const sortByFrameNo = (rows: MaterialRecord[]): MaterialRecord[] =>
 	[...rows].sort((left, right) => (readMaterialNumber(left.frameNo) ?? 99) - (readMaterialNumber(right.frameNo) ?? 99));
 
 const buildMissingBlock = () => "- 未取得";
+
+const buildParticipationAlertMaterialBlock = (race: BoatRaceItem, raceExtra?: BoatVenueExtraRace | null): string => {
+	const summary = resolveBoatExhibitionParticipationSummary(race, raceExtra);
+	if (summary.alerts.length === 0 && !summary.raceLevelLabel) {
+		return "- 展示不参加・欠場警告なし";
+	}
+
+	const lines = [
+		summary.raceLevelLabel ? `- レース状態: ${summary.raceLevelLabel}` : "",
+		...summary.alerts.map((alert) => {
+			const label = formatBoatExhibitionParticipationAlertLabel(alert);
+			const name = alert.racerName ? ` ${alert.racerName}` : "";
+			const reason = alert.officialReasonText ? ` / ${alert.officialReasonText}` : "";
+			const action = alert.excludeFromPrediction
+				? "予想対象から除外"
+				: alert.needsManualCheck
+					? "出走可否を確認するまで買い目確定を避ける"
+					: "欠場確定ではありません";
+			const missing = alert.missingSources.length > 0 ? ` / 欠測: ${alert.missingSources.join(", ")}` : "";
+			return `- ${alert.frameNo}号艇${name}: ${label} / ${action}${reason}${missing}`;
+		}),
+	].filter(Boolean);
+
+	return lines.join("\n");
+};
 
 const buildOfficialBeforeInfoBlock = (racers: BoatRacerItem[], raceExtra?: BoatVenueExtraRace | null) => {
 	const officialBeforeInfo = readOfficialBeforeInfo(raceExtra ?? undefined);
@@ -1109,6 +1138,10 @@ export function buildBoatPredictionMaterial(params: {
 			`レースタイトル: ${toDisplay(race.title)}`,
 			`時間帯: ${toDisplay(venue.session, "未設定")}`,
 			`race_id: ${toDisplay(race.raceId)}`,
+		].join("\n"),
+		[
+			"[A2. 最重要 / 欠場・展示不参加確認]",
+			buildParticipationAlertMaterialBlock(race, raceExtra),
 		].join("\n"),
 		[
 			"[B. \u4f1a\u5834\u7279\u5fb4\u30ce\u30fc\u30c8 / Venue Selector\u5168\u6587]",

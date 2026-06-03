@@ -35,6 +35,10 @@ import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import { withBasePath } from "../lib/assetPath";
 import type { BoatOddsPreviewGroup, BoatRacerItem, BoatTodayVenueItem, BoatWeatherActual } from "../lib/boatraceTypes";
 import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
+import {
+	formatBoatExhibitionParticipationAlertLabel,
+	resolveBoatExhibitionParticipationSummary,
+} from "../lib/boatExhibitionParticipation";
 import { pruneBoatOperationalLocalStorage } from "../lib/boatOperationalStoragePrune";
 import { buildCommonRaceFallbackRacers, isRaceEntryMissingOrThin } from "../lib/boatRaceRacerNormalizer";
 import { boatTheme } from "../lib/theme";
@@ -5731,6 +5735,39 @@ const selectedRaceExtra = useMemo(() => {
 	return selectedVenueExtra.races?.find((race) => race.raceNo === selectedRace.raceNo) ?? null;
 }, [selectedVenueExtra, selectedRace]);
 
+const getRaceExtraByRaceNo = (raceNo: number): BoatVenueExtraRace | null =>
+	selectedVenueExtra?.races?.find((race) => Number(race.raceNo) === Number(raceNo)) ?? null;
+
+const selectedParticipationSummary = useMemo(
+	() => resolveBoatExhibitionParticipationSummary(selectedRace, selectedRaceExtra),
+	[selectedRace, selectedRaceExtra],
+);
+
+const getRaceParticipationAlertChips = (race: typeof sampleBoatTodayFeed.venues[number]["races"][number]) => {
+	const summary = resolveBoatExhibitionParticipationSummary(race, getRaceExtraByRaceNo(race.raceNo));
+	const hasWithdrawn = summary.alerts.some((alert) => alert.status === "withdrawn");
+	const hasManualCheck = summary.alerts.some((alert) => alert.status === "exhibition-missing-needs-confirmation");
+	const hasPartial = summary.alerts.some((alert) => alert.status === "partial-exhibition-data");
+
+	if (hasWithdrawn) {
+		return [{ label: "欠場あり", level: "danger" as const }];
+	}
+
+	if (hasManualCheck) {
+		return [{ label: "出走可否要確認", level: "warning" as const }];
+	}
+
+	if (hasPartial) {
+		return [{ label: "展示一部欠測", level: "warning" as const }];
+	}
+
+	if (summary.raceLevelLabel) {
+		return [{ label: summary.raceLevelLabel, level: "info" as const }];
+	}
+
+	return [];
+};
+
 const selectedOfficialBeforeInfo = useMemo(
 	() => getOfficialBeforeInfoDisplay(selectedRaceExtra),
 	[selectedRaceExtra],
@@ -7846,6 +7883,7 @@ body:has(.races-page-root) {
 						venueId={selectedVenue?.id ?? ""}
 						races={selectedVenue?.races ?? []}
 						selectedRaceId={selectedRaceId}
+						getRaceAlerts={getRaceParticipationAlertChips}
 						onSelectRace={(raceId) => {
 							if (!selectedVenue) {
 								return;
@@ -7881,6 +7919,39 @@ body:has(.races-page-root) {
 				<span style={venueExtrasBadgeStyle}>{venueExtrasFeed?.venues?.length ?? 0}会場取得</span>
 			</div>
 		</div>
+
+		{selectedParticipationSummary.alerts.length > 0 || selectedParticipationSummary.raceLevelLabel ? (
+			<div
+				style={{
+					display: "grid",
+					gap: "8px",
+					padding: "12px 14px",
+					borderRadius: "16px",
+					background: selectedParticipationSummary.alerts.some((alert) => alert.status === "withdrawn")
+						? "rgba(255, 241, 242, 0.96)"
+						: "rgba(255, 251, 235, 0.96)",
+					border: selectedParticipationSummary.alerts.some((alert) => alert.status === "withdrawn")
+						? "1px solid rgba(239, 68, 68, 0.28)"
+						: "1px solid rgba(245, 158, 11, 0.28)",
+					color: selectedParticipationSummary.alerts.some((alert) => alert.status === "withdrawn") ? "#991b1b" : "#92400e",
+					fontSize: "0.8rem",
+					fontWeight: 800,
+					lineHeight: 1.6,
+				}}
+			>
+				{selectedParticipationSummary.raceLevelLabel ? (
+					<p style={{ margin: 0 }}>{selectedParticipationSummary.raceLevelLabel}</p>
+				) : null}
+				{selectedParticipationSummary.alerts.map((alert) => (
+					<p key={`${alert.frameNo}-${alert.status}`} style={{ margin: 0 }}>
+						{alert.frameNo}号艇 {alert.racerName ?? ""} / {formatBoatExhibitionParticipationAlertLabel(alert)}
+						{alert.officialConfirmed ? " / 公式確認済み" : " / 公式未確定"}
+						{alert.excludeFromPrediction ? " / 予想対象から除外" : alert.needsManualCheck ? " / 出走可否要確認" : ""}
+						{alert.officialReasonText ? ` / ${alert.officialReasonText}` : ""}
+					</p>
+				))}
+			</div>
+		) : null}
 
 		<div style={venueExtrasStatusGridStyle}>
 			<article style={venueExtrasStatusCardStyle}>
