@@ -1,5 +1,7 @@
 import type { BoatPredictionTicket } from "./boatraceTypes";
 
+const HYPHEN_LIKE_PATTERN = /[>＞→⇒‐-―－ーｰ〜～]/g;
+
 const normalizeIndex = (value: string) => value.padStart(2, "0");
 
 const normalizeGroup = (value?: string): BoatPredictionTicket["group"] => {
@@ -40,14 +42,33 @@ export function normalizeBoatCombination(value: string): string {
 	return trimHyphenEdges(
 		value
 			.normalize("NFKC")
-			.replace(/[>＞→ー―–－]+/g, "-")
+			.replace(HYPHEN_LIKE_PATTERN, "-")
 			.replace(/\s+/g, "")
 			.trim(),
 	);
 }
 
-export function parseBoatPredictionTickets(predictionText: string): BoatPredictionTicket[] {
+const isBetSectionHeading = (line: string): boolean => /買い目|買目|投票|舟券|BET|ベット/i.test(line.normalize("NFKC"));
+
+const isBetSectionEndHeading = (line: string): boolean => {
+	const normalized = line.normalize("NFKC").replace(/[【】\[\]]/g, "").trim();
+	return /^(最終チェック|タグ|危険な人気|穴候補|結果|振り返り|メモ|レビュー|総評|まとめ|買い足し)/i.test(normalized);
+};
+
+const extractPredictionTicketSection = (predictionText: string): string[] => {
 	const lines = predictionText.split(/\r?\n/);
+	const startIndex = lines.findIndex(isBetSectionHeading);
+
+	if (startIndex < 0) {
+		return [];
+	}
+
+	const endIndex = lines.findIndex((line, index) => index > startIndex && isBetSectionEndHeading(line));
+	return lines.slice(startIndex, endIndex > startIndex ? endIndex : undefined);
+};
+
+export function parseBoatPredictionTickets(predictionText: string): BoatPredictionTicket[] {
+	const lines = extractPredictionTicketSection(predictionText);
 	const tickets: BoatPredictionTicket[] = [];
 	const seen = new Set<string>();
 	let currentBetType: BoatPredictionTicket["betType"] | undefined;
@@ -78,14 +99,22 @@ export function parseBoatPredictionTickets(predictionText: string): BoatPredicti
 		const [, rawIndex, explicitBetType, remainder] = match;
 		const workingBetType = normalizeBetType(explicitBetType ?? currentBetType ?? "3連単");
 		const workingGroup = explicitBetType ? normalizeGroup(explicitBetType) : currentGroup ?? "その他";
-		const normalizedRemainder = remainder.normalize("NFKC").trim();
-		const comboMatch = normalizedRemainder.match(/([1-6][\s>＞→ー―–－-]*[1-6](?:[\s>＞→ー―–－-]*[1-6])?)/);
+		const normalizedRemainder = remainder.normalize("NFKC").replace(HYPHEN_LIKE_PATTERN, "-").trim();
+		const comboMatch = normalizedRemainder.match(/^([1-6]\s*-\s*[1-6](?:\s*-\s*[1-6])?)(?:\s|$)/);
 
 		if (!comboMatch) {
 			continue;
 		}
 
 		const combination = normalizeBoatCombination(comboMatch[1]);
+		const combinationNumbers = combination.split("-").map((value) => Number(value));
+		if (
+			combinationNumbers.some((value) => !Number.isInteger(value) || value < 1 || value > 6) ||
+			new Set(combinationNumbers).size !== combinationNumbers.length
+		) {
+			continue;
+		}
+
 		const noteText = normalizedRemainder.replace(comboMatch[1], "").trim();
 		const note = noteText || undefined;
 		const dedupeKey = `${workingBetType}:${combination}`;

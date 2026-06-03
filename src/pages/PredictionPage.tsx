@@ -2915,6 +2915,28 @@ body:has(.prediction-page-root) {
 				</div>
 
 				{practiceMessage ? <p style={practiceMessageStyle}>{practiceMessage}</p> : null}
+				{parsedBetSummary.warnings?.length ? (
+					<div
+						style={{
+							display: "grid",
+							gap: "6px",
+							padding: "10px 12px",
+							borderRadius: "14px",
+							background: "rgba(255, 247, 237, 0.96)",
+							border: "1px solid rgba(245, 158, 11, 0.28)",
+							color: "#92400e",
+							fontSize: "0.78rem",
+							fontWeight: 800,
+							lineHeight: 1.55,
+						}}
+					>
+						{parsedBetSummary.warnings.map((warning) => (
+							<p key={warning} style={{ margin: 0 }}>
+								{warning}
+							</p>
+						))}
+					</div>
+				) : null}
 				<BoatPracticeResultPanel
 					venueName={selectedVenue?.venueName ?? "-"}
 					raceNo={selectedRace?.raceNo ?? 0}

@@ -15,6 +15,7 @@ export type ParsedBoatBetSummary = {
 	trifectaCount: number;
 	exactaCount: number;
 	totalStakeYen: number;
+	warnings?: string[];
 };
 
 const DEFAULT_BET_AMOUNT_YEN = 100;
@@ -27,18 +28,21 @@ const typeLabels: Record<BoatBetType, string> = {
 	wide: "拡連複",
 };
 
+const HYPHEN_LIKE_PATTERN = /[‐-―－ーｰ〜～>＞→⇒]/g;
+
 export const emptyBoatBetSummary = (): ParsedBoatBetSummary => ({
 	bets: [],
 	totalBets: 0,
 	trifectaCount: 0,
 	exactaCount: 0,
 	totalStakeYen: 0,
+	warnings: [],
 });
 
 export function normalizeBoatBetCombination(value: string): string {
 	return value
 		.normalize("NFKC")
-		.replace(/[‐-‒–—―−－ーｰ~〜～>＞=＝]/g, "-")
+		.replace(HYPHEN_LIKE_PATTERN, "-")
 		.replace(/\s+/g, "")
 		.replace(/^-+|-+$/g, "");
 }
@@ -46,19 +50,19 @@ export function normalizeBoatBetCombination(value: string): string {
 const resolveBetTypeFromText = (value: string): BoatBetType | null => {
 	const text = value.normalize("NFKC");
 
-	if (/3\s*連\s*単|三\s*連\s*単|3\s*単/.test(text)) {
+	if (/3\s*連\s*単|三\s*連\s*単|3\s*単|trifecta/i.test(text)) {
 		return "trifecta";
 	}
 
-	if (/2\s*連\s*単|二\s*連\s*単|2\s*単/.test(text)) {
+	if (/2\s*連\s*単|二\s*連\s*単|2\s*単|exacta/i.test(text)) {
 		return "exacta";
 	}
 
-	if (/3\s*連\s*複|三\s*連\s*複|3\s*複/.test(text)) {
+	if (/3\s*連\s*複|三\s*連\s*複|3\s*複|trio/i.test(text)) {
 		return "trio";
 	}
 
-	if (/2\s*連\s*複|二\s*連\s*複|2\s*複/.test(text)) {
+	if (/2\s*連\s*複|二\s*連\s*複|2\s*複|quinella/i.test(text)) {
 		return "quinella";
 	}
 
@@ -92,53 +96,84 @@ const readAmountYen = (line: string, unitAmountYen: number): number => {
 	return Number.isFinite(parsed) && parsed > 0 ? parsed : unitAmountYen;
 };
 
-const extractBoatBetSection = (predictionText: string): string[] => {
-	const lines = predictionText.split(/\r?\n/);
+const isBetSectionHeading = (line: string): boolean => {
+	const text = line.normalize("NFKC");
+	return /買い目|買目|投票|舟券|BET|ベット/i.test(text);
+};
 
-	const startIndex = lines.findIndex((line) => {
-		const text = line.normalize("NFKC");
-		return /買い目|買い目📝|BET|ベット/i.test(text);
-	});
+const isBetSectionEndHeading = (line: string): boolean => {
+	const text = line.normalize("NFKC").replace(/[【】\[\]]/g, "").trim();
 
-	if (startIndex < 0) {
-		return lines;
+	if (!text) {
+		return false;
 	}
 
-	const endIndex = lines.findIndex((line, index) => {
-		if (index <= startIndex) {
-			return false;
-		}
+	if (/^(最終チェック|タグ|危険な人気|穴候補|結果|振り返り|メモ|レビュー|総評|まとめ|買い足し)/i.test(text)) {
+		return true;
+	}
 
-		const text = line.normalize("NFKC").replace(/[【】]/g, "").trim();
+	return /^【.+】$/.test(line.trim()) && !isBetSectionHeading(line);
+};
 
-		return /^(タグ|危険な人気|穴候補|結果|振り返り|メモ追記|レビュー|総評)/i.test(text);
-	});
+const extractBoatBetSection = (predictionText: string): { lines: string[]; hasSection: boolean } => {
+	const lines = predictionText.split(/\r?\n/);
+	const startIndex = lines.findIndex(isBetSectionHeading);
 
-	return lines.slice(startIndex, endIndex > startIndex ? endIndex : undefined);
+	if (startIndex < 0) {
+		return { lines: [], hasSection: false };
+	}
+
+	const endIndex = lines.findIndex((line, index) => index > startIndex && isBetSectionEndHeading(line));
+
+	return {
+		lines: lines.slice(startIndex, endIndex > startIndex ? endIndex : undefined),
+		hasSection: true,
+	};
 };
 
 const extractTicketCombinationFromLine = (line: string): string | null => {
 	const normalized = line
 		.normalize("NFKC")
-		.replace(/[‐-‒–—―−－ーｰ~〜～>＞=＝]/g, "-")
+		.replace(HYPHEN_LIKE_PATTERN, "-")
 		.trim();
 
-	const match = normalized.match(/^(?:0?[1-9]|1[0-2])(?:[.)．、]|\s)+([1-6]\s*-\s*[1-6](?:\s*-\s*[1-6])?)(?:\s|$)/);
+	const match =
+		normalized.match(/^(?:0?[1-9]|1[0-2])(?:[.)、:：|\s]+)([1-6]\s*-\s*[1-6](?:\s*-\s*[1-6])?)(?:\s|$)/) ||
+		normalized.match(/^([1-6]\s*-\s*[1-6](?:\s*-\s*[1-6])?)(?:\s|$)/);
 
 	if (!match) {
 		return null;
 	}
 
-	return normalizeBoatBetCombination(match[1]);
+	const normalizedCombination = normalizeBoatBetCombination(match[1]);
+	const numbers = normalizedCombination.split("-").map((value) => Number(value));
+	if (numbers.some((value) => !Number.isInteger(value) || value < 1 || value > 6)) {
+		return null;
+	}
+
+	if (new Set(numbers).size !== numbers.length) {
+		return null;
+	}
+
+	return normalizedCombination;
 };
 
 export function parseBoatBets(predictionText: string, unitAmountYen = DEFAULT_BET_AMOUNT_YEN): ParsedBoatBetSummary {
 	const bets: ParsedBoatBet[] = [];
 	const seen = new Set<string>();
+	const warnings: string[] = [];
 	let currentType: BoatBetType | null = null;
 	let currentLabel = "";
+	const section = extractBoatBetSection(predictionText);
 
-	for (const rawLine of extractBoatBetSection(predictionText)) {
+	if (!section.hasSection) {
+		return {
+			...emptyBoatBetSummary(),
+			warnings: ["買い目セクションが見つかりません。買い目📝以降に買い目を記載してください。"],
+		};
+	}
+
+	for (const rawLine of section.lines) {
 		const line = rawLine.trim();
 
 		if (!line || /^#/.test(line)) {
@@ -193,11 +228,16 @@ export function parseBoatBets(predictionText: string, unitAmountYen = DEFAULT_BE
 	const trifectaCount = bets.filter((bet) => bet.type === "trifecta").length;
 	const exactaCount = bets.filter((bet) => bet.type === "exacta").length;
 
+	if (totalBets > 0 && exactaCount > 0) {
+		warnings.push(`競艇予想は通常3連単です。読み取り買い目に2連単が${exactaCount}件含まれています。保存前に内容を確認してください。`);
+	}
+
 	return {
 		bets,
 		totalBets,
 		trifectaCount,
 		exactaCount,
 		totalStakeYen: totalBets * unitAmountYen,
+		warnings,
 	};
 }
