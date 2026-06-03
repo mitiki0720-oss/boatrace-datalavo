@@ -85,9 +85,12 @@ const KIRYU_WATER_SURFACE_URL = "https://www.kiryu-kyotei.com/modules/datafile/?
 const MIYAJIMA_VENUE_NAME = "\u5bae\u5cf6";
 const MIYAJIMA_SOURCE = "boatrace-miyajima.com";
 const MIYAJIMA_TOP_URL = "https://www.boatrace-miyajima.com/";
+const MIYAJIMA_RACECARD_URL = "https://www.boatrace-miyajima.com/racecard.html";
 const MIYAJIMA_RACEDATA_URL = "https://www.boatrace-miyajima.com/racedata.html";
 const MIYAJIMA_TIMERANK_URL = "https://www.boatrace-miyajima.com/raceinfo_timerank.html";
 const MIYAJIMA_SCORE_RATE_URL = "https://www.boatrace-miyajima.com/yosen_point_rank.html";
+const MIYAJIMA_RESULTS_URL = "https://www.boatrace-miyajima.com/results.html";
+const MIYAJIMA_SURFACE_URL = "https://www.boatrace-miyajima.com/surface.html";
 const MIYAJIMA_WEATHER_LIVE_URL = "https://www.boatrace-miyajima.com/weather_live/data/weather.txt";
 const FUKUOKA_VENUE_NAME = "福岡";
 const FUKUOKA_SOURCE = "boatrace-fukuoka.com";
@@ -14998,6 +15001,104 @@ function parseMiyajimaRaceDataLinks(html) {
 	return links;
 }
 
+function toMiyajimaOfficialDate(month, day, targetDate) {
+	const target = normalizeTargetDate(targetDate);
+	const targetYear = Number.parseInt(target.slice(0, 4), 10);
+	const targetMonth = Number.parseInt(target.slice(5, 7), 10);
+	let year = Number.isFinite(targetYear) ? targetYear : new Date().getFullYear();
+	const parsedMonth = Number.parseInt(month, 10);
+	const parsedDay = Number.parseInt(day, 10);
+
+	if (!Number.isInteger(parsedMonth) || !Number.isInteger(parsedDay)) {
+		return "";
+	}
+
+	if (targetMonth === 12 && parsedMonth === 1) {
+		year += 1;
+	} else if (targetMonth === 1 && parsedMonth === 12) {
+		year -= 1;
+	}
+
+	return `${year}-${String(parsedMonth).padStart(2, "0")}-${String(parsedDay).padStart(2, "0")}`;
+}
+
+function detectMiyajimaOfficialState(htmlByKey, targetDate) {
+	const texts = Object.entries(htmlByKey)
+		.map(([key, html]) => {
+			const $ = load(html || "");
+			const text = $("body").text().replace(/\s+/g, " ").trim();
+			return { key, text, title: $("title").text().trim() };
+		});
+	const combinedText = texts.map((item) => `${item.title} ${item.text}`).join(" ");
+	const headerDateMatch = combinedText.match(/(\d{1,2})\s*\/\s*(\d{1,2})\s*[^\s]{0,3}\s*(非開催|開催|本日|明日|レース)?/);
+	const officialTargetDate = headerDateMatch ? toMiyajimaOfficialDate(headerDateMatch[1], headerDateMatch[2], targetDate) : "";
+	const normalizedTargetDate = normalizeTargetDate(targetDate);
+	const isNonRaceDay = /非開催|発売はありません|本場[①-⑫0-9]*\s*発売はありません/.test(combinedText);
+	const isTomorrowPreview = /明日の情報|翌日開催|翌日/.test(combinedText) ||
+		(Boolean(officialTargetDate) && officialTargetDate > normalizedTargetDate);
+	const hasRaceCard = /出走表|レース番号|枠番|登番/.test(combinedText) && /1R|2R|3R|4R|5R|6R|7R|8R|9R|10R|11R|12R/.test(combinedText);
+	const hasResult = /レース結果|払戻|決まり手|3連単/.test(combinedText);
+	const officialDisplayMode = isNonRaceDay
+		? "non-race-day"
+		: isTomorrowPreview
+			? "tomorrow-preview"
+			: hasResult
+				? "ended"
+				: hasRaceCard
+					? officialTargetDate === normalizedTargetDate ? "today" : "partial"
+					: "partial";
+	const warnings = [];
+
+	if (!officialTargetDate) {
+		warnings.push("miyajima official target date could not be detected");
+	} else if (officialTargetDate !== normalizedTargetDate) {
+		warnings.push(`miyajima official target date ${officialTargetDate} differs from feed date ${normalizedTargetDate}`);
+	}
+
+	if (officialDisplayMode === "tomorrow-preview") {
+		warnings.push("miyajima official page is showing tomorrow preview; active merge is disabled unless target date matches");
+	}
+	if (officialDisplayMode === "non-race-day") {
+		warnings.push("miyajima official page is non-race-day");
+	}
+
+	return {
+		officialDisplayMode,
+		officialTargetDate: officialTargetDate || normalizedTargetDate,
+		mergeAllowed: Boolean(officialTargetDate) && officialTargetDate === normalizedTargetDate && !isNonRaceDay,
+		warnings,
+		pageSummaries: texts.map((item) => ({ key: item.key, title: item.title, hasBody: item.text.length > 0 })),
+	};
+}
+
+function createMiyajimaSourceStatus({ state, timerankRows, scoreRows, racedataLinks, weatherCondition }) {
+	const dateBlocked = !state.mergeAllowed;
+	const blockedStatus = state.officialDisplayMode === "non-race-day" ? "non-race-day" : "tomorrow-preview";
+
+	return {
+		entryTable: dateBlocked ? blockedStatus : "available",
+		officialBeforeInfo: dateBlocked ? blockedStatus : "available",
+		startExhibition: dateBlocked ? blockedStatus : "pending",
+		originalExhibition: dateBlocked ? blockedStatus : "pending",
+		motorSummary: dateBlocked ? blockedStatus : timerankRows.length ? "available" : "parse-empty",
+		scoreQuickLook: dateBlocked ? blockedStatus : scoreRows.length ? "available" : "parse-empty",
+		miyajimaScoreRateGuide: dateBlocked ? blockedStatus : scoreRows.length ? "available" : "parse-empty",
+		miyajimaSectionResults: dateBlocked ? blockedStatus : racedataLinks.sectionResults ? "available" : "pending",
+		miyajimaFrameLast10: dateBlocked ? blockedStatus : racedataLinks.racerStats ? "available" : "pending",
+		miyajimaNationalRecent3: dateBlocked ? blockedStatus : racedataLinks.nationalRecent3 ? "available" : "pending",
+		miyajimaLocalRecent3: dateBlocked ? blockedStatus : racedataLinks.localRecent3 ? "available" : "pending",
+		miyajimaCourseResults: dateBlocked ? blockedStatus : "available",
+		miyajimaMotorHistory: dateBlocked ? blockedStatus : timerankRows.length ? "available" : "parse-empty",
+		miyajimaPreInspectionRank: dateBlocked ? blockedStatus : timerankRows.length ? "available" : "parse-empty",
+		motorLotteryAndPrecheck: dateBlocked ? blockedStatus : timerankRows.length ? "available" : "parse-empty",
+		scoreRanking: dateBlocked ? blockedStatus : scoreRows.length ? "available" : "parse-empty",
+		frameCourseAcquisitionRates: dateBlocked ? blockedStatus : "available",
+		courseSummary: dateBlocked ? blockedStatus : "available",
+		waterSurfaceInfo: dateBlocked ? blockedStatus : "available",
+		weatherCondition: dateBlocked ? blockedStatus : weatherCondition ? "available" : "pending",
+	};
+}
+
 async function fetchMiyajimaWeatherCondition() {
 	try {
 		const text = await fetchHtml(MIYAJIMA_WEATHER_LIVE_URL);
@@ -15166,16 +15267,33 @@ async function createMiyajimaVenue(feed, date) {
 	}
 
 	try {
-		const [timerankHtml, scoreHtml, racedataHtml, weatherCondition] = await Promise.all([
+		const [topHtml, racecardHtml, timerankHtml, scoreHtml, racedataHtml, resultsHtml, surfaceHtml, weatherCondition] = await Promise.all([
+			fetchHtml(MIYAJIMA_TOP_URL).catch(() => ""),
+			fetchHtml(MIYAJIMA_RACECARD_URL).catch(() => ""),
 			fetchHtml(MIYAJIMA_TIMERANK_URL).catch(() => ""),
 			fetchHtml(MIYAJIMA_SCORE_RATE_URL).catch(() => ""),
 			fetchHtml(MIYAJIMA_RACEDATA_URL).catch(() => ""),
+			fetchHtml(MIYAJIMA_RESULTS_URL).catch(() => ""),
+			fetchHtml(MIYAJIMA_SURFACE_URL).catch(() => ""),
 			fetchMiyajimaWeatherCondition(),
 		]);
 
+		const officialState = detectMiyajimaOfficialState({
+			top: topHtml,
+			racecard: racecardHtml,
+			racedata: racedataHtml,
+			timerank: timerankHtml,
+			score: scoreHtml,
+			results: resultsHtml,
+			surface: surfaceHtml,
+		}, date);
 		const timerankRows = parseMiyajimaTimerank(timerankHtml);
 		const scoreRows = parseMiyajimaScoreRateRows(scoreHtml);
 		const racedataLinks = parseMiyajimaRaceDataLinks(racedataHtml);
+		const sourceStatus = createMiyajimaSourceStatus({ state: officialState, timerankRows, scoreRows, racedataLinks, weatherCondition });
+		const activeTimerankRows = officialState.mergeAllowed ? timerankRows : [];
+		const activeScoreRows = officialState.mergeAllowed ? scoreRows : [];
+		const activeRacedataLinks = officialState.mergeAllowed ? racedataLinks : {};
 		const races = getRaceList(miyajimaVenue);
 		const waterSurfaceInfo = {
 			surfaceSummary: "\u5bae\u5cf6\u516c\u5f0f\u306e\u6c34\u9762\u6c17\u8c61LIVE\u3068\u7af6\u8d70\u6c34\u9762\u30fb\u9032\u5165\u30b3\u30fc\u30b9\u5225\u60c5\u5831\u3092\u78ba\u8a8d\u5bfe\u8c61\u3068\u3057\u3066\u4fdd\u5b58",
@@ -15213,27 +15331,49 @@ async function createMiyajimaVenue(feed, date) {
 					source: `${BOATRACE_OFFICIAL_SOURCE}+${MIYAJIMA_SOURCE}`,
 				};
 			});
-			const scoreQuickLook = createMiyajimaScoreRows(entries, scoreRows, baseOfficialBeforeInfo.scoreQuickLook);
-			const motorSummary = createMiyajimaMotorSummary(entries, timerankRows);
+			const scoreQuickLook = createMiyajimaScoreRows(entries, activeScoreRows, baseOfficialBeforeInfo.scoreQuickLook);
+			const motorSummary = createMiyajimaMotorSummary(entries, activeTimerankRows);
 			const originalExhibition = createMiyajimaOriginalExhibition(entries, beforeInfo);
-			const miyajimaFrameLast10 = createMiyajimaAvailabilityRows(entries, "frameLast10", racedataLinks.racerStats);
-			const miyajimaNationalRecent3 = createMiyajimaAvailabilityRows(entries, "nationalRecent3", racedataLinks.nationalRecent3);
-			const miyajimaLocalRecent3 = createMiyajimaAvailabilityRows(entries, "localRecent3", racedataLinks.localRecent3);
-			const miyajimaSectionResults = createMiyajimaAvailabilityRows(entries, "sectionResults", racedataLinks.sectionResults);
-			const miyajimaCourseResults = createMiyajimaCourseRows(entries);
+			const miyajimaFrameLast10 = createMiyajimaAvailabilityRows(entries, "frameLast10", activeRacedataLinks.racerStats);
+			const miyajimaNationalRecent3 = createMiyajimaAvailabilityRows(entries, "nationalRecent3", activeRacedataLinks.nationalRecent3);
+			const miyajimaLocalRecent3 = createMiyajimaAvailabilityRows(entries, "localRecent3", activeRacedataLinks.localRecent3);
+			const miyajimaSectionResults = createMiyajimaAvailabilityRows(entries, "sectionResults", activeRacedataLinks.sectionResults);
+			const miyajimaCourseResults = officialState.mergeAllowed ? createMiyajimaCourseRows(entries) : [];
 			const mergedWeather = mergeVenueWeatherCondition(
 				baseOfficialBeforeInfo.weatherCondition ?? race?.weatherActual ?? miyajimaVenue?.weatherActual,
 				weatherCondition,
 			);
+			const raceSourceStatus = {
+				entryTable: sourceStatus.entryTable,
+				officialBeforeInfo: sourceStatus.officialBeforeInfo,
+				startExhibition: sourceStatus.startExhibition,
+				originalExhibition: sourceStatus.originalExhibition,
+				motorSummary: sourceStatus.motorSummary,
+				scoreQuickLook: sourceStatus.scoreQuickLook,
+				miyajimaScoreRateGuide: sourceStatus.miyajimaScoreRateGuide,
+				miyajimaSectionResults: sourceStatus.miyajimaSectionResults,
+				miyajimaFrameLast10: sourceStatus.miyajimaFrameLast10,
+				miyajimaNationalRecent3: sourceStatus.miyajimaNationalRecent3,
+				miyajimaLocalRecent3: sourceStatus.miyajimaLocalRecent3,
+				miyajimaCourseResults: sourceStatus.miyajimaCourseResults,
+				miyajimaMotorHistory: sourceStatus.miyajimaMotorHistory,
+				waterSurfaceInfo: sourceStatus.waterSurfaceInfo,
+				weatherCondition: sourceStatus.weatherCondition,
+			};
+			const isRaceAvailable = officialState.mergeAllowed && (beforeInfo.length || startExhibition.length || motorSummary.length || scoreQuickLook.length);
 
 			return {
 				raceNo: race.raceNo,
-				status: beforeInfo.length || startExhibition.length || motorSummary.length || scoreQuickLook.length ? "available" : "waiting-miyajima-data",
+				status: isRaceAvailable ? "available" : officialState.officialDisplayMode,
 				source: MIYAJIMA_SOURCE,
 				sourceType: "miyajima-official-extras",
+				sourceStatus: raceSourceStatus,
+				warnings: officialState.warnings,
+				officialDisplayMode: officialState.officialDisplayMode,
+				officialTargetDate: officialState.officialTargetDate,
 				officialBeforeInfo: {
 					...baseOfficialBeforeInfo,
-					status: beforeInfo.length || startExhibition.length || scoreQuickLook.length ? "available" : "waiting",
+					status: isRaceAvailable && (beforeInfo.length || startExhibition.length || scoreQuickLook.length) ? "available" : officialState.officialDisplayMode,
 					source: `${BOATRACE_OFFICIAL_SOURCE}+${MIYAJIMA_SOURCE}`,
 					exhibitionRows: beforeInfo,
 					startExhibition,
@@ -15255,8 +15395,8 @@ async function createMiyajimaVenue(feed, date) {
 				miyajimaMotorData: motorSummary,
 				miyajimaBoatData: motorSummary,
 				miyajimaMotorHistory: motorSummary,
-				miyajimaPreInspectionRank: timerankRows,
-				miyajimaOfficialLinks: racedataLinks,
+				miyajimaPreInspectionRank: activeTimerankRows,
+				miyajimaOfficialLinks: activeRacedataLinks,
 				waterSurfaceInfo,
 				miyajimaWaterSurfaceInfo: waterSurfaceInfo,
 				weatherCondition: mergedWeather,
@@ -15272,9 +15412,22 @@ async function createMiyajimaVenue(feed, date) {
 			venueCode: String(miyajimaVenue.venueCode ?? "17"),
 			venueName: MIYAJIMA_VENUE_NAME,
 			source: MIYAJIMA_SOURCE,
-			isAvailable: raceExtras.some((race) => race.status === "available"),
-			status: raceExtras.some((race) => race.status === "available") ? "available" : "waiting-miyajima-data",
+			isAvailable: officialState.mergeAllowed && raceExtras.some((race) => race.status === "available"),
+			status: officialState.mergeAllowed && raceExtras.some((race) => race.status === "available") ? "available" : officialState.officialDisplayMode,
+			sourceStatus,
+			warnings: officialState.warnings,
+			officialDisplayMode: officialState.officialDisplayMode,
+			officialTargetDate: officialState.officialTargetDate,
+			officialPageSummaries: officialState.pageSummaries,
 			note: "Miyajima official extras from before info, timerank, score rank, race data links, and weather live.",
+			motorLotteryAndPrecheck: activeTimerankRows,
+			scoreRanking: activeScoreRows,
+			frameCourseAcquisitionRates: officialState.mergeAllowed ? createMiyajimaCourseRows(getMiyajimaRaceEntries(races[0])).flatMap((row) => row.courseRows ?? []) : [],
+			courseSummary: officialState.mergeAllowed ? {
+				source: MIYAJIMA_SOURCE,
+				sourceLabel: "\u5bae\u5cf6\u516c\u5f0f\u7af6\u8d70\u6c34\u9762\u30fb\u9032\u5165\u30b3\u30fc\u30b9\u5225\u60c5\u5831",
+				summary: "\u5bae\u5cf6\u516c\u5f0f\u306e\u5c0e\u7dda\u3092\u4fdd\u5b58\u3002\u6570\u5024\u8868\u306f\u516c\u5f0fHTML\u304b\u3089\u5b89\u5168\u306b\u62bd\u51fa\u3067\u304d\u308b\u5834\u5408\u306e\u307f\u62e1\u5f35\u3059\u308b\u3002",
+			} : null,
 			waterSurfaceInfo,
 			miyajimaWaterSurfaceInfo: waterSurfaceInfo,
 			weatherCondition,

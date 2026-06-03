@@ -680,6 +680,10 @@ const extraKeyLabels: Record<string, string> = {
 	karatsuMarutoku: "唐津マル得情報",
 	karatsuMotorData: "唐津モーターデータ",
 	karatsuBoatData: "唐津ボートデータ",
+	motorLotteryAndPrecheck: "宮島前検タイム・抽選結果",
+	scoreRanking: "宮島予選得点率ランキング",
+	frameCourseAcquisitionRates: "宮島枠番別コース取得率",
+	courseSummary: "宮島コース別傾向",
 
 	originalExhibition: "会場独自展示",
 	motorSummary: "モーター概要",
@@ -723,6 +727,7 @@ const recentPerformanceExtraKeys = [
 	"miyajimaSectionResults",
 	"miyajimaNationalRecent3",
 	"miyajimaLocalRecent3",
+	"scoreRanking",
 ];
 
 const frameCourseExtraKeys = [
@@ -741,6 +746,8 @@ const frameCourseExtraKeys = [
 	"karatsuRacerCourseStats",
 	"miyajimaFrameLast10",
 	"miyajimaCourseResults",
+	"frameCourseAcquisitionRates",
+	"courseSummary",
 ];
 
 const motorExtraKeys = [
@@ -756,6 +763,7 @@ const motorExtraKeys = [
 	"karatsuMotorData",
 	"karatsuBoatData",
 	"miyajimaMotorHistory",
+	"motorLotteryAndPrecheck",
 	"motorSummary",
 	"abilityIndex",
 ];

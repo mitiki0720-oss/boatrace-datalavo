@@ -10875,12 +10875,23 @@ body:has(.races-page-root) {
 					{isMiyajimaVenue && selectedRaceExtra ? (
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>宮島公式 予想素材データ</h4>
+							<div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "10px" }}>
+								<span style={venueExtrasFocusPillStyle}>表示: {readVenueExtraString((selectedVenueExtra as Record<string, unknown> | null)?.officialDisplayMode) || readVenueExtraString((selectedRaceExtra as Record<string, unknown>).officialDisplayMode) || "-"}</span>
+								<span style={venueExtrasFocusPillStyle}>対象日: {readVenueExtraString((selectedVenueExtra as Record<string, unknown> | null)?.officialTargetDate) || readVenueExtraString((selectedRaceExtra as Record<string, unknown>).officialTargetDate) || "-"}</span>
+								{[
+									...((selectedVenueExtra as Record<string, unknown> | null)?.warnings as string[] ?? []),
+									...((selectedRaceExtra as Record<string, unknown>).warnings as string[] ?? []),
+								].filter(Boolean).slice(0, 3).map((warning, index) => (
+									<span key={`miyajima-warning-${index}`} style={{ ...venueExtrasFocusPillStyle, background: "#fff7ed", color: "#9a3412", borderColor: "#fdba74" }}>{warning}</span>
+								))}
+							</div>
 							<div style={venueExtrasTableWrapStyle}>
 								<table style={{ ...venueExtrasTableStyle, minWidth: "1040px" }}>
 									<thead>
 										<tr>
 											<th style={venueExtrasHeadCellStyle}>カテゴリ</th>
 											<th style={venueExtrasHeadCellStyle}>件数</th>
+											<th style={venueExtrasHeadCellStyle}>状態</th>
 											<th style={venueExtrasHeadCellStyle}>取得元</th>
 										</tr>
 									</thead>
@@ -10895,11 +10906,19 @@ body:has(.races-page-root) {
 											const rows = Array.isArray(value) ? value : [];
 											const first = rows.find(isVenueExtraRecord);
 											const sourceLabel = first ? readVenueExtraString(first.sourceLabel) || readVenueExtraString(first.source) : "";
+											const statusKey = label === "今節成績" ? "miyajimaSectionResults" :
+												label === "枠番別過去10走" ? "miyajimaFrameLast10" :
+												label === "全国過去3節" ? "miyajimaNationalRecent3" :
+												label === "当地過去3節" ? "miyajimaLocalRecent3" :
+												"miyajimaCourseResults";
+											const sourceStatus = ((selectedRaceExtra as Record<string, unknown>).sourceStatus as Record<string, unknown> | undefined)?.[statusKey] ??
+												((selectedVenueExtra as Record<string, unknown> | null)?.sourceStatus as Record<string, unknown> | undefined)?.[statusKey];
 
 											return (
 												<tr key={`miyajima-record-source-${label}`}>
 													<td style={venueExtrasBodyCellStyle}>{label as string}</td>
 													<td style={venueExtrasBodyCellStyle}>{rows.length ? `${rows.length}件` : "-"}</td>
+													<td style={venueExtrasBodyCellStyle}>{readVenueExtraString(sourceStatus) || (rows.length ? "available" : "-")}</td>
 													<td style={venueExtrasBodyCellStyle}>{sourceLabel || "宮島公式"}</td>
 												</tr>
 											);
