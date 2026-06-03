@@ -684,6 +684,18 @@ const extraKeyLabels: Record<string, string> = {
 	scoreRanking: "宮島予選得点率ランキング",
 	frameCourseAcquisitionRates: "宮島枠番別コース取得率",
 	courseSummary: "宮島コース別傾向",
+	amagasakiScoreRateGuide: "尼崎得点率・節間成績",
+	amagasakiSectionResults: "尼崎今節成績",
+	amagasakiNationalRecent3: "尼崎全国成績過去3節",
+	amagasakiLocalRecent3: "尼崎当地成績過去3節",
+	amagasakiFrameLast10: "尼崎枠番別過去10走",
+	amagasakiCourseResults: "尼崎進入コース別選手成績",
+	amagasakiRacerComments: "尼崎選手コメント",
+	amagasakiPreRacePrediction: "尼崎前日予想",
+	amagasakiMotorRanking: "尼崎モーターランキング",
+	amagasakiBoatData: "尼崎ボートデータ",
+	amagasakiDemeRanking: "尼崎出目データ",
+	amagasakiResultList: "尼崎結果一覧",
 
 	originalExhibition: "会場独自展示",
 	motorSummary: "モーター概要",
@@ -728,6 +740,11 @@ const recentPerformanceExtraKeys = [
 	"miyajimaNationalRecent3",
 	"miyajimaLocalRecent3",
 	"scoreRanking",
+	"amagasakiScoreRateGuide",
+	"amagasakiSectionResults",
+	"amagasakiNationalRecent3",
+	"amagasakiLocalRecent3",
+	"amagasakiResultList",
 ];
 
 const frameCourseExtraKeys = [
@@ -748,6 +765,8 @@ const frameCourseExtraKeys = [
 	"miyajimaCourseResults",
 	"frameCourseAcquisitionRates",
 	"courseSummary",
+	"amagasakiFrameLast10",
+	"amagasakiCourseResults",
 ];
 
 const motorExtraKeys = [
@@ -764,6 +783,9 @@ const motorExtraKeys = [
 	"karatsuBoatData",
 	"miyajimaMotorHistory",
 	"motorLotteryAndPrecheck",
+	"amagasakiMotorRanking",
+	"amagasakiBoatData",
+	"amagasakiDemeRanking",
 	"motorSummary",
 	"abilityIndex",
 ];

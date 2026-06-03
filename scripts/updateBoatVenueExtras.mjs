@@ -92,6 +92,18 @@ const MIYAJIMA_SCORE_RATE_URL = "https://www.boatrace-miyajima.com/yosen_point_r
 const MIYAJIMA_RESULTS_URL = "https://www.boatrace-miyajima.com/results.html";
 const MIYAJIMA_SURFACE_URL = "https://www.boatrace-miyajima.com/surface.html";
 const MIYAJIMA_WEATHER_LIVE_URL = "https://www.boatrace-miyajima.com/weather_live/data/weather.txt";
+const AMAGASAKI_VENUE_NAME = "\u5c3c\u5d0e";
+const AMAGASAKI_SOURCE = "boatrace-amagasaki.jp";
+const AMAGASAKI_TOP_URL = "https://www.boatrace-amagasaki.jp/";
+const AMAGASAKI_TIMERANK_URL = "https://www.boatrace-amagasaki.jp/modules/raceinfo/?page=index_timerank";
+const AMAGASAKI_SCORE_RATE_URL = "https://www.boatrace-amagasaki.jp/modules/raceinfo/?page=index_tokutenrank";
+const AMAGASAKI_COURSE_URL = "https://www.boatrace-amagasaki.jp/modules/raceinfo/?page=index_racecourse";
+const AMAGASAKI_RESULT_LIST_URL = "https://www.boatrace-amagasaki.jp/modules/raceinfo/?page=index_resultlist";
+const AMAGASAKI_PDF_URL = "https://www.boatrace-amagasaki.jp/modules/raceinfo/?page=index_pdf";
+const AMAGASAKI_MOTOR_DATA_URL = "https://www.boatrace-amagasaki.jp/modules/datafile/";
+const AMAGASAKI_BOAT_DATA_URL = "https://www.boatrace-amagasaki.jp/modules/datafile/?page=index_boat";
+const AMAGASAKI_DEME_URL = "https://www.boatrace-amagasaki.jp/modules/datafile/?page=index_deme";
+const AMAGASAKI_WATER_SURFACE_URL = "https://www.boatrace-amagasaki.jp/modules/datafile/?page=index_suimen";
 const FUKUOKA_VENUE_NAME = "福岡";
 const FUKUOKA_SOURCE = "boatrace-fukuoka.com";
 const HAMANAKO_VENUE_NAME = "浜名湖";
@@ -15446,6 +15458,742 @@ async function createMiyajimaVenue(feed, date) {
 	}
 }
 
+function getAmagasakiRaceEntries(race) {
+	const racers = Array.isArray(race?.racers) ? race.racers : [];
+	return racers.map((racer) => ({
+		frameNo: Number(racer.frameNo ?? racer.frame ?? racer.boatNumber),
+		registrationNo: compactText(racer.registrationNo ?? racer.racerId),
+		registerNo: compactText(racer.registrationNo ?? racer.racerId),
+		playerName: compactText(racer.playerName ?? racer.name ?? racer.boatRacerName),
+		racerName: compactText(racer.playerName ?? racer.name ?? racer.boatRacerName),
+		className: compactText(racer.class ?? racer.grade ?? racer.className),
+		branch: compactText(racer.branch),
+		averageStart: compactText(racer.averageStart ?? racer.avgSt ?? racer.st),
+		winRate: compactText(racer.winRate ?? racer.winningRate),
+		secondRate: compactText(racer.secondRate ?? racer.twoRate),
+		localWinRate: compactText(racer.localWinRate),
+		localSecondRate: compactText(racer.localSecondRate),
+		motorNo: compactText(racer.motorNo ?? racer.motorNumber),
+		motorSecondRate: compactText(racer.motorSecondRate ?? racer.motorTwoRate),
+		boatNo: compactText(racer.boatNo ?? racer.boatMotorNo ?? racer.boatEquipmentNo),
+		boatSecondRate: compactText(racer.boatSecondRate ?? racer.boatTwoRate),
+	})).filter((row) => row.frameNo >= 1 && row.frameNo <= 6);
+}
+
+function toAmagasakiCourseUrl(raceNo) {
+	return `${AMAGASAKI_COURSE_URL}&race=${Number(raceNo)}`;
+}
+
+function parseAmagasakiTimerank(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table").first().find("tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		if (cells.length < 10 || !/^\d+$/.test(cells[0] ?? "") || !/^\d{4}$/.test(cells[1] ?? "")) {
+			return;
+		}
+
+		rows.push({
+			rank: cells[0],
+			registrationNo: cells[1],
+			registerNo: cells[1],
+			playerName: cells[2],
+			racerName: cells[2],
+			className: cells[3],
+			branch: cells[4],
+			motorNo: cells[5],
+			motorSecondRate: cells[6],
+			boatNo: cells[7],
+			boatSecondRate: cells[8],
+			preInspectionTime: cells[9],
+			source: AMAGASAKI_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseAmagasakiScoreRows(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table").first().find("tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		if (cells.length < 9 || !/^\d+$/.test(cells[0] ?? "") || !/^\d{4}$/.test(cells[2] ?? "")) {
+			return;
+		}
+
+		rows.push({
+			rank: cells[0],
+			className: cells[1],
+			registrationNo: cells[2],
+			registerNo: cells[2],
+			playerName: cells[3],
+			racerName: cells[3],
+			branch: cells[4],
+			scoreRate: cells[5],
+			score: cells[6],
+			deduction: cells[7],
+			starts: cells[8],
+			sectionResults: cells[9] ?? "",
+			remarks: cells[10] ?? "",
+			source: AMAGASAKI_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseAmagasakiRaceCourseStats(html) {
+	const $ = load(html);
+	const rows = [];
+	let current = null;
+
+	$("table").first().find("tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		if (cells.length < 9 || cells[0] === "\u67a0") {
+			return;
+		}
+
+		if (/^[1-6]$/.test(cells[0] ?? "") && cells.length >= 11) {
+			current = {
+				frameNo: Number(cells[0]),
+				playerName: cells[1],
+				racerName: cells[1],
+				source: AMAGASAKI_SOURCE,
+			};
+			rows.push({
+				...current,
+				courseNo: Number(cells[2]),
+				entryCourse: cells[2],
+				entryRate: cells[3],
+				averageStart: cells[4],
+				firstRate: cells[5],
+				secondRate: cells[6],
+				thirdRate: cells[7],
+				fourthRate: cells[8],
+				fifthRate: cells[9],
+				sixthRate: cells[10],
+			});
+			return;
+		}
+
+		if (current && /^[1-6]$/.test(cells[0] ?? "")) {
+			rows.push({
+				...current,
+				courseNo: Number(cells[0]),
+				entryCourse: cells[0],
+				entryRate: cells[1] ?? "",
+				averageStart: cells[2] ?? "",
+				firstRate: cells[3] ?? "",
+				secondRate: cells[4] ?? "",
+				thirdRate: cells[5] ?? "",
+				fourthRate: cells[6] ?? "",
+				fifthRate: cells[7] ?? "",
+				sixthRate: cells[8] ?? "",
+			});
+		}
+	});
+
+	return rows;
+}
+
+function groupAmagasakiCourseRows(rows, entries) {
+	const byFrame = new Map();
+	for (const row of rows) {
+		const frameNo = readRaceFrameNo(row.frameNo);
+		if (!frameNo) {
+			continue;
+		}
+		const list = byFrame.get(frameNo) ?? [];
+		list.push(row);
+		byFrame.set(frameNo, list);
+	}
+
+	return entries.map((entry) => ({
+		frameNo: entry.frameNo,
+		registrationNo: entry.registrationNo,
+		playerName: entry.playerName,
+		className: entry.className,
+		courseRows: (byFrame.get(entry.frameNo) ?? []).sort((left, right) => Number(left.courseNo) - Number(right.courseNo)),
+		source: AMAGASAKI_SOURCE,
+		sourceUrl: toAmagasakiCourseUrl(entry.raceNo ?? ""),
+	})).filter((row) => row.courseRows.length > 0);
+}
+
+function createAmagasakiEntriesFromCourseRows(courseRows, timerankRows, scoreRows) {
+	const timerankByName = new Map(timerankRows.map((row) => [row.playerName.replace(/\s+/g, ""), row]));
+	const scoreByName = new Map(scoreRows.map((row) => [row.playerName.replace(/\s+/g, ""), row]));
+	const byFrame = new Map();
+
+	for (const row of courseRows) {
+		const frameNo = readRaceFrameNo(row.frameNo);
+		const playerName = compactText(row.playerName);
+		if (!frameNo || !playerName || byFrame.has(frameNo)) {
+			continue;
+		}
+		const normalizedName = playerName.replace(/\s+/g, "");
+		const timerank = timerankByName.get(normalizedName) ?? {};
+		const score = scoreByName.get(normalizedName) ?? {};
+		byFrame.set(frameNo, {
+			frameNo,
+			registrationNo: timerank.registrationNo || score.registrationNo || "",
+			registerNo: timerank.registrationNo || score.registrationNo || "",
+			playerName,
+			racerName: playerName,
+			className: timerank.className || score.className || "",
+			branch: timerank.branch || score.branch || "",
+			averageStart: "",
+			winRate: "",
+			secondRate: "",
+			localWinRate: "",
+			localSecondRate: "",
+			motorNo: timerank.motorNo || "",
+			motorSecondRate: timerank.motorSecondRate || "",
+			boatNo: timerank.boatNo || "",
+			boatSecondRate: timerank.boatSecondRate || "",
+		});
+	}
+
+	return Array.from(byFrame.values()).sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseAmagasakiMotorRank(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table").first().find("tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		if (cells.length < 7 || !/^\d+$/.test(cells[0] ?? "") || !/^\d+$/.test(cells[2] ?? "")) {
+			return;
+		}
+
+		rows.push({
+			rank: cells[0],
+			previousRank: cells[1],
+			motorNo: cells[2],
+			motorSecondRate: cells[3],
+			motorWinRate: cells[4],
+			finals: cells[5],
+			championships: cells[6],
+			source: AMAGASAKI_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseAmagasakiBoatData(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table").first().find("tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		if (cells.length < 11 || !/^\d+$/.test(cells[0] ?? "")) {
+			return;
+		}
+
+		rows.push({
+			boatNo: cells[0],
+			seriesCount: cells[1],
+			boatSecondRate: cells[2],
+			boatWinRate: cells[3],
+			accidentRate: cells[4],
+			firstCount: cells[5],
+			secondCount: cells[6],
+			thirdCount: cells[7],
+			starts: cells[8],
+			finals: cells[9],
+			championships: cells[10],
+			source: AMAGASAKI_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseAmagasakiDemeRows(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table").slice(0, 2).each((tableIndex, table) => {
+		$(table).find("tr").each((_, row) => {
+			const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+			if (cells.length < 4 || !/^\d+$/.test(cells[0] ?? "")) {
+				return;
+			}
+
+			rows.push({
+				rank: cells[0],
+				combination: cells[1],
+				shareRate: cells[2],
+				averagePayout: cells[3],
+				group: tableIndex === 0 ? "top10" : "top20",
+				source: AMAGASAKI_SOURCE,
+			});
+		});
+	});
+
+	return rows;
+}
+
+function parseAmagasakiResultList(html) {
+	const $ = load(html);
+	const rows = [];
+
+	$("table").first().find("tr").each((_, row) => {
+		const cells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		if (cells.length < 5 || !/^\d+R$/.test(cells[0] ?? "")) {
+			return;
+		}
+
+		rows.push({
+			raceNo: Number.parseInt(cells[0], 10),
+			twoExactaCombination: cells[1] ?? "",
+			twoExactaPayout: cells[2] ?? "",
+			trifectaCombination: cells[3] ?? "",
+			trifectaPayout: cells[4] ?? "",
+			remarks: cells[5] ?? "",
+			source: AMAGASAKI_SOURCE,
+		});
+	});
+
+	return rows;
+}
+
+function parseAmagasakiPdfLinks(html) {
+	const $ = load(html);
+	const links = {};
+	$("a[href]").each((_, anchor) => {
+		const href = $(anchor).attr("href");
+		const label = readCellText($, anchor);
+		if (!href || !/\.pdf(?:\?|$)/i.test(href)) {
+			return;
+		}
+		const url = new URL(href, AMAGASAKI_PDF_URL).href;
+		if (label.includes("1R") || label.includes("12R")) {
+			links.raceCardPdf = { label, url, source: AMAGASAKI_SOURCE };
+		} else if (label.includes("\u524d\u65e5\u4e88\u60f3")) {
+			links.preRacePredictionPdf = { label, url, source: AMAGASAKI_SOURCE };
+		} else if (label.includes("\u8868\u7d19") || label.includes("\u88cf\u9762")) {
+			links.coverPdf = { label, url, source: AMAGASAKI_SOURCE };
+		}
+	});
+	return links;
+}
+
+function parseAmagasakiWaterSurfaceInfo(html) {
+	const $ = load(html);
+	const table0 = $("table").first();
+	const cells = table0.find("tr").map((_, row) =>
+		$(row).children("th,td").map((__, cell) => readCellText($, cell)).get()
+	).get();
+	const text = $("body").text().replace(/\s+/g, " ").trim();
+	const waterQualityMatch = text.match(/\u6c34\u8cea\s*(\S+)/);
+	const tiltMatch = text.match(/\u30c1\u30eb\u30c8\u89d2\u5ea6\s*([^\u6c34]+)/);
+	const featureMatch = text.match(/\u6c34\u9762\u7279\u6027\s*([^\u30ec]{20,220})/);
+	const raceFeatureMatch = text.match(/\u30ec\u30fc\u30b9\u306e\u7279\u5fb4\s*([^<]{20,260})/);
+	const courseRates = [];
+	const courseTable = $("table").eq(1);
+	courseTable.find("tr").each((_, row) => {
+		const rowCells = $(row).children("th,td").map((__, cell) => readCellText($, cell)).get();
+		const courseMatch = (rowCells[0] ?? "").match(/^([1-6])\u30b3\u30fc\u30b9$/);
+		if (!courseMatch || rowCells.length < 7) {
+			return;
+		}
+		courseRates.push({
+			course: courseMatch[1],
+			firstRate: rowCells[1],
+			secondRate: rowCells[2],
+			thirdRate: rowCells[3],
+			fourthRate: rowCells[4],
+			fifthRate: rowCells[5],
+			sixthRate: rowCells[6],
+			source: AMAGASAKI_SOURCE,
+		});
+	});
+
+	const surfaceSummary = [
+		waterQualityMatch ? `\u6c34\u8cea ${waterQualityMatch[1]}` : "",
+		tiltMatch ? `\u30c1\u30eb\u30c8 ${compactText(tiltMatch[1])}` : "",
+	].filter(Boolean).join(" / ");
+	const featureSummary = compactText(featureMatch?.[1] ?? "");
+	const raceCharacteristics = compactText(raceFeatureMatch?.[1] ?? "");
+
+	return {
+		source: AMAGASAKI_SOURCE,
+		sourceUrl: AMAGASAKI_WATER_SURFACE_URL,
+		surfaceSummary,
+		featureSummary,
+		courseSummary: courseRates.map((row) => `${row.course}\u30b3\u30fc\u30b9 1\u7740${row.firstRate}% 2\u7740${row.secondRate}% 3\u7740${row.thirdRate}%`).join(" / "),
+		waterQuality: waterQualityMatch?.[1] ?? "",
+		tiltRange: tiltMatch ? compactText(tiltMatch[1]) : "",
+		waterSurface: featureSummary,
+		raceCharacteristics,
+		courseRates,
+		description: [surfaceSummary, featureSummary, raceCharacteristics].filter(Boolean).join(" / "),
+		summary: [surfaceSummary, featureSummary].filter(Boolean).join(" / "),
+		rawSummary: cells.length ? undefined : "",
+	};
+}
+
+function createAmagasakiMotorSummary(entries, timerankRows, motorRows, boatRows) {
+	const timerankByRegistration = new Map(timerankRows.map((row) => [row.registrationNo, row]));
+	const timerankByName = new Map(timerankRows.map((row) => [row.playerName.replace(/\s+/g, ""), row]));
+	const motorByNo = new Map(motorRows.map((row) => [row.motorNo, row]));
+	const boatByNo = new Map(boatRows.map((row) => [row.boatNo, row]));
+
+	return entries.map((entry) => {
+		const timerank = timerankByRegistration.get(entry.registrationNo) ?? timerankByName.get(entry.playerName.replace(/\s+/g, "")) ?? {};
+		const motorNo = entry.motorNo || timerank.motorNo || "";
+		const boatNo = entry.boatNo || timerank.boatNo || "";
+		const motor = motorByNo.get(motorNo) ?? {};
+		const boat = boatByNo.get(boatNo) ?? {};
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			registerNo: entry.registrationNo,
+			playerName: entry.playerName,
+			racerName: entry.playerName,
+			className: entry.className,
+			motorNo,
+			motorSecondRate: entry.motorSecondRate || timerank.motorSecondRate || motor.motorSecondRate || "",
+			motorWinRate: motor.motorWinRate || "",
+			boatNo,
+			boatSecondRate: entry.boatSecondRate || timerank.boatSecondRate || boat.boatSecondRate || "",
+			boatWinRate: boat.boatWinRate || "",
+			preInspectionTime: timerank.preInspectionTime || "",
+			finals: motor.finals || "",
+			championships: motor.championships || "",
+			comment: [
+				timerank.rank ? `\u524d\u691c\u9806\u4f4d ${timerank.rank}` : "",
+				timerank.preInspectionTime ? `\u524d\u691c ${timerank.preInspectionTime}` : "",
+				motor.motorWinRate ? `\u30e2\u30fc\u30bf\u30fc\u52dd\u7387 ${motor.motorWinRate}` : "",
+				boat.boatWinRate ? `\u30dc\u30fc\u30c8\u52dd\u7387 ${boat.boatWinRate}` : "",
+			].filter(Boolean).join(" / "),
+			source: AMAGASAKI_SOURCE,
+		};
+	}).filter((row) => row.motorNo || row.boatNo || row.preInspectionTime);
+}
+
+function createAmagasakiScoreRows(entries, scoreRows, officialRows = []) {
+	const byRegistration = new Map(scoreRows.map((row) => [row.registrationNo, row]));
+	const officialByFrame = new Map(officialRows.map((row) => [row.frameNo, row]));
+
+	return entries.map((entry) => {
+		const score = byRegistration.get(entry.registrationNo) ?? {};
+		const official = officialByFrame.get(entry.frameNo) ?? {};
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			registerNo: entry.registrationNo,
+			playerName: entry.playerName,
+			racerName: entry.playerName,
+			className: entry.className || score.className || official.className || "",
+			branch: entry.branch || score.branch || "",
+			averageStart: entry.averageStart || official.averageStart || "",
+			winRate: entry.winRate || official.winRate || "",
+			secondRate: entry.secondRate || official.secondRate || "",
+			localWinRate: entry.localWinRate || official.localWinRate || "",
+			localSecondRate: entry.localSecondRate || official.localSecondRate || "",
+			motorNo: entry.motorNo || official.motorNo || "",
+			motorSecondRate: entry.motorSecondRate || official.motorSecondRate || "",
+			scoreRate: score.scoreRate || official.scoreRate || "",
+			score: score.score || "",
+			deduction: score.deduction || "",
+			starts: score.starts || "",
+			sectionResults: score.sectionResults || "",
+			remarks: score.remarks || "",
+			source: score.source || BOATRACE_OFFICIAL_SOURCE,
+		};
+	});
+}
+
+function createAmagasakiOriginalExhibition(entries, beforeInfo) {
+	const beforeByFrame = new Map(beforeInfo.map((row) => [row.frameNo, row]));
+	return entries.map((entry) => {
+		const before = beforeByFrame.get(entry.frameNo) ?? {};
+		return {
+			frameNo: entry.frameNo,
+			registrationNo: entry.registrationNo,
+			registerNo: entry.registrationNo,
+			playerName: entry.playerName,
+			racerName: entry.playerName,
+			className: entry.className,
+			weight: before.weight || "",
+			weightAdjustment: before.weightAdjustment || before.adjustment || "",
+			adjustment: before.adjustment || before.weightAdjustment || "",
+			tilt: before.tilt || "",
+			exhibitionTime: before.exhibitionTime || "",
+			motorNo: entry.motorNo,
+			boatNo: entry.boatNo,
+			lapTime: before.lapTime || before.oneLapTime || "",
+			oneLapTime: before.oneLapTime || before.lapTime || "",
+			turnTime: before.turnTime || "",
+			straightTime: "",
+			originalTime: "",
+			memo: "\u5c3c\u5d0e\u516c\u5f0f\u306f\u76f4\u7dda\u30bf\u30a4\u30e0\u975e\u63b2\u8f09\u306e\u305f\u3081\u7a7a\u6b04",
+			sourceLabel: "\u5c3c\u5d0e\u516c\u5f0f\u76f4\u524d\u30fb\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a",
+			source: `${BOATRACE_OFFICIAL_SOURCE}+${AMAGASAKI_SOURCE}`,
+		};
+	}).filter((row) => row.exhibitionTime || row.tilt || row.motorNo || row.oneLapTime || row.turnTime);
+}
+
+function createAmagasakiAvailabilityRows(entries, link, label) {
+	if (!link) {
+		return [];
+	}
+
+	return entries.map((entry) => ({
+		frameNo: entry.frameNo,
+		registrationNo: entry.registrationNo,
+		playerName: entry.playerName,
+		className: entry.className,
+		sourceLabel: label || link.label,
+		sourceUrl: link.url,
+		source: AMAGASAKI_SOURCE,
+		status: "available-official-pdf",
+	}));
+}
+
+function createAmagasakiSourceStatus({ timerankRows, scoreRows, courseRowsByRaceNo, pdfLinks, motorRows, boatRows, demeRows, resultRows, waterSurfaceInfo }) {
+	return {
+		entryTable: "available",
+		officialBeforeInfo: "available",
+		startExhibition: "available",
+		originalExhibition: "available",
+		motorSummary: timerankRows.length ? "available" : "parse-empty",
+		scoreQuickLook: scoreRows.length ? "available" : "parse-empty",
+		amagasakiScoreRateGuide: scoreRows.length ? "available" : "parse-empty",
+		amagasakiSectionResults: pdfLinks.raceCardPdf ? "available-official-pdf" : "pending",
+		amagasakiNationalRecent3: pdfLinks.raceCardPdf ? "available-official-pdf" : "pending",
+		amagasakiLocalRecent3: pdfLinks.raceCardPdf ? "available-official-pdf" : "pending",
+		amagasakiFrameLast10: pdfLinks.raceCardPdf ? "available-official-pdf" : "pending",
+		amagasakiRacerComments: pdfLinks.preRacePredictionPdf ? "available-official-pdf" : "pending",
+		amagasakiPreRacePrediction: pdfLinks.preRacePredictionPdf ? "available-official-pdf" : "pending",
+		amagasakiCourseResults: Array.from(courseRowsByRaceNo.values()).some((rows) => rows.length) ? "available" : "parse-empty",
+		motorLotteryAndPrecheck: timerankRows.length ? "available" : "parse-empty",
+		scoreRanking: scoreRows.length ? "available" : "parse-empty",
+		amagasakiMotorRanking: motorRows.length ? "available" : "parse-empty",
+		amagasakiBoatData: boatRows.length ? "available" : "parse-empty",
+		amagasakiDemeRanking: demeRows.length ? "available" : "parse-empty",
+		amagasakiResultList: resultRows.length ? "available" : "parse-empty",
+		waterSurfaceInfo: waterSurfaceInfo ? "available" : "parse-empty",
+		weatherCondition: "available",
+	};
+}
+
+async function createAmagasakiVenue(feed, date) {
+	const amagasakiVenue = findVenue(feed, AMAGASAKI_VENUE_NAME);
+	if (!amagasakiVenue) {
+		console.log("[venue-extras] amagasaki: not held today");
+		return null;
+	}
+
+	try {
+		const [topHtml, timerankHtml, scoreHtml, resultHtml, pdfHtml, motorHtml, boatHtml, demeHtml, waterHtml] = await Promise.all([
+			fetchHtml(AMAGASAKI_TOP_URL).catch(() => ""),
+			fetchHtml(AMAGASAKI_TIMERANK_URL).catch(() => ""),
+			fetchHtml(AMAGASAKI_SCORE_RATE_URL).catch(() => ""),
+			fetchHtml(AMAGASAKI_RESULT_LIST_URL).catch(() => ""),
+			fetchHtml(AMAGASAKI_PDF_URL).catch(() => ""),
+			fetchHtml(AMAGASAKI_MOTOR_DATA_URL).catch(() => ""),
+			fetchHtml(AMAGASAKI_BOAT_DATA_URL).catch(() => ""),
+			fetchHtml(AMAGASAKI_DEME_URL).catch(() => ""),
+			fetchHtml(AMAGASAKI_WATER_SURFACE_URL).catch(() => ""),
+		]);
+		const races = getRaceList(amagasakiVenue);
+		const courseRowsByRaceNo = new Map();
+		for (const race of races) {
+			const raceNo = Number(race.raceNo);
+			const html = await fetchHtml(toAmagasakiCourseUrl(raceNo)).catch(() => "");
+			courseRowsByRaceNo.set(raceNo, parseAmagasakiRaceCourseStats(html));
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const timerankRows = parseAmagasakiTimerank(timerankHtml);
+		const scoreRows = parseAmagasakiScoreRows(scoreHtml);
+		const resultRows = parseAmagasakiResultList(resultHtml);
+		const pdfLinks = parseAmagasakiPdfLinks(pdfHtml);
+		const motorRows = parseAmagasakiMotorRank(motorHtml);
+		const boatRows = parseAmagasakiBoatData(boatHtml);
+		const demeRows = parseAmagasakiDemeRows(demeHtml);
+		const waterSurfaceInfo = parseAmagasakiWaterSurfaceInfo(waterHtml);
+		const sourceStatus = createAmagasakiSourceStatus({
+			timerankRows,
+			scoreRows,
+			courseRowsByRaceNo,
+			pdfLinks,
+			motorRows,
+			boatRows,
+			demeRows,
+			resultRows,
+			waterSurfaceInfo,
+		});
+		const pageSummaries = [
+			["top", topHtml],
+			["timerank", timerankHtml],
+			["score", scoreHtml],
+			["resultList", resultHtml],
+			["pdf", pdfHtml],
+			["motor", motorHtml],
+			["boat", boatHtml],
+			["deme", demeHtml],
+			["water", waterHtml],
+		].map(([key, html]) => {
+			const $ = load(html || "");
+			return { key, title: $("title").text().trim(), tables: $("table").length, hasBody: $("body").text().trim().length > 0 };
+		});
+
+		const raceExtras = races.map((race) => {
+			const raceCourseRows = courseRowsByRaceNo.get(Number(race.raceNo)) ?? [];
+			const feedEntries = getAmagasakiRaceEntries(race);
+			const entries = feedEntries.length
+				? feedEntries
+				: createAmagasakiEntriesFromCourseRows(raceCourseRows, timerankRows, scoreRows);
+			const baseOfficialBeforeInfo = buildOfficialBeforeInfoForRace(race);
+			const beforeInfo = baseOfficialBeforeInfo.exhibitionRows.map((row) => {
+				const entry = entries.find((item) => item.frameNo === row.frameNo) ?? {};
+				return {
+					...row,
+					playerName: entry.playerName || row.playerName,
+					registrationNo: entry.registrationNo || "",
+					registerNo: entry.registrationNo || "",
+					className: entry.className || "",
+					weight: row.weight || "",
+					weightAdjustment: row.weightAdjustment || "",
+					adjustment: row.adjustment || row.weightAdjustment || "",
+					motorNo: entry.motorNo || "",
+					boatNo: entry.boatNo || "",
+					source: `${BOATRACE_OFFICIAL_SOURCE}+${AMAGASAKI_SOURCE}`,
+				};
+			});
+			const startExhibition = baseOfficialBeforeInfo.startExhibition.map((row) => {
+				const entry = entries.find((item) => item.frameNo === row.frameNo) ?? {};
+				return {
+					...row,
+					playerName: entry.playerName || "",
+					className: entry.className || "",
+					registerNo: entry.registrationNo || "",
+					exhibitionTime: beforeInfo.find((item) => item.frameNo === row.frameNo)?.exhibitionTime || "",
+					source: `${BOATRACE_OFFICIAL_SOURCE}+${AMAGASAKI_SOURCE}`,
+				};
+			});
+			const entriesWithRace = entries.map((entry) => ({ ...entry, raceNo: race.raceNo }));
+			const scoreQuickLook = createAmagasakiScoreRows(entries, scoreRows, baseOfficialBeforeInfo.scoreQuickLook);
+			const motorSummary = createAmagasakiMotorSummary(entries, timerankRows, motorRows, boatRows);
+			const originalExhibition = createAmagasakiOriginalExhibition(entries, beforeInfo);
+			const amagasakiCourseResults = groupAmagasakiCourseRows(raceCourseRows, entriesWithRace);
+			const amagasakiSectionResults = createAmagasakiAvailabilityRows(entries, pdfLinks.raceCardPdf, "\u5c3c\u5d0e\u516c\u5f0f\u51fa\u8d70\u8868PDF");
+			const amagasakiNationalRecent3 = createAmagasakiAvailabilityRows(entries, pdfLinks.raceCardPdf, "\u5c3c\u5d0e\u516c\u5f0f\u5168\u56fd\u6210\u7e3e\u904e\u53bb3\u7bc0");
+			const amagasakiLocalRecent3 = createAmagasakiAvailabilityRows(entries, pdfLinks.raceCardPdf, "\u5c3c\u5d0e\u516c\u5f0f\u5f53\u5730\u6210\u7e3e\u904e\u53bb3\u7bc0");
+			const amagasakiFrameLast10 = createAmagasakiAvailabilityRows(entries, pdfLinks.raceCardPdf, "\u5c3c\u5d0e\u516c\u5f0f\u67a0\u756a\u5225\u904e\u53bb10\u8d70");
+			const amagasakiRacerComments = createAmagasakiAvailabilityRows(entries, pdfLinks.preRacePredictionPdf, "\u5c3c\u5d0e\u516c\u5f0f\u9078\u624b\u30b3\u30e1\u30f3\u30c8\u30fb\u524d\u65e5\u4e88\u60f3PDF");
+			const mergedWeather = mergeVenueWeatherCondition(
+				baseOfficialBeforeInfo.weatherCondition ?? race?.weatherActual ?? amagasakiVenue?.weatherActual,
+				null,
+			);
+			const raceSourceStatus = {
+				entryTable: sourceStatus.entryTable,
+				officialBeforeInfo: sourceStatus.officialBeforeInfo,
+				startExhibition: startExhibition.length ? "available" : "pending",
+				originalExhibition: originalExhibition.length ? "available" : "pending",
+				motorSummary: sourceStatus.motorSummary,
+				scoreQuickLook: sourceStatus.scoreQuickLook,
+				amagasakiScoreRateGuide: sourceStatus.amagasakiScoreRateGuide,
+				amagasakiSectionResults: sourceStatus.amagasakiSectionResults,
+				amagasakiNationalRecent3: sourceStatus.amagasakiNationalRecent3,
+				amagasakiLocalRecent3: sourceStatus.amagasakiLocalRecent3,
+				amagasakiFrameLast10: sourceStatus.amagasakiFrameLast10,
+				amagasakiRacerComments: sourceStatus.amagasakiRacerComments,
+				amagasakiPreRacePrediction: sourceStatus.amagasakiPreRacePrediction,
+				amagasakiCourseResults: raceCourseRows.length ? "available" : "parse-empty",
+				waterSurfaceInfo: sourceStatus.waterSurfaceInfo,
+				weatherCondition: mergedWeather ? "available" : "pending",
+			};
+			const isRaceAvailable = beforeInfo.length || startExhibition.length || motorSummary.length || scoreQuickLook.length || amagasakiCourseResults.length;
+
+			return {
+				raceNo: race.raceNo,
+				status: isRaceAvailable ? "available" : "waiting-amagasaki-data",
+				source: AMAGASAKI_SOURCE,
+				sourceType: "amagasaki-official-extras",
+				sourceStatus: raceSourceStatus,
+				entryTable: entries,
+				officialBeforeInfo: {
+					...baseOfficialBeforeInfo,
+					status: isRaceAvailable && (beforeInfo.length || startExhibition.length || scoreQuickLook.length) ? "available" : "waiting",
+					source: `${BOATRACE_OFFICIAL_SOURCE}+${AMAGASAKI_SOURCE}`,
+					exhibitionRows: beforeInfo,
+					startExhibition,
+					scoreQuickLook,
+					weatherActual: mergedWeather,
+					weatherCondition: mergedWeather,
+				},
+				beforeInfo,
+				startExhibition,
+				originalExhibition,
+				motorSummary,
+				scoreQuickLook,
+				scoreRateGuide: scoreQuickLook,
+				amagasakiScoreRateGuide: scoreQuickLook,
+				amagasakiSectionResults,
+				amagasakiNationalRecent3,
+				amagasakiLocalRecent3,
+				amagasakiFrameLast10,
+				amagasakiRacerComments,
+				amagasakiPreRacePrediction: amagasakiRacerComments,
+				amagasakiCourseResults,
+				amagasakiMotorData: motorSummary,
+				amagasakiBoatData: motorSummary,
+				waterSurfaceInfo,
+				amagasakiWaterSurfaceInfo: waterSurfaceInfo,
+				weatherCondition: mergedWeather,
+			};
+		});
+
+		const firstRace = raceExtras[0] ?? null;
+		console.log(
+			`[amagasaki extras] before=${firstRace?.beforeInfo?.length ?? 0} start=${firstRace?.startExhibition?.length ?? 0} original=${firstRace?.originalExhibition?.length ?? 0} motor=${firstRace?.motorSummary?.length ?? 0} boat=${firstRace?.amagasakiBoatData?.length ?? 0} score=${firstRace?.amagasakiScoreRateGuide?.length ?? 0} frame10=${firstRace?.amagasakiFrameLast10?.length ?? 0} national3=${firstRace?.amagasakiNationalRecent3?.length ?? 0} local3=${firstRace?.amagasakiLocalRecent3?.length ?? 0} course=${firstRace?.amagasakiCourseResults?.length ? "ok" : "none"} water=${waterSurfaceInfo ? "ok" : "none"} straight=not-supported`,
+		);
+
+		return {
+			venueCode: String(amagasakiVenue.venueCode ?? "13"),
+			venueName: AMAGASAKI_VENUE_NAME,
+			source: AMAGASAKI_SOURCE,
+			isAvailable: raceExtras.some((race) => race.status === "available"),
+			status: raceExtras.some((race) => race.status === "available") ? "available" : "waiting-amagasaki-data",
+			sourceStatus,
+			officialDisplayMode: "today",
+			officialTargetDate: normalizeTargetDate(date),
+			officialPageSummaries: pageSummaries,
+			note: "Amagasaki official extras from timerank, score ranking, race course stats, PDF links, motor/boat data, deme data, water surface, and BOATRACE official before info. Straight time is not provided by the Amagasaki official site.",
+			motorLotteryAndPrecheck: timerankRows,
+			scoreRanking: scoreRows,
+			amagasakiMotorRanking: motorRows,
+			amagasakiBoatData: boatRows,
+			amagasakiDemeRanking: demeRows,
+			amagasakiResultList: resultRows,
+			amagasakiPdfLinks: pdfLinks,
+			waterSurfaceInfo,
+			amagasakiWaterSurfaceInfo: waterSurfaceInfo,
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] amagasaki failed: ${error.message}`);
+		return {
+			venueCode: String(amagasakiVenue.venueCode ?? "13"),
+			venueName: AMAGASAKI_VENUE_NAME,
+			source: AMAGASAKI_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			note: `Amagasaki official extras fetch failed: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
 function getTokonameRaceEntries(race) {
 	const racers = Array.isArray(race?.racers) ? race.racers : [];
 	return racers.map((racer) => ({
@@ -15790,6 +16538,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const miyajimaVenue = await createMiyajimaVenue(feed, date);
 	if (miyajimaVenue) {
 		venueMap.set(miyajimaVenue.venueName, mergeVenueRecord(venueMap.get(miyajimaVenue.venueName) ?? null, miyajimaVenue));
+	}
+
+	const amagasakiVenue = await createAmagasakiVenue(feed, date);
+	if (amagasakiVenue) {
+		venueMap.set(amagasakiVenue.venueName, mergeVenueRecord(venueMap.get(amagasakiVenue.venueName) ?? null, amagasakiVenue));
 	}
 
 	const hamanakoVenue = await buildHamanakoVenueExtras(feed, date);

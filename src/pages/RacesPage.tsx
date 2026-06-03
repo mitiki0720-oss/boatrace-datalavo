@@ -6342,6 +6342,7 @@ const isTokonameVenue = selectedVenue?.venueName === "常滑";
 const isAshiyaVenue = selectedVenue?.venueName === "芦屋";
 const isKiryuVenue = selectedVenue?.venueName === "桐生";
 const isMiyajimaVenue = selectedVenue?.venueName === "宮島";
+const isAmagasakiVenue = selectedVenue?.venueName === "尼崎";
 const selectedVenueOfficialLinkStatus = getVenueOfficialLinkStatus(selectedVenue?.venueName);
 const selectedVenueOfficialLinkStatusMeta = venueOfficialLinkStatusMeta[selectedVenueOfficialLinkStatus];
 const hasOmuraEntryData = selectedOmuraEntryTable.length > 0;
@@ -10929,6 +10930,54 @@ body:has(.races-page-root) {
 						</section>
 					) : null}
 
+					{isAmagasakiVenue && selectedRaceExtra ? (
+						<section style={venueExtrasPanelStyle}>
+							<h4 style={venueExtrasPanelTitleStyle}>尼崎公式 予想素材データ</h4>
+							<div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "10px" }}>
+								<span style={venueExtrasFocusPillStyle}>表示: {readVenueExtraString((selectedVenueExtra as Record<string, unknown> | null)?.officialDisplayMode) || readVenueExtraString((selectedRaceExtra as Record<string, unknown>).officialDisplayMode) || "-"}</span>
+								<span style={venueExtrasFocusPillStyle}>対象日: {readVenueExtraString((selectedVenueExtra as Record<string, unknown> | null)?.officialTargetDate) || readVenueExtraString((selectedRaceExtra as Record<string, unknown>).officialTargetDate) || "-"}</span>
+								<span style={venueExtrasFocusPillStyle}>直線: 非掲載</span>
+							</div>
+							<div style={venueExtrasTableWrapStyle}>
+								<table style={{ ...venueExtrasTableStyle, minWidth: "1040px" }}>
+									<thead>
+										<tr>
+											<th style={venueExtrasHeadCellStyle}>カテゴリ</th>
+											<th style={venueExtrasHeadCellStyle}>件数</th>
+											<th style={venueExtrasHeadCellStyle}>状態</th>
+											<th style={venueExtrasHeadCellStyle}>取得元</th>
+										</tr>
+									</thead>
+									<tbody>
+										{[
+											["今節成績", "amagasakiSectionResults", (selectedRaceExtra as Record<string, unknown>).amagasakiSectionResults],
+											["枠番別過去10走", "amagasakiFrameLast10", (selectedRaceExtra as Record<string, unknown>).amagasakiFrameLast10],
+											["全国過去3節", "amagasakiNationalRecent3", (selectedRaceExtra as Record<string, unknown>).amagasakiNationalRecent3],
+											["当地過去3節", "amagasakiLocalRecent3", (selectedRaceExtra as Record<string, unknown>).amagasakiLocalRecent3],
+											["進入コース別情報", "amagasakiCourseResults", (selectedRaceExtra as Record<string, unknown>).amagasakiCourseResults],
+											["選手コメント・前日予想", "amagasakiPreRacePrediction", (selectedRaceExtra as Record<string, unknown>).amagasakiPreRacePrediction],
+										].map(([label, statusKey, value]) => {
+											const rows = Array.isArray(value) ? value : [];
+											const first = rows.find(isVenueExtraRecord);
+											const sourceLabel = first ? readVenueExtraString(first.sourceLabel) || readVenueExtraString(first.source) : "";
+											const sourceStatus = ((selectedRaceExtra as Record<string, unknown>).sourceStatus as Record<string, unknown> | undefined)?.[statusKey as string] ??
+												((selectedVenueExtra as Record<string, unknown> | null)?.sourceStatus as Record<string, unknown> | undefined)?.[statusKey as string];
+
+											return (
+												<tr key={`amagasaki-record-source-${statusKey}`}>
+													<td style={venueExtrasBodyCellStyle}>{label as string}</td>
+													<td style={venueExtrasBodyCellStyle}>{rows.length ? `${rows.length}件` : "-"}</td>
+													<td style={venueExtrasBodyCellStyle}>{readVenueExtraString(sourceStatus) || (rows.length ? "available" : "-")}</td>
+													<td style={venueExtrasBodyCellStyle}>{sourceLabel || "尼崎公式"}</td>
+												</tr>
+											);
+										})}
+									</tbody>
+								</table>
+							</div>
+						</section>
+					) : null}
+
 					{isMikuniVenue && selectedMikuniScoreRateGuide.length ? (
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>三国得点率・節間成績</h4>
@@ -11535,25 +11584,26 @@ body:has(.races-page-root) {
 									<thead>
 										<tr>
 											<th style={venueExtrasHeadCellStyle}>枠</th>
-											{(isMikuniVenue || isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue) ? <th style={venueExtrasHeadCellStyle}>選手</th> : null}
+											{(isMikuniVenue || isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue || isAmagasakiVenue) ? <th style={venueExtrasHeadCellStyle}>選手</th> : null}
 											{isMikuniVenue ? <th style={venueExtrasHeadCellStyle}>モーター</th> : null}
 											{isMarugameVenue ? <th style={venueExtrasHeadCellStyle}>モーター</th> : null}
 											{isAshiyaVenue ? <th style={venueExtrasHeadCellStyle}>モーター</th> : null}
 											{isMiyajimaVenue ? <th style={venueExtrasHeadCellStyle}>モーター</th> : null}
-											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue) ? <th style={venueExtrasHeadCellStyle}>体重 / 調整</th> : null}
-											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue) ? <th style={venueExtrasHeadCellStyle}>チルト</th> : null}
-											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue) ? <th style={venueExtrasHeadCellStyle}>展示</th> : null}
-											{(!isMiyajimaVenue || hasOriginalOneLapTimeData) ? <th style={venueExtrasHeadCellStyle}>{isMikuniVenue ? "半周" : "一周"}</th> : null}
-											{(!isMiyajimaVenue || hasOriginalTurnTimeData) ? <th style={venueExtrasHeadCellStyle}>回り足</th> : null}
-											{(!isMiyajimaVenue || hasOriginalStraightTimeData) ? <th style={venueExtrasHeadCellStyle}>直線</th> : null}
-											<th style={venueExtrasHeadCellStyle}>{(isMikuniVenue || isMiyajimaVenue) ? "メモ" : "展示評価"}</th>
+											{isAmagasakiVenue ? <th style={venueExtrasHeadCellStyle}>モーター</th> : null}
+											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue || isAmagasakiVenue) ? <th style={venueExtrasHeadCellStyle}>体重 / 調整</th> : null}
+											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue || isAmagasakiVenue) ? <th style={venueExtrasHeadCellStyle}>チルト</th> : null}
+											{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue || isAmagasakiVenue) ? <th style={venueExtrasHeadCellStyle}>展示</th> : null}
+											{((!isMiyajimaVenue && !isAmagasakiVenue) || hasOriginalOneLapTimeData) ? <th style={venueExtrasHeadCellStyle}>{isMikuniVenue ? "半周" : "一周"}</th> : null}
+											{((!isMiyajimaVenue && !isAmagasakiVenue) || hasOriginalTurnTimeData) ? <th style={venueExtrasHeadCellStyle}>回り足</th> : null}
+											{((!isMiyajimaVenue && !isAmagasakiVenue) || hasOriginalStraightTimeData) ? <th style={venueExtrasHeadCellStyle}>直線</th> : null}
+											<th style={venueExtrasHeadCellStyle}>{(isMikuniVenue || isMiyajimaVenue || isAmagasakiVenue) ? "メモ" : "展示評価"}</th>
 										</tr>
 									</thead>
 									<tbody>
 										{selectedOriginalExhibitionRows.map((item) => (
 											<tr key={`venue-extra-exhibition-${item.frameNo}`}>
 												<td style={venueExtrasBodyCellStyle}>{item.frameNo}</td>
-												{(isMikuniVenue || isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue) ? (
+												{(isMikuniVenue || isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue || isAmagasakiVenue) ? (
 													<td style={venueExtrasBodyCellStyle}>
 														<div style={{ display: "grid", gap: "4px", lineHeight: 1.35 }}>
 															<strong>{item.playerName || `枠${item.frameNo}`}</strong>
@@ -11569,15 +11619,16 @@ body:has(.races-page-root) {
 												{isMarugameVenue ? <td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"}</td> : null}
 												{isAshiyaVenue ? <td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"}</td> : null}
 												{isMiyajimaVenue ? <td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"}</td> : null}
-												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue) ? (
+												{isAmagasakiVenue ? <td style={venueExtrasBodyCellStyle}>{item.motorNo || "-"}</td> : null}
+												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue || isAmagasakiVenue) ? (
 													<td style={venueExtrasBodyCellStyle}>{item.weight || "-"} / {item.weightAdjustment || "-"}</td>
 												) : null}
-												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue) ? <td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td> : null}
-												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue) ? <td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td> : null}
-												{(!isMiyajimaVenue || hasOriginalOneLapTimeData) ? <td style={venueExtrasBodyCellStyle}>{item.oneLapTime || "-"}</td> : null}
-												{(!isMiyajimaVenue || hasOriginalTurnTimeData) ? <td style={venueExtrasBodyCellStyle}>{item.turnTime || "-"}</td> : null}
-												{(!isMiyajimaVenue || hasOriginalStraightTimeData) ? <td style={venueExtrasBodyCellStyle}>{item.straightTime || "-"}</td> : null}
-												<td style={venueExtrasBodyCellStyle}>{(isMikuniVenue || isMiyajimaVenue) ? (item.memo || "-") : (item.exhibitionEvaluation || "-")}</td>
+												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue || isAmagasakiVenue) ? <td style={venueExtrasBodyCellStyle}>{item.tilt || "-"}</td> : null}
+												{(isNarutoVenue || isBiwakoVenue || isTsuVenue || isWakamatsuVenue || isFukuokaVenue || isKojimaVenue || isTokuyamaVenue || isMarugameVenue || isTokonameVenue || isAshiyaVenue || isMiyajimaVenue || isAmagasakiVenue) ? <td style={venueExtrasBodyCellStyle}>{item.exhibitionTime || "-"}</td> : null}
+												{((!isMiyajimaVenue && !isAmagasakiVenue) || hasOriginalOneLapTimeData) ? <td style={venueExtrasBodyCellStyle}>{item.oneLapTime || "-"}</td> : null}
+												{((!isMiyajimaVenue && !isAmagasakiVenue) || hasOriginalTurnTimeData) ? <td style={venueExtrasBodyCellStyle}>{item.turnTime || "-"}</td> : null}
+												{((!isMiyajimaVenue && !isAmagasakiVenue) || hasOriginalStraightTimeData) ? <td style={venueExtrasBodyCellStyle}>{item.straightTime || "-"}</td> : null}
+												<td style={venueExtrasBodyCellStyle}>{(isMikuniVenue || isMiyajimaVenue || isAmagasakiVenue) ? (item.memo || "-") : (item.exhibitionEvaluation || "-")}</td>
 											</tr>
 										))}
 									</tbody>
