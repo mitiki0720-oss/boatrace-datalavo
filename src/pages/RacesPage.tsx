@@ -197,6 +197,7 @@ const pageContentStyle = {
 	paddingTop: "20px",
 	marginTop: "-304px",
 	position: "relative" as const,
+	overflowX: "hidden" as const,
 	zIndex: 1,
 };
 
@@ -331,6 +332,9 @@ const venueExtrasPanelSelectorWrapStyle = {
 const venueExtrasPanelSelectorScrollStyle = {
 	overflowX: "auto" as const,
 	overflowY: "hidden" as const,
+	width: "100%",
+	maxWidth: "100%",
+	minWidth: 0,
 	paddingBottom: "4px",
 	marginInline: "-4px",
 	paddingInline: "4px",
@@ -343,6 +347,7 @@ const venueExtrasPanelSelectorGridStyle = {
 	display: "flex",
 	flexWrap: "nowrap" as const,
 	gap: "12px",
+	width: "max-content",
 	minWidth: "max-content",
 	alignItems: "stretch" as const,
 	scrollSnapType: "x proximity" as const,

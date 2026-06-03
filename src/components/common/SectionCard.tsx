@@ -32,6 +32,7 @@ const descriptionStyle = {
 
 const bodyStyle = {
 	marginTop: "18px",
+	minWidth: 0,
 };
 
 export function SectionCard({ title, description, children }: SectionCardProps) {

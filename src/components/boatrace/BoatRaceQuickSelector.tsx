@@ -33,7 +33,7 @@ export function BoatRaceQuickSelector({
 	onSelectRace,
 }: BoatRaceQuickSelectorProps) {
 	return (
-		<section style={{ display: "grid", gap: "10px" }}>
+		<section style={{ display: "grid", gap: "10px", width: "100%", minWidth: 0 }}>
 			<div style={{ display: "grid", gap: "6px", maxWidth: "560px" }}>
 				<span
 					style={{
@@ -70,6 +70,11 @@ export function BoatRaceQuickSelector({
 			<div
 				style={{
 					position: "relative" as const,
+					width: "100%",
+					maxWidth: "100%",
+					minWidth: 0,
+					boxSizing: "border-box" as const,
+					overflow: "hidden",
 					borderRadius: "24px",
 					border: `1px solid ${boatTheme.colors.line}`,
 					background: "linear-gradient(180deg, rgba(250, 253, 255, 0.98), rgba(241, 249, 254, 0.95))",
@@ -78,12 +83,15 @@ export function BoatRaceQuickSelector({
 				<div
 					style={{
 						overflowX: "auto",
+						width: "100%",
+						maxWidth: "100%",
+						minWidth: 0,
 						padding: "12px 12px 12px",
 						scrollbarWidth: "thin",
 						scrollbarColor: "rgba(24, 115, 152, 0.24) transparent",
 					}}
 				>
-					<div style={{ display: "flex", gap: "10px", minWidth: "max-content" }}>
+					<div style={{ display: "flex", gap: "10px", width: "max-content", minWidth: "max-content" }}>
 						{races.map((race) => {
 							const raceKey = getRaceKey(venueId, race);
 							const isSelected = raceKey === selectedRaceId;
