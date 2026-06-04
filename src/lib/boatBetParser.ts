@@ -1,5 +1,7 @@
 export type BoatBetType = "trifecta" | "exacta" | "trio" | "quinella" | "wide";
 
+export type BoatPredictionParseStatus = "ready" | "warning" | "invalid" | "missing-section";
+
 export type ParsedBoatBet = {
 	type: BoatBetType;
 	label: string;
@@ -7,6 +9,7 @@ export type ParsedBoatBet = {
 	normalized: string;
 	amountYen: number;
 	sourceLine: string;
+	index?: string;
 };
 
 export type ParsedBoatBetSummary = {
@@ -16,9 +19,29 @@ export type ParsedBoatBetSummary = {
 	exactaCount: number;
 	totalStakeYen: number;
 	warnings?: string[];
+	betSectionText?: string;
+	parseStatus?: BoatPredictionParseStatus;
+	parsedAt?: string;
+	parserVersion?: string;
+	invalidRows?: string[];
+	duplicateRows?: string[];
+};
+
+type ExtractedBetSection = {
+	lines: string[];
+	text: string;
+	hasSection: boolean;
+};
+
+type ParsedCombination = {
+	normalized: string;
+	numbers: number[];
+	remainder: string;
 };
 
 const DEFAULT_BET_AMOUNT_YEN = 100;
+
+export const BOAT_BET_PARSER_VERSION = "2026-06-04.bet-result-consistency";
 
 const typeLabels: Record<BoatBetType, string> = {
 	trifecta: "3連単",
@@ -28,7 +51,9 @@ const typeLabels: Record<BoatBetType, string> = {
 	wide: "拡連複",
 };
 
-const HYPHEN_LIKE_PATTERN = /[‐-―－ーｰ〜～>＞→⇒]/g;
+const HYPHEN_LIKE_PATTERN = /[\u2010-\u2015\u2212\u30fc\uff0d\uff70\u301c\uff5e]/g;
+const ARROW_LIKE_PATTERN = /[→⇒➜➝＞>]/g;
+const BRACKET_PATTERN = /^[\s【】\[\]［］「」『』《》〈〉〔〕（）()]+|[\s【】\[\]［］「」『』《》〈〉〔〕（）()]+$/g;
 
 export const emptyBoatBetSummary = (): ParsedBoatBetSummary => ({
 	bets: [],
@@ -37,139 +62,214 @@ export const emptyBoatBetSummary = (): ParsedBoatBetSummary => ({
 	exactaCount: 0,
 	totalStakeYen: 0,
 	warnings: [],
+	betSectionText: "",
+	parseStatus: "invalid",
+	parsedAt: "",
+	parserVersion: BOAT_BET_PARSER_VERSION,
+	invalidRows: [],
+	duplicateRows: [],
 });
 
-export function normalizeBoatBetCombination(value: string): string {
-	return value
+export function normalizeBoatBetText(value: string): string {
+	return String(value ?? "")
 		.normalize("NFKC")
+		.replace(/\r\n?/g, "\n")
 		.replace(HYPHEN_LIKE_PATTERN, "-")
-		.replace(/\s+/g, "")
+		.replace(ARROW_LIKE_PATTERN, "-");
+}
+
+export function normalizeBoatBetCombination(value: string): string {
+	return normalizeBoatBetText(value)
+		.replace(/\s*-\s*/g, "-")
+		.replace(/\s+/g, "-")
+		.replace(/-+/g, "-")
 		.replace(/^-+|-+$/g, "");
 }
 
-const resolveBetTypeFromText = (value: string): BoatBetType | null => {
-	const text = value.normalize("NFKC");
+export function normalizeBoatBetType(value?: string | null): BoatBetType | null {
+	const text = normalizeBoatBetText(String(value ?? "")).replace(/\s+/g, "").toLowerCase();
 
-	if (/3\s*連\s*単|三\s*連\s*単|3\s*単|trifecta/i.test(text)) {
-		return "trifecta";
-	}
-
-	if (/2\s*連\s*単|二\s*連\s*単|2\s*単|exacta/i.test(text)) {
-		return "exacta";
-	}
-
-	if (/3\s*連\s*複|三\s*連\s*複|3\s*複|trio/i.test(text)) {
-		return "trio";
-	}
-
-	if (/2\s*連\s*複|二\s*連\s*複|2\s*複|quinella/i.test(text)) {
-		return "quinella";
-	}
-
-	if (/拡\s*連\s*複|ワイド|wide/i.test(text)) {
-		return "wide";
-	}
+	if (/3連単|三連単|3単|trifecta|sanrentan/.test(text)) return "trifecta";
+	if (/2連単|二連単|2単|exacta|nirentan/.test(text)) return "exacta";
+	if (/3連複|三連複|3複|trio|sanrenpuku/.test(text)) return "trio";
+	if (/2連複|二連複|2複|quinella|nirenpuku/.test(text)) return "quinella";
+	if (/拡連複|ワイド|wide/.test(text)) return "wide";
 
 	return null;
-};
+}
+
+export function validateBoatBetCombination(type: BoatBetType, numbers: number[]): boolean {
+	if (numbers.some((value) => !Number.isInteger(value) || value < 1 || value > 6)) {
+		return false;
+	}
+
+	if (new Set(numbers).size !== numbers.length) {
+		return false;
+	}
+
+	if (type === "trifecta" || type === "trio") {
+		return numbers.length === 3;
+	}
+
+	return numbers.length === 2;
+}
 
 const inferBetTypeFromNumbers = (numbers: number[]): BoatBetType | null => {
-	if (numbers.length === 3) {
-		return "trifecta";
-	}
-
-	if (numbers.length === 2) {
-		return "exacta";
-	}
-
+	if (numbers.length === 3) return "trifecta";
+	if (numbers.length === 2) return "exacta";
 	return null;
 };
 
-const readAmountYen = (line: string, unitAmountYen: number): number => {
-	const normalized = line.normalize("NFKC");
-	const match = normalized.match(/(\d{2,6})\s*円/);
-	if (!match) {
-		return unitAmountYen;
-	}
-
-	const parsed = Number(match[1]);
-	return Number.isFinite(parsed) && parsed > 0 ? parsed : unitAmountYen;
-};
+const normalizeHeadingText = (line: string): string =>
+	normalizeBoatBetText(line).replace(BRACKET_PATTERN, "").trim();
 
 const isBetSectionHeading = (line: string): boolean => {
-	const text = line.normalize("NFKC");
+	const text = normalizeHeadingText(line);
 	return /買い目|買目|投票|舟券|BET|ベット/i.test(text);
 };
 
 const isBetSectionEndHeading = (line: string): boolean => {
-	const text = line.normalize("NFKC").replace(/[【】\[\]]/g, "").trim();
+	const text = normalizeHeadingText(line);
 
 	if (!text) {
 		return false;
 	}
 
-	if (/^(最終チェック|タグ|危険な人気|穴候補|結果|振り返り|メモ|レビュー|総評|まとめ|買い足し)/i.test(text)) {
+	if (/^(タグ|メモ|レビュー|振り返り|最終チェック|危険|注意|考察まとめ|買う理由|展開|展示|スタート|ST|予想根拠)/i.test(text)) {
 		return true;
 	}
 
-	return /^【.+】$/.test(line.trim()) && !isBetSectionHeading(line);
+	const trimmed = normalizeBoatBetText(line).trim();
+	return /^[【［\[\(（]/.test(trimmed) && !isBetSectionHeading(trimmed) && !normalizeBoatBetType(trimmed);
 };
 
-const extractBoatBetSection = (predictionText: string): { lines: string[]; hasSection: boolean } => {
-	const lines = predictionText.split(/\r?\n/);
+export function extractBoatBetSection(predictionText: string): ExtractedBetSection {
+	const lines = normalizeBoatBetText(predictionText).split("\n");
 	const startIndex = lines.findIndex(isBetSectionHeading);
 
 	if (startIndex < 0) {
-		return { lines: [], hasSection: false };
+		return { lines: [], text: "", hasSection: false };
 	}
 
 	const endIndex = lines.findIndex((line, index) => index > startIndex && isBetSectionEndHeading(line));
+	const sectionLines = lines.slice(startIndex, endIndex > startIndex ? endIndex : undefined);
 
 	return {
-		lines: lines.slice(startIndex, endIndex > startIndex ? endIndex : undefined),
+		lines: sectionLines,
+		text: sectionLines.join("\n").trim(),
 		hasSection: true,
+	};
+}
+
+const readAmountYen = (line: string, unitAmountYen: number): number => {
+	const normalized = normalizeBoatBetText(line);
+	const match = normalized.match(/(?:¥\s*([\d,]+)|([\d,]+)\s*円)/i);
+	if (!match) {
+		return unitAmountYen;
+	}
+
+	const parsed = Number(String(match[1] ?? match[2]).replace(/[^\d]/g, ""));
+	return Number.isFinite(parsed) && parsed > 0 ? parsed : unitAmountYen;
+};
+
+const readTicketRow = (line: string): { index?: string; candidate: string } | null => {
+	const normalized = normalizeBoatBetText(line).replace(/^`+|`+$/g, "").trim();
+	if (!normalized || /^#/.test(normalized)) {
+		return null;
+	}
+
+	const indexed = normalized.match(/^(\d{1,2})\s*(?:[:：.)）]|[\s　]+)\s*(.+)$/);
+	if (indexed) {
+		return {
+			index: indexed[1].padStart(2, "0"),
+			candidate: indexed[2].trim(),
+		};
+	}
+
+	if (/^[1-6](?:\s*-|\s+)[1-6]/.test(normalized)) {
+		return { candidate: normalized };
+	}
+
+	return null;
+};
+
+const parseCombinationCandidate = (candidate: string): ParsedCombination | null => {
+	const normalized = normalizeBoatBetText(candidate).trim();
+	const dashed = normalized.match(/^([1-6])\s*-\s*([1-6])(?:\s*-\s*([1-6]))?(\s*-\s*\d+)?(.*)$/);
+
+	if (dashed) {
+		if (dashed[4]) {
+			return null;
+		}
+
+		const numbers = [dashed[1], dashed[2], dashed[3]].filter(Boolean).map(Number);
+		return {
+			normalized: numbers.join("-"),
+			numbers,
+			remainder: String(dashed[5] ?? "").trim(),
+		};
+	}
+
+	const spaced = normalized.match(/^([1-6])\s+([1-6])(?:\s+([1-6]))?(\s+\d+)?(.*)$/);
+	if (!spaced || spaced[4]) {
+		return null;
+	}
+
+	const numbers = [spaced[1], spaced[2], spaced[3]].filter(Boolean).map(Number);
+	return {
+		normalized: numbers.join("-"),
+		numbers,
+		remainder: String(spaced[5] ?? "").trim(),
 	};
 };
 
-const extractTicketCombinationFromLine = (line: string): string | null => {
-	const normalized = line
-		.normalize("NFKC")
-		.replace(HYPHEN_LIKE_PATTERN, "-")
-		.trim();
-
-	const match =
-		normalized.match(/^(?:0?[1-9]|1[0-2])(?:[.)、:：|\s]+)([1-6]\s*-\s*[1-6](?:\s*-\s*[1-6])?)(?:\s|$)/) ||
-		normalized.match(/^([1-6]\s*-\s*[1-6](?:\s*-\s*[1-6])?)(?:\s|$)/);
-
-	if (!match) {
-		return null;
+const looksLikeInvalidTicketRow = (line: string): boolean => {
+	const row = readTicketRow(line);
+	if (!row) {
+		return false;
 	}
 
-	const normalizedCombination = normalizeBoatBetCombination(match[1]);
-	const numbers = normalizedCombination.split("-").map((value) => Number(value));
-	if (numbers.some((value) => !Number.isInteger(value) || value < 1 || value > 6)) {
-		return null;
+	return /^[0-9０-９]/.test(row.candidate) || /^[1-6][\s\-→⇒＞>]/.test(normalizeBoatBetText(row.candidate));
+};
+
+const buildParseStatus = (params: {
+	hasSection: boolean;
+	betsCount: number;
+	warningsCount: number;
+	invalidRowsCount: number;
+}): BoatPredictionParseStatus => {
+	if (!params.hasSection) {
+		return "missing-section";
 	}
 
-	if (new Set(numbers).size !== numbers.length) {
-		return null;
+	if (params.betsCount <= 0) {
+		return "invalid";
 	}
 
-	return normalizedCombination;
+	if (params.warningsCount > 0 || params.invalidRowsCount > 0) {
+		return "warning";
+	}
+
+	return "ready";
 };
 
 export function parseBoatBets(predictionText: string, unitAmountYen = DEFAULT_BET_AMOUNT_YEN): ParsedBoatBetSummary {
 	const bets: ParsedBoatBet[] = [];
 	const seen = new Set<string>();
 	const warnings: string[] = [];
+	const invalidRows: string[] = [];
+	const duplicateRows: string[] = [];
 	let currentType: BoatBetType | null = null;
 	let currentLabel = "";
 	const section = extractBoatBetSection(predictionText);
 
 	if (!section.hasSection) {
+		const missingWarnings = ["bet section not found"];
 		return {
 			...emptyBoatBetSummary(),
-			warnings: ["買い目セクションが見つかりません。買い目📝以降に買い目を記載してください。"],
+			warnings: missingWarnings,
+			parseStatus: "missing-section",
+			parsedAt: new Date().toISOString(),
 		};
 	}
 
@@ -180,64 +280,83 @@ export function parseBoatBets(predictionText: string, unitAmountYen = DEFAULT_BE
 			continue;
 		}
 
-		const headingType = resolveBetTypeFromText(line);
-		if (headingType) {
+		const headingType = normalizeBoatBetType(line);
+		const row = readTicketRow(line);
+		if (headingType && !row) {
 			currentType = headingType;
 			currentLabel = line;
 			continue;
 		}
 
-		const match = extractTicketCombinationFromLine(line);
-		if (!match) {
+		if (!row) {
 			continue;
 		}
 
-		const numbers = match.split("-").map((value) => Number(value));
-		const type = currentType ?? inferBetTypeFromNumbers(numbers);
-
-		if (!type) {
+		const parsedCombination = parseCombinationCandidate(row.candidate);
+		if (!parsedCombination) {
+			if (looksLikeInvalidTicketRow(line)) {
+				invalidRows.push(line);
+			}
 			continue;
 		}
 
-		if ((type === "trifecta" || type === "trio") && numbers.length !== 3) {
+		const type = currentType ?? inferBetTypeFromNumbers(parsedCombination.numbers);
+		if (!type || !validateBoatBetCombination(type, parsedCombination.numbers)) {
+			invalidRows.push(line);
 			continue;
 		}
 
-		if ((type === "exacta" || type === "quinella" || type === "wide") && numbers.length !== 2) {
-			continue;
+		const duplicateKey = `${type}:${parsedCombination.normalized}`;
+		if (seen.has(duplicateKey)) {
+			duplicateRows.push(line);
 		}
-
-		const dedupeKey = `${type}:${match}`;
-		if (seen.has(dedupeKey)) {
-			continue;
-		}
-
-		seen.add(dedupeKey);
+		seen.add(duplicateKey);
 
 		bets.push({
 			type,
 			label: currentLabel || typeLabels[type],
-			numbers,
-			normalized: match,
+			numbers: parsedCombination.numbers,
+			normalized: parsedCombination.normalized,
 			amountYen: readAmountYen(line, unitAmountYen),
 			sourceLine: line,
+			index: row.index,
 		});
 	}
 
-	const totalBets = bets.length;
 	const trifectaCount = bets.filter((bet) => bet.type === "trifecta").length;
 	const exactaCount = bets.filter((bet) => bet.type === "exacta").length;
 
-	if (totalBets > 0 && exactaCount > 0) {
-		warnings.push(`競艇予想は通常3連単です。読み取り買い目に2連単が${exactaCount}件含まれています。保存前に内容を確認してください。`);
+	if (exactaCount > 0) {
+		warnings.push(`exacta rows detected: ${exactaCount}`);
 	}
+
+	if (duplicateRows.length > 0) {
+		warnings.push(`duplicate ticket rows detected: ${duplicateRows.length}`);
+	}
+
+	if (invalidRows.length > 0) {
+		warnings.push(`invalid ticket rows ignored: ${invalidRows.length}`);
+	}
+
+	const parseStatus = buildParseStatus({
+		hasSection: section.hasSection,
+		betsCount: bets.length,
+		warningsCount: warnings.length,
+		invalidRowsCount: invalidRows.length,
+	});
 
 	return {
 		bets,
-		totalBets,
+		totalBets: bets.length,
 		trifectaCount,
 		exactaCount,
-		totalStakeYen: totalBets * unitAmountYen,
+		totalStakeYen: bets.reduce((sum, bet) => sum + bet.amountYen, 0),
 		warnings,
+		betSectionText: section.text,
+		parseStatus,
+		parsedAt: new Date().toISOString(),
+		parserVersion: BOAT_BET_PARSER_VERSION,
+		invalidRows,
+		duplicateRows,
 	};
 }

@@ -1,139 +1,49 @@
+import {
+	normalizeBoatBetCombination,
+	normalizeBoatBetText,
+	parseBoatBets,
+	type BoatBetType,
+	type ParsedBoatBet,
+} from "./boatBetParser";
 import type { BoatPredictionTicket } from "./boatraceTypes";
 
-const HYPHEN_LIKE_PATTERN = /[>＞→⇒‐-―－ーｰ〜～]/g;
+const normalizeIndex = (value: string | undefined, fallbackIndex: number) =>
+	String(value || fallbackIndex + 1).padStart(2, "0");
 
-const normalizeIndex = (value: string) => value.padStart(2, "0");
+const betTypeLabels: Record<BoatBetType, BoatPredictionTicket["betType"]> = {
+	trifecta: "3連単",
+	exacta: "2連単",
+	trio: "3連複",
+	quinella: "2連複",
+	wide: "拡連複",
+};
 
 const normalizeGroup = (value?: string): BoatPredictionTicket["group"] => {
-	if (!value) {
-		return "その他";
-	}
+	const text = normalizeBoatBetText(value ?? "");
 
-	if (value.includes("厚め")) {
-		return "厚め";
-	}
-
-	if (value.includes("本線")) {
-		return "本線";
-	}
-
-	if (value.includes("穴")) {
-		return "穴狙い";
-	}
+	if (/厚め/.test(text)) return "厚め";
+	if (/本線/.test(text)) return "本線";
+	if (/穴/.test(text)) return "穴狙い";
 
 	return "その他";
 };
 
-const normalizeBetType = (value?: string): BoatPredictionTicket["betType"] => {
-	if (value?.includes("3連単")) {
-		return "3連単";
-	}
-
-	if (value?.includes("2連単")) {
-		return "2連単";
-	}
-
-	return value ?? "3連単";
-};
-
-const trimHyphenEdges = (value: string) => value.replace(/^-+/, "").replace(/-+$/, "");
-
 export function normalizeBoatCombination(value: string): string {
-	return trimHyphenEdges(
-		value
-			.normalize("NFKC")
-			.replace(HYPHEN_LIKE_PATTERN, "-")
-			.replace(/\s+/g, "")
-			.trim(),
-	);
+	return normalizeBoatBetCombination(value);
 }
 
-const isBetSectionHeading = (line: string): boolean => /買い目|買目|投票|舟券|BET|ベット/i.test(line.normalize("NFKC"));
-
-const isBetSectionEndHeading = (line: string): boolean => {
-	const normalized = line.normalize("NFKC").replace(/[【】\[\]]/g, "").trim();
-	return /^(最終チェック|タグ|危険な人気|穴候補|結果|振り返り|メモ|レビュー|総評|まとめ|買い足し)/i.test(normalized);
-};
-
-const extractPredictionTicketSection = (predictionText: string): string[] => {
-	const lines = predictionText.split(/\r?\n/);
-	const startIndex = lines.findIndex(isBetSectionHeading);
-
-	if (startIndex < 0) {
-		return [];
-	}
-
-	const endIndex = lines.findIndex((line, index) => index > startIndex && isBetSectionEndHeading(line));
-	return lines.slice(startIndex, endIndex > startIndex ? endIndex : undefined);
-};
+export function predictionTicketFromParsedBet(bet: ParsedBoatBet, index: number): BoatPredictionTicket {
+	return {
+		index: normalizeIndex(bet.index, index),
+		betType: betTypeLabels[bet.type] ?? bet.label,
+		combination: bet.normalized,
+		group: normalizeGroup(bet.label),
+		note: bet.sourceLine,
+	};
+}
 
 export function parseBoatPredictionTickets(predictionText: string): BoatPredictionTicket[] {
-	const lines = extractPredictionTicketSection(predictionText);
-	const tickets: BoatPredictionTicket[] = [];
-	const seen = new Set<string>();
-	let currentBetType: BoatPredictionTicket["betType"] | undefined;
-	let currentGroup: BoatPredictionTicket["group"] | undefined;
-
-	for (const rawLine of lines) {
-		const line = rawLine.trim();
-
-		if (!line) {
-			continue;
-		}
-
-		const headingNormalized = line.normalize("NFKC");
-		const headingHasBetType = headingNormalized.includes("3連単") || headingNormalized.includes("2連単");
-		const looksLikeHeading = headingHasBetType && !/^\d{1,2}\s+/.test(headingNormalized);
-
-		if (looksLikeHeading) {
-			currentBetType = normalizeBetType(headingNormalized);
-			currentGroup = normalizeGroup(headingNormalized);
-			continue;
-		}
-
-		const match = headingNormalized.match(/^(\d{1,2})\s+(?:(3連単|2連単)\s+)?(.+)$/);
-		if (!match) {
-			continue;
-		}
-
-		const [, rawIndex, explicitBetType, remainder] = match;
-		const workingBetType = normalizeBetType(explicitBetType ?? currentBetType ?? "3連単");
-		const workingGroup = explicitBetType ? normalizeGroup(explicitBetType) : currentGroup ?? "その他";
-		const normalizedRemainder = remainder.normalize("NFKC").replace(HYPHEN_LIKE_PATTERN, "-").trim();
-		const comboMatch = normalizedRemainder.match(/^([1-6]\s*-\s*[1-6](?:\s*-\s*[1-6])?)(?:\s|$)/);
-
-		if (!comboMatch) {
-			continue;
-		}
-
-		const combination = normalizeBoatCombination(comboMatch[1]);
-		const combinationNumbers = combination.split("-").map((value) => Number(value));
-		if (
-			combinationNumbers.some((value) => !Number.isInteger(value) || value < 1 || value > 6) ||
-			new Set(combinationNumbers).size !== combinationNumbers.length
-		) {
-			continue;
-		}
-
-		const noteText = normalizedRemainder.replace(comboMatch[1], "").trim();
-		const note = noteText || undefined;
-		const dedupeKey = `${workingBetType}:${combination}`;
-
-		if (seen.has(dedupeKey)) {
-			continue;
-		}
-
-		seen.add(dedupeKey);
-		tickets.push({
-			index: normalizeIndex(rawIndex),
-			betType: workingBetType,
-			combination,
-			group: workingGroup,
-			note,
-		});
-	}
-
-	return tickets;
+	return parseBoatBets(predictionText).bets.map(predictionTicketFromParsedBet);
 }
 
 export function countBoatPredictionTicketsByType(tickets: BoatPredictionTicket[]): {
@@ -142,8 +52,8 @@ export function countBoatPredictionTicketsByType(tickets: BoatPredictionTicket[]
 	exacta: number;
 	other: number;
 } {
-	const trifecta = tickets.filter((ticket) => ticket.betType === "3連単").length;
-	const exacta = tickets.filter((ticket) => ticket.betType === "2連単").length;
+	const trifecta = tickets.filter((ticket) => /3連単/.test(normalizeBoatBetText(ticket.betType))).length;
+	const exacta = tickets.filter((ticket) => /2連単/.test(normalizeBoatBetText(ticket.betType))).length;
 	const other = tickets.length - trifecta - exacta;
 
 	return {
