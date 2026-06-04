@@ -3,7 +3,6 @@ import { parseBoatBets, type ParsedBoatBet } from "../lib/boatBetParser";
 import { withBasePath } from "../lib/assetPath";
 import { BOAT_JOHNSON_PREDICTION_STORAGE_KEY } from "../lib/boatJohnsonPredictionStorage";
 import { getBoatOperationDate } from "../lib/boatOperationDate";
-import { pruneBoatOperationalLocalStorage } from "../lib/boatOperationalStoragePrune";
 
 const MOBILE_PAGE_BACKGROUND_URL = withBasePath("mobile-page/backgrounds/mobile-page-bg-water-sky.png");
 
@@ -655,7 +654,6 @@ export function MobilePage() {
   const currentDate = feed?.date ?? getBoatOperationDate();
 
   useEffect(() => {
-    pruneBoatOperationalLocalStorage({ activeDate: currentDate });
     setJohnsonRecords(loadJohnsonPredictionRecords());
     setPredictionRecords(loadPredictionRecords());
     setPracticeRecords(loadPracticeRecords());

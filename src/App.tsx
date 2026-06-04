@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { SiteHeader } from "./components/layout/SiteHeader";
+import { useBoatOperationalStorageRollover } from "./hooks/useBoatOperationalStorageRollover";
 import { boatTheme } from "./lib/theme";
 import { DashboardPage } from "./pages/DashboardPage";
 import { MobilePage } from "./pages/MobilePage";
@@ -50,6 +51,8 @@ const mobileBodyStyle = {
 };
 
 export default function App() {
+  useBoatOperationalStorageRollover();
+
   const [currentHash, setCurrentHash] = useState<PageHash>(() => {
     if (typeof window === "undefined") {
       return DEFAULT_HASH;
