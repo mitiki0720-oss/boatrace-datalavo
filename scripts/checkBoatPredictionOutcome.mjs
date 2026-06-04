@@ -156,7 +156,72 @@ const repaired = repairBoatPredictionParseIfNeeded({
 	savedAt: "2026-06-04T00:00:00.000Z",
 });
 assert.equal(repaired.parsedBets?.length, 1, "old saved data should repair parsed bets from raw text");
-assert.equal(repaired.parserVersion, "2026-06-04.bet-result-consistency", "repair should stamp parser version");
+assert.equal(repaired.parserVersion, "2026-06-05.bet-ticket-loss-fix", "repair should stamp parser version");
 assert.equal(repaired.rawPredictionText, repaired.predictionText, "repair should preserve raw prediction text");
+
+const buildJapaneseBetSection = (tickets, heading = "3\u9023\u5358") => [
+	"\u3010\u8cb7\u3044\u76ee\ud83d\udcdd\u3011",
+	"\u8cb7\u3044\u76ee\uff0810\u70b9\uff09",
+	heading,
+	...tickets.map((ticket, index) => `${String(index + 1).padStart(2, "0")}\u3000${ticket}`),
+].join("\n");
+const mikuni2PredictionText = buildJapaneseBetSection([
+	"1-3-2",
+	"1-3-6",
+	"1-3-4",
+	"1-2-3",
+	"1-2-6",
+	"1-6-3",
+	"3-1-2",
+	"3-1-6",
+	"3-2-1",
+	"3-6-1",
+], "3\u9023\u5358\uff08\u539a\u30812\u70b9\uff09\uff1a1/02");
+const mikuni5PredictionText = buildJapaneseBetSection([
+	"2-1-5",
+	"2-5-1",
+	"2-5-4",
+	"2-5-3",
+	"2-4-5",
+	"5-2-4",
+	"5-2-3",
+	"5-4-2",
+	"4-5-2",
+	"3-2-5",
+]);
+
+for (const [name, rawPredictionText, staleTicketCount] of [
+	["Mikuni 2R stale one-ticket record", mikuni2PredictionText, 1],
+	["Mikuni 5R stale zero-ticket record", mikuni5PredictionText, 0],
+]) {
+	const repairedMikuni = repairBoatPredictionParseIfNeeded({
+		raceKey: `boat-prediction:${name}`,
+		venueName: "\u4e09\u56fd",
+		date: "2026-06-05",
+		raceNo: name.includes("2R") ? 2 : 5,
+		predictionText: rawPredictionText,
+		rawPredictionText,
+		tickets: staleTicketCount > 0
+			? [{ index: "01", betType: "3\u9023\u5358", combination: "1-3-4", group: "\u305d\u306e\u4ed6" }]
+			: [],
+		parsedBets: staleTicketCount > 0
+			? [{ type: "trifecta", label: "3\u9023\u5358", numbers: [1, 3, 4], normalized: "1-3-4", amountYen: 100, sourceLine: "01 1-3-4", index: "01" }]
+			: [],
+		betSummary: {
+			bets: [],
+			totalBets: staleTicketCount,
+			trifectaCount: staleTicketCount,
+			exactaCount: 0,
+			totalStakeYen: staleTicketCount * 100,
+			parserVersion: "stale",
+		},
+		parserVersion: "stale",
+		savedAt: "2026-06-05T00:00:00.000Z",
+	});
+	assert.equal(repairedMikuni.parsedBets?.length, 10, `${name} should repair parsed bets to 10`);
+	assert.equal(repairedMikuni.tickets?.length, 10, `${name} should repair display tickets to 10`);
+	assert.equal(repairedMikuni.betSummary?.totalBets, 10, `${name} should repair bet summary to 10`);
+	assert.equal(repairedMikuni.totalStakeYen, 1000, `${name} should repair stake to 10 tickets`);
+}
 
 console.log("[check:boat-prediction-outcome] passed");

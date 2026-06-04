@@ -41,7 +41,7 @@ type ParsedCombination = {
 
 const DEFAULT_BET_AMOUNT_YEN = 100;
 
-export const BOAT_BET_PARSER_VERSION = "2026-06-04.bet-result-consistency";
+export const BOAT_BET_PARSER_VERSION = "2026-06-05.bet-ticket-loss-fix";
 
 const typeLabels: Record<BoatBetType, string> = {
 	trifecta: "3連単",

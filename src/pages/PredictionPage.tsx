@@ -252,6 +252,18 @@ const buildStoredPredictionBetSummary = (record: BoatPredictionRecord | undefine
 		return null;
 	}
 
+	const parsedFromRawText = parseBoatBets(record.rawPredictionText ?? record.predictionText ?? "");
+	const storedBetCount = Math.max(
+		Array.isArray(record.betSummary?.bets) ? record.betSummary.bets.length : 0,
+		record.betSummary?.totalBets ?? 0,
+		Array.isArray(record.parsedBets) ? record.parsedBets.length : 0,
+		Array.isArray(record.tickets) ? record.tickets.length : 0,
+	);
+
+	if (parsedFromRawText.bets.length > storedBetCount) {
+		return parsedFromRawText;
+	}
+
 	if (record.betSummary && Array.isArray(record.betSummary.bets) && record.betSummary.bets.length > 0) {
 		return record.betSummary;
 	}
@@ -1048,14 +1060,31 @@ const buildPracticeFallbackRaceKey = (params: {
 		const parsedTicketsFromText = parseBoatPredictionTickets(nextPredictionText);
 		const parsedBetSummaryFromText = parseBoatBets(nextPredictionText);
 		const fallbackTickets = toPredictionTickets(parsedBetSummaryFromText.bets);
-		const nextTickets = options?.preferredTickets && options.preferredTickets.length > 0
-			? options.preferredTickets
-			: parsedTicketsFromText.length > 0
-				? parsedTicketsFromText
-				: fallbackTickets;
-		const nextBetSummary = options?.preferredBetSummary &&
-			(options.preferredBetSummary.totalBets > 0 || options.preferredBetSummary.bets.length > 0)
-			? options.preferredBetSummary
+		const preferredTickets = options?.preferredTickets ?? [];
+		const preferredBetSummary = options?.preferredBetSummary ?? null;
+		const ticketsFromText = parsedTicketsFromText.length > 0 ? parsedTicketsFromText : fallbackTickets;
+		const shouldUsePreferredTickets = Boolean(
+			preferredTickets.length > 0 &&
+			(ticketsFromText.length <= 0 || preferredTickets.length >= ticketsFromText.length),
+		);
+		const nextTickets = shouldUsePreferredTickets
+			? preferredTickets
+			: ticketsFromText;
+		const preferredBetCount = Math.max(
+			preferredBetSummary?.totalBets ?? 0,
+			preferredBetSummary?.bets.length ?? 0,
+		);
+		const parsedBetCount = Math.max(
+			parsedBetSummaryFromText.totalBets,
+			parsedBetSummaryFromText.bets.length,
+		);
+		const shouldUsePreferredBetSummary = Boolean(
+			preferredBetSummary &&
+			preferredBetCount > 0 &&
+			(parsedBetCount <= 0 || preferredBetCount >= parsedBetCount),
+		);
+		const nextBetSummary: ParsedBoatBetSummary = shouldUsePreferredBetSummary && preferredBetSummary
+			? preferredBetSummary
 			: parsedBetSummaryFromText.totalBets > 0
 				? parsedBetSummaryFromText
 				: buildParsedBetSummaryFromTickets(nextTickets);
@@ -1675,11 +1704,6 @@ const practiceSummary = useMemo(() => {
 		}
 
 		autoSettledFingerprintRef.current.clear();
-		const pruneResult = pruneBoatLocalRecordsByDate({
-			activeDate: activePredictionDate,
-			keepDates: [activePredictionDate],
-		});
-		applyPracticeResultRecords(pruneResult.practice.records);
 		setPredictionRecordsVersion((current) => current + 1);
 	}, [activePredictionDate]);
 

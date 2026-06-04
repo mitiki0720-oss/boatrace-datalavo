@@ -38,6 +38,82 @@ const { parseBoatPredictionTickets } = await importTsModules([
 	path.join("src", "lib", "boatPredictionParser.ts"),
 ], path.join("src", "lib", "boatPredictionParser.ts"));
 
+const buyHeading = "\u3010\u8cb7\u3044\u76ee\ud83d\udcdd\u3011";
+const buyCountHeading = "\u8cb7\u3044\u76ee\uff0810\u70b9\uff09";
+const trifectaHeading = "3\u9023\u5358";
+const mikuni2Tickets = [
+	"1-3-2",
+	"1-3-6",
+	"1-3-4",
+	"1-2-3",
+	"1-2-6",
+	"1-6-3",
+	"3-1-2",
+	"3-1-6",
+	"3-2-1",
+	"3-6-1",
+];
+const mikuni5Tickets = [
+	"2-1-5",
+	"2-5-1",
+	"2-5-4",
+	"2-5-3",
+	"2-4-5",
+	"5-2-4",
+	"5-2-3",
+	"5-4-2",
+	"4-5-2",
+	"3-2-5",
+];
+const buildJapaneseBetSection = (tickets, heading = trifectaHeading) => [
+	buyHeading,
+	buyCountHeading,
+	heading,
+	...tickets.map((ticket, index) => `${String(index + 1).padStart(2, "0")}\u3000${ticket}`),
+].join("\n");
+const assertTenJapaneseTrifectaTickets = (name, text, expectedTickets) => {
+	const result = parseBoatBets(text);
+	assert.equal(result.totalBets, 10, `${name} should parse 10 tickets`);
+	assert.equal(result.trifectaCount, 10, `${name} should keep 10 trifecta rows`);
+	assert.equal(result.exactaCount, 0, `${name} should not invent exacta rows`);
+	assert.deepEqual(result.bets.map((bet) => bet.normalized), expectedTickets, `${name} should preserve ticket order`);
+	assert.equal(parseBoatPredictionTickets(text).length, 10, `${name} ticket parser should match parsed bets`);
+};
+
+const mikuni2Section = buildJapaneseBetSection(mikuni2Tickets, `${trifectaHeading}\uff08\u539a\u30812\u70b9\uff09\uff1a1/02`);
+const mikuni5Section = buildJapaneseBetSection(mikuni5Tickets);
+assertTenJapaneseTrifectaTickets("Mikuni 2R section", mikuni2Section, mikuni2Tickets);
+assertTenJapaneseTrifectaTickets("Mikuni 5R section", mikuni5Section, mikuni5Tickets);
+assertTenJapaneseTrifectaTickets(
+	"Mikuni 2R full text with exhibition stats",
+	[
+		"\u5c55\u793aST",
+		"1 .16",
+		"2 .13",
+		"3 .15",
+		"\u5468\u56de\u30bf\u30a4\u30e0",
+		"1 36.38",
+		"2 37.50",
+		mikuni2Section,
+		"\u3010\u30bf\u30b0\u3011",
+		"#\u4e09\u56fd #\u5c55\u793a\u91cd\u8996",
+	].join("\r\n"),
+	mikuni2Tickets,
+);
+assertTenJapaneseTrifectaTickets(
+	"Mikuni 5R full text with exhibition stats",
+	[
+		"\u5c55\u793a\u30bf\u30a4\u30e0",
+		"1 6.75",
+		"2 6.89",
+		"3 6.81",
+		mikuni5Section,
+		"\u30e1\u30e2",
+		"\u7d50\u679c\u78ba\u8a8d\u5f85\u3061",
+	].join("\n"),
+	mikuni5Tickets,
+);
+
 const fullPredictionText = `
 【購入 / 展示】
 スタート展示
