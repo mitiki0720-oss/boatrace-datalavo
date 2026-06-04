@@ -221,7 +221,8 @@ const venueByCode = new Map(venues.map((venue) => [String(venue.venueCode).padSt
 
 expectStatus("actual Amagasaki venueCode=13", venueByCode.get("13"), "complete");
 expectStatus("actual Miyajima venueCode=17", venueByCode.get("17"), "complete");
-expectStatus("actual Edogawa venueCode=03", venueByCode.get("03"), "common-only");
+expectStatus("actual Edogawa venueCode=03", venueByCode.get("03"), "complete");
+expectStatus("actual Gamagori venueCode=07", venueByCode.get("07"), "complete");
 
 for (const venue of venues) {
 	const status = resolveStatus(venue);

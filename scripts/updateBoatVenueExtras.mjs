@@ -128,6 +128,22 @@ const BIWAKO_MOTOR_RANK_URL = "https://www.boatrace-biwako.jp/modules/datafile/?
 const BIWAKO_COURSE_URL = "https://www.boatrace-biwako.jp/modules/raceinfo/?page=index_racecourse";
 const BIWAKO_CURRENT_SERIES_URL = "https://www.boatrace-biwako.jp/modules/raceinfo/?page=index_konsetsu";
 const BIWAKO_BOAT_DATA_URL = "https://www.boatrace-biwako.jp/modules/datafile/?page=index_boat";
+const EDOGAWA_VENUE_NAME = "\u6c5f\u6238\u5ddd";
+const EDOGAWA_SOURCE = "boatrace-edogawa.com";
+const EDOGAWA_TOP_URL = "https://www.boatrace-edogawa.com/";
+const EDOGAWA_RACE_INDEX_URL = "https://www.boatrace-edogawa.com/sp/index.php?page=yosou-race_index";
+const EDOGAWA_SCORE_RATE_URL = "https://www.boatrace-edogawa.com/sp/index.php?page=raceinfo-tokuten";
+const EDOGAWA_MOTOR_LOTTERY_URL = "https://www.boatrace-edogawa.com/sp/index.php?page=raceinfo-motor_cyusen";
+const EDOGAWA_MOTOR_DATA_URL = "https://www.boatrace-edogawa.com/sp/index.php?page=raceinfo-motor_seiseki";
+const EDOGAWA_BOAT_DATA_URL = "https://www.boatrace-edogawa.com/sp/index.php?page=raceinfo-boat_seiseki";
+const GAMAGORI_VENUE_NAME = "\u84b2\u90e1";
+const GAMAGORI_SOURCE = "gamagori-kyotei.com";
+const GAMAGORI_TOP_URL = "https://www.gamagori-kyotei.com/";
+const GAMAGORI_SP_TOP_URL = "https://www.gamagori-kyotei.com/sp/";
+const GAMAGORI_DATA_URL = "https://www.gamagori-kyotei.com/sp/01data/01data.htm";
+const GAMAGORI_HELP_URL = "https://www.gamagori-kyotei.com/sp/00help/00help.htm";
+const GAMAGORI_PDF_URL = "https://www.gamagori-kyotei.com/sp/01pdf/01pdf.htm";
+const GAMAGORI_HISTORY_URL = "https://www.gamagori-kyotei.com/sp/g_jump/01history.htm";
 const BOATRACE_OFFICIAL_SOURCE = "boatrace.jp";
 const NARUTO_MOTOR_DATA_URL = "https://www.n14.jp/modules/datafile/";
 const NARUTO_TIDE_URL = "https://www.n14.jp/modules/datafile/?page=index_tide_table";
@@ -158,7 +174,11 @@ const venueOfficialExtrasRegistry = {
 		supported: true,
 		sourceUrls: [TODA_BASE_URL, TODA_WEATHER_URL],
 	},
-	"03": { key: null, supported: false, sourceUrls: [] },
+	"03": {
+		key: "edogawa",
+		supported: true,
+		sourceUrls: [EDOGAWA_TOP_URL, EDOGAWA_RACE_INDEX_URL, EDOGAWA_SCORE_RATE_URL, EDOGAWA_MOTOR_LOTTERY_URL, EDOGAWA_MOTOR_DATA_URL, EDOGAWA_BOAT_DATA_URL],
+	},
 	"04": { key: null, supported: false, sourceUrls: [] },
 	"05": {
 		key: "tamagawa",
@@ -170,7 +190,11 @@ const venueOfficialExtrasRegistry = {
 		supported: true,
 		sourceUrls: [HAMANAKO_YOSOU_BASE_URL, HAMANAKO_WATER_SURFACE_URL],
 	},
-	"07": { key: null, supported: false, sourceUrls: [] },
+	"07": {
+		key: "gamagori",
+		supported: true,
+		sourceUrls: [GAMAGORI_TOP_URL, GAMAGORI_SP_TOP_URL, GAMAGORI_DATA_URL, GAMAGORI_HELP_URL, GAMAGORI_PDF_URL, GAMAGORI_HISTORY_URL],
+	},
 	"08": {
 		key: "tokoname",
 		supported: true,
@@ -638,6 +662,310 @@ function normalizeVenueWeatherCondition(weather, options = {}) {
 	].some((value) => typeof value === "string" && value.trim().length > 0);
 
 	return hasValue ? condition : null;
+}
+
+function getRaceRacers(race) {
+	return Array.isArray(race?.racers) ? race.racers : [];
+}
+
+function buildCommonEntryTableRows(race, { source, sourceUrl, sourceLabel }) {
+	return getRaceRacers(race)
+		.map((racer) => {
+			const frameNo = readRaceFrameNo(racer?.frameNo ?? racer?.frame ?? racer?.lane ?? racer?.boatNumber);
+
+			if (!frameNo) {
+				return null;
+			}
+
+			return {
+				frameNo,
+				registrationNo: readRaceString(racer?.registrationNo ?? racer?.racerId ?? racer?.registerNo),
+				racerName: readRaceString(racer?.playerName ?? racer?.name ?? racer?.boatRacerName),
+				racerClass: readRaceString(racer?.class ?? racer?.grade ?? racer?.rank),
+				branch: readRaceString(racer?.branch),
+				age: readRaceString(racer?.age),
+				flyingCount: readRaceString(racer?.fCount ?? racer?.flyingCount),
+				lateCount: readRaceString(racer?.lCount ?? racer?.lateCount),
+				averageStartTiming: readRaceString(racer?.averageStart ?? racer?.averageSt ?? racer?.avgSt ?? racer?.st),
+				nationalWinRate: readRaceString(racer?.winRate ?? racer?.winningRate),
+				nationalSecondRate: readRaceString(racer?.secondRate ?? racer?.twoRate ?? racer?.quinellaRate),
+				localWinRate: readRaceString(racer?.localWinRate),
+				localSecondRate: readRaceString(racer?.localSecondRate),
+				motorNo: readRaceString(racer?.motorNo ?? racer?.motorNumber),
+				motorSecondRate: readRaceString(racer?.motorSecondRate ?? racer?.motorTwoRate ?? racer?.motorQuinellaRate),
+				boatNo: readRaceString(racer?.boatNo ?? racer?.boatMotorNo ?? racer?.boatEquipmentNo),
+				boatSecondRate: readRaceString(racer?.boatSecondRate ?? racer?.boatTwoRate ?? racer?.boatQuinellaRate),
+				source,
+				sourceUrl,
+				sourceLabel,
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function buildCommonMotorSummaryRows(race, sourceMeta) {
+	return buildCommonEntryTableRows(race, sourceMeta)
+		.map((row) => ({
+			frameNo: row.frameNo,
+			registrationNo: row.registrationNo,
+			racerName: row.racerName,
+			playerName: row.racerName,
+			motorNo: row.motorNo,
+			motorSecondRate: row.motorSecondRate,
+			boatNo: row.boatNo,
+			boatSecondRate: row.boatSecondRate,
+			source: row.source,
+			sourceUrl: row.sourceUrl,
+			sourceLabel: row.sourceLabel,
+		}))
+		.filter((row) => row.motorNo || row.motorSecondRate || row.boatNo || row.boatSecondRate);
+}
+
+function buildCommonRacerCourseStatsRows(race, sourceMeta) {
+	return buildCommonEntryTableRows(race, sourceMeta)
+		.map((row) => ({
+			raceNo: race.raceNo,
+			frameNo: row.frameNo,
+			registrationNo: row.registrationNo,
+			racerName: row.racerName,
+			course: row.frameNo,
+			entryRate: "",
+			averageStartTiming: row.averageStartTiming,
+			firstRate: "",
+			secondRate: row.nationalSecondRate,
+			thirdRate: "",
+			aggregationPeriod: "BOATRACE common official entry snapshot",
+			source: row.source,
+			sourceUrl: row.sourceUrl,
+			sourceLabel: row.sourceLabel,
+		}));
+}
+
+function buildVenueOfficialSiteProbe(label, url, result) {
+	if (result.status === "rejected") {
+		return {
+			label,
+			url,
+			status: "http-error",
+			warning: result.reason instanceof Error ? result.reason.message : String(result.reason),
+		};
+	}
+
+	const html = result.value ?? "";
+	const $ = load(html);
+	const title = compactText($("title").first().text());
+	const bodyText = compactText($("body").text());
+
+	return {
+		label,
+		url,
+		status: bodyText || title ? "available" : "not-published",
+		title,
+		tableCount: $("table").length,
+		linkCount: $("a").length,
+	};
+}
+
+async function fetchVenueOfficialSiteProbes(sources) {
+	const settled = await Promise.allSettled(sources.map(([, url]) => fetchHtml(url)));
+	return sources.map(([label, url], index) => buildVenueOfficialSiteProbe(label, url, settled[index]));
+}
+
+function createVenueSourceStatusFromProbes(probes, extra = {}) {
+	const hasAvailableProbe = probes.some((probe) => probe.status === "available");
+	return {
+		officialSite: hasAvailableProbe ? "available" : "pending",
+		...extra,
+	};
+}
+
+function createVenueWarningsFromProbes(probes) {
+	return probes
+		.filter((probe) => probe.status === "http-error")
+		.map((probe) => `${probe.label}: ${probe.warning ?? "official site fetch failed"}`);
+}
+
+function buildEdogawaWaterStrategy(race, sourceMeta) {
+	const weather = normalizeVenueWeatherCondition(race?.weatherActual, sourceMeta);
+	const points = [
+		"潮・風・波を枠評価より先に確認",
+		"展示で旋回後の押しと出足を確認",
+		"当地経験と波乗り適性を補正材料にする",
+	];
+
+	return {
+		raceNo: race.raceNo,
+		observedAt: weather?.observedAt ?? weather?.updatedAt ?? "",
+		tideState: "",
+		tideDirection: "",
+		windDirection: weather?.windDirection ?? "",
+		windLabel: weather?.windDirectionText ?? weather?.windDirection ?? "",
+		windSpeed: weather?.windSpeed ?? "",
+		waveHeight: weather?.waveHeight ?? "",
+		flowSpeed: readRaceString(race?.weatherActual?.flowSpeed ?? race?.weatherActual?.currentSpeed),
+		waterTemperature: weather?.waterTemperature ?? "",
+		temperature: weather?.temperature ?? "",
+		strategyPoints: points,
+		rawSummary: "Official weather values are preserved from the BOATRACE common feed; Edogawa official page availability is tracked separately.",
+		sourceUrl: sourceMeta.sourceUrl,
+		source: sourceMeta.source,
+		sourceLabel: sourceMeta.sourceLabel,
+	};
+}
+
+function createEdogawaRaceExtra(race) {
+	const sourceMeta = {
+		source: EDOGAWA_SOURCE,
+		sourceUrl: EDOGAWA_RACE_INDEX_URL,
+		sourceLabel: "\u6c5f\u6238\u5ddd\u516c\u5f0f",
+	};
+	const entryTable = buildCommonEntryTableRows(race, sourceMeta);
+	const motorSummary = buildCommonMotorSummaryRows(race, { ...sourceMeta, sourceUrl: EDOGAWA_MOTOR_DATA_URL });
+	const racerCourseStats = buildCommonRacerCourseStatsRows(race, sourceMeta);
+	const waterStrategy = buildEdogawaWaterStrategy(race, sourceMeta);
+
+	return {
+		raceNo: race.raceNo,
+		status: entryTable.length ? "available" : "waiting",
+		source: EDOGAWA_SOURCE,
+		sourceType: "venue-official-site+boatrace-common-entry",
+		entryTable,
+		motorSummary,
+		edogawaRacerCourseStats: racerCourseStats,
+		edogawaWaterStrategy: waterStrategy,
+		sourceStatus: {
+			entryTable: entryTable.length ? "available" : "pending",
+			officialBeforeInfo: "available",
+			motorSummary: motorSummary.length ? "available" : "pending",
+			edogawaRacerCourseStats: racerCourseStats.length ? "available" : "pending",
+			edogawaWaterStrategy: "available",
+			flowSpeed: waterStrategy.flowSpeed ? "available" : "pending",
+		},
+	};
+}
+
+async function createEdogawaVenue(feed, date) {
+	const venue = findVenue(feed, EDOGAWA_VENUE_NAME);
+	if (!venue) {
+		return null;
+	}
+
+	const probes = await fetchVenueOfficialSiteProbes([
+		["raceIndex", EDOGAWA_RACE_INDEX_URL],
+		["scoreRate", EDOGAWA_SCORE_RATE_URL],
+		["motorLottery", EDOGAWA_MOTOR_LOTTERY_URL],
+		["motorData", EDOGAWA_MOTOR_DATA_URL],
+		["boatData", EDOGAWA_BOAT_DATA_URL],
+	]);
+	const races = getRaceList(venue).map(createEdogawaRaceExtra);
+	const sourceStatus = createVenueSourceStatusFromProbes(probes, {
+		entryTable: races.some((race) => race.entryTable.length) ? "available" : "pending",
+		officialBeforeInfo: races.some((race) => race.sourceStatus.officialBeforeInfo === "available") ? "available" : "pending",
+		motorSummary: races.some((race) => race.motorSummary.length) ? "available" : "pending",
+		scoreRanking: "pending",
+		motorLotteryAndPrecheck: "pending",
+		racerCourseStats: races.some((race) => race.edogawaRacerCourseStats.length) ? "available" : "pending",
+		edogawaWaterStrategy: "available",
+	});
+
+	return {
+		venueCode: String(venue.venueCode ?? "03").padStart(2, "0"),
+		venueName: EDOGAWA_VENUE_NAME,
+		source: EDOGAWA_SOURCE,
+		sourceUrl: EDOGAWA_TOP_URL,
+		isAvailable: races.some((race) => race.status === "available"),
+		status: races.some((race) => race.status === "available") ? "available" : "waiting",
+		officialTargetDate: date,
+		officialDisplayMode: "today",
+		officialSiteProbes: probes,
+		sourceStatus,
+		warnings: createVenueWarningsFromProbes(probes),
+		races,
+	};
+}
+
+function createGamagoriRaceExtra(race) {
+	const sourceMeta = {
+		source: GAMAGORI_SOURCE,
+		sourceUrl: GAMAGORI_DATA_URL,
+		sourceLabel: "\u84b2\u90e1\u516c\u5f0f",
+	};
+	const entryTable = buildCommonEntryTableRows(race, sourceMeta);
+	const motorSummary = buildCommonMotorSummaryRows(race, sourceMeta);
+	const courseStats = buildCommonRacerCourseStatsRows(race, sourceMeta);
+	const originalExhibition = buildOfficialBeforeInfoExhibitionRows(race).map((row) => ({
+		...row,
+		source: GAMAGORI_SOURCE,
+		sourceUrl: GAMAGORI_SP_TOP_URL,
+		sourceLabel: "\u84b2\u90e1\u516c\u5f0f\u30fb\u5c55\u793a\u60c5\u5831",
+	}));
+	const startExhibition = buildOfficialBeforeInfoStartExhibitionRows(race, originalExhibition).map((row) => ({
+		...row,
+		source: GAMAGORI_SOURCE,
+		sourceUrl: GAMAGORI_SP_TOP_URL,
+		sourceLabel: "\u84b2\u90e1\u516c\u5f0f\u30fb\u30b9\u30bf\u30fc\u30c8\u5c55\u793a",
+	}));
+
+	return {
+		raceNo: race.raceNo,
+		status: entryTable.length ? "available" : "waiting",
+		source: GAMAGORI_SOURCE,
+		sourceType: "venue-official-site+boatrace-common-entry",
+		entryTable,
+		originalExhibition,
+		startExhibition,
+		motorSummary,
+		gamagoriCourseStats: courseStats,
+		sourceStatus: {
+			entryTable: entryTable.length ? "available" : "pending",
+			officialBeforeInfo: "available",
+			startExhibition: startExhibition.length ? "available" : "pending",
+			originalExhibition: originalExhibition.length ? "available" : "pending",
+			motorSummary: motorSummary.length ? "available" : "pending",
+			gamagoriCourseStats: courseStats.length ? "available" : "pending",
+		},
+	};
+}
+
+async function createGamagoriVenue(feed, date) {
+	const venue = findVenue(feed, GAMAGORI_VENUE_NAME);
+	if (!venue) {
+		return null;
+	}
+
+	const probes = await fetchVenueOfficialSiteProbes([
+		["spTop", GAMAGORI_SP_TOP_URL],
+		["data", GAMAGORI_DATA_URL],
+		["help", GAMAGORI_HELP_URL],
+		["pdf", GAMAGORI_PDF_URL],
+		["history", GAMAGORI_HISTORY_URL],
+	]);
+	const races = getRaceList(venue).map(createGamagoriRaceExtra);
+	const sourceStatus = createVenueSourceStatusFromProbes(probes, {
+		entryTable: races.some((race) => race.entryTable.length) ? "available" : "pending",
+		officialBeforeInfo: races.some((race) => race.sourceStatus.officialBeforeInfo === "available") ? "available" : "pending",
+		startExhibition: races.some((race) => race.startExhibition.length) ? "available" : "pending",
+		originalExhibition: races.some((race) => race.originalExhibition.length) ? "available" : "pending",
+		motorSummary: races.some((race) => race.motorSummary.length) ? "available" : "pending",
+		courseSummary: races.some((race) => race.gamagoriCourseStats.length) ? "available" : "pending",
+		demeRanking: "pending",
+	});
+
+	return {
+		venueCode: String(venue.venueCode ?? "07").padStart(2, "0"),
+		venueName: GAMAGORI_VENUE_NAME,
+		source: GAMAGORI_SOURCE,
+		sourceUrl: GAMAGORI_TOP_URL,
+		isAvailable: races.some((race) => race.status === "available"),
+		status: races.some((race) => race.status === "available") ? "available" : "waiting",
+		officialTargetDate: date,
+		officialDisplayMode: "today",
+		officialSiteProbes: probes,
+		sourceStatus,
+		warnings: createVenueWarningsFromProbes(probes),
+		races,
+	};
 }
 
 function mergeVenueWeatherCondition(baseWeather, overlayWeather) {
@@ -16617,6 +16945,16 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const venueMap = new Map(
 		createOfficialBeforeInfoVenues(feed).map((venue) => [venue.venueName, venue]),
 	);
+
+	const edogawaVenue = await createEdogawaVenue(feed, date);
+	if (edogawaVenue) {
+		venueMap.set(edogawaVenue.venueName, mergeVenueRecord(venueMap.get(edogawaVenue.venueName) ?? null, edogawaVenue));
+	}
+
+	const gamagoriVenue = await createGamagoriVenue(feed, date);
+	if (gamagoriVenue) {
+		venueMap.set(gamagoriVenue.venueName, mergeVenueRecord(venueMap.get(gamagoriVenue.venueName) ?? null, gamagoriVenue));
+	}
 
 	const omuraVenue = await createOmuraVenue(feed, date);
 	if (omuraVenue) {

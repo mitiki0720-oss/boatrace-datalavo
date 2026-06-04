@@ -696,6 +696,9 @@ const extraKeyLabels: Record<string, string> = {
 	amagasakiBoatData: "尼崎ボートデータ",
 	amagasakiDemeRanking: "尼崎出目データ",
 	amagasakiResultList: "尼崎結果一覧",
+	edogawaRacerCourseStats: "江戸川選手別進入コース素材",
+	edogawaWaterStrategy: "江戸川潮・風・波補正",
+	gamagoriCourseStats: "蒲郡コース成績素材",
 
 	originalExhibition: "会場独自展示",
 	motorSummary: "モーター概要",
@@ -767,6 +770,8 @@ const frameCourseExtraKeys = [
 	"courseSummary",
 	"amagasakiFrameLast10",
 	"amagasakiCourseResults",
+	"edogawaRacerCourseStats",
+	"gamagoriCourseStats",
 ];
 
 const motorExtraKeys = [
