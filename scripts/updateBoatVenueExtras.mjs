@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { load } from "cheerio";
+import { preserveVenueExtrasFeed, readJsonIfExists } from "./boatExhibitionSnapshotPreservation.mjs";
 import { getJstTimestamp as getSharedJstTimestamp, getJstTimestampParts, normalizeTargetDate } from "./boatRaceDate.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -16940,8 +16941,10 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	setOutputDirectory(rawOptions.outputDir);
 	const timestamps = getJstTimestampParts(rawOptions.targetDate);
 	const generatedAt = getJstTimestamp();
+	const previousVenueExtrasFeedRaw = await readJsonIfExists(venueExtrasPath);
 	const feed = await readTodayRaceDetails();
 	const date = normalizeTargetDate(rawOptions.targetDate ?? feed?.date, timestamps.date);
+	const previousVenueExtrasFeed = previousVenueExtrasFeedRaw?.date === date ? previousVenueExtrasFeedRaw : null;
 	const venueMap = new Map(
 		createOfficialBeforeInfoVenues(feed).map((venue) => [venue.venueName, venue]),
 	);
@@ -17060,6 +17063,7 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 		source: "boatrace-official-beforeinfo+venue-official-sites",
 		venues,
 	};
+	const preservationResult = preserveVenueExtrasFeed(output, previousVenueExtrasFeed, { generatedAt });
 
 	await mkdir(path.dirname(venueExtrasPath), { recursive: true });
 	await writeFile(venueExtrasPath, `${JSON.stringify(output, null, 2)}\n`, "utf8");
@@ -17068,6 +17072,7 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	console.log(`source: ${output.source}`);
 	console.log(`date: ${output.date}`);
 	console.log(`venues: ${venues.length}`);
+	console.log(`[venue-extras] preserved exhibition snapshots: ${preservationResult.preservedCount}`);
 }
 
 main().catch((error) => {

@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { load } from "cheerio";
+import { preserveTodayRaceDetailsFeed } from "./boatExhibitionSnapshotPreservation.mjs";
 import { getJstTimestampParts, normalizeTargetDate } from "./boatRaceDate.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -2876,12 +2877,14 @@ export async function main(rawOptions = {}) {
 	}
 
 	const feed = buildTodayRaceDetailsFeed({ raceIndex, venueDetails: normalizedVenueDetails, generatedAt: timestamps.generatedAt, date: timestamps.date });
+	const preservationResult = preserveTodayRaceDetailsFeed(feed, existingFeed, { generatedAt: timestamps.generatedAt });
 	const writtenPaths = await writeTodayRaceDetailsJson(feed);
 	for (const writtenPath of writtenPaths) {
 		console.log(`updated: ${writtenPath}`);
 	}
 	console.log(`source: ${feed.source}`);
 	console.log(`venues: ${feed.venues.length}`);
+	console.log(`[boat details] preserved exhibition snapshots: ${preservationResult.preservedCount}`);
 	console.log(`mode: ${updateOptions.mode}`);
 	console.log(`targetSession: ${updateOptions.effectiveTargetSession}`);
 	console.log(`targetDate: ${timestamps.date}`);

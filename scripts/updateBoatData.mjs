@@ -112,6 +112,10 @@ function buildUpcomingScheduleArgs({ targetDate }) {
 	return ["scripts/updateBoatUpcomingSchedule.mjs", "--target-date", targetDate];
 }
 
+function buildExhibitionGapsCheckArgs() {
+	return ["scripts/checkBoatExhibitionGaps.mjs"];
+}
+
 function runNodeScript(args) {
 	return new Promise((resolve, reject) => {
 		const child = spawn(process.execPath, args, {
@@ -172,6 +176,11 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 
 	console.log("[update-boat-data] upcoming schedule update enabled");
 	await runNodeScript(appendOutputDir(buildUpcomingScheduleArgs(options), rawOptions.outputDir));
+
+	if (venueExtrasArgs) {
+		console.log("[update-boat-data] exhibition gap check enabled");
+		await runNodeScript(appendOutputDir(buildExhibitionGapsCheckArgs(), rawOptions.outputDir));
+	}
 }
 
 const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
