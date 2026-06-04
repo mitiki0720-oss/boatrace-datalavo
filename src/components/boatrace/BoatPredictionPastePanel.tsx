@@ -1,4 +1,5 @@
 import type { ChangeEvent, CSSProperties } from "react";
+import type { BoatPredictionParseStatus } from "../../lib/boatBetParser";
 import type { BoatPredictionTicket } from "../../lib/boatraceTypes";
 import { boatTheme } from "../../lib/theme";
 import { BoatPredictionTicketPreview } from "./BoatPredictionTicketPreview";
@@ -7,6 +8,10 @@ type BoatPredictionPastePanelProps = {
 	value: string;
 	raceLabel: string;
 	tickets: BoatPredictionTicket[];
+	parseStatus?: BoatPredictionParseStatus;
+	parseWarnings?: string[];
+	invalidBetRows?: string[];
+	duplicateBetRows?: string[];
 	savedAt?: string;
 	isSaved?: boolean;
 	onSave?: () => void;
@@ -236,6 +241,19 @@ const footerCardStyle: CSSProperties = {
 	gap: "5px",
 };
 
+const parseWarningStyle: CSSProperties = {
+	position: "relative",
+	zIndex: 1,
+	padding: "12px 14px",
+	borderRadius: "14px",
+	background: "rgba(255, 247, 237, 0.96)",
+	border: "1px solid rgba(251, 146, 60, 0.38)",
+	color: "#9a3412",
+	fontSize: "0.84rem",
+	fontWeight: 800,
+	lineHeight: 1.65,
+};
+
 const placeholderText = `買い目（10点）
 
 3連単（厚め2点）01/02
@@ -276,6 +294,10 @@ export function BoatPredictionPastePanel({
 	value,
 	raceLabel,
 	tickets,
+	parseStatus,
+	parseWarnings = [],
+	invalidBetRows = [],
+	duplicateBetRows = [],
 	savedAt,
 	isSaved = false,
 	onSave,
@@ -296,6 +318,12 @@ export function BoatPredictionPastePanel({
 	};
 
 	const textCount = formatTextCount(value);
+	const shouldShowParseWarning = Boolean(value.trim()) && parseStatus && parseStatus !== "ready";
+	const parseWarningItems = [
+		...parseWarnings,
+		...invalidBetRows.map((row) => `invalid: ${row}`),
+		...duplicateBetRows.map((row) => `duplicate: ${row}`),
+	].slice(0, 6);
 
 	return (
 		<section style={wrapStyle}>
@@ -397,6 +425,13 @@ export function BoatPredictionPastePanel({
 					placeholder={placeholderText}
 				/>
 			</div>
+
+			{shouldShowParseWarning ? (
+				<div style={parseWarningStyle}>
+					<div>買い目解析: {parseStatus}</div>
+					{parseWarningItems.length > 0 ? <div>{parseWarningItems.join(" / ")}</div> : null}
+				</div>
+			) : null}
 
 			<BoatPredictionTicketPreview tickets={tickets} />
 

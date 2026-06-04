@@ -1,5 +1,5 @@
-import { judgeBoatPredictionHit } from "./boatHitJudge";
 import type { BoatPracticeResultRecord } from "./boatPracticeResultStorage";
+import { resolveBoatPredictionOutcome, type BoatPredictionOutcomeStatus } from "./boatResultSettlement";
 import type {
 	BoatOddsItem,
 	BoatOddsTopItem,
@@ -182,6 +182,41 @@ function readNumber(value: unknown): number {
 		return Number.isFinite(parsed) ? parsed : 0;
 	}
 	return 0;
+}
+
+function getReviewPredictionOutcomeStatus(entry: BoatReviewRaceEntry): BoatPredictionOutcomeStatus {
+	const prediction = entry.prediction;
+	const practiceResult = entry.practiceResult;
+	const finishOrder = getFinishOrderText(entry.race, practiceResult);
+
+	if (entry.race) {
+		return resolveBoatPredictionOutcome({
+			race: entry.race,
+			bets: prediction?.parsedBets ?? [],
+			investmentAmount: readNumber(practiceResult?.investmentAmount ?? practiceResult?.totalStakeYen ?? prediction?.totalStakeYen ?? prediction?.betSummary?.totalStakeYen),
+			parseStatus: prediction?.parseStatus,
+			parseWarnings: prediction?.parseWarnings,
+			source: "review",
+		}).status;
+	}
+
+	if (readNumber(practiceResult?.payoutAmount ?? practiceResult?.payoutYen) > 0 || (practiceResult?.hitBets?.length ?? 0) > 0) {
+		return "hit";
+	}
+
+	if (!finishOrder) {
+		return "pending";
+	}
+
+	if (!prediction?.parsedBets?.length || prediction.parseStatus === "invalid" || prediction.parseStatus === "missing-section") {
+		return "parse-warning";
+	}
+
+	if (practiceResult?.resultStatus === "confirmed") {
+		return "miss";
+	}
+
+	return "pending";
 }
 
 function yen(value: number): string {
@@ -524,11 +559,7 @@ export function getBoatReviewVenueMetrics(group: BoatReviewVenueGroup): BoatRevi
 	const practiceCount = group.races.filter((entry) => entry.practiceResult).length;
 	const investment = group.races.reduce((sum, entry) => sum + readNumber(entry.practiceResult?.investmentAmount ?? entry.practiceResult?.totalStakeYen), 0);
 	const payout = group.races.reduce((sum, entry) => sum + readNumber(entry.practiceResult?.payoutAmount ?? entry.practiceResult?.payoutYen), 0);
-	const hitCount = group.races.filter((entry) => {
-		if (readNumber(entry.practiceResult?.payoutAmount ?? entry.practiceResult?.payoutYen) > 0) return true;
-		const order = getFinishOrderText(entry.race, entry.practiceResult);
-		return judgeBoatPredictionHit({ tickets: entry.prediction?.tickets ?? [], actualFinishOrderText: order }).status === "hit";
-	}).length;
+	const hitCount = group.races.filter((entry) => getReviewPredictionOutcomeStatus(entry) === "hit").length;
 	const profit = payout - investment;
 	const roi = investment > 0 ? payout / investment * 100 : 0;
 
@@ -580,10 +611,7 @@ export function buildBoatResultSummaryText(group: BoatReviewVenueGroup): string 
 		const result = entry.race?.result;
 		const finishOrder = getFinishOrderText(entry.race, entry.practiceResult);
 		const status = result?.status === "confirmed" || finishOrder ? "confirmed" : result?.status ?? "pending";
-		const hit = entry.practiceResult?.resultStatus ?? judgeBoatPredictionHit({
-			tickets: entry.prediction?.tickets ?? [],
-			actualFinishOrderText: finishOrder,
-		}).status;
+		const hit = getReviewPredictionOutcomeStatus(entry);
 		const investment = readNumber(entry.practiceResult?.investmentAmount ?? entry.practiceResult?.totalStakeYen);
 		const payout = readNumber(entry.practiceResult?.payoutAmount ?? entry.practiceResult?.payoutYen);
 		const profit = payout - investment;

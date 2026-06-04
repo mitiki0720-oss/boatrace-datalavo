@@ -1,9 +1,11 @@
 import type { BoatPayoutItem, BoatRaceItem, BoatRaceResult, BoatTodayFeed, BoatTodayVenueItem } from "./boatraceTypes";
 import type { ParsedBoatBet } from "./boatBetParser";
+import type { BoatPredictionParseStatus } from "./boatBetParser";
 import { normalizeBoatBetCombination } from "./boatBetParser";
 
 export type BoatPracticeResultStatus = "pending" | "confirmed" | "missing";
 export type BoatResultLookupStatus = "matched" | "date-mismatch" | "pending" | "missing" | "payout-missing" | "manual";
+export type BoatPredictionOutcomeStatus = "hit" | "miss" | "pending" | "parse-warning" | "cancelled" | "refund";
 
 export type BoatRaceResultLookupDebug = {
 	targetDate?: string;
@@ -38,6 +40,12 @@ export type BoatResultSettlement = {
 	roi: number;
 	resultSource?: string;
 	message: string;
+};
+
+export type BoatPredictionOutcome = {
+	status: BoatPredictionOutcomeStatus;
+	settlement: BoatResultSettlement;
+	reason: string;
 };
 
 const normalizeVenueName = (value: string | undefined): string =>
@@ -417,6 +425,7 @@ export function settleBoatPredictionResult(params: {
 
 	const payouts = readResultPayouts(result);
 	const finishNumbers = finishOrderText
+		.normalize("NFKC")
 		.split("-")
 		.map((value) => Number(value))
 		.filter((value) => Number.isFinite(value));
@@ -500,4 +509,63 @@ export function settleBoatPredictionResult(params: {
 		resultSource: source,
 		message,
 	};
+}
+
+const hasRefundInfo = (race: BoatRaceItem | null | undefined): boolean => {
+	const result = race?.result as (BoatRaceResult & Record<string, unknown>) | undefined;
+	if (!result) {
+		return false;
+	}
+
+	return Boolean(
+		result.refundText ||
+		result.refunds ||
+		(Array.isArray(result.payoutsFull) && result.payoutsFull.some((row) => /返還|refund/i.test(String(row.betType ?? row.payout ?? "")))) ||
+		(Array.isArray(result.payouts) && result.payouts.some((row) => /返還|refund/i.test(String(row.betType ?? row.payout ?? "")))),
+	);
+};
+
+const isCancelledRace = (race: BoatRaceItem | null | undefined): boolean =>
+	race?.status === "canceled" || race?.result?.status === "unavailable";
+
+export function resolveBoatPredictionOutcome(params: {
+	race: BoatRaceItem | null | undefined;
+	bets: ParsedBoatBet[];
+	investmentAmount: number;
+	parseStatus?: BoatPredictionParseStatus;
+	parseWarnings?: string[];
+	source?: string;
+}): BoatPredictionOutcome {
+	const settlement = settleBoatPredictionResult({
+		race: params.race,
+		bets: params.bets,
+		investmentAmount: params.investmentAmount,
+		source: params.source,
+	});
+
+	if (isCancelledRace(params.race)) {
+		return { status: "cancelled", settlement, reason: "race cancelled or unavailable" };
+	}
+
+	if (hasRefundInfo(params.race)) {
+		return { status: "refund", settlement, reason: "refund info found" };
+	}
+
+	if (
+		params.bets.length <= 0 ||
+		params.parseStatus === "invalid" ||
+		params.parseStatus === "missing-section"
+	) {
+		return { status: "parse-warning", settlement, reason: "prediction tickets are not parse-ready" };
+	}
+
+	if (settlement.status !== "confirmed" || !settlement.finishOrderText) {
+		return { status: "pending", settlement, reason: settlement.lookupStatus };
+	}
+
+	if (settlement.hitBets.length > 0) {
+		return { status: "hit", settlement, reason: settlement.lookupStatus };
+	}
+
+	return { status: "miss", settlement, reason: settlement.lookupStatus };
 }

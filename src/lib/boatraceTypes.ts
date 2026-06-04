@@ -1,4 +1,4 @@
-import type { ParsedBoatBet, ParsedBoatBetSummary } from "./boatBetParser";
+import type { BoatPredictionParseStatus, ParsedBoatBet, ParsedBoatBetSummary } from "./boatBetParser";
 
 export type BoatFrameNumber = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -279,9 +279,17 @@ export type BoatPredictionRecord = {
 	date: string;
 	raceNo: number;
 	predictionText: string;
+	rawPredictionText?: string;
+	betSectionText?: string;
 	tickets?: BoatPredictionTicket[];
 	parsedBets?: ParsedBoatBet[];
 	betSummary?: ParsedBoatBetSummary;
+	parseWarnings?: string[];
+	parseStatus?: BoatPredictionParseStatus;
+	parsedAt?: string;
+	parserVersion?: string;
+	invalidBetRows?: string[];
+	duplicateBetRows?: string[];
 	totalStakeYen?: number;
 	updatedAt?: string;
 	savedAt: string;

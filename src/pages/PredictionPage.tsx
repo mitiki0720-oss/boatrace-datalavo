@@ -9,7 +9,10 @@ import { PageShell } from "../components/layout/PageShell";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
 import {
+	BOAT_BET_PARSER_VERSION,
 	emptyBoatBetSummary,
+	normalizeBoatBetCombination,
+	normalizeBoatBetType,
 	parseBoatBets,
 	type ParsedBoatBet,
 	type ParsedBoatBetSummary,
@@ -192,31 +195,16 @@ const getVenueRaces = (venue: BoatPredictionVenue | undefined): BoatPredictionRa
 
 const toPredictionTickets = (bets: ReturnType<typeof parseBoatBets>["bets"]): BoatPredictionTicket[] =>
 	bets.map((bet, index) => ({
-		index: String(index + 1).padStart(2, "0"),
+		index: bet.index ?? String(index + 1).padStart(2, "0"),
 		betType: bet.type === "trifecta" ? "3連単" : bet.type === "exacta" ? "2連単" : bet.label,
 		combination: bet.normalized,
 		note: bet.sourceLine,
 	}));
 
 const inferParsedBetTypeFromTicket = (ticket: BoatPredictionTicket): ParsedBoatBet["type"] | null => {
-	if (ticket.betType.includes("3連単")) {
-		return "trifecta";
-	}
-
-	if (ticket.betType.includes("2連単")) {
-		return "exacta";
-	}
-
-	if (ticket.betType.includes("3連複")) {
-		return "trio";
-	}
-
-	if (ticket.betType.includes("2連複")) {
-		return "quinella";
-	}
-
-	if (ticket.betType.includes("拡連複") || ticket.betType.toLowerCase().includes("wide")) {
-		return "wide";
+	const normalizedType = normalizeBoatBetType(ticket.betType);
+	if (normalizedType) {
+		return normalizedType;
 	}
 
 	const count = ticket.combination.split("-").filter(Boolean).length;
@@ -226,7 +214,8 @@ const inferParsedBetTypeFromTicket = (ticket: BoatPredictionTicket): ParsedBoatB
 const buildParsedBetSummaryFromTickets = (tickets: BoatPredictionTicket[]): ParsedBoatBetSummary => {
 	const bets = tickets.flatMap<ParsedBoatBet>((ticket) => {
 		const type = inferParsedBetTypeFromTicket(ticket);
-		const numbers = ticket.combination
+		const normalizedCombination = normalizeBoatBetCombination(ticket.combination);
+		const numbers = normalizedCombination
 			.split("-")
 			.map((value) => Number(value))
 			.filter((value) => Number.isFinite(value));
@@ -239,9 +228,10 @@ const buildParsedBetSummaryFromTickets = (tickets: BoatPredictionTicket[]): Pars
 			type,
 			label: ticket.betType,
 			numbers,
-			normalized: ticket.combination,
+			normalized: normalizedCombination,
 			amountYen: 100,
 			sourceLine: ticket.note || `${ticket.index} ${ticket.betType} ${ticket.combination}`,
+			index: ticket.index,
 		}];
 	});
 
@@ -250,7 +240,10 @@ const buildParsedBetSummaryFromTickets = (tickets: BoatPredictionTicket[]): Pars
 		totalBets: bets.length,
 		trifectaCount: bets.filter((bet) => bet.type === "trifecta").length,
 		exactaCount: bets.filter((bet) => bet.type === "exacta").length,
-		totalStakeYen: bets.length * 100,
+		totalStakeYen: bets.reduce((sum, bet) => sum + (bet.amountYen || 100), 0),
+		warnings: [],
+		parseStatus: bets.length > 0 ? "ready" : "invalid",
+		parserVersion: BOAT_BET_PARSER_VERSION,
 	};
 };
 
@@ -430,6 +423,10 @@ const findHitBetsByFinishOrder = (
 		return [];
 	}
 
+	const finishNumbers = normalizedFinish.split("-").filter(Boolean);
+	const top3 = finishNumbers.slice(0, 3).join("-");
+	const top2 = finishNumbers.slice(0, 2).join("-");
+
 	return parsedBets.filter((bet) => {
 		const normalizedBet = normalizeBoatCombinationText(bet.normalized || bet.numbers?.join("-"));
 
@@ -437,8 +434,12 @@ const findHitBetsByFinishOrder = (
 			return false;
 		}
 
-		if (bet.type === "trifecta" || bet.type === "exacta") {
-			return normalizedBet === normalizedFinish;
+		if (bet.type === "trifecta") {
+			return normalizedBet === top3;
+		}
+
+		if (bet.type === "exacta") {
+			return normalizedBet === top2;
 		}
 
 		return false;
@@ -1076,6 +1077,13 @@ const buildPracticeFallbackRaceKey = (params: {
 			tickets: nextTickets,
 			betSummary: nextBetSummary,
 			investmentAmount: nextInvestmentAmount,
+			betSectionText: parsedBetSummaryFromText.betSectionText,
+			parseWarnings: parsedBetSummaryFromText.warnings ?? [],
+			parseStatus: parsedBetSummaryFromText.parseStatus,
+			parsedAt: parsedBetSummaryFromText.parsedAt,
+			parserVersion: parsedBetSummaryFromText.parserVersion,
+			invalidBetRows: parsedBetSummaryFromText.invalidRows ?? [],
+			duplicateBetRows: parsedBetSummaryFromText.duplicateRows ?? [],
 		};
 	};
 
@@ -1910,9 +1918,17 @@ const handleSelectRace = (raceId: string) => {
 			date: activePredictionDate,
 			raceNo: selectedRace.raceNo,
 			predictionText,
+			rawPredictionText: predictionText,
+			betSectionText: synced.betSectionText,
 			tickets: synced.tickets,
 			parsedBets: synced.betSummary.bets,
 			betSummary: synced.betSummary,
+			parseWarnings: synced.parseWarnings,
+			parseStatus: synced.parseStatus,
+			parsedAt: synced.parsedAt,
+			parserVersion: synced.parserVersion,
+			invalidBetRows: synced.invalidBetRows,
+			duplicateBetRows: synced.duplicateBetRows,
 			totalStakeYen: synced.betSummary.totalStakeYen,
 			updatedAt: savedAt,
 			savedAt,
@@ -1956,9 +1972,17 @@ const handleSelectRace = (raceId: string) => {
 				date: activePredictionDate,
 				raceNo: selectedRace.raceNo,
 				predictionText,
+				rawPredictionText: predictionText,
+				betSectionText: synced.betSectionText,
 				tickets: synced.tickets,
 				parsedBets: synced.betSummary.bets,
 				betSummary: synced.betSummary,
+				parseWarnings: synced.parseWarnings,
+				parseStatus: synced.parseStatus,
+				parsedAt: synced.parsedAt,
+				parserVersion: synced.parserVersion,
+				invalidBetRows: synced.invalidBetRows,
+				duplicateBetRows: synced.duplicateBetRows,
 				totalStakeYen: synced.betSummary.totalStakeYen,
 				updatedAt: savedAt,
 				savedAt,
@@ -2933,6 +2957,10 @@ body:has(.prediction-page-root) {
 							value={predictionText}
 							raceLabel={raceLabel}
 							tickets={predictionTickets}
+							parseStatus={parsedBetSummary.parseStatus}
+							parseWarnings={parsedBetSummary.warnings}
+							invalidBetRows={parsedBetSummary.invalidRows}
+							duplicateBetRows={parsedBetSummary.duplicateRows}
 							savedAt={savedPredictionRecord?.savedAt}
 							isSaved={Boolean(savedPredictionRecord && savedPredictionRecord.predictionText === predictionText)}
 							onSave={handleSavePrediction}
