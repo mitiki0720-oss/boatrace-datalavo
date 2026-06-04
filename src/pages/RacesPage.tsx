@@ -5477,6 +5477,26 @@ const venueOfficialPrimaryDataKeys = [
 	"motorLotteryAndPrecheck",
 ] as const;
 
+const venueOfficialNonDegradingStatuses = new Set([
+	"available",
+	"pending",
+	"not-published",
+	"not-supported",
+	"optional",
+	"re-exhibition",
+	"waiting",
+	"unpublished",
+]);
+
+const venueOfficialDegradingStatuses = new Set([
+	"partial",
+	"parse-empty",
+	"http-error",
+	"unexpected-missing",
+	"date-mismatch",
+	"missing",
+]);
+
 const venueOfficialLinkStatusMeta: Record<
 	VenueOfficialLinkStatus,
 	{
@@ -5523,18 +5543,19 @@ function isVenueOfficialAvailableStatus(value: unknown): boolean {
 	return status === "available" || status.startsWith("available-");
 }
 
-function isVenueOfficialPendingStatus(value: unknown): boolean {
+function isVenueOfficialDegradingStatus(value: unknown): boolean {
 	const status = readVenueExtraString(value).toLowerCase();
 
+	if (!status || isVenueOfficialAvailableStatus(status) || venueOfficialNonDegradingStatuses.has(status)) {
+		return false;
+	}
+
 	return (
-		status.includes("pending")
+		venueOfficialDegradingStatuses.has(status)
 		|| status.includes("parse-empty")
-		|| status.includes("waiting")
-		|| status.includes("unpublished")
-		|| status.includes("not-published")
-		|| status.includes("missing")
-		|| status.includes("empty")
-		|| status.includes("error")
+		|| status.includes("http-error")
+		|| status.includes("unexpected-missing")
+		|| status.includes("date-mismatch")
 	);
 }
 
@@ -5578,21 +5599,21 @@ function hasVenueOfficialPrimaryAvailable(venueExtra: BoatVenueExtraVenue | null
 	});
 }
 
-function hasVenueOfficialPendingCategory(venueExtra: BoatVenueExtraVenue | null | undefined): boolean {
+function hasVenueOfficialDegradingPrimaryCategory(venueExtra: BoatVenueExtraVenue | null | undefined): boolean {
 	if (!venueExtra) {
 		return false;
 	}
 
 	const venueSourceStatus = getVenueOfficialSourceStatus(venueExtra);
 
-	if (venueSourceStatus && Object.values(venueSourceStatus).some(isVenueOfficialPendingStatus)) {
+	if (venueSourceStatus && venueOfficialPrimaryDataKeys.some((key) => isVenueOfficialDegradingStatus(venueSourceStatus[key]))) {
 		return true;
 	}
 
 	return (venueExtra.races ?? []).some((raceExtra) => {
 		const raceSourceStatus = getVenueOfficialSourceStatus(raceExtra);
 
-		return Boolean(raceSourceStatus && Object.values(raceSourceStatus).some(isVenueOfficialPendingStatus));
+		return Boolean(raceSourceStatus && venueOfficialPrimaryDataKeys.some((key) => isVenueOfficialDegradingStatus(raceSourceStatus[key])));
 	});
 }
 
@@ -5603,12 +5624,11 @@ function getVenueOfficialLinkStatus(venueName?: string | null, venueExtra?: Boat
 
 	const venueStatus = readVenueExtraString(venueExtra?.status).toLowerCase();
 	const hasAvailableVenueExtra =
-		venueExtra?.isAvailable === true
-		|| isVenueOfficialAvailableStatus(venueStatus)
-		|| hasVenueOfficialPrimaryAvailable(venueExtra);
+		(venueExtra?.isAvailable === true || isVenueOfficialAvailableStatus(venueStatus))
+		&& hasVenueOfficialPrimaryAvailable(venueExtra);
 
 	if (hasAvailableVenueExtra) {
-		return hasVenueOfficialPendingCategory(venueExtra) ? "partial" : "complete";
+		return hasVenueOfficialDegradingPrimaryCategory(venueExtra) ? "partial" : "complete";
 	}
 
 	return venueOfficialLinkStatusMap[venueName] ?? "checking";
