@@ -952,6 +952,42 @@ const findCurrentTimeRaceSelection = (venues: BoatPredictionVenue[]) => {
 	return null;
 };
 
+const normalizeRaceNo = (value: unknown): number | null => {
+	const raceNo = Number(value);
+	return Number.isFinite(raceNo) && raceNo > 0 ? raceNo : null;
+};
+
+const resolveRaceForVenue = (
+	venue: BoatPredictionVenue | undefined,
+	currentRaceNo: number | null,
+): BoatPredictionRace | undefined => {
+	const races = getVenueRaces(venue);
+	if (races.length === 0) {
+		return undefined;
+	}
+
+	if (currentRaceNo !== null) {
+		const sameRaceNo = races.find((race) => normalizeRaceNo(race.raceNo) === currentRaceNo);
+		if (sameRaceNo) {
+			return sameRaceNo;
+		}
+
+		return races.reduce((closestRace, race) => {
+			const raceNo = normalizeRaceNo(race.raceNo);
+			const closestRaceNo = normalizeRaceNo(closestRace.raceNo);
+			if (raceNo === null || closestRaceNo === null) {
+				return closestRace;
+			}
+
+			return Math.abs(raceNo - currentRaceNo) < Math.abs(closestRaceNo - currentRaceNo)
+				? race
+				: closestRace;
+		}, races[0]);
+	}
+
+	return races[0];
+};
+
 const buildPracticeFallbackRaceKey = (params: {
 	selectedRaceKey?: string;
 	venue?: BoatPredictionVenue;
@@ -1711,16 +1747,18 @@ const practiceSummary = useMemo(() => {
 
 const handleSelectVenue = (venueId: string) => {
 	const venue = venues.find((item) => item.id === venueId);
-	const firstRace = getVenueRaces(venue)[0];
+	const nextRace = resolveRaceForVenue(venue, normalizeRaceNo(selectedRace?.raceNo));
 
 	setSelectedVenueId(venueId);
-	setSelectedRaceId(getRaceKey(venueId, firstRace?.raceId, firstRace?.raceNo ?? 0));
+	if (nextRace) {
+		setSelectedRaceId(getRaceKey(venueId, nextRace.raceId, nextRace.raceNo));
+	}
 
-	if (venue && firstRace) {
+	if (venue && nextRace) {
 		savePredictionSelectionSnapshot({
 			date: activePredictionDate,
 			venue,
-			race: firstRace,
+			race: nextRace,
 		});
 	}
 };
