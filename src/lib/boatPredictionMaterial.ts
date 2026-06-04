@@ -699,6 +699,14 @@ const extraKeyLabels: Record<string, string> = {
 	edogawaRacerCourseStats: "江戸川選手別進入コース素材",
 	edogawaWaterStrategy: "江戸川潮・風・波補正",
 	gamagoriCourseStats: "蒲郡コース成績素材",
+	shimonosekiRacerCourseStats: "\u4e0b\u95a2\u9078\u624b\u5225\u9032\u5165\u30b3\u30fc\u30b9\u7d20\u6750",
+	currentSeriesCourseStats: "\u4eca\u7bc0\u30b3\u30fc\u30b9\u6210\u7e3e",
+	currentSeriesWinningMethods: "\u4eca\u7bc0\u6c7a\u307e\u308a\u624b",
+	resultList: "\u30ec\u30fc\u30b9\u7d50\u679c\u4e00\u89a7",
+	motorRanking: "\u30e2\u30fc\u30bf\u30fc\u30e9\u30f3\u30ad\u30f3\u30b0",
+	boatData: "\u30dc\u30fc\u30c8\u30c7\u30fc\u30bf",
+	demeRanking: "\u51fa\u76ee\u30c7\u30fc\u30bf",
+	highPayoutRanking: "\u9ad8\u914d\u5f53\u30e9\u30f3\u30ad\u30f3\u30b0",
 
 	originalExhibition: "会場独自展示",
 	motorSummary: "モーター概要",
@@ -748,6 +756,9 @@ const recentPerformanceExtraKeys = [
 	"amagasakiNationalRecent3",
 	"amagasakiLocalRecent3",
 	"amagasakiResultList",
+	"currentSeriesCourseStats",
+	"currentSeriesWinningMethods",
+	"resultList",
 ];
 
 const frameCourseExtraKeys = [
@@ -772,6 +783,9 @@ const frameCourseExtraKeys = [
 	"amagasakiCourseResults",
 	"edogawaRacerCourseStats",
 	"gamagoriCourseStats",
+	"shimonosekiRacerCourseStats",
+	"demeRanking",
+	"highPayoutRanking",
 ];
 
 const motorExtraKeys = [
@@ -791,6 +805,8 @@ const motorExtraKeys = [
 	"amagasakiMotorRanking",
 	"amagasakiBoatData",
 	"amagasakiDemeRanking",
+	"motorRanking",
+	"boatData",
 	"motorSummary",
 	"abilityIndex",
 ];

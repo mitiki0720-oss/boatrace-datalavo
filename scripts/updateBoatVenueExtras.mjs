@@ -145,6 +145,22 @@ const GAMAGORI_DATA_URL = "https://www.gamagori-kyotei.com/sp/01data/01data.htm"
 const GAMAGORI_HELP_URL = "https://www.gamagori-kyotei.com/sp/00help/00help.htm";
 const GAMAGORI_PDF_URL = "https://www.gamagori-kyotei.com/sp/01pdf/01pdf.htm";
 const GAMAGORI_HISTORY_URL = "https://www.gamagori-kyotei.com/sp/g_jump/01history.htm";
+const SHIMONOSEKI_VENUE_NAME = "\u4e0b\u95a2";
+const SHIMONOSEKI_SOURCE = "boatrace-shimonoseki.jp";
+const SHIMONOSEKI_TOP_URL = "https://www.boatrace-shimonoseki.jp/";
+const SHIMONOSEKI_SP_TOP_URL = "https://www.boatrace-shimonoseki.jp/sp/";
+const SHIMONOSEKI_RACE_INDEX_URL = "https://www.boatrace-shimonoseki.jp/sp/index.php?page=raceinfo-raceindex";
+const SHIMONOSEKI_TIMERANK_URL = "https://www.boatrace-shimonoseki.jp/sp/index.php?page=raceinfo-timerank";
+const SHIMONOSEKI_SCORE_RANK_URL = "https://www.boatrace-shimonoseki.jp/sp/index.php?page=raceinfo-tokutenrank";
+const SHIMONOSEKI_RESULT_LIST_URL = "https://www.boatrace-shimonoseki.jp/sp/index.php?page=raceinfo-resultlist";
+const SHIMONOSEKI_PDF_URL = "https://www.boatrace-shimonoseki.jp/sp/index.php?page=raceinfo-pdf";
+const SHIMONOSEKI_RACER_COURSE_URL = "https://www.boatrace-shimonoseki.jp/sp/index.php?page=raceinfo-racecourse";
+const SHIMONOSEKI_CURRENT_SERIES_URL = "https://www.boatrace-shimonoseki.jp/sp/index.php?page=raceinfo-konsetsu";
+const SHIMONOSEKI_MOTOR_DATA_URL = "https://www.boatrace-shimonoseki.jp/modules/datafile/";
+const SHIMONOSEKI_BOAT_DATA_URL = "https://www.boatrace-shimonoseki.jp/modules/datafile/?page=index_boat";
+const SHIMONOSEKI_DEME_URL = "https://www.boatrace-shimonoseki.jp/modules/datafile/?page=index_deme";
+const SHIMONOSEKI_WATER_SURFACE_URL = "https://www.boatrace-shimonoseki.jp/modules/datafile/?page=index_suimen";
+const SHIMONOSEKI_TIDE_URL = "https://www.boatrace-shimonoseki.jp/modules/datafile/?page=index_tide_table";
 const BOATRACE_OFFICIAL_SOURCE = "boatrace.jp";
 const NARUTO_MOTOR_DATA_URL = "https://www.n14.jp/modules/datafile/";
 const NARUTO_TIDE_URL = "https://www.n14.jp/modules/datafile/?page=index_tide_table";
@@ -247,7 +263,11 @@ const venueOfficialExtrasRegistry = {
 		supported: true,
 		sourceUrls: [TOKUYAMA_TIDE_URL, TOKUYAMA_WATER_SURFACE_URL],
 	},
-	"19": { key: null, supported: false, sourceUrls: [] },
+	"19": {
+		key: "shimonoseki",
+		supported: true,
+		sourceUrls: [SHIMONOSEKI_TOP_URL, SHIMONOSEKI_SP_TOP_URL, SHIMONOSEKI_RACE_INDEX_URL, SHIMONOSEKI_TIMERANK_URL, SHIMONOSEKI_SCORE_RANK_URL, SHIMONOSEKI_RESULT_LIST_URL, SHIMONOSEKI_PDF_URL, SHIMONOSEKI_RACER_COURSE_URL, SHIMONOSEKI_CURRENT_SERIES_URL, SHIMONOSEKI_MOTOR_DATA_URL, SHIMONOSEKI_BOAT_DATA_URL, SHIMONOSEKI_DEME_URL, SHIMONOSEKI_WATER_SURFACE_URL, SHIMONOSEKI_TIDE_URL],
+	},
 	"20": {
 		key: "wakamatsu",
 		supported: true,
@@ -271,7 +291,7 @@ const venueOfficialExtrasRegistry = {
 	"24": {
 		key: "omura",
 		supported: true,
-		sourceUrls: ["https://omurakyotei.jp/yosou/"],
+		sourceUrls: ["https://omurakyotei.jp/", "https://omurakyotei.jp/yosou/", "https://omurakyotei.jp/yosou/sp/", "https://omurakyotei.jp/yosou/syussou.php", "https://omurakyotei.jp/yosou/comment.php", "https://omurakyotei.jp/yosou/start.php", "https://omurakyotei.jp/yosou/chokuzen.php"],
 	},
 };
 
@@ -965,6 +985,536 @@ async function createGamagoriVenue(feed, date) {
 		officialSiteProbes: probes,
 		sourceStatus,
 		warnings: createVenueWarningsFromProbes(probes),
+		races,
+	};
+}
+
+function parseShimonosekiWaterSurfaceInfo(html) {
+	const $ = load(html);
+	const lines = readCleanLines($("body"));
+	const bodyText = compactText(lines.join(" "));
+	const featureIndex = lines.findIndex((line) => line.includes("\u6c34\u9762\u7279\u6027"));
+	const recentIndex = lines.findIndex((line) => line.includes("\u6700\u8fd1\u306e\u30dc\u30fc\u30c8\u30ec\u30fc\u30b9\u5834\u30c7\u30fc\u30bf"));
+	const courseIndex = lines.findIndex((line) => line.includes("\u9032\u5165\u30b3\u30fc\u30b9\u5225") || line.includes("\u30b3\u30fc\u30b9\u5225"));
+
+	const featureSummary = featureIndex >= 0
+		? compactText(lines.slice(featureIndex + 1, featureIndex + 5).filter((line) => !line.includes("\u30c7\u30fc\u30bf\u30d5\u30a1\u30a4\u30eb")).join(" "))
+		: "";
+	const courseSummary = courseIndex >= 0
+		? compactText(lines.slice(courseIndex, courseIndex + 4).join(" "))
+		: "";
+	const surfaceSummary = featureSummary || compactText(bodyText.slice(0, 220));
+
+	if (!surfaceSummary && !courseSummary && recentIndex < 0) {
+		return null;
+	}
+
+	return {
+		surfaceSummary,
+		featureSummary,
+		courseSummary,
+		source: SHIMONOSEKI_SOURCE,
+		sourceUrl: SHIMONOSEKI_WATER_SURFACE_URL,
+		sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u6c34\u9762\u7279\u6027",
+	};
+}
+
+function parseShimonosekiRaceNo(value) {
+	const match = compactText(value).match(/(\d{1,2})/);
+	const raceNo = match ? Number.parseInt(match[1], 10) : null;
+	return raceNo && raceNo >= 1 && raceNo <= 12 ? raceNo : null;
+}
+
+function parseShimonosekiRaceList(html) {
+	const $ = load(html);
+	return $("table").toArray().map((table, index) => {
+		const rows = $(table).find("tr").toArray();
+		const raceNo = parseShimonosekiRaceNo(readCellText($, $(rows[0]).children("td,th").first())) ?? index + 1;
+		const entries = rows.slice(1).map((row) => {
+			const cells = $(row).children("td,th").toArray().map((cell) => readCellText($, cell));
+			return {
+				frameNo: parseFrameNo(cells[0]) ?? null,
+				playerName: cells[1] ?? "",
+			};
+		}).filter((row) => row.frameNo || row.playerName).slice(0, 6);
+		return {
+			raceNo,
+			entries,
+			source: SHIMONOSEKI_SOURCE,
+			sourceUrl: SHIMONOSEKI_RACE_INDEX_URL,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u30ec\u30fc\u30b9\u4e00\u89a7",
+		};
+	}).filter((row) => row.entries.length > 0);
+}
+
+function parseShimonosekiTimerank(html) {
+	const $ = load(html);
+	const rows = [];
+	$("table").first().find("tr").slice(2).each((_, row) => {
+		const cells = $(row).children("td,th").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 7 || !/^\d+$/.test(cells[0])) {
+			return;
+		}
+		const profile = cells[1].match(/^([^/]+)\/(\d{4})\/(.+?)([^\\s]+)$/);
+		rows.push({
+			rank: cells[0],
+			className: profile?.[1] ?? "",
+			registrationNo: profile?.[2] ?? "",
+			branchAndName: cells[1],
+			playerName: profile?.[4] ?? cells[1],
+			motorNo: cells[2],
+			motorSecondRate: cells[3],
+			boatNo: cells[4],
+			boatSecondRate: cells[5],
+			preinspectionTime: cells[6],
+			source: SHIMONOSEKI_SOURCE,
+			sourceUrl: SHIMONOSEKI_TIMERANK_URL,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u524d\u691c\u30bf\u30a4\u30e0",
+		});
+	});
+	return rows;
+}
+
+function parseShimonosekiScoreRanking(html) {
+	const $ = load(html);
+	const rows = [];
+	const trList = $("table").first().find("tr").toArray();
+	for (let index = 2; index < trList.length; index += 2) {
+		const cells = $(trList[index]).children("td,th").toArray().map((cell) => readCellText($, cell));
+		const resultsCells = $(trList[index + 1]).children("td,th").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 6 || !/^\d+$/.test(cells[0])) {
+			continue;
+		}
+		rows.push({
+			rank: cells[0],
+			profile: cells[1],
+			scoreRate: cells[2],
+			score: cells[3],
+			deduction: cells[4],
+			starts: cells[5],
+			seriesResults: resultsCells[0] ?? "",
+			condition: resultsCells[1] ?? "",
+			source: SHIMONOSEKI_SOURCE,
+			sourceUrl: SHIMONOSEKI_SCORE_RANK_URL,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u5f97\u70b9\u7387\u30e9\u30f3\u30ad\u30f3\u30b0",
+		});
+	}
+	return rows.slice(0, 30);
+}
+
+function parseShimonosekiRacerCourseStats(html) {
+	const $ = load(html);
+	const rows = [];
+	$("table").first().find("tr").slice(1).each((_, row) => {
+		const cells = $(row).children("td,th").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 10 || !parseFrameNo(cells[0])) {
+			return;
+		}
+		rows.push({
+			frameNo: parseFrameNo(cells[0]),
+			course: cells[1],
+			entryRate: cells[2],
+			averageStartTiming: cells[3],
+			firstRate: cells[4],
+			secondRate: cells[5],
+			thirdRate: cells[6],
+			fourthRate: cells[7],
+			fifthRate: cells[8],
+			sixthRate: cells[9],
+			source: SHIMONOSEKI_SOURCE,
+			sourceUrl: SHIMONOSEKI_RACER_COURSE_URL,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u9032\u5165\u30b3\u30fc\u30b9\u5225\u9078\u624b\u6210\u7e3e",
+		});
+	});
+	return rows;
+}
+
+function parseShimonosekiCurrentSeriesStats(html) {
+	const $ = load(html);
+	const tables = $("table").toArray();
+	const courseRows = [];
+	$(tables[0]).find("tr").slice(2).each((_, row) => {
+		const cells = $(row).children("td,th").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 8) {
+			return;
+		}
+		courseRows.push({
+			dayLabel: cells[0],
+			course: cells[1],
+			firstCount: cells[2],
+			secondCount: cells[3],
+			thirdCount: cells[4],
+			fourthCount: cells[5],
+			fifthCount: cells[6],
+			sixthCount: cells[7],
+			source: SHIMONOSEKI_SOURCE,
+			sourceUrl: SHIMONOSEKI_CURRENT_SERIES_URL,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u4eca\u7bc0\u30b3\u30fc\u30b9\u6210\u7e3e",
+		});
+	});
+	const winningRows = [];
+	$(tables[1]).find("tr").slice(1).each((_, row) => {
+		const cells = $(row).children("td,th").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 7) {
+			return;
+		}
+		winningRows.push({
+			dayLabel: cells[0],
+			nige: cells[1],
+			makuri: cells[2],
+			sashi: cells[3],
+			makuriSashi: cells[4],
+			nuki: cells[5],
+			megumare: cells[6],
+			source: SHIMONOSEKI_SOURCE,
+			sourceUrl: SHIMONOSEKI_CURRENT_SERIES_URL,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u4eca\u7bc0\u6c7a\u307e\u308a\u624b",
+		});
+	});
+	return { courseRows, winningRows };
+}
+
+function parseShimonosekiResultList(html) {
+	const $ = load(html);
+	return $("table").first().find("tr").slice(2).map((_, row) => {
+		const cells = $(row).children("td,th").toArray().map((cell) => readCellText($, cell));
+		return {
+			raceNo: parseShimonosekiRaceNo(cells[0]),
+			trifecta: cells[1] ?? "",
+			trifectaPayout: cells[2] ?? "",
+			note: cells[3] ?? "",
+			exacta: cells[4] ?? "",
+			exactaPayout: cells[5] ?? "",
+			source: SHIMONOSEKI_SOURCE,
+			sourceUrl: SHIMONOSEKI_RESULT_LIST_URL,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u30ec\u30fc\u30b9\u7d50\u679c",
+		};
+	}).get().filter((row) => row.raceNo || row.trifecta || row.exacta).slice(0, 12);
+}
+
+function parseShimonosekiPdfSources(html) {
+	const $ = load(html);
+	return $("a[href]").toArray().map((anchor) => {
+		const href = $(anchor).attr("href") || "";
+		if (!href.toLowerCase().includes(".pdf")) {
+			return null;
+		}
+		return {
+			label: readCellText($, anchor),
+			sourceUrl: new URL(href, SHIMONOSEKI_TOP_URL).toString(),
+			source: SHIMONOSEKI_SOURCE,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0fPDF\u30bd\u30fc\u30b9",
+		};
+	}).filter(Boolean);
+}
+
+function parseShimonosekiDataRanking(html, config) {
+	const $ = load(html);
+	const rows = [];
+	$("table").first().find("tr").slice(config.skipRows ?? 1).each((_, row) => {
+		const cells = $(row).children("td,th").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < config.minCells) {
+			return;
+		}
+		const item = config.map(cells);
+		if (item) {
+			rows.push({ ...item, source: SHIMONOSEKI_SOURCE, sourceUrl: config.sourceUrl, sourceLabel: config.sourceLabel });
+		}
+	});
+	return rows.slice(0, config.limit ?? 60);
+}
+
+function parseShimonosekiDemeAndPayout(html) {
+	const $ = load(html);
+	const tables = $("table").toArray();
+	const demeRanking = [];
+	for (const table of tables.slice(0, 4)) {
+		$(table).find("tr").slice(1).each((_, row) => {
+			const cells = $(row).children("td,th").toArray().map((cell) => readCellText($, cell));
+			if (cells.length >= 4) {
+				demeRanking.push({
+					rank: cells[0],
+					combination: cells[1],
+					shareRate: cells[2],
+					averagePayout: cells[3],
+					source: SHIMONOSEKI_SOURCE,
+					sourceUrl: SHIMONOSEKI_DEME_URL,
+					sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u51fa\u76ee\u30c7\u30fc\u30bf",
+				});
+			}
+		});
+	}
+	const highPayoutRanking = [];
+	for (const table of tables.slice(4, 6)) {
+		$(table).find("tr").slice(1).each((_, row) => {
+			const cells = $(row).children("td,th").toArray().map((cell) => readCellText($, cell));
+			if (cells.length >= 11) {
+				highPayoutRanking.push({
+					rank: cells[0],
+					payout: cells[1],
+					date: cells[2],
+					grade: cells[3],
+					raceNo: cells[4],
+					combination: cells[5],
+					popularity: cells[6],
+					firstName: cells[7],
+					firstCourse: cells[8],
+					secondName: cells[9],
+					secondCourse: cells[10],
+					thirdName: cells[11] ?? "",
+					thirdCourse: cells[12] ?? "",
+					source: SHIMONOSEKI_SOURCE,
+					sourceUrl: SHIMONOSEKI_DEME_URL,
+					sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u9ad8\u914d\u5f53\u30e9\u30f3\u30ad\u30f3\u30b0",
+				});
+			}
+		});
+	}
+	return { demeRanking: demeRanking.slice(0, 40), highPayoutRanking: highPayoutRanking.slice(0, 20) };
+}
+
+function parseShimonosekiTideTable(html, date) {
+	const $ = load(html);
+	const targetDate = String(date ?? "").replaceAll("-", "/");
+	const rows = [];
+	$("table").each((_, table) => {
+		$(table).find("tr").slice(2).each((__, row) => {
+			const cells = $(row).children("td,th").toArray().map((cell) => readCellText($, cell));
+			if (cells.length >= 5) {
+				rows.push({
+					date: cells[0],
+					lowTideTime: cells[1],
+					lowTideLevel: cells[2],
+					highTideTime: cells[3],
+					highTideLevel: cells[4],
+					source: SHIMONOSEKI_SOURCE,
+					sourceUrl: SHIMONOSEKI_TIDE_URL,
+					sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u6f6e\u898b\u8868",
+				});
+			}
+		});
+	});
+	return rows.find((row) => row.date === targetDate) ?? rows[0] ?? null;
+}
+
+function createShimonosekiRaceExtra(race) {
+	const sourceMeta = {
+		source: SHIMONOSEKI_SOURCE,
+		sourceUrl: SHIMONOSEKI_RACE_INDEX_URL,
+		sourceLabel: "\u4e0b\u95a2\u516c\u5f0f",
+	};
+	const entryTable = buildCommonEntryTableRows(race, sourceMeta);
+	const motorSummary = buildCommonMotorSummaryRows(race, { ...sourceMeta, sourceUrl: SHIMONOSEKI_MOTOR_DATA_URL });
+	const racerCourseStats = buildCommonRacerCourseStatsRows(race, sourceMeta);
+	const officialBeforeInfo = buildOfficialBeforeInfoForRace(race);
+	const originalExhibition = buildOfficialBeforeInfoExhibitionRows(race).map((row) => ({
+		...row,
+		source: SHIMONOSEKI_SOURCE,
+		sourceUrl: SHIMONOSEKI_RACE_INDEX_URL,
+		sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u76f4\u524d\u60c5\u5831",
+	}));
+	const startExhibition = buildOfficialBeforeInfoStartExhibitionRows(race, originalExhibition).map((row) => ({
+		...row,
+		source: SHIMONOSEKI_SOURCE,
+		sourceUrl: SHIMONOSEKI_RACE_INDEX_URL,
+		sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u30b9\u30bf\u30fc\u30c8\u5c55\u793a",
+	}));
+	const weatherCondition = normalizeVenueWeatherCondition(race?.weatherActual, {
+		source: SHIMONOSEKI_SOURCE,
+		sourceUrl: SHIMONOSEKI_RACE_INDEX_URL,
+		sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u6c34\u9762\u6c17\u8c61",
+	});
+
+	return {
+		raceNo: race.raceNo,
+		status: entryTable.length || officialBeforeInfo.status === "available" ? "available" : "waiting",
+		source: SHIMONOSEKI_SOURCE,
+		sourceType: "venue-official-site+boatrace-common-entry",
+		entryTable,
+		officialBeforeInfo: {
+			...officialBeforeInfo,
+			source: SHIMONOSEKI_SOURCE,
+			sourceUrl: SHIMONOSEKI_RACE_INDEX_URL,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u76f4\u524d\u30c7\u30fc\u30bf",
+			exhibitionRows: originalExhibition.length ? originalExhibition : officialBeforeInfo.exhibitionRows,
+			startExhibition: startExhibition.length ? startExhibition : officialBeforeInfo.startExhibition,
+			weatherCondition: weatherCondition ?? officialBeforeInfo.weatherCondition,
+		},
+		startExhibition,
+		originalExhibition,
+		motorSummary,
+		shimonosekiRacerCourseStats: racerCourseStats,
+		weatherCondition,
+		sourceStatus: {
+			entryTable: entryTable.length ? "available" : "pending",
+			officialBeforeInfo: officialBeforeInfo.status === "available" ? "available" : "pending",
+			startExhibition: startExhibition.length ? "available" : "pending",
+			originalExhibition: originalExhibition.length ? "available" : "pending",
+			motorSummary: motorSummary.length ? "available" : "pending",
+			shimonosekiRacerCourseStats: racerCourseStats.length ? "available" : "pending",
+			weatherCondition: weatherCondition ? "available" : "pending",
+		},
+	};
+}
+
+async function createShimonosekiVenue(feed, date) {
+	const venue = findVenue(feed, SHIMONOSEKI_VENUE_NAME);
+	if (!venue) {
+		return null;
+	}
+
+	const sourceRequests = [
+		["raceList", SHIMONOSEKI_RACE_INDEX_URL],
+		["timerank", SHIMONOSEKI_TIMERANK_URL],
+		["scoreRanking", SHIMONOSEKI_SCORE_RANK_URL],
+		["racerCourseStats", SHIMONOSEKI_RACER_COURSE_URL],
+		["currentSeries", SHIMONOSEKI_CURRENT_SERIES_URL],
+		["resultList", SHIMONOSEKI_RESULT_LIST_URL],
+		["pdfSources", SHIMONOSEKI_PDF_URL],
+		["motorData", SHIMONOSEKI_MOTOR_DATA_URL],
+		["boatData", SHIMONOSEKI_BOAT_DATA_URL],
+		["demeRanking", SHIMONOSEKI_DEME_URL],
+		["tideTable", SHIMONOSEKI_TIDE_URL],
+		["waterSurface", SHIMONOSEKI_WATER_SURFACE_URL],
+	];
+	const [sourceResults, probes] = await Promise.allSettled([
+		Promise.allSettled(sourceRequests.map(([, url]) => fetchHtml(url))),
+		fetchVenueOfficialSiteProbes([
+			["top", SHIMONOSEKI_TOP_URL],
+			["spTop", SHIMONOSEKI_SP_TOP_URL],
+			...sourceRequests,
+		]),
+	]);
+	const htmlByKey = new Map();
+	const sourceSettled = sourceResults.status === "fulfilled" ? sourceResults.value : [];
+	sourceRequests.forEach(([key], index) => {
+		const result = sourceSettled[index];
+		if (result?.status === "fulfilled") {
+			htmlByKey.set(key, result.value);
+		}
+	});
+	const officialSiteProbes = probes.status === "fulfilled" ? probes.value : [];
+	const currentSeriesStats = htmlByKey.has("currentSeries")
+		? parseShimonosekiCurrentSeriesStats(htmlByKey.get("currentSeries"))
+		: { courseRows: [], winningRows: [] };
+	const demeAndPayout = htmlByKey.has("demeRanking")
+		? parseShimonosekiDemeAndPayout(htmlByKey.get("demeRanking"))
+		: { demeRanking: [], highPayoutRanking: [] };
+	const commonData = {
+		seriesIndex: {
+			title: SHIMONOSEKI_VENUE_NAME,
+			source: SHIMONOSEKI_SOURCE,
+			sourceUrl: SHIMONOSEKI_SP_TOP_URL,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u30b7\u30ea\u30fc\u30ba\u30a4\u30f3\u30c7\u30c3\u30af\u30b9",
+		},
+		entryRacers: [],
+		seriesOutlook: null,
+		raceList: htmlByKey.has("raceList") ? parseShimonosekiRaceList(htmlByKey.get("raceList")) : [],
+		resultList: htmlByKey.has("resultList") ? parseShimonosekiResultList(htmlByKey.get("resultList")) : [],
+		pdfSources: htmlByKey.has("pdfSources") ? parseShimonosekiPdfSources(htmlByKey.get("pdfSources")) : [],
+		motorLotteryAndPrecheck: htmlByKey.has("timerank") ? parseShimonosekiTimerank(htmlByKey.get("timerank")) : [],
+		scoreRanking: htmlByKey.has("scoreRanking") ? parseShimonosekiScoreRanking(htmlByKey.get("scoreRanking")) : [],
+		racerCourseStats: htmlByKey.has("racerCourseStats") ? parseShimonosekiRacerCourseStats(htmlByKey.get("racerCourseStats")) : [],
+		currentSeriesCourseStats: currentSeriesStats.courseRows,
+		currentSeriesWinningMethods: currentSeriesStats.winningRows,
+		motorRanking: htmlByKey.has("motorData") ? parseShimonosekiDataRanking(htmlByKey.get("motorData"), {
+			minCells: 7,
+			sourceUrl: SHIMONOSEKI_MOTOR_DATA_URL,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u30e2\u30fc\u30bf\u30fc\u30c7\u30fc\u30bf",
+			map: (cells) => /^\d+$/.test(cells[0]) ? { rank: cells[0], previousRank: cells[1], motorNo: cells[2], secondRate: cells[3], winRate: cells[4], finalCount: cells[5], championshipCount: cells[6] } : null,
+		}) : [],
+		boatData: htmlByKey.has("boatData") ? parseShimonosekiDataRanking(htmlByKey.get("boatData"), {
+			minCells: 9,
+			sourceUrl: SHIMONOSEKI_BOAT_DATA_URL,
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u30dc\u30fc\u30c8\u30c7\u30fc\u30bf",
+			map: (cells) => /^\d+$/.test(cells[0]) ? { boatNo: cells[0], secondRate: cells[1], winRate: cells[2], firstCount: cells[3], secondCount: cells[4], thirdCount: cells[5], starts: cells[6], finalCount: cells[7], championshipCount: cells[8] } : null,
+		}) : [],
+		demeRanking: demeAndPayout.demeRanking,
+		highPayoutRanking: demeAndPayout.highPayoutRanking,
+		waterSurface: htmlByKey.has("waterSurface") ? parseShimonosekiWaterSurfaceInfo(htmlByKey.get("waterSurface")) : null,
+		tideTable: htmlByKey.has("tideTable") ? parseShimonosekiTideTable(htmlByKey.get("tideTable"), date) : null,
+		strategyBookSource: {
+			source: SHIMONOSEKI_SOURCE,
+			sourceUrl: "https://www.boatrace-shimonoseki.jp/sp/index.php?page=datafile-kouryaku_book",
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u653b\u7565\u30d6\u30c3\u30af",
+		},
+		strategyVideoSource: {
+			source: SHIMONOSEKI_SOURCE,
+			sourceUrl: "https://www.boatrace-shimonoseki.jp/sp/index.php?page=datafile-shimonoseki_video",
+			sourceLabel: "\u4e0b\u95a2\u516c\u5f0f\u30fb\u653b\u7565\u52d5\u753b",
+		},
+	};
+	const entryRacers = new Map();
+	for (const row of commonData.raceList) {
+		for (const entry of row.entries) {
+			if (entry.playerName) {
+				entryRacers.set(entry.playerName, entry);
+			}
+		}
+	}
+	commonData.entryRacers = Array.from(entryRacers.values()).slice(0, 60);
+	const races = getRaceList(venue).map((race) => {
+		const raceExtra = createShimonosekiRaceExtra(race);
+		const resultSummary = commonData.resultList.find((row) => Number(row.raceNo) === Number(race.raceNo)) ?? null;
+		return {
+			...raceExtra,
+			shimonosekiRacerCourseStats: commonData.racerCourseStats,
+			resultSummary,
+			sourceStatus: {
+				...raceExtra.sourceStatus,
+				previousRaceAndParts: "pending",
+				resultSummary: resultSummary ? "available" : "pending",
+			},
+			warnings: [],
+		};
+	});
+	const sourceStatus = createVenueSourceStatusFromProbes(officialSiteProbes, {
+		entryTable: races.some((race) => race.entryTable.length) ? "available" : "pending",
+		officialBeforeInfo: races.some((race) => race.sourceStatus.officialBeforeInfo === "available") ? "available" : "pending",
+		startExhibition: races.some((race) => race.startExhibition.length) ? "available" : "pending",
+		originalExhibition: races.some((race) => race.originalExhibition.length) ? "available" : "pending",
+		motorSummary: races.some((race) => race.motorSummary.length) ? "available" : "pending",
+		waterSurfaceInfo: commonData.waterSurface ? "available" : "pending",
+		waterSurface: commonData.waterSurface ? "available" : "pending",
+		weatherCondition: races.some((race) => race.weatherCondition) ? "available" : "pending",
+		seriesIndex: commonData.seriesIndex ? "available" : "pending",
+		entryRacers: commonData.entryRacers.length ? "available" : "pending",
+		seriesOutlook: "pending",
+		raceList: commonData.raceList.length ? "available" : "pending",
+		resultList: commonData.resultList.length ? "available" : "pending",
+		pdfSources: commonData.pdfSources.length ? "available" : "pending",
+		motorLotteryAndPrecheck: commonData.motorLotteryAndPrecheck.length ? "available" : "pending",
+		scoreRanking: commonData.scoreRanking.length ? "available" : "pending",
+		racerCourseStats: commonData.racerCourseStats.length ? "available" : "pending",
+		currentSeriesCourseStats: commonData.currentSeriesCourseStats.length ? "available" : "pending",
+		currentSeriesWinningMethods: commonData.currentSeriesWinningMethods.length ? "available" : "pending",
+		motorRanking: commonData.motorRanking.length ? "available" : "pending",
+		motorData: commonData.motorRanking.length ? "available" : "pending",
+		motorHistory: "not-supported",
+		boatData: commonData.boatData.length ? "available" : "pending",
+		boatHistory: "not-supported",
+		demeRanking: commonData.demeRanking.length ? "available" : "pending",
+		highPayoutRanking: commonData.highPayoutRanking.length ? "available" : "pending",
+		tideTable: commonData.tideTable ? "available" : "pending",
+		strategyBookSource: "available",
+		strategyVideoSource: "available",
+	});
+
+	return {
+		venueCode: String(venue.venueCode ?? "19").padStart(2, "0"),
+		venueName: SHIMONOSEKI_VENUE_NAME,
+		source: SHIMONOSEKI_SOURCE,
+		sourceUrl: SHIMONOSEKI_TOP_URL,
+		isAvailable: races.some((race) => race.status === "available"),
+		status: races.some((race) => race.status === "available") ? "available" : "waiting",
+		officialTargetDate: date,
+		officialDisplayMode: "today",
+		officialSiteProbes,
+		sourceStatus,
+		warnings: createVenueWarningsFromProbes(officialSiteProbes),
+		waterSurfaceInfo: commonData.waterSurface,
+		tideInfo: commonData.tideTable,
+		...commonData,
 		races,
 	};
 }
@@ -10141,6 +10691,123 @@ function parseOmuraRacerCommentsMotor(html, entryRows) {
 	return rows.sort((left, right) => left.frameNo - right.frameNo);
 }
 
+function buildOmuraOfficialBeforeInfo({ omuraExhibitionInfo, omuraEntryTable }) {
+	const scoreQuickLook = omuraEntryTable.map((row) => ({
+		frameNo: row.frameNo,
+		registrationNo: row.registrationNo,
+		playerName: row.playerName,
+		className: row.className,
+		averageStart: row.averageStart,
+		winRate: row.nationalWinRate,
+		secondRate: row.nationalSecondRate,
+		localWinRate: row.localWinRate,
+		localSecondRate: row.localSecondRate,
+		motorNo: row.motorNo,
+		motorSecondRate: row.motorSecondRate,
+		boatNo: row.boatNo,
+		boatSecondRate: row.boatSecondRate,
+		source: OMURA_SOURCE,
+		sourceUrl: "https://omurakyotei.jp/yosou/syussou.php",
+		sourceLabel: "\u5927\u6751\u516c\u5f0f\u30fb\u51fa\u8d70\u8868",
+	}));
+	const exhibitionRows = omuraExhibitionInfo.map((row) => ({
+		frameNo: row.frameNo,
+		playerName: row.playerName,
+		exhibitionTime: row.exhibitionTime,
+		tilt: row.tilt,
+		course: row.course,
+		startTiming: row.startTiming,
+		partsExchange: row.partsExchange,
+		memo: [row.startType, row.evaluation].filter(Boolean).join(" / "),
+		source: OMURA_SOURCE,
+		sourceUrl: "https://omurakyotei.jp/yosou/chokuzen.php",
+		sourceLabel: "\u5927\u6751\u516c\u5f0f\u30fb\u76f4\u524d\u60c5\u5831",
+	}));
+	const startExhibition = exhibitionRows
+		.map((row) => {
+			const course = readRaceFrameNo(row.course);
+			const frameNo = readRaceFrameNo(row.frameNo);
+			if (!course || !frameNo || !row.startTiming) {
+				return null;
+			}
+			return {
+				course,
+				frameNo,
+				startTiming: row.startTiming,
+				currentAverageStart: scoreQuickLook.find((entry) => entry.frameNo === frameNo)?.averageStart ?? "",
+				source: OMURA_SOURCE,
+				sourceUrl: "https://omurakyotei.jp/yosou/start.php",
+				sourceLabel: "\u5927\u6751\u516c\u5f0f\u30fb\u30b9\u30bf\u30fc\u30c8\u5c55\u793a",
+			};
+		})
+		.filter(Boolean)
+		.sort((left, right) => left.course - right.course);
+	const officialBeforeInfo = {
+		status: exhibitionRows.length || scoreQuickLook.length ? "available" : "waiting",
+		source: OMURA_SOURCE,
+		sourceUrl: "https://omurakyotei.jp/yosou/",
+		sourceLabel: "\u5927\u6751\u516c\u5f0f\u30fb\u76f4\u524d\u30c7\u30fc\u30bf",
+		scoreQuickLook,
+	};
+
+	if (exhibitionRows.length) {
+		officialBeforeInfo.exhibitionRows = exhibitionRows;
+		officialBeforeInfo.startExhibition = startExhibition;
+	}
+
+	return { officialBeforeInfo, startExhibition };
+}
+
+function buildOmuraMotorSummaryRows(omuraEntryTable, omuraRacerCommentsMotor) {
+	const commentByFrame = new Map(omuraRacerCommentsMotor.map((row) => [row.frameNo, row]));
+	return omuraEntryTable
+		.map((entry) => {
+			const comment = commentByFrame.get(entry.frameNo);
+			return {
+				frameNo: entry.frameNo,
+				registrationNo: entry.registrationNo,
+				racerName: entry.playerName,
+				playerName: entry.playerName,
+				motorNo: comment?.motorNo || entry.motorNo,
+				motorSecondRate: entry.motorSecondRate,
+				boatNo: entry.boatNo,
+				boatSecondRate: entry.boatSecondRate,
+				evaluation: comment?.motorEvaluation ?? "",
+				motorEvaluation: comment?.motorEvaluation ?? "",
+				comment: comment?.comment ?? "",
+				source: OMURA_SOURCE,
+				sourceUrl: "https://omurakyotei.jp/yosou/comment.php",
+				sourceLabel: "\u5927\u6751\u516c\u5f0f\u30fb\u30b3\u30e1\u30f3\u30c8\u30fb\u30e2\u30fc\u30bf\u30fc",
+			};
+		})
+		.filter((row) => row.motorNo || row.motorSecondRate || row.boatNo || row.boatSecondRate || row.comment || row.evaluation);
+}
+
+function createOmuraRaceSourceStatus({ omuraEntryTable, omuraExhibitionInfo, originalExhibition, omuraNationalFrameStats, omuraFrameLast10, omuraPreviousDayResults, omuraRacerCommentsMotor, motorSummary, officialBeforeInfo, startExhibition }) {
+	return {
+		entryTable: omuraEntryTable.length ? "available" : "pending",
+		officialBeforeInfo: officialBeforeInfo.status === "available" ? "available" : "pending",
+		startExhibition: startExhibition.length ? "available" : "pending",
+		originalExhibition: originalExhibition.length ? "available" : "pending",
+		motorSummary: motorSummary.length ? "available" : "pending",
+		lapTime: omuraExhibitionInfo.some((row) => row.oneLapTime) ? "available" : "pending",
+		turnTime: omuraExhibitionInfo.some((row) => row.turnTime) ? "available" : "pending",
+		straightTime: omuraExhibitionInfo.some((row) => row.straightTime) ? "available" : "pending",
+		displayScore: omuraExhibitionInfo.some((row) => row.evaluation) ? "available" : "pending",
+		racerComments: omuraRacerCommentsMotor.length ? "available" : "pending",
+		omuraMotorEvaluations: motorSummary.some((row) => row.evaluation || row.motorEvaluation) ? "available" : "pending",
+		preRacePrediction: "pending",
+		livePreRacePrediction: "pending",
+		scoreQuickLook: officialBeforeInfo.scoreQuickLook?.length ? "available" : "pending",
+		previousRaceAndParts: omuraExhibitionInfo.some((row) => row.previousRaceNo || row.partsExchange) ? "available" : "pending",
+		omuraExhibitionInfo: omuraExhibitionInfo.length ? "available" : "pending",
+		omuraNationalFrameStats: omuraNationalFrameStats.length ? "available" : "pending",
+		omuraFrameLast10: omuraFrameLast10.length ? "available" : "pending",
+		omuraPreviousDayResults: omuraPreviousDayResults.some((row) => row.items.length > 0) ? "available" : "pending",
+		omuraRacerCommentsMotor: omuraRacerCommentsMotor.length ? "available" : "pending",
+	};
+}
+
 async function fetchOmuraRaceExtra({ date, raceNo }) {
 	const day = toOmuraDay(date);
 	const race = toOmuraRaceNo(raceNo);
@@ -10166,6 +10833,36 @@ async function fetchOmuraRaceExtra({ date, raceNo }) {
 		const omuraFrameLast10 = parseOmuraFrameLast10(entryHtml);
 		const omuraPreviousDayResults = parseOmuraPreviousDayResults(entryHtml, date);
 		const omuraRacerCommentsMotor = parseOmuraRacerCommentsMotor(commentHtml, omuraEntryTable);
+		const { officialBeforeInfo, startExhibition } = buildOmuraOfficialBeforeInfo({ omuraExhibitionInfo, omuraEntryTable });
+		const motorSummary = buildOmuraMotorSummaryRows(omuraEntryTable, omuraRacerCommentsMotor);
+		const previousRaceAndParts = omuraExhibitionInfo.map((row) => ({
+			frameNo: row.frameNo,
+			playerName: row.playerName,
+			previousRaceNo: row.previousRaceNo ?? "",
+			previousRaceCourse: row.previousRaceCourse ?? "",
+			previousRaceStartTiming: row.previousRaceStartTiming ?? "",
+			previousRaceFinishOrder: row.previousRaceFinishOrder ?? "",
+			partsExchange: row.partsExchange ?? "",
+			source: OMURA_SOURCE,
+			sourceUrl: chokuzenUrl,
+			sourceLabel: "\u5927\u6751\u516c\u5f0f\u30fb\u76f4\u524d\u90e8\u54c1\u4ea4\u63db",
+		})).filter((row) => row.previousRaceNo || row.partsExchange);
+		const lapTime = omuraExhibitionInfo.filter((row) => row.oneLapTime).map((row) => ({ frameNo: row.frameNo, playerName: row.playerName, oneLapTime: row.oneLapTime, source: OMURA_SOURCE, sourceLabel: "\u5927\u6751\u516c\u5f0f\u30fb\u4e00\u5468\u30bf\u30a4\u30e0" }));
+		const turnTime = omuraExhibitionInfo.filter((row) => row.turnTime).map((row) => ({ frameNo: row.frameNo, playerName: row.playerName, turnTime: row.turnTime, source: OMURA_SOURCE, sourceLabel: "\u5927\u6751\u516c\u5f0f\u30fb\u307e\u308f\u308a\u8db3" }));
+		const straightTime = omuraExhibitionInfo.filter((row) => row.straightTime).map((row) => ({ frameNo: row.frameNo, playerName: row.playerName, straightTime: row.straightTime, source: OMURA_SOURCE, sourceLabel: "\u5927\u6751\u516c\u5f0f\u30fb\u76f4\u7dda" }));
+		const displayScore = omuraExhibitionInfo.filter((row) => row.evaluation).map((row) => ({ frameNo: row.frameNo, playerName: row.playerName, displayScore: row.evaluation, source: OMURA_SOURCE, sourceLabel: "\u5927\u6751\u516c\u5f0f\u30fb\u5c55\u793a\u8a55\u4fa1" }));
+		const sourceStatus = createOmuraRaceSourceStatus({
+			omuraEntryTable,
+			omuraExhibitionInfo,
+			originalExhibition,
+			omuraNationalFrameStats,
+			omuraFrameLast10,
+			omuraPreviousDayResults,
+			omuraRacerCommentsMotor,
+			motorSummary,
+			officialBeforeInfo,
+			startExhibition,
+		});
 		const hasAnyData = Boolean(
 			originalExhibition.length ||
 			omuraExhibitionInfo.length ||
@@ -10185,13 +10882,28 @@ async function fetchOmuraRaceExtra({ date, raceNo }) {
 			status: hasAnyData ? "available" : "waiting",
 			source: OMURA_SOURCE,
 			sourceType: "official-venue-beforeinfo",
+			officialBeforeInfo,
+			startExhibition,
 			originalExhibition,
+			lapTime,
+			turnTime,
+			straightTime,
+			displayScore,
+			motorSummary,
+			racerComments: omuraRacerCommentsMotor,
+			omuraMotorEvaluations: motorSummary.filter((row) => row.evaluation || row.motorEvaluation),
+			preRacePrediction: null,
+			livePreRacePrediction: null,
+			scoreQuickLook: officialBeforeInfo.scoreQuickLook,
+			previousRaceAndParts,
 			omuraExhibitionInfo,
 			omuraEntryTable,
 			omuraPreviousDayResults,
 			omuraNationalFrameStats,
 			omuraFrameLast10,
 			omuraRacerCommentsMotor,
+			sourceStatus,
+			warnings: [],
 		};
 	} catch (error) {
 		console.warn(`[venue-extras] omura ${raceNo}R failed: ${error.message}`);
@@ -10207,6 +10919,15 @@ async function fetchOmuraRaceExtra({ date, raceNo }) {
 			omuraNationalFrameStats: [],
 			omuraFrameLast10: [],
 			omuraRacerCommentsMotor: [],
+			motorSummary: [],
+			startExhibition: [],
+			sourceStatus: {
+				entryTable: "pending",
+				officialBeforeInfo: "pending",
+				startExhibition: "pending",
+				originalExhibition: "pending",
+				motorSummary: "pending",
+			},
 			note: error.message,
 		};
 	}
@@ -10222,6 +10943,11 @@ async function createOmuraVenue(feed, date) {
 
 	const races = getRaceList(omuraVenue);
 	const raceExtras = [];
+	const probes = await fetchVenueOfficialSiteProbes([
+		["top", "https://omurakyotei.jp/"],
+		["yosou", "https://omurakyotei.jp/yosou/"],
+		["yosouSp", "https://omurakyotei.jp/yosou/sp/"],
+	]);
 
 	for (const race of races) {
 		const raceExtra = await fetchOmuraRaceExtra({
@@ -10234,34 +10960,62 @@ async function createOmuraVenue(feed, date) {
 		await sleep(REQUEST_INTERVAL_MS);
 	}
 
-	if (!raceExtras.some((raceExtra) =>
+	const hasAnyOmuraData = raceExtras.some((raceExtra) =>
 		Array.isArray(raceExtra?.omuraExhibitionInfo) && raceExtra.omuraExhibitionInfo.length > 0 ||
 		Array.isArray(raceExtra?.omuraEntryTable) && raceExtra.omuraEntryTable.length > 0 ||
 		Array.isArray(raceExtra?.omuraNationalFrameStats) && raceExtra.omuraNationalFrameStats.length > 0 ||
 		Array.isArray(raceExtra?.omuraFrameLast10) && raceExtra.omuraFrameLast10.length > 0 ||
 		Array.isArray(raceExtra?.omuraRacerCommentsMotor) && raceExtra.omuraRacerCommentsMotor.length > 0 ||
 		Array.isArray(raceExtra?.originalExhibition) && raceExtra.originalExhibition.length > 0
-	)) {
-		console.log("[venue-extras] omura: held today, but no beforeinfo rows are available yet");
+	);
+	const sourceStatus = createVenueSourceStatusFromProbes(probes, {
+		entryTable: raceExtras.some((raceExtra) => Array.isArray(raceExtra.omuraEntryTable) && raceExtra.omuraEntryTable.length > 0) ? "available" : "pending",
+		officialBeforeInfo: raceExtras.some((raceExtra) => raceExtra.sourceStatus?.officialBeforeInfo === "available") ? "available" : "pending",
+		startExhibition: raceExtras.some((raceExtra) => Array.isArray(raceExtra.startExhibition) && raceExtra.startExhibition.length > 0) ? "available" : "pending",
+		originalExhibition: raceExtras.some((raceExtra) => Array.isArray(raceExtra.originalExhibition) && raceExtra.originalExhibition.length > 0) ? "available" : "pending",
+		motorSummary: raceExtras.some((raceExtra) => Array.isArray(raceExtra.motorSummary) && raceExtra.motorSummary.length > 0) ? "available" : "pending",
+		scoreRanking: "pending",
+		omuraCurrentSeriesBest10: "pending",
+		tideTable: "pending",
+		motorRanking: "pending",
+		motorData: "pending",
+		omuraMotorReviews: "pending",
+		motorLedger: "pending",
+		motorPerformanceInspection: "pending",
+		omuraRaceBiasByRace: "pending",
+		racerShortReviews: "pending",
+		dailyFocusBets: "pending",
+		engineReportCards: "pending",
+		reporterTips: "pending",
+		pitReports: "pending",
+		resultList: "pending",
+	});
+	const baseVenue = {
+		venueCode: String(omuraVenue.venueCode ?? "24"),
+		venueName: OMURA_VENUE_NAME,
+		source: OMURA_SOURCE,
+		sourceUrl: "https://omurakyotei.jp/",
+		officialSiteProbes: probes,
+		sourceStatus,
+		warnings: createVenueWarningsFromProbes(probes),
+		races: raceExtras,
+	};
 
+	if (!hasAnyOmuraData) {
+		console.log("[venue-extras] omura: held today, but no beforeinfo rows are available yet");
 		return {
-			venueCode: String(omuraVenue.venueCode ?? "24"),
-			venueName: OMURA_VENUE_NAME,
-			source: OMURA_SOURCE,
+			...baseVenue,
 			isAvailable: false,
 			status: "waiting-beforeinfo",
-			note: "大村公式HPの直前展示はまだ公開前です。展示航走終了後に取得できる可能性があります。",
-			races: [],
+			note: "\u5927\u6751\u516c\u5f0fHP\u306e\u76f4\u524d\u30fb\u4e88\u60f3\u30c7\u30fc\u30bf\u306f\u672a\u516c\u958b\u3067\u3059\u3002",
 		};
 	}
 
 	return {
-		venueCode: String(omuraVenue.venueCode ?? "24"),
-		venueName: OMURA_VENUE_NAME,
-		source: OMURA_SOURCE,
+		...baseVenue,
 		isAvailable: true,
-		note: "大村公式HPの出走表・前日成績・全国枠・枠番別過去10走・コメント/モーター評価・展示情報を追加保持",
-		races: raceExtras,
+		status: "available",
+		note: "\u5927\u6751\u516c\u5f0fHP\u306e\u51fa\u8d70\u8868\u30fb\u76f4\u524d\u60c5\u5831\u30fb\u30b3\u30e1\u30f3\u30c8\u30fb\u30e2\u30fc\u30bf\u30fc\u8a55\u4fa1\u3092\u4e88\u6e2c\u6750\u6599\u5411\u3051\u306b\u6b63\u898f\u5316",
 	};
 }
 
@@ -16957,6 +17711,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const gamagoriVenue = await createGamagoriVenue(feed, date);
 	if (gamagoriVenue) {
 		venueMap.set(gamagoriVenue.venueName, mergeVenueRecord(venueMap.get(gamagoriVenue.venueName) ?? null, gamagoriVenue));
+	}
+
+	const shimonosekiVenue = await createShimonosekiVenue(feed, date);
+	if (shimonosekiVenue) {
+		venueMap.set(shimonosekiVenue.venueName, mergeVenueRecord(venueMap.get(shimonosekiVenue.venueName) ?? null, shimonosekiVenue));
 	}
 
 	const omuraVenue = await createOmuraVenue(feed, date);
