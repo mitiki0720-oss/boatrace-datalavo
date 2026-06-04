@@ -5468,6 +5468,15 @@ const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
 	戸田: "complete",
 };
 
+const venueOfficialPrimaryDataKeys = [
+	"entryTable",
+	"officialBeforeInfo",
+	"motorSummary",
+	"waterSurfaceInfo",
+	"weatherCondition",
+	"motorLotteryAndPrecheck",
+] as const;
+
 const venueOfficialLinkStatusMeta: Record<
 	VenueOfficialLinkStatus,
 	{
@@ -5508,9 +5517,98 @@ const venueOfficialLinkStatusMeta: Record<
 	},
 };
 
-function getVenueOfficialLinkStatus(venueName?: string | null): VenueOfficialLinkStatus {
+function isVenueOfficialAvailableStatus(value: unknown): boolean {
+	const status = readVenueExtraString(value).toLowerCase();
+
+	return status === "available" || status.startsWith("available-");
+}
+
+function isVenueOfficialPendingStatus(value: unknown): boolean {
+	const status = readVenueExtraString(value).toLowerCase();
+
+	return (
+		status.includes("pending")
+		|| status.includes("parse-empty")
+		|| status.includes("waiting")
+		|| status.includes("unpublished")
+		|| status.includes("not-published")
+		|| status.includes("missing")
+		|| status.includes("empty")
+		|| status.includes("error")
+	);
+}
+
+function hasVenueOfficialDataValue(value: unknown): boolean {
+	if (Array.isArray(value)) {
+		return value.length > 0;
+	}
+
+	return isVenueExtraRecord(value) && Object.keys(value).length > 0;
+}
+
+function getVenueOfficialSourceStatus(venueExtra: BoatVenueExtraVenue | BoatVenueExtraRace | null | undefined): Record<string, unknown> | null {
+	if (!venueExtra || !isVenueExtraRecord(venueExtra.sourceStatus)) {
+		return null;
+	}
+
+	return venueExtra.sourceStatus;
+}
+
+function hasVenueOfficialPrimaryAvailable(venueExtra: BoatVenueExtraVenue | null | undefined): boolean {
+	if (!venueExtra) {
+		return false;
+	}
+
+	const venueSourceStatus = getVenueOfficialSourceStatus(venueExtra);
+
+	if (venueOfficialPrimaryDataKeys.some((key) => (
+		isVenueOfficialAvailableStatus(venueSourceStatus?.[key])
+		|| hasVenueOfficialDataValue(venueExtra[key])
+	))) {
+		return true;
+	}
+
+	return (venueExtra.races ?? []).some((raceExtra) => {
+		const raceSourceStatus = getVenueOfficialSourceStatus(raceExtra);
+
+		return venueOfficialPrimaryDataKeys.some((key) => (
+			isVenueOfficialAvailableStatus(raceSourceStatus?.[key])
+			|| hasVenueOfficialDataValue(raceExtra[key])
+		));
+	});
+}
+
+function hasVenueOfficialPendingCategory(venueExtra: BoatVenueExtraVenue | null | undefined): boolean {
+	if (!venueExtra) {
+		return false;
+	}
+
+	const venueSourceStatus = getVenueOfficialSourceStatus(venueExtra);
+
+	if (venueSourceStatus && Object.values(venueSourceStatus).some(isVenueOfficialPendingStatus)) {
+		return true;
+	}
+
+	return (venueExtra.races ?? []).some((raceExtra) => {
+		const raceSourceStatus = getVenueOfficialSourceStatus(raceExtra);
+
+		return Boolean(raceSourceStatus && Object.values(raceSourceStatus).some(isVenueOfficialPendingStatus));
+	});
+}
+
+function getVenueOfficialLinkStatus(venueName?: string | null, venueExtra?: BoatVenueExtraVenue | null): VenueOfficialLinkStatus {
 	if (!venueName) {
 		return "checking";
+	}
+
+	const venueStatus = readVenueExtraString(venueExtra?.status).toLowerCase();
+	const hasAvailableVenueExtra =
+		venueExtra?.isAvailable === true
+		|| isVenueOfficialAvailableStatus(venueStatus)
+		|| hasVenueOfficialPrimaryAvailable(venueExtra);
+
+	if (hasAvailableVenueExtra) {
+		return hasVenueOfficialPendingCategory(venueExtra) ? "partial" : "complete";
 	}
 
 	return venueOfficialLinkStatusMap[venueName] ?? "checking";
@@ -6343,7 +6441,7 @@ const isAshiyaVenue = selectedVenue?.venueName === "芦屋";
 const isKiryuVenue = selectedVenue?.venueName === "桐生";
 const isMiyajimaVenue = selectedVenue?.venueName === "宮島";
 const isAmagasakiVenue = selectedVenue?.venueName === "尼崎";
-const selectedVenueOfficialLinkStatus = getVenueOfficialLinkStatus(selectedVenue?.venueName);
+const selectedVenueOfficialLinkStatus = getVenueOfficialLinkStatus(selectedVenue?.venueName, selectedVenueExtra);
 const selectedVenueOfficialLinkStatusMeta = venueOfficialLinkStatusMeta[selectedVenueOfficialLinkStatus];
 const hasOmuraEntryData = selectedOmuraEntryTable.length > 0;
 const hasOmuraPreviousDayData = selectedOmuraPreviousDayResults.some((row) => row.items.length > 0);
