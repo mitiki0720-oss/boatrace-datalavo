@@ -72,6 +72,19 @@ function getSourceStatus(extra) {
 	return isRecord(extra?.sourceStatus) ? extra.sourceStatus : null;
 }
 
+function hasCommonOfficialData(extra) {
+	return (extra?.races ?? []).some((race) => {
+		const beforeInfo = isRecord(race.officialBeforeInfo) ? race.officialBeforeInfo : null;
+		const source = `${race.source ?? ""} ${beforeInfo?.source ?? ""}`.toLowerCase();
+
+		return (
+			source.includes("boatrace.jp")
+			|| isRecord(beforeInfo)
+			|| isRecord(race.weatherCondition)
+		);
+	});
+}
+
 function hasPrimaryAvailable(extra) {
 	if (!extra) {
 		return false;
@@ -111,13 +124,18 @@ function resolveStatus(extra) {
 		return "checking";
 	}
 
-	const isAvailable = extra.isAvailable === true || isAvailableStatus(extra.status);
+	if (extra.integrationMode === "common-official-only" || extra.officialVenueExtrasSupported === false) {
+		return hasCommonOfficialData(extra) ? "common-only" : "checking";
+	}
 
-	if (isAvailable && hasPrimaryAvailable(extra)) {
+	const isAvailable = extra.isAvailable === true || isAvailableStatus(extra.status);
+	const isVenueOfficialSupported = extra.integrationMode === "venue-official" || extra.officialVenueExtrasSupported === true;
+
+	if (isVenueOfficialSupported && isAvailable && hasPrimaryAvailable(extra)) {
 		return hasDegradingPrimary(extra) ? "partial" : "complete";
 	}
 
-	return "checking";
+	return hasCommonOfficialData(extra) ? "common-only" : "checking";
 }
 
 function expectStatus(label, extra, expected) {
@@ -131,6 +149,10 @@ function expectStatus(label, extra, expected) {
 }
 
 const baseExtra = {
+	integrationMode: "venue-official",
+	officialVenueExtrasSupported: true,
+	dedicatedParserKey: "fixture",
+	officialVenueSourceUrls: ["https://example.test/"],
 	status: "available",
 	isAvailable: true,
 	sourceStatus: {
@@ -170,6 +192,27 @@ expectStatus("fixture primary http-error", {
 	sourceStatus: { ...baseExtra.sourceStatus, weatherCondition: "http-error" },
 }, "partial");
 
+expectStatus("fixture common official data only", {
+	integrationMode: "common-official-only",
+	officialVenueExtrasSupported: false,
+	status: "available",
+	isAvailable: true,
+	races: [
+		{
+			source: "boatrace.jp",
+			officialBeforeInfo: { status: "available", source: "boatrace.jp" },
+		},
+	],
+}, "common-only");
+
+expectStatus("fixture no parser and no common data", {
+	integrationMode: "unknown",
+	officialVenueExtrasSupported: false,
+	status: "waiting",
+	isAvailable: false,
+	races: [],
+}, "checking");
+
 expectStatus("fixture missing venue extra", null, "checking");
 
 const feed = JSON.parse(fs.readFileSync(VENUE_EXTRAS_PATH, "utf8"));
@@ -178,4 +221,22 @@ const venueByCode = new Map(venues.map((venue) => [String(venue.venueCode).padSt
 
 expectStatus("actual Amagasaki venueCode=13", venueByCode.get("13"), "complete");
 expectStatus("actual Miyajima venueCode=17", venueByCode.get("17"), "complete");
-expectStatus("actual Edogawa venueCode=03", venueByCode.get("03"), "complete");
+expectStatus("actual Edogawa venueCode=03", venueByCode.get("03"), "common-only");
+
+for (const venue of venues) {
+	const status = resolveStatus(venue);
+
+	if (venue.officialVenueExtrasSupported !== true && status === "complete") {
+		throw new Error(`${venue.venueName ?? venue.venueCode}: unsupported venue resolved to complete`);
+	}
+}
+
+const grouped = venues.reduce((acc, venue) => {
+	const status = resolveStatus(venue);
+	(acc[status] ||= []).push(`${String(venue.venueCode ?? "").padStart(2, "0")} ${venue.venueName ?? "-"}`);
+	return acc;
+}, {});
+
+for (const [status, names] of Object.entries(grouped)) {
+	console.log(`[check:boat-venue-official-status] ${status}: ${names.join(", ")}`);
+}

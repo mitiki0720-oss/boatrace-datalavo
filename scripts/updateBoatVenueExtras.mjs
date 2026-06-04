@@ -147,6 +147,109 @@ const MIKUNIKS_RACES_BASE_URL = "https://www.mikuniks-web.jp/races/";
 const MIKUNIKS_SOURCE = "mikuniks-web.jp/races";
 const REQUEST_INTERVAL_MS = 250;
 
+const venueOfficialExtrasRegistry = {
+	"01": {
+		key: "kiryu",
+		supported: true,
+		sourceUrls: [KIRYU_YOSOU_BASE_URL, KIRYU_TIMERANK_URL, KIRYU_MOTOR_RANK_URL, KIRYU_BOAT_RANK_URL, KIRYU_WATER_SURFACE_URL],
+	},
+	"02": {
+		key: "toda",
+		supported: true,
+		sourceUrls: [TODA_BASE_URL, TODA_WEATHER_URL],
+	},
+	"03": { key: null, supported: false, sourceUrls: [] },
+	"04": { key: null, supported: false, sourceUrls: [] },
+	"05": {
+		key: "tamagawa",
+		supported: true,
+		sourceUrls: ["https://www.boatrace-tamagawa.com/"],
+	},
+	"06": {
+		key: "hamanako",
+		supported: true,
+		sourceUrls: [HAMANAKO_YOSOU_BASE_URL, HAMANAKO_WATER_SURFACE_URL],
+	},
+	"07": { key: null, supported: false, sourceUrls: [] },
+	"08": {
+		key: "tokoname",
+		supported: true,
+		sourceUrls: [TOKONAME_TOP_URL, TOKONAME_YOSOU_BASE_URL, TOKONAME_TIMERANK_URL, TOKONAME_COURSE_URL, TOKONAME_SCORE_RATE_URL, TOKONAME_MOTOR_DATA_URL, TOKONAME_BOAT_DATA_URL, TOKONAME_WATER_SURFACE_URL],
+	},
+	"09": {
+		key: "tsu",
+		supported: true,
+		sourceUrls: [TSU_SP_BASE_URL, TSU_MOTOR_DATA_URL, TSU_BOAT_DATA_URL, TSU_WATER_SURFACE_URL],
+	},
+	"10": {
+		key: "mikuni",
+		supported: true,
+		sourceUrls: [MIKUNI_SCORE_RATE_URL, MIKUNI_TIMERANK_URL, MIKUNI_MOTOR_DATA_URL, MIKUNI_WATER_SURFACE_URL, MIKUNIKS_RACES_BASE_URL],
+	},
+	"11": {
+		key: "biwako",
+		supported: true,
+		sourceUrls: [BIWAKO_DATAFILE_URL, BIWAKO_RESULT_LIST_URL, BIWAKO_SCORE_RANK_URL, BIWAKO_WATER_SURFACE_URL, BIWAKO_TIMERANK_URL, BIWAKO_MOTOR_RANK_URL, BIWAKO_COURSE_URL, BIWAKO_CURRENT_SERIES_URL, BIWAKO_BOAT_DATA_URL],
+	},
+	"12": { key: null, supported: false, sourceUrls: [] },
+	"13": {
+		key: "amagasaki",
+		supported: true,
+		sourceUrls: [AMAGASAKI_TOP_URL, AMAGASAKI_TIMERANK_URL, AMAGASAKI_SCORE_RATE_URL, AMAGASAKI_COURSE_URL, AMAGASAKI_RESULT_LIST_URL, AMAGASAKI_PDF_URL, AMAGASAKI_MOTOR_DATA_URL, AMAGASAKI_BOAT_DATA_URL, AMAGASAKI_DEME_URL, AMAGASAKI_WATER_SURFACE_URL],
+	},
+	"14": {
+		key: "naruto",
+		supported: true,
+		sourceUrls: [NARUTO_MOTOR_DATA_URL, NARUTO_TIDE_URL, NARUTO_WATER_SURFACE_URL],
+	},
+	"15": {
+		key: "marugame",
+		supported: true,
+		sourceUrls: [MARUGAME_MOTOR_DATA_URL, MARUGAME_TIDE_URL, MARUGAME_WATER_SURFACE_URL, MARUGAME_SCORE_RATE_URL, MARUGAME_PRECHECK_URL],
+	},
+	"16": {
+		key: "kojima",
+		supported: true,
+		sourceUrls: ["https://www.kojimaboat.jp/"],
+	},
+	"17": {
+		key: "miyajima",
+		supported: true,
+		sourceUrls: [MIYAJIMA_TOP_URL, MIYAJIMA_RACECARD_URL, MIYAJIMA_RACEDATA_URL, MIYAJIMA_TIMERANK_URL, MIYAJIMA_SCORE_RATE_URL, MIYAJIMA_RESULTS_URL, MIYAJIMA_SURFACE_URL, MIYAJIMA_WEATHER_LIVE_URL],
+	},
+	"18": {
+		key: "tokuyama",
+		supported: true,
+		sourceUrls: [TOKUYAMA_TIDE_URL, TOKUYAMA_WATER_SURFACE_URL],
+	},
+	"19": { key: null, supported: false, sourceUrls: [] },
+	"20": {
+		key: "wakamatsu",
+		supported: true,
+		sourceUrls: [WAKAMATSU_TIDE_URL, WAKAMATSU_WATER_SURFACE_URL],
+	},
+	"21": {
+		key: "ashiya",
+		supported: true,
+		sourceUrls: [ASHIYA_RACE_INDEX_URL, ASHIYA_TIMERANK_URL, ASHIYA_COURSE_URL, ASHIYA_SCORE_RATE_URL, ASHIYA_RACER_COMMENTS_URL, ASHIYA_MOTOR_DATA_URL, ASHIYA_BOAT_DATA_URL, ASHIYA_WATER_SURFACE_URL],
+	},
+	"22": {
+		key: "fukuoka",
+		supported: true,
+		sourceUrls: ["https://www.boatrace-fukuoka.com/"],
+	},
+	"23": {
+		key: "karatsu",
+		supported: true,
+		sourceUrls: [KARATSU_TIMERANK_URL, KARATSU_NATIONAL_RECENT5_URL, KARATSU_RACER_COURSE_STATS_URL, KARATSU_CURRENT_SERIES_URL, KARATSU_SCORE_RANKING_URL, KARATSU_ALL_RACER_COMMENTS_URL, KARATSU_MARUTOKU_URL, KARATSU_RESULT_LIST_URL, KARATSU_MOTOR_DATA_URL, KARATSU_BOAT_DATA_URL, KARATSU_WATER_SURFACE_URL],
+	},
+	"24": {
+		key: "omura",
+		supported: true,
+		sourceUrls: ["https://omurakyotei.jp/yosou/"],
+	},
+};
+
 function parseCliArgs(argv = process.argv.slice(2)) {
 	const parsed = {};
 
@@ -208,6 +311,46 @@ function getJstTimestamp() {
 
 function getJstDate(timestamp) {
 	return timestamp.slice(0, 10);
+}
+
+function normalizeVenueCode(value) {
+	const code = String(value ?? "").trim();
+	return code ? code.padStart(2, "0") : "";
+}
+
+function hasCommonOfficialVenueData(venue) {
+	return (Array.isArray(venue?.races) ? venue.races : []).some((race) => {
+		const beforeInfo = race?.officialBeforeInfo;
+		const source = String(race?.source ?? beforeInfo?.source ?? "").toLowerCase();
+		return (
+			source.includes(BOATRACE_OFFICIAL_SOURCE)
+			|| beforeInfo?.source === BOATRACE_OFFICIAL_SOURCE
+			|| Boolean(beforeInfo?.weatherCondition)
+			|| Boolean(race?.weatherCondition)
+		);
+	});
+}
+
+function getVenueOfficialExtrasRegistryEntry(venue) {
+	const code = normalizeVenueCode(venue?.venueCode);
+	return venueOfficialExtrasRegistry[code] ?? null;
+}
+
+function attachVenueOfficialIntegrationMetadata(venue) {
+	const registryEntry = getVenueOfficialExtrasRegistryEntry(venue);
+	const supported = registryEntry?.supported === true;
+	const hasCommonOfficialData = hasCommonOfficialVenueData(venue);
+	const integrationMode = supported
+		? "venue-official"
+		: (hasCommonOfficialData ? "common-official-only" : "unknown");
+
+	return {
+		...venue,
+		integrationMode,
+		officialVenueExtrasSupported: supported,
+		dedicatedParserKey: supported ? registryEntry.key : null,
+		officialVenueSourceUrls: supported ? [...new Set(registryEntry.sourceUrls ?? [])] : [],
+	};
 }
 
 function toOmuraDay(date) {
@@ -16570,7 +16713,7 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 		venueMap.set(biwakoVenue.venueName, mergeVenueRecord(venueMap.get(biwakoVenue.venueName) ?? null, biwakoVenue));
 	}
 
-	const venues = Array.from(venueMap.values());
+	const venues = Array.from(venueMap.values()).map(attachVenueOfficialIntegrationMetadata);
 
 	const output = {
 		version: 1,

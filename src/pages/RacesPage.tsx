@@ -5451,8 +5451,9 @@ const venueSpotlightCopy: Record<string, { summary: string; imageSrc?: string; i
 	大村: { summary: "出足系の比較と展示タイムの裏付けを重視したい会場です。", imageSrc: getVenueSpotlightImageSrc("omura-spotlight.png"), imageAlt: "大村の会場イメージ" },
 };
 
-type VenueOfficialLinkStatus = "complete" | "partial" | "checking";
+type VenueOfficialLinkStatus = "complete" | "partial" | "commonOnly" | "checking";
 
+// Backward compatibility for cached venue-extras feeds before generator metadata existed.
 const venueOfficialLinkStatusMap: Record<string, VenueOfficialLinkStatus> = {
 	若松: "complete",
 	三国: "complete",
@@ -5525,6 +5526,16 @@ const venueOfficialLinkStatusMeta: Record<
 			color: "#225f9a",
 		},
 	},
+	commonOnly: {
+		label: "共通公式データのみ",
+		description: "BOATRACE共通公式データは取得済みです。会場独自公式Extrasは未連携です。",
+		chipStyle: {
+			...venueOfficialLinkStatusChipBaseStyle,
+			background: "linear-gradient(180deg, rgba(255, 250, 235, 0.98), rgba(252, 238, 204, 0.94))",
+			border: "1px solid rgba(215, 158, 62, 0.3)",
+			color: "#8a5a12",
+		},
+	},
 	checking: {
 		label: "連携確認中",
 		description: "この会場は公式データ連携を確認中です。",
@@ -5565,6 +5576,19 @@ function hasVenueOfficialDataValue(value: unknown): boolean {
 	}
 
 	return isVenueExtraRecord(value) && Object.keys(value).length > 0;
+}
+
+function hasCommonOfficialData(venueExtra: BoatVenueExtraVenue | null | undefined): boolean {
+	return (venueExtra?.races ?? []).some((raceExtra) => {
+		const beforeInfo = isVenueExtraRecord(raceExtra.officialBeforeInfo) ? raceExtra.officialBeforeInfo : null;
+		const source = `${readVenueExtraString(raceExtra.source)} ${readVenueExtraString(beforeInfo?.source)}`.toLowerCase();
+
+		return (
+			source.includes("boatrace.jp")
+			|| isVenueExtraRecord(beforeInfo)
+			|| isVenueExtraRecord(raceExtra.weatherCondition)
+		);
+	});
 }
 
 function getVenueOfficialSourceStatus(venueExtra: BoatVenueExtraVenue | BoatVenueExtraRace | null | undefined): Record<string, unknown> | null {
@@ -5622,16 +5646,31 @@ function getVenueOfficialLinkStatus(venueName?: string | null, venueExtra?: Boat
 		return "checking";
 	}
 
+	const integrationMode = readVenueExtraString(venueExtra?.integrationMode);
+	const isVenueOfficialSupported = venueExtra?.officialVenueExtrasSupported === true;
+	const hasCommonData = hasCommonOfficialData(venueExtra);
+
+	if (integrationMode === "common-official-only" || venueExtra?.officialVenueExtrasSupported === false) {
+		return hasCommonData ? "commonOnly" : "checking";
+	}
+
 	const venueStatus = readVenueExtraString(venueExtra?.status).toLowerCase();
 	const hasAvailableVenueExtra =
-		(venueExtra?.isAvailable === true || isVenueOfficialAvailableStatus(venueStatus))
+		(integrationMode === "venue-official" || isVenueOfficialSupported)
+		&& (venueExtra?.isAvailable === true || isVenueOfficialAvailableStatus(venueStatus))
 		&& hasVenueOfficialPrimaryAvailable(venueExtra);
 
 	if (hasAvailableVenueExtra) {
 		return hasVenueOfficialDegradingPrimaryCategory(venueExtra) ? "partial" : "complete";
 	}
 
-	return venueOfficialLinkStatusMap[venueName] ?? "checking";
+	const fallbackStatus = venueOfficialLinkStatusMap[venueName];
+
+	if (fallbackStatus) {
+		return fallbackStatus;
+	}
+
+	return hasCommonData ? "commonOnly" : "checking";
 }
 
 export function RacesPage() {
