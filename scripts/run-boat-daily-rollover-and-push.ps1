@@ -28,6 +28,18 @@ function Stop-Safely {
 	exit 1
 }
 
+function Join-ProcessArguments {
+	param([string[]]$Arguments)
+
+	return ($Arguments | ForEach-Object {
+		$argument = [string]$_
+		if ($argument -notmatch '[\s"]') {
+			return $argument
+		}
+		return '"' + $argument.Replace('\', '\\').Replace('"', '\"') + '"'
+	}) -join " "
+}
+
 function Invoke-LoggedCommand {
 	param(
 		[string]$FilePath,
@@ -35,8 +47,27 @@ function Invoke-LoggedCommand {
 		[switch]$AllowFailure
 	)
 
-	$output = & $FilePath @Arguments 2>&1
-	$exitCode = $LASTEXITCODE
+	$resolvedCommand = Get-Command $FilePath -CommandType Application -ErrorAction Stop
+	$processInfo = New-Object System.Diagnostics.ProcessStartInfo
+	$processInfo.FileName = $resolvedCommand.Source
+	$processInfo.Arguments = Join-ProcessArguments -Arguments $Arguments
+	$processInfo.WorkingDirectory = $RepoRoot
+	$processInfo.UseShellExecute = $false
+	$processInfo.RedirectStandardOutput = $true
+	$processInfo.RedirectStandardError = $true
+	$processInfo.CreateNoWindow = $true
+
+	$process = New-Object System.Diagnostics.Process
+	$process.StartInfo = $processInfo
+	[void]$process.Start()
+	$stdout = $process.StandardOutput.ReadToEnd()
+	$stderr = $process.StandardError.ReadToEnd()
+	$process.WaitForExit()
+	$exitCode = $process.ExitCode
+	$output = @(
+		$stdout -split "\r?\n" | Where-Object { $_ -ne "" }
+		$stderr -split "\r?\n" | Where-Object { $_ -ne "" }
+	)
 	foreach ($line in $output) {
 		Write-Host $line
 		if (-not $DryRun) {
