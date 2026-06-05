@@ -97,3 +97,18 @@ export function getBoatReviewArchiveDates(index: BoatReviewArchiveIndex): string
 export function getBoatReviewArchiveItemsByDate(index: BoatReviewArchiveIndex, date: string): BoatReviewArchiveItem[] {
 	return index.items.filter((item) => item.date === date);
 }
+
+export function isBoatReviewArchiveItemVerified(item: BoatReviewArchiveItem): boolean {
+	const predictionStatus = item.predictionStatus || (item.predictionFile ? "ready" : "missing");
+	const resultStatus = item.resultStatus || (item.resultFile ? "ready" : "missing");
+	return Boolean(item.predictionFile && item.resultFile && predictionStatus === "ready" && resultStatus === "ready");
+}
+
+export function isBoatReviewArchiveDateVerified(index: BoatReviewArchiveIndex, date: string): boolean {
+	const items = getBoatReviewArchiveItemsByDate(index, date);
+	return items.length > 0 && items.every(isBoatReviewArchiveItemVerified);
+}
+
+export function getBoatReviewArchiveVerifiedDates(index: BoatReviewArchiveIndex): string[] {
+	return getBoatReviewArchiveDates(index).filter((date) => isBoatReviewArchiveDateVerified(index, date));
+}

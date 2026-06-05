@@ -54,6 +54,7 @@ const venueExtrasFeed = await importTsModules([
 const pruneModule = await importTsModules([
 	path.join("src", "lib", "boatBetParser.ts"),
 	path.join("src", "lib", "boatPredictionParser.ts"),
+	path.join("src", "lib", "boatReviewArchive.ts"),
 	path.join("src", "lib", "boatOperationDate.ts"),
 	path.join("src", "lib", "boatPredictionStorage.ts"),
 	path.join("src", "lib", "boatPracticeResultStorage.ts"),
@@ -94,18 +95,38 @@ const pruned = pruneBoatRecordMapByOperationalDate({
 }, {
 	activeDate: "2026-06-05",
 	previousDate,
+	archiveVerifiedDates: ["2026-06-03"],
 	label: "cutover",
 });
 assert.deepEqual(Object.keys(pruned.records).sort(), ["current", "previous"], "localStorage prune should keep current and previous dates only");
 assert.equal(pruned.removedCount, 1, "localStorage prune should remove 2+ day old active records after archive verification");
 
+const browserWarnings = [];
+const browserPruned = pruneBoatRecordMapByOperationalDate({
+	current: { date: "2026-06-06" },
+	previous: { date: "2026-06-05" },
+	archivedOld: { date: "2026-06-04" },
+	unarchivedOld: { date: "2026-06-03" },
+}, {
+	activeDate: "2026-06-06",
+	previousDate: "2026-06-05",
+	archiveVerifiedDates: ["2026-06-04"],
+	label: "browser",
+	warnings: browserWarnings,
+});
+assert.deepEqual(Object.keys(browserPruned.records).sort(), ["current", "previous", "unarchivedOld"], "browser prune should delete only archived 2+ day old records");
+assert.equal(browserPruned.removedCount, 1, "browser prune should remove the archived old record");
+assert.ok(browserWarnings.some((warning) => warning.includes("keep unarchived date 2026-06-03")), "browser prune should warn for unverified archive dates");
+
 const rolloverSource = fs.readFileSync(path.join(repoRoot, "scripts", "runBoatDailyRollover.mjs"), "utf8");
 assert.match(rolloverSource, /archive verification failed/);
-assert.match(rolloverSource, /skip prune to protect review data/);
-assert.ok(
-	rolloverSource.indexOf("throw new Error(`archive verification failed before pruning") < rolloverSource.indexOf("await refreshActiveFeeds"),
-	"archive verification failure should stop prune before active generated data is rewritten",
-);
+assert.match(rolloverSource, /preserve review records/);
+assert.match(rolloverSource, /skip old record prune/);
+assert.match(rolloverSource, /continue active feed refresh/);
+assert.match(rolloverSource, /preserve review index/);
+assert.ok(!rolloverSource.includes("throw new Error(`archive verification failed before pruning"), "archive verification failure should not stop active feed refresh");
+assert.ok(rolloverSource.indexOf("continue active feed refresh") < rolloverSource.indexOf("await refreshActiveFeeds"), "archive failure should continue into active feed refresh");
+assert.ok(rolloverSource.includes("filterJohnsonRecordsForVerifiedArchive"), "Johnson generated records should use archive-verified prune logic");
 
 const reviewSource = fs.readFileSync(path.join(repoRoot, "src", "pages", "ReviewPage.tsx"), "utf8");
 assert.match(reviewSource, /loadBoatReviewArchiveIndex/);

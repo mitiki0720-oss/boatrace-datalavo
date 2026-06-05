@@ -36,8 +36,10 @@ async function importTsModules(relativePaths, entryPath) {
 }
 
 const modules = [
+	path.join("src", "lib", "assetPath.ts"),
 	path.join("src", "lib", "boatBetParser.ts"),
 	path.join("src", "lib", "boatPredictionParser.ts"),
+	path.join("src", "lib", "boatReviewArchive.ts"),
 	path.join("src", "lib", "boatOperationDate.ts"),
 	path.join("src", "lib", "boatPredictionStorage.ts"),
 	path.join("src", "lib", "boatPracticeResultStorage.ts"),
@@ -180,12 +182,29 @@ const purePruned = pruneBoatRecordMapByOperationalDate({
 }, {
 	activeDate: "2026-06-05",
 	previousDate: "2026-06-04",
+	archiveVerifiedDates: ["2026-06-03"],
 	label: "fixture",
 	warnings: pureWarnings,
 });
 assert.deepEqual(Object.keys(purePruned.records).sort(), ["current", "future", "invalid", "previous"], "pure prune should delete only dates older than previous operational date");
 assert.equal(purePruned.removedCount, 1, "pure prune should count removed older records");
 assert.equal(pureWarnings.length, 2, "future and invalid dates should warn but be kept");
+
+const unarchivedWarnings = [];
+const unarchivedPruned = pruneBoatRecordMapByOperationalDate({
+	old: { date: "2026-06-03" },
+	previous: { date: "2026-06-04" },
+	current: { date: "2026-06-05" },
+}, {
+	activeDate: "2026-06-05",
+	previousDate: "2026-06-04",
+	archiveVerifiedDates: [],
+	label: "unarchived-fixture",
+	warnings: unarchivedWarnings,
+});
+assert.deepEqual(Object.keys(unarchivedPruned.records).sort(), ["current", "old", "previous"], "pure prune should keep old records when archive is unverified");
+assert.equal(unarchivedPruned.removedCount, 0, "pure prune should not remove unarchived old records");
+assert.ok(unarchivedWarnings.some((warning) => warning.includes("keep unarchived date 2026-06-03")), "unarchived old records should warn");
 
 function seedOperationalStorage() {
 	storage.clear();
@@ -217,7 +236,7 @@ function seedOperationalStorage() {
 seedOperationalStorage();
 storage.setItem(BOAT_OPERATIONAL_STORAGE_PRUNE_MARKER_KEY, "2026-06-04");
 assert.equal(shouldRunBoatOperationalPrune("2026-06-05"), true, "new operational date should need prune");
-const first = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "first-fixture" });
+const first = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", archiveVerifiedDates: ["2026-06-03"], reason: "first-fixture" });
 assert.equal(first.skipped, false, "first prune should run");
 assert.deepEqual(first.result.removed, { prediction: 1, practice: 1, johnson: 1 }, "first prune should delete only records older than previous operational date");
 assert.equal(storage.getItem(BOAT_OPERATIONAL_STORAGE_PRUNE_MARKER_KEY), "2026-06-05", "successful prune should update marker");
@@ -228,26 +247,26 @@ assert.equal(getJson(BOAT_PREDICTION_STORAGE_KEY).previous2.betSummary.totalBets
 assert.equal(getJson("kurari-boat-data-labo-hit-notifications").unknown, true, "unknown hit notification storage should be preserved");
 assert.deepEqual(getJson("kurari-boat-data-labo-hit-notified-keys"), ["2026-06-03:hit"], "hit notified keys should be preserved");
 
-const reload = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "reload" });
+const reload = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", archiveVerifiedDates: ["2026-06-03"], reason: "reload" });
 assert.equal(reload.skipped, true, "same operational date reload should skip");
 assert.equal(reload.reason, "already-pruned", "same operational date should skip by marker");
-const focus = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "focus" });
+const focus = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", archiveVerifiedDates: ["2026-06-03"], reason: "focus" });
 assert.equal(focus.skipped, true, "same operational date focus should skip");
-const visibility = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "visibilitychange" });
+const visibility = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", archiveVerifiedDates: ["2026-06-03"], reason: "visibilitychange" });
 assert.equal(visibility.skipped, true, "same operational date visibility return should skip");
 assert.equal(getJson(BOAT_PREDICTION_STORAGE_KEY).previous2.tickets.length, 10, "same-day events should not delete 10-ticket predictions");
 
 seedOperationalStorage();
 storage.setItem(BOAT_OPERATIONAL_STORAGE_PRUNE_MARKER_KEY, "2026-06-04");
-const crossedDay = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "open-tab-crossed-midnight" });
+const crossedDay = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", archiveVerifiedDates: ["2026-06-03"], reason: "open-tab-crossed-midnight" });
 assert.equal(crossedDay.skipped, false, "open tab crossing midnight should prune once after focus/visible event");
-const crossedDayDuplicate = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "duplicate-event" });
+const crossedDayDuplicate = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", archiveVerifiedDates: ["2026-06-03"], reason: "duplicate-event" });
 assert.equal(crossedDayDuplicate.skipped, true, "duplicate event after midnight should skip");
 
 seedOperationalStorage();
 storage.setItem(BOAT_OPERATIONAL_STORAGE_PRUNE_MARKER_KEY, "2026-06-04");
-const concurrentFirst = pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "concurrent-first" });
-const concurrentSecond = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "concurrent-second" });
+const concurrentFirst = pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", archiveVerifiedDates: ["2026-06-03"], reason: "concurrent-first" });
+const concurrentSecond = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", archiveVerifiedDates: ["2026-06-03"], reason: "concurrent-second" });
 assert.equal(concurrentSecond.skipped, true, "concurrent event should be blocked while prune is in-flight");
 assert.equal(concurrentSecond.reason, "in-flight", "concurrent event should report in-flight");
 await concurrentFirst;
@@ -257,7 +276,7 @@ storage.setItem(BOAT_OPERATIONAL_STORAGE_PRUNE_MARKER_KEY, "2026-06-04");
 storage.failKeys.add(BOAT_PREDICTION_STORAGE_KEY);
 const originalConsoleError = console.error;
 console.error = () => {};
-const failed = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "failure" });
+const failed = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", archiveVerifiedDates: ["2026-06-03"], reason: "failure" });
 console.error = originalConsoleError;
 assert.equal(failed.skipped, false, "failed storage save still attempted prune");
 assert.equal(failed.result.prediction.ok, false, "prediction save failure should be reported");

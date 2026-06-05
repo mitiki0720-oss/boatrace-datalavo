@@ -349,6 +349,15 @@ function pruneDatedFeed(payload, currentDate, now) {
 	};
 }
 
+function filterJohnsonRecordsForVerifiedArchive(records, currentDate, previousDate, archiveVerified) {
+	if (!archiveVerified) {
+		return records;
+	}
+
+	const keepRecordDates = new Set([currentDate, previousDate]);
+	return records.filter((record) => keepRecordDates.has(record?.date));
+}
+
 function countRaces(payload) {
 	return toArray(payload?.venues).reduce((total, venue) => total + toArray(venue?.races).length, 0);
 }
@@ -551,14 +560,19 @@ async function main() {
 	const archiveCheck = options.dryRun && archiveResult.createdGroups > 0
 		? { ok: true, reason: "dry-run archive creation planned" }
 		: await verifyArchive(options.root, previousDate, options);
+	const isArchiveVerified = archiveCheck.ok;
 
 	if (!archiveCheck.ok) {
 		if (options.dryRun) {
 			console.warn(`[boat-rollover] dry-run warning: archive verification would fail before pruning: ${archiveCheck.reason}`);
+			console.warn("[boat-rollover] preserve review records");
+			console.warn("[boat-rollover] skip old record prune");
+			console.warn("[boat-rollover] continue active feed refresh");
 		} else {
 			console.error("[boat-rollover] archive verification failed");
-			console.error("[boat-rollover] skip prune to protect review data");
-			throw new Error(`archive verification failed before pruning: ${archiveCheck.reason}`);
+			console.warn("[boat-rollover] preserve review records");
+			console.warn("[boat-rollover] skip old record prune");
+			console.warn("[boat-rollover] continue active feed refresh");
 		}
 	} else {
 		if (archiveCheck.summaryStatus === "ready") {
@@ -573,19 +587,21 @@ async function main() {
 
 	await refreshActiveFeeds(options.root, currentDate, options, changedFiles);
 
-	if (!options.dryRun) {
+	if (isArchiveVerified && !options.dryRun) {
 		await generateReviewIndex(options.root, options, changedFiles);
-	} else {
+	} else if (isArchiveVerified) {
 		changedFiles.add(path.relative(options.root, resolveDataPath(options.root, "reviewIndex")).replaceAll("\\", "/"));
+	} else {
+		console.warn("[boat-rollover] preserve review index");
 	}
 
 	await writeJson(johnsonPath, {
 		...johnsonPayload,
 		generatedAt: johnsonPayload.generatedAt ?? getJstIsoString(options.now),
 		updatedAt: getJstIsoString(options.now),
-		records: toArray(johnsonPayload.records).filter((record) => record?.date === currentDate),
-		notifiedSlackResultKeys: pruneSlackKeys(johnsonPayload.notifiedSlackResultKeys, currentDate),
-		notifiedSlackHitKeys: pruneSlackKeys(johnsonPayload.notifiedSlackHitKeys, currentDate),
+		records: filterJohnsonRecordsForVerifiedArchive(toArray(johnsonPayload.records), currentDate, previousDate, isArchiveVerified),
+		notifiedSlackResultKeys: isArchiveVerified ? pruneSlackKeys(johnsonPayload.notifiedSlackResultKeys, currentDate) : johnsonPayload.notifiedSlackResultKeys,
+		notifiedSlackHitKeys: isArchiveVerified ? pruneSlackKeys(johnsonPayload.notifiedSlackHitKeys, currentDate) : johnsonPayload.notifiedSlackHitKeys,
 	}, options, changedFiles);
 
 	const schedulePath = resolveDataPath(options.root, "schedule");
