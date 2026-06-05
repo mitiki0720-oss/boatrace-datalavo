@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import {
+	BOAT_TODAY_WAITING_MESSAGE_LINES,
+	createBoatTodayWaitingFeed,
 	filterBoatUpcomingScheduleByDateRange,
 	loadBoatTodayFeed,
 	loadBoatUpcomingSchedule,
@@ -512,7 +514,7 @@ function elevateCard(target: HTMLElement, active: boolean, options?: { borderCol
 }
 
 export function DashboardPage() {
-	const [todayFeed, setTodayFeed] = useState(sampleBoatTodayFeed);
+	const [todayFeed, setTodayFeed] = useState(createBoatTodayWaitingFeed());
 	const [todayFeedUpdatedAt, setTodayFeedUpdatedAt] = useState("");
 	const [upcomingSchedules, setUpcomingSchedules] = useState<BoatUpcomingScheduleItem[]>(upcomingBoatSchedules);
 	const [upcomingUpdatedAt, setUpcomingUpdatedAt] = useState("");
@@ -533,6 +535,9 @@ export function DashboardPage() {
 			if (todayResult) {
 				setTodayFeed(todayResult);
 				setTodayFeedUpdatedAt(todayResult.generatedAt ?? "");
+			} else {
+				setTodayFeed(createBoatTodayWaitingFeed());
+				setTodayFeedUpdatedAt("");
 			}
 
 			if (scheduleResult) {
@@ -589,6 +594,7 @@ export function DashboardPage() {
 	const featuredVenues: DashboardVenue[] = [];
 
 	const standardVenues = sortedTodayVenues;
+	const isWaitingForTodayFeed = standardVenues.length === 0;
 
 	const featuredScheduleIds = useMemo(() => {
 		const sortedSchedules = [...upcomingSchedules]
@@ -780,6 +786,13 @@ export function DashboardPage() {
 		<p style={{ margin: "2px 0 0", fontSize: "0.82rem", color: boatTheme.colors.aquaDeep, fontWeight: 700 }}>
 			Data updated: {todayFeedUpdatedAt}
 		</p>
+	) : null}
+	{isWaitingForTodayFeed ? (
+		<div style={{ display: "grid", gap: "4px", marginTop: "8px" }}>
+			<p style={{ margin: 0, color: boatTheme.colors.navy, fontWeight: 900 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[0]}</p>
+			<p style={{ margin: 0, color: boatTheme.colors.muted, fontWeight: 700, lineHeight: 1.6 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[1]}</p>
+			<p style={{ margin: 0, color: boatTheme.colors.muted, fontWeight: 700, lineHeight: 1.6 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[2]}</p>
+		</div>
 	) : null}
 </div>
 				</div>

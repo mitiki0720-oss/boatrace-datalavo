@@ -1,4 +1,6 @@
-export const BOAT_OPERATIONAL_DAY_ROLLOVER_HOUR = 6;
+export const BOAT_ACTIVE_DAY_ROLLOVER_HOUR = 0;
+export const BOAT_ARCHIVE_MAINTENANCE_HOUR = 6;
+export const BOAT_OPERATIONAL_DAY_ROLLOVER_HOUR = BOAT_ACTIVE_DAY_ROLLOVER_HOUR;
 export const JST_TIME_ZONE = "Asia/Tokyo";
 
 export function formatJstDateKey(date = new Date()) {

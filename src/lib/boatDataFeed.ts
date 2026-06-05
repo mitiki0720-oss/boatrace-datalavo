@@ -1,6 +1,6 @@
 import type { BoatRaceItem, BoatTodayFeed } from "./boatraceTypes";
 import { withBasePath } from "./assetPath";
-import { formatBoatOperationDate, shiftBoatOperationDate } from "./boatOperationDate";
+import { formatBoatOperationDate, getBoatOperationDate, shiftBoatOperationDate } from "./boatOperationDate";
 
 export type BoatUpcomingScheduleItem = {
 	id: string;
@@ -24,6 +24,34 @@ export type BoatUpcomingScheduleFeed = {
 export const BOAT_TODAY_FEED_URL = withBasePath("data/boatrace/today.generated.json");
 export const BOAT_UPCOMING_SCHEDULE_URL = withBasePath("data/boatrace/upcoming-schedule.generated.json");
 export const BOAT_TODAY_RACE_DETAILS_URL = withBasePath("data/boatrace/today-race-details.generated.json");
+export const BOAT_TODAY_WAITING_MESSAGE_LINES = [
+	"本日のレースデータを取得中です",
+	"日付切替後の最新開催情報を反映しています。",
+	"少し時間を置いて再読み込みしてください。",
+] as const;
+
+export type BoatTodayFeedLoadOptions = {
+	activeDate?: string;
+	now?: Date;
+};
+
+export function getBoatTodayFeedActiveDate(options: BoatTodayFeedLoadOptions = {}): string {
+	return String(options.activeDate || getBoatOperationDate(options.now)).trim();
+}
+
+export function isBoatTodayFeedForActiveDate(feed: BoatTodayFeed | null | undefined, activeDate = getBoatTodayFeedActiveDate()): feed is BoatTodayFeed {
+	return Boolean(feed && String(feed.date || "").trim() === activeDate);
+}
+
+export function createBoatTodayWaitingFeed(activeDate = getBoatTodayFeedActiveDate()): BoatTodayFeed {
+	return {
+		version: 1,
+		date: activeDate,
+		generatedAt: "",
+		source: "waiting-for-active-date-feed",
+		venues: [],
+	};
+}
 
 export function getBoatScheduleVisibleDateRange(baseDate = new Date()): { startDate: string; endDate: string } {
 	const startDate = formatBoatOperationDate(baseDate);
@@ -93,7 +121,7 @@ function normalizeBoatVenueRacesToTwelve(feed: BoatTodayFeed): BoatTodayFeed {
 	};
 }
 
-export async function loadBoatTodayFeed(): Promise<BoatTodayFeed | null> {
+export async function loadBoatTodayFeed(options: BoatTodayFeedLoadOptions = {}): Promise<BoatTodayFeed | null> {
 	try {
 		const response = await fetch(buildNoCacheFeedUrl(BOAT_TODAY_FEED_URL), { cache: "no-store" });
 
@@ -101,7 +129,8 @@ export async function loadBoatTodayFeed(): Promise<BoatTodayFeed | null> {
 			return null;
 		}
 
-		return (await response.json()) as BoatTodayFeed;
+		const payload = (await response.json()) as BoatTodayFeed;
+		return isBoatTodayFeedForActiveDate(payload, getBoatTodayFeedActiveDate(options)) ? payload : null;
 	} catch {
 		return null;
 	}
@@ -121,7 +150,7 @@ export async function loadBoatUpcomingSchedule(): Promise<BoatUpcomingScheduleFe
 	}
 }
 
-export async function loadBoatTodayRaceDetailsFeed(): Promise<BoatTodayFeed | null> {
+export async function loadBoatTodayRaceDetailsFeed(options: BoatTodayFeedLoadOptions = {}): Promise<BoatTodayFeed | null> {
 	try {
 		const response = await fetch(buildNoCacheFeedUrl(BOAT_TODAY_RACE_DETAILS_URL), { cache: "no-store" });
 
@@ -130,6 +159,9 @@ export async function loadBoatTodayRaceDetailsFeed(): Promise<BoatTodayFeed | nu
 		}
 
 		const payload = (await response.json()) as BoatTodayFeed;
+		if (!isBoatTodayFeedForActiveDate(payload, getBoatTodayFeedActiveDate(options))) {
+			return null;
+		}
 
 		return normalizeBoatVenueRacesToTwelve(payload);
 	} catch {

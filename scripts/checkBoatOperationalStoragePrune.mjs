@@ -167,8 +167,8 @@ const johnsonRecord = (key, date) => ({
 	savedAt: `${date || "2026-06-05"}T00:00:00.000Z`,
 });
 
-assert.equal(getBoatOperationDate(new Date("2026-06-04T20:59:00.000Z")), "2026-06-04", "05:59 JST should still be previous operational date");
-assert.equal(getBoatOperationDate(new Date("2026-06-04T21:00:00.000Z")), "2026-06-05", "06:00 JST should roll to current operational date");
+assert.equal(getBoatOperationDate(new Date("2026-06-04T14:59:00.000Z")), "2026-06-04", "23:59 JST should use current calendar date");
+assert.equal(getBoatOperationDate(new Date("2026-06-04T15:00:00.000Z")), "2026-06-05", "00:00 JST should roll to new calendar date");
 
 const pureWarnings = [];
 const purePruned = pruneBoatRecordMapByOperationalDate({
@@ -239,10 +239,10 @@ assert.equal(getJson(BOAT_PREDICTION_STORAGE_KEY).previous2.tickets.length, 10, 
 
 seedOperationalStorage();
 storage.setItem(BOAT_OPERATIONAL_STORAGE_PRUNE_MARKER_KEY, "2026-06-04");
-const crossedDay = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "open-tab-crossed-0600" });
-assert.equal(crossedDay.skipped, false, "open tab crossing 06:00 should prune once after focus/visible event");
+const crossedDay = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "open-tab-crossed-midnight" });
+assert.equal(crossedDay.skipped, false, "open tab crossing midnight should prune once after focus/visible event");
 const crossedDayDuplicate = await pruneBoatOperationalStorageOnce({ activeDate: "2026-06-05", previousDate: "2026-06-04", reason: "duplicate-event" });
-assert.equal(crossedDayDuplicate.skipped, true, "duplicate event after 06:00 should skip");
+assert.equal(crossedDayDuplicate.skipped, true, "duplicate event after midnight should skip");
 
 seedOperationalStorage();
 storage.setItem(BOAT_OPERATIONAL_STORAGE_PRUNE_MARKER_KEY, "2026-06-04");
