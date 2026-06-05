@@ -50,6 +50,7 @@ import {
 	deleteBoatPracticeResultRecord,
 	findBoatPracticeResultRecord,
 	isBoatPracticeHit,
+	isBoatPracticePayoutPending,
 	loadBoatPracticeResultRecords,
 	saveBoatPracticeResultRecords,
 	upsertBoatPracticeResultRecord,
@@ -359,6 +360,10 @@ const resolvePracticePayoutYen = (record: BoatPracticeResultRecord): number =>
 	readPracticeNumber(record.payoutYen ?? record.payoutAmount);
 
 const resolvePracticeProfitYen = (record: BoatPracticeResultRecord): number => {
+	if (isBoatPracticePayoutPending(record)) {
+		return 0;
+	}
+
 	const storedProfit = record.profitYen ?? record.profitLoss;
 	if (storedProfit !== undefined) {
 		return readPracticeNumber(storedProfit);
@@ -378,6 +383,9 @@ const isPracticeSummaryRecord = (record: BoatPracticeResultRecord, date: string 
 
 	return record.resultStatus === "confirmed" || resolvePracticePayoutYen(record) > 0 || Boolean(record.actualFinishOrderText);
 };
+
+const isPracticeFinancialRecord = (record: BoatPracticeResultRecord): boolean =>
+	isPracticeSummaryRecord(record, record.date) && !isBoatPracticePayoutPending(record);
 
 const buildPracticeLookupDebugText = (debug: BoatRaceResultLookupDebug | undefined): string => {
 	if (!debug) {
@@ -1190,13 +1198,14 @@ const buildPracticeFallbackRaceKey = (params: {
 		: "";
 const practiceSummary = useMemo(() => {
 	const targetRecords = practiceResultRecords.filter((record) => isPracticeSummaryRecord(record, practiceSummaryDate));
+	const financialRecords = targetRecords.filter(isPracticeFinancialRecord);
 
-	const totalStakeYen = targetRecords.reduce(
+	const totalStakeYen = financialRecords.reduce(
 		(sum, record) => sum + resolvePracticeStakeYen(record),
 		0,
 	);
 
-	const totalPayoutYen = targetRecords.reduce(
+	const totalPayoutYen = financialRecords.reduce(
 		(sum, record) => sum + resolvePracticePayoutYen(record),
 		0,
 	);
@@ -1219,7 +1228,7 @@ const practiceSummary = useMemo(() => {
 		const payoutYen = resolvePracticePayoutYen(record);
 		const hasHitNumbers = Boolean(record.hitBetNumbers) || (Array.isArray(record.hitBets) && record.hitBets.length > 0);
 
-		return payoutYen > 0 && hasHitNumbers;
+		return (payoutYen > 0 || isBoatPracticePayoutPending(record)) && hasHitNumbers;
 	};
 	const predictionHeroTimeBand = getPredictionHeroTimeBand(selectedVenue);
 	const predictionHeroImageSrc = predictionHeroImageSrcMap[predictionHeroTimeBand];
@@ -1295,8 +1304,8 @@ const practiceSummary = useMemo(() => {
 			timeLabel: formatJstDateTimeLabel(savedAt),
 			betTypeLabel,
 			hitBetNumbers,
-			payoutLabel: formatPracticeYen(payoutYen),
-			profitLabel: formatPracticeProfit(profitYen),
+			payoutLabel: isBoatPracticePayoutPending(record) ? "払戻取得待ち" : formatPracticeYen(payoutYen),
+			profitLabel: isBoatPracticePayoutPending(record) ? "算出待ち" : formatPracticeProfit(profitYen),
 		};
 	});
 
@@ -2932,7 +2941,7 @@ body:has(.prediction-page-root) {
 														<p className="prediction-notification-payout">払戻 {item.payoutLabel}</p>
 														<p
 															className="prediction-notification-profit"
-															style={{ color: item.profitLabel.startsWith("+") ? "#0284c7" : "#b91c1c" }}
+															style={{ color: item.profitLabel === "算出待ち" ? "#9a3412" : item.profitLabel.startsWith("+") ? "#0284c7" : "#b91c1c" }}
 														>
 															収支 {item.profitLabel}
 														</p>

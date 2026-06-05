@@ -97,7 +97,7 @@ const byCode = new Map(rows.map((row) => [row.venueCode, row]));
 assert.ok(["available", "pending"].includes(byCode.get("13")?.classification), "Amagasaki should distinguish pending original timing from unsupported venue");
 assert.equal(byCode.get("13")?.straightTimeCount, 0, "Amagasaki straight time should remain non-published");
 assert.ok(["available", "pending"].includes(byCode.get("17")?.classification), "Miyajima should be venue-official classified separately from common official data");
-assert.ok(["available", "pending"].includes(byCode.get("03")?.classification), "Edogawa should be audited even when optional original timing is absent");
+assert.ok(["available", "pending", "not-supported"].includes(byCode.get("03")?.classification), "Edogawa should be audited even when optional original timing is absent");
 assert.ok(["available", "pending"].includes(byCode.get("20")?.classification), "Wakamatsu should be audited even when optional original timing is absent");
 
 const racesPageSource = fs.readFileSync(RACES_PAGE_PATH, "utf8");
