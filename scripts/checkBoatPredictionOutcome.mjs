@@ -156,7 +156,7 @@ const repaired = repairBoatPredictionParseIfNeeded({
 	savedAt: "2026-06-04T00:00:00.000Z",
 });
 assert.equal(repaired.parsedBets?.length, 1, "old saved data should repair parsed bets from raw text");
-assert.equal(repaired.parserVersion, "2026-06-05.bet-ticket-loss-fix", "repair should stamp parser version");
+assert.equal(repaired.parserVersion, "2026-06-05.bet-section-selection", "repair should stamp parser version");
 assert.equal(repaired.rawPredictionText, repaired.predictionText, "repair should preserve raw prediction text");
 
 const buildJapaneseBetSection = (tickets, heading = "3\u9023\u5358") => [

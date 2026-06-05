@@ -65,6 +65,18 @@ const mikuni5Tickets = [
 	"4-5-2",
 	"3-2-5",
 ];
+const mikuni3Tickets = [
+	"1-2-4",
+	"2-1-4",
+	"1-4-2",
+	"1-2-3",
+	"2-1-3",
+	"2-4-1",
+	"4-1-2",
+	"4-2-1",
+	"1-2-6",
+	"2-1-6",
+];
 const buildJapaneseBetSection = (tickets, heading = trifectaHeading) => [
 	buyHeading,
 	buyCountHeading,
@@ -82,8 +94,30 @@ const assertTenJapaneseTrifectaTickets = (name, text, expectedTickets) => {
 
 const mikuni2Section = buildJapaneseBetSection(mikuni2Tickets, `${trifectaHeading}\uff08\u539a\u30812\u70b9\uff09\uff1a1/02`);
 const mikuni5Section = buildJapaneseBetSection(mikuni5Tickets);
+const mikuni3Section = [
+	buyHeading,
+	buyCountHeading,
+	`${trifectaHeading}\uff08\u539a\u30812\u70b9\uff09\uff1a1/02`,
+	"01\u30001-2-4",
+	"02\u30002-1-4",
+	"",
+	`${trifectaHeading}\uff08\u672c\u7dda3\u70b9\uff09\uff1a03-05`,
+	"03\u30001-4-2",
+	"04\u30001-2-3",
+	"05\u30002-1-3",
+	"",
+	`${trifectaHeading}\uff08\u4e2d\u7a743\u70b9\uff09\uff1a06-08`,
+	"06\u30002-4-1",
+	"07\u30004-1-2",
+	"08\u30004-2-1",
+	"",
+	`${trifectaHeading}\uff08\u5927\u7a742\u70b9\uff09\uff1a09/10`,
+	"09\u30001-2-6",
+	"10\u30002-1-6",
+].join("\n");
 assertTenJapaneseTrifectaTickets("Mikuni 2R section", mikuni2Section, mikuni2Tickets);
 assertTenJapaneseTrifectaTickets("Mikuni 5R section", mikuni5Section, mikuni5Tickets);
+assertTenJapaneseTrifectaTickets("Mikuni 3R grouped section", mikuni3Section, mikuni3Tickets);
 assertTenJapaneseTrifectaTickets(
 	"Mikuni 2R full text with exhibition stats",
 	[
@@ -112,6 +146,19 @@ assertTenJapaneseTrifectaTickets(
 		"\u7d50\u679c\u78ba\u8a8d\u5f85\u3061",
 	].join("\n"),
 	mikuni5Tickets,
+);
+assertTenJapaneseTrifectaTickets(
+	"Mikuni 3R long text with earlier bet prose",
+	[
+		"\u4eca\u56de\u306f\u8cb7\u3044\u76ee\u3088\u308a\u524d\u306b\u5c55\u958b\u8aac\u660e\u304c\u5165\u308b\u9577\u6587\u3067\u3059\u3002",
+		"\u3010\u5371\u967a\u306a\u4eba\u6c17 / \u7a74\u5019\u88dc\u3011",
+		"\u539a\u3081\u306f1\u53f7\u8247\u30682\u53f7\u8247\u306e\u6298\u308a\u5408\u3044\u3002",
+		"",
+		mikuni3Section,
+		"\u3010\u6700\u7d42\u30e1\u30e2\u3011",
+		"1\u30682\u3092\u8ef8\u306b\u4e0d\u8981\u306a\u5c55\u793a\u884c\u306f\u89e3\u6790\u3057\u306a\u3044\u3002",
+	].join("\n"),
+	mikuni3Tickets,
 );
 
 const fullPredictionText = `

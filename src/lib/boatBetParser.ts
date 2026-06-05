@@ -41,7 +41,7 @@ type ParsedCombination = {
 
 const DEFAULT_BET_AMOUNT_YEN = 100;
 
-export const BOAT_BET_PARSER_VERSION = "2026-06-05.bet-ticket-loss-fix";
+export const BOAT_BET_PARSER_VERSION = "2026-06-05.bet-section-selection";
 
 const typeLabels: Record<BoatBetType, string> = {
 	trifecta: "3連単",
@@ -145,18 +145,28 @@ const isBetSectionEndHeading = (line: string): boolean => {
 
 export function extractBoatBetSection(predictionText: string): ExtractedBetSection {
 	const lines = normalizeBoatBetText(predictionText).split("\n");
-	const startIndex = lines.findIndex(isBetSectionHeading);
+	const headingIndexes = lines.flatMap((line, index) => isBetSectionHeading(line) ? [index] : []);
 
-	if (startIndex < 0) {
+	if (headingIndexes.length <= 0) {
 		return { lines: [], text: "", hasSection: false };
 	}
 
-	const endIndex = lines.findIndex((line, index) => index > startIndex && isBetSectionEndHeading(line));
-	const sectionLines = lines.slice(startIndex, endIndex > startIndex ? endIndex : undefined);
+	const candidates = headingIndexes.map((startIndex) => {
+		const endIndex = lines.findIndex((line, index) => index > startIndex && isBetSectionEndHeading(line));
+		const sectionLines = lines.slice(startIndex, endIndex > startIndex ? endIndex : undefined);
+		return {
+			lines: sectionLines,
+			startIndex,
+			validRows: countValidBetRows(sectionLines),
+		};
+	});
+	const selected = candidates
+		.filter((candidate) => candidate.validRows > 0)
+		.sort((left, right) => right.validRows - left.validRows || left.startIndex - right.startIndex)[0] ?? candidates[0];
 
 	return {
-		lines: sectionLines,
-		text: sectionLines.join("\n").trim(),
+		lines: selected.lines,
+		text: selected.lines.join("\n").trim(),
 		hasSection: true,
 	};
 }
@@ -222,6 +232,37 @@ const parseCombinationCandidate = (candidate: string): ParsedCombination | null 
 		remainder: String(spaced[5] ?? "").trim(),
 	};
 };
+
+function countValidBetRows(lines: string[]): number {
+	let currentType: BoatBetType | null = null;
+	let count = 0;
+
+	for (const rawLine of lines) {
+		const line = rawLine.trim();
+		if (!line || /^#/.test(line)) {
+			continue;
+		}
+
+		const headingType = normalizeBoatBetType(line);
+		const row = readTicketRow(line);
+		if (headingType && !row) {
+			currentType = headingType;
+			continue;
+		}
+
+		if (!row) {
+			continue;
+		}
+
+		const parsedCombination = parseCombinationCandidate(row.candidate);
+		const type = parsedCombination ? currentType ?? inferBetTypeFromNumbers(parsedCombination.numbers) : null;
+		if (parsedCombination && type && validateBoatBetCombination(type, parsedCombination.numbers)) {
+			count += 1;
+		}
+	}
+
+	return count;
+}
 
 const looksLikeInvalidTicketRow = (line: string): boolean => {
 	const row = readTicketRow(line);
