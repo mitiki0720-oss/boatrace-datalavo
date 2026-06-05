@@ -398,6 +398,129 @@ function attachVenueOfficialIntegrationMetadata(venue) {
 	};
 }
 
+function hasVenueExtraRows(value) {
+	return Array.isArray(value) ? value.length > 0 : Boolean(value && typeof value === "object" && Object.keys(value).length > 0);
+}
+
+function countVenueExtraRows(value) {
+	return Array.isArray(value) ? value.length : hasVenueExtraRows(value) ? 1 : 0;
+}
+
+function countOriginalExhibitionField(rows, key) {
+	return (Array.isArray(rows) ? rows : []).filter((row) => String(row?.[key] ?? "").trim()).length;
+}
+
+function inferVenueExtraStatus(value) {
+	return hasVenueExtraRows(value) ? "available" : "pending";
+}
+
+function mergeSourceStatus(record, nextStatus) {
+	return {
+		...(record && typeof record === "object" && !Array.isArray(record.sourceStatus) ? record.sourceStatus ?? {} : {}),
+		...Object.fromEntries(Object.entries(nextStatus).filter(([, value]) => value)),
+	};
+}
+
+function buildOriginalExhibitionCoverage(record, venueName) {
+	const originalExhibition = Array.isArray(record?.originalExhibition) ? record.originalExhibition : [];
+	const rows = originalExhibition.length;
+	const oneLap = countOriginalExhibitionField(originalExhibition, "oneLapTime") || countOriginalExhibitionField(originalExhibition, "lapTime");
+	const turn = countOriginalExhibitionField(originalExhibition, "turnTime");
+	const straight = countOriginalExhibitionField(originalExhibition, "straightTime");
+	const straightNotSupportedVenues = new Set(["尼崎", "江戸川"]);
+	const lapTurnNotSupportedVenues = new Set(["江戸川"]);
+	const status = record?.sourceStatus && typeof record.sourceStatus === "object" ? record.sourceStatus : {};
+
+	return {
+		rows,
+		oneLap,
+		turn,
+		straight,
+		status: {
+			originalExhibition: rows > 0 ? "available" : status.originalExhibition ?? "pending",
+			originalOneLapTime: oneLap > 0 ? "available" : lapTurnNotSupportedVenues.has(venueName) ? "not-supported" : status.originalOneLapTime ?? status.originalExhibition ?? "pending",
+			originalTurnTime: turn > 0 ? "available" : lapTurnNotSupportedVenues.has(venueName) ? "not-supported" : status.originalTurnTime ?? status.originalExhibition ?? "pending",
+			originalStraightTime: straight > 0 ? "available" : straightNotSupportedVenues.has(venueName) ? "not-supported" : status.originalStraightTime ?? status.originalExhibition ?? "pending",
+		},
+	};
+}
+
+function normalizeVenueExtraRaceCoverage(raceExtra, venueName) {
+	const coverage = buildOriginalExhibitionCoverage(raceExtra, venueName);
+	const sourceStatus = mergeSourceStatus(raceExtra, {
+		entryTable: inferVenueExtraStatus(raceExtra.entryTable),
+		officialBeforeInfo: inferVenueExtraStatus(raceExtra.officialBeforeInfo) === "available" || hasVenueExtraRows(raceExtra.beforeInfo) ? "available" : "pending",
+		startExhibition: inferVenueExtraStatus(raceExtra.startExhibition),
+		originalExhibition: coverage.status.originalExhibition,
+		originalOneLapTime: coverage.status.originalOneLapTime,
+		originalTurnTime: coverage.status.originalTurnTime,
+		originalStraightTime: coverage.status.originalStraightTime,
+		motorSummary: inferVenueExtraStatus(raceExtra.motorSummary),
+		waterSurfaceInfo: inferVenueExtraStatus(raceExtra.waterSurfaceInfo),
+		weatherCondition: inferVenueExtraStatus(raceExtra.weatherCondition),
+	});
+
+	return {
+		...raceExtra,
+		sourceStatus,
+		coverage: {
+			...(raceExtra.coverage && typeof raceExtra.coverage === "object" ? raceExtra.coverage : {}),
+			originalExhibition: coverage,
+		},
+	};
+}
+
+function summarizeVenueExtraCoverage(venue) {
+	const races = Array.isArray(venue.races) ? venue.races : [];
+	const original = races.reduce((acc, race) => {
+		const coverage = race.coverage?.originalExhibition ?? buildOriginalExhibitionCoverage(race, venue.venueName);
+		acc.rows += coverage.rows ?? 0;
+		acc.oneLap += coverage.oneLap ?? 0;
+		acc.turn += coverage.turn ?? 0;
+		acc.straight += coverage.straight ?? 0;
+		return acc;
+	}, { rows: 0, oneLap: 0, turn: 0, straight: 0 });
+
+	return {
+		raceCount: races.length,
+		officialBeforeInfoRaces: races.filter((race) => hasVenueExtraRows(race.officialBeforeInfo) || hasVenueExtraRows(race.beforeInfo)).length,
+		startExhibitionRaces: races.filter((race) => hasVenueExtraRows(race.startExhibition)).length,
+		originalExhibition: original,
+		motorSummaryRows: countVenueExtraRows(venue.motorSummary) + races.reduce((sum, race) => sum + countVenueExtraRows(race.motorSummary), 0),
+		waterSurface: hasVenueExtraRows(venue.waterSurfaceInfo) ? "available" : "pending",
+	};
+}
+
+function normalizeVenueExtraOfficialCoverage(venue) {
+	const races = (Array.isArray(venue.races) ? venue.races : []).map((race) => normalizeVenueExtraRaceCoverage(race, venue.venueName));
+	const coverage = summarizeVenueExtraCoverage({ ...venue, races });
+	const anyRaceAvailable = (key) => races.some((race) => String(race.sourceStatus?.[key] ?? "").startsWith("available"));
+	const originalUnsupportedVenues = new Set(["江戸川"]);
+	const straightUnsupportedVenues = new Set(["尼崎", "江戸川"]);
+	const venueOriginalStatus = coverage.originalExhibition.rows > 0 ? "available" : venue.sourceStatus?.originalExhibition ?? "pending";
+	const venueSourceStatus = mergeSourceStatus(venue, {
+		entryTable: hasVenueExtraRows(venue.entryTable) || anyRaceAvailable("entryTable") ? "available" : "pending",
+		officialBeforeInfo: hasVenueExtraRows(venue.officialBeforeInfo) || anyRaceAvailable("officialBeforeInfo") ? "available" : "pending",
+		startExhibition: anyRaceAvailable("startExhibition") ? "available" : "pending",
+		originalExhibition: originalUnsupportedVenues.has(venue.venueName) && coverage.originalExhibition.rows <= 0 ? "not-supported" : venueOriginalStatus,
+		originalOneLapTime: coverage.originalExhibition.oneLap > 0 ? "available" : originalUnsupportedVenues.has(venue.venueName) ? "not-supported" : venue.sourceStatus?.originalOneLapTime ?? venueOriginalStatus,
+		originalTurnTime: coverage.originalExhibition.turn > 0 ? "available" : originalUnsupportedVenues.has(venue.venueName) ? "not-supported" : venue.sourceStatus?.originalTurnTime ?? venueOriginalStatus,
+		originalStraightTime: coverage.originalExhibition.straight > 0 ? "available" : straightUnsupportedVenues.has(venue.venueName) ? "not-supported" : venue.sourceStatus?.originalStraightTime ?? venueOriginalStatus,
+		motorSummary: coverage.motorSummaryRows > 0 ? "available" : venue.sourceStatus?.motorSummary ?? "pending",
+		waterSurfaceInfo: coverage.waterSurface,
+	});
+
+	return {
+		...venue,
+		races,
+		sourceStatus: venueSourceStatus,
+		coverage: {
+			...(venue.coverage && typeof venue.coverage === "object" ? venue.coverage : {}),
+			...coverage,
+		},
+	};
+}
+
 function toOmuraDay(date) {
 	return String(date ?? "").replaceAll("-", "");
 }
@@ -17824,7 +17947,9 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 		venueMap.set(biwakoVenue.venueName, mergeVenueRecord(venueMap.get(biwakoVenue.venueName) ?? null, biwakoVenue));
 	}
 
-	const venues = Array.from(venueMap.values()).map(attachVenueOfficialIntegrationMetadata);
+	const venues = Array.from(venueMap.values())
+		.map(attachVenueOfficialIntegrationMetadata)
+		.map(normalizeVenueExtraOfficialCoverage);
 
 	const output = {
 		version: 1,

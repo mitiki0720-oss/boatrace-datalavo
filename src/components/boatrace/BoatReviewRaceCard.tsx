@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import type { BoatPredictionRecord } from "../../lib/boatraceTypes";
 import type { BoatHitJudgeResult } from "../../lib/boatHitJudge";
 import { countBoatPredictionTicketsByType } from "../../lib/boatPredictionParser";
-import type { BoatPracticeResultRecord } from "../../lib/boatPracticeResultStorage";
+import { isBoatPracticePayoutPending, type BoatPracticeResultRecord } from "../../lib/boatPracticeResultStorage";
 import { boatTheme } from "../../lib/theme";
 
 type BoatReviewRaceCardProps = {
@@ -214,7 +214,8 @@ export function BoatReviewRaceCard({ raceKey, prediction, practiceResult, hitRes
 	const venueName = prediction?.venueName ?? practiceResult?.venueName ?? "会場未保存";
 	const date = prediction?.date ?? practiceResult?.date ?? "-";
 	const raceNo = prediction?.raceNo ?? practiceResult?.raceNo ?? 0;
-	const profitLoss = practiceResult?.profitLoss ?? 0;
+	const payoutPending = isBoatPracticePayoutPending(practiceResult);
+	const profitLoss = payoutPending ? 0 : practiceResult?.profitLoss ?? 0;
 	const profitTone = profitLoss > 0
 		? { background: "rgba(226, 250, 242, 0.94)", border: "1px solid rgba(133, 205, 179, 0.65)" }
 		: profitLoss < 0
@@ -311,15 +312,15 @@ export function BoatReviewRaceCard({ raceKey, prediction, practiceResult, hitRes
 							</div>
 							<div style={statCardStyle}>
 								<p style={statLabelStyle}>払戻額</p>
-								<p style={statValueStyle}>{formatAmount(practiceResult.payoutAmount)}</p>
+								<p style={statValueStyle}>{payoutPending ? "払戻取得待ち" : formatAmount(practiceResult.payoutAmount)}</p>
 							</div>
 							<div style={statCardStyle}>
 								<p style={statLabelStyle}>収支</p>
-								<p style={statValueStyle}>{formatProfitLoss(practiceResult.profitLoss)}</p>
+								<p style={statValueStyle}>{payoutPending ? "算出待ち" : formatProfitLoss(practiceResult.profitLoss)}</p>
 							</div>
 							<div style={statCardStyle}>
 								<p style={statLabelStyle}>回収率</p>
-								<p style={statValueStyle}>{formatRoi(practiceResult.roi)}</p>
+								<p style={statValueStyle}>{payoutPending ? "算出待ち" : formatRoi(practiceResult.roi)}</p>
 							</div>
 						</div>
 						<p style={previewStyle}>{truncate(practiceResult.practiceMemo, 120)}</p>
