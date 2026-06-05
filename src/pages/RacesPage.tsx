@@ -5569,6 +5569,20 @@ function isVenueOfficialDegradingStatus(value: unknown): boolean {
 	);
 }
 
+function formatVenueExtraFieldStatus(value: unknown): string {
+	const status = readVenueExtraString(value).toLowerCase();
+
+	if (status === "available" || status.startsWith("available-")) return "取得済み";
+	if (status === "pending" || status === "waiting" || status === "unpublished" || status === "not-published") return "公式サイトで公開待ち";
+	if (status === "not-supported") return "公式会場サイトでは掲載されていません";
+	if (status === "parse-empty") return "公式公開済みですが取得形式を確認中です";
+	if (status === "http-error") return "公式会場サイトからの取得でエラーが発生しました";
+	if (status === "preserved") return "一時的な空レスポンスのため、前回取得済みデータを保持しています";
+	if (!status) return "確認中";
+
+	return status;
+}
+
 function hasVenueOfficialDataValue(value: unknown): boolean {
 	if (Array.isArray(value)) {
 		return value.length > 0;
@@ -6613,6 +6627,14 @@ const selectedOriginalExhibitionSourceStatus = readVenueExtraString(
 	(isVenueExtraRecord(selectedRaceExtra?.sourceStatus) ? selectedRaceExtra.sourceStatus.originalExhibition : undefined) ??
 	(isVenueExtraRecord(selectedVenueExtra?.sourceStatus) ? selectedVenueExtra.sourceStatus.originalExhibition : undefined),
 );
+const selectedOriginalOneLapSourceStatus = readVenueExtraString(
+	(isVenueExtraRecord(selectedRaceExtra?.sourceStatus) ? selectedRaceExtra.sourceStatus.originalOneLapTime : undefined) ??
+	(isVenueExtraRecord(selectedVenueExtra?.sourceStatus) ? selectedVenueExtra.sourceStatus.originalOneLapTime : undefined),
+);
+const selectedOriginalTurnSourceStatus = readVenueExtraString(
+	(isVenueExtraRecord(selectedRaceExtra?.sourceStatus) ? selectedRaceExtra.sourceStatus.originalTurnTime : undefined) ??
+	(isVenueExtraRecord(selectedVenueExtra?.sourceStatus) ? selectedVenueExtra.sourceStatus.originalTurnTime : undefined),
+);
 const selectedOriginalStraightSourceStatus = readVenueExtraString(
 	(isVenueExtraRecord(selectedRaceExtra?.sourceStatus) ? selectedRaceExtra.sourceStatus.originalStraightTime : undefined) ??
 	(isVenueExtraRecord(selectedVenueExtra?.sourceStatus) ? selectedVenueExtra.sourceStatus.originalStraightTime : undefined),
@@ -6625,13 +6647,13 @@ const originalExhibitionCoverageItems = [
 	},
 	{
 		label: "一周",
-		value: hasOriginalOneLapTimeData ? `${selectedOriginalExhibitionRows.filter((row) => Boolean(row.oneLapTime)).length}件` : "未取得",
-		status: hasOriginalOneLapTimeData ? "available" : selectedOriginalExhibitionSourceStatus || "pending",
+		value: hasOriginalOneLapTimeData ? `${selectedOriginalExhibitionRows.filter((row) => Boolean(row.oneLapTime)).length}件` : selectedOriginalOneLapSourceStatus === "not-supported" ? "非掲載" : "未取得",
+		status: hasOriginalOneLapTimeData ? "available" : selectedOriginalOneLapSourceStatus || selectedOriginalExhibitionSourceStatus || "pending",
 	},
 	{
 		label: "回り足",
-		value: hasOriginalTurnTimeData ? `${selectedOriginalExhibitionRows.filter((row) => Boolean(row.turnTime)).length}件` : "未取得",
-		status: hasOriginalTurnTimeData ? "available" : selectedOriginalExhibitionSourceStatus || "pending",
+		value: hasOriginalTurnTimeData ? `${selectedOriginalExhibitionRows.filter((row) => Boolean(row.turnTime)).length}件` : selectedOriginalTurnSourceStatus === "not-supported" ? "非掲載" : "未取得",
+		status: hasOriginalTurnTimeData ? "available" : selectedOriginalTurnSourceStatus || selectedOriginalExhibitionSourceStatus || "pending",
 	},
 	{
 		label: "直線",
@@ -11763,7 +11785,7 @@ body:has(.races-page-root) {
 									<article key={`original-exhibition-coverage-${item.label}`} style={venueExtrasStatusCardStyle}>
 										<p style={venueExtrasStatusLabelStyle}>{item.label}</p>
 										<p style={venueExtrasStatusValueStyle}>{item.value}</p>
-										<p style={venueOfficialLinkStatusDescriptionStyle}>{item.status}</p>
+										<p style={venueOfficialLinkStatusDescriptionStyle}>{formatVenueExtraFieldStatus(item.status)}</p>
 									</article>
 								))}
 							</div>

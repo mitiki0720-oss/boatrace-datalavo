@@ -1,4 +1,4 @@
-import type { BoatPracticeResultRecord } from "./boatPracticeResultStorage";
+import { isBoatPracticePayoutPending, type BoatPracticeResultRecord } from "./boatPracticeResultStorage";
 import { resolveBoatPredictionOutcome, type BoatPredictionOutcomeStatus } from "./boatResultSettlement";
 import type {
 	BoatOddsItem,
@@ -200,7 +200,11 @@ function getReviewPredictionOutcomeStatus(entry: BoatReviewRaceEntry): BoatPredi
 		}).status;
 	}
 
-	if (readNumber(practiceResult?.payoutAmount ?? practiceResult?.payoutYen) > 0 || (practiceResult?.hitBets?.length ?? 0) > 0) {
+	if (
+		readNumber(practiceResult?.payoutAmount ?? practiceResult?.payoutYen) > 0 ||
+		(practiceResult?.hitBets?.length ?? 0) > 0 ||
+		isBoatPracticePayoutPending(practiceResult)
+	) {
 		return "hit";
 	}
 
@@ -557,8 +561,9 @@ export function getBoatReviewVenueMetrics(group: BoatReviewVenueGroup): BoatRevi
 		return status === "confirmed" || Boolean(getFinishOrderText(entry.race, entry.practiceResult));
 	}).length;
 	const practiceCount = group.races.filter((entry) => entry.practiceResult).length;
-	const investment = group.races.reduce((sum, entry) => sum + readNumber(entry.practiceResult?.investmentAmount ?? entry.practiceResult?.totalStakeYen), 0);
-	const payout = group.races.reduce((sum, entry) => sum + readNumber(entry.practiceResult?.payoutAmount ?? entry.practiceResult?.payoutYen), 0);
+	const financialEntries = group.races.filter((entry) => entry.practiceResult && !isBoatPracticePayoutPending(entry.practiceResult));
+	const investment = financialEntries.reduce((sum, entry) => sum + readNumber(entry.practiceResult?.investmentAmount ?? entry.practiceResult?.totalStakeYen), 0);
+	const payout = financialEntries.reduce((sum, entry) => sum + readNumber(entry.practiceResult?.payoutAmount ?? entry.practiceResult?.payoutYen), 0);
 	const hitCount = group.races.filter((entry) => getReviewPredictionOutcomeStatus(entry) === "hit").length;
 	const profit = payout - investment;
 	const roi = investment > 0 ? payout / investment * 100 : 0;
@@ -612,10 +617,11 @@ export function buildBoatResultSummaryText(group: BoatReviewVenueGroup): string 
 		const finishOrder = getFinishOrderText(entry.race, entry.practiceResult);
 		const status = result?.status === "confirmed" || finishOrder ? "confirmed" : result?.status ?? "pending";
 		const hit = getReviewPredictionOutcomeStatus(entry);
+		const payoutPending = isBoatPracticePayoutPending(entry.practiceResult);
 		const investment = readNumber(entry.practiceResult?.investmentAmount ?? entry.practiceResult?.totalStakeYen);
 		const payout = readNumber(entry.practiceResult?.payoutAmount ?? entry.practiceResult?.payoutYen);
-		const profit = payout - investment;
-		const roi = investment > 0 ? payout / investment * 100 : 0;
+		const profit = payoutPending ? 0 : payout - investment;
+		const roi = !payoutPending && investment > 0 ? payout / investment * 100 : 0;
 		const kimarite = result?.kimarite ?? result?.winningMethod ?? result?.winningMove ?? entry.practiceResult?.kimarite ?? "未取得";
 		const hitBets = entry.practiceResult?.hitBets ?? [];
 
@@ -635,9 +641,9 @@ export function buildBoatResultSummaryText(group: BoatReviewVenueGroup): string 
 			`的中券種: ${entry.practiceResult?.hitBetType || hitBets[0]?.type || "未保存"}`,
 			`的中組み合わせ: ${entry.practiceResult?.hitBetNumbers ? String(entry.practiceResult.hitBetNumbers) : hitBets[0]?.normalized || "未保存"}`,
 			`投資: ${entry.practiceResult ? yen(investment) : "未保存"}`,
-			`払戻: ${entry.practiceResult ? yen(payout) : "未保存"}`,
-			`収支: ${entry.practiceResult ? signedYen(profit) : "未保存"}`,
-			`回収率: ${entry.practiceResult ? percent(roi) : "未保存"}`,
+			`払戻: ${entry.practiceResult ? payoutPending ? "払戻取得待ち" : yen(payout) : "未保存"}`,
+			`収支: ${entry.practiceResult ? payoutPending ? "算出待ち" : signedYen(profit) : "未保存"}`,
+			`回収率: ${entry.practiceResult ? payoutPending ? "算出待ち" : percent(roi) : "未保存"}`,
 			"",
 			"【決まり手】",
 			`決まり手: ${kimarite}`,

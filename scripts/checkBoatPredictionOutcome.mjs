@@ -41,6 +41,11 @@ const { repairBoatPredictionParseIfNeeded } = await importTsModules([
 	path.join("src", "lib", "boatPredictionParser.ts"),
 	path.join("src", "lib", "boatPredictionStorage.ts"),
 ], path.join("src", "lib", "boatPredictionStorage.ts"));
+const { isBoatPracticeHit, isBoatPracticePayoutPending } = await importTsModules([
+	path.join("src", "lib", "boatBetParser.ts"),
+	path.join("src", "lib", "boatResultSettlement.ts"),
+	path.join("src", "lib", "boatPracticeResultStorage.ts"),
+], path.join("src", "lib", "boatPracticeResultStorage.ts"));
 
 const prediction = parseBoatBets("【買い目】\n3連単\n01 1-3-4\n02 1-3-2");
 const exactaPrediction = parseBoatBets("【買い目】\n2連単\n01 1-3");
@@ -78,6 +83,73 @@ const hit = resolveBoatPredictionOutcome({
 assert.equal(hit.status, "hit", "trifecta should hit matching top3");
 assert.equal(hit.settlement.payoutYen, 2450, "payout should parse comma yen format");
 assert.equal(hit.settlement.profitYen, 2250, "profit should be payout minus stake");
+
+const tokuyamaPrediction = parseBoatBets([
+	"\u3010\u8cb7\u3044\u76ee\u3011",
+	"3\u9023\u5358",
+	"01 3-1-5",
+	"02 1-5-3",
+	"03 1-3-2",
+	"04 1-2-3",
+	"05 3-1-5",
+	"06 1-2-5",
+	"07 3-5-1",
+	"08 2-1-3",
+	"09 5-3-1",
+	"10 3-5-2",
+].join("\n"));
+const tokuyamaHit = resolveBoatPredictionOutcome({
+	race: raceWithResult({ order: ["3", "1", "5"], payout3tan: "6,120\u5186" }),
+	bets: tokuyamaPrediction.bets,
+	investmentAmount: tokuyamaPrediction.totalStakeYen,
+	parseStatus: tokuyamaPrediction.parseStatus,
+});
+assert.equal(tokuyamaHit.status, "hit", "Tokuyama 2026-06-03 7R 3-1-5 should be judged hit");
+assert.equal(tokuyamaHit.settlement.hitBets.length, 2, "duplicate matching tickets should remain separate purchases");
+assert.equal(tokuyamaHit.settlement.payoutYen, 12240, "duplicate hit tickets should add payout per purchase");
+assert.equal(tokuyamaHit.settlement.profitYen, 11240, "profit should use total payout minus all tickets stake");
+
+const payoutPendingHit = resolveBoatPredictionOutcome({
+	race: raceWithResult({ order: ["3", "1", "5"], payout3tan: null }),
+	bets: tokuyamaPrediction.bets,
+	investmentAmount: tokuyamaPrediction.totalStakeYen,
+	parseStatus: tokuyamaPrediction.parseStatus,
+});
+assert.equal(payoutPendingHit.status, "hit", "finish-order hit should stay hit while payout is still missing");
+assert.equal(payoutPendingHit.settlement.lookupStatus, "payout-missing", "missing official payout should be explicit");
+assert.equal(payoutPendingHit.settlement.payoutYen, 0, "missing payout should not invent zero-yen settlement as final");
+assert.ok(isBoatPracticeHit({
+	raceKey: "boat-prediction:tokuyama-pending",
+	venueName: "\u5fb3\u5c71",
+	date: "2026-06-03",
+	raceNo: 7,
+	actualFinishOrderText: "3-1-5",
+	investmentAmount: 1000,
+	payoutAmount: 0,
+	profitLoss: 0,
+	roi: 0,
+	resultStatus: "confirmed",
+	resultLookupStatus: "payout-missing",
+	hitBets: payoutPendingHit.settlement.hitBets,
+	practiceMemo: "",
+	savedAt: "2026-06-03T00:00:00.000Z",
+}), "payout-missing records should count as hit");
+assert.ok(isBoatPracticePayoutPending({
+	raceKey: "boat-prediction:tokuyama-pending",
+	venueName: "\u5fb3\u5c71",
+	date: "2026-06-03",
+	raceNo: 7,
+	actualFinishOrderText: "3-1-5",
+	investmentAmount: 1000,
+	payoutAmount: 0,
+	profitLoss: 0,
+	roi: 0,
+	resultStatus: "confirmed",
+	resultLookupStatus: "payout-missing",
+	hitBets: payoutPendingHit.settlement.hitBets,
+	practiceMemo: "",
+	savedAt: "2026-06-03T00:00:00.000Z",
+}), "payout-missing records should render payout pending instead of zero-yen loss");
 
 const miss = resolveBoatPredictionOutcome({
 	race: raceWithResult({ order: ["1", "4", "3"], payout3tan: "2450" }),

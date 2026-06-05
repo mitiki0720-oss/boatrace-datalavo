@@ -435,8 +435,12 @@ export function BoatPracticeResultPanel({
 		.map((part) => part.trim())
 		.filter(Boolean)
 		.slice(0, 3);
-	const profitLoss = payoutAmount - investmentAmount;
-	const roi = investmentAmount > 0 ? (payoutAmount / investmentAmount) * 100 : 0;
+	const isPayoutPending = resultLookupStatus === "payout-missing" && payoutAmount <= 0 && Boolean(hitBetLabel);
+	const profitLoss = isPayoutPending ? 0 : payoutAmount - investmentAmount;
+	const roi = !isPayoutPending && investmentAmount > 0 ? (payoutAmount / investmentAmount) * 100 : 0;
+	const payoutDisplay = isPayoutPending ? "払戻取得待ち" : formatYen(payoutAmount);
+	const profitDisplay = isPayoutPending ? "算出待ち" : formatYen(profitLoss);
+	const roiDisplay = isPayoutPending ? "算出待ち" : `${roi.toFixed(1)}%`;
 	const ticketCounts = countBoatPredictionTicketsByType(tickets);
 	const totalBets = betSummary?.totalBets ?? ticketCounts.total;
 	const trifectaCount = betSummary?.trifectaCount ?? ticketCounts.trifecta;
@@ -611,9 +615,9 @@ export function BoatPracticeResultPanel({
 					{ label: "3連単数", value: `${trifectaCount}件` },
 					{ label: "2連単数", value: `${exactaCount}件` },
 					{ label: "投資額", value: formatYen(investmentAmount) },
-					{ label: "払戻", value: formatYen(payoutAmount) },
-					{ label: "収支", value: formatYen(profitLoss) },
-					{ label: "回収率", value: `${roi.toFixed(1)}%` },
+					{ label: "払戻", value: payoutDisplay },
+					{ label: "収支", value: profitDisplay },
+					{ label: "回収率", value: roiDisplay },
 				].map((item) => (
 					<article key={item.label} style={summaryCardStyle}>
 						<p style={labelStyle}>{item.label}</p>
@@ -659,9 +663,9 @@ export function BoatPracticeResultPanel({
 					{ label: "レース", value: `${raceNo}R` },
 					{ label: "買い目数", value: `${totalBets}件` },
 					{ label: "投資", value: formatYen(investmentAmount) },
-					{ label: "払戻", value: formatYen(payoutAmount) },
+					{ label: "払戻", value: payoutDisplay },
 					{ label: "着順", value: actualFinishOrderText || "-" },
-					{ label: "回収率", value: `${roi.toFixed(1)}%` },
+					{ label: "回収率", value: roiDisplay },
 				].map((item) => (
 					<article key={item.label} style={footerCardStyle}>
 						<p style={labelStyle}>{item.label}</p>

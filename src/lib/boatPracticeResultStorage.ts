@@ -226,8 +226,13 @@ export function isBoatPracticeHit(result: BoatPracticeResultRecord | null | unde
 		readNumber(result.profitYen) > 0 ||
 		(Array.isArray(result.hitBets) && result.hitBets.length > 0) ||
 		Boolean(result.hitBetNumbers) ||
+		result.resultLookupStatus === "payout-missing" ||
 		(result.resultStatus === "confirmed" && readNumber(result.payoutYen) > 0)
 	);
+}
+
+export function isBoatPracticePayoutPending(result: BoatPracticeResultRecord | null | undefined): boolean {
+	return Boolean(result && isBoatPracticeHit(result) && result.resultLookupStatus === "payout-missing" && readNumber(result.payoutYen ?? result.payoutAmount) <= 0);
 }
 
 export function normalizeBoatPracticeResultRecords(payload: unknown): BoatPracticeResultRecordMap {
