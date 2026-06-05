@@ -6609,6 +6609,36 @@ const shouldShowMotorSummaryWaiting = selectedMotorSummaryDisplay.isAwaitingMatc
 const hasOriginalOneLapTimeData = selectedOriginalExhibitionRows.some((row) => Boolean(row.oneLapTime));
 const hasOriginalTurnTimeData = selectedOriginalExhibitionRows.some((row) => Boolean(row.turnTime));
 const hasOriginalStraightTimeData = selectedOriginalExhibitionRows.some((row) => Boolean(row.straightTime));
+const selectedOriginalExhibitionSourceStatus = readVenueExtraString(
+	(isVenueExtraRecord(selectedRaceExtra?.sourceStatus) ? selectedRaceExtra.sourceStatus.originalExhibition : undefined) ??
+	(isVenueExtraRecord(selectedVenueExtra?.sourceStatus) ? selectedVenueExtra.sourceStatus.originalExhibition : undefined),
+);
+const selectedOriginalStraightSourceStatus = readVenueExtraString(
+	(isVenueExtraRecord(selectedRaceExtra?.sourceStatus) ? selectedRaceExtra.sourceStatus.originalStraightTime : undefined) ??
+	(isVenueExtraRecord(selectedVenueExtra?.sourceStatus) ? selectedVenueExtra.sourceStatus.originalStraightTime : undefined),
+);
+const originalExhibitionCoverageItems = [
+	{
+		label: "行",
+		value: hasOriginalExhibitionData ? `${selectedOriginalExhibitionRows.length}件` : "未取得",
+		status: selectedOriginalExhibitionSourceStatus || (hasOriginalExhibitionData ? "available" : "pending"),
+	},
+	{
+		label: "一周",
+		value: hasOriginalOneLapTimeData ? `${selectedOriginalExhibitionRows.filter((row) => Boolean(row.oneLapTime)).length}件` : "未取得",
+		status: hasOriginalOneLapTimeData ? "available" : selectedOriginalExhibitionSourceStatus || "pending",
+	},
+	{
+		label: "回り足",
+		value: hasOriginalTurnTimeData ? `${selectedOriginalExhibitionRows.filter((row) => Boolean(row.turnTime)).length}件` : "未取得",
+		status: hasOriginalTurnTimeData ? "available" : selectedOriginalExhibitionSourceStatus || "pending",
+	},
+	{
+		label: "直線",
+		value: hasOriginalStraightTimeData ? `${selectedOriginalExhibitionRows.filter((row) => Boolean(row.straightTime)).length}件` : selectedOriginalStraightSourceStatus === "not-supported" ? "非掲載" : "未取得",
+		status: hasOriginalStraightTimeData ? "available" : selectedOriginalStraightSourceStatus || selectedOriginalExhibitionSourceStatus || "pending",
+	},
+];
 const hasNarutoPerformanceData = Boolean(
 	selectedNarutoRacerPerformance && (
 		selectedNarutoRacerPerformance.byFramePast10.length > 0 ||
@@ -11728,6 +11758,15 @@ body:has(.races-page-root) {
 					{hasOriginalExhibitionData ? (
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>会場独自展示</h4>
+							<div style={venueExtrasStatusGridStyle}>
+								{originalExhibitionCoverageItems.map((item) => (
+									<article key={`original-exhibition-coverage-${item.label}`} style={venueExtrasStatusCardStyle}>
+										<p style={venueExtrasStatusLabelStyle}>{item.label}</p>
+										<p style={venueExtrasStatusValueStyle}>{item.value}</p>
+										<p style={venueOfficialLinkStatusDescriptionStyle}>{item.status}</p>
+									</article>
+								))}
+							</div>
 							{isMikuniVenue && selectedOriginalExhibitionRows[0]?.source ? (
 								<p style={venueExtrasTextStyle}>三国オリジナルデータ / {selectedOriginalExhibitionRows[0].source}</p>
 							) : null}

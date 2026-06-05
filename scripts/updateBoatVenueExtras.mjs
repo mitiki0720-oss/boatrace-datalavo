@@ -17188,7 +17188,8 @@ function createAmagasakiSourceStatus({ timerankRows, scoreRows, courseRowsByRace
 		entryTable: "available",
 		officialBeforeInfo: "available",
 		startExhibition: "available",
-		originalExhibition: "available",
+		originalExhibition: "pending",
+		originalStraightTime: "not-supported",
 		motorSummary: timerankRows.length ? "available" : "parse-empty",
 		scoreQuickLook: scoreRows.length ? "available" : "parse-empty",
 		amagasakiScoreRateGuide: scoreRows.length ? "available" : "parse-empty",
@@ -17310,6 +17311,7 @@ async function createAmagasakiVenue(feed, date) {
 			const scoreQuickLook = createAmagasakiScoreRows(entries, scoreRows, baseOfficialBeforeInfo.scoreQuickLook);
 			const motorSummary = createAmagasakiMotorSummary(entries, timerankRows, motorRows, boatRows);
 			const originalExhibition = createAmagasakiOriginalExhibition(entries, beforeInfo);
+			const hasOriginalTiming = originalExhibition.some((row) => row.oneLapTime || row.lapTime || row.turnTime);
 			const amagasakiCourseResults = groupAmagasakiCourseRows(raceCourseRows, entriesWithRace);
 			const amagasakiSectionResults = createAmagasakiAvailabilityRows(entries, pdfLinks.raceCardPdf, "\u5c3c\u5d0e\u516c\u5f0f\u51fa\u8d70\u8868PDF");
 			const amagasakiNationalRecent3 = createAmagasakiAvailabilityRows(entries, pdfLinks.raceCardPdf, "\u5c3c\u5d0e\u516c\u5f0f\u5168\u56fd\u6210\u7e3e\u904e\u53bb3\u7bc0");
@@ -17324,7 +17326,8 @@ async function createAmagasakiVenue(feed, date) {
 				entryTable: sourceStatus.entryTable,
 				officialBeforeInfo: sourceStatus.officialBeforeInfo,
 				startExhibition: startExhibition.length ? "available" : "pending",
-				originalExhibition: originalExhibition.length ? "available" : "pending",
+				originalExhibition: hasOriginalTiming ? "available" : "pending",
+				originalStraightTime: "not-supported",
 				motorSummary: sourceStatus.motorSummary,
 				scoreQuickLook: sourceStatus.scoreQuickLook,
 				amagasakiScoreRateGuide: sourceStatus.amagasakiScoreRateGuide,
@@ -17380,6 +17383,14 @@ async function createAmagasakiVenue(feed, date) {
 		});
 
 		const firstRace = raceExtras[0] ?? null;
+		const hasAnyOriginalTiming = raceExtras.some((race) =>
+			(Array.isArray(race.originalExhibition) ? race.originalExhibition : []).some((row) => row.oneLapTime || row.lapTime || row.turnTime)
+		);
+		const venueSourceStatus = {
+			...sourceStatus,
+			originalExhibition: hasAnyOriginalTiming ? "available" : "pending",
+			originalStraightTime: "not-supported",
+		};
 		console.log(
 			`[amagasaki extras] before=${firstRace?.beforeInfo?.length ?? 0} start=${firstRace?.startExhibition?.length ?? 0} original=${firstRace?.originalExhibition?.length ?? 0} motor=${firstRace?.motorSummary?.length ?? 0} boat=${firstRace?.amagasakiBoatData?.length ?? 0} score=${firstRace?.amagasakiScoreRateGuide?.length ?? 0} frame10=${firstRace?.amagasakiFrameLast10?.length ?? 0} national3=${firstRace?.amagasakiNationalRecent3?.length ?? 0} local3=${firstRace?.amagasakiLocalRecent3?.length ?? 0} course=${firstRace?.amagasakiCourseResults?.length ? "ok" : "none"} water=${waterSurfaceInfo ? "ok" : "none"} straight=not-supported`,
 		);
@@ -17390,7 +17401,7 @@ async function createAmagasakiVenue(feed, date) {
 			source: AMAGASAKI_SOURCE,
 			isAvailable: raceExtras.some((race) => race.status === "available"),
 			status: raceExtras.some((race) => race.status === "available") ? "available" : "waiting-amagasaki-data",
-			sourceStatus,
+			sourceStatus: venueSourceStatus,
 			officialDisplayMode: "today",
 			officialTargetDate: normalizeTargetDate(date),
 			officialPageSummaries: pageSummaries,
