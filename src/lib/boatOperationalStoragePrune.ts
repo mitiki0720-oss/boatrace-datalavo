@@ -23,6 +23,7 @@ export const BOAT_OPERATIONAL_STORAGE_PRUNE_MARKER_KEY = "kurari-boat-data-labo-
 export type PruneBoatOperationalLocalStorageParams = {
 	activeDate?: string;
 	previousDate?: string;
+	archiveVerifiedDates?: string[];
 };
 
 export type PruneBoatOperationalLocalStorageResult = {
@@ -54,10 +55,11 @@ const shouldKeepRecordDate = (params: {
 	date: string;
 	activeDate: string;
 	previousDate: string;
+	archiveVerifiedDates: Set<string>;
 	label: string;
 	warnings: string[];
 }): boolean => {
-	const { date, activeDate, previousDate, label, warnings } = params;
+	const { date, activeDate, previousDate, archiveVerifiedDates, label, warnings } = params;
 
 	if (!ISO_DATE_PATTERN.test(date)) {
 		warnings.push(`${label}: keep record with invalid date "${date || "(empty)"}"`);
@@ -69,7 +71,16 @@ const shouldKeepRecordDate = (params: {
 		return true;
 	}
 
-	return date >= previousDate;
+	if (date >= previousDate) {
+		return true;
+	}
+
+	if (archiveVerifiedDates.has(date)) {
+		return false;
+	}
+
+	warnings.push(`${label}: keep unarchived date ${date}`);
+	return true;
 };
 
 export function pruneBoatRecordMapByOperationalDate<T extends { date?: string }>(
@@ -77,16 +88,19 @@ export function pruneBoatRecordMapByOperationalDate<T extends { date?: string }>
 	params: {
 		activeDate: string;
 		previousDate: string;
+		archiveVerifiedDates?: string[];
 		label: string;
 		warnings?: string[];
 	},
 ): { records: Record<string, T>; removedCount: number; warnings: string[] } {
 	const warnings = params.warnings ?? [];
+	const archiveVerifiedDates = new Set(params.archiveVerifiedDates ?? []);
 	const nextRecords = Object.entries(records).reduce<Record<string, T>>((acc, [key, record]) => {
 		if (shouldKeepRecordDate({
 			date: readRecordDate(record),
 			activeDate: params.activeDate,
 			previousDate: params.previousDate,
+			archiveVerifiedDates,
 			label: `${params.label}:${key}`,
 			warnings,
 		})) {
@@ -110,21 +124,25 @@ export function pruneBoatOperationalLocalStorage(
 	const previousDate = String(params.previousDate || (activeDate ? shiftBoatOperationDate(activeDate, -1) : "")).trim();
 	const keepDates = [previousDate, activeDate].filter(Boolean);
 	const warnings: string[] = [];
+	const archiveVerifiedDates = params.archiveVerifiedDates ?? [];
 	const predictionPrune = pruneBoatRecordMapByOperationalDate(loadBoatPredictionRecords(), {
 		activeDate,
 		previousDate,
+		archiveVerifiedDates,
 		label: "prediction",
 		warnings,
 	});
 	const practicePrune = pruneBoatRecordMapByOperationalDate(loadBoatPracticeResultRecords(), {
 		activeDate,
 		previousDate,
+		archiveVerifiedDates,
 		label: "practice",
 		warnings,
 	});
 	const johnsonPrune = pruneBoatRecordMapByOperationalDate(loadBoatJohnsonPredictionRecords(), {
 		activeDate,
 		previousDate,
+		archiveVerifiedDates,
 		label: "johnson",
 		warnings,
 	});
@@ -173,6 +191,7 @@ export function pruneBoatOperationalStorageOnce(params: {
 	now?: Date;
 	activeDate?: string;
 	previousDate?: string;
+	archiveVerifiedDates?: string[];
 	reason?: string;
 } = {}): Promise<BoatOperationalStoragePruneOnceResult> {
 	const activeDate = String(params.activeDate || getBoatOperationDate(params.now)).trim();
@@ -191,7 +210,7 @@ export function pruneBoatOperationalStorageOnce(params: {
 	}
 
 	pruneInFlight = Promise.resolve().then(() => {
-		const result = pruneBoatOperationalLocalStorage({ activeDate, previousDate });
+		const result = pruneBoatOperationalLocalStorage({ activeDate, previousDate, archiveVerifiedDates: params.archiveVerifiedDates });
 		const ok = result.prediction.ok && result.practice.ok && result.johnson.ok;
 
 		if (ok) {

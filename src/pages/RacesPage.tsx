@@ -34,7 +34,11 @@ import { PageShell } from "../components/layout/PageShell";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import { withBasePath } from "../lib/assetPath";
 import type { BoatOddsPreviewGroup, BoatRacerItem, BoatTodayVenueItem, BoatWeatherActual } from "../lib/boatraceTypes";
-import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
+import {
+	BOAT_TODAY_WAITING_MESSAGE_LINES,
+	createBoatTodayWaitingFeed,
+	loadBoatTodayRaceDetailsFeed,
+} from "../lib/boatDataFeed";
 import {
 	formatBoatExhibitionParticipationAlertLabel,
 	resolveBoatExhibitionParticipationSummary,
@@ -2209,7 +2213,7 @@ async function loadBoatVenueExtrasFeed(): Promise<BoatVenueExtrasFeed | null> {
 			return null;
 		}
 
-		return data;
+		return data.date === getJstTodayDate() ? data : null;
 	} catch {
 		return null;
 	}
@@ -5687,7 +5691,7 @@ function getVenueOfficialLinkStatus(venueName?: string | null, venueExtra?: Boat
 }
 
 export function RacesPage() {
-	const [todayFeed, setTodayFeed] = useState(sampleBoatTodayFeed);
+	const [todayFeed, setTodayFeed] = useState(createBoatTodayWaitingFeed());
 	const [dataUpdatedAt, setDataUpdatedAt] = useState("");
 	const [venueExtrasFeed, setVenueExtrasFeed] = useState<BoatVenueExtrasFeed | null>(null);
 	const [isRefreshingFeed, setIsRefreshingFeed] = useState(false);
@@ -5706,6 +5710,7 @@ export function RacesPage() {
 	const initialRace = initialVenue ? getFirstSelectableRace(initialVenue.races) : undefined;
 	const [selectedVenueId, setSelectedVenueId] = useState<string>(initialVenue?.id ?? "");
 	const [selectedRaceId, setSelectedRaceId] = useState<string>(getRaceKey(initialVenue?.id ?? "", initialRace?.raceId, initialRace?.raceNo ?? 0));
+	const isWaitingForTodayFeed = sortedTodayVenues.length === 0;
 
 	const refreshTodayFeed = async (options?: { silent?: boolean; cancelled?: () => boolean }) => {
 		if (!options?.silent) {
@@ -5724,8 +5729,11 @@ export function RacesPage() {
 			}
 
 			if (!result) {
+				setTodayFeed(createBoatTodayWaitingFeed());
+				setDataUpdatedAt("");
+				setVenueExtrasFeed(null);
 				if (!options?.silent) {
-					setRefreshMessage("画面表示用の JSON を取得できませんでした。現在表示中のデータを維持します。");
+					setRefreshMessage(BOAT_TODAY_WAITING_MESSAGE_LINES.join(" "));
 				}
 				return;
 			}
@@ -8052,6 +8060,25 @@ body:has(.races-page-root) {
 			</p>
 		))}
 	</div>
+) : null}
+
+{isWaitingForTodayFeed ? (
+	<section
+		style={{
+			display: "grid",
+			gap: "8px",
+			padding: "20px",
+			borderRadius: "20px",
+			background: "rgba(255, 255, 255, 0.94)",
+			border: "1px solid rgba(93, 199, 232, 0.22)",
+			boxShadow: "0 18px 42px rgba(17, 64, 92, 0.08)",
+			color: boatTheme.colors.navy,
+		}}
+	>
+		<h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 900 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[0]}</h3>
+		<p style={{ margin: 0, color: boatTheme.colors.muted, fontWeight: 700 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[1]}</p>
+		<p style={{ margin: 0, color: boatTheme.colors.muted, fontWeight: 700 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[2]}</p>
+	</section>
 ) : null}
 
 <div style={venueActionRowStyle}>

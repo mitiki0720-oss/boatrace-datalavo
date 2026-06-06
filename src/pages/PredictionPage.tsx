@@ -7,7 +7,11 @@ import { BoatPredictionPastePanel } from "../components/boatrace/BoatPredictionP
 import { BoatPredictionVenueRaceChooser } from "../components/boatrace/BoatPredictionVenueRaceChooser";
 import { PageShell } from "../components/layout/PageShell";
 import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
-import { loadBoatTodayRaceDetailsFeed } from "../lib/boatDataFeed";
+import {
+	BOAT_TODAY_WAITING_MESSAGE_LINES,
+	createBoatTodayWaitingFeed,
+	loadBoatTodayRaceDetailsFeed,
+} from "../lib/boatDataFeed";
 import {
 	BOAT_BET_PARSER_VERSION,
 	emptyBoatBetSummary,
@@ -755,7 +759,7 @@ const buildExhibitionStatusLabel = (params: {
 };
 
 export function PredictionPage() {
-	const [todayFeed, setTodayFeed] = useState(sampleBoatTodayFeed);
+	const [todayFeed, setTodayFeed] = useState(createBoatTodayWaitingFeed());
 	const [venueExtrasFeed, setVenueExtrasFeed] = useState<BoatVenueExtrasFeed | null>(null);
 	const [dataUpdatedAt, setDataUpdatedAt] = useState("");
 	const [isRefreshingFeed, setIsRefreshingFeed] = useState(false);
@@ -1176,6 +1180,7 @@ const buildPracticeFallbackRaceKey = (params: {
 		: "レース情報が選択されていません。";
 	const raceLabel = `${selectedVenue?.venueName ?? "-"} ${selectedRace ? `${selectedRace.raceNo}R` : "-"}`;
 	const venueCount = venues.length;
+	const isWaitingForTodayFeed = venueCount === 0;
 	const raceCount = races.length;
 	const confirmedRaceCount = races.filter((race) => race.result?.status === "confirmed").length;
 	const materialReadyRaceCount = races.filter((race) => {
@@ -1345,8 +1350,11 @@ const practiceSummary = useMemo(() => {
 			}
 
 			if (!result) {
+				setTodayFeed(createBoatTodayWaitingFeed());
+				setVenueExtrasFeed(null);
+				setDataUpdatedAt("");
 				if (!isSilent) {
-					setRefreshMessage("最新データを取得できませんでした。現在表示中のデータを維持します。");
+					setRefreshMessage(BOAT_TODAY_WAITING_MESSAGE_LINES.join(" "));
 				}
 				return;
 			}
@@ -2898,6 +2906,13 @@ body:has(.prediction-page-root) {
 				</div>
 					{localStorageWarningText ? <p style={practiceMessageStyle}>{localStorageWarningText}</p> : null}
 					{autoSettleState.warning ? <p style={practiceMessageStyle}>{autoSettleState.warning}</p> : null}
+					{isWaitingForTodayFeed ? (
+						<section className="prediction-section-card" style={{ display: "grid", gap: "8px" }}>
+							<h2 className="prediction-section-title" style={{ margin: 0 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[0]}</h2>
+							<p className="prediction-text" style={{ margin: 0 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[1]}</p>
+							<p className="prediction-text" style={{ margin: 0 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[2]}</p>
+						</section>
+					) : null}
 
 				<section className="prediction-section-card">
 					<div className="prediction-section-header">

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { pruneBoatOperationalStorageOnce } from "../lib/boatOperationalStoragePrune";
+import { getBoatReviewArchiveVerifiedDates, loadBoatReviewArchiveIndex } from "../lib/boatReviewArchive";
 
 export function useBoatOperationalStorageRollover(): void {
 	const runRef = useRef<Promise<unknown> | null>(null);
@@ -14,9 +15,14 @@ export function useBoatOperationalStorageRollover(): void {
 				return;
 			}
 
-			runRef.current = pruneBoatOperationalStorageOnce({ reason })
+			runRef.current = loadBoatReviewArchiveIndex()
+				.then((index) => pruneBoatOperationalStorageOnce({
+					reason,
+					archiveVerifiedDates: getBoatReviewArchiveVerifiedDates(index),
+				}))
 				.catch((error) => {
 					console.warn("[boat-operational-prune] browser prune failed", error);
+					return pruneBoatOperationalStorageOnce({ reason, archiveVerifiedDates: [] });
 				})
 				.finally(() => {
 					runRef.current = null;

@@ -1,5 +1,6 @@
 import type { BoatRaceItem, BoatTodayVenueItem } from "./boatraceTypes";
 import { withBasePath } from "./assetPath";
+import { getBoatOperationDate } from "./boatOperationDate";
 
 export type BoatVenueExtraRace = {
 	raceNo?: number;
@@ -24,6 +25,11 @@ export type BoatVenueExtrasFeed = {
 };
 
 export const BOAT_VENUE_EXTRAS_URL = withBasePath("data/boatrace/venue-extras.generated.json");
+
+export type BoatVenueExtrasFeedLoadOptions = {
+	activeDate?: string;
+	now?: Date;
+};
 
 const buildNoCacheFeedUrl = (url: string): string => {
 	const separator = url.includes("?") ? "&" : "?";
@@ -58,7 +64,14 @@ const normalizeVenueName = (value: unknown): string =>
 const readVenueDisplayName = (venue: BoatVenueExtraVenue | null | undefined): string =>
 	readString(venue?.venueName) || readString(venue?.venue) || readString(venue?.name);
 
-export async function loadBoatVenueExtrasFeed(): Promise<BoatVenueExtrasFeed | null> {
+export function isBoatVenueExtrasFeedForActiveDate(
+	feed: BoatVenueExtrasFeed | null | undefined,
+	activeDate = getBoatOperationDate(),
+): feed is BoatVenueExtrasFeed {
+	return Boolean(feed && readString(feed.date) === activeDate);
+}
+
+export async function loadBoatVenueExtrasFeed(options: BoatVenueExtrasFeedLoadOptions = {}): Promise<BoatVenueExtrasFeed | null> {
 	try {
 		const response = await fetch(buildNoCacheFeedUrl(BOAT_VENUE_EXTRAS_URL), { cache: "no-store" });
 
@@ -71,7 +84,8 @@ export async function loadBoatVenueExtrasFeed(): Promise<BoatVenueExtrasFeed | n
 			return null;
 		}
 
-		return payload;
+		const activeDate = String(options.activeDate || getBoatOperationDate(options.now)).trim();
+		return isBoatVenueExtrasFeedForActiveDate(payload, activeDate) ? payload : null;
 	} catch {
 		return null;
 	}
