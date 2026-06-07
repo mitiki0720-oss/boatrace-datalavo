@@ -30,7 +30,7 @@ on:
 concurrency:
   group: boat-data-update-main
   cancel-in-progress: false
-  queue: max
+  queue: single
 
 permissions:
   contents: write
