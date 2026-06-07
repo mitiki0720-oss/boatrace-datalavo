@@ -293,6 +293,75 @@ function timeToMinutes(time) {
 	return hours * 60 + minutes;
 }
 
+function isRaceDeadlinePassed(deadlineTime, timestamps) {
+const deadlineMinutes = timeToMinutes(deadlineTime);
+
+if (!Number.isInteger(deadlineMinutes)) {
+return false;
+}
+
+const nowMinutes = timestamps.hour * 60 + timestamps.minute;
+return deadlineMinutes <= nowMinutes;
+}
+
+function createPendingRaceResult(notes = "結果未取得") {
+return {
+status: "pending",
+finishOrder: [],
+finishers: [],
+startInfo: [],
+startInfos: [],
+kimarite: null,
+winningMethod: null,
+winningMove: null,
+payout3tan: null,
+payout2tan: null,
+payout3fuku: null,
+payout2fuku: null,
+payoutWide: null,
+payoutWin: null,
+payoutPlace: null,
+payouts: [],
+payoutsFull: [],
+refunds: [],
+refundText: undefined,
+remarks: undefined,
+notes,
+weatherActual: undefined,
+finalizedAt: undefined,
+finalOdds: null,
+};
+}
+
+function sanitizeRaceResultByTimeline(result, deadlineTime, timestamps) {
+if (!result || typeof result !== "object") {
+return result ?? null;
+}
+
+if (isRaceDeadlinePassed(deadlineTime, timestamps)) {
+return result;
+}
+
+return createPendingRaceResult("締切前のため結果未確定");
+}
+
+function sanitizeResultListRacesForTimeline({ races, raceTitles, fallbackVenue, timestamps }) {
+const titleMap = new Map((raceTitles ?? []).map((race) => [race.raceNo, race]));
+const fallbackRaceMap = new Map((fallbackVenue?.races ?? []).map((race) => [race.raceNo, race]));
+
+return (races ?? []).map((race) => {
+const deadlineTime =
+titleMap.get(race.raceNo)?.deadlineTime ??
+fallbackRaceMap.get(race.raceNo)?.deadlineTime ??
+"";
+
+return {
+...race,
+result: sanitizeRaceResultByTimeline(race.result, deadlineTime, timestamps),
+};
+});
+}
+
 function venueMatchesTarget(venue, fallbackVenue, targetVenues) {
 	if (!targetVenues.length) {
 		return true;
@@ -2539,20 +2608,28 @@ function mergeRaceResult(baseResult, officialResult) {
 	};
 }
 
-function inferRaceStatus(raceNo, venue, result, fallbackStatus) {
-	if (result?.status === "confirmed") {
-		return "finished";
-	}
+function inferRaceStatus(raceNo, venue, result, fallbackStatus, deadlineTime, timestamps) {
+if (!isRaceDeadlinePassed(deadlineTime, timestamps)) {
+if (venue?.currentRaceNo === raceNo && venue?.status === "selling") {
+return "selling";
+}
 
-	if (venue?.currentRaceNo === raceNo && venue?.status === "selling") {
-		return "selling";
-	}
+return "scheduled";
+}
 
-	if (typeof venue?.currentRaceNo === "number" && raceNo < venue.currentRaceNo && venue?.status !== "scheduled") {
-		return fallbackStatus ?? "closed";
-	}
+if (result?.status === "confirmed") {
+return "finished";
+}
 
-	return fallbackStatus ?? "scheduled";
+if (venue?.currentRaceNo === raceNo && venue?.status === "selling") {
+return "selling";
+}
+
+if (typeof venue?.currentRaceNo === "number" && raceNo < venue.currentRaceNo && venue?.status !== "scheduled") {
+return fallbackStatus ?? "closed";
+}
+
+return fallbackStatus ?? "scheduled";
 }
 
 function hasValidRacerRows(racers) {
@@ -2574,7 +2651,7 @@ function hasValidRacerRows(racers) {
 	});
 }
 
-function mergeVenueRaces(venue, fallbackVenue, raceTitles, resultListRaces, raceOddsMap, raceBeforeInfoMap, date, generatedAt) {
+function mergeVenueRaces(venue, fallbackVenue, raceTitles, resultListRaces, raceOddsMap, raceBeforeInfoMap, date, generatedAt, timestamps) {
 	const fallbackRaceMap = new Map((fallbackVenue?.races ?? []).map((race) => [race.raceNo, race]));
 	const raceTitleMap = new Map((raceTitles ?? []).map((race) => [race.raceNo, race]));
 	const officialRaceMap = new Map();
@@ -2605,16 +2682,27 @@ function mergeVenueRaces(venue, fallbackVenue, raceTitles, resultListRaces, race
 		const officialBeforeInfo = raceBeforeInfoMap.get(raceNo) ?? null;
 		const officialRacers = Array.isArray(officialRace?.racers) ? officialRace.racers : [];
 		const officialExhibitions = Array.isArray(officialBeforeInfo?.exhibitions) ? officialBeforeInfo.exhibitions : [];
-		const oddsPreview = mergeOddsIntoRace(fallbackRace?.oddsPreview, officialOdds, generatedAt);
-		const mergedResult = attachFinalOddsToResult(mergeRaceResult(fallbackRace?.result, officialRace?.result), oddsPreview);
+const deadlineTime =
+officialRace?.deadlineTime ??
+fallbackRace?.deadlineTime ??
+"";
+const oddsPreview = mergeOddsIntoRace(fallbackRace?.oddsPreview, officialOdds, generatedAt);
+const mergedResult = sanitizeRaceResultByTimeline(
+attachFinalOddsToResult(
+mergeRaceResult(fallbackRace?.result, officialRace?.result),
+oddsPreview,
+),
+deadlineTime,
+timestamps,
+);
 
 		return {
 			raceNo,
 			raceId: fallbackRace?.raceId ?? `${date.replace(/-/g, "")}-${venue.id}-${String(raceNo).padStart(2, "0")}`,
 			title: officialRace?.title ?? raceTitleMap.get(raceNo)?.title ?? fallbackRace?.title ?? `${raceNo}R`,
-			deadlineTime: officialRace?.deadlineTime ?? fallbackRace?.deadlineTime ?? "",
+			deadlineTime,
 			startTime: fallbackRace?.startTime ?? "",
-			status: inferRaceStatus(raceNo, venue, officialRace?.result, fallbackRace?.status),
+			status: inferRaceStatus(raceNo, venue, mergedResult, fallbackRace?.status, deadlineTime, timestamps),
             racers: hasValidRacerRows(officialRacers)
                ? officialRacers
                : hasValidRacerRows(fallbackRace?.racers)
@@ -2672,7 +2760,14 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 	const resultListUrl = venue?.links?.resultListUrl ?? OFFICIAL_ENDPOINTS.venueResultList(venue.venueCode, timestamps.dateKey);
 	const raceTitles = options.fetchSections.raceTitles ? await fetchRaceTitles(venue, timestamps) : [];
 	const resultListHtml = options.fetchSections.resultList ? await fetchOfficialHtml(resultListUrl) : null;
-	let resultListRaces = resultListHtml ? parseResultListPage(resultListHtml) : [];
+let resultListRaces = resultListHtml ? parseResultListPage(resultListHtml) : [];
+
+resultListRaces = sanitizeResultListRacesForTimeline({
+races: resultListRaces,
+raceTitles,
+fallbackVenue,
+timestamps,
+});
 	const completedRaceNumbers = new Set(
 		(fallbackVenue?.races ?? [])
 			.filter((race) => shouldSkipRaceUpdate(race, options.mode))
@@ -2707,8 +2802,17 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 	};
 	const detailedRaceResults = [];
 
-	for (const raceNo of detailedTargets) {
-		const detailedHtml = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.venueResult(venue.venueCode, timestamps.dateKey, raceNo));
+for (const raceNo of detailedTargets) {
+const deadlineTime =
+raceTitles.find((race) => race.raceNo === raceNo)?.deadlineTime ??
+fallbackVenue?.races?.find((race) => race.raceNo === raceNo)?.deadlineTime ??
+"";
+
+if (!isRaceDeadlinePassed(deadlineTime, timestamps)) {
+continue;
+}
+
+const detailedHtml = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.venueResult(venue.venueCode, timestamps.dateKey, raceNo));
 		if (!detailedHtml) {
 			continue;
 		}
@@ -2756,7 +2860,7 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timest
 		)
 		: [];
 	const raceBeforeInfoMap = new Map(raceBeforeInfoResults.filter(Boolean).map((item) => [item.raceNo, item]));
-	const mergedRaces = mergeVenueRaces(venue, fallbackVenue, raceTitles, resultListRaces, raceOddsMap, raceBeforeInfoMap, timestamps.date, timestamps.generatedAt);
+	const mergedRaces = mergeVenueRaces(venue, fallbackVenue, raceTitles, resultListRaces, raceOddsMap, raceBeforeInfoMap, timestamps.date, timestamps.generatedAt, timestamps);
 	const officialVenueWeather =
 		Array.from(raceBeforeInfoMap.values()).find((item) => hasResolvedWeatherActual(item.weatherActual))?.weatherActual ??
 		(options.fetchSections.venueWeather ? await fetchVenueWeather(venue, { timestamps, raceTitles, fallbackVenue }) : null);

@@ -954,6 +954,66 @@ const getJstNowMinutes = (): number => {
 	return hour * 60 + minute;
 };
 
+const hasOfficialResultPayoutRows = (race: BoatPredictionRace | undefined): boolean => {
+    const resultRecord = toLooseRecord(
+        (race as { result?: unknown } | undefined)?.result,
+    );
+
+    return (
+        toArray<unknown>(resultRecord.payoutsFull).length > 0 ||
+        toArray<unknown>(resultRecord.payouts).length > 0
+    );
+};
+
+const isRaceResultReadyForPractice = (race: BoatPredictionRace | undefined): boolean => {
+    if (!race) {
+        return false;
+    }
+
+    const resultRecord = toLooseRecord(
+        (race as { result?: unknown }).result,
+    );
+
+    const deadlineMinutes = parseRaceTimeMinutes(
+        readRaceDeadlineOrStartTime(race),
+    );
+
+    const finishOrder = toArray<unknown>(resultRecord.finishOrder)
+        .map((value) => readLooseString(value))
+        .filter(Boolean);
+
+    const resultText = [
+        resultRecord.notes,
+        resultRecord.remarks,
+        resultRecord.refundText,
+    ]
+        .map((value) => readLooseString(value))
+        .join(" ")
+        .normalize("NFKC");
+
+    if (deadlineMinutes === null || getJstNowMinutes() < deadlineMinutes) {
+        return false;
+    }
+
+    if (
+        resultText.includes("中止") ||
+        resultText.includes("不成立") ||
+        resultText.includes("結果未取得") ||
+        resultText.includes("未確定")
+    ) {
+        return false;
+    }
+
+    return (
+        readLooseString(resultRecord.status).toLowerCase() === "confirmed" &&
+        finishOrder.length >= 3 &&
+        hasOfficialResultPayoutRows(race)
+    );
+};
+
+const isSelectedRaceResultReadyForPractice =
+    isRaceResultReadyForPractice(selectedRace);
+
 const findCurrentTimeRaceSelection = (venues: BoatPredictionVenue[]) => {
 	const nowMinutes = getJstNowMinutes();
 
@@ -1182,7 +1242,7 @@ const buildPracticeFallbackRaceKey = (params: {
 	const venueCount = venues.length;
 	const isWaitingForTodayFeed = venueCount === 0;
 	const raceCount = races.length;
-	const confirmedRaceCount = races.filter((race) => race.result?.status === "confirmed").length;
+	const confirmedRaceCount = races.filter((race) => isRaceResultReadyForPractice(race)).length;
 	const materialReadyRaceCount = races.filter((race) => {
 		const racerCount = toArray<unknown>((race as { racers?: unknown }).racers).length;
 		const exhibitionCount = toArray<unknown>((race as { exhibitions?: unknown }).exhibitions).length;
@@ -1550,7 +1610,12 @@ const practiceSummary = useMemo(() => {
 				raceNo: predictionRecord.raceNo,
 			});
 
-			if (!lookup.race || lookup.lookupStatus === "pending" || lookup.lookupStatus === "missing") {
+			if (
+                !lookup.race ||
+                lookup.lookupStatus === "pending" ||
+                lookup.lookupStatus === "missing" ||
+                !isRaceResultReadyForPractice(lookup.race)
+            ) {
 				pendingCount += 1;
 				continue;
 			}
@@ -1910,7 +1975,7 @@ const handleSelectRace = (raceId: string) => {
 		}
 
 		setSavedPracticeResultRecord(undefined);
-		setActualFinishOrderText(selectedRace.result?.finishOrder?.slice(0, 3).join("-") ?? "");
+		setActualFinishOrderText(isRaceResultReadyForPractice(selectedRace) ? (selectedRace.result?.finishOrder?.slice(0, 3).join("-") ?? "") : "");
 		setInvestmentAmount(parsedBetSummary.totalStakeYen || 1000);
 		setPayoutAmount(0);
 		setPracticeMemo("");
@@ -3051,36 +3116,53 @@ body:has(.prediction-page-root) {
 						))}
 					</div>
 				) : null}
-				<BoatPracticeResultPanel
-					venueName={selectedVenue?.venueName ?? "-"}
-					raceNo={selectedRace?.raceNo ?? 0}
-					raceTitle={selectedRace?.title}
-					tickets={predictionTickets}
-					savedAt={savedPracticeResultRecord?.savedAt}
-					isSaved={Boolean(savedPracticeResultRecord)}
-					onSave={handleSavePracticeResult}
-					onClear={handleClearPracticeResult}
-					onLoadBets={handleLoadBetsToPractice}
-					onSettleResult={handleSettlePracticeResult}
-					actualFinishOrderText={actualFinishOrderText}
-					investmentAmount={investmentAmount}
-					payoutAmount={payoutAmount}
-					practiceMemo={practiceMemo}
-					betSummary={parsedBetSummary}
-					resultStatus={practiceResultStatus}
-					resultLookupStatus={practiceResultLookupStatus}
-					resultLookupDebugText={practiceResultLookupDebugText}
-					kimarite={practiceKimarite}
-					startInfoText={practiceStartInfoText}
-					hitBetLabel={practiceHitBetLabel}
-					settlementMessage={practiceSettlementMessage}
-					isBetAutoApplied={isBetAutoApplied}
-					isResultAutoApplied={isResultAutoApplied}
-					onChangeFinishOrder={setActualFinishOrderText}
-					onChangeInvestmentAmount={handleChangeInvestmentAmount}
-					onChangePayoutAmount={handleChangePayoutAmount}
-					onChangePracticeMemo={setPracticeMemo}
-				/>
+                {isSelectedRaceResultReadyForPractice ? (
+                    <BoatPracticeResultPanel
+                        venueName={selectedVenue?.venueName ?? "-"}
+                        raceNo={selectedRace?.raceNo ?? 0}
+                        raceTitle={selectedRace?.title}
+                        tickets={predictionTickets}
+                        savedAt={savedPracticeResultRecord?.savedAt}
+                        isSaved={Boolean(savedPracticeResultRecord)}
+                        onSave={handleSavePracticeResult}
+                        onClear={handleClearPracticeResult}
+                        onLoadBets={handleLoadBetsToPractice}
+                        onSettleResult={handleSettlePracticeResult}
+                        actualFinishOrderText={actualFinishOrderText}
+                        investmentAmount={investmentAmount}
+                        payoutAmount={payoutAmount}
+                        practiceMemo={practiceMemo}
+                        betSummary={parsedBetSummary}
+                        resultStatus={practiceResultStatus}
+                        resultLookupStatus={practiceResultLookupStatus}
+                        resultLookupDebugText={practiceResultLookupDebugText}
+                        kimarite={practiceKimarite}
+                        startInfoText={practiceStartInfoText}
+                        hitBetLabel={practiceHitBetLabel}
+                        settlementMessage={practiceSettlementMessage}
+                        isBetAutoApplied={isBetAutoApplied}
+                        isResultAutoApplied={isResultAutoApplied}
+                        onChangeFinishOrder={setActualFinishOrderText}
+                        onChangeInvestmentAmount={handleChangeInvestmentAmount}
+                        onChangePayoutAmount={handleChangePayoutAmount}
+                        onChangePracticeMemo={setPracticeMemo}
+                    />
+                ) : (
+                    <div
+                        style={{
+                            padding: "18px 20px",
+                            borderRadius: "20px",
+                            background: "rgba(248, 250, 252, 0.96)",
+                            border: "1px solid rgba(148, 163, 184, 0.28)",
+                            color: "#475569",
+                            fontSize: "0.92rem",
+                            fontWeight: 800,
+                            lineHeight: 1.7,
+                        }}
+                    >
+                        公式結果の確定待ちです。締切後でも、払戻詳細が揃うまでは表示しません。
+                    </div>
+                )}
 			</div>
 		</PageShell>
 	);
