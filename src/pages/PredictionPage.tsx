@@ -164,7 +164,7 @@ const johnsonSummaryChipStyle = {
 	border: "1px solid rgba(93, 199, 232, 0.18)",
 };
 
-const MAX_AUTO_SETTLE_PER_RUN = 12;
+const MAX_AUTO_SETTLE_PER_RUN = 288;
 const AUTO_SETTLE_STORAGE_LIMIT_KB = 4500;
 const LOCAL_STORAGE_WARNING_KB = 4000;
 const MIN_HIT_TICKER_CARD_COUNT = 6;
