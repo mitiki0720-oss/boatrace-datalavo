@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const VENUE_EXTRAS_PATH = "public/data/boatrace/venue-extras.generated.json";
+const TODAY_PATH = "public/data/boatrace/today.generated.json";
 const RACES_PAGE_PATH = "src/pages/RacesPage.tsx";
 const MATERIAL_PATH = "src/lib/boatPredictionMaterial.ts";
 const REVIEW_PAGE_PATH = "src/pages/ReviewPage.tsx";
@@ -94,11 +95,38 @@ for (const row of rows) {
 }
 
 const byCode = new Map(rows.map((row) => [row.venueCode, row]));
-assert.ok(["available", "pending"].includes(byCode.get("13")?.classification), "Amagasaki should distinguish pending original timing from unsupported venue");
-assert.equal(byCode.get("13")?.straightTimeCount, 0, "Amagasaki straight time should remain non-published");
-assert.ok(["available", "pending"].includes(byCode.get("17")?.classification), "Miyajima should be venue-official classified separately from common official data");
-assert.ok(["available", "pending", "not-supported"].includes(byCode.get("03")?.classification), "Edogawa should be audited even when optional original timing is absent");
-assert.ok(["available", "pending"].includes(byCode.get("20")?.classification), "Wakamatsu should be audited even when optional original timing is absent");
+const todayFeed = readJson(TODAY_PATH);
+const heldVenueCodes = new Set(
+	toArray(todayFeed.venues).map((venue) => venueCode(venue?.venueCode)),
+);
+
+function auditWhenHeldToday(code, label, assertions) {
+	if (!heldVenueCodes.has(code)) {
+		console.log(`[check:boat-venue-original-exhibition] skip ${code} ${label}: not held today`);
+		return;
+	}
+
+	const row = byCode.get(code);
+	assert.ok(row, `${code} ${label}: held today but missing from generated venue extras`);
+	assertions(row);
+}
+
+auditWhenHeldToday("13", "Amagasaki", (row) => {
+	assert.ok(["available", "pending"].includes(row.classification), "Amagasaki should distinguish pending original timing from unsupported venue");
+	assert.equal(row.straightTimeCount, 0, "Amagasaki straight time should remain non-published");
+});
+
+auditWhenHeldToday("17", "Miyajima", (row) => {
+	assert.ok(["available", "pending"].includes(row.classification), "Miyajima should be venue-official classified separately from common official data");
+});
+
+auditWhenHeldToday("03", "Edogawa", (row) => {
+	assert.ok(["available", "pending", "not-supported"].includes(row.classification), "Edogawa should be audited even when optional original timing is absent");
+});
+
+auditWhenHeldToday("20", "Wakamatsu", (row) => {
+	assert.ok(["available", "pending"].includes(row.classification), "Wakamatsu should be audited even when optional original timing is absent");
+});
 
 const racesPageSource = fs.readFileSync(RACES_PAGE_PATH, "utf8");
 const materialSource = fs.readFileSync(MATERIAL_PATH, "utf8");
