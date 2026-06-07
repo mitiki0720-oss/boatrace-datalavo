@@ -997,9 +997,7 @@ const isRaceResultReadyForPractice = (race: BoatPredictionRace | undefined): boo
 
     if (
         resultText.includes("中止") ||
-        resultText.includes("不成立") ||
-        resultText.includes("結果未取得") ||
-        resultText.includes("未確定")
+        resultText.includes("不成立")
     ) {
         return false;
     }
