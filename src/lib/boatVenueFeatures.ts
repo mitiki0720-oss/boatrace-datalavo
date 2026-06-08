@@ -114,12 +114,18 @@ export function findBoatVenueFeatureItem(index: BoatVenueFeatureIndex | null | u
 	}
 
 	const target = normalizeText(slugOrVenueName);
-	const targetSlug = getBoatVenueFeatureSlug(slugOrVenueName);
-	return index.items.find((item) =>
+	const exactMatch = index.items.find((item) =>
 		normalizeText(item.slug) === target ||
-		normalizeText(item.slug) === normalizeText(targetSlug) ||
-		normalizeText(item.venueName) === target ||
-		normalizeText(item.venueName).includes(target)
+		normalizeText(item.venueName) === target
+	);
+
+	if (exactMatch) {
+		return exactMatch;
+	}
+
+	const targetSlug = normalizeText(getBoatVenueFeatureSlug(slugOrVenueName));
+	return index.items.find((item) =>
+		normalizeText(item.slug) === targetSlug
 	) ?? null;
 }
 

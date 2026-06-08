@@ -152,9 +152,10 @@ export function BoatGptMaterialPanel({ materialText, raceLabel }: BoatGptMateria
 			<div style={headerStyle}>
 				<div style={titleRowStyle}>
 					<h3 style={titleStyle}>GPT貼り付け用素材</h3>
-					<p style={descriptionStyle}>選択中レースの出走表・展示・モーター・天気・オッズをGPTへ渡す形に整えています。</p>
+					<p style={descriptionStyle}>選択中レースの出走表・天気・モーター・公式オッズを事前素材として整え、展示取得後は展示情報も追加します。</p>
 					<div style={chipRowStyle}>
 						<span style={chipStyle}>素材生成済み</span>
+						<span style={chipStyle}>展示前コピー対応</span>
 						<span style={chipStyle}>{raceLabel}</span>
 						<span style={chipStyle}>{charCount.toLocaleString("ja-JP")}文字</span>
 						<span style={chipStyle}>{lineCount}行</span>
@@ -169,10 +170,10 @@ export function BoatGptMaterialPanel({ materialText, raceLabel }: BoatGptMateria
 			<textarea style={textareaStyle} readOnly value={materialText} />
 			<div style={footerGridStyle}>
 				{[
-					{ label: "素材の要点", value: "出走表 / 展示 / オッズを整理" },
+					{ label: "素材の要点", value: "出走表 / 天気 / モーター / 公式オッズ / 展示" },
 					{ label: "対象会場", value: raceLabel.split(" ")[0] ?? "-" },
 					{ label: "対象レース", value: raceLabel.split(" ").slice(1).join(" ") || "-" },
-					{ label: "補足メモ", value: "次工程で保存やダウンロードを追加" },
+					{ label: "補足メモ", value: "展示前でも事前予想コピー可能" },
 				].map((item) => (
 					<article key={item.label} style={footerCardStyle}>
 						<p style={footerLabelStyle}>{item.label}</p>
