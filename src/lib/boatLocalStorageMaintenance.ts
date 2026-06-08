@@ -1,11 +1,21 @@
 import {
+	loadBoatPredictionRecords,
+	pruneBoatPredictionRecordsByDate,
+	saveBoatPredictionRecords,
 	type SaveBoatPredictionRecordsResult,
 } from "./boatPredictionStorage";
 import {
+	loadBoatPracticeResultRecords,
+	pruneBoatPracticeResultRecordsByDate,
+	saveBoatPracticeResultRecords,
 	type SaveBoatPracticeResultRecordsResult,
 } from "./boatPracticeResultStorage";
-import type { SaveBoatJohnsonPredictionRecordsResult } from "./boatJohnsonPredictionStorage";
-import { pruneBoatOperationalLocalStorage } from "./boatOperationalStoragePrune";
+import {
+	loadBoatJohnsonPredictionRecords,
+	pruneBoatJohnsonPredictionRecordsByDate,
+	saveBoatJohnsonPredictionRecords,
+	type SaveBoatJohnsonPredictionRecordsResult,
+} from "./boatJohnsonPredictionStorage";
 
 export type PruneBoatLocalRecordsByDateParams = {
 	activeDate: string;
@@ -22,13 +32,25 @@ export type PruneBoatLocalRecordsByDateResult = {
 
 export function pruneBoatLocalRecordsByDate(params: PruneBoatLocalRecordsByDateParams): PruneBoatLocalRecordsByDateResult {
 	const activeDate = String(params.activeDate || params.keepDates[0] || "").trim();
-	const result = pruneBoatOperationalLocalStorage({ activeDate });
+	const keepDates = Array.from(
+		new Set(
+			params.keepDates
+				.map((date) => String(date ?? "").trim())
+				.filter(Boolean),
+		),
+	);
 
 	return {
-		activeDate: result.activeDate,
-		keepDates: result.keepDates,
-		prediction: result.prediction,
-		practice: result.practice,
-		johnson: result.johnson,
+		activeDate,
+		keepDates,
+		prediction: saveBoatPredictionRecords(
+			pruneBoatPredictionRecordsByDate(loadBoatPredictionRecords(), keepDates),
+		),
+		practice: saveBoatPracticeResultRecords(
+			pruneBoatPracticeResultRecordsByDate(loadBoatPracticeResultRecords(), keepDates),
+		),
+		johnson: saveBoatJohnsonPredictionRecords(
+			pruneBoatJohnsonPredictionRecordsByDate(loadBoatJohnsonPredictionRecords(), keepDates),
+		),
 	};
 }
