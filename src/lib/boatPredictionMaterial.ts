@@ -1063,39 +1063,152 @@ const readFirstRecord = (...values: unknown[]): MaterialRecord | null => {
 	return null;
 };
 
-const formatOddsRows = (title: string, rows: MaterialRecord[], limit = 5): string[] => {
-	const validRows = rows
-		.filter((row) => Boolean(readMaterialString(row.combination)) && Boolean(readMaterialString(row.odds)))
-		.slice(0, limit);
+const parseOddsNumber = (value: unknown): number | null => {
+	const text = readMaterialString(value)
+		.replace(/,/g, "")
+		.replace(/倍/g, "")
+		.trim();
 
-	if (validRows.length === 0) {
-		return [];
+	if (!text || text === "-" || text === "--") {
+		return null;
 	}
 
+	const parsed = Number(text);
+	return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+};
+
+const getValidOddsRows = (rows: MaterialRecord[]): MaterialRecord[] => {
+	const seenCombinations = new Set<string>();
+
+	return rows
+		.filter((row) =>
+			Boolean(readMaterialString(row.combination)) &&
+			parseOddsNumber(row.odds) !== null
+		)
+		.sort(
+			(left, right) =>
+				(parseOddsNumber(left.odds) ?? Number.POSITIVE_INFINITY) -
+				(parseOddsNumber(right.odds) ?? Number.POSITIVE_INFINITY),
+		)
+		.filter((row) => {
+			const combination = readMaterialString(row.combination);
+
+			if (seenCombinations.has(combination)) {
+				return false;
+			}
+
+			seenCombinations.add(combination);
+			return true;
+		});
+};
+
+const formatOddsLine = (row: MaterialRecord): string => {
+	const combination = toDisplay(readMaterialString(row.combination), "-");
+	const odds = toDisplay(readMaterialString(row.odds).replace(/倍/g, ""), "-");
+	const popularity = readMaterialString(row.popularity);
+
+	return `- ${combination} ${odds}倍${popularity ? ` 人気:${popularity}` : ""}`;
+};
+
+const formatOddsRows = (title: string, rows: MaterialRecord[], limit = 5): string[] => {
+	const validRows = getValidOddsRows(rows).slice(0, limit);
+
 	return [
-		`${title}:`,
-		...validRows.map((row) => {
-			const popularity = readMaterialString(row.popularity);
-			return `- ${toDisplay(readMaterialString(row.combination), "-")} ${toDisplay(readMaterialString(row.odds), "-")}倍${popularity ? ` 人気:${popularity}` : ""}`;
-		}),
+		title,
+		...(validRows.length > 0
+			? validRows.map((row) => formatOddsLine(row))
+			: ["- 未取得（TODAYレースページの自動更新後に反映）"]),
 	];
 };
 
-const buildOddsBlock = (race: BoatRaceItem) => {
-	const raceRecord = race as MaterialRecord;
-	const oddsRecord = readFirstRecord(raceRecord.oddsPreview);
+const formatFullOddsRows = (title: string, rows: MaterialRecord[]): string[] => {
+	const validRows = getValidOddsRows(rows);
 
-	const lines = [
-		...formatOddsRows("3連単上位", toMaterialRecordArray(oddsRecord?.trifectaTop)),
-		...formatOddsRows("2連単上位", toMaterialRecordArray(oddsRecord?.exactaTop)),
-		...formatOddsRows("2連複上位", toMaterialRecordArray(oddsRecord?.quinellaTop)),
+	return [
+		title,
+		...(validRows.length > 0
+			? validRows.map((row) => formatOddsLine(row))
+			: ["- 未取得（TODAYレースページの自動更新後に反映）"]),
 	];
+};
 
-	if (lines.length === 0) {
-		return "オッズ情報は未取得";
+const formatTrifectaAllOddsRows = (rows: MaterialRecord[]): string[] => {
+	const validRows = getValidOddsRows(rows);
+
+	if (validRows.length === 0) {
+		return [
+			"■ 3連単 全オッズ",
+			"- 未取得（TODAYレースページの自動更新後に反映）",
+		];
 	}
 
-	return lines.join("\n");
+	const groupedLines = [1, 2, 3, 4, 5, 6].flatMap((firstFrame) => {
+		const groupRows = validRows.filter((row) =>
+			readMaterialString(row.combination).startsWith(`${firstFrame}-`)
+		);
+
+		if (groupRows.length === 0) {
+			return [];
+		}
+
+		return [
+			`1着 ${firstFrame}:`,
+			...groupRows.map((row) => formatOddsLine(row)),
+			"",
+		];
+	});
+
+	return [
+		"■ 3連単 全オッズ",
+		...groupedLines,
+	];
+};
+
+const readOddsBetType = (row: MaterialRecord): string =>
+	readFirstMaterialString(row.betType, row.type).replace(/\s+/g, "");
+
+const buildOddsBlock = (race: BoatRaceItem) => {
+	const raceRecord = race as MaterialRecord;
+	const oddsPreview = raceRecord.oddsPreview;
+	const oddsRecord = readFirstRecord(oddsPreview);
+	const arrayOddsRows = toMaterialRecordArray(oddsPreview);
+
+	const readOddsRows = (key: string, betType: string): MaterialRecord[] => {
+		const objectRows = toMaterialRecordArray(oddsRecord?.[key]);
+
+		if (objectRows.length > 0) {
+			return objectRows;
+		}
+
+		return arrayOddsRows.filter((row) => readOddsBetType(row) === betType);
+	};
+
+	const trifectaAll = getValidOddsRows(readOddsRows("trifectaAll", "3連単"));
+	const exactaAll = getValidOddsRows(readOddsRows("exactaAll", "2連単"));
+	const quinellaAll = getValidOddsRows(readOddsRows("quinellaAll", "2連複"));
+
+	const trifectaTopSource = readOddsRows("trifectaTop", "3連単");
+	const exactaTopSource = readOddsRows("exactaTop", "2連単");
+	const quinellaTopSource = readOddsRows("quinellaTop", "2連複");
+
+	const updatedAt = readMaterialString(oddsRecord?.updatedAt);
+
+	return [
+		`公式オッズ更新時刻: ${toDisplay(updatedAt)}`,
+		`取得状況: 3連単 ${trifectaAll.length}件 / 2連単 ${exactaAll.length}件 / 2連複 ${quinellaAll.length}件`,
+		"",
+		...formatOddsRows("■ 3連単 人気上位", [...trifectaTopSource, ...trifectaAll], 5),
+		"",
+		...formatOddsRows("■ 2連単 人気上位", [...exactaTopSource, ...exactaAll], 3),
+		"",
+		...formatOddsRows("■ 2連複 人気上位", [...quinellaTopSource, ...quinellaAll], 3),
+		"",
+		...formatTrifectaAllOddsRows(trifectaAll),
+		"",
+		...formatFullOddsRows("■ 2連単 全オッズ", exactaAll),
+		"",
+		...formatFullOddsRows("■ 2連複 全オッズ", quinellaAll),
+	].join("\n");
 };
 
 const buildStartExhibitionBlock = (race: BoatRaceItem) => {
@@ -1134,8 +1247,8 @@ const buildStartExhibitionBlock = (race: BoatRaceItem) => {
 	const exhibitions = toMaterialArray<BoatExhibitionItem>((race as { exhibitions?: unknown }).exhibitions);
 
 	if (exhibitions.length === 0) {
-		return "進入想定: 未取得\nスロー候補: 未取得\nダッシュ候補: 未取得\nスタート展示:\n- 未取得";
-	}
+	return "- 展示更新待ち（進入・スタート展示は取得後に追加反映されます）";
+}
 
 	const sortedExhibitions = [...exhibitions].sort(
 		(left, right) => Number(left.course ?? 99) - Number(right.course ?? 99),
@@ -1220,8 +1333,10 @@ export function buildBoatPredictionMaterial(params: {
 		].join("\n"),
 		[
 			"[F. 展示情報]",
-			exhibitions.length > 0 ? exhibitions.map((item) => buildExhibitionBlock(item)).join("\n\n") : "展示情報サンプルなし",
-		].join("\n"),
+			exhibitions.length > 0
+			    ? exhibitions.map((item) => buildExhibitionBlock(item)).join("\n\n")
+				: "- 展示更新待ち（事前予想は可能です。展示取得後に再コピーしてください）",
+			].join("\n"),
 		[
 			"[G. 進入 / スタート展示]",
 			venueStartExhibitionMaterial !== buildMissingBlock()
@@ -1229,21 +1344,35 @@ export function buildBoatPredictionMaterial(params: {
 				: raceStartExhibitionMaterial,
 		].join("\n"),
 		[
-			"[H. オッズ]",
+			"[H. 04 Odds Board / 🎯 公式オッズ確認]",
 			buildOddsBlock(race),
 		].join("\n"),
 		[
-			"[I. 予想時点チェック]",
-			"この素材は予想用のため、着順・払戻・決まり手などの結果情報は含めません。",
-		].join("\n"),
+	"[I. 予想時点チェック]",
+	exhibitions.length > 0
+		? "素材モード: 展示反映済み"
+		: "素材モード: 展示前の事前予想",
+	...(exhibitions.length > 0
+		? [
+				"- 展示・進入・モーター・ボート・風・波・公式オッズを総合して予想できます。",
+				"- この素材は予想用のため、着順・払戻・決まり手などの結果情報は含めません。",
+			]
+		: [
+				"- 出走表・天気・モーター・公式オッズを使って事前予想できます。",
+				"- 展示取得後は、最新素材を再コピーしてください。",
+				"- この素材は予想用のため、着順・払戻・決まり手などの結果情報は含めません。",
+			]),
+].join("\n"),
 		[
-			"[J. GPTへの予想依頼メモ]",
-			"この資料をもとに、展示・進入・モーター・ボート・風・波・オッズを総合して競艇予想をしてください。",
-			"買い目は合計10点。",
-			"3連単は厚め2点、本線6点。",
-			"2連単は穴狙い2点。",
-			"展開の根拠、危険な人気、穴候補も短く説明してください。",
-		].join("\n"),
+	"[J. GPTへの予想依頼メモ]",
+	exhibitions.length > 0
+		? "この資料をもとに、展示・進入・モーター・ボート・風・波・公式オッズを総合して競艇予想をしてください。"
+		: "この資料は展示前の事前予想素材です。出走表・天気・モーター・ボート・公式オッズを中心に競艇予想をしてください。展示取得後は再確認してください。",
+	"買い目は合計10点。",
+	"3連単は厚め2点、本線6点。",
+	"2連単は穴狙い2点。",
+	"展開の根拠、危険な人気、穴候補も短く説明してください。",
+].join("\n"),
 		[
 			"[K. 公式直前情報]",
 			buildOfficialBeforeInfoBlock(racers, raceExtra),

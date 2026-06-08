@@ -1243,9 +1243,8 @@ const buildPracticeFallbackRaceKey = (params: {
 	const confirmedRaceCount = races.filter((race) => isRaceResultReadyForPractice(race)).length;
 	const materialReadyRaceCount = races.filter((race) => {
 		const racerCount = toArray<unknown>((race as { racers?: unknown }).racers).length;
-		const exhibitionCount = toArray<unknown>((race as { exhibitions?: unknown }).exhibitions).length;
 
-		return racerCount > 0 && exhibitionCount > 0 && hasRaceOddsPreview(race);
+		return racerCount > 0 && hasRaceOddsPreview(race);
 	}).length;
 	const copyReadyRaceCount = materialReadyRaceCount;
 	const weatherReadyVenueCount = venues.filter(hasVenueWeather).length;
@@ -1316,12 +1315,12 @@ const practiceSummary = useMemo(() => {
 		{
 			eyebrow: "READY MATERIAL",
 			value: `${materialReadyRaceCount}R`,
-			description: "展示・選手・オッズが揃う仮基準",
+			description: "出走表・公式オッズが揃う事前予想基準",
 		},
 		{
 			eyebrow: "COPY READY",
 			value: `${copyReadyRaceCount}R`,
-			description: `天気反映 ${weatherReadyVenueCount}/${venueCount}会場`,
+			description: `展示前コピー対応 / 天気反映 ${weatherReadyVenueCount}/${venueCount}会場`,
 		},
 		{
 			eyebrow: "TODAY RESULTS",
