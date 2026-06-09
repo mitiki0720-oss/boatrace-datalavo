@@ -1300,7 +1300,7 @@ function parseRacerRowsFromTextLines(lines) {
 		const blockEnd = nextMatch?.index ?? scopedText.length;
 		const block = compactText(scopedText.slice(blockStart, blockEnd));
 
-		const statsMatch = block.match(/\s+\d+歳\/[\d.]+kg\s+F(\d+)\s+L(\d+)\s+(.+)$/);
+		const statsMatch = block.match(/\s+(\d+)歳\/([\d.]+kg)\s+F(\d+)\s+L(\d+)\s+(.+)$/);
 		if (!statsMatch) {
 			continue;
 		}
@@ -1317,19 +1317,25 @@ function parseRacerRowsFromTextLines(lines) {
 		const branchOrigin = parseBranchOrigin(branchOriginText);
 		const branch = compactText(branchOrigin.branch);
 		const hometown = compactText(branchOrigin.hometown);
-		const fCount = Number.parseInt(statsMatch[1], 10) || 0;
-		const lCount = Number.parseInt(statsMatch[2], 10) || 0;
-		const statTokens = readSpaceSeparatedTokens(statsMatch[3]);
+		const age = statsMatch[1];
+		const weight = statsMatch[2];
+		const fCount = Number.parseInt(statsMatch[3], 10) || 0;
+		const lCount = Number.parseInt(statsMatch[4], 10) || 0;
+		const statTokens = readSpaceSeparatedTokens(statsMatch[5]);
 
 		const averageStart = normalizeOfficialAverageStart(statTokens[0] ?? "");
 		const winRate = statTokens[1] ?? "";
 		const nationalSecondRate = statTokens[2] ?? "";
+		const nationalThirdRate = statTokens[3] ?? "";
 		const localWinRate = statTokens[4] ?? "";
 		const localSecondRate = statTokens[5] ?? "";
+		const localThirdRate = statTokens[6] ?? "";
 		const motorNo = statTokens[7] ?? "";
 		const motorSecondRate = statTokens[8] ?? "";
+		const motorThirdRate = statTokens[9] ?? "";
 		const boatNo = statTokens[10] ?? "";
 		const boatSecondRate = statTokens[11] ?? "";
+		const boatThirdRate = statTokens[12] ?? "";
 
 		rows.push({
 			frame,
@@ -1343,6 +1349,8 @@ function parseRacerRowsFromTextLines(lines) {
 			boatRacerName: name,
 			branch,
 			hometown,
+			age,
+			weight,
 			grade,
 			class: grade,
 			rank: grade,
@@ -1357,19 +1365,24 @@ function parseRacerRowsFromTextLines(lines) {
 			twoRate: nationalSecondRate,
 			secondRate: nationalSecondRate,
 			quinellaRate: nationalSecondRate,
+			thirdRate: nationalThirdRate,
+			nationalThirdRate,
 			localWinRate,
 			localSecondRate,
+			localThirdRate,
 			motorNo,
 			motorNumber: motorNo,
 			motorTwoRate: motorSecondRate,
 			motorSecondRate,
 			motorQuinellaRate: motorSecondRate,
+			motorThirdRate,
 			boatNo,
 			boatMotorNo: boatNo,
 			boatEquipmentNo: boatNo,
 			boatTwoRate: boatSecondRate,
 			boatSecondRate,
 			boatQuinellaRate: boatSecondRate,
+			boatThirdRate,
 		});
 	}
 
@@ -2434,10 +2447,18 @@ function parseExhibitionRowsFromBeforeInfo($) {
 
 		const frame = findFrameNumber(row, index);
 		const name = compactText($(cells[racerCellIndex]).find('a[href*="racersearch"], a[href*="profile"]').first().text()) || `枠${frame}`;
-		const rowText = compactText(row.text());
 		const afterRacerCells = cells.slice(racerCellIndex + 1).map((cell) => compactText($(cell).text()));
 		const exhibitionTime = afterRacerCells.find((text) => /^\d\.\d{2}$/.test(text)) ?? "";
-		const tilt = afterRacerCells.find((text) => /^[+-]?\d+\.\d$/.test(text)) ?? rowText.match(/[+-]?\d+\.\d(?!\d)/)?.[0] ?? "";
+		const weight = afterRacerCells.find((text) => /^\d{2}\.\d(?:kg)?$/.test(text)) ?? "";
+		const tilt = afterRacerCells.find((text) => {
+			const normalized = text.replace(/^\+/, "");
+			if (!/^-?\d+\.\d$/.test(normalized)) {
+				return false;
+			}
+
+			const value = Number(normalized);
+			return Number.isFinite(value) && value >= -0.5 && value <= 3;
+		}) ?? "";
 		const partsExchange = row.find("li").toArray().map((element) => compactText($(element).text())).filter(Boolean).join("、");
 		const startInfo = startExhibitionMap.get(frame) ?? null;
 		const course = startInfo?.course ?? "";
@@ -2454,6 +2475,7 @@ function parseExhibitionRowsFromBeforeInfo($) {
 			exhibitionTime,
 			displayTime: exhibitionTime,
 			time: exhibitionTime,
+			weight,
 			tilt,
 			stDisplay: startTiming,
 			startTiming,
@@ -2466,7 +2488,15 @@ function parseExhibitionRowsFromBeforeInfo($) {
 		});
 	});
 
-	return rows;
+	return rows.filter((row) =>
+		Boolean(
+			row.exhibitionTime ||
+			row.tilt ||
+			row.startTiming ||
+			row.course ||
+			row.partsExchange
+		),
+	);
 }
 
 function parseBeforeInfoPage(html, { date, raceNo, deadlineTime, fallbackUpdatedAt, source }) {

@@ -970,19 +970,26 @@ const buildRacerBlock = (racer: BoatRacerItem) => {
 
 	return [
 		`### ${racer.frameNo}号艇 ${racer.name}`,
+		`- 登録番号: ${toDisplay(racer.registrationNo)}`,
 		`- 支部: ${toDisplay(racer.branch)}`,
+		`- 出身地: ${toDisplay(racer.hometown)}`,
 		`- 級別: ${toDisplay(racer.class)}`,
 		`- 年齢: ${toDisplay(racer.age)}`,
 		`- 体重: ${toDisplay(racer.weight)}`,
 		`- F/L: ${flText}`,
 		`- 平均ST: ${toDisplay(racer.averageStart)}`,
-		`- 勝率: ${toDisplay(racer.winRate)}`,
-		`- 2連率: ${toDisplay(racer.secondRate)}`,
-		`- 3連率: ${toDisplay(racer.thirdRate)}`,
+		`- 全国勝率: ${toDisplay(racer.winRate)}`,
+		`- 全国2連率: ${toDisplay(racer.secondRate)}`,
+		`- 全国3連率: ${toDisplay(racer.thirdRate)}`,
+		`- 当地勝率: ${toDisplay(racer.localWinRate)}`,
+		`- 当地2連率: ${toDisplay(racer.localSecondRate)}`,
+		`- 当地3連率: ${toDisplay(racer.localThirdRate)}`,
 		`- モーター: ${toDisplay(racer.motorNo)}`,
 		`- モーター2連率: ${toDisplay(racer.motorSecondRate)}`,
+		`- モーター3連率: ${toDisplay(racer.motorThirdRate)}`,
 		`- ボート: ${toDisplay(racer.boatMotorNo)}`,
 		`- ボート2連率: ${toDisplay(racer.boatSecondRate)}`,
+		`- ボート3連率: ${toDisplay(racer.boatThirdRate)}`,
 		`- コメント: ${toDisplay(racer.comment)}`,
 	].join("\n");
 };
@@ -990,6 +997,8 @@ const buildRacerBlock = (racer: BoatRacerItem) => {
 const buildExhibitionBlock = (item: BoatExhibitionItem) => [
 	`### ${item.frameNo}号艇`,
 	`- 展示タイム: ${toDisplay(item.exhibitionTime)}`,
+	`- 直前体重: ${toDisplay(item.weight)}`,
+	`- 調整重量: ${toDisplay(item.weightAdjustment)}`,
 	`- チルト: ${toDisplay(item.tilt)}`,
 	`- 展示ST: ${toDisplay(item.startTiming)}`,
 	`- 進入: ${toDisplay(item.course)}`,
@@ -997,11 +1006,28 @@ const buildExhibitionBlock = (item: BoatExhibitionItem) => [
 	`- メモ: ${toDisplay(item.memo)}`,
 ].join("\n");
 
+const hasResolvedPredictionExhibition = (item: BoatExhibitionItem): boolean => {
+	const memo = readMaterialString(item.memo);
+	const hasOriginalExhibitionMetric =
+		memo.includes("一周/周回 ") ||
+		memo.includes("回り足 ") ||
+		memo.includes("直線 ");
+
+	return Boolean(
+		readMaterialString(item.exhibitionTime) ||
+			readMaterialString(item.tilt) ||
+			readMaterialString(item.startTiming) ||
+			hasOriginalExhibitionMetric,
+	);
+};
+
 const resolvePredictionExhibitions = (
 	race: BoatRaceItem,
 	raceExtra?: BoatVenueExtraRace | null,
 ): BoatExhibitionItem[] => {
-	const raceRows = toMaterialArray<BoatExhibitionItem>((race as { exhibitions?: unknown }).exhibitions);
+	const raceRows = toMaterialArray<BoatExhibitionItem>(
+		(race as { exhibitions?: unknown }).exhibitions,
+	).filter(hasResolvedPredictionExhibition);
 	if (raceRows.length > 0) {
 		return raceRows;
 	}
@@ -1044,13 +1070,15 @@ const resolvePredictionExhibitions = (
 		return {
 			frameNo: (readMaterialNumber(row.frameNo) ?? 0) as BoatExhibitionItem["frameNo"],
 			exhibitionTime: readFirstMaterialString(row.exhibitionTime, row.displayTime),
+			weight,
+			weightAdjustment: adjustment,
 			tilt: readFirstMaterialString(row.tilt),
 			startTiming: readFirstMaterialString(row.startTiming, row.st, row.officialStart),
 			course: readFirstMaterialString(row.course, row.courseNo, row.frameNo),
 			evaluation: readFirstMaterialString(row.exhibitionEvaluation, row.evaluation) as BoatExhibitionItem["evaluation"],
 			memo,
 		};
-	});
+	}).filter(hasResolvedPredictionExhibition);
 };
 
 const readFirstRecord = (...values: unknown[]): MaterialRecord | null => {
@@ -1244,7 +1272,9 @@ const buildStartExhibitionBlock = (race: BoatRaceItem) => {
 		].join("\n");
 	}
 
-	const exhibitions = toMaterialArray<BoatExhibitionItem>((race as { exhibitions?: unknown }).exhibitions);
+	const exhibitions = toMaterialArray<BoatExhibitionItem>(
+		(race as { exhibitions?: unknown }).exhibitions,
+	).filter(hasResolvedPredictionExhibition);
 
 	if (exhibitions.length === 0) {
 	return "- 展示更新待ち（進入・スタート展示は取得後に追加反映されます）";
