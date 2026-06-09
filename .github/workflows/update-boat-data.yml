@@ -24,8 +24,10 @@ on:
           - day
           - night
   schedule:
-    # 00:05 JST. GitHub Actions schedules are UTC.
+    # 00:05 JST and 06:05 JST. GitHub Actions schedules are UTC.
+    # 06:05 JST refreshes all official pre-race material once after morning publication.
     - cron: "5 15 * * *"
+    - cron: "5 21 * * *"
 
 concurrency:
   group: boat-data-update-main
