@@ -39,7 +39,10 @@ export type BoatRacerItem = {
 	frameNo: BoatFrameNumber;
 	boatNo: string;
 	name: string;
+	registrationNo?: string;
+	racerId?: string;
 	branch?: string;
+	hometown?: string;
 	class?: string;
 	age?: number | string;
 	weight?: string;
@@ -49,10 +52,15 @@ export type BoatRacerItem = {
 	winRate?: string;
 	secondRate?: string;
 	thirdRate?: string;
+	localWinRate?: string;
+	localSecondRate?: string;
+	localThirdRate?: string;
 	motorNo?: string;
 	motorSecondRate?: string;
+	motorThirdRate?: string;
 	boatMotorNo?: string;
 	boatSecondRate?: string;
+	boatThirdRate?: string;
 	comment?: string;
 };
 
