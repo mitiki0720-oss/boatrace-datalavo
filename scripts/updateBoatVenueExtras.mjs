@@ -6053,8 +6053,8 @@ function parseTamagawaMotorHistory(html) {
 			}
 
 			const identity = parseTamagawaIdentity($, firstCells[1]);
-			const motor = readCleanLines($(firstCells[2]));
-			const summary = readCleanLines($(firstCells[3]));
+			const motor = readCellSegments($, firstCells[2]);
+			const summary = readCellSegments($, firstCells[3]);
 			const historyEntries = [];
 
 			trList.forEach((rowElement, rowIndex) => {
