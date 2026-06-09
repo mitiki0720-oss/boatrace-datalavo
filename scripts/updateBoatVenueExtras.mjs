@@ -10411,7 +10411,7 @@ function parseOmuraProfileCell($, cell) {
 }
 
 function parseOmuraRateCell($, cell) {
-	const values = readCleanLines($(cell));
+	const values = readCellSegments($, cell);
 	return {
 		primary: values[0] ?? "",
 		secondary: values[1] ?? "",
