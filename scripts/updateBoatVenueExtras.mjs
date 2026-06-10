@@ -6023,6 +6023,21 @@ function parseTamagawaOriginalExhibition(html) {
 	return rows.sort((left, right) => left.frameNo - right.frameNo);
 }
 
+function readTamagawaMotorHistorySummary($, cell) {
+	const values = $(cell)
+		.find("span.yusyo")
+		.toArray()
+		.map((element) => readCellText($, element))
+		.filter(Boolean);
+
+	if (values.length > 0) {
+		return values;
+	}
+
+	return readCellSegments($, cell);
+}
+
+
 function parseTamagawaMotorHistory(html) {
 	const $ = load(html);
 	const table = findTableByKeywords($, ["モーター履歴", "使用選手", "節間成績"]);
@@ -6054,7 +6069,7 @@ function parseTamagawaMotorHistory(html) {
 
 			const identity = parseTamagawaIdentity($, firstCells[1]);
 			const motor = readCellSegments($, firstCells[2]);
-			const summary = readCellSegments($, firstCells[3]);
+			const summary = readTamagawaMotorHistorySummary($, firstCells[3]);
 			const historyEntries = [];
 
 			trList.forEach((rowElement, rowIndex) => {
