@@ -686,17 +686,32 @@ const toLooseRecord = (value: unknown): Record<string, unknown> =>
 		? value as Record<string, unknown>
 		: {};
 
+const isUsableExhibitionTimeValue = (value: unknown): boolean => {
+	const text = readLooseString(value)
+		.normalize("NFKC")
+		.replace(/秒$/u, "")
+		.trim();
+
+	if (!text || ["-", "--", "未取得", "確認中", "未設定"].includes(text)) {
+		return false;
+	}
+
+	const parsed = Number(text);
+	return Number.isFinite(parsed) && parsed >= 5 && parsed < 10;
+};
+
 const hasExhibitionTimeValue = (row: unknown): boolean => {
 	const record = toLooseRecord(row);
-	return Boolean(
-		readLooseString(record.exhibitionTime) ||
-		readLooseString(record.exhibition) ||
-		readLooseString(record.displayTime) ||
-		readLooseString(record.tenjiTime) ||
-		readLooseString(record.showTime) ||
-		readLooseString(record["展示"]) ||
-		readLooseString(record["展示タイム"])
-	);
+
+	return [
+		record.exhibitionTime,
+		record.exhibition,
+		record.displayTime,
+		record.tenjiTime,
+		record.showTime,
+		record["展示"],
+		record["展示タイム"],
+	].some(isUsableExhibitionTimeValue);
 };
 
 const getRaceExhibitionRows = (
@@ -712,17 +727,9 @@ const getRaceExhibitionRows = (
 		officialBeforeInfo.exhibitionRows,
 		officialBeforeInfo.beforeInfo,
 		extraRecord.beforeInfo,
-		extraRecord.officialBeforeInfo,
-		extraRecord.originalExhibition,
-		extraRecord.startExhibition,
 	];
 
-	for (const candidate of candidates) {
-		const rows = toArray<unknown>(candidate);
-		if (rows.length > 0) return rows;
-	}
-
-	return [];
+	return candidates.flatMap((candidate) => toArray<unknown>(candidate));
 };
 
 const buildExhibitionStatusLabel = (params: {
@@ -732,7 +739,21 @@ const buildExhibitionStatusLabel = (params: {
 	extraUpdatedAt?: string;
 }) => {
 	const rows = getRaceExhibitionRows(params.race, params.raceExtra);
-	const exhibitionTimeCount = rows.filter(hasExhibitionTimeValue).length;
+	const exhibitionFrames = new Set(
+		rows
+			.filter(hasExhibitionTimeValue)
+			.map((row) => {
+				const record = toLooseRecord(row);
+				return Number(
+					record.frameNo ??
+					record.frame ??
+					record.lane ??
+					record.boatNumber,
+				);
+			})
+			.filter((frameNo) => Number.isInteger(frameNo) && frameNo >= 1 && frameNo <= 6),
+	);
+	const exhibitionTimeCount = exhibitionFrames.size;
 	const updatedAt = params.extraUpdatedAt || params.feedUpdatedAt || "";
 
 	if (exhibitionTimeCount >= 6) {

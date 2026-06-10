@@ -1021,6 +1021,63 @@ const hasResolvedPredictionExhibition = (item: BoatExhibitionItem): boolean => {
 	);
 };
 
+const isUsablePredictionExhibitionTimeValue = (value: unknown): boolean => {
+	const text = readMaterialString(value)
+		.normalize("NFKC")
+		.replace(/秒$/u, "")
+		.trim();
+
+	if (!text || ["-", "--", "未取得", "確認中", "未設定"].includes(text)) {
+		return false;
+	}
+
+	const parsed = Number(text);
+	return Number.isFinite(parsed) && parsed >= 5 && parsed < 10;
+};
+
+const countOfficialPredictionExhibitionTimes = (
+	race: BoatRaceItem,
+	raceExtra?: BoatVenueExtraRace | null,
+): number => {
+	const raceRecord = isMaterialRecord(race) ? race as MaterialRecord : {};
+	const raceExtraRecord = isMaterialRecord(raceExtra) ? raceExtra : {};
+	const officialBeforeInfo = readOfficialBeforeInfo(raceExtra ?? undefined);
+
+	const rows = [
+		...toMaterialRecordArray(raceRecord.exhibitions),
+		...toMaterialRecordArray(officialBeforeInfo?.exhibitionRows),
+		...toMaterialRecordArray(officialBeforeInfo?.beforeInfo),
+		...toMaterialRecordArray(raceExtraRecord.beforeInfo),
+	];
+
+	const frames = new Set<number>();
+
+	for (const row of rows) {
+		const frameNo = readMaterialNumber(
+			row.frameNo ??
+			row.frame ??
+			row.lane ??
+			row.boatNumber,
+		);
+
+		const hasUsableExhibitionTime = [
+			row.exhibitionTime,
+			row.exhibition,
+			row.displayTime,
+			row.tenjiTime,
+			row.showTime,
+			row["展示"],
+			row["展示タイム"],
+		].some(isUsablePredictionExhibitionTimeValue);
+
+		if (frameNo && hasUsableExhibitionTime) {
+			frames.add(frameNo);
+		}
+	}
+
+	return frames.size;
+};
+
 const resolvePredictionExhibitions = (
 	race: BoatRaceItem,
 	raceExtra?: BoatVenueExtraRace | null,
@@ -1318,6 +1375,8 @@ export function buildBoatPredictionMaterial(params: {
 	const { venue, race, venueExtra, raceExtra, venueFeatureNote, venueFeatureInsights = [] } = params;
 	const racers = toMaterialArray<BoatRacerItem>((race as { racers?: unknown }).racers);
 	const exhibitions = resolvePredictionExhibitions(race, raceExtra);
+	const officialExhibitionTimeCount = countOfficialPredictionExhibitionTimes(race, raceExtra);
+	const hasCompletePredictionExhibition = officialExhibitionTimeCount >= 6;
 	const venueStartExhibitionMaterial = buildVenueStartExhibitionBlock(racers, raceExtra);
 	const raceStartExhibitionMaterial = buildStartExhibitionBlock(race);
 
@@ -1379,25 +1438,26 @@ export function buildBoatPredictionMaterial(params: {
 		].join("\n"),
 		[
 	"[I. 予想時点チェック]",
-	exhibitions.length > 0
+	hasCompletePredictionExhibition
 		? "素材モード: 展示反映済み"
-		: "素材モード: 展示前の事前予想",
-	...(exhibitions.length > 0
+		: `素材モード: 展示未完了の事前予想（公式展示タイム ${officialExhibitionTimeCount}/6艇）`,
+	...(hasCompletePredictionExhibition
 		? [
-				"- 展示・進入・モーター・ボート・風・波・公式オッズを総合して予想できます。",
+				"- 公式展示タイム6艇分を取得済みです。展示・進入・モーター・ボート・風・波・公式オッズを総合して予想できます。",
 				"- この素材は予想用のため、着順・払戻・決まり手などの結果情報は含めません。",
 			]
 		: [
 				"- 出走表・天気・モーター・公式オッズを使って事前予想できます。",
+				"- 展示情報が一部表示されていても、公式展示タイム6艇分が揃うまでは事前予想として扱ってください。",
 				"- 展示取得後は、最新素材を再コピーしてください。",
 				"- この素材は予想用のため、着順・払戻・決まり手などの結果情報は含めません。",
 			]),
 ].join("\n"),
 		[
 	"[J. GPTへの予想依頼メモ]",
-	exhibitions.length > 0
+	hasCompletePredictionExhibition
 		? "この資料をもとに、展示・進入・モーター・ボート・風・波・公式オッズを総合して競艇予想をしてください。"
-		: "この資料は展示前の事前予想素材です。出走表・天気・モーター・ボート・公式オッズを中心に競艇予想をしてください。展示取得後は再確認してください。",
+		: `この資料は展示未完了の事前予想素材です。公式展示タイムは ${officialExhibitionTimeCount}/6艇です。出走表・天気・モーター・ボート・公式オッズを中心に競艇予想をしてください。展示取得後は再確認してください。`,
 	"買い目は合計10点。",
 	"3連単は厚め2点、本線6点。",
 	"2連単は穴狙い2点。",
