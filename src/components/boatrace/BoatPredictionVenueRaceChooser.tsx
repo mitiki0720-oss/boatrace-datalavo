@@ -511,6 +511,14 @@ const toArray = <T,>(value: unknown): T[] => {
 const getVenueRaces = (venue: BoatTodayVenueItem | undefined): BoatRaceItem[] =>
 	toArray<BoatRaceItem>((venue as { races?: unknown } | undefined)?.races);
 
+const getVenueFirstRaceDisplayTimeMinutes = (venue: BoatTodayVenueItem): number | null => {
+	const raceTimes = getVenueRaces(venue)
+		.map(getRaceDisplayTimeMinutes)
+		.filter((minutes): minutes is number => minutes !== null);
+
+	return raceTimes.length > 0 ? Math.min(...raceTimes) : null;
+};
+
 const getVenueWeather = (venue: BoatTodayVenueItem | undefined) => {
 	const source =
 		(venue as { weatherActual?: unknown } | undefined)?.weatherActual ??
@@ -609,10 +617,25 @@ export function BoatPredictionVenueRaceChooser({
 }: BoatPredictionVenueRaceChooserProps) {
 	const selectedVenue = venues.find((venue) => venue.id === selectedVenueId) ?? venues[0];
 	const sortedVenues = venues
-		.map((venue, index) => ({ venue, index, session: resolveBoatVenueSession(venue) }))
+		.map((venue, index) => ({
+			venue,
+			index,
+			session: resolveBoatVenueSession(venue),
+			firstRaceMinutes: getVenueFirstRaceDisplayTimeMinutes(venue),
+		}))
 		.sort((a, b) => {
 			const sessionDiff = getSessionSortOrder(a.session) - getSessionSortOrder(b.session);
 			if (sessionDiff !== 0) return sessionDiff;
+
+			if (a.firstRaceMinutes !== null && b.firstRaceMinutes !== null) {
+				const timeDiff = a.firstRaceMinutes - b.firstRaceMinutes;
+				if (timeDiff !== 0) return timeDiff;
+			} else if (a.firstRaceMinutes !== null) {
+				return -1;
+			} else if (b.firstRaceMinutes !== null) {
+				return 1;
+			}
+
 			return a.index - b.index;
 		})
 		.map(({ venue }) => venue);

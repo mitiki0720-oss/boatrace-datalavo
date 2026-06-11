@@ -31,7 +31,8 @@ import {
 	normalizeBoatPredictionRecordList,
 	type BoatReviewVenueGroup,
 } from "../lib/boatReviewSummaryBuilder";
-import type { BoatTodayFeed } from "../lib/boatraceTypes";
+import { resolveBoatVenueDayLabel } from "../lib/boatVenueDayLabel";
+import type { BoatRaceItem, BoatTodayFeed } from "../lib/boatraceTypes";
 import { boatTheme } from "../lib/theme";
 
 type ReviewDataMode = "live" | "archive";
@@ -430,10 +431,21 @@ function formatVenueCardDate(date: string): string {
 }
 
 function getVenueStageLabel(group: BoatReviewVenueGroup): string {
-	const title = group.title ?? "";
-	const matched = title.match(/(初日|2日目|3日目|4日目|5日目|6日目|最終日)/);
+	const races = group.races
+		.map((entry) => entry.race)
+		.filter((race): race is BoatRaceItem => Boolean(race));
 
-	return matched?.[1] ?? "初日";
+	if (group.venue) {
+		const resolved = resolveBoatVenueDayLabel(group.venue, races);
+		if (resolved !== "日目未取得") {
+			return resolved;
+		}
+	}
+
+	const title = group.title ?? "";
+	const matched = title.match(/(初日|2日目|3日目|4日目|5日目|6日目|最終日|準優日|優勝戦日)/);
+
+	return matched?.[1] ?? "日目未取得";
 }
 
 function getVenueSessionLabel(group: BoatReviewVenueGroup): string {
