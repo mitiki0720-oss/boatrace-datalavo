@@ -6647,6 +6647,12 @@ const selectedOriginalStraightSourceStatus = readVenueExtraString(
 	(isVenueExtraRecord(selectedRaceExtra?.sourceStatus) ? selectedRaceExtra.sourceStatus.originalStraightTime : undefined) ??
 	(isVenueExtraRecord(selectedVenueExtra?.sourceStatus) ? selectedVenueExtra.sourceStatus.originalStraightTime : undefined),
 );
+const hasOriginalExhibitionUnsupportedStatus = [
+	selectedOriginalExhibitionSourceStatus,
+	selectedOriginalOneLapSourceStatus,
+	selectedOriginalTurnSourceStatus,
+	selectedOriginalStraightSourceStatus,
+].some((status) => status === "not-supported");
 const originalExhibitionCoverageItems = [
 	{
 		label: "行",
@@ -7867,7 +7873,11 @@ const getVenueExtraPanelSummary = (option: { key: VenueExtraPanelKey; badge: str
 	}
 
 	if (option.key === "exhibition") {
-		return selectedOriginalExhibitionRows.length > 0 ? `一周・回り足 ${selectedOriginalExhibitionRows.length}艇` : "展示公開待ち";
+		if (selectedOriginalExhibitionRows.length > 0) {
+			return `一周・回り足 ${selectedOriginalExhibitionRows.length}艇`;
+		}
+
+		return hasOriginalExhibitionUnsupportedStatus ? "公式非掲載" : "展示公開待ち";
 	}
 
 	if (option.key === "motor" || option.key.endsWith("-motor")) {
@@ -11804,7 +11814,7 @@ body:has(.races-page-root) {
 		{selectedVenueExtraPanel === "exhibition" ? (
 			hasExhibitionPanelData ? (
 				<div style={venueExtrasDataGridStyle}>
-					{hasOriginalExhibitionData ? (
+					{hasOriginalExhibitionData || hasOriginalExhibitionUnsupportedStatus ? (
 						<section style={venueExtrasPanelStyle}>
 							<h4 style={venueExtrasPanelTitleStyle}>会場独自展示</h4>
 							<div style={venueExtrasStatusGridStyle}>
@@ -11819,7 +11829,7 @@ body:has(.races-page-root) {
 							{isMikuniVenue && selectedOriginalExhibitionRows[0]?.source ? (
 								<p style={venueExtrasTextStyle}>三国オリジナルデータ / {selectedOriginalExhibitionRows[0].source}</p>
 							) : null}
-							<div style={venueExtrasTableWrapStyle}>
+							{hasOriginalExhibitionData ? <div style={venueExtrasTableWrapStyle}>
 								<table style={venueExtrasTableStyle}>
 									<thead>
 										<tr>
@@ -11873,7 +11883,9 @@ body:has(.races-page-root) {
 										))}
 									</tbody>
 								</table>
-							</div>
+							</div> : (
+								<p style={venueExtrasEmptyStyle}>この会場の独自展示タイムは公式会場サイトでは掲載されていません。</p>
+							)}
 						</section>
 					) : shouldShowOriginalExhibitionWaiting ? (
 						<section style={venueExtrasPanelStyle}>
