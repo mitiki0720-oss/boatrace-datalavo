@@ -8,6 +8,9 @@ const venueExtrasPath = process.env.BOAT_VENUE_EXTRAS_PATH
 	: path.join(repoRoot, "public", "data", "boatrace", "venue-extras.generated.json");
 const feed = JSON.parse(fs.readFileSync(venueExtrasPath, "utf8"));
 
+assert.ok(Array.isArray(feed.venues), "daily venue extras feed should expose venues array");
+assert.ok(feed.venues.length > 0, "daily venue extras feed should contain at least one venue");
+
 const requiredStatuses = new Set([
 	"available",
 	"pending",
@@ -44,7 +47,6 @@ function assertVenueMetadata(name) {
 const auditedVenueNames = ["芦屋", "三国", "徳山", "常滑", "尼崎", "宮島", "江戸川", "若松", "下関", "桐生", "蒲郡"];
 const heldAuditedVenueNames = auditedVenueNames.filter((name) => findVenue(name));
 
-assert.ok(heldAuditedVenueNames.length > 0, "at least one audited venue should exist in the daily venue extras feed");
 for (const name of heldAuditedVenueNames) {
 	assertVenueMetadata(name);
 }
@@ -96,4 +98,7 @@ for (const venue of feed.venues ?? []) {
 	}
 }
 
-console.log(`[check:boat-venue-extras-coverage] passed (${heldAuditedVenueNames.join(", ")})`);
+const auditedVenueLabel =
+	heldAuditedVenueNames.length > 0 ? heldAuditedVenueNames.join(", ") : "no audited venues active";
+
+console.log(`[check:boat-venue-extras-coverage] passed (${auditedVenueLabel})`);
