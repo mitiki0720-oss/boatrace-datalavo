@@ -1,5 +1,6 @@
 import { isBoatPracticePayoutPending, type BoatPracticeResultRecord } from "./boatPracticeResultStorage";
 import { resolveBoatPredictionOutcome, type BoatPredictionOutcomeStatus } from "./boatResultSettlement";
+import type { BoatVenueExtraRace, BoatVenueExtraVenue } from "./boatVenueExtrasFeed";
 import type {
 	BoatOddsItem,
 	BoatOddsTopItem,
@@ -69,6 +70,23 @@ export type BoatReviewVenueMetrics = {
 	profit: number;
 	roi: number;
 	hasSummary: boolean;
+};
+
+export type BoatReviewPredictionCoverage = {
+	status: "known" | "unknown";
+	savedCount: number | null;
+	totalCount: number;
+	missingRaceNos: number[];
+};
+
+export type BoatReviewResultCoverage = {
+	confirmedCount: number;
+	exhibitionCompleteCount: number;
+	totalCount: number;
+};
+
+export type BoatReviewResultSummaryOptions = {
+	venueExtra?: BoatVenueExtraVenue | null;
 };
 
 export const BOAT_REVIEW_VENUE_SLUGS: Record<string, BoatReviewVenueSlug> = {
@@ -173,6 +191,39 @@ function formatDateJa(date: string): string {
 
 function readText(value: unknown): string {
 	return typeof value === "string" ? value.trim() : "";
+}
+
+type ReviewRecord = Record<string, unknown>;
+
+function isReviewRecord(value: unknown): value is ReviewRecord {
+	return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function toReviewRecordArray(value: unknown): ReviewRecord[] {
+	if (Array.isArray(value)) return value.filter(isReviewRecord);
+	if (isReviewRecord(value)) return Object.values(value).filter(isReviewRecord);
+	return [];
+}
+
+function readFirstText(record: ReviewRecord | null | undefined, keys: string[]): string {
+	if (!record) return "";
+	for (const key of keys) {
+		const value = record[key];
+		if (typeof value === "string" || typeof value === "number") {
+			const text = String(value).trim();
+			if (text) return text;
+		}
+	}
+	return "";
+}
+
+function readFrameNo(record: ReviewRecord): number | null {
+	const value = Number(record.frameNo ?? record.frame ?? record.lane ?? record.boatNumber ?? record.boatNo ?? record.teiban ?? record.waku);
+	return Number.isInteger(value) && value >= 1 && value <= 6 ? value : null;
+}
+
+function getVenueExtraRace(venueExtra: BoatVenueExtraVenue | null | undefined, raceNo: number): BoatVenueExtraRace | null {
+	return toReviewRecordArray(venueExtra?.races).find((race) => Number(race.raceNo) === raceNo) as BoatVenueExtraRace | null ?? null;
 }
 
 function readNumber(value: unknown): number {
@@ -520,42 +571,255 @@ function formatFinishers(result?: BoatRaceResult): string {
 	}).join("\n");
 }
 
-function formatStartInfo(result?: BoatRaceResult): string {
-	const rows = result?.startInfo ?? result?.startInfos ?? [];
-	if (!Array.isArray(rows) || rows.length === 0) return "S/H/B: 未取得";
-	return `S/H/B: ${rows.map((item) => `${item.course ?? item.entryCourse ?? "-"}:${item.frameNo ?? item.frame ?? item.boatNumber ?? "-"} ST${item.stDisplay ?? item.startTiming ?? item.st ?? "-"}`).join(" / ")}`;
+type ReviewExhibitionRow = {
+	frameNo: number;
+	playerName: string;
+	exhibitionTime: string;
+	oneLapTime: string;
+	turnTime: string;
+	straightTime: string;
+	startTiming: string;
+	course: string;
+};
+
+function mergeReviewExhibitionRows(
+	rowsByFrame: Map<number, ReviewExhibitionRow>,
+	rows: unknown,
+): void {
+	for (const record of toReviewRecordArray(rows)) {
+		const frameNo = readFrameNo(record);
+		if (!frameNo) continue;
+		const current = rowsByFrame.get(frameNo) ?? {
+			frameNo,
+			playerName: "",
+			exhibitionTime: "",
+			oneLapTime: "",
+			turnTime: "",
+			straightTime: "",
+			startTiming: "",
+			course: "",
+		};
+		rowsByFrame.set(frameNo, {
+			frameNo,
+			playerName: current.playerName || readFirstText(record, ["playerName", "racerName", "name", "boatRacerName"]),
+			exhibitionTime: current.exhibitionTime || readFirstText(record, ["exhibitionTime", "displayTime", "tenjiTime", "exhibition", "展示", "展示タイム"]),
+			oneLapTime: current.oneLapTime || readFirstText(record, ["oneLapTime", "lapTime", "roundTime", "oneLap", "lap", "一周"]),
+			turnTime: current.turnTime || readFirstText(record, ["turnTime", "turningTime", "turn", "mawariashi", "回り足"]),
+			straightTime: current.straightTime || readFirstText(record, ["straightTime", "straight", "chokuren", "直線"]),
+			startTiming: current.startTiming || readFirstText(record, ["startTiming", "stDisplay", "st"]),
+			course: current.course || readFirstText(record, ["course", "entryCourse", "approachCourse"]),
+		});
+	}
 }
 
-function formatOdds(race?: BoatRaceItem): string {
-	const finalOdds = race?.result?.finalOdds;
-	const topRows: BoatOddsTopItem[] = [
-		...(finalOdds?.trifectaTop ?? []),
-		...((race?.oddsPreview as { trifectaTop?: BoatOddsTopItem[] } | undefined)?.trifectaTop ?? []),
-	];
-	if (topRows.length > 0) {
-		return topRows.slice(0, 20).map((item) => `${item.popularity ? `${item.popularity}人気 ` : ""}${item.combination}: ${item.odds}`).join("\n");
-	}
-	const allRows: BoatOddsItem[] = finalOdds?.trifectaAll ?? [];
-	if (allRows.length > 0) {
-		return allRows.slice(0, 30).map((item) => `${item.popularity ? `${item.popularity}人気 ` : ""}${item.combination}: ${item.odds}`).join("\n");
+function buildReviewExhibitionRows(race?: BoatRaceItem, raceExtra?: BoatVenueExtraRace | null): ReviewExhibitionRow[] {
+	const rowsByFrame = new Map<number, ReviewExhibitionRow>();
+	const officialBeforeInfo = isReviewRecord(raceExtra?.officialBeforeInfo) ? raceExtra.officialBeforeInfo : null;
+
+	mergeReviewExhibitionRows(rowsByFrame, race?.exhibitions);
+	mergeReviewExhibitionRows(rowsByFrame, race?.startExhibition);
+	mergeReviewExhibitionRows(rowsByFrame, officialBeforeInfo?.exhibitionRows);
+	mergeReviewExhibitionRows(rowsByFrame, officialBeforeInfo?.beforeInfo);
+	mergeReviewExhibitionRows(rowsByFrame, officialBeforeInfo?.startExhibition);
+	mergeReviewExhibitionRows(rowsByFrame, raceExtra?.beforeInfo);
+	mergeReviewExhibitionRows(rowsByFrame, raceExtra?.startExhibition);
+	mergeReviewExhibitionRows(rowsByFrame, raceExtra?.originalExhibition);
+
+	return Array.from(rowsByFrame.values()).sort((a, b) => a.frameNo - b.frameNo);
+}
+
+function getStandardExhibitionCount(race?: BoatRaceItem, raceExtra?: BoatVenueExtraRace | null): number {
+	return buildReviewExhibitionRows(race, raceExtra).filter((row) => Boolean(row.exhibitionTime)).length;
+}
+
+function getOriginalExhibitionStatus(
+	venueExtra?: BoatVenueExtraVenue | null,
+	raceExtra?: BoatVenueExtraRace | null,
+): string {
+	const rows = toReviewRecordArray(raceExtra?.originalExhibition);
+	if (rows.length > 0) return `${rows.length}/6`;
+	const raceStatus = isReviewRecord(raceExtra?.sourceStatus) ? readText(raceExtra.sourceStatus.originalExhibition) : "";
+	const venueStatus = isReviewRecord(venueExtra?.sourceStatus) ? readText(venueExtra.sourceStatus.originalExhibition) : "";
+	if (raceStatus === "not-supported" || venueStatus === "not-supported") return "公式非掲載";
+	const status = raceStatus || venueStatus;
+	if (status === "unpublished" || status === "not-published" || status === "pending" || status === "waiting" || status.startsWith("pending-")) {
+		return "未取得";
 	}
 	return "未取得";
 }
 
+function formatExhibitionDetails(
+	race?: BoatRaceItem,
+	raceExtra?: BoatVenueExtraRace | null,
+): string {
+	const racersByFrame = new Map((race?.racers ?? []).map((racer) => [Number(racer.frameNo ?? racer.boatNo), racer]));
+	const rows = buildReviewExhibitionRows(race, raceExtra);
+	if (rows.length === 0) return "未取得";
+	return rows.map((row) => {
+		const racer = racersByFrame.get(row.frameNo);
+		const exhibitionPlayerName = /^枠[1-6]$/.test(row.playerName) ? "" : row.playerName;
+		const values = [
+			`${row.frameNo}号艇 ${racer?.name || exhibitionPlayerName || "選手名未取得"}`,
+			`展示 ${row.exhibitionTime || "未取得"}`,
+		];
+		if (row.oneLapTime) values.push(`一周 ${row.oneLapTime}`);
+		if (row.turnTime) values.push(`回り足 ${row.turnTime}`);
+		if (row.straightTime) values.push(`直線 ${row.straightTime}`);
+		values.push(`ST ${row.startTiming || "未取得"}`);
+		values.push(`コース ${row.course || "未取得"}`);
+		return values.join(" / ");
+	}).join("\n");
+}
+
+function getExhibitionStartRows(race?: BoatRaceItem, raceExtra?: BoatVenueExtraRace | null): ReviewRecord[] {
+	const officialBeforeInfo = isReviewRecord(raceExtra?.officialBeforeInfo) ? raceExtra.officialBeforeInfo : null;
+	const sources = [
+		race?.startExhibition,
+		officialBeforeInfo?.startExhibition,
+		officialBeforeInfo?.beforeInfo,
+		raceExtra?.startExhibition,
+		raceExtra?.beforeInfo,
+	];
+	const byCourse = new Map<number, ReviewRecord>();
+	for (const source of sources) {
+		for (const row of toReviewRecordArray(source)) {
+			const course = Number(row.course ?? row.entryCourse ?? row.approachCourse ?? row.courseNo);
+			if (Number.isInteger(course) && course >= 1 && course <= 6 && !byCourse.has(course)) byCourse.set(course, row);
+		}
+	}
+	return Array.from(byCourse.entries()).sort(([a], [b]) => a - b).map(([, row]) => row);
+}
+
+function formatStartRows(rows: ReviewRecord[], emptyText: string): string {
+	if (rows.length === 0) return emptyText;
+	return rows.map((row) => {
+		const course = readFirstText(row, ["course", "entryCourse", "approachCourse", "courseNo"]) || "-";
+		const frame = readFirstText(row, ["frameNo", "frame", "boatNumber", "boatNo", "lane"]) || "-";
+		const st = readFirstText(row, ["stDisplay", "startTiming", "st"]) || "-";
+		const flag = readFirstText(row, ["flag", "note"]);
+		return `${course}コース:${frame}号艇 ST${st}${flag ? ` ${flag}` : ""}`;
+	}).join(" / ");
+}
+
+function formatResultStartInfo(result?: BoatRaceResult): string {
+	const rows = toReviewRecordArray(result?.startInfo ?? result?.startInfos);
+	return formatStartRows(rows, "未取得");
+}
+
+function formatStartFlags(result?: BoatRaceResult): string {
+	const rows = toReviewRecordArray(result?.startInfo ?? result?.startInfos);
+	const flags = rows.flatMap((row) => {
+		const frame = readFirstText(row, ["frameNo", "frame", "boatNumber", "boatNo", "lane"]) || "-";
+		const flag = readFirstText(row, ["flag", "note"]);
+		return flag ? [`${frame}号艇 ${flag}`] : [];
+	});
+	return flags.length > 0 ? flags.join(" / ") : "なし";
+}
+
+function parseOddsValue(value: unknown): number | null {
+	const normalized = String(value ?? "").normalize("NFKC").replace(/,/g, "").match(/\d+(?:\.\d+)?/);
+	if (!normalized) return null;
+	const parsed = Number(normalized[0]);
+	return Number.isFinite(parsed) ? parsed : null;
+}
+
+function formatOddsItem(item: BoatOddsItem | BoatOddsTopItem | undefined): string {
+	return item ? `${item.combination || "-"} / ${item.odds || "-"}倍` : "未取得";
+}
+
+function formatOddsSummary(race?: BoatRaceItem, finishOrder?: string): string {
+	const finalOdds = race?.result?.finalOdds;
+	const allRows: BoatOddsItem[] = finalOdds?.trifectaAll ?? [];
+	const finalTop: BoatOddsTopItem[] = finalOdds?.trifectaTop ?? [];
+	const previewTop: BoatOddsTopItem[] = (race?.oddsPreview as { trifectaTop?: BoatOddsTopItem[] } | undefined)?.trifectaTop ?? [];
+	const rows = allRows.length > 0 ? allRows : finalTop.length > 0 ? finalTop : previewTop;
+	const sorted = rows
+		.map((item) => ({ item, value: parseOddsValue(item.odds) }))
+		.filter((item): item is { item: BoatOddsItem | BoatOddsTopItem; value: number } => item.value !== null)
+		.sort((a, b) => a.value - b.value);
+	const isFull = allRows.length === 120;
+	const category = isFull ? "最終全件" : allRows.length > 0 || finalTop.length > 0 ? "最終上位のみ" : previewTop.length > 0 ? "発売中参考" : "未取得";
+	const minimumLabel = isFull ? "全120通り最低オッズ" : rows.length > 0 ? "取得範囲内最低オッズ" : "最低オッズ";
+	const maximumLabel = isFull ? "全120通り最高オッズ" : rows.length > 0 ? "取得範囲内最高オッズ" : "最高オッズ";
+	const actual = isFull && finishOrder ? allRows.find((item) => item.combination === finishOrder) : undefined;
+	const updatedAt = finalOdds?.updatedAt
+		|| finalTop[0]?.updatedAt
+		|| finalTop[0]?.fetchedAt
+		|| previewTop[0]?.updatedAt
+		|| previewTop[0]?.fetchedAt
+		|| "未取得";
+	const source = allRows[0]?.source || finalTop[0]?.source || previewTop[0]?.source || "未取得";
+	const popularRowsWithRank = rows
+		.slice()
+		.sort((a, b) => readNumber(a.popularity) - readNumber(b.popularity))
+		.filter((item) => readNumber(item.popularity) > 0)
+		.slice(0, 5)
+		.map((item) => `${item.popularity}人気 ${item.combination} / ${item.odds}倍`)
+		.join(" / ");
+	const popularRows = popularRowsWithRank || sorted.slice(0, 5)
+		.map((item, index) => `${index + 1}番手 ${item.item.combination} / ${item.item.odds}倍`)
+		.join(" / ");
+
+	return [
+		`取得区分: ${category}`,
+		`取得件数: ${rows.length}`,
+		`${minimumLabel}: ${formatOddsItem(sorted[0]?.item)}`,
+		`${maximumLabel}: ${formatOddsItem(sorted.length > 0 ? sorted[sorted.length - 1].item : undefined)}`,
+		...(isFull ? [] : [`全120通り最低オッズ: ${rows.length > 0 ? "判定不可" : "未取得"}`]),
+		`実着順オッズ: ${formatOddsItem(actual)}`,
+		`人気上位: ${popularRows || "未取得"}`,
+		`取得時点: ${updatedAt}`,
+		`取得元: ${source === "未取得" && rows.length > 0 ? "today-race-details.generated.json" : source}`,
+	].join("\n");
+}
+
+function getEquipmentFallbackByFrame(raceExtra?: BoatVenueExtraRace | null): Map<number, ReviewRecord> {
+	const officialBeforeInfo = isReviewRecord(raceExtra?.officialBeforeInfo) ? raceExtra.officialBeforeInfo : null;
+	const sources = [
+		officialBeforeInfo?.scoreQuickLook,
+		raceExtra?.entryTable,
+		raceExtra?.motorSummary,
+		raceExtra?.originalExhibition,
+	];
+	const map = new Map<number, ReviewRecord>();
+	for (const source of sources) {
+		for (const row of toReviewRecordArray(source)) {
+			const frameNo = readFrameNo(row);
+			if (!frameNo) continue;
+			map.set(frameNo, { ...(map.get(frameNo) ?? {}), ...row });
+		}
+	}
+	return map;
+}
+
+function formatEquipment(race?: BoatRaceItem, raceExtra?: BoatVenueExtraRace | null): string {
+	const racers = race?.racers ?? [];
+	const racersByFrame = new Map(racers.map((racer) => [Number(racer.frameNo ?? racer.boatNo), racer]));
+	const fallbackByFrame = getEquipmentFallbackByFrame(raceExtra);
+	if (racers.length === 0 && fallbackByFrame.size === 0) return "未取得";
+	return Array.from({ length: 6 }, (_, index) => {
+		const frameNo = index + 1;
+		const racer = racersByFrame.get(frameNo);
+		const fallback = fallbackByFrame.get(frameNo);
+		const name = racer?.name || readFirstText(fallback, ["playerName", "racerName", "name"]) || "選手名未取得";
+		const motorNo = racer?.motorNo || readFirstText(fallback, ["motorNo"]) || "未取得";
+		const motorSecondRate = racer?.motorSecondRate || readFirstText(fallback, ["motorSecondRate"]) || "未取得";
+		const boatNo = racer?.boatMotorNo || readFirstText(fallback, ["boatNo", "boatMotorNo"]) || "未取得";
+		const boatSecondRate = racer?.boatSecondRate || readFirstText(fallback, ["boatSecondRate"]) || "未取得";
+		return `${frameNo}号艇 ${name} / モーター ${motorNo} / モーター2連率 ${motorSecondRate} / ボート ${boatNo} / ボート2連率 ${boatSecondRate}`;
+	}).join("\n");
+}
+
 function formatRacers(race?: BoatRaceItem): string {
 	const racers = race?.racers ?? [];
-	if (racers.length === 0) {
-		return Array.from({ length: 6 }, (_, index) => `${index + 1}　選手未取得`).join("\n");
-	}
-	return racers
-		.slice()
-		.sort((a, b) => Number(a.frameNo ?? a.boatNo ?? 99) - Number(b.frameNo ?? b.boatNo ?? 99))
-		.map((racer: BoatRacerItem) => `${racer.frameNo ?? racer.boatNo ?? "-"}　${racer.name || "選手名未取得"}`)
-		.join("\n");
+	if (racers.length === 0) return Array.from({ length: 6 }, (_, index) => `${index + 1}　選手未取得`).join("\n");
+	return racers.slice().sort((a, b) => Number(a.frameNo ?? a.boatNo ?? 99) - Number(b.frameNo ?? b.boatNo ?? 99))
+		.map((racer: BoatRacerItem) => `${racer.frameNo ?? racer.boatNo ?? "-"}　${racer.name || "選手名未取得"}`).join("\n");
 }
 
 export function getBoatReviewVenueMetrics(group: BoatReviewVenueGroup): BoatReviewVenueMetrics {
-	const predictionCount = group.predictionFileText ? 12 : group.races.filter((entry) => entry.prediction?.predictionText).length;
+	const predictionCoverage = getBoatReviewPredictionCoverage(group);
+	const predictionCount = predictionCoverage.savedCount ?? 0;
 	const resultCount = group.resultFileText ? 12 : group.races.filter((entry) => {
 		const status = entry.race?.result?.status;
 		return status === "confirmed" || Boolean(getFinishOrderText(entry.race, entry.practiceResult));
@@ -581,10 +845,73 @@ export function getBoatReviewVenueMetrics(group: BoatReviewVenueGroup): BoatRevi
 	};
 }
 
+function parseArchivePredictionCoverage(text: string): BoatReviewPredictionCoverage {
+	const sectionMatches = Array.from(text.matchAll(/^■\s+.+?\s+([1-9]|1[0-2])R\s*$/gm));
+	if (sectionMatches.length === 0) {
+		return { status: "unknown", savedCount: null, totalCount: 12, missingRaceNos: [] };
+	}
+	const saved = new Set<number>();
+	for (const [index, match] of sectionMatches.entries()) {
+		const start = match.index ?? 0;
+		const end = sectionMatches[index + 1]?.index ?? text.length;
+		const section = text.slice(start, end);
+		if (!/(?:^|\n)\s*予想未保存\s*(?:\n|$)/.test(section)) saved.add(Number(match[1]));
+	}
+	return {
+		status: "known",
+		savedCount: saved.size,
+		totalCount: 12,
+		missingRaceNos: Array.from({ length: 12 }, (_, index) => index + 1).filter((raceNo) => !saved.has(raceNo)),
+	};
+}
+
+export function getBoatReviewPredictionCoverage(group: BoatReviewVenueGroup): BoatReviewPredictionCoverage {
+	if (group.predictionFileText?.trim()) return parseArchivePredictionCoverage(group.predictionFileText);
+	const savedRaceNos = new Set(
+		group.races
+			.filter((entry) => Boolean(entry.prediction?.predictionText?.trim()))
+			.map((entry) => entry.raceNo),
+	);
+	return {
+		status: "known",
+		savedCount: savedRaceNos.size,
+		totalCount: 12,
+		missingRaceNos: Array.from({ length: 12 }, (_, index) => index + 1).filter((raceNo) => !savedRaceNos.has(raceNo)),
+	};
+}
+
+function formatMissingPredictionRaceNos(raceNos: number[]): string {
+	if (raceNos.length === 12 && raceNos.every((raceNo, index) => raceNo === index + 1)) return "1R〜12R";
+	return raceNos.map((raceNo) => `${raceNo}R`).join("・");
+}
+
+export function getBoatReviewResultCoverage(
+	group: BoatReviewVenueGroup,
+	venueExtra?: BoatVenueExtraVenue | null,
+): BoatReviewResultCoverage {
+	if (group.resultFileText?.trim()) {
+		return { confirmedCount: 0, exhibitionCompleteCount: 0, totalCount: 12 };
+	}
+	return {
+		confirmedCount: group.races.filter((entry) =>
+			entry.race?.result?.status === "confirmed" || Boolean(getFinishOrderText(entry.race, entry.practiceResult)),
+		).length,
+		exhibitionCompleteCount: group.races.filter((entry) =>
+			getStandardExhibitionCount(entry.race, getVenueExtraRace(venueExtra, entry.raceNo)) === 6,
+		).length,
+		totalCount: 12,
+	};
+}
+
 export function buildBoatPredictionSummaryText(group: BoatReviewVenueGroup): string {
 	if (group.predictionFileText?.trim()) return group.predictionFileText;
 
 	const header = `${group.venueName}｜${formatDateJa(group.date)}｜予想まとめ`;
+	const coverage = getBoatReviewPredictionCoverage(group);
+	const coverageLines = [
+		`予想保存状況: ${coverage.savedCount ?? 0}/${coverage.totalCount}`,
+		`未保存レース: ${coverage.missingRaceNos.length > 0 ? formatMissingPredictionRaceNos(coverage.missingRaceNos) : "なし"}`,
+	];
 	const sections = group.races.map((entry) => {
 		const predictionText = entry.prediction?.predictionText?.trim();
 		return [
@@ -605,17 +932,25 @@ export function buildBoatPredictionSummaryText(group: BoatReviewVenueGroup): str
 		].join("\n");
 	});
 
-	return [header, "", ...sections.flatMap((section) => [section, "----"])].join("\n");
+	return [header, ...coverageLines, "", ...sections.flatMap((section) => [section, "----"])].join("\n");
 }
 
-export function buildBoatResultSummaryText(group: BoatReviewVenueGroup): string {
+export function buildBoatResultSummaryText(
+	group: BoatReviewVenueGroup,
+	options: BoatReviewResultSummaryOptions = {},
+): string {
 	if (group.resultFileText?.trim()) return group.resultFileText;
 
 	const header = `${group.venueName}｜${formatDateJa(group.date)}｜結果照合用`;
 	const sections = group.races.map((entry) => {
 		const result = entry.race?.result;
+		const raceExtra = getVenueExtraRace(options.venueExtra, entry.raceNo);
 		const finishOrder = getFinishOrderText(entry.race, entry.practiceResult);
-		const status = result?.status === "confirmed" || finishOrder ? "confirmed" : result?.status ?? "pending";
+		const resultStatus = result?.status === "confirmed" || finishOrder
+			? "確定"
+			: result
+				? "未確定"
+				: "未取得";
 		const hit = getReviewPredictionOutcomeStatus(entry);
 		const payoutPending = isBoatPracticePayoutPending(entry.practiceResult);
 		const investment = readNumber(entry.practiceResult?.investmentAmount ?? entry.practiceResult?.totalStakeYen);
@@ -624,6 +959,17 @@ export function buildBoatResultSummaryText(group: BoatReviewVenueGroup): string 
 		const roi = !payoutPending && investment > 0 ? payout / investment * 100 : 0;
 		const kimarite = result?.kimarite ?? result?.winningMethod ?? result?.winningMove ?? entry.practiceResult?.kimarite ?? "未取得";
 		const hitBets = entry.practiceResult?.hitBets ?? [];
+		const exhibitions = buildReviewExhibitionRows(entry.race, raceExtra);
+		const standardExhibitionCount = exhibitions.filter((row) => Boolean(row.exhibitionTime)).length;
+		const originalExhibitionStatus = getOriginalExhibitionStatus(options.venueExtra, raceExtra);
+		const resultStartCount = toReviewRecordArray(result?.startInfo ?? result?.startInfos).length;
+		const weather = result?.weatherActual ?? entry.race?.weatherActual ?? group.venue?.weatherActual;
+		const finalOdds = entry.race?.result?.finalOdds;
+		const oddsStatus = finalOdds?.trifectaAll?.length === 120
+			? "最終全件"
+			: (finalOdds?.trifectaAll?.length ?? 0) > 0 || (finalOdds?.trifectaTop?.length ?? 0) > 0
+				? "最終上位のみ"
+				: (((entry.race?.oddsPreview as { trifectaTop?: BoatOddsTopItem[] } | undefined)?.trifectaTop?.length ?? 0) > 0 ? "発売中参考" : "未取得");
 
 		if (!entry.race && !entry.practiceResult) {
 			return [`■ ${group.venueName} ${entry.raceNo}R`, "結果未取得"].join("\n");
@@ -631,12 +977,23 @@ export function buildBoatResultSummaryText(group: BoatReviewVenueGroup): string 
 
 		return [
 			`■ ${group.venueName} ${entry.raceNo}R`,
+			"",
+			"【取得状況】",
+			`結果: ${resultStatus}`,
+			`展示タイム: ${standardExhibitionCount}/6`,
+			`会場独自展示: ${originalExhibitionStatus}`,
+			`ST情報: ${resultStartCount}/6`,
+			`天候: ${weather ? "取得済み" : "未取得"}`,
+			`オッズ: ${oddsStatus}`,
+			"",
+			"【レース基本情報】",
 			`レース名: ${entry.race?.title || entry.practiceResult?.raceTitle || `${entry.raceNo}R`}`,
 			`締切時刻: ${entry.race?.deadlineTime || "未取得"}`,
 			`発走時刻: ${entry.race?.startTime || "未取得"}`,
-			`結果確定: ${status}`,
 			`着順: ${finishOrder || "未取得"}`,
-			`3連単照合キー: ${finishOrder || "未取得"}`,
+			`決まり手: ${kimarite}`,
+			"",
+			"【予想照合・収支】",
 			`最終判定: ${hit}`,
 			`的中券種: ${entry.practiceResult?.hitBetType || hitBets[0]?.type || "未保存"}`,
 			`的中組み合わせ: ${entry.practiceResult?.hitBetNumbers ? String(entry.practiceResult.hitBetNumbers) : hitBets[0]?.normalized || "未保存"}`,
@@ -645,12 +1002,19 @@ export function buildBoatResultSummaryText(group: BoatReviewVenueGroup): string 
 			`収支: ${entry.practiceResult ? payoutPending ? "算出待ち" : signedYen(profit) : "未保存"}`,
 			`回収率: ${entry.practiceResult ? payoutPending ? "算出待ち" : percent(roi) : "未保存"}`,
 			"",
-			"【決まり手】",
-			`決まり手: ${kimarite}`,
-			formatStartInfo(result),
-			"",
 			"【WEATHER ACTUAL】",
 			formatWeather(result, entry.race, group.venue),
+			"",
+			"【展示詳細】",
+			formatExhibitionDetails(entry.race, raceExtra),
+			"",
+			"【進入・ST】",
+			`展示進入: ${formatStartRows(getExhibitionStartRows(entry.race, raceExtra), "未取得")}`,
+			`結果ST: ${formatResultStartInfo(result)}`,
+			`S/H/B: ${formatStartFlags(result)}`,
+			"",
+			"【出走・機材】",
+			formatEquipment(entry.race, raceExtra),
 			"",
 			"【全着順】",
 			formatFinishers(result),
@@ -662,13 +1026,12 @@ export function buildBoatResultSummaryText(group: BoatReviewVenueGroup): string 
 			formatPayoutLine("3連複", result, /3\s*連\s*複|3連複|trio/),
 			formatPayoutLine("拡連複", result, /拡\s*連\s*複|拡連複|wide/),
 			"",
-			"【最終オッズ参考】",
-			formatOdds(entry.race),
+			"【3連単オッズ要約】",
+			formatOddsSummary(entry.race, finishOrder),
 			"",
 			"【結果メモ】",
 			"自動取得結果",
-			`決まり手: ${kimarite}`,
-			`払戻取得元: ${entry.race?.memo || result?.remarks || result?.notes || group.venue?.source || "today-race-details.generated.json"}`,
+			`払戻取得元: ${group.venue?.source || "today-race-details.generated.json"}`,
 		].join("\n");
 	});
 

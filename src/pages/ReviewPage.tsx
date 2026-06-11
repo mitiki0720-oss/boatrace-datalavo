@@ -8,7 +8,6 @@ import { loadBoatPredictionRecords } from "../lib/boatPredictionStorage";
 import { loadBoatPracticeResultRecords } from "../lib/boatPracticeResultStorage";
 import {
 	loadBoatVenueExtrasFeed,
-	type BoatVenueExtraRace,
 	type BoatVenueExtraVenue,
 	type BoatVenueExtrasFeed,
 } from "../lib/boatVenueExtrasFeed";
@@ -25,6 +24,8 @@ import {
 	buildBoatResultSummaryText,
 	buildLiveBoatReviewVenueGroups,
 	createArchiveBoatReviewVenueGroup,
+	getBoatReviewPredictionCoverage,
+	getBoatReviewResultCoverage,
 	getBoatReviewVenueMetrics,
 	getBoatReviewVenueNameFromSlug,
 	normalizeBoatPracticeResultList,
@@ -633,6 +634,11 @@ function getReviewFileName(date: string, venueSlug: string, suffix: "predictions
 	return `${date}-${venueSlug}-${suffix}.${ext}`;
 }
 
+function formatMissingRaceNos(raceNos: number[]): string {
+	if (raceNos.length === 12 && raceNos.every((raceNo, index) => raceNo === index + 1)) return "1R〜12R";
+	return raceNos.map((raceNo) => `${raceNo}R`).join("・");
+}
+
 type ReviewExtraRecord = Record<string, unknown>;
 
 function toReviewRecordArray(value: unknown): ReviewExtraRecord[] {
@@ -653,31 +659,6 @@ function normalizeReviewVenueName(value: unknown): string {
 	return readReviewString(value).normalize("NFKC").replace(/\s+/g, "");
 }
 
-function readReviewFrameNo(value: unknown): number | null {
-	const match = readReviewString(value).normalize("NFKC").match(/^[1-6]$/);
-	return match ? Number(match[0]) : null;
-}
-
-function readReviewFirstString(row: ReviewExtraRecord | null | undefined, keys: string[]): string {
-	if (!row) return "";
-	for (const key of keys) {
-		const value = readReviewString(row[key]);
-		if (value) return value;
-	}
-	return "";
-}
-
-function createReviewFrameMap(rows: unknown): Map<number, ReviewExtraRecord> {
-	const map = new Map<number, ReviewExtraRecord>();
-	for (const row of toReviewRecordArray(rows)) {
-		const frameNo = readReviewFrameNo(row.frameNo ?? row.teiban ?? row.waku ?? row.boatNo);
-		if (frameNo) {
-			map.set(frameNo, row);
-		}
-	}
-	return map;
-}
-
 function findReviewVenueExtra(feed: BoatVenueExtrasFeed | null, group: BoatReviewVenueGroup | undefined): BoatVenueExtraVenue | null {
 	if (!feed || !group || feed.date !== group.date) {
 		return null;
@@ -690,64 +671,6 @@ function findReviewVenueExtra(feed: BoatVenueExtrasFeed | null, group: BoatRevie
 	}
 	const venueName = normalizeReviewVenueName(group.venueName || group.venue?.venueName);
 	return venues.find((venue) => normalizeReviewVenueName(venue.venueName || venue.venue || venue.name) === venueName) ?? null;
-}
-
-function findReviewRaceExtra(venueExtra: BoatVenueExtraVenue | null, raceNo: number): BoatVenueExtraRace | null {
-	return toReviewRecordArray(venueExtra?.races).find((race) => Number(race.raceNo) === Number(raceNo)) as BoatVenueExtraRace | null ?? null;
-}
-
-function buildReviewRaceExhibitionLines(raceExtra: BoatVenueExtraRace | null): string[] {
-	if (!raceExtra) return [];
-	const officialBeforeInfo = raceExtra.officialBeforeInfo as ReviewExtraRecord | undefined;
-	const beforeRows = [
-		...toReviewRecordArray(officialBeforeInfo?.exhibitionRows),
-		...toReviewRecordArray(raceExtra.beforeInfo),
-	];
-	const beforeByFrame = createReviewFrameMap(beforeRows);
-	const originalByFrame = createReviewFrameMap(raceExtra.originalExhibition);
-	const lines = [];
-
-	for (let frameNo = 1; frameNo <= 6; frameNo += 1) {
-		const before = beforeByFrame.get(frameNo);
-		const original = originalByFrame.get(frameNo);
-		const exhibitionTime = readReviewFirstString(before, ["exhibitionTime", "tenjiTime", "displayTime", "exhibition", "\u5c55\u793a", "\u5c55\u793a\u30bf\u30a4\u30e0"])
-			|| readReviewFirstString(original, ["exhibitionTime", "tenjiTime", "displayTime", "exhibition", "\u5c55\u793a", "\u5c55\u793a\u30bf\u30a4\u30e0"]);
-		const lapTime = readReviewFirstString(original, ["oneLapTime", "lapTime", "roundTime", "oneLap", "lap", "\u4e00\u5468"]);
-		const turnTime = readReviewFirstString(original, ["turnTime", "turn", "mawariashi", "\u56de\u308a\u8db3"]);
-		const straightTime = readReviewFirstString(original, ["straightTime", "straight", "chokuren", "\u76f4\u7dda"]);
-		if (![exhibitionTime, lapTime, turnTime, straightTime].some(Boolean)) {
-			continue;
-		}
-		lines.push(`${frameNo}\u53f7\u8247\u3000\u5c55\u793a ${exhibitionTime || "--"}\u3000\u4e00\u5468 ${lapTime || "--"}\u3000\u56de\u308a\u8db3 ${turnTime || "--"}\u3000\u76f4\u7dda ${straightTime || "--"}`);
-	}
-
-	return lines.length > 0 ? ["\u3010\u5c55\u793a\u3011", ...lines] : [];
-}
-
-function readReviewSectionRaceNo(section: string): number | null {
-	const headerLine = section.split(/\r?\n/).find((line) => line.trim().startsWith("■"));
-	const match = headerLine?.match(/(?:^|\s)([1-9]|1[0-2])R(?:\s|$)/);
-	return match ? Number(match[1]) : null;
-}
-
-function appendReviewExhibitionBlocks(resultSummary: string, group: BoatReviewVenueGroup | undefined, venueExtrasFeed: BoatVenueExtrasFeed | null): string {
-	const venueExtra = findReviewVenueExtra(venueExtrasFeed, group);
-	if (!group || !venueExtra) {
-		return resultSummary;
-	}
-	const sections = resultSummary.split("\n----");
-	if (sections.length <= 1) {
-		return resultSummary;
-	}
-	const enhancedSections = sections.map((section) => {
-		const raceNo = readReviewSectionRaceNo(section);
-		if (!raceNo || section.includes("\u3010\u5c55\u793a\u3011")) {
-			return section;
-		}
-		const lines = buildReviewRaceExhibitionLines(findReviewRaceExtra(venueExtra, raceNo));
-		return lines.length > 0 ? `${section.trimEnd()}\n\n${lines.join("\n")}` : section;
-	});
-	return enhancedSections.join("\n----");
 }
 
 function getMonthDates(dateSet: Set<string>, selectedDate: string): string[] {
@@ -850,13 +773,10 @@ export function ReviewPage() {
 		return archiveGroups;
 	}
 
-	const hasSavedPrediction = (group: BoatReviewVenueGroup) =>
-		group.races.some((entry) => Boolean(entry.prediction?.predictionText?.trim()));
-
 	const hasArchivePrediction = (group: BoatReviewVenueGroup) =>
 		Boolean(archiveItemMap.get(group.key)?.predictionFile);
 
-	const mergedGroups = liveGroups.filter(hasSavedPrediction);
+	const mergedGroups = [...liveGroups];
 
 	for (const archiveGroup of archiveGroups) {
 		if (hasArchivePrediction(archiveGroup) && !mergedGroups.some((group) => group.key === archiveGroup.key)) {
@@ -933,6 +853,18 @@ export function ReviewPage() {
 	}, [groups]);
 
 	const selectedMetrics = selectedGroup ? getBoatReviewVenueMetrics(selectedGroup) : null;
+	const selectedVenueExtra = useMemo(
+		() => findReviewVenueExtra(venueExtrasFeed, selectedLiveGroup),
+		[selectedLiveGroup, venueExtrasFeed],
+	);
+	const selectedPredictionCoverage = useMemo(
+		() => selectedGroup ? getBoatReviewPredictionCoverage(mode === "live" && selectedLiveGroup ? selectedLiveGroup : selectedGroup) : null,
+		[mode, selectedGroup, selectedLiveGroup],
+	);
+	const selectedResultCoverage = useMemo(
+		() => mode === "live" && selectedLiveGroup ? getBoatReviewResultCoverage(selectedLiveGroup, selectedVenueExtra) : null,
+		[mode, selectedLiveGroup, selectedVenueExtra],
+	);
 	const predictionText = useMemo(() => {
 		if (!selectedGroup) {
 			return "会場を選択してください";
@@ -963,12 +895,12 @@ export function ReviewPage() {
 		if (selectedLiveGroup) {
 			const hasLiveResult = selectedLiveGroup.races.some((entry) => entry.practiceResult || entry.race?.result);
 			if (hasLiveResult || !selectedArchiveGroup?.resultFileText?.trim()) {
-				return appendReviewExhibitionBlocks(buildBoatResultSummaryText(selectedLiveGroup), selectedLiveGroup, venueExtrasFeed);
+				return buildBoatResultSummaryText(selectedLiveGroup, { venueExtra: selectedVenueExtra });
 			}
 		}
 
 		return selectedArchiveGroup ? buildBoatResultSummaryText(selectedArchiveGroup) : "結果ファイル未登録";
-	}, [mode, selectedArchiveGroup, selectedGroup, selectedLiveGroup, venueExtrasFeed]);
+	}, [mode, selectedArchiveGroup, selectedGroup, selectedLiveGroup, selectedVenueExtra]);
 	const calendarCells = useMemo(() => buildCalendarCells(calendarMonth), [calendarMonth]);
 	const monthRegisteredDates = useMemo(() => getMonthDates(selectableDateSet, `${calendarMonth}-01`), [calendarMonth, selectableDateSet]);
 	const modeLabel = mode === "archive" ? "ARCHIVE FILE" : selectedDate === operationalToday ? "TODAY LIVE" : "LIVE";
@@ -1134,7 +1066,7 @@ export function ReviewPage() {
 					<div style={sectionHeaderStyle}>
 						<div>
 							<p style={eyebrowStyle}>Venue Cards</p>
-							<h2 style={sectionTitleStyle}>{mode === "archive" ? "保存した txt を会場ごとに開く" : "予想を保存した会場だけ振り返る"}</h2>
+							<h2 style={sectionTitleStyle}>{mode === "archive" ? "保存した txt を会場ごとに開く" : "会場ごとの予想保存状況を確認する"}</h2>
 						</div>
 						<p style={{ ...textStyle, fontSize: "0.82rem", textAlign: "right" }}>会場カードを押すと、予想全文・結果全文・summary全文が下の欄で切り替わります。</p>
 					</div>
@@ -1258,7 +1190,20 @@ export function ReviewPage() {
 									<p style={eyebrowStyle}>Prediction Copy</p>
 									<h2 style={sectionTitleStyle}>予想まとめコピー</h2>
 								</div>
-								{selectedGroup ? <span style={chipStyle}>{selectedGroup.venueName} / {selectedGroup.races.length}R</span> : null}
+								{selectedGroup && selectedPredictionCoverage ? (
+									<span
+										style={{
+											...chipStyle,
+											...(selectedPredictionCoverage.status === "known" && selectedPredictionCoverage.savedCount === selectedPredictionCoverage.totalCount
+												? {}
+												: { background: "rgba(255, 245, 214, 0.96)", borderColor: "rgba(210, 151, 31, 0.34)", color: "#8a5a00" }),
+										}}
+									>
+										{selectedGroup.venueName} / {selectedPredictionCoverage.status === "known"
+											? `予想保存 ${selectedPredictionCoverage.savedCount}/${selectedPredictionCoverage.totalCount}${selectedPredictionCoverage.missingRaceNos.length > 0 ? ` / 未保存 ${formatMissingRaceNos(selectedPredictionCoverage.missingRaceNos)}` : ""}`
+											: "予想保存数 未判定"}
+									</span>
+								) : null}
 							</div>
 							<textarea style={textareaStyle} value={predictionText} readOnly />
 							<div style={buttonRowStyle}>
@@ -1273,7 +1218,14 @@ export function ReviewPage() {
 									<p style={eyebrowStyle}>Result Copy</p>
 									<h2 style={sectionTitleStyle}>結果まとめコピー</h2>
 								</div>
-								{selectedMetrics ? <span style={chipStyle}>収支 {formatSignedYen(selectedMetrics.profit)} / 回収率 {formatPercent(selectedMetrics.roi)}</span> : null}
+								<div style={chipRowStyle}>
+									{selectedResultCoverage ? (
+										<span style={chipStyle}>
+											結果確定 {selectedResultCoverage.confirmedCount}/{selectedResultCoverage.totalCount} / 展示詳細 {selectedResultCoverage.exhibitionCompleteCount}/{selectedResultCoverage.totalCount}
+										</span>
+									) : selectedGroup ? <span style={chipStyle}>Archive取得件数 未判定</span> : null}
+									{selectedMetrics ? <span style={chipStyle}>収支 {formatSignedYen(selectedMetrics.profit)} / 回収率 {formatPercent(selectedMetrics.roi)}</span> : null}
+								</div>
 							</div>
 							<textarea style={textareaStyle} value={resultText} readOnly />
 							<div style={buttonRowStyle}>
