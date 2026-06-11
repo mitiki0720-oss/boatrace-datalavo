@@ -6647,12 +6647,11 @@ const selectedOriginalStraightSourceStatus = readVenueExtraString(
 	(isVenueExtraRecord(selectedRaceExtra?.sourceStatus) ? selectedRaceExtra.sourceStatus.originalStraightTime : undefined) ??
 	(isVenueExtraRecord(selectedVenueExtra?.sourceStatus) ? selectedVenueExtra.sourceStatus.originalStraightTime : undefined),
 );
-const hasOriginalExhibitionUnsupportedStatus = [
-	selectedOriginalExhibitionSourceStatus,
-	selectedOriginalOneLapSourceStatus,
-	selectedOriginalTurnSourceStatus,
-	selectedOriginalStraightSourceStatus,
-].some((status) => status === "not-supported");
+const hasOriginalExhibitionUnsupportedStatus =
+	[
+		isVenueExtraRecord(selectedRaceExtra?.sourceStatus) ? selectedRaceExtra.sourceStatus.originalExhibition : undefined,
+		isVenueExtraRecord(selectedVenueExtra?.sourceStatus) ? selectedVenueExtra.sourceStatus.originalExhibition : undefined,
+	].some((status) => readVenueExtraString(status) === "not-supported");
 const originalExhibitionCoverageItems = [
 	{
 		label: "行",
