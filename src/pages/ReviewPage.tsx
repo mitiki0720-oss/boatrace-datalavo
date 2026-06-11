@@ -459,6 +459,124 @@ function getVenueSessionLabel(group: BoatReviewVenueGroup): string {
 	return "";
 }
 
+const reviewSessionTextFieldNames = [
+	"sessionLabel",
+	"sessionType",
+	"timeZoneLabel",
+	"category",
+	"session",
+	"title",
+	"seriesName",
+	"eventName",
+	"name",
+] as const;
+
+function readReviewSession(value: unknown): "morning" | "day" | "night" | "midnight" | null {
+	if (typeof value !== "string") return null;
+	const normalized = value.normalize("NFKC").toLowerCase();
+	if (normalized.includes("midnight") || normalized.includes("\u30df\u30c3\u30c9\u30ca\u30a4\u30c8")) return "midnight";
+	if (normalized.includes("morning") || normalized.includes("\u30e2\u30fc\u30cb\u30f3\u30b0")) return "morning";
+	if (normalized.includes("night") || normalized.includes("\u30ca\u30a4\u30bf\u30fc")) return "night";
+	if (normalized.includes("day") || normalized.includes("\u30c7\u30a4")) return "day";
+	return null;
+}
+
+function parseReviewRaceTimeMinutes(value: unknown) {
+	if (typeof value !== "string") return null;
+	const match = value.normalize("NFKC").match(/(\d{1,2})\s*:\s*(\d{2})/);
+	if (!match) return null;
+	const hours = Number(match[1]);
+	const minutes = Number(match[2]);
+	if (!Number.isInteger(hours) || !Number.isInteger(minutes) || hours < 0 || hours > 29 || minutes < 0 || minutes > 59) {
+		return null;
+	}
+	return hours * 60 + minutes;
+}
+
+function getReviewRaceDisplayTimeMinutes(race: BoatRaceItem) {
+	const raceRecord = race as unknown as Record<string, unknown>;
+	for (const fieldName of ["deadlineTime", "deadline", "closeTime", "startTime", "time"]) {
+		const minutes = parseReviewRaceTimeMinutes(raceRecord[fieldName]);
+		if (minutes !== null) return minutes;
+	}
+	return null;
+}
+
+function getReviewGroupRaces(group: BoatReviewVenueGroup) {
+	const venueRaces = group.venue?.races ?? [];
+	if (venueRaces.length > 0) return venueRaces;
+	return group.races.map((entry) => entry.race).filter((race): race is BoatRaceItem => Boolean(race));
+}
+
+function resolveReviewGroupSession(group: BoatReviewVenueGroup) {
+	const venueSession = readReviewSession(group.venue?.session);
+	if (venueSession) return venueSession;
+
+	const venueRecord = (group.venue ?? {}) as unknown as Record<string, unknown>;
+	let hasExplicitDay = false;
+	for (const fieldName of reviewSessionTextFieldNames) {
+		const session = readReviewSession(venueRecord[fieldName]);
+		if (session && session !== "day") return session;
+		if (session === "day") hasExplicitDay = true;
+	}
+
+	const times = getReviewGroupRaces(group)
+		.map(getReviewRaceDisplayTimeMinutes)
+		.filter((minutes): minutes is number => minutes !== null);
+	const firstRaceMinutes = times.length > 0 ? Math.min(...times) : null;
+	const finalRaceMinutes = times.length > 0 ? Math.max(...times) : null;
+
+	if (finalRaceMinutes !== null && finalRaceMinutes >= 22 * 60) return "midnight";
+	if (hasExplicitDay) return "day";
+	if (finalRaceMinutes !== null && finalRaceMinutes >= 17 * 60) return "night";
+	if (firstRaceMinutes !== null && firstRaceMinutes < 10 * 60 && finalRaceMinutes !== null && finalRaceMinutes <= 15 * 60) {
+		return "morning";
+	}
+	return finalRaceMinutes !== null ? "day" : null;
+}
+
+function getReviewSessionSortOrder(session: ReturnType<typeof resolveReviewGroupSession>) {
+	switch (session) {
+		case "morning":
+			return 0;
+		case "day":
+			return 1;
+		case "night":
+			return 2;
+		case "midnight":
+			return 3;
+		default:
+			return 9;
+	}
+}
+
+function getReviewGroupFirstRaceMinutes(group: BoatReviewVenueGroup) {
+	const times = getReviewGroupRaces(group)
+		.map(getReviewRaceDisplayTimeMinutes)
+		.filter((minutes): minutes is number => minutes !== null);
+	return times.length > 0 ? Math.min(...times) : null;
+}
+
+function sortLiveReviewGroups(groups: BoatReviewVenueGroup[]) {
+	return groups
+		.map((group, originalIndex) => ({
+			group,
+			originalIndex,
+			sessionOrder: getReviewSessionSortOrder(resolveReviewGroupSession(group)),
+			firstRaceMinutes: getReviewGroupFirstRaceMinutes(group),
+		}))
+		.sort((left, right) => {
+			if (left.sessionOrder !== right.sessionOrder) return left.sessionOrder - right.sessionOrder;
+			if (left.firstRaceMinutes === null && right.firstRaceMinutes !== null) return 1;
+			if (left.firstRaceMinutes !== null && right.firstRaceMinutes === null) return -1;
+			if (left.firstRaceMinutes !== null && right.firstRaceMinutes !== null && left.firstRaceMinutes !== right.firstRaceMinutes) {
+				return left.firstRaceMinutes - right.firstRaceMinutes;
+			}
+			return left.originalIndex - right.originalIndex;
+		})
+		.map(({ group }) => group);
+}
+
 function getVenueHitLine(metrics: ReturnType<typeof getBoatReviewVenueMetrics>): string {
 	if (metrics.practiceCount <= 0) {
 		return "--";
@@ -746,7 +864,7 @@ export function ReviewPage() {
 		}
 	}
 
-	return mergedGroups;
+	return sortLiveReviewGroups(mergedGroups);
 }, [archiveGroups, archiveItemMap, liveGroups, mode]);
 	const selectedGroup = useMemo(() => {
 		if (groups.length === 0) return undefined;
@@ -770,10 +888,13 @@ export function ReviewPage() {
 			setSelectedVenueKey("");
 			return;
 		}
+		if (mode === "live" && !todayFeed && !selectedVenueKey) {
+			return;
+		}
 		if (!groups.some((group) => group.key === selectedVenueKey)) {
 			setSelectedVenueKey(selectedGroup.key);
 		}
-	}, [groups, selectedGroup, selectedVenueKey]);
+	}, [groups, mode, selectedGroup, selectedVenueKey, todayFeed]);
 
 	useEffect(() => {
 		if (!selectedGroup) {
