@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { boatTheme } from "../../lib/theme";
 
 type BoatGptMaterialPanelProps = {
@@ -135,15 +135,37 @@ const footerValueStyle = {
 
 export function BoatGptMaterialPanel({ materialText, raceLabel }: BoatGptMaterialPanelProps) {
 	const [statusText, setStatusText] = useState<string>("");
+	const statusTimerRef = useRef<number | null>(null);
 	const lineCount = materialText.split(/\r?\n/).length;
 	const charCount = materialText.length;
+
+	useEffect(() => {
+		return () => {
+			if (statusTimerRef.current !== null) {
+				window.clearTimeout(statusTimerRef.current);
+			}
+		};
+	}, []);
+
+	const showTemporaryStatus = (message: string, durationMs: number) => {
+		if (statusTimerRef.current !== null) {
+			window.clearTimeout(statusTimerRef.current);
+		}
+
+		setStatusText(message);
+
+		statusTimerRef.current = window.setTimeout(() => {
+			setStatusText("");
+			statusTimerRef.current = null;
+		}, durationMs);
+	};
 
 	const handleCopy = async () => {
 		try {
 			await navigator.clipboard.writeText(materialText);
-			setStatusText("素材をコピーしました。");
+			showTemporaryStatus("素材をコピーしました。", 1000);
 		} catch {
-			setStatusText("コピーに失敗しました。手動でコピーしてください。");
+			showTemporaryStatus("コピーに失敗しました。手動でコピーしてください。", 3000);
 		}
 	};
 
