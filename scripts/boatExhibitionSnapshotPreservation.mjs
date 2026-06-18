@@ -2,6 +2,8 @@ import { readFile } from "node:fs/promises";
 
 const EXPLICIT_NO_PRESERVE_PATTERN =
 	/欠場|中止|不成立|返還|取消|艇変更|再展示|absence|cancel|cancelled|canceled|withdraw|withdrawn|scratch|scratched|refund|no[-\s]?race|re[-\s]?exhibition/i;
+const TRANSIENT_EXHIBITION_STATUS_PATTERN =
+	/^(?:scheduled|pending|not-published|waiting(?:$|[-_\s]))/i;
 
 export async function readJsonIfExists(filePath) {
 	try {
@@ -79,6 +81,12 @@ function getStatusTexts(race) {
 
 export function hasExplicitExhibitionNoPreserveState(race) {
 	return getStatusTexts(race).some((text) => EXPLICIT_NO_PRESERVE_PATTERN.test(text));
+}
+
+export function hasTransientExhibitionPublicationState(...races) {
+	return races
+		.flatMap((race) => getStatusTexts(race))
+		.some((text) => TRANSIENT_EXHIBITION_STATUS_PATTERN.test(text));
 }
 
 export function countDetailsExhibitionRows(race) {
@@ -284,6 +292,7 @@ export function findUnexplainedExhibitionGaps(detailsFeed, venueExtrasFeed) {
 				laterPublishedRaceNo: laterPublishedRace.raceNo,
 				raceCounts: Object.fromEntries(rows.map((race) => [race.raceNo, race.count])),
 				status: row.detailRace?.status ?? row.extraRace?.status ?? "",
+				severity: hasTransientExhibitionPublicationState(row.detailRace, row.extraRace) ? "warning" : "error",
 			});
 		}
 	}
