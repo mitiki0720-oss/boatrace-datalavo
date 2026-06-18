@@ -1,7 +1,14 @@
 import fs from "node:fs";
 
-const VENUE_EXTRAS_PATH = "public/data/boatrace/venue-extras.generated.json";
-const TODAY_PATH = "public/data/boatrace/today.generated.json";
+const VENUE_EXTRAS_PATH = process.env.BOAT_VENUE_EXTRAS_PATH || "public/data/boatrace/venue-extras.generated.json";
+const TODAY_PATH = process.env.BOAT_TODAY_PATH || "public/data/boatrace/today.generated.json";
+const TARGET_VENUE_CODES = new Set(
+	String(process.env.BOAT_CHECK_VENUE_CODES ?? "")
+		.split(",")
+		.map((value) => value.trim())
+		.filter(Boolean)
+		.map((value) => value.padStart(2, "0")),
+);
 
 const PRIMARY_KEYS = [
 	"entryTable",
@@ -227,6 +234,10 @@ const heldVenueCodes = new Set(
 );
 
 function expectHeldVenueStatus(code, label, expected) {
+	if (TARGET_VENUE_CODES.size > 0 && !TARGET_VENUE_CODES.has(code)) {
+		console.log(`[check:boat-venue-official-status] ${label}: skipped (outside target venues)`);
+		return;
+	}
 	if (!heldVenueCodes.has(code)) {
 		console.log(`[check:boat-venue-official-status] ${label}: skipped (not held today)`);
 		return;
@@ -244,6 +255,7 @@ expectHeldVenueStatus("13", "actual Amagasaki venueCode=13", "complete");
 expectHeldVenueStatus("17", "actual Miyajima venueCode=17", "complete");
 expectHeldVenueStatus("03", "actual Edogawa venueCode=03", "complete");
 expectHeldVenueStatus("07", "actual Gamagori venueCode=07", "complete");
+expectHeldVenueStatus("04", "actual Heiwajima venueCode=04", "complete");
 
 for (const venue of venues) {
 	const status = resolveStatus(venue);

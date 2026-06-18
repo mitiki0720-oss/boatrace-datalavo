@@ -137,6 +137,11 @@ const EDOGAWA_SCORE_RATE_URL = "https://www.boatrace-edogawa.com/sp/index.php?pa
 const EDOGAWA_MOTOR_LOTTERY_URL = "https://www.boatrace-edogawa.com/sp/index.php?page=raceinfo-motor_cyusen";
 const EDOGAWA_MOTOR_DATA_URL = "https://www.boatrace-edogawa.com/sp/index.php?page=raceinfo-motor_seiseki";
 const EDOGAWA_BOAT_DATA_URL = "https://www.boatrace-edogawa.com/sp/index.php?page=raceinfo-boat_seiseki";
+const HEIWAJIMA_VENUE_NAME = "\u5e73\u548c\u5cf6";
+const HEIWAJIMA_SOURCE = "heiwajima.gr.jp";
+const HEIWAJIMA_TOP_URL = "https://www.heiwajima.gr.jp/";
+const HEIWAJIMA_RACE_BASE_URL = "https://www.heiwajima.gr.jp/asp/kyogi/04/pc/";
+const HEIWAJIMA_MOTOR_URL = "https://www.heiwajima.gr.jp/01motor/01motor.htm";
 const GAMAGORI_VENUE_NAME = "\u84b2\u90e1";
 const GAMAGORI_SOURCE = "gamagori-kyotei.com";
 const GAMAGORI_TOP_URL = "https://www.gamagori-kyotei.com/";
@@ -196,7 +201,11 @@ const venueOfficialExtrasRegistry = {
 		supported: true,
 		sourceUrls: [EDOGAWA_TOP_URL, EDOGAWA_RACE_INDEX_URL, EDOGAWA_SCORE_RATE_URL, EDOGAWA_MOTOR_LOTTERY_URL, EDOGAWA_MOTOR_DATA_URL, EDOGAWA_BOAT_DATA_URL],
 	},
-	"04": { key: null, supported: false, sourceUrls: [] },
+	"04": {
+		key: "heiwajima",
+		supported: true,
+		sourceUrls: [HEIWAJIMA_TOP_URL, HEIWAJIMA_RACE_BASE_URL, HEIWAJIMA_MOTOR_URL],
+	},
 	"05": {
 		key: "tamagawa",
 		supported: true,
@@ -447,17 +456,20 @@ function buildOriginalExhibitionCoverage(record, venueName) {
 
 function normalizeVenueExtraRaceCoverage(raceExtra, venueName) {
 	const coverage = buildOriginalExhibitionCoverage(raceExtra, venueName);
+	const existingStatus = raceExtra?.sourceStatus && typeof raceExtra.sourceStatus === "object"
+		? raceExtra.sourceStatus
+		: {};
 	const sourceStatus = mergeSourceStatus(raceExtra, {
-		entryTable: inferVenueExtraStatus(raceExtra.entryTable),
-		officialBeforeInfo: inferVenueExtraStatus(raceExtra.officialBeforeInfo) === "available" || hasVenueExtraRows(raceExtra.beforeInfo) ? "available" : "pending",
-		startExhibition: inferVenueExtraStatus(raceExtra.startExhibition),
+		entryTable: hasVenueExtraRows(raceExtra.entryTable) ? "available" : existingStatus.entryTable ?? "pending",
+		officialBeforeInfo: hasVenueExtraRows(raceExtra.officialBeforeInfo) || hasVenueExtraRows(raceExtra.beforeInfo) ? "available" : existingStatus.officialBeforeInfo ?? "pending",
+		startExhibition: hasVenueExtraRows(raceExtra.startExhibition) ? "available" : existingStatus.startExhibition ?? "pending",
 		originalExhibition: coverage.status.originalExhibition,
 		originalOneLapTime: coverage.status.originalOneLapTime,
 		originalTurnTime: coverage.status.originalTurnTime,
 		originalStraightTime: coverage.status.originalStraightTime,
-		motorSummary: inferVenueExtraStatus(raceExtra.motorSummary),
-		waterSurfaceInfo: inferVenueExtraStatus(raceExtra.waterSurfaceInfo),
-		weatherCondition: inferVenueExtraStatus(raceExtra.weatherCondition),
+		motorSummary: hasVenueExtraRows(raceExtra.motorSummary) ? "available" : existingStatus.motorSummary ?? "pending",
+		waterSurfaceInfo: hasVenueExtraRows(raceExtra.waterSurfaceInfo) ? "available" : existingStatus.waterSurfaceInfo ?? "pending",
+		weatherCondition: hasVenueExtraRows(raceExtra.weatherCondition) ? "available" : existingStatus.weatherCondition ?? "pending",
 	});
 
 	return {
@@ -499,15 +511,15 @@ function normalizeVenueExtraOfficialCoverage(venue) {
 	const straightUnsupportedVenues = new Set(["尼崎", "江戸川"]);
 	const venueOriginalStatus = coverage.originalExhibition.rows > 0 ? "available" : venue.sourceStatus?.originalExhibition ?? "pending";
 	const venueSourceStatus = mergeSourceStatus(venue, {
-		entryTable: hasVenueExtraRows(venue.entryTable) || anyRaceAvailable("entryTable") ? "available" : "pending",
-		officialBeforeInfo: hasVenueExtraRows(venue.officialBeforeInfo) || anyRaceAvailable("officialBeforeInfo") ? "available" : "pending",
-		startExhibition: anyRaceAvailable("startExhibition") ? "available" : "pending",
+		entryTable: hasVenueExtraRows(venue.entryTable) || anyRaceAvailable("entryTable") ? "available" : venue.sourceStatus?.entryTable ?? "pending",
+		officialBeforeInfo: hasVenueExtraRows(venue.officialBeforeInfo) || anyRaceAvailable("officialBeforeInfo") ? "available" : venue.sourceStatus?.officialBeforeInfo ?? "pending",
+		startExhibition: anyRaceAvailable("startExhibition") ? "available" : venue.sourceStatus?.startExhibition ?? "pending",
 		originalExhibition: originalUnsupportedVenues.has(venue.venueName) && coverage.originalExhibition.rows <= 0 ? "not-supported" : venueOriginalStatus,
 		originalOneLapTime: coverage.originalExhibition.oneLap > 0 ? "available" : originalUnsupportedVenues.has(venue.venueName) ? "not-supported" : venue.sourceStatus?.originalOneLapTime ?? venueOriginalStatus,
 		originalTurnTime: coverage.originalExhibition.turn > 0 ? "available" : originalUnsupportedVenues.has(venue.venueName) ? "not-supported" : venue.sourceStatus?.originalTurnTime ?? venueOriginalStatus,
 		originalStraightTime: coverage.originalExhibition.straight > 0 ? "available" : straightUnsupportedVenues.has(venue.venueName) ? "not-supported" : venue.sourceStatus?.originalStraightTime ?? venueOriginalStatus,
 		motorSummary: coverage.motorSummaryRows > 0 ? "available" : venue.sourceStatus?.motorSummary ?? "pending",
-		waterSurfaceInfo: coverage.waterSurface,
+		waterSurfaceInfo: coverage.waterSurface === "available" ? "available" : venue.sourceStatus?.waterSurfaceInfo ?? "pending",
 	});
 
 	return {
@@ -17840,6 +17852,452 @@ async function createTokonameVenue(feed) {
 	}
 }
 
+function toHeiwajimaRaceUrl(type, raceNo) {
+	return `${HEIWAJIMA_RACE_BASE_URL}${type}${String(raceNo).padStart(2, "0")}.htm`;
+}
+
+async function fetchHeiwajimaHtml(url) {
+	const response = await fetch(url, {
+		headers: {
+			"user-agent": "Mozilla/5.0 (compatible; KURARI-DATALAVO/1.0)",
+			"accept-language": "ja,en;q=0.8",
+			referer: HEIWAJIMA_TOP_URL,
+		},
+		signal: AbortSignal.timeout(15000),
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status} ${response.statusText}`);
+	}
+
+	return response.text();
+}
+
+function readHeiwajimaPair($, cell) {
+	const segments = readCellSegments($, cell);
+	return [segments[0] ?? "", segments[1] ?? ""];
+}
+
+function parseHeiwajimaRaceHeader(html) {
+	const $ = load(html || "");
+	const header = compactText(
+		$("p").filter((_, element) => /[1-9]\d*R/i.test($(element).text())).first().text(),
+	);
+	const match = header.match(/(?:▶)?\s*(\d{1,2})\s*R\s*(.*)$/i);
+	return {
+		raceNo: match ? Number.parseInt(match[1], 10) : null,
+		raceTitle: compactText(match?.[2] ?? ""),
+	};
+}
+
+function parseHeiwajimaRaceDeadlines(html) {
+	const $ = load(html || "");
+	const text = compactText($("body").text());
+	const deadlines = new Map();
+	for (const match of text.matchAll(/(\d{1,2})R\u7de0\u5207(?:\d+\u5206\u524d)?(\d{1,2}:\d{2})/gi)) {
+		const raceNo = Number.parseInt(match[1], 10);
+		if (raceNo >= 1 && raceNo <= 12) {
+			deadlines.set(raceNo, match[2]);
+		}
+	}
+	return deadlines;
+}
+
+function parseHeiwajimaEntryTable(html) {
+	const $ = load(html || "");
+	const rows = [];
+
+	$("table.table_yoso > tbody").each((_, tbody) => {
+		const firstRow = $(tbody).children("tr").first();
+		const cells = firstRow.children("td,th").toArray();
+		const frameNo = parseFrameNo(readCellText($, cells[0]));
+		if (!frameNo || cells.length < 9) {
+			return;
+		}
+
+		const profileCell = $(cells[1]);
+		const profile = compactText(profileCell.find(".small").first().text());
+		const profileParts = profile.split("/").map(compactText);
+		const national = readHeiwajimaPair($, cells[5]);
+		const local = readHeiwajimaPair($, cells[6]);
+		const motor = readHeiwajimaPair($, cells[7]);
+		const boat = readHeiwajimaPair($, cells[8]);
+		const fL = readCellSegments($, cells[3]);
+		const earlyText = compactText(firstRow.find("a[href*='syusso08']").last().text());
+		const earlyMatch = earlyText.match(/(\d{1,2})\s*R/i);
+
+		rows.push({
+			frameNo,
+			registrationNo: profileParts[0] ?? "",
+			registerNo: profileParts[0] ?? "",
+			playerName: compactText(profileCell.find("a").first().text()),
+			racerName: compactText(profileCell.find("a").first().text()),
+			branch: profileParts[1] ?? "",
+			age: profileParts[2] ? Number.parseInt(profileParts[2], 10) : null,
+			className: readCellText($, cells[2]),
+			flyingCount: compactText(fL[0] ?? "").replace(/^F/i, ""),
+			lateCount: compactText(fL[1] ?? "").replace(/^L/i, ""),
+			averageStart: readCellText($, cells[4]),
+			averageStartTiming: readCellText($, cells[4]),
+			winRate: national[0],
+			secondRate: national[1],
+			localWinRate: local[0],
+			localSecondRate: local[1],
+			motorNo: motor[0],
+			motorSecondRate: motor[1],
+			boatNo: boat[0],
+			boatSecondRate: boat[1],
+			earlyRaceNo: earlyMatch ? Number.parseInt(earlyMatch[1], 10) : null,
+			earlyRace: earlyMatch ? `${earlyMatch[1]}R` : "",
+			source: HEIWAJIMA_SOURCE,
+		});
+	});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseHeiwajimaMotorHistory(html, entries = []) {
+	const $ = load(html || "");
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const rows = [];
+
+	$("table tbody").each((_, tbody) => {
+		const firstRow = $(tbody).children("tr").first();
+		const cells = firstRow.children("td,th").toArray();
+		const frameNo = parseFrameNo(readCellText($, cells[0]));
+		if (!frameNo || cells.length < 12) {
+			return;
+		}
+
+		const entry = entryByFrame.get(frameNo) ?? {};
+		const motor = readHeiwajimaPair($, cells[7]);
+		const boat = readHeiwajimaPair($, cells[11]);
+		const historyEntries = cells.slice(8, 11).map((cell, index) => ({
+			order: index + 1,
+			summary: readCellText($, cell),
+		})).filter((item) => item.summary && item.summary !== "-");
+
+		rows.push({
+			frameNo,
+			registrationNo: entry.registrationNo ?? "",
+			playerName: entry.playerName ?? "",
+			motorNo: motor[0] || entry.motorNo || "",
+			motorSecondRate: motor[1] || entry.motorSecondRate || "",
+			boatNo: boat[0] || entry.boatNo || "",
+			boatSecondRate: boat[1] || entry.boatSecondRate || "",
+			currentUser: entry.playerName ?? "",
+			recentResults: historyEntries.map((item) => item.summary).join(" / "),
+			historyEntries,
+			comment: historyEntries.length
+				? `\u30e2\u30fc\u30bf\u30fc\u5c65\u6b74 ${historyEntries.map((item) => item.summary).join(" / ")}`
+				: "\u5f53\u7bc0\u30e2\u30fc\u30bf\u30fc\u4f7f\u7528\u958b\u59cb\u306e\u305f\u3081\u5c65\u6b74\u672a\u63b2\u8f09",
+			source: HEIWAJIMA_SOURCE,
+		});
+	});
+
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseHeiwajimaBeforeInfo(html, entries = []) {
+	const $ = load(html || "");
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const beforeInfo = [];
+	const originalExhibition = [];
+
+	$("table.table_yoso06 > tbody").each((_, tbody) => {
+		const rows = $(tbody).children("tr");
+		const firstCells = rows.first().children("td,th").toArray();
+		const secondCells = rows.eq(1).children("td,th").toArray();
+		const frameNo = parseFrameNo(readCellText($, firstCells[0]));
+		if (!frameNo || firstCells.length < 8) {
+			return;
+		}
+
+		const entry = entryByFrame.get(frameNo) ?? {};
+		const oneLapTime = readCellText($, firstCells[3]);
+		const turnTime = readCellText($, firstCells[4]);
+		const straightTime = readCellText($, firstCells[5]);
+		const exhibitionTime = readCellText($, firstCells[6]);
+		const weight = readCellText($, firstCells[7]);
+		const partsReplacement = readCellText($, firstCells[8]);
+		const oneLapSpeed = readCellText($, secondCells[1]);
+		const turnSpeed = readCellText($, secondCells[2]);
+		const straightSpeed = readCellText($, secondCells[3]);
+		const tilt = readCellText($, secondCells[4]);
+		const adjustment = readCellText($, secondCells[5]);
+		const common = {
+			frameNo,
+			registrationNo: entry.registrationNo ?? "",
+			registerNo: entry.registrationNo ?? "",
+			playerName: entry.playerName ?? "",
+			racerName: entry.playerName ?? "",
+			motorNo: entry.motorNo ?? "",
+			exhibitionTime,
+			tilt,
+			weight,
+			weightAdjustment: adjustment,
+			adjustment,
+			partsReplacement,
+			source: HEIWAJIMA_SOURCE,
+		};
+
+		if (exhibitionTime || tilt || weight || adjustment || partsReplacement) {
+			beforeInfo.push(common);
+		}
+		if (oneLapTime || turnTime || straightTime || oneLapSpeed || turnSpeed || straightSpeed) {
+			originalExhibition.push({
+				...common,
+				oneLapTime,
+				lapTime: oneLapTime,
+				turnTime,
+				straightTime,
+				oneLapSpeed,
+				turnSpeed,
+				straightSpeed,
+				memo: "\u5e73\u548c\u5cf6\u516c\u5f0f\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a\u30c7\u30fc\u30bf",
+			});
+		}
+	});
+
+	const startExhibition = [];
+	const startText = compactText($("table.table_yoso06_sub .st_tenji").text());
+	const startMatches = [...startText.matchAll(/([1-6])\s*(?:艇|号艇)?\s*([FL]?\.\d{1,2}|[FL]\d{1,2})/gi)];
+	for (const match of startMatches) {
+		const frameNo = Number.parseInt(match[1], 10);
+		startExhibition.push({
+			course: startExhibition.length + 1,
+			frameNo,
+			startTiming: match[2],
+			playerName: entryByFrame.get(frameNo)?.playerName ?? "",
+			source: HEIWAJIMA_SOURCE,
+		});
+	}
+
+	return { beforeInfo, originalExhibition, startExhibition };
+}
+
+function parseHeiwajimaTrifectaOdds(html) {
+	const $ = load(html || "");
+	const rows = [];
+
+	$("table").each((_, table) => {
+		const first = parseFrameNo($(table).find(".name_num").first().text());
+		if (!first) {
+			return;
+		}
+
+		let second = null;
+		$(table).find("tr").slice(1).each((__, tr) => {
+			const secondCell = $(tr).find("td.size_m").first();
+			if (secondCell.length) {
+				second = parseFrameNo(secondCell.text());
+			}
+			const thirdCell = $(tr).find("td[class*='waku']").filter((___, cell) => {
+				const className = String($(cell).attr("class") ?? "");
+				return !className.includes("line") && !className.includes("size_m");
+			}).last();
+			const third = parseFrameNo(thirdCell.text());
+			const odds = compactText($(tr).find("td.ren_rate").first().text());
+			if (second && third && odds && first !== second && first !== third && second !== third) {
+				rows.push({
+					betType: "3\u9023\u5358",
+					combination: `${first}-${second}-${third}`,
+					odds,
+					source: HEIWAJIMA_SOURCE,
+				});
+			}
+		});
+	});
+
+	const unique = new Map(rows.map((row) => [row.combination, row]));
+	return Array.from(unique.values());
+}
+
+function parseHeiwajimaTopContext(html) {
+	const $ = load(html || "");
+	const bodyText = compactText($("body").text());
+	const title = compactText($("header h2, .header_race h2, h2").filter((_, element) => /(?:\u8cde|\u676f|\u30ab\u30c3\u30d7|\u30b7\u30ea\u30fc\u30ba|\u9078\u624b\u6a29)/.test($(element).text())).first().text());
+	const dayText = compactText($("header p, .race_day, p").filter((_, element) => /\u521d\u65e5|\d+\u65e5\u76ee|\u6700\u7d42\u65e5/.test($(element).text())).first().text());
+	const deadlines = [];
+
+	$("time").each((_, element) => {
+		const value = compactText($(element).text());
+		if (/^\d{1,2}:\d{2}$/.test(value)) {
+			deadlines.push(value);
+		}
+	});
+
+	return {
+		eventTitle: title,
+		dayLabel: dayText.match(/\u521d\u65e5|\d+\u65e5\u76ee|\u6700\u7d42\u65e5/)?.[0] ?? "",
+		deadlines: deadlines.slice(0, 12),
+		isHeld: /\u958b\u50ac\u4e2d/.test(bodyText),
+	};
+}
+
+function createHeiwajimaRaceSourceStatus({ entryTable, motorSummary, beforeInfo, startExhibition, originalExhibition, odds, fetchStatus }) {
+	const statusFor = (key, value, emptyStatus = "parse-empty") => {
+		if (value.length) return "available";
+		if (fetchStatus[key] === "http-error") return "http-error";
+		return emptyStatus;
+	};
+	return {
+		entryTable: statusFor("entry", entryTable),
+		motorSummary: statusFor("motor", motorSummary),
+		officialBeforeInfo: statusFor("before", beforeInfo, "pending"),
+		startExhibition: statusFor("before", startExhibition, "pending"),
+		originalExhibition: statusFor("before", originalExhibition, "pending"),
+		originalOneLapTime: originalExhibition.some((row) => row.oneLapTime) ? "available" : "pending",
+		originalTurnTime: originalExhibition.some((row) => row.turnTime) ? "available" : "pending",
+		originalStraightTime: originalExhibition.some((row) => row.straightTime) ? "available" : "pending",
+		weatherCondition: "pending",
+		waterSurfaceInfo: "not-supported",
+		resultList: fetchStatus.result === "http-error" ? "http-error" : "not-published",
+		trifectaOdds: odds.length === 120 ? "available" : odds.length ? "parse-empty" : fetchStatus.odds === "http-error" ? "http-error" : "not-published",
+	};
+}
+
+async function createHeiwajimaVenue(feed) {
+	const venue = findVenue(feed, HEIWAJIMA_VENUE_NAME);
+	if (!venue) {
+		console.log("[venue-extras] heiwajima: not held today");
+		return null;
+	}
+
+	try {
+		const topHtml = await fetchHeiwajimaHtml(HEIWAJIMA_TOP_URL).catch(() => "");
+		const topContext = parseHeiwajimaTopContext(topHtml);
+		const races = getRaceList(venue);
+		const raceExtras = [];
+
+		for (const race of races) {
+			const raceNo = Number(race.raceNo);
+			const urls = {
+				entry: toHeiwajimaRaceUrl("syusso08", raceNo),
+				motor: toHeiwajimaRaceUrl("syusso05", raceNo),
+				before: toHeiwajimaRaceUrl("yoso05", raceNo),
+				odds: toHeiwajimaRaceUrl("odds01", raceNo),
+				result: toHeiwajimaRaceUrl("kekka01", raceNo),
+			};
+			const settled = await Promise.allSettled(Object.values(urls).map((url) => fetchHeiwajimaHtml(url)));
+			const keys = Object.keys(urls);
+			const htmlByKey = Object.fromEntries(keys.map((key, index) => [key, settled[index].status === "fulfilled" ? settled[index].value : ""]));
+			const fetchStatus = Object.fromEntries(keys.map((key, index) => [key, settled[index].status === "fulfilled" ? "available" : "http-error"]));
+			const entryTable = parseHeiwajimaEntryTable(htmlByKey.entry);
+			const motorSummary = parseHeiwajimaMotorHistory(htmlByKey.motor, entryTable);
+			const before = parseHeiwajimaBeforeInfo(htmlByKey.before, entryTable);
+			const trifectaAll = parseHeiwajimaTrifectaOdds(htmlByKey.odds);
+			const header = parseHeiwajimaRaceHeader(htmlByKey.entry);
+			const raceDeadlines = parseHeiwajimaRaceDeadlines(htmlByKey.entry);
+			const weatherCondition = normalizeVenueWeatherCondition(race?.weatherActual ?? venue?.weatherActual ?? null, {
+				source: BOATRACE_OFFICIAL_SOURCE,
+			});
+			const sourceStatus = createHeiwajimaRaceSourceStatus({
+				entryTable,
+				motorSummary,
+				beforeInfo: before.beforeInfo,
+				startExhibition: before.startExhibition,
+				originalExhibition: before.originalExhibition,
+				odds: trifectaAll,
+				fetchStatus,
+			});
+			if (weatherCondition) {
+				sourceStatus.weatherCondition = "available";
+			}
+			const officialBeforeInfo = before.beforeInfo.length || before.startExhibition.length
+				? {
+					status: "available",
+					source: `${HEIWAJIMA_SOURCE}+${BOATRACE_OFFICIAL_SOURCE}`,
+					exhibitionRows: before.beforeInfo,
+					startExhibition: before.startExhibition,
+					weatherActual: weatherCondition,
+					weatherCondition,
+				}
+				: null;
+
+			raceExtras.push({
+				raceNo,
+				raceTitle: header.raceTitle || compactText(race?.title),
+				deadlineTime: raceDeadlines.get(raceNo) ?? compactText(race?.deadlineTime ?? race?.deadline),
+				status: entryTable.length === 6 && motorSummary.length === 6 ? "available" : "waiting-heiwajima-data",
+				source: HEIWAJIMA_SOURCE,
+				sourceType: "heiwajima-official-extras",
+				sourceUrls: urls,
+				sourceStatus,
+				entryTable,
+				heiwajimaEntryTable: entryTable,
+				motorSummary,
+				heiwajimaMotorHistory: motorSummary,
+				officialBeforeInfo,
+				beforeInfo: before.beforeInfo,
+				startExhibition: before.startExhibition,
+				originalExhibition: before.originalExhibition,
+				weatherCondition,
+				oddsPreview: trifectaAll.length === 120 ? {
+					status: "available",
+					source: HEIWAJIMA_SOURCE,
+					trifectaAll,
+					updatedAt: getJstTimestamp(),
+				} : null,
+				heiwajimaTrifectaOdds: trifectaAll,
+			});
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+		const firstRace = raceExtras[0] ?? null;
+		console.log(
+			`[heiwajima extras] races=${raceExtras.length} complete=${availableRaceCount} entry=${firstRace?.entryTable?.length ?? 0} motor=${firstRace?.motorSummary?.length ?? 0} before=${firstRace?.beforeInfo?.length ?? 0} start=${firstRace?.startExhibition?.length ?? 0} original=${firstRace?.originalExhibition?.length ?? 0} odds=${firstRace?.heiwajimaTrifectaOdds?.length ?? 0}`,
+		);
+
+		return {
+			venueCode: String(venue.venueCode ?? "04").padStart(2, "0"),
+			venueName: HEIWAJIMA_VENUE_NAME,
+			source: HEIWAJIMA_SOURCE,
+			isAvailable: availableRaceCount > 0,
+			status: availableRaceCount > 0 ? "available" : "waiting-heiwajima-data",
+			eventTitle: topContext.eventTitle || compactText(venue?.title ?? venue?.eventTitle),
+			dayLabel: topContext.dayLabel,
+			note: "\u5e73\u548c\u5cf6\u516c\u5f0f\u306e\u51fa\u8d70\u8868\u3001\u30e2\u30fc\u30bf\u30fc\u5c65\u6b74\u3001\u76f4\u524d\u60c5\u5831\u3001\u30aa\u30ea\u30b8\u30ca\u30eb\u5c55\u793a\u30013\u9023\u5358\u30aa\u30c3\u30ba\u3092\u53d6\u5f97\u3002",
+			sourceStatus: {
+				entryTable: raceExtras.some((race) => race.entryTable.length === 6) ? "available" : "parse-empty",
+				motorSummary: raceExtras.some((race) => race.motorSummary.length === 6) ? "available" : "parse-empty",
+				officialBeforeInfo: raceExtras.some((race) => race.beforeInfo.length) ? "available" : "pending",
+				startExhibition: raceExtras.some((race) => race.startExhibition.length) ? "available" : "pending",
+				originalExhibition: raceExtras.some((race) => race.originalExhibition.length) ? "available" : "pending",
+				originalOneLapTime: raceExtras.some((race) => race.originalExhibition.some((row) => row.oneLapTime)) ? "available" : "pending",
+				originalTurnTime: raceExtras.some((race) => race.originalExhibition.some((row) => row.turnTime)) ? "available" : "pending",
+				originalStraightTime: raceExtras.some((race) => race.originalExhibition.some((row) => row.straightTime)) ? "available" : "pending",
+				waterSurfaceInfo: "not-supported",
+				resultList: "not-published",
+				trifectaOdds: raceExtras.some((race) => race.heiwajimaTrifectaOdds.length === 120) ? "available" : "not-published",
+			},
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] heiwajima failed: ${error.message}`);
+		return {
+			venueCode: String(venue.venueCode ?? "04").padStart(2, "0"),
+			venueName: HEIWAJIMA_VENUE_NAME,
+			source: HEIWAJIMA_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			sourceStatus: {
+				entryTable: "http-error",
+				motorSummary: "http-error",
+				officialBeforeInfo: "http-error",
+				startExhibition: "http-error",
+				originalExhibition: "http-error",
+				waterSurfaceInfo: "not-supported",
+				resultList: "http-error",
+				trifectaOdds: "http-error",
+			},
+			note: `Heiwajima official extras fetch failed: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
 async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	setOutputDirectory(rawOptions.outputDir);
 	const timestamps = getJstTimestampParts(rawOptions.targetDate);
@@ -17925,6 +18383,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const kiryuVenue = await createKiryuVenue(feed, date);
 	if (kiryuVenue) {
 		venueMap.set(kiryuVenue.venueName, mergeVenueRecord(venueMap.get(kiryuVenue.venueName) ?? null, kiryuVenue));
+	}
+
+	const heiwajimaVenue = await createHeiwajimaVenue(feed);
+	if (heiwajimaVenue) {
+		venueMap.set(heiwajimaVenue.venueName, mergeVenueRecord(venueMap.get(heiwajimaVenue.venueName) ?? null, heiwajimaVenue));
 	}
 
 	const miyajimaVenue = await createMiyajimaVenue(feed, date);

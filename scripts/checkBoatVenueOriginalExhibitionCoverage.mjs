@@ -2,8 +2,15 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { createServer } from "vite";
 
-const VENUE_EXTRAS_PATH = "public/data/boatrace/venue-extras.generated.json";
-const TODAY_PATH = "public/data/boatrace/today.generated.json";
+const VENUE_EXTRAS_PATH = process.env.BOAT_VENUE_EXTRAS_PATH || "public/data/boatrace/venue-extras.generated.json";
+const TODAY_PATH = process.env.BOAT_TODAY_PATH || "public/data/boatrace/today.generated.json";
+const TARGET_VENUE_CODES = new Set(
+	String(process.env.BOAT_CHECK_VENUE_CODES ?? "")
+		.split(",")
+		.map((value) => value.trim())
+		.filter(Boolean)
+		.map((value) => value.padStart(2, "0")),
+);
 const RACES_PAGE_PATH = "src/pages/RacesPage.tsx";
 const MATERIAL_PATH = "src/lib/boatPredictionMaterial.ts";
 const REVIEW_BUILDER_PATH = "src/lib/boatReviewSummaryBuilder.ts";
@@ -149,7 +156,10 @@ function classifyVenue(venue) {
 
 const feed = readJson(VENUE_EXTRAS_PATH);
 const venues = toArray(feed.venues);
-const activeSupported = venues.filter((venue) => venue?.officialVenueExtrasSupported === true);
+const activeSupported = venues.filter((venue) =>
+	venue?.officialVenueExtrasSupported === true
+	&& (TARGET_VENUE_CODES.size === 0 || TARGET_VENUE_CODES.has(venueCode(venue?.venueCode)))
+);
 assert.ok(activeSupported.length > 0, "active feed should include venue-official supported venues");
 
 const rows = activeSupported.map(classifyVenue).sort((left, right) => left.venueCode.localeCompare(right.venueCode));
@@ -181,6 +191,10 @@ const heldVenueCodes = new Set(
 );
 
 function auditWhenHeldToday(code, label, assertions) {
+	if (TARGET_VENUE_CODES.size > 0 && !TARGET_VENUE_CODES.has(code)) {
+		console.log(`[check:boat-venue-original-exhibition] skip ${code} ${label}: outside target venues`);
+		return;
+	}
 	if (!heldVenueCodes.has(code)) {
 		console.log(`[check:boat-venue-original-exhibition] skip ${code} ${label}: not held today`);
 		return;
@@ -202,6 +216,10 @@ auditWhenHeldToday("17", "Miyajima", (row) => {
 
 auditWhenHeldToday("03", "Edogawa", (row) => {
 	assert.ok(["available", "pending", "not-supported"].includes(row.classification), "Edogawa should be audited even when optional original timing is absent");
+});
+
+auditWhenHeldToday("04", "Heiwajima", (row) => {
+	assert.ok(["available", "pending", "not-published"].includes(row.classification), "Heiwajima should distinguish unpublished original timing from unsupported data");
 });
 
 auditWhenHeldToday("20", "Wakamatsu", (row) => {

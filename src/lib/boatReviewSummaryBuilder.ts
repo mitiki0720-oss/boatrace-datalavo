@@ -727,11 +727,18 @@ function formatOddsItem(item: BoatOddsItem | BoatOddsTopItem | undefined): strin
 	return item ? `${item.combination || "-"} / ${item.odds || "-"}倍` : "未取得";
 }
 
-function formatOddsSummary(race?: BoatRaceItem, finishOrder?: string): string {
+function formatOddsSummary(race?: BoatRaceItem, finishOrder?: string, raceExtra?: BoatVenueExtraRace | null): string {
 	const finalOdds = race?.result?.finalOdds;
 	const allRows: BoatOddsItem[] = finalOdds?.trifectaAll ?? [];
 	const finalTop: BoatOddsTopItem[] = finalOdds?.trifectaTop ?? [];
-	const previewTop: BoatOddsTopItem[] = (race?.oddsPreview as { trifectaTop?: BoatOddsTopItem[] } | undefined)?.trifectaTop ?? [];
+	const racePreview = race?.oddsPreview as { trifectaAll?: BoatOddsItem[]; trifectaTop?: BoatOddsTopItem[] } | undefined;
+	const venuePreview = raceExtra?.oddsPreview as { trifectaAll?: BoatOddsItem[]; trifectaTop?: BoatOddsTopItem[] } | undefined;
+	const previewTop: Array<(BoatOddsItem | BoatOddsTopItem) & { updatedAt?: string; fetchedAt?: string }> =
+		racePreview?.trifectaTop
+		?? racePreview?.trifectaAll
+		?? venuePreview?.trifectaTop
+		?? venuePreview?.trifectaAll
+		?? [];
 	const rows = allRows.length > 0 ? allRows : finalTop.length > 0 ? finalTop : previewTop;
 	const sorted = rows
 		.map((item) => ({ item, value: parseOddsValue(item.odds) }))
@@ -1027,7 +1034,7 @@ export function buildBoatResultSummaryText(
 			formatPayoutLine("拡連複", result, /拡\s*連\s*複|拡連複|wide/),
 			"",
 			"【3連単オッズ要約】",
-			formatOddsSummary(entry.race, finishOrder),
+			formatOddsSummary(entry.race, finishOrder, raceExtra),
 			"",
 			"【結果メモ】",
 			"自動取得結果",

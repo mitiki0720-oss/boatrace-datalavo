@@ -16,8 +16,10 @@ const requiredStatuses = new Set([
 	"pending",
 	"pending-next-meet",
 	"not-supported",
+	"not-published",
 	"parse-empty",
 	"http-error",
+	"missing",
 	"preserved",
 ]);
 

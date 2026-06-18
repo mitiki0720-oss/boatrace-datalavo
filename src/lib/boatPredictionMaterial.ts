@@ -1252,9 +1252,10 @@ const formatTrifectaAllOddsRows = (rows: MaterialRecord[]): string[] => {
 const readOddsBetType = (row: MaterialRecord): string =>
 	readFirstMaterialString(row.betType, row.type).replace(/\s+/g, "");
 
-const buildOddsBlock = (race: BoatRaceItem) => {
+const buildOddsBlock = (race: BoatRaceItem, raceExtra?: BoatVenueExtraRace | null) => {
 	const raceRecord = race as MaterialRecord;
-	const oddsPreview = raceRecord.oddsPreview;
+	const raceExtraRecord = isMaterialRecord(raceExtra) ? raceExtra : null;
+	const oddsPreview = raceRecord.oddsPreview ?? raceExtraRecord?.oddsPreview;
 	const oddsRecord = readFirstRecord(oddsPreview);
 	const arrayOddsRows = toMaterialRecordArray(oddsPreview);
 
@@ -1434,7 +1435,7 @@ export function buildBoatPredictionMaterial(params: {
 		].join("\n"),
 		[
 			"[H. 04 Odds Board / 🎯 公式オッズ確認]",
-			buildOddsBlock(race),
+			buildOddsBlock(race, raceExtra),
 		].join("\n"),
 		[
 	"[I. 予想時点チェック]",
