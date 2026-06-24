@@ -17,6 +17,7 @@ const requiredStatuses = new Set([
 	"pending-next-meet",
 	"not-supported",
 	"not-published",
+	"non-race-day",
 	"parse-empty",
 	"http-error",
 	"missing",
@@ -46,7 +47,7 @@ function assertVenueMetadata(name) {
 	return venue;
 }
 
-const auditedVenueNames = ["芦屋", "三国", "徳山", "常滑", "尼崎", "宮島", "江戸川", "若松", "下関", "桐生", "蒲郡"];
+const auditedVenueNames = ["芦屋", "三国", "徳山", "常滑", "尼崎", "宮島", "江戸川", "若松", "下関", "桐生", "蒲郡", "住之江"];
 const heldAuditedVenueNames = auditedVenueNames.filter((name) => findVenue(name));
 
 for (const name of heldAuditedVenueNames) {

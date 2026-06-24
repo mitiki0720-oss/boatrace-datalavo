@@ -222,6 +222,10 @@ auditWhenHeldToday("04", "Heiwajima", (row) => {
 	assert.ok(["available", "pending", "not-published"].includes(row.classification), "Heiwajima should distinguish unpublished original timing from unsupported data");
 });
 
+auditWhenHeldToday("12", "Suminoe", (row) => {
+	assert.ok(["not-supported", "pending"].includes(row.classification), "Suminoe original timing should be classified without fabricated data");
+});
+
 auditWhenHeldToday("20", "Wakamatsu", (row) => {
 	assert.ok(["available", "pending"].includes(row.classification), "Wakamatsu should be audited even when optional original timing is absent");
 });

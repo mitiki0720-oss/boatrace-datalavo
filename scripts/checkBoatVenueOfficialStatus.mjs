@@ -256,6 +256,7 @@ expectHeldVenueStatus("17", "actual Miyajima venueCode=17", "complete");
 expectHeldVenueStatus("03", "actual Edogawa venueCode=03", "complete");
 expectHeldVenueStatus("07", "actual Gamagori venueCode=07", "complete");
 expectHeldVenueStatus("04", "actual Heiwajima venueCode=04", "complete");
+expectHeldVenueStatus("12", "actual Suminoe venueCode=12", "complete");
 
 for (const venue of venues) {
 	const status = resolveStatus(venue);

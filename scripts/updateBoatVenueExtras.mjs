@@ -142,6 +142,19 @@ const HEIWAJIMA_SOURCE = "heiwajima.gr.jp";
 const HEIWAJIMA_TOP_URL = "https://www.heiwajima.gr.jp/";
 const HEIWAJIMA_RACE_BASE_URL = "https://www.heiwajima.gr.jp/asp/kyogi/04/pc/";
 const HEIWAJIMA_MOTOR_URL = "https://www.heiwajima.gr.jp/01motor/01motor.htm";
+const SUMINOE_VENUE_NAME = "\u4f4f\u4e4b\u6c5f";
+const SUMINOE_SOURCE = "boatrace-suminoe.jp";
+const SUMINOE_TOP_URL = "https://www.boatrace-suminoe.jp/";
+const SUMINOE_RACE_BASE_URL = "https://www.boatrace-suminoe.jp/asp/kyogi/12/pc/";
+const SUMINOE_PDF_URL = "https://www.boatrace-suminoe.jp/s_pdf/s_pdf.htm";
+const SUMINOE_PRECHECK_URL = "https://www.boatrace-suminoe.jp/asp/suminoe/kyogi/kyogihtml/zenken/zenken1205.htm";
+const SUMINOE_MOTOR_RANKING_URL = "https://www.boatrace-suminoe.jp/asp/suminoe/contents/01history/ranking_motor.php";
+const SUMINOE_BOAT_DATA_URL = "https://www.boatrace-suminoe.jp/asp/htmlmade/suminoe/01boat/boat02.htm";
+const SUMINOE_WATER_SURFACE_URL = "https://www.boatrace-suminoe.jp/01suimen/01suimen.htm";
+const SUMINOE_SCORE_RANKING_URL = "https://www.boatrace-suminoe.jp/asp/htmlmade/suminoe/rank/rank.htm";
+const SUMINOE_RESULT_URL = "https://www.boatrace-suminoe.jp/asp/suminoe/02kekka/kekka.php";
+const SUMINOE_REPLAY_URL = "https://www.boatrace-suminoe.jp/asp/suminoe/replay/replay.php";
+const SUMINOE_AQUALIVE_URL = "https://www.boatrace-suminoe.jp/asp/suminoe/kyogi/kyogihtml/index.htm";
 const GAMAGORI_VENUE_NAME = "\u84b2\u90e1";
 const GAMAGORI_SOURCE = "gamagori-kyotei.com";
 const GAMAGORI_TOP_URL = "https://www.gamagori-kyotei.com/";
@@ -241,7 +254,23 @@ const venueOfficialExtrasRegistry = {
 		supported: true,
 		sourceUrls: [BIWAKO_DATAFILE_URL, BIWAKO_RESULT_LIST_URL, BIWAKO_SCORE_RANK_URL, BIWAKO_WATER_SURFACE_URL, BIWAKO_TIMERANK_URL, BIWAKO_MOTOR_RANK_URL, BIWAKO_COURSE_URL, BIWAKO_CURRENT_SERIES_URL, BIWAKO_BOAT_DATA_URL],
 	},
-	"12": { key: null, supported: false, sourceUrls: [] },
+	"12": {
+		key: "suminoe",
+		supported: true,
+		sourceUrls: [
+			SUMINOE_TOP_URL,
+			SUMINOE_RACE_BASE_URL,
+			SUMINOE_PDF_URL,
+			SUMINOE_PRECHECK_URL,
+			SUMINOE_MOTOR_RANKING_URL,
+			SUMINOE_BOAT_DATA_URL,
+			SUMINOE_WATER_SURFACE_URL,
+			SUMINOE_SCORE_RANKING_URL,
+			SUMINOE_RESULT_URL,
+			SUMINOE_REPLAY_URL,
+			SUMINOE_AQUALIVE_URL,
+		],
+	},
 	"13": {
 		key: "amagasaki",
 		supported: true,
@@ -18135,6 +18164,647 @@ function parseHeiwajimaTopContext(html) {
 	};
 }
 
+async function fetchSuminoeHtml(url) {
+	const response = await fetch(url, {
+		headers: {
+			"User-Agent": "Mozilla/5.0 (compatible; boatrace-datalavo/1.0; +https://github.com/mitiki0720-oss/boatrace-datalavo)",
+			Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+			Referer: SUMINOE_TOP_URL,
+		},
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status} ${response.statusText} for ${url}`);
+	}
+
+	return response.text();
+}
+
+function toSuminoeRaceUrl(pageKey, raceNo) {
+	return `${SUMINOE_RACE_BASE_URL}${pageKey}${String(raceNo).padStart(2, "0")}.htm`;
+}
+
+function parseSuminoeProfile(text) {
+	const normalized = compactText(text);
+	const match = normalized.match(/^([AB]\d)\/(\d{4})\s+(.+?)\s+(\d+)\/([^/]+)\/(?:([^/]+)\/)?(\d+)$/);
+	if (!match) {
+		return {
+			className: "",
+			registrationNo: "",
+			playerName: normalized,
+			term: "",
+			branch: "",
+			age: null,
+		};
+	}
+
+	return {
+		className: match[1],
+		registrationNo: match[2],
+		registerNo: match[2],
+		playerName: compactText(match[3]),
+		racerName: compactText(match[3]),
+		term: match[4],
+		branch: compactText(match[5]),
+		age: Number.parseInt(match[7], 10),
+	};
+}
+
+function splitSuminoeFlyingLate(value) {
+	const text = compactText(value);
+	return {
+		flyingCount: text.match(/F(\d+)/i)?.[1] ?? "",
+		lateCount: text.match(/L(\d+)/i)?.[1] ?? "",
+	};
+}
+
+function parseSuminoeRaceHeaders(html) {
+	const $ = load(html || "");
+	const headers = new Map();
+	const text = $("body").text();
+	for (const match of text.matchAll(/(\d{1,2})\s*R\s*▶︎?\s*([^\n\r]*)/g)) {
+		const raceNo = Number.parseInt(match[1], 10);
+		if (raceNo >= 1 && raceNo <= 12) {
+			headers.set(raceNo, compactText(match[2]));
+		}
+	}
+	return headers;
+}
+
+function parseSuminoeRaceDeadlines(html) {
+	const $ = load(html || "");
+	const deadlines = [...$("body").text().matchAll(/締切\s*(\d{1,2}:\d{2})/g)]
+		.map((match) => match[1])
+		.slice(0, 12);
+	return new Map(deadlines.map((deadline, index) => [index + 1, deadline]));
+}
+
+function parseSuminoeTopContext(html) {
+	const $ = load(html || "");
+	const bodyText = compactText($("body").text());
+	const eventTitle = compactText(
+		$("body")
+			.text()
+			.split(/\r?\n/)
+			.map((line) => compactText(line))
+			.find((line) => /(?:賞|杯|カップ|シリーズ|選手権|競走)/.test(line) && !/お知らせ|イベント|レースガイド|開催決定|マイメニュー/.test(line)) ?? "",
+	);
+	const scheduleMatch = bodyText.match(/(\d{1,2}\/\d{1,2}\s*[月火水木金土日].*?\d{1,2}\s*[月火水木金土日])/);
+	const dayLabel = bodyText.match(/初日|\d+日目|最終日/)?.[0] ?? "";
+	return {
+		eventTitle,
+		scheduleText: compactText(scheduleMatch?.[1] ?? ""),
+		dayLabel,
+		isHeld: /開催中/.test(bodyText),
+		openTime: bodyText.match(/本場\s*▶︎?\s*([0-9:：]+)/)?.[1] ?? "",
+	};
+}
+
+function parseSuminoePrecheck(html) {
+	const $ = load(html || "");
+	const rows = [];
+	$("table tr").each((_, tr) => {
+		const cells = $(tr).children("td").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 9 || !/^\d{4}$/.test(cells[1])) {
+			return;
+		}
+		rows.push({
+			rank: Number.parseInt(cells[0], 10),
+			registrationNo: cells[1],
+			registerNo: cells[1],
+			playerName: cells[2],
+			racerName: cells[2],
+			className: cells[3],
+			motorNo: cells[4],
+			motorSecondRate: cells[5],
+			boatNo: cells[6],
+			boatSecondRate: cells[7],
+			precheckTime: cells[8],
+			source: SUMINOE_SOURCE,
+		});
+	});
+	return rows;
+}
+
+function parseSuminoeMotorRanking(html) {
+	const $ = load(html || "");
+	const rows = [];
+	const bodyText = compactText($("body").text());
+	const startedAt = bodyText.match(/使用開始：?([0-9年月日]+)/)?.[1] ?? "";
+	const updatedAt = bodyText.match(/(\d{4}年\d{1,2}月\d{1,2}日)\s*終了時点/)?.[1] ?? "";
+	$("table tr").each((_, tr) => {
+		const cells = $(tr).children("td").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 7 || !/^\d+$/.test(cells[2])) {
+			return;
+		}
+		rows.push({
+			rank: Number.parseInt(cells[0], 10),
+			previousRank: cells[1].replace(/[()]/g, ""),
+			motorNo: cells[2],
+			motorSecondRate: cells[3],
+			motorWinRate: cells[4],
+			championshipAppearanceCount: cells[5],
+			championshipWinCount: cells[6],
+			usageStartedAt: startedAt,
+			updatedAt,
+			source: SUMINOE_SOURCE,
+			sourceUrl: SUMINOE_MOTOR_RANKING_URL,
+		});
+	});
+	return rows;
+}
+
+function parseSuminoeBoatData(html) {
+	const $ = load(html || "");
+	const rows = [];
+	const bodyText = compactText($("body").text());
+	const startedAt = bodyText.match(/現ボートの使用開始\s*:\s*([0-9年月日]+)/)?.[1] ?? "";
+	const updatedAt = bodyText.match(/(\d{4}年\d{1,2}月\d{1,2}日)\s*終了時点/)?.[1] ?? "";
+	$("table tr").each((_, tr) => {
+		const cells = $(tr).children("td").toArray().map((cell) => readCellText($, cell));
+		if (cells.length < 9 || !/^\d+$/.test(cells[0])) {
+			return;
+		}
+		rows.push({
+			boatNo: cells[0],
+			boatSecondRate: cells[1],
+			boatWinRate: cells[2],
+			firstCount: cells[3],
+			secondCount: cells[4],
+			thirdCount: cells[5],
+			startCount: cells[6],
+			championshipAppearanceCount: cells[7],
+			championshipWinCount: cells[8],
+			usageStartedAt: startedAt,
+			updatedAt,
+			source: SUMINOE_SOURCE,
+			sourceUrl: SUMINOE_BOAT_DATA_URL,
+		});
+	});
+	return rows;
+}
+
+function parseSuminoeWaterSurface(html) {
+	const $ = load(html || "");
+	const firstTableCells = $("table").first().find("tr").eq(1).children("td,th").toArray().map((cell) => readCellText($, cell));
+	const paragraphs = readCleanLines($("body"))
+		.filter((line) => /^■|淡水|プール型|コンクリート|イン|2マーク|乗り心地|モーター/.test(line))
+		.slice(0, 8);
+	const courseRows = [];
+	$("table").eq(1).find("tr").slice(2).each((_, tr) => {
+		const cells = $(tr).children("td,th").toArray().map((cell) => readCellText($, cell));
+		if (cells.length >= 7 && /^\dコース$/.test(cells[0])) {
+			courseRows.push({
+				course: Number.parseInt(cells[0], 10),
+				firstRate: cells[1],
+				secondRate: cells[2],
+				thirdRate: cells[3],
+				fourthRate: cells[4],
+				fifthRate: cells[5],
+				sixthRate: cells[6],
+				source: SUMINOE_SOURCE,
+			});
+		}
+	});
+	return {
+		waterQuality: firstTableCells[0] ?? "",
+		tide: firstTableCells[1] ?? "",
+		tiltRange: firstTableCells[2] ?? "",
+		surfaceSummary: firstTableCells[3] ?? "",
+		featureSummary: firstTableCells[4] ?? "",
+		record: firstTableCells[5] ?? "",
+		courseStats: courseRows,
+		memo: paragraphs.join(" / "),
+		source: SUMINOE_SOURCE,
+		sourceUrl: SUMINOE_WATER_SURFACE_URL,
+	};
+}
+
+function parseSuminoeEntryTable(html, precheckByRegistration = new Map(), boatByNo = new Map(), motorRankingByNo = new Map()) {
+	const $ = load(html || "");
+	const rows = [];
+	const trs = $("table.table_yoso tr").toArray();
+	for (let index = 0; index < trs.length; index += 1) {
+		const cells = $(trs[index]).children("td").toArray();
+		const frameNo = parseFrameNo(readCellText($, cells[0]));
+		if (!frameNo || cells.length < 10) {
+			continue;
+		}
+		const nextCells = $(trs[index + 1]).children("td").toArray();
+		const profile = parseSuminoeProfile(readCellText($, cells[1]));
+		const fL = splitSuminoeFlyingLate(readCellText($, cells[2]));
+		const precheck = precheckByRegistration.get(profile.registrationNo) ?? {};
+		const boat = boatByNo.get(precheck.boatNo) ?? {};
+		const motorRank = motorRankingByNo.get(readCellText($, cells[6])) ?? {};
+		const earlyRaceNo = Number.parseInt(readCellText($, cells[9]), 10);
+		rows.push({
+			frameNo,
+			...profile,
+			...fL,
+			averageStart: readCellText($, cells[3]),
+			averageStartTiming: readCellText($, cells[3]),
+			winRate: readCellText($, cells[4]),
+			localWinRate: readCellText($, cells[5]),
+			motorNo: readCellText($, cells[6]),
+			flyingPenaltyUnserved: readCellText($, cells[7]),
+			accidentRate: readCellText($, cells[8]),
+			earlyRaceNo: Number.isFinite(earlyRaceNo) ? earlyRaceNo : null,
+			earlyRace: Number.isFinite(earlyRaceNo) ? `${earlyRaceNo}R` : "",
+			secondRate: readCellText($, nextCells[1]),
+			localSecondRate: readCellText($, nextCells[2]),
+			motorSecondRate: readCellText($, nextCells[3]) || motorRank.motorSecondRate || precheck.motorSecondRate || "",
+			boatNo: precheck.boatNo ?? "",
+			boatSecondRate: precheck.boatSecondRate ?? boat.boatSecondRate ?? "",
+			boatWinRate: boat.boatWinRate ?? "",
+			precheckTime: precheck.precheckTime ?? "",
+			source: SUMINOE_SOURCE,
+		});
+	}
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function splitSuminoeMotorNoAndRate(value, knownMotorNo = "") {
+	const text = compactText(value);
+	if (knownMotorNo && text.startsWith(knownMotorNo)) {
+		return [knownMotorNo, text.slice(String(knownMotorNo).length)];
+	}
+	const match = text.match(/^(\d{1,3})(\d{1,2}\.\d)$/);
+	return [match?.[1] ?? knownMotorNo, match?.[2] ?? ""];
+}
+
+function parseSuminoeMotorHistory(html, entries = [], motorRankingByNo = new Map()) {
+	const $ = load(html || "");
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const rows = [];
+	const trs = $("table.table_yoso tr").toArray();
+	for (let index = 0; index < trs.length; index += 1) {
+		const cells = $(trs[index]).children("td").toArray();
+		const frameNo = parseFrameNo(readCellText($, cells[0]));
+		if (!frameNo || cells.length < 7) {
+			continue;
+		}
+		const entry = entryByFrame.get(frameNo) ?? {};
+		const [motorNo, motorSecondRate] = splitSuminoeMotorNoAndRate(readCellText($, cells[2]), entry.motorNo);
+		const historyEntries = [0, 1, 2].map((offset) => {
+			const rowCells = $(trs[index + offset]).children("td").toArray();
+			if (offset === 0) {
+				return {
+					section: readCellText($, cells[5]),
+					summary: readCellText($, cells[6]),
+				};
+			}
+			return {
+				section: readCellText($, rowCells[2]),
+				summary: readCellText($, rowCells[3]),
+			};
+		}).filter((item) => item.section || item.summary);
+		const motorRank = motorRankingByNo.get(motorNo) ?? {};
+		rows.push({
+			frameNo,
+			registrationNo: entry.registrationNo ?? "",
+			playerName: entry.playerName ?? "",
+			motorNo,
+			motorSecondRate: motorSecondRate || entry.motorSecondRate || motorRank.motorSecondRate || "",
+			motorWinRate: motorRank.motorWinRate ?? "",
+			championshipAppearanceCount: motorRank.championshipAppearanceCount ?? "",
+			championshipWinCount: motorRank.championshipWinCount ?? "",
+			firstCount: readCellText($, cells[3]),
+			startCount: readCellText($, cells[4]),
+			boatNo: entry.boatNo ?? "",
+			boatSecondRate: entry.boatSecondRate ?? "",
+			precheckTime: entry.precheckTime ?? "",
+			recentResults: historyEntries.map((item) => `${item.section}:${item.summary}`).join(" / "),
+			historyEntries,
+			comment: historyEntries.length ? `モーター履歴 ${historyEntries.map((item) => `${item.section}:${item.summary}`).join(" / ")}` : "",
+			source: SUMINOE_SOURCE,
+		});
+	}
+	return rows.sort((left, right) => left.frameNo - right.frameNo);
+}
+
+function parseSuminoeBeforeInfo(html, entries = []) {
+	const $ = load(html || "");
+	const entryByFrame = new Map(entries.map((entry) => [entry.frameNo, entry]));
+	const beforeInfo = [];
+	const trs = $("table.table_solo tr").toArray();
+	for (const tr of trs) {
+		const cells = $(tr).children("td").toArray();
+		const frameNo = parseFrameNo(readCellText($, cells[0]));
+		if (!frameNo || cells.length < 10) {
+			continue;
+		}
+		const entry = entryByFrame.get(frameNo) ?? {};
+		const exhibitionTime = readCellText($, cells[2]);
+		const exhibitionEvaluation = readCellText($, cells[3]);
+		const weight = readCellText($, cells[4]);
+		const tilt = readCellText($, cells[5]);
+		const adjustment = readCellText($, cells[6]);
+		const previousRaceNo = readCellText($, cells[7]);
+		const previousCourse = readCellText($, cells[8]);
+		const previousStartTiming = readCellText($, cells[9]);
+		if (!exhibitionTime && !exhibitionEvaluation && !weight && !tilt && !adjustment && !previousRaceNo && !previousCourse && !previousStartTiming) {
+			continue;
+		}
+		beforeInfo.push({
+			frameNo,
+			registrationNo: entry.registrationNo ?? "",
+			registerNo: entry.registrationNo ?? "",
+			playerName: entry.playerName ?? "",
+			racerName: entry.playerName ?? "",
+			motorNo: entry.motorNo ?? "",
+			boatNo: entry.boatNo ?? "",
+			exhibitionTime,
+			exhibitionEvaluation,
+			weight,
+			tilt,
+			adjustment,
+			weightAdjustment: adjustment,
+			previousRaceNo,
+			previousCourse,
+			previousStartTiming,
+			source: SUMINOE_SOURCE,
+		});
+	}
+
+	const forecastText = compactText($("table.table02").text());
+	const entryMatch = forecastText.match(/進入\s*([1-6./・\s]+)/);
+	const courseText = compactText(entryMatch?.[1] ?? "");
+	const courseOrder = [...courseText.matchAll(/[1-6]/g)].map((match) => Number.parseInt(match[0], 10));
+	const startExhibition = courseOrder.map((frameNo, index) => ({
+		course: index + 1,
+		frameNo,
+		playerName: entryByFrame.get(frameNo)?.playerName ?? "",
+		startTiming: "",
+		source: SUMINOE_SOURCE,
+	})).filter((row) => row.frameNo >= 1 && row.frameNo <= 6);
+	const officialForecast = forecastText ? {
+		entryCourse: courseText,
+		comment: forecastText,
+		source: SUMINOE_SOURCE,
+		sourceUrl: "",
+	} : null;
+	return { beforeInfo, startExhibition, originalExhibition: [], officialForecast };
+}
+
+function parseSuminoeTrifectaOdds(html) {
+	const $ = load(html || "");
+	const rows = [];
+	$("table").each((_, table) => {
+		const first = parseEmbeddedFrameNo($(table).find("tr").first().text());
+		if (!first) {
+			return;
+		}
+		let second = null;
+		$(table).find("tr").slice(1).each((__, tr) => {
+			const cells = $(tr).children("td").toArray();
+			const secondCell = cells.find((cell) => /\bsize_m\b/.test(String($(cell).attr("class") ?? "")));
+			if (secondCell) {
+				second = parseFrameNo(readCellText($, secondCell));
+			}
+			const rateCell = cells.find((cell) => /\bren_rate\b/.test(String($(cell).attr("class") ?? "")));
+			const thirdCell = cells.find((cell) => {
+				const className = String($(cell).attr("class") ?? "");
+				return /waku[1-6]/.test(className) && !/\bline\b|\bsize_m\b/.test(className);
+			});
+			const third = parseFrameNo(readCellText($, thirdCell));
+			const odds = readCellText($, rateCell);
+			if (second && third && odds && first !== second && first !== third && second !== third) {
+				rows.push({
+					betType: "3連単",
+					combination: `${first}-${second}-${third}`,
+					odds,
+					source: SUMINOE_SOURCE,
+				});
+			}
+		});
+	});
+	const unique = new Map(rows.map((row) => [row.combination, row]));
+	return Array.from(unique.values()).sort((left, right) => left.combination.localeCompare(right.combination));
+}
+
+function createSuminoeRaceSourceStatus({ entryTable, motorSummary, beforeInfo, startExhibition, odds, fetchStatus }) {
+	const statusFor = (key, value, emptyStatus = "parse-empty") => {
+		if (value.length) return "available";
+		if (fetchStatus[key] === "http-error") return "http-error";
+		return emptyStatus;
+	};
+	return {
+		entryTable: statusFor("entry", entryTable),
+		motorSummary: statusFor("motor", motorSummary),
+		officialBeforeInfo: statusFor("before", beforeInfo, "pending"),
+		startExhibition: startExhibition.length ? "available-entry-only" : fetchStatus.before === "http-error" ? "http-error" : "pending",
+		originalExhibition: "not-supported",
+		originalOneLapTime: "not-supported",
+		originalTurnTime: "not-supported",
+		originalStraightTime: "not-supported",
+		weatherCondition: "pending",
+		waterSurfaceInfo: "available",
+		resultList: fetchStatus.result === "http-error" ? "http-error" : "not-published",
+		odds3tan: odds.length === 120 ? "available" : odds.length ? "parse-empty" : fetchStatus.odds === "http-error" ? "http-error" : "not-published",
+		trifectaOdds: odds.length === 120 ? "available" : odds.length ? "parse-empty" : fetchStatus.odds === "http-error" ? "http-error" : "not-published",
+		replay: "not-published",
+	};
+}
+
+async function createSuminoeVenue(feed, date) {
+	const venue = findVenue(feed, SUMINOE_VENUE_NAME);
+	if (!venue) {
+		console.log("[venue-extras] suminoe: not held today");
+		return null;
+	}
+
+	try {
+		const [topSettled, precheckSettled, motorRankSettled, boatSettled, waterSettled, scoreSettled, resultSettled] = await Promise.allSettled([
+			fetchSuminoeHtml(SUMINOE_TOP_URL),
+			fetchSuminoeHtml(SUMINOE_PRECHECK_URL),
+			fetchSuminoeHtml(SUMINOE_MOTOR_RANKING_URL),
+			fetchSuminoeHtml(SUMINOE_BOAT_DATA_URL),
+			fetchSuminoeHtml(SUMINOE_WATER_SURFACE_URL),
+			fetchSuminoeHtml(SUMINOE_SCORE_RANKING_URL),
+			fetchSuminoeHtml(SUMINOE_RESULT_URL),
+		]);
+		const topHtml = topSettled.status === "fulfilled" ? topSettled.value : "";
+		const precheckHtml = precheckSettled.status === "fulfilled" ? precheckSettled.value : "";
+		const motorRankHtml = motorRankSettled.status === "fulfilled" ? motorRankSettled.value : "";
+		const boatHtml = boatSettled.status === "fulfilled" ? boatSettled.value : "";
+		const waterHtml = waterSettled.status === "fulfilled" ? waterSettled.value : "";
+		const scoreHtml = scoreSettled.status === "fulfilled" ? scoreSettled.value : "";
+		const resultHtml = resultSettled.status === "fulfilled" ? resultSettled.value : "";
+		const topContext = parseSuminoeTopContext(topHtml);
+		const precheckRows = parseSuminoePrecheck(precheckHtml);
+		const motorRanking = parseSuminoeMotorRanking(motorRankHtml);
+		const boatSummary = parseSuminoeBoatData(boatHtml);
+		const waterSurfaceInfo = parseSuminoeWaterSurface(waterHtml);
+		const precheckByRegistration = new Map(precheckRows.map((row) => [row.registrationNo, row]));
+		const motorRankingByNo = new Map(motorRanking.map((row) => [row.motorNo, row]));
+		const boatByNo = new Map(boatSummary.map((row) => [row.boatNo, row]));
+		const races = getRaceList(venue);
+		const raceExtras = [];
+
+		for (const race of races) {
+			const raceNo = Number(race.raceNo);
+			const urls = {
+				entry: toSuminoeRaceUrl("syusso10", raceNo),
+				motor: toSuminoeRaceUrl("syusso05", raceNo),
+				before: toSuminoeRaceUrl("yoso05", raceNo),
+				odds: toSuminoeRaceUrl("odds01", raceNo),
+				result: SUMINOE_RESULT_URL,
+			};
+			const settled = await Promise.allSettled([
+				fetchSuminoeHtml(urls.entry),
+				fetchSuminoeHtml(urls.motor),
+				fetchSuminoeHtml(urls.before),
+				fetchSuminoeHtml(urls.odds),
+			]);
+			const keys = ["entry", "motor", "before", "odds"];
+			const htmlByKey = Object.fromEntries(keys.map((key, index) => [key, settled[index].status === "fulfilled" ? settled[index].value : ""]));
+			const fetchStatus = Object.fromEntries(keys.map((key, index) => [key, settled[index].status === "fulfilled" ? "available" : "http-error"]));
+			fetchStatus.result = resultSettled.status === "fulfilled" ? "available" : "http-error";
+			const entryTable = parseSuminoeEntryTable(htmlByKey.entry, precheckByRegistration, boatByNo, motorRankingByNo);
+			const motorSummary = parseSuminoeMotorHistory(htmlByKey.motor, entryTable, motorRankingByNo);
+			const before = parseSuminoeBeforeInfo(htmlByKey.before, entryTable);
+			const trifectaAll = parseSuminoeTrifectaOdds(htmlByKey.odds);
+			const raceHeaders = parseSuminoeRaceHeaders(htmlByKey.entry);
+			const raceDeadlines = parseSuminoeRaceDeadlines(htmlByKey.entry);
+			const weatherCondition = normalizeVenueWeatherCondition(race?.weatherActual ?? venue?.weatherActual ?? null, {
+				source: BOATRACE_OFFICIAL_SOURCE,
+			});
+			const sourceStatus = createSuminoeRaceSourceStatus({
+				entryTable,
+				motorSummary,
+				beforeInfo: before.beforeInfo,
+				startExhibition: before.startExhibition,
+				odds: trifectaAll,
+				fetchStatus,
+			});
+			if (weatherCondition) {
+				sourceStatus.weatherCondition = "available";
+			}
+			const officialBeforeInfo = before.beforeInfo.length || before.startExhibition.length
+				? {
+					status: before.beforeInfo.length ? "available" : "pending",
+					source: `${SUMINOE_SOURCE}+${BOATRACE_OFFICIAL_SOURCE}`,
+					exhibitionRows: before.beforeInfo,
+					startExhibition: before.startExhibition,
+					weatherActual: weatherCondition,
+					weatherCondition,
+					officialForecast: before.officialForecast,
+				}
+				: null;
+			raceExtras.push({
+				raceNo,
+				raceTitle: raceHeaders.get(raceNo) || compactText(race?.title),
+				deadlineTime: raceDeadlines.get(raceNo) ?? compactText(race?.deadlineTime ?? race?.deadline),
+				status: entryTable.length === 6 && motorSummary.length === 6 ? "available" : "waiting-suminoe-data",
+				source: SUMINOE_SOURCE,
+				sourceType: "suminoe-official-extras",
+				sourceUrls: urls,
+				sourceStatus,
+				entryTable,
+				suminoeEntryTable: entryTable,
+				motorSummary,
+				suminoeMotorHistory: motorSummary,
+				boatSummary: entryTable.filter((row) => row.boatNo).map((row) => ({
+					frameNo: row.frameNo,
+					registrationNo: row.registrationNo,
+					playerName: row.playerName,
+					boatNo: row.boatNo,
+					boatSecondRate: row.boatSecondRate,
+					boatWinRate: row.boatWinRate,
+					source: SUMINOE_SOURCE,
+				})),
+				officialBeforeInfo,
+				beforeInfo: before.beforeInfo,
+				startExhibition: before.startExhibition,
+				originalExhibition: [],
+				officialForecast: before.officialForecast,
+				waterSurfaceInfo,
+				weatherCondition,
+				oddsPreview: trifectaAll.length === 120 ? {
+					status: "available",
+					source: SUMINOE_SOURCE,
+					trifectaAll,
+					updatedAt: getJstTimestamp(),
+				} : null,
+				suminoeTrifectaOdds: trifectaAll,
+			});
+			await sleep(REQUEST_INTERVAL_MS);
+		}
+
+		const availableRaceCount = raceExtras.filter((race) => race.status === "available").length;
+		const firstRace = raceExtras[0] ?? null;
+		console.log(
+			`[suminoe extras] races=${raceExtras.length} complete=${availableRaceCount} entry=${firstRace?.entryTable?.length ?? 0} motor=${firstRace?.motorSummary?.length ?? 0} before=${firstRace?.beforeInfo?.length ?? 0} start=${firstRace?.startExhibition?.length ?? 0} odds=${firstRace?.suminoeTrifectaOdds?.length ?? 0}`,
+		);
+
+		return {
+			venueCode: String(venue.venueCode ?? "12").padStart(2, "0"),
+			venueName: SUMINOE_VENUE_NAME,
+			source: SUMINOE_SOURCE,
+			isAvailable: availableRaceCount > 0,
+			status: availableRaceCount > 0 ? "available" : "waiting-suminoe-data",
+			eventTitle: topContext.eventTitle || compactText(venue?.title ?? venue?.eventTitle),
+			scheduleText: topContext.scheduleText,
+			dayLabel: topContext.dayLabel,
+			openTime: topContext.openTime,
+			note: "住之江公式の出走表、モーター履歴、前検タイム、モーターランキング、ボートデータ、水面特性、3連単オッズを取得。",
+			sourceStatus: {
+				entryTable: raceExtras.some((race) => race.entryTable.length === 6) ? "available" : "parse-empty",
+				officialBeforeInfo: raceExtras.some((race) => race.beforeInfo.length) ? "available" : "pending",
+				startExhibition: raceExtras.some((race) => race.startExhibition.length) ? "available-entry-only" : "pending",
+				originalExhibition: "not-supported",
+				originalOneLapTime: "not-supported",
+				originalTurnTime: "not-supported",
+				originalStraightTime: "not-supported",
+				motorSummary: raceExtras.some((race) => race.motorSummary.length === 6) ? "available" : "parse-empty",
+				motorLotteryAndPrecheck: precheckRows.length ? "available" : precheckSettled.status === "fulfilled" ? "parse-empty" : "http-error",
+				motorRanking: motorRanking.length ? "available" : motorRankSettled.status === "fulfilled" ? "parse-empty" : "http-error",
+				boatSummary: boatSummary.length ? "available" : boatSettled.status === "fulfilled" ? "parse-empty" : "http-error",
+				boatRanking: boatSummary.length ? "available" : boatSettled.status === "fulfilled" ? "parse-empty" : "http-error",
+				precheckTime: precheckRows.some((row) => row.precheckTime) ? "available" : "parse-empty",
+				waterSurfaceInfo: hasVenueExtraRows(waterSurfaceInfo) ? "available" : waterSettled.status === "fulfilled" ? "parse-empty" : "http-error",
+				courseStats: waterSurfaceInfo.courseStats?.length ? "available" : "parse-empty",
+				scoreRanking: /更新までしばらくお待ちください/.test(scoreHtml) ? "not-published" : scoreSettled.status === "fulfilled" ? "parse-empty" : "http-error",
+				officialForecast: raceExtras.some((race) => race.officialForecast) ? "available" : "pending",
+				resultList: /INDEX/.test(resultHtml) ? "not-published" : resultSettled.status === "fulfilled" ? "parse-empty" : "http-error",
+				odds3tan: raceExtras.some((race) => race.suminoeTrifectaOdds.length === 120) ? "available" : "not-published",
+				trifectaOdds: raceExtras.some((race) => race.suminoeTrifectaOdds.length === 120) ? "available" : "not-published",
+				replay: "not-published",
+			},
+			motorLotteryAndPrecheck: precheckRows,
+			motorRanking,
+			boatSummary,
+			waterSurfaceInfo,
+			races: raceExtras,
+		};
+	} catch (error) {
+		console.warn(`[venue-extras] suminoe failed: ${error.message}`);
+		return {
+			venueCode: String(venue.venueCode ?? "12").padStart(2, "0"),
+			venueName: SUMINOE_VENUE_NAME,
+			source: SUMINOE_SOURCE,
+			isAvailable: false,
+			status: "fetch-failed",
+			sourceStatus: {
+				entryTable: "http-error",
+				motorSummary: "http-error",
+				officialBeforeInfo: "http-error",
+				startExhibition: "http-error",
+				originalExhibition: "not-supported",
+				originalOneLapTime: "not-supported",
+				originalTurnTime: "not-supported",
+				originalStraightTime: "not-supported",
+				waterSurfaceInfo: "http-error",
+				resultList: "http-error",
+				odds3tan: "http-error",
+				trifectaOdds: "http-error",
+			},
+			note: `Suminoe official extras fetch failed: ${error.message}`,
+			races: [],
+		};
+	}
+}
+
 function createHeiwajimaRaceSourceStatus({ entryTable, motorSummary, beforeInfo, startExhibition, originalExhibition, odds, fetchStatus }) {
 	const statusFor = (key, value, emptyStatus = "parse-empty") => {
 		if (value.length) return "available";
@@ -18388,6 +19058,11 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const heiwajimaVenue = await createHeiwajimaVenue(feed);
 	if (heiwajimaVenue) {
 		venueMap.set(heiwajimaVenue.venueName, mergeVenueRecord(venueMap.get(heiwajimaVenue.venueName) ?? null, heiwajimaVenue));
+	}
+
+	const suminoeVenue = await createSuminoeVenue(feed, date);
+	if (suminoeVenue) {
+		venueMap.set(suminoeVenue.venueName, mergeVenueRecord(venueMap.get(suminoeVenue.venueName) ?? null, suminoeVenue));
 	}
 
 	const miyajimaVenue = await createMiyajimaVenue(feed, date);
