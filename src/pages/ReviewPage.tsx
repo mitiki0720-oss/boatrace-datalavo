@@ -1006,14 +1006,14 @@ export function ReviewPage() {
 		if (warningReasons.length > 0) {
 			const confirmationText = `${selectedDate} ${selectedGroup.venueName} 整理`;
 			const entered = window.prompt(
-				`要注意: ${warningReasons.join("・")}\n削除対象: ${detail}\narchive txtとGitHub上のファイルは変更しません。\n続行するには「${confirmationText}」と入力してください。`,
+				`要注意: ${warningReasons.join("・")}\n${selectedDate} / ${selectedGroup.venueName} のブラウザ保存だけを整理します。他会場は削除しません。\n削除対象: ${detail}\narchive txtとGitHub上のファイルは変更しません。\n続行するには「${confirmationText}」と入力してください。`,
 			);
 			if (entered !== confirmationText) {
 				setStatusMessage("整理を中止しました");
 				return;
 			}
 		} else if (!window.confirm(
-			`${selectedDate} ${selectedGroup.venueName}\n削除対象: ${detail}\nlocalStorageだけを整理します。よろしいですか？`,
+			`${selectedDate} / ${selectedGroup.venueName} のブラウザ保存だけを整理します。他会場は削除しません。\n削除対象: ${detail}\narchive txtとGitHub上のファイルは変更しません。よろしいですか？`,
 		)) {
 			setStatusMessage("整理を中止しました");
 			return;
@@ -1371,7 +1371,10 @@ export function ReviewPage() {
 						<>
 							<p style={textStyle}>
 								対象: {selectedDate} / {selectedGroup.venueName}。ブラウザのlocalStorageだけを変更します。
-								public/data/reviews のarchive txtとGitHub上のファイルは変更しません。
+								{" "}
+								<strong style={{ color: "#a42336" }}>
+									削除対象は選択中の1会場のみです。他会場、archive txt、GitHubファイルは変更しません。
+								</strong>
 							</p>
 							<div style={chipRowStyle}>
 								<span style={chipStyle}>summary下書き {selectedStorageInspection.counts.summaryDrafts}件</span>
@@ -1391,7 +1394,7 @@ export function ReviewPage() {
 									onClick={() => handleVenueStorageCleanup("summary-draft")}
 									disabled={selectedStorageInspection.counts.summaryDrafts <= 0}
 								>
-									summary下書きだけ整理（{selectedStorageInspection.counts.summaryDrafts}件）
+									{selectedGroup.venueName}のsummary下書きだけ整理（{selectedStorageInspection.counts.summaryDrafts}件）
 								</button>
 								<button
 									type="button"
@@ -1403,7 +1406,7 @@ export function ReviewPage() {
 										selectedStorageInspection.counts.johnsonPredictions <= 0
 									}
 								>
-									予想＋実践結果＋ジョンソンを整理（{
+									{selectedGroup.venueName}の予想＋実践結果＋ジョンソンだけ整理（{
 										selectedStorageInspection.counts.predictions +
 										selectedStorageInspection.counts.practiceResults +
 										selectedStorageInspection.counts.johnsonPredictions
@@ -1415,7 +1418,7 @@ export function ReviewPage() {
 									onClick={() => handleVenueStorageCleanup("all")}
 									disabled={selectedStorageInspection.counts.total <= 0}
 								>
-									この会場のブラウザ保存を全部整理（{selectedStorageInspection.counts.total}件）
+									{selectedGroup.venueName}だけ全部整理（{selectedStorageInspection.counts.total}件）
 								</button>
 							</div>
 						</>
