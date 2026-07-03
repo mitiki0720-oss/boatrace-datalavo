@@ -7,6 +7,14 @@ import { getBoatOperationDate, resolveActiveBoatOperationDate, shiftBoatOperatio
 import { loadBoatPredictionRecords } from "../lib/boatPredictionStorage";
 import { loadBoatPracticeResultRecords } from "../lib/boatPracticeResultStorage";
 import {
+	BOAT_REVIEW_DRAFT_STORAGE_KEY,
+	cleanupBoatVenueLocalStorage,
+	getBoatLocalStorageUsageBytes,
+	inspectBoatVenueLocalStorage,
+	type BoatVenueStorageCleanupScope,
+	type BoatVenueStorageTarget,
+} from "../lib/boatLocalStorageMaintenance";
+import {
 	loadBoatVenueExtrasFeed,
 	type BoatVenueExtraVenue,
 	type BoatVenueExtrasFeed,
@@ -38,7 +46,7 @@ import { boatTheme } from "../lib/theme";
 
 type ReviewDataMode = "live" | "archive";
 
-const REVIEW_DRAFT_STORAGE_KEY = "kurari-boat-data-labo-review-summary-drafts";
+const REVIEW_DRAFT_STORAGE_KEY = BOAT_REVIEW_DRAFT_STORAGE_KEY;
 const HERO_IMAGE_PATH = "review-page/hero/review-hero-boat-summary-kurari-funako.png";
 const ARCHIVE_SUMMARY_MISSING_TEXT = "summary未作成\n予想・結果の保存は完了しています。";
 const REVIEW_PAGE_BACKGROUND_URL = withBasePath("review-page/backgrounds/review-page-bg-water-archive.png");
@@ -380,6 +388,13 @@ const secondaryButtonStyle: CSSProperties = {
 	color: boatTheme.colors.navy,
 };
 
+const dangerButtonStyle: CSSProperties = {
+	...secondaryButtonStyle,
+	border: "1px solid rgba(190, 57, 72, 0.34)",
+	background: "rgba(255, 246, 247, 0.98)",
+	color: "#a42336",
+};
+
 const emptyStyle: CSSProperties = {
 	margin: 0,
 	padding: "24px",
@@ -424,6 +439,13 @@ function formatSignedYen(value: number): string {
 
 function formatPercent(value: number): string {
 	return `${value.toFixed(1)}%`;
+}
+
+function formatStorageBytes(bytes: number): string {
+	if (bytes >= 1024 * 1024) {
+		return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+	}
+	return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
 function formatVenueCardDate(date: string): string {
@@ -694,6 +716,9 @@ export function ReviewPage() {
 	const [summaryDraft, setSummaryDraft] = useState("");
 	const [statusMessage, setStatusMessage] = useState("");
 	const [heroImageAvailable, setHeroImageAvailable] = useState(true);
+	const [storageUsageBytes, setStorageUsageBytes] = useState(() => getBoatLocalStorageUsageBytes());
+	const [maintenanceRevision, setMaintenanceRevision] = useState(0);
+	const [selectedStorageInspection, setSelectedStorageInspection] = useState<ReturnType<typeof inspectBoatVenueLocalStorage> | null>(null);
 
 	useEffect(() => {
 		let active = true;
@@ -802,6 +827,18 @@ export function ReviewPage() {
 		() => selectedGroup ? archiveItemMap.get(selectedGroup.key) : undefined,
 		[archiveItemMap, selectedGroup],
 	);
+	const selectedStorageTarget = useMemo<BoatVenueStorageTarget | null>(() => selectedGroup ? ({
+		date: selectedDate,
+		venueSlug: selectedGroup.venueSlug,
+		venueName: selectedGroup.venueName,
+		venueCode: selectedGroup.venueCode || selectedGroup.venue?.venueCode,
+	}) : null, [selectedDate, selectedGroup]);
+
+	useEffect(() => {
+		setSelectedStorageInspection(
+			selectedStorageTarget ? inspectBoatVenueLocalStorage(selectedStorageTarget) : null,
+		);
+	}, [selectedStorageTarget, maintenanceRevision]);
 
 	useEffect(() => {
 		if (!selectedGroup) {
@@ -918,6 +955,8 @@ export function ReviewPage() {
 	const refreshLiveData = () => {
 		setPredictionPayload(loadBoatPredictionRecords());
 		setPracticePayload(loadBoatPracticeResultRecords());
+		setStorageUsageBytes(getBoatLocalStorageUsageBytes());
+		setMaintenanceRevision((value) => value + 1);
 		void loadBoatTodayRaceDetailsFeed().then(setTodayFeed);
 		void loadBoatVenueExtrasFeed().then(setVenueExtrasFeed);
 		setStatusMessage("今日・昨日のlocalStorageを優先しつつ、必要なら archive も再読み込みしました");
@@ -932,7 +971,65 @@ export function ReviewPage() {
 		setSummaryDraft(value);
 		if (selectedGroup && mode === "live") {
 			saveDraft(`${selectedGroup.date}:${selectedGroup.venueSlug}`, value);
+			setStorageUsageBytes(getBoatLocalStorageUsageBytes());
+			setMaintenanceRevision((revision) => revision + 1);
 		}
+	};
+
+	const handleVenueStorageCleanup = (scope: BoatVenueStorageCleanupScope) => {
+		if (!selectedStorageTarget || !selectedGroup) return;
+
+		const inspection = inspectBoatVenueLocalStorage(selectedStorageTarget);
+		const scopeCount = scope === "summary-draft"
+			? inspection.counts.summaryDrafts
+			: scope === "race-records"
+				? inspection.counts.predictions + inspection.counts.practiceResults + inspection.counts.johnsonPredictions
+				: inspection.counts.total;
+		if (scopeCount <= 0) {
+			setStatusMessage(`${selectedGroup.venueName}の選択対象は0件です`);
+			return;
+		}
+
+		const detail = [
+			`summary下書き ${scope === "race-records" ? 0 : inspection.counts.summaryDrafts}件`,
+			`予想 ${scope === "summary-draft" ? 0 : inspection.counts.predictions}件`,
+			`実践結果 ${scope === "summary-draft" ? 0 : inspection.counts.practiceResults}件`,
+			`ジョンソン ${scope === "summary-draft" ? 0 : inspection.counts.johnsonPredictions}件`,
+		].join(" / ");
+		const warningReasons = [
+			selectedDate === operationalToday ? "今日のデータ" : "",
+			selectedDate === operationalYesterday ? "昨日のデータ" : "",
+			inspection.hasPayoutPending ? "払戻待ちあり" : "",
+			inspection.hasMemo ? "メモあり" : "",
+		].filter(Boolean);
+
+		if (warningReasons.length > 0) {
+			const confirmationText = `${selectedDate} ${selectedGroup.venueName} 整理`;
+			const entered = window.prompt(
+				`要注意: ${warningReasons.join("・")}\n削除対象: ${detail}\narchive txtとGitHub上のファイルは変更しません。\n続行するには「${confirmationText}」と入力してください。`,
+			);
+			if (entered !== confirmationText) {
+				setStatusMessage("整理を中止しました");
+				return;
+			}
+		} else if (!window.confirm(
+			`${selectedDate} ${selectedGroup.venueName}\n削除対象: ${detail}\nlocalStorageだけを整理します。よろしいですか？`,
+		)) {
+			setStatusMessage("整理を中止しました");
+			return;
+		}
+
+		const result = cleanupBoatVenueLocalStorage(selectedStorageTarget, scope);
+		setPredictionPayload(loadBoatPredictionRecords());
+		setPracticePayload(loadBoatPracticeResultRecords());
+		setStorageUsageBytes(result.usageBytesAfter);
+		setMaintenanceRevision((revision) => revision + 1);
+		if (scope === "summary-draft" || scope === "all") {
+			setSummaryDraft(selectedArchiveGroup?.summaryFileText ?? ARCHIVE_SUMMARY_MISSING_TEXT);
+		}
+		setStatusMessage(result.ok
+			? `${selectedGroup.venueName}を${result.removedCount}件整理しました（${formatStorageBytes(result.usageBytesBefore)} → ${formatStorageBytes(result.usageBytesAfter)}）`
+			: `${selectedGroup.venueName}の整理中に保存エラーが発生しました`);
 	};
 
 	return (
@@ -1260,6 +1357,71 @@ export function ReviewPage() {
 							{mode === "live" ? <span style={chipStyle}>入力内容は会場ごとに自動保存</span> : null}
 						</div>
 					</section>
+				</section>
+
+				<section style={panelStyle}>
+					<div style={sectionHeaderStyle}>
+						<div>
+							<p style={eyebrowStyle}>Local Storage Maintenance</p>
+							<h2 style={sectionTitleStyle}>会場別ストレージ整理</h2>
+						</div>
+						<span style={chipStyle}>現在のlocalStorage使用量 {formatStorageBytes(storageUsageBytes)}</span>
+					</div>
+					{selectedGroup && selectedStorageInspection ? (
+						<>
+							<p style={textStyle}>
+								対象: {selectedDate} / {selectedGroup.venueName}。ブラウザのlocalStorageだけを変更します。
+								public/data/reviews のarchive txtとGitHub上のファイルは変更しません。
+							</p>
+							<div style={chipRowStyle}>
+								<span style={chipStyle}>summary下書き {selectedStorageInspection.counts.summaryDrafts}件</span>
+								<span style={chipStyle}>予想 {selectedStorageInspection.counts.predictions}件</span>
+								<span style={chipStyle}>実践結果 {selectedStorageInspection.counts.practiceResults}件</span>
+								<span style={chipStyle}>ジョンソン {selectedStorageInspection.counts.johnsonPredictions}件</span>
+								<span style={chipStyle}>対象推定 {formatStorageBytes(selectedStorageInspection.estimatedBytes)}</span>
+								{selectedDate === operationalToday ? <span style={{ ...chipStyle, color: "#a42336" }}>今日のデータ</span> : null}
+								{selectedDate === operationalYesterday ? <span style={{ ...chipStyle, color: "#a42336" }}>昨日のデータ</span> : null}
+								{selectedStorageInspection.hasPayoutPending ? <span style={{ ...chipStyle, color: "#a42336" }}>払戻待ちあり</span> : null}
+								{selectedStorageInspection.hasMemo ? <span style={{ ...chipStyle, color: "#a42336" }}>メモあり</span> : null}
+							</div>
+							<div style={buttonRowStyle}>
+								<button
+									type="button"
+									style={dangerButtonStyle}
+									onClick={() => handleVenueStorageCleanup("summary-draft")}
+									disabled={selectedStorageInspection.counts.summaryDrafts <= 0}
+								>
+									summary下書きだけ整理（{selectedStorageInspection.counts.summaryDrafts}件）
+								</button>
+								<button
+									type="button"
+									style={dangerButtonStyle}
+									onClick={() => handleVenueStorageCleanup("race-records")}
+									disabled={
+										selectedStorageInspection.counts.predictions +
+										selectedStorageInspection.counts.practiceResults +
+										selectedStorageInspection.counts.johnsonPredictions <= 0
+									}
+								>
+									予想＋実践結果＋ジョンソンを整理（{
+										selectedStorageInspection.counts.predictions +
+										selectedStorageInspection.counts.practiceResults +
+										selectedStorageInspection.counts.johnsonPredictions
+									}件）
+								</button>
+								<button
+									type="button"
+									style={{ ...dangerButtonStyle, background: "#a42336", color: "#fff" }}
+									onClick={() => handleVenueStorageCleanup("all")}
+									disabled={selectedStorageInspection.counts.total <= 0}
+								>
+									この会場のブラウザ保存を全部整理（{selectedStorageInspection.counts.total}件）
+								</button>
+							</div>
+						</>
+					) : (
+						<p style={emptyStyle}>整理する日付と会場を選択してください。</p>
+					)}
 				</section>
 
 				<style>{`
