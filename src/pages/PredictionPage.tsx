@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { BoatPredictionRecord, BoatPredictionTicket } from "../lib/boatraceTypes";
 import { BoatGptMaterialPanel } from "../components/boatrace/BoatGptMaterialPanel";
+import { BoatGptBulkMaterialPanel } from "../components/boatrace/BoatGptBulkMaterialPanel";
 import { BoatPracticeResultPanel } from "../components/boatrace/BoatPracticeResultPanel";
 import { BoatPredictionPastePanel } from "../components/boatrace/BoatPredictionPastePanel";
 import { BoatPredictionVenueRaceChooser } from "../components/boatrace/BoatPredictionVenueRaceChooser";
@@ -1258,6 +1259,130 @@ const buildPracticeFallbackRaceKey = (params: {
 			})
 		: "レース情報が選択されていません。";
 	const raceLabel = `${selectedVenue?.venueName ?? "-"} ${selectedRace ? `${selectedRace.raceNo}R` : "-"}`;
+	const bulkGptMaterialSummary = useMemo(() => {
+		const expectedRaceNumbers = [1, 2, 3, 4, 5, 6];
+		const raceRangeLabel = "1R〜6R";
+
+		if (!selectedVenue) {
+			const materialText = [
+				"GPT貼り付け用素材 1R〜6Rまとめ",
+				`対象日: ${activePredictionDate}`,
+				"対象会場: -",
+				`対象レース範囲: ${raceRangeLabel}`,
+				"",
+				"選択中会場がありません。",
+			].join("\n");
+
+			return {
+				materialText,
+				raceRangeLabel,
+				generatedRaceCount: 0,
+				expectedRaceCount: expectedRaceNumbers.length,
+				readyRaceCount: 0,
+				partialRaceCount: 0,
+				waitingRaceCount: expectedRaceNumbers.length,
+				missingRaceLabels: expectedRaceNumbers.map((raceNo) => `${raceNo}R`),
+			};
+		}
+
+		const racesByRaceNo = new Map<number, BoatPredictionRace>();
+		selectedVenueRaces.forEach((race) => {
+			if (expectedRaceNumbers.includes(Number(race.raceNo))) {
+				racesByRaceNo.set(Number(race.raceNo), race);
+			}
+		});
+
+		const statusCounts = {
+			ready: 0,
+			partial: 0,
+			waiting: 0,
+		};
+		const missingRaceLabels: string[] = [];
+		const sections = expectedRaceNumbers.map((raceNo) => {
+			const race = racesByRaceNo.get(raceNo);
+			const sectionHeader = [
+				"============================================================",
+				`【${activePredictionDate} / ${selectedVenue.venueName} ${raceNo}R】`,
+			];
+
+			if (!race) {
+				missingRaceLabels.push(`${raceNo}R`);
+				return [
+					...sectionHeader,
+					"ステータス: 未取得",
+					"注記: このレースは選択中会場の取得済みデータに存在しません。fake補完はしません。",
+				].join("\n");
+			}
+
+			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
+			const exhibitionStatus = buildExhibitionStatusLabel({
+				race,
+				raceExtra,
+				feedUpdatedAt: todayFeed.generatedAt,
+				extraUpdatedAt: venueExtrasFeed?.generatedAt,
+			});
+
+			statusCounts[exhibitionStatus.level] += 1;
+
+			const exhibitionSummary =
+				exhibitionStatus.level === "ready"
+					? "展示取得済み"
+					: exhibitionStatus.level === "partial"
+						? "展示一部取得。未取得項目は推測で補完しない"
+						: "展示未完了の事前予想素材";
+			const raceMaterial = buildBoatPredictionMaterial({
+				venue: selectedVenue,
+				race,
+				venueExtra: selectedVenueExtra,
+				raceExtra,
+				venueFeatureNote: selectedVenueFeatureNote,
+				venueFeatureInsights,
+			});
+
+			return [
+				...sectionHeader,
+				`展示タイム取得状況: ${exhibitionSummary}`,
+				`展示詳細: ${exhibitionStatus.title} / ${exhibitionStatus.detail}`,
+				"注記: 取得できない値は推測で埋めない。source-backed data only。",
+				"",
+				raceMaterial,
+			].join("\n");
+		});
+		const generatedRaceCount = expectedRaceNumbers.length - missingRaceLabels.length;
+		const materialText = [
+			"GPT貼り付け用素材 1R〜6Rまとめ",
+			`対象日: ${activePredictionDate}`,
+			`対象会場: ${selectedVenue.venueName}`,
+			`対象レース範囲: ${raceRangeLabel}`,
+			`生成済みレース数: ${generatedRaceCount}/${expectedRaceNumbers.length}R`,
+			`展示タイム取得状況: OK ${statusCounts.ready}R / 一部 ${statusCounts.partial}R / 未取得 ${statusCounts.waiting + missingRaceLabels.length}R`,
+			`未取得レース: ${missingRaceLabels.length > 0 ? missingRaceLabels.join(", ") : "なし"}`,
+			"用途: モーニング/前半予想用",
+			"注記: 展示未取得の場合は展示未完了の事前予想素材として扱う。fake補完は禁止。source-backed data only。",
+			"",
+			sections.join("\n\n"),
+		].join("\n");
+
+		return {
+			materialText,
+			raceRangeLabel,
+			generatedRaceCount,
+			expectedRaceCount: expectedRaceNumbers.length,
+			readyRaceCount: statusCounts.ready,
+			partialRaceCount: statusCounts.partial,
+			waitingRaceCount: statusCounts.waiting,
+			missingRaceLabels,
+		};
+	}, [
+		activePredictionDate,
+		selectedVenue,
+		selectedVenueRaces,
+		selectedVenueExtra,
+		selectedVenueFeatureNote,
+		venueFeatureInsights,
+		todayFeed.generatedAt,
+		venueExtrasFeed?.generatedAt,
+	]);
 	const venueCount = venues.length;
 	const isWaitingForTodayFeed = venueCount === 0;
 	const raceCount = races.length;
@@ -3110,6 +3235,19 @@ body:has(.prediction-page-root) {
 						</div>
 					</div>
 				</div>
+
+				<BoatGptBulkMaterialPanel
+					materialText={bulkGptMaterialSummary.materialText}
+					venueName={selectedVenue?.venueName ?? "-"}
+					dateLabel={activePredictionDate}
+					raceRangeLabel={bulkGptMaterialSummary.raceRangeLabel}
+					generatedRaceCount={bulkGptMaterialSummary.generatedRaceCount}
+					expectedRaceCount={bulkGptMaterialSummary.expectedRaceCount}
+					readyRaceCount={bulkGptMaterialSummary.readyRaceCount}
+					partialRaceCount={bulkGptMaterialSummary.partialRaceCount}
+					waitingRaceCount={bulkGptMaterialSummary.waitingRaceCount}
+					missingRaceLabels={bulkGptMaterialSummary.missingRaceLabels}
+				/>
 
 				{practiceMessage ? <p style={practiceMessageStyle}>{practiceMessage}</p> : null}
 				{parsedBetSummary.warnings?.length ? (
