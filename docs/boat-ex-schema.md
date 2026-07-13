@@ -188,6 +188,7 @@ Expected file kinds are represented by `BoatExFileKind`:
 
 - `complete`: Required source-backed fields are present.
 - `partial`: Some source-backed fields are present.
+- `pending`: The official source is expected later but is not available in the current generated feed.
 - `missing`: Expected fields are absent.
 - `not-supported`: The field is not offered by the source.
 - `unknown`: The system cannot classify the coverage.
@@ -223,9 +224,9 @@ Do not coerce unknown registration numbers, branches, class names, exhibition va
 
 ## Phase 3 Connection
 
-Phase 3 should add `scripts/generateBoatExHistory.mjs`. That script should read existing generated official data and write normalized history later, using the Phase 2 types as the contract.
+Phase 3 adds `scripts/generateBoatExHistory.mjs` and `scripts/checkBoatExHistory.mjs`. These scripts read existing generated official data and write normalized history v0, date coverage, and a generated manifest using the Phase 2 types as the contract.
 
-Proposed Phase 3 flow:
+Phase 3 flow:
 
 ```text
 1. Read public/data/boatrace/today-race-details.generated.json.
@@ -238,3 +239,13 @@ Proposed Phase 3 flow:
 ```
 
 Phase 3 should not infer unavailable official data. If official result, ST, exhibition, weather, motor, or racer fields are missing, it should mark `sourceStatus` and `coverageStatus` instead of filling fake values.
+
+Phase 3 output paths:
+
+```text
+public/data/boatrace-ex/history/races/YYYY-MM-DD.json
+public/data/boatrace-ex/coverage/YYYY-MM-DD.json
+public/data/boatrace-ex/manifest.generated.json
+```
+
+Phase 3 does not read or touch `public/data/reviews/**`, localStorage, prediction signals, derived venue bias, review diff analysis, React pages, GitHub Actions workflows, or the existing `public/data/boatrace/*.generated.json` files.

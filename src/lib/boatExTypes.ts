@@ -24,6 +24,7 @@ export type BoatExSourceStatus =
 export type BoatExCoverageStatus =
 	| "complete"
 	| "partial"
+	| "pending"
 	| "missing"
 	| "not-supported"
 	| "unknown";
