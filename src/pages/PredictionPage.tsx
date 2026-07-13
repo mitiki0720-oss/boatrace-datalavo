@@ -814,6 +814,7 @@ export function PredictionPage() {
 	const [isBetAutoApplied, setIsBetAutoApplied] = useState(false);
 	const [isResultAutoApplied, setIsResultAutoApplied] = useState(false);
 	const [predictionRecordsVersion, setPredictionRecordsVersion] = useState(0);
+	const [bulkGptMaterialRangeKey, setBulkGptMaterialRangeKey] = useState<"1r6r" | "7r12r">("1r6r");
 	const [autoSettleState, setAutoSettleState] = useState({
 		enabled: true,
 		autoSettledCount: 0,
@@ -1529,6 +1530,12 @@ const buildPracticeFallbackRaceKey = (params: {
 		todayFeed.generatedAt,
 		venueExtrasFeed?.generatedAt,
 	]);
+	const bulkGptMaterialRangePresets = [
+		{ key: "1r6r", label: "1R〜6R" },
+		{ key: "7r12r", label: "7R〜12R" },
+	];
+	const activeBulkGptMaterialSummary =
+		bulkGptMaterialRangeKey === "7r12r" ? bulkGptMaterialSummary7R12R : bulkGptMaterialSummary1R6R;
 	const venueCount = venues.length;
 	const isWaitingForTodayFeed = venueCount === 0;
 	const raceCount = races.length;
@@ -3383,29 +3390,23 @@ body:has(.prediction-page-root) {
 				</div>
 
 				<BoatGptBulkMaterialPanel
-					materialText={bulkGptMaterialSummary1R6R.materialText}
+					materialText={activeBulkGptMaterialSummary.materialText}
 					venueName={selectedVenue?.venueName ?? "-"}
 					dateLabel={activePredictionDate}
-					raceRangeLabel={bulkGptMaterialSummary1R6R.raceRangeLabel}
-					generatedRaceCount={bulkGptMaterialSummary1R6R.generatedRaceCount}
-					expectedRaceCount={bulkGptMaterialSummary1R6R.expectedRaceCount}
-					readyRaceCount={bulkGptMaterialSummary1R6R.readyRaceCount}
-					partialRaceCount={bulkGptMaterialSummary1R6R.partialRaceCount}
-					waitingRaceCount={bulkGptMaterialSummary1R6R.waitingRaceCount}
-					missingRaceLabels={bulkGptMaterialSummary1R6R.missingRaceLabels}
-				/>
-
-				<BoatGptBulkMaterialPanel
-					materialText={bulkGptMaterialSummary7R12R.materialText}
-					venueName={selectedVenue?.venueName ?? "-"}
-					dateLabel={activePredictionDate}
-					raceRangeLabel={bulkGptMaterialSummary7R12R.raceRangeLabel}
-					generatedRaceCount={bulkGptMaterialSummary7R12R.generatedRaceCount}
-					expectedRaceCount={bulkGptMaterialSummary7R12R.expectedRaceCount}
-					readyRaceCount={bulkGptMaterialSummary7R12R.readyRaceCount}
-					partialRaceCount={bulkGptMaterialSummary7R12R.partialRaceCount}
-					waitingRaceCount={bulkGptMaterialSummary7R12R.waitingRaceCount}
-					missingRaceLabels={bulkGptMaterialSummary7R12R.missingRaceLabels}
+					raceRangeLabel={activeBulkGptMaterialSummary.raceRangeLabel}
+					generatedRaceCount={activeBulkGptMaterialSummary.generatedRaceCount}
+					expectedRaceCount={activeBulkGptMaterialSummary.expectedRaceCount}
+					readyRaceCount={activeBulkGptMaterialSummary.readyRaceCount}
+					partialRaceCount={activeBulkGptMaterialSummary.partialRaceCount}
+					waitingRaceCount={activeBulkGptMaterialSummary.waitingRaceCount}
+					missingRaceLabels={activeBulkGptMaterialSummary.missingRaceLabels}
+					activeRangeKey={bulkGptMaterialRangeKey}
+					rangePresets={bulkGptMaterialRangePresets}
+					onSelectRange={(key) => {
+						if (key === "1r6r" || key === "7r12r") {
+							setBulkGptMaterialRangeKey(key);
+						}
+					}}
 				/>
 
 				{practiceMessage ? <p style={practiceMessageStyle}>{practiceMessage}</p> : null}

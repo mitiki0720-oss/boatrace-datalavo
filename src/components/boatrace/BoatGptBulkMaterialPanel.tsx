@@ -12,6 +12,12 @@ type BoatGptBulkMaterialPanelProps = {
 	partialRaceCount?: number;
 	waitingRaceCount?: number;
 	missingRaceLabels?: string[];
+	activeRangeKey: string;
+	rangePresets: Array<{
+		key: string;
+		label: string;
+	}>;
+	onSelectRange: (key: string) => void;
 };
 
 const wrapStyle = {
@@ -53,6 +59,50 @@ const actionRowStyle = {
 	display: "flex",
 	gap: "10px",
 	flexWrap: "wrap" as const,
+};
+
+const presetWrapStyle = {
+	display: "grid",
+	gap: "8px",
+	padding: "14px",
+	borderRadius: "18px",
+	background: "rgba(247, 252, 255, 0.96)",
+	border: `1px solid ${boatTheme.colors.line}`,
+};
+
+const presetLabelStyle = {
+	margin: 0,
+	fontSize: "0.72rem",
+	letterSpacing: "0.12em",
+	fontWeight: 800,
+	color: boatTheme.colors.aquaDeep,
+};
+
+const presetButtonRowStyle = {
+	display: "flex",
+	gap: "8px",
+	flexWrap: "wrap" as const,
+};
+
+const presetButtonBaseStyle = {
+	padding: "10px 14px",
+	borderRadius: "999px",
+	fontWeight: 800,
+	cursor: "pointer",
+};
+
+const presetButtonActiveStyle = {
+	...presetButtonBaseStyle,
+	border: "none",
+	background: boatTheme.colors.navy,
+	color: "#ffffff",
+};
+
+const presetButtonInactiveStyle = {
+	...presetButtonBaseStyle,
+	border: `1px solid ${boatTheme.colors.line}`,
+	background: "rgba(255, 255, 255, 0.98)",
+	color: boatTheme.colors.navy,
 };
 
 const primaryButtonStyle = {
@@ -165,6 +215,9 @@ export function BoatGptBulkMaterialPanel({
 	partialRaceCount = 0,
 	waitingRaceCount = 0,
 	missingRaceLabels = [],
+	activeRangeKey,
+	rangePresets,
+	onSelectRange,
 }: BoatGptBulkMaterialPanelProps) {
 	const [statusText, setStatusText] = useState<string>("");
 	const statusTimerRef = useRef<number | null>(null);
@@ -227,6 +280,26 @@ export function BoatGptBulkMaterialPanel({
 					<p style={descriptionStyle}>
 						選択中会場の{raceRangeLabel}をまとめてGPTに貼り付けられる素材です。会場共通情報は上部に1回だけ出し、各Rはレース固有情報中心に軽量化しています。展示未取得の場合は事前予想素材として扱います。
 					</p>
+					<div style={presetWrapStyle}>
+						<p style={presetLabelStyle}>RANGE PRESET</p>
+						<div style={presetButtonRowStyle}>
+							{rangePresets.map((preset) => {
+								const isActive = preset.key === activeRangeKey;
+
+								return (
+									<button
+										key={preset.key}
+										type="button"
+										style={isActive ? presetButtonActiveStyle : presetButtonInactiveStyle}
+										onClick={() => onSelectRange(preset.key)}
+										aria-pressed={isActive}
+									>
+										{preset.label}
+									</button>
+								);
+							})}
+						</div>
+					</div>
 					<div style={chipRowStyle}>
 						<span style={chipStyle}>対象日 {dateLabel}</span>
 						<span style={chipStyle}>対象会場 {venueName}</span>
