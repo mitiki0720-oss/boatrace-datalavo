@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { SiteHeader } from "./components/layout/SiteHeader";
 import { useBoatOperationalStorageRollover } from "./hooks/useBoatOperationalStorageRollover";
 import { boatTheme } from "./lib/theme";
+import { BoatExPage } from "./pages/BoatExPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { MobilePage } from "./pages/MobilePage";
 import { PredictionPage } from "./pages/PredictionPage";
@@ -16,6 +17,7 @@ const pageMap = {
   "#races-page": RacesPage,
   "#prediction-page": PredictionPage,
   "#review-page": ReviewPage,
+  "#boat-ex-page": BoatExPage,
   "#venue-features-page": VenueFeaturesPage,
   "#mobile-page": MobilePage,
 } as const;

@@ -45,6 +45,7 @@ function parseArgs(argv) {
 	const args = {
 		date: undefined,
 		dryRun: false,
+		allowEmpty: false,
 	};
 
 	for (let index = 0; index < argv.length; index += 1) {
@@ -52,6 +53,11 @@ function parseArgs(argv) {
 
 		if (arg === "--dry-run") {
 			args.dryRun = true;
+			continue;
+		}
+
+		if (arg === "--allow-empty") {
+			args.allowEmpty = true;
 			continue;
 		}
 
@@ -153,6 +159,18 @@ function writeJson(filePath, value, dryRun) {
 	const absolutePath = path.join(repoRoot, filePath);
 	fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
 	fs.writeFileSync(absolutePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+function createEmptyOutputMessage({ date, records, venues, allowed = false }) {
+	return [
+		allowed
+			? "Allowing empty BOATRACE EX history output because --allow-empty was provided."
+			: "Refusing to write empty BOATRACE EX history output.",
+		`date: ${date}`,
+		`records: ${records}`,
+		`venues: ${venues}`,
+		"Use --allow-empty only when intentionally creating an empty output.",
+	].join("\n");
 }
 
 function makeSource(meta, overrides = {}) {
@@ -710,6 +728,8 @@ function main() {
 	const coveragePath = `${OUTPUT_ROOT}/coverage/${date}.json`;
 	const manifestPath = `${OUTPUT_ROOT}/manifest.generated.json`;
 	const coverageSummary = summarizeCoverage(records, generatedAt, sourceFiles);
+	const venueCount = new Set(records.map((record) => record.venueCode)).size;
+	const isEmptyOutput = records.length === 0 || venueCount === 0;
 	const historyJson = {
 		schemaVersion: 1,
 		kind: HISTORY_KIND,
@@ -725,7 +745,7 @@ function main() {
 		generatedAt,
 		sourceFiles,
 		totals: {
-			venues: new Set(records.map((record) => record.venueCode)).size,
+			venues: venueCount,
 			races: records.length,
 		},
 		fieldTotals: coverageSummary.fieldTotals,
@@ -740,6 +760,31 @@ function main() {
 		records,
 		sourceFiles,
 	});
+
+	if (isEmptyOutput) {
+		const message = createEmptyOutputMessage({
+			date,
+			records: records.length,
+			venues: venueCount,
+			allowed: args.allowEmpty,
+		});
+
+		if (!args.allowEmpty) {
+			console.error(message);
+			console.log(JSON.stringify({
+				dryRun: args.dryRun,
+				date,
+				records: records.length,
+				venues: venueCount,
+				outputs: [historyPath, coveragePath, manifestPath],
+				refusedEmptyOutput: true,
+			}, null, 2));
+			process.exitCode = 1;
+			return;
+		}
+
+		console.warn(message);
+	}
 
 	writeJson(historyPath, historyJson, args.dryRun);
 	writeJson(coveragePath, coverageJson, args.dryRun);

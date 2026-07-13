@@ -63,6 +63,7 @@ const navItems = [
 	{ label: "Today", hash: "#races-page" },
 	{ label: "Prediction", hash: "#prediction-page" },
 	{ label: "Review", hash: "#review-page" },
+	{ label: "EX", hash: "#boat-ex-page" },
 	{ label: "Venues", hash: "#venue-features-page" },
 	{ label: "Mobile", hash: "#mobile-page" },
 ];

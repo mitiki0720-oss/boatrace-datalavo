@@ -249,3 +249,13 @@ public/data/boatrace-ex/manifest.generated.json
 ```
 
 Phase 3 does not read or touch `public/data/reviews/**`, localStorage, prediction signals, derived venue bias, review diff analysis, React pages, GitHub Actions workflows, or the existing `public/data/boatrace/*.generated.json` files.
+
+### Phase 3.1 empty output guard
+
+`scripts/generateBoatExHistory.mjs` must not overwrite an existing EX history, coverage, or manifest with empty output by default.
+
+If the target date produces `records: 0` or `venues: 0`, the generator exits with code `1` before writing files. This also applies to `--dry-run`, which reports the empty state and exits with code `1` without writing.
+
+`--allow-empty` is the only override. It is intended for deliberate empty fixture creation and prints a warning when used. Without this flag, empty history generation is considered unsafe because the active official generated feeds may no longer contain an older requested date.
+
+`scripts/checkBoatExHistory.mjs` also treats `records: 0` as a failure unless `--allow-empty` is passed.

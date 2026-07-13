@@ -31,6 +31,7 @@ const ALLOWED_COVERAGE_STATUS = new Set([
 function parseArgs(argv) {
 	const args = {
 		date: undefined,
+		allowEmpty: false,
 	};
 
 	for (let index = 0; index < argv.length; index += 1) {
@@ -40,6 +41,10 @@ function parseArgs(argv) {
 			if (!next || next.startsWith("--")) throw new Error("--date requires YYYY-MM-DD");
 			args.date = next;
 			index += 1;
+			continue;
+		}
+		if (arg === "--allow-empty") {
+			args.allowEmpty = true;
 			continue;
 		}
 		throw new Error(`Unknown argument: ${arg}`);
@@ -124,6 +129,13 @@ function main() {
 	assert(Array.isArray(history.sourceFiles), "history.sourceFiles must be an array", errors);
 	history.sourceFiles?.forEach((source, index) => validateSourceMeta(source, `history.sourceFiles[${index}]`, errors));
 	assert(Array.isArray(history.records), "history.records must be an array", errors);
+	if (Array.isArray(history.records) && history.records.length === 0 && !args.allowEmpty) {
+		errors.push([
+			"BOATRACE EX history has no records.",
+			`date: ${date}`,
+			"Use --allow-empty only when this is intentional.",
+		].join("\n"));
+	}
 	history.records?.forEach((record, index) => validateRaceRecord(record, index, date, errors));
 
 	assert(coverage.schemaVersion === 1, "coverage.schemaVersion must be 1", errors);

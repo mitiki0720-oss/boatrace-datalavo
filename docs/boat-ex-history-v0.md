@@ -31,8 +31,31 @@ node scripts/generateBoatExHistory.mjs
 node scripts/generateBoatExHistory.mjs --date 2026-07-13
 node scripts/generateBoatExHistory.mjs --dry-run
 node scripts/generateBoatExHistory.mjs --date 2026-07-13 --dry-run
+node scripts/generateBoatExHistory.mjs --date 2026-07-13 --allow-empty
 node scripts/checkBoatExHistory.mjs --date 2026-07-13
+node scripts/checkBoatExHistory.mjs --date 2026-07-13 --allow-empty
 ```
+
+## Empty output safety guard
+
+The generator refuses to write empty history output by default.
+
+If a requested date produces `records: 0` or `venues: 0`, `generateBoatExHistory.mjs` exits with code `1` before writing `history`, `coverage`, or `manifest`.
+
+This guard also applies to `--dry-run`. A dry-run with empty output writes no files and exits with code `1` so the dangerous state is visible in CI or local checks.
+
+Use `--allow-empty` only when an empty output is intentional:
+
+```bash
+node scripts/generateBoatExHistory.mjs --date 2099-01-01 --allow-empty
+node scripts/generateBoatExHistory.mjs --date 2099-01-01 --dry-run --allow-empty
+```
+
+When `--allow-empty` is used, the script prints a warning. Without `--allow-empty`, an existing non-empty EX history file must not be overwritten by an empty output.
+
+`checkBoatExHistory.mjs` also fails on `records: 0` by default. `--allow-empty` only permits a structurally valid empty file when that is explicitly intended.
+
+This is required because Phase 4+ may regenerate older history dates while the current official generated feeds no longer contain that date. The generator must protect previously generated EX history from accidental empty overwrites.
 
 ## history JSON
 
