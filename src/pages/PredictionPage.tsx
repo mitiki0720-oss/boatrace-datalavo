@@ -22,7 +22,7 @@ import {
 	type ParsedBoatBet,
 	type ParsedBoatBetSummary,
 } from "../lib/boatBetParser";
-import { buildBoatPredictionMaterial } from "../lib/boatPredictionMaterial";
+import { buildBoatPredictionMaterial, buildBoatPredictionVenueContextMaterial } from "../lib/boatPredictionMaterial";
 import { parseBoatPredictionTickets } from "../lib/boatPredictionParser";
 import {
 	findBoatRaceResultForPractice,
@@ -1259,7 +1259,7 @@ const buildPracticeFallbackRaceKey = (params: {
 			})
 		: "レース情報が選択されていません。";
 	const raceLabel = `${selectedVenue?.venueName ?? "-"} ${selectedRace ? `${selectedRace.raceNo}R` : "-"}`;
-	const bulkGptMaterialSummary = useMemo(() => {
+	const bulkGptMaterialSummary1R6R = useMemo(() => {
 		const expectedRaceNumbers = [1, 2, 3, 4, 5, 6];
 		const raceRangeLabel = "1R〜6R";
 
@@ -1298,6 +1298,11 @@ const buildPracticeFallbackRaceKey = (params: {
 			waiting: 0,
 		};
 		const missingRaceLabels: string[] = [];
+		const venueContextMaterial = buildBoatPredictionVenueContextMaterial({
+			venue: selectedVenue,
+			venueFeatureNote: selectedVenueFeatureNote,
+			venueFeatureInsights,
+		});
 		const sections = expectedRaceNumbers.map((raceNo) => {
 			const race = racesByRaceNo.get(raceNo);
 			const sectionHeader = [
@@ -1337,6 +1342,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				raceExtra,
 				venueFeatureNote: selectedVenueFeatureNote,
 				venueFeatureInsights,
+				includeVenueContext: false,
 			});
 
 			return [
@@ -1358,8 +1364,148 @@ const buildPracticeFallbackRaceKey = (params: {
 			`展示タイム取得状況: OK ${statusCounts.ready}R / 一部 ${statusCounts.partial}R / 未取得 ${statusCounts.waiting + missingRaceLabels.length}R`,
 			`未取得レース: ${missingRaceLabels.length > 0 ? missingRaceLabels.join(", ") : "なし"}`,
 			"用途: モーニング/前半予想用",
+			"軽量化: 会場分析・会場特徴ノート・Venue Selector全文・MY ANALYSIS LOGは上部に1回だけ掲載し、各Rでは繰り返しません。",
 			"注記: 展示未取得の場合は展示未完了の事前予想素材として扱う。fake補完は禁止。source-backed data only。",
 			"",
+			"==================== 会場共通情報（このまとめ内で1回だけ） ====================",
+			venueContextMaterial,
+			"",
+			"==================== レース別素材（レース固有情報中心） ====================",
+			sections.join("\n\n"),
+		].join("\n");
+
+		return {
+			materialText,
+			raceRangeLabel,
+			generatedRaceCount,
+			expectedRaceCount: expectedRaceNumbers.length,
+			readyRaceCount: statusCounts.ready,
+			partialRaceCount: statusCounts.partial,
+			waitingRaceCount: statusCounts.waiting,
+			missingRaceLabels,
+		};
+	}, [
+		activePredictionDate,
+		selectedVenue,
+		selectedVenueRaces,
+		selectedVenueExtra,
+		selectedVenueFeatureNote,
+		venueFeatureInsights,
+		todayFeed.generatedAt,
+		venueExtrasFeed?.generatedAt,
+	]);
+	const bulkGptMaterialSummary7R12R = useMemo(() => {
+		const expectedRaceNumbers = [7, 8, 9, 10, 11, 12];
+		const raceRangeLabel = "7R〜12R";
+
+		if (!selectedVenue) {
+			const materialText = [
+				"GPT貼り付け用素材 7R〜12Rまとめ",
+				`対象日: ${activePredictionDate}`,
+				"対象会場: -",
+				`対象レース範囲: ${raceRangeLabel}`,
+				"",
+				"選択中会場がありません。",
+			].join("\n");
+
+			return {
+				materialText,
+				raceRangeLabel,
+				generatedRaceCount: 0,
+				expectedRaceCount: expectedRaceNumbers.length,
+				readyRaceCount: 0,
+				partialRaceCount: 0,
+				waitingRaceCount: expectedRaceNumbers.length,
+				missingRaceLabels: expectedRaceNumbers.map((raceNo) => `${raceNo}R`),
+			};
+		}
+
+		const racesByRaceNo = new Map<number, BoatPredictionRace>();
+		selectedVenueRaces.forEach((race) => {
+			if (expectedRaceNumbers.includes(Number(race.raceNo))) {
+				racesByRaceNo.set(Number(race.raceNo), race);
+			}
+		});
+
+		const statusCounts = {
+			ready: 0,
+			partial: 0,
+			waiting: 0,
+		};
+		const missingRaceLabels: string[] = [];
+		const venueContextMaterial = buildBoatPredictionVenueContextMaterial({
+			venue: selectedVenue,
+			venueFeatureNote: selectedVenueFeatureNote,
+			venueFeatureInsights,
+		});
+		const sections = expectedRaceNumbers.map((raceNo) => {
+			const race = racesByRaceNo.get(raceNo);
+			const sectionHeader = [
+				"============================================================",
+				`【${activePredictionDate} / ${selectedVenue.venueName} ${raceNo}R】`,
+			];
+
+			if (!race) {
+				missingRaceLabels.push(`${raceNo}R`);
+				return [
+					...sectionHeader,
+					"ステータス: 未取得",
+					"注記: このレースは選択中会場の取得済みデータに存在しません。fake補完はしません。",
+				].join("\n");
+			}
+
+			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
+			const exhibitionStatus = buildExhibitionStatusLabel({
+				race,
+				raceExtra,
+				feedUpdatedAt: todayFeed.generatedAt,
+				extraUpdatedAt: venueExtrasFeed?.generatedAt,
+			});
+
+			statusCounts[exhibitionStatus.level] += 1;
+
+			const exhibitionSummary =
+				exhibitionStatus.level === "ready"
+					? "展示取得済み"
+					: exhibitionStatus.level === "partial"
+						? "展示一部取得。未取得項目は推測で補完しない"
+						: "展示未完了の事前予想素材";
+			const raceMaterial = buildBoatPredictionMaterial({
+				venue: selectedVenue,
+				race,
+				venueExtra: selectedVenueExtra,
+				raceExtra,
+				venueFeatureNote: selectedVenueFeatureNote,
+				venueFeatureInsights,
+				includeVenueContext: false,
+			});
+
+			return [
+				...sectionHeader,
+				`展示タイム取得状況: ${exhibitionSummary}`,
+				`展示詳細: ${exhibitionStatus.title} / ${exhibitionStatus.detail}`,
+				"注記: 取得できない値は推測で埋めない。source-backed data only。",
+				"",
+				raceMaterial,
+			].join("\n");
+		});
+		const generatedRaceCount = expectedRaceNumbers.length - missingRaceLabels.length;
+		const materialText = [
+			"GPT貼り付け用素材 7R〜12Rまとめ",
+			`対象日: ${activePredictionDate}`,
+			`対象会場: ${selectedVenue.venueName}`,
+			`対象レース範囲: ${raceRangeLabel}`,
+			`生成済みレース数: ${generatedRaceCount}/${expectedRaceNumbers.length}R`,
+			`展示タイム取得状況: OK ${statusCounts.ready}R / 一部 ${statusCounts.partial}R / 未取得 ${statusCounts.waiting + missingRaceLabels.length}R`,
+			`未取得レース: ${missingRaceLabels.length > 0 ? missingRaceLabels.join(", ") : "なし"}`,
+			"用途: 後半予想用",
+			"軽量化: 会場分析・会場特徴ノート・Venue Selector全文・MY ANALYSIS LOGは上部に1回だけ掲載し、各Rでは繰り返しません。",
+			"注記: 展示未取得の場合は展示未完了の事前予想素材として扱う。fake補完は禁止。source-backed data only。",
+			"",
+			"==================== 会場共通情報（このまとめ内で1回だけ） ====================",
+			venueContextMaterial,
+			"",
+			"==================== レース別素材（レース固有情報中心） ====================",
 			sections.join("\n\n"),
 		].join("\n");
 
@@ -3237,16 +3383,29 @@ body:has(.prediction-page-root) {
 				</div>
 
 				<BoatGptBulkMaterialPanel
-					materialText={bulkGptMaterialSummary.materialText}
+					materialText={bulkGptMaterialSummary1R6R.materialText}
 					venueName={selectedVenue?.venueName ?? "-"}
 					dateLabel={activePredictionDate}
-					raceRangeLabel={bulkGptMaterialSummary.raceRangeLabel}
-					generatedRaceCount={bulkGptMaterialSummary.generatedRaceCount}
-					expectedRaceCount={bulkGptMaterialSummary.expectedRaceCount}
-					readyRaceCount={bulkGptMaterialSummary.readyRaceCount}
-					partialRaceCount={bulkGptMaterialSummary.partialRaceCount}
-					waitingRaceCount={bulkGptMaterialSummary.waitingRaceCount}
-					missingRaceLabels={bulkGptMaterialSummary.missingRaceLabels}
+					raceRangeLabel={bulkGptMaterialSummary1R6R.raceRangeLabel}
+					generatedRaceCount={bulkGptMaterialSummary1R6R.generatedRaceCount}
+					expectedRaceCount={bulkGptMaterialSummary1R6R.expectedRaceCount}
+					readyRaceCount={bulkGptMaterialSummary1R6R.readyRaceCount}
+					partialRaceCount={bulkGptMaterialSummary1R6R.partialRaceCount}
+					waitingRaceCount={bulkGptMaterialSummary1R6R.waitingRaceCount}
+					missingRaceLabels={bulkGptMaterialSummary1R6R.missingRaceLabels}
+				/>
+
+				<BoatGptBulkMaterialPanel
+					materialText={bulkGptMaterialSummary7R12R.materialText}
+					venueName={selectedVenue?.venueName ?? "-"}
+					dateLabel={activePredictionDate}
+					raceRangeLabel={bulkGptMaterialSummary7R12R.raceRangeLabel}
+					generatedRaceCount={bulkGptMaterialSummary7R12R.generatedRaceCount}
+					expectedRaceCount={bulkGptMaterialSummary7R12R.expectedRaceCount}
+					readyRaceCount={bulkGptMaterialSummary7R12R.readyRaceCount}
+					partialRaceCount={bulkGptMaterialSummary7R12R.partialRaceCount}
+					waitingRaceCount={bulkGptMaterialSummary7R12R.waitingRaceCount}
+					missingRaceLabels={bulkGptMaterialSummary7R12R.missingRaceLabels}
 				/>
 
 				{practiceMessage ? <p style={practiceMessageStyle}>{practiceMessage}</p> : null}

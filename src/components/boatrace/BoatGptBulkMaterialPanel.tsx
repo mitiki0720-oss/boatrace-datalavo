@@ -223,9 +223,9 @@ export function BoatGptBulkMaterialPanel({
 		<section style={wrapStyle}>
 			<div style={headerStyle}>
 				<div style={titleRowStyle}>
-					<h3 style={titleStyle}>GPT貼り付け用素材 1R〜6Rまとめコピー</h3>
+					<h3 style={titleStyle}>GPT貼り付け用素材 {raceRangeLabel}まとめコピー</h3>
 					<p style={descriptionStyle}>
-						選択中会場の1R〜6RをまとめてGPTに貼り付けられる素材です。モーニング/前半予想用。展示未取得の場合は事前予想素材として扱います。
+						選択中会場の{raceRangeLabel}をまとめてGPTに貼り付けられる素材です。会場共通情報は上部に1回だけ出し、各Rはレース固有情報中心に軽量化しています。展示未取得の場合は事前予想素材として扱います。
 					</p>
 					<div style={chipRowStyle}>
 						<span style={chipStyle}>対象日 {dateLabel}</span>
@@ -246,7 +246,7 @@ export function BoatGptBulkMaterialPanel({
 				</div>
 				<div style={actionRowStyle}>
 					<button type="button" style={primaryButtonStyle} onClick={handleCopy}>
-						1R〜6Rまとめコピー
+						{raceRangeLabel}まとめコピー
 					</button>
 					<button type="button" style={secondaryButtonStyle} onClick={handleDownload}>
 						TXTダウンロード

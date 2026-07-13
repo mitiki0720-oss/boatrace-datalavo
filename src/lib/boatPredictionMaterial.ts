@@ -1365,6 +1365,25 @@ const buildStartExhibitionBlock = (race: BoatRaceItem) => {
 	].join("\n");
 };
 
+export function buildBoatPredictionVenueContextMaterial(params: {
+	venue: BoatTodayVenueItem;
+	venueFeatureNote?: BoatVenueFeatureNote | null;
+	venueFeatureInsights?: BoatVenueUserInsight[];
+}): string {
+	const { venue, venueFeatureNote, venueFeatureInsights = [] } = params;
+
+	return [
+		[
+			"[B. \u4f1a\u5834\u7279\u5fb4\u30ce\u30fc\u30c8 / Venue Selector\u5168\u6587]",
+			buildBoatVenueFeatureFullMaterial(venueFeatureNote) || "- \u672a\u767b\u9332",
+		].join("\n"),
+		[
+			"[B2. MY ANALYSIS LOG / \u81ea\u5206\u5206\u6790\u30b5\u30de\u30ea\u30fc\u5168\u6587]",
+			buildBoatVenueUserInsightMaterial(venue.venueName, venueFeatureInsights),
+		].join("\n"),
+	].join("\n\n");
+}
+
 export function buildBoatPredictionMaterial(params: {
 	venue: BoatTodayVenueItem;
 	race: BoatRaceItem;
@@ -1372,8 +1391,9 @@ export function buildBoatPredictionMaterial(params: {
 	raceExtra?: BoatVenueExtraRace | null;
 	venueFeatureNote?: BoatVenueFeatureNote | null;
 	venueFeatureInsights?: BoatVenueUserInsight[];
+	includeVenueContext?: boolean;
 }): string {
-	const { venue, race, venueExtra, raceExtra, venueFeatureNote, venueFeatureInsights = [] } = params;
+	const { venue, race, venueExtra, raceExtra, venueFeatureNote, venueFeatureInsights = [], includeVenueContext = true } = params;
 	const racers = toMaterialArray<BoatRacerItem>((race as { racers?: unknown }).racers);
 	const exhibitions = resolvePredictionExhibitions(race, raceExtra);
 	const officialExhibitionTimeCount = countOfficialPredictionExhibitionTimes(race, raceExtra);
@@ -1397,14 +1417,18 @@ export function buildBoatPredictionMaterial(params: {
 			"[A2. 最重要 / 欠場・展示不参加確認]",
 			buildParticipationAlertMaterialBlock(race, raceExtra),
 		].join("\n"),
-		[
-			"[B. \u4f1a\u5834\u7279\u5fb4\u30ce\u30fc\u30c8 / Venue Selector\u5168\u6587]",
-			buildBoatVenueFeatureFullMaterial(venueFeatureNote) || "- \u672a\u767b\u9332",
-		].join("\n"),
-		[
-			"[B2. MY ANALYSIS LOG / \u81ea\u5206\u5206\u6790\u30b5\u30de\u30ea\u30fc\u5168\u6587]",
-			buildBoatVenueUserInsightMaterial(venue.venueName, venueFeatureInsights),
-		].join("\n"),
+		...(includeVenueContext
+			? [
+					[
+						"[B. \u4f1a\u5834\u7279\u5fb4\u30ce\u30fc\u30c8 / Venue Selector\u5168\u6587]",
+						buildBoatVenueFeatureFullMaterial(venueFeatureNote) || "- \u672a\u767b\u9332",
+					].join("\n"),
+					[
+						"[B2. MY ANALYSIS LOG / \u81ea\u5206\u5206\u6790\u30b5\u30de\u30ea\u30fc\u5168\u6587]",
+						buildBoatVenueUserInsightMaterial(venue.venueName, venueFeatureInsights),
+					].join("\n"),
+				]
+			: []),
 		buildWeatherMaterialBlock(race, venue, venueExtra, raceExtra),
 		[
 			"[D. 出走表 基本データ]",
