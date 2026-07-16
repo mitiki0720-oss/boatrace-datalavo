@@ -452,6 +452,85 @@ export interface BoatExCoverage {
 	generatedAt: string;
 }
 
+export type BoatExDerivedReadinessStatus = "pending" | "insufficient-history";
+
+export interface BoatExDerivedReadiness {
+	status: BoatExDerivedReadinessStatus;
+	reason: string;
+}
+
+export interface BoatExVenueEvidenceCoverage {
+	race: "available" | "partial" | "missing" | "pending" | "unknown";
+	result: "available" | "partial" | "missing" | "pending" | "unknown";
+	exhibition: "available" | "partial" | "missing" | "pending" | "unknown";
+	weather: "available" | "partial" | "missing" | "pending" | "unknown";
+	motor: "available" | "partial" | "missing" | "pending" | "unknown";
+	boat: "available" | "partial" | "missing" | "pending" | "unknown";
+	racer: "available" | "partial" | "missing" | "pending" | "unknown";
+}
+
+export interface BoatExVenueEvidenceItem {
+	date: BoatExDateKey;
+	venueCode: BoatExVenueCode;
+	venueName: string;
+	raceCount: number;
+	coverage: BoatExVenueEvidenceCoverage;
+	availability: {
+		officialRaceCount: number;
+		officialResultCount: number;
+		officialExhibitionCount: number;
+		weatherCount: number;
+	};
+	resultEvidence: {
+		resultAvailableCount: number;
+		trifectaAvailableCount: number;
+		payoutAvailableCount: number;
+		winningTechniqueCounts: Record<string, number>;
+		courseWinCounts: Record<string, number>;
+		averageTrifectaPayout: number | null;
+		maxTrifectaPayout: number | null;
+		highPayoutRaceCount: number | null;
+	};
+	exhibitionEvidence: {
+		availableCount: number;
+		missingCount: number;
+		topExhibitionTimeFrames: Array<{
+			frame: number;
+			averageExhibitionTime: number;
+		}>;
+		averageExhibitionTimeByFrame: Record<string, number | null>;
+	};
+	weatherEvidence: {
+		availableCount: number;
+		windSpeedAverageMps: number | null;
+		windSpeedMaxMps: number | null;
+		waveHeightAverageCm: number | null;
+		waveHeightMaxCm: number | null;
+	};
+	derivedReadiness: {
+		venueBias: BoatExDerivedReadiness;
+		roughIndex: BoatExDerivedReadiness;
+		todayFlow: BoatExDerivedReadiness;
+		predictionSignals: BoatExDerivedReadiness;
+	};
+	warnings: string[];
+}
+
+export interface BoatExVenueEvidenceFile {
+	schemaVersion: 1;
+	kind: "boatrace-ex-venue-evidence";
+	date: BoatExDateKey;
+	generatedAt: string;
+	sourceFiles: BoatExSourceMeta[];
+	summary: {
+		venueCount: number;
+		recordCount: number;
+		historyDays: number;
+		analysisStatus: "insufficient-history" | "missing";
+	};
+	venues: BoatExVenueEvidenceItem[];
+}
+
 export type BoatExFileKind =
 	| "raw-official"
 	| "raw-user"

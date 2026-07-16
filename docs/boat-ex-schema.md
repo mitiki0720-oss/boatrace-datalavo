@@ -259,3 +259,40 @@ If the target date produces `records: 0` or `venues: 0`, the generator exits wit
 `--allow-empty` is the only override. It is intended for deliberate empty fixture creation and prints a warning when used. Without this flag, empty history generation is considered unsafe because the active official generated feeds may no longer contain an older requested date.
 
 `scripts/checkBoatExHistory.mjs` also treats `records: 0` as a failure unless `--allow-empty` is passed.
+
+## Phase 4 Venue Evidence v0
+
+Phase 4 adds a derived venue evidence layer for the EX page. It reads only:
+
+```text
+public/data/boatrace-ex/history/races/YYYY-MM-DD.json
+public/data/boatrace-ex/coverage/YYYY-MM-DD.json
+```
+
+It writes:
+
+```text
+public/data/boatrace-ex/derived/venue-evidence/YYYY-MM-DD.json
+public/data/boatrace-ex/derived/manifest.generated.json
+```
+
+The TypeScript contract is represented by:
+
+- `BoatExVenueEvidenceFile`
+- `BoatExVenueEvidenceItem`
+- `BoatExDerivedReadiness`
+- `BoatExDerivedReadinessStatus`
+
+Venue evidence contains source-backed counts and parsed facts only: race counts,
+result availability, exhibition availability, weather availability, parsed
+trifecta payouts, exhibition-time summaries, weather summaries, and coverage
+warnings.
+
+Because the current history contains one day, `venueBias`, `roughIndex`, and
+`todayFlow` must remain `insufficient-history` or `pending`. Phase 4 must not
+emit prediction scores, confidence claims, fake venue-bias scores, fake
+rough-index scores, or same-day-flow conclusions.
+
+Phase 4 does not read or touch `public/data/reviews/**`,
+`public/data/boatrace/*.generated.json`, Phase 3 history, Phase 3 coverage, or
+the Phase 3 manifest.
