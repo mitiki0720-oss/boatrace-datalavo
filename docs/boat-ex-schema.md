@@ -296,3 +296,48 @@ rough-index scores, or same-day-flow conclusions.
 Phase 4 does not read or touch `public/data/reviews/**`,
 `public/data/boatrace/*.generated.json`, Phase 3 history, Phase 3 coverage, or
 the Phase 3 manifest.
+
+## Phase 5 Racer Evidence v0
+
+Phase 5 adds a source-backed racer evidence layer for the EX page. It reads:
+
+```text
+public/data/boatrace-ex/history/races/YYYY-MM-DD.json
+public/data/boatrace-ex/coverage/YYYY-MM-DD.json
+public/data/boatrace-ex/derived/venue-evidence/YYYY-MM-DD.json
+```
+
+It writes:
+
+```text
+public/data/boatrace-ex/derived/racer-evidence/YYYY-MM-DD.json
+public/data/boatrace-ex/derived/manifest.generated.json
+```
+
+The TypeScript contract is represented by:
+
+- `BoatExRacerEvidenceFile`
+- `BoatExRacerEvidenceItem`
+- `BoatExRacerRaceEvidence`
+- `BoatExRacerCourseChangeEvidence`
+- `BoatExRacerDerivedReadiness`
+
+`registrationNumber` is the primary key when it exists. If it is missing, the
+temporary key is marked `identityStatus: "unverified"` and receives a warning;
+the generator must not invent registration numbers, branches, classes, ages, or
+profile facts.
+
+Racer evidence contains source-backed appearances, frame counts, race evidence,
+ST summaries, exhibition-time summaries, result counts, motor/boat numbers, and
+course-change evidence only when final course data exists. If final course is
+not available, course-change counts remain `null` and the source status is
+`missing`.
+
+Because the current history contains one day, `racerProfile`,
+`courseChangePattern`, `exhibitionReliability`, and `startTimingPattern` must
+remain `insufficient-history` or `pending`. Phase 5 must not emit fixed racer
+pattern labels, high-confidence claims, prediction signals, or scores.
+
+Phase 5 does not read or touch `public/data/reviews/**`,
+`public/data/boatrace/*.generated.json`, Phase 3 history, Phase 3 coverage,
+Phase 3 manifest, or the Phase 4 venue evidence body.

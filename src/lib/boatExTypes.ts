@@ -531,6 +531,112 @@ export interface BoatExVenueEvidenceFile {
 	venues: BoatExVenueEvidenceItem[];
 }
 
+export interface BoatExRacerRaceEvidence {
+	date: BoatExDateKey;
+	venueCode: BoatExVenueCode;
+	venueName: string;
+	raceNo: number;
+	raceKey: BoatExRaceKey;
+	frameNo: number;
+	finalCourse: number | null;
+	exhibitionCourse: number | null;
+	finishOrder: number | null;
+	startTiming: number | null;
+	exhibitionTime: number | null;
+	motorNo: string | null;
+	boatNo: string | null;
+	sourceStatus: "available" | "partial" | "missing";
+}
+
+export interface BoatExRacerCourseChangeEvidence {
+	availableCount: number;
+	frameToFinalCourseChangedCount: number | null;
+	exhibitionToFinalCourseChangedCount: number | null;
+	examples: Array<{
+		raceKey: BoatExRaceKey;
+		frameNo: number;
+		finalCourse?: number | null;
+		exhibitionCourse?: number | null;
+	}>;
+	sourceStatus: "partial" | "missing";
+	note: string;
+}
+
+export interface BoatExRacerDerivedReadiness {
+	racerProfile: BoatExDerivedReadiness;
+	courseChangePattern: BoatExDerivedReadiness;
+	exhibitionReliability: BoatExDerivedReadiness;
+	startTimingPattern: BoatExDerivedReadiness;
+	predictionSignals: BoatExDerivedReadiness;
+}
+
+export interface BoatExRacerEvidenceItem {
+	racerKey: string;
+	identityStatus: "verified" | "unverified";
+	registrationNumber: string | null;
+	racerName: string;
+	branch: string | null;
+	className: string | null;
+	age: string | number | null;
+	appearanceCount: number;
+	venues: Array<{
+		venueCode: BoatExVenueCode;
+		venueName: string;
+		raceCount: number;
+	}>;
+	frames: Record<string, {
+		count: number;
+		resultAvailableCount: number;
+		exhibitionAvailableCount: number;
+	}>;
+	raceEvidence: BoatExRacerRaceEvidence[];
+	startEvidence: {
+		availableCount: number;
+		averageST: number | null;
+		minST: number | null;
+		maxST: number | null;
+		lateStartCount: number | null;
+		flyingOrLateCount: number | null;
+		sourceStatus: "partial" | "missing";
+	};
+	exhibitionEvidence: {
+		availableCount: number;
+		averageExhibitionTime: number | null;
+		bestExhibitionTime: number | null;
+		sourceStatus: "partial" | "missing";
+	};
+	courseChangeEvidence: BoatExRacerCourseChangeEvidence;
+	resultEvidence: {
+		availableCount: number;
+		finishCounts: Record<string, number>;
+		top3Count: number;
+		winCount: number;
+		sourceStatus: "partial" | "missing";
+	};
+	motorBoatEvidence: {
+		motorNos: string[];
+		boatNos: string[];
+		sourceStatus: "partial" | "missing";
+	};
+	derivedReadiness: BoatExRacerDerivedReadiness;
+	warnings: string[];
+}
+
+export interface BoatExRacerEvidenceFile {
+	schemaVersion: 1;
+	kind: "boatrace-ex-racer-evidence";
+	date: BoatExDateKey;
+	generatedAt: string;
+	sourceFiles: BoatExSourceMeta[];
+	summary: {
+		racerCount: number;
+		appearanceCount: number;
+		historyDays: number;
+		analysisStatus: "insufficient-history" | "missing";
+	};
+	racers: BoatExRacerEvidenceItem[];
+}
+
 export type BoatExFileKind =
 	| "raw-official"
 	| "raw-user"
