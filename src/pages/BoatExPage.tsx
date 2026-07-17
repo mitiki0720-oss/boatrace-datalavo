@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { PageShell } from "../components/layout/PageShell";
 import { withBasePath } from "../lib/assetPath";
 import type {
+	BoatExDateIndexEntry,
+	BoatExDateIndexFile,
 	BoatExRacerEvidenceFile,
 	BoatExRacerEvidenceItem,
 	BoatExVenueEvidenceFile,
@@ -50,6 +52,7 @@ type LoadState = {
 	status: "loading" | "ready" | "missing";
 	manifest: BoatExManifest | null;
 	derivedManifest: BoatExManifest | null;
+	dateIndex: BoatExDateIndexFile | null;
 	venueEvidence: BoatExVenueEvidenceFile | null;
 	racerEvidence: BoatExRacerEvidenceFile | null;
 	message: string;
@@ -77,21 +80,21 @@ const sectionCards: Array<{
 
 const cardGridStyle = {
 	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+	gridTemplateColumns: "repeat(auto-fit, minmax(205px, 1fr))",
 	gap: "12px",
 	alignItems: "stretch",
 };
 
 const sectionMenuStyle = {
 	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(155px, 1fr))",
+	gridTemplateColumns: "repeat(auto-fit, minmax(146px, 1fr))",
 	gap: "10px",
 	alignItems: "stretch",
 };
 
 const metricGridStyle = {
 	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(175px, 1fr))",
+	gridTemplateColumns: "repeat(auto-fit, minmax(185px, 1fr))",
 	gap: "12px",
 	alignItems: "stretch",
 };
@@ -105,7 +108,7 @@ const twoColumnGridStyle = {
 
 const dashboardRowStyle = {
 	display: "grid",
-	gridTemplateColumns: "minmax(360px, 1.4fr) repeat(3, minmax(160px, 0.7fr))",
+	gridTemplateColumns: "minmax(430px, 1.6fr) repeat(4, minmax(150px, 0.65fr))",
 	gap: "12px",
 	alignItems: "stretch",
 };
@@ -123,8 +126,8 @@ const cardStyle = {
 const menuCardStyle = {
 	...cardStyle,
 	width: "100%",
-	minHeight: "104px",
-	padding: "14px",
+	minHeight: "96px",
+	padding: "12px",
 	textAlign: "left" as const,
 	cursor: "pointer",
 	font: "inherit",
@@ -153,7 +156,7 @@ const metricValueStyle = {
 
 const menuTitleStyle = {
 	margin: 0,
-	fontSize: "0.98rem",
+	fontSize: "0.9rem",
 	fontWeight: 850,
 	lineHeight: 1.18,
 	color: boatTheme.colors.navy,
@@ -161,7 +164,7 @@ const menuTitleStyle = {
 
 const menuSubtitleStyle = {
 	margin: 0,
-	fontSize: "0.82rem",
+	fontSize: "0.78rem",
 	lineHeight: 1.45,
 	color: boatTheme.colors.muted,
 };
@@ -255,6 +258,14 @@ function courseChangeLabel(racer: BoatExRacerEvidenceItem): string {
 
 function hasDerivedFile(manifest: BoatExManifest | null, part: string): boolean {
 	return (manifest?.files ?? []).some((file) => String(file.path ?? "").includes(part));
+}
+
+function findDateIndexEntry(dateIndex: BoatExDateIndexFile | null, date: string): BoatExDateIndexEntry | undefined {
+	return dateIndex?.dates.find((entry) => entry.date === date);
+}
+
+function readinessLabel(entry: BoatExDateIndexEntry | undefined, key: keyof BoatExDateIndexEntry["readiness"]): string {
+	return entry?.readiness?.[key] ?? "index missing";
 }
 
 function SectionShell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
@@ -475,6 +486,7 @@ export function BoatExPage() {
 		status: "loading",
 		manifest: null,
 		derivedManifest: null,
+		dateIndex: null,
 		venueEvidence: null,
 		racerEvidence: null,
 		message: "Checking EX evidence.",
@@ -491,14 +503,28 @@ export function BoatExPage() {
 				if (!manifestResponse.ok) throw new Error(`manifest fetch failed: ${manifestResponse.status}`);
 				const manifest = await manifestResponse.json() as BoatExManifest;
 				const latestHistory = findLatestHistoryFile(manifest);
-				if (!latestHistory?.date) throw new Error("latest history date is missing");
+				let dateIndex: BoatExDateIndexFile | null = null;
+				let indexMissing = false;
+
+				try {
+					const dateIndexResponse = await fetch(withBasePath("data/boatrace-ex/index.generated.json"), {
+						cache: "no-store",
+					});
+					if (!dateIndexResponse.ok) throw new Error(`date index fetch failed: ${dateIndexResponse.status}`);
+					dateIndex = await dateIndexResponse.json() as BoatExDateIndexFile;
+				} catch {
+					indexMissing = true;
+				}
+
+				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
+				if (!targetDate) throw new Error("latest EX date is missing");
 
 				const [derivedManifestResponse, venueResponse, racerResponse] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
-					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${latestHistory.date}.json`), {
+					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
 					}),
-					fetch(withBasePath(`data/boatrace-ex/derived/racer-evidence/${latestHistory.date}.json`), {
+					fetch(withBasePath(`data/boatrace-ex/derived/racer-evidence/${targetDate}.json`), {
 						cache: "no-store",
 					}),
 				]);
@@ -516,9 +542,10 @@ export function BoatExPage() {
 						status: "ready",
 						manifest,
 						derivedManifest,
+						dateIndex,
 						venueEvidence,
 						racerEvidence,
-						message: "EX section navigation is ready.",
+						message: indexMissing ? "EX date index missing. Using manifest latest date." : "EX section navigation is ready.",
 					});
 				}
 			} catch {
@@ -527,6 +554,7 @@ export function BoatExPage() {
 						status: "missing",
 						manifest: null,
 						derivedManifest: null,
+						dateIndex: null,
 						venueEvidence: null,
 						racerEvidence: null,
 						message: "EX evidence missing.",
@@ -545,7 +573,10 @@ export function BoatExPage() {
 	const latestHistory = useMemo(() => findLatestHistoryFile(loadState.manifest), [loadState.manifest]);
 	const venueEvidence = loadState.venueEvidence;
 	const racerEvidence = loadState.racerEvidence;
-	const latestDate = venueEvidence?.date ?? racerEvidence?.date ?? latestHistory?.date ?? "missing";
+	const latestDate = loadState.dateIndex?.latestDate ?? venueEvidence?.date ?? racerEvidence?.date ?? latestHistory?.date ?? "missing";
+	const dateIndexEntry = findDateIndexEntry(loadState.dateIndex, latestDate);
+	const availableDateCount = loadState.dateIndex?.summary.dateCount ?? "index missing";
+	const availableDates = loadState.dateIndex?.availableDates.join(", ") || "index missing";
 	const records = venueEvidence?.summary.recordCount ?? "missing";
 	const venues = venueEvidence?.summary.venueCount ?? "missing";
 	const historyDays = venueEvidence?.summary.historyDays ?? racerEvidence?.summary.historyDays ?? "missing";
@@ -563,7 +594,12 @@ export function BoatExPage() {
 							<article style={cardStyle}>
 								<p style={labelStyle}>LATEST DATE</p>
 								<p style={metricValueStyle}>{latestDate}</p>
-								<p style={textStyle}>Latest date from the Phase 3 history manifest.</p>
+								<p style={textStyle}>Latest date from the Phase 6A date index, with manifest fallback.</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>AVAILABLE DATES</p>
+								<p style={metricValueStyle}>{availableDateCount}</p>
+								<p style={textStyle}>{availableDates}</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>RECORDS</p>
@@ -591,13 +627,22 @@ export function BoatExPage() {
 								<p style={textStyle}>Derived manifest entries.</p>
 							</article>
 						</section>
-						<section style={twoColumnGridStyle}>
+						<section style={cardGridStyle}>
 							<article style={cardStyle}>
 								<p style={labelStyle}>SAFETY NOTE</p>
 								<ul style={noteListStyle}>
 									<li>Source-backed evidence only.</li>
 									<li>No fake completion, no fake score, and no inferred ranking.</li>
 									<li>One history day means analysis remains {analysisStatus}.</li>
+								</ul>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>PHASE 6A READINESS</p>
+								<ul style={noteListStyle}>
+									<li>Multi-day analysis: {readinessLabel(dateIndexEntry, "multiDayAnalysis")}</li>
+									<li>Venue bias scoring: {readinessLabel(dateIndexEntry, "venueBias")}</li>
+									<li>Racer profile scoring: {readinessLabel(dateIndexEntry, "racerProfile")}</li>
+									<li>Prediction signals: {readinessLabel(dateIndexEntry, "predictionSignals")}</li>
 								</ul>
 							</article>
 							<article style={cardStyle}>
@@ -641,6 +686,11 @@ export function BoatExPage() {
 								<p style={textStyle}>Phase 3 history source.</p>
 							</article>
 							<article style={cardStyle}>
+								<p style={labelStyle}>DATE INDEX</p>
+								<p style={metricValueStyle}>{loadState.dateIndex ? "available" : "missing"}</p>
+								<p style={textStyle}>latestDate {latestDate} / dateCount {availableDateCount}</p>
+							</article>
+							<article style={cardStyle}>
 								<p style={labelStyle}>VENUE EVIDENCE</p>
 								<p style={metricValueStyle}>{venueEvidenceAvailable ? "available" : "missing"}</p>
 								<p style={textStyle}>Phase 4 derived evidence.</p>
@@ -659,6 +709,7 @@ export function BoatExPage() {
 						<section style={cardStyle}>
 							<p style={labelStyle}>SOURCE FILES</p>
 							<ul style={noteListStyle}>
+								<li>date index: {loadState.dateIndex ? "available" : "EX date index missing"}</li>
 								{(loadState.derivedManifest?.sourceFiles ?? []).map((source) => (
 									<li key={`${source.sourceName}-${source.sourcePath}`}>
 										{source.sourceName}: {source.sourceStatus} / {source.coverageStatus}
@@ -790,9 +841,9 @@ export function BoatExPage() {
 			eyebrow="BOATRACE EX DATA LABO"
 			title="KURARI BOAT EX"
 			description="BOATRACE EX DATA LABO / source-backed analysis"
-			contentMaxWidth="1720px"
-			contentPaddingInline="28px"
-			heroMaxWidth="1720px"
+			contentMaxWidth="1880px"
+			contentPaddingInline="24px"
+			heroMaxWidth="1880px"
 		>
 			<section style={dashboardRowStyle}>
 				<article style={cardStyle}>
@@ -805,7 +856,12 @@ export function BoatExPage() {
 				<article style={cardStyle}>
 					<p style={labelStyle}>DATE</p>
 					<p style={metricValueStyle}>{latestDate}</p>
-					<p style={textStyle}>latest history</p>
+					<p style={textStyle}>{loadState.dateIndex ? "latest index" : "manifest fallback"}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>DATES</p>
+					<p style={metricValueStyle}>{availableDateCount}</p>
+					<p style={textStyle}>available dates</p>
 				</article>
 				<article style={cardStyle}>
 					<p style={labelStyle}>RECORDS</p>

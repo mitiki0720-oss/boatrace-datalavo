@@ -341,3 +341,46 @@ pattern labels, high-confidence claims, prediction signals, or scores.
 Phase 5 does not read or touch `public/data/reviews/**`,
 `public/data/boatrace/*.generated.json`, Phase 3 history, Phase 3 coverage,
 Phase 3 manifest, or the Phase 4 venue evidence body.
+
+## Phase 6A Date Index v0
+
+Phase 6A adds a generated date index so the EX page can discover available EX
+dates and use `latestDate` without assuming there is only one history day.
+
+The generator reads only existing EX files:
+
+```text
+public/data/boatrace-ex/history/races/*.json
+public/data/boatrace-ex/coverage/*.json
+public/data/boatrace-ex/derived/venue-evidence/*.json
+public/data/boatrace-ex/derived/racer-evidence/*.json
+public/data/boatrace-ex/manifest.generated.json
+public/data/boatrace-ex/derived/manifest.generated.json
+```
+
+It writes:
+
+```text
+public/data/boatrace-ex/index.generated.json
+```
+
+The TypeScript contract is represented by:
+
+- `BoatExDateIndexFile`
+- `BoatExDateIndexEntry`
+- `BoatExDateIndexSourceState`
+- `BoatExDateIndexReadiness`
+
+`availableDates` contains only dates with source-backed EX history files.
+`latestDate` is the maximum available date. Counts in each date entry are copied
+from existing EX history, venue evidence, and racer evidence files. Missing
+sources are marked `missing`; the generator must not invent dates, counts,
+scores, rankings, or prediction signals.
+
+Because the current EX history contains one day, `multiDayAnalysis`,
+`venueBias`, `roughIndex`, and `racerProfile` remain `insufficient-history`;
+`todayFlow` and `predictionSignals` remain `pending`.
+
+Phase 6A does not read or touch `public/data/reviews/**`,
+`public/data/boatrace/*.generated.json`, existing Phase 3 history/coverage,
+existing Phase 4 venue evidence, or existing Phase 5 racer evidence.

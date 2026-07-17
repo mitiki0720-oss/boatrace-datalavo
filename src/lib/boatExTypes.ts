@@ -637,6 +637,52 @@ export interface BoatExRacerEvidenceFile {
 	racers: BoatExRacerEvidenceItem[];
 }
 
+export type BoatExDateIndexStatus = "available" | "partial" | "missing" | "pending" | "unknown";
+
+export interface BoatExDateIndexSourceState {
+	path: string;
+	status: BoatExDateIndexStatus;
+	recordCount?: number | null;
+	venueCount?: number | null;
+	racerCount?: number | null;
+	appearanceCount?: number | null;
+}
+
+export interface BoatExDateIndexReadiness {
+	multiDayAnalysis: BoatExDerivedReadinessStatus;
+	venueBias: BoatExDerivedReadinessStatus;
+	roughIndex: BoatExDerivedReadinessStatus;
+	racerProfile: BoatExDerivedReadinessStatus;
+	todayFlow: BoatExDerivedReadinessStatus;
+	predictionSignals: BoatExDerivedReadinessStatus;
+}
+
+export interface BoatExDateIndexEntry {
+	date: BoatExDateKey;
+	history: BoatExDateIndexSourceState;
+	coverage: BoatExDateIndexSourceState;
+	venueEvidence: BoatExDateIndexSourceState;
+	racerEvidence: BoatExDateIndexSourceState;
+	readiness: BoatExDateIndexReadiness;
+	warnings: string[];
+}
+
+export interface BoatExDateIndexFile {
+	schemaVersion: 1;
+	kind: "boatrace-ex-date-index";
+	generatedAt: string;
+	latestDate: BoatExDateKey | null;
+	availableDates: BoatExDateKey[];
+	summary: {
+		dateCount: number;
+		historyDateCount: number;
+		coverageDateCount: number;
+		venueEvidenceDateCount: number;
+		racerEvidenceDateCount: number;
+	};
+	dates: BoatExDateIndexEntry[];
+}
+
 export type BoatExFileKind =
 	| "raw-official"
 	| "raw-user"
