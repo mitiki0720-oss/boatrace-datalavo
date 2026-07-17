@@ -384,3 +384,32 @@ Because the current EX history contains one day, `multiDayAnalysis`,
 Phase 6A does not read or touch `public/data/reviews/**`,
 `public/data/boatrace/*.generated.json`, existing Phase 3 history/coverage,
 existing Phase 4 venue evidence, or existing Phase 5 racer evidence.
+
+## Phase 6B Daily Pipeline Runner v0
+
+Phase 6B adds a manual orchestration layer for daily EX generation:
+
+```text
+scripts/generateBoatExDaily.mjs
+scripts/checkBoatExDaily.mjs
+```
+
+The runner resolves `--date YYYY-MM-DD` directly, or resolves `--date latest`
+from `public/data/boatrace-ex/index.generated.json`.
+
+For a date that already has Phase 3 history, the default behavior is to check
+that history and continue. It does not regenerate Phase 3 history, coverage, or
+the Phase 3 manifest unless `--refresh-history` is explicitly passed.
+
+The runner then generates and checks venue evidence, racer evidence, and the
+date index using the existing lower-level scripts. `--dry-run` and `--skip-write`
+avoid writing generated output. `--allow-empty` is passed through for explicit
+empty-output testing only and is not recommended for normal daily runs.
+
+`scripts/checkBoatExDaily.mjs` verifies date-index membership, Phase 3 history,
+Phase 4 venue evidence, Phase 5 racer evidence, Phase 6A date index, and derived
+manifest entries.
+
+Phase 6B does not add GitHub Actions workflow integration. It also must not read
+`public/data/reviews/**`, invent missing dates or counts, or emit fake scores,
+rankings, racer labels, today-flow values, or prediction signals.

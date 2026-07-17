@@ -646,6 +646,16 @@ export function BoatExPage() {
 								</ul>
 							</article>
 							<article style={cardStyle}>
+								<p style={labelStyle}>DAILY PIPELINE</p>
+								<p style={valueStyle}>manual runner ready</p>
+								<ul style={noteListStyle}>
+									<li>date index: {loadState.dateIndex ? "available" : "EX date index missing"}</li>
+									<li>latestDate: {latestDate}</li>
+									<li>dateCount: {availableDateCount}</li>
+									<li>next: workflow integration pending</li>
+								</ul>
+							</article>
+							<article style={cardStyle}>
 								<p style={labelStyle}>PC DASHBOARD</p>
 								<p style={valueStyle}>desktop-first layout</p>
 								<p style={textStyle}>Cards, tables, and section content use wider grid tracks so the EX page reads as a dense desktop analysis dashboard.</p>
@@ -689,6 +699,11 @@ export function BoatExPage() {
 								<p style={labelStyle}>DATE INDEX</p>
 								<p style={metricValueStyle}>{loadState.dateIndex ? "available" : "missing"}</p>
 								<p style={textStyle}>latestDate {latestDate} / dateCount {availableDateCount}</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>DAILY PIPELINE</p>
+								<p style={metricValueStyle}>manual</p>
+								<p style={textStyle}>Runner is ready. Workflow integration is pending.</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>VENUE EVIDENCE</p>

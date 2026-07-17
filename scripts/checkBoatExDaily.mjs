@@ -1,0 +1,155 @@
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const repoRoot = path.resolve(__dirname, "..");
+
+function parseArgs(argv) {
+	const args = { date: undefined };
+	for (let index = 0; index < argv.length; index += 1) {
+		const arg = argv[index];
+		if (arg === "--date") {
+			const next = argv[index + 1];
+			if (!next || next.startsWith("--")) throw new Error("--date requires YYYY-MM-DD or latest");
+			args.date = next;
+			index += 1;
+			continue;
+		}
+		throw new Error(`Unknown argument: ${arg}`);
+	}
+	if (!args.date) throw new Error("--date is required");
+	if (args.date !== "latest" && !/^\d{4}-\d{2}-\d{2}$/.test(args.date)) {
+		throw new Error(`Invalid --date value: ${args.date}`);
+	}
+	return args;
+}
+
+function absolute(relativePath) {
+	return path.join(repoRoot, ...relativePath.split("/"));
+}
+
+function readJson(relativePath) {
+	return JSON.parse(fs.readFileSync(absolute(relativePath), "utf8"));
+}
+
+function parseJsonFromStdout(stdout) {
+	const text = String(stdout ?? "").trim();
+	if (!text) return null;
+	const start = text.indexOf("{");
+	const end = text.lastIndexOf("}");
+	if (start < 0 || end < start) return null;
+	return JSON.parse(text.slice(start, end + 1));
+}
+
+function runNode(script, args) {
+	const result = spawnSync(process.execPath, [script, ...args], {
+		cwd: repoRoot,
+		encoding: "utf8",
+	});
+	const parsed = parseJsonFromStdout(result.stdout);
+	if (result.status !== 0) {
+		const message = [
+			`${script} failed with exit code ${result.status}`,
+			result.stderr?.trim(),
+			result.stdout?.trim(),
+		].filter(Boolean).join("\n");
+		throw new Error(message);
+	}
+	return parsed;
+}
+
+function resolveDate(dateArg, index) {
+	if (dateArg !== "latest") return dateArg;
+	if (!index.latestDate) throw new Error("date index latestDate is missing");
+	return index.latestDate;
+}
+
+function collectSourcePaths(value, output = []) {
+	if (Array.isArray(value)) {
+		for (const item of value) collectSourcePaths(item, output);
+		return output;
+	}
+	if (!value || typeof value !== "object") return output;
+	for (const [key, item] of Object.entries(value)) {
+		if ((key === "sourcePath" || key === "path") && typeof item === "string") output.push(item);
+		collectSourcePaths(item, output);
+	}
+	return output;
+}
+
+function assertNoProhibitedDerivedPaths(files) {
+	const errors = [];
+	for (const file of files) {
+		const paths = collectSourcePaths(file.data);
+		for (const sourcePath of paths) {
+			if (sourcePath.startsWith("public/data/reviews/")) {
+				errors.push(`${file.path}: prohibited reviews path ${sourcePath}`);
+			}
+			if (/^public\/data\/boatrace\/[^/]+\.generated\.json$/.test(sourcePath)) {
+				errors.push(`${file.path}: direct boatrace generated source ${sourcePath}`);
+			}
+		}
+	}
+	if (errors.length > 0) throw new Error(errors.join("\n"));
+}
+
+function main() {
+	const args = parseArgs(process.argv.slice(2));
+	const index = readJson("public/data/boatrace-ex/index.generated.json");
+	const date = resolveDate(args.date, index);
+
+	if (!Array.isArray(index.availableDates) || !index.availableDates.includes(date)) {
+		throw new Error(`${date} is not present in date index availableDates`);
+	}
+	if (index.summary?.dateCount < 1) throw new Error("date index dateCount must be >= 1");
+
+	const history = runNode("scripts/checkBoatExHistory.mjs", ["--date", date]);
+	const venue = runNode("scripts/checkBoatExVenueEvidence.mjs", ["--date", date]);
+	const racer = runNode("scripts/checkBoatExRacerEvidence.mjs", ["--date", date]);
+	runNode("scripts/checkBoatExDateIndex.mjs", []);
+
+	const derivedManifest = readJson("public/data/boatrace-ex/derived/manifest.generated.json");
+	if (!Array.isArray(derivedManifest.files) || derivedManifest.files.length < 2) {
+		throw new Error("derived manifest entries must be >= 2");
+	}
+
+	assertNoProhibitedDerivedPaths([
+		{
+			path: "public/data/boatrace-ex/index.generated.json",
+			data: index,
+		},
+		{
+			path: "public/data/boatrace-ex/derived/venue-evidence",
+			data: readJson(`public/data/boatrace-ex/derived/venue-evidence/${date}.json`),
+		},
+		{
+			path: "public/data/boatrace-ex/derived/racer-evidence",
+			data: readJson(`public/data/boatrace-ex/derived/racer-evidence/${date}.json`),
+		},
+		{
+			path: "public/data/boatrace-ex/derived/manifest.generated.json",
+			data: derivedManifest,
+		},
+	]);
+
+	console.log(JSON.stringify({
+		ok: true,
+		date,
+		latestDate: index.latestDate,
+		dateCount: index.summary.dateCount,
+		records: history.records,
+		venues: venue.venues,
+		racerCount: racer.racerCount,
+		appearanceCount: racer.appearanceCount,
+	}, null, 2));
+}
+
+try {
+	main();
+} catch (error) {
+	console.error(error instanceof Error ? error.message : String(error));
+	process.exitCode = 1;
+}
