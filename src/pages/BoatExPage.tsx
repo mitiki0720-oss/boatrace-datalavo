@@ -77,18 +77,41 @@ const sectionCards: Array<{
 
 const cardGridStyle = {
 	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-	gap: "14px",
+	gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+	gap: "12px",
+	alignItems: "stretch",
 };
 
 const sectionMenuStyle = {
 	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+	gridTemplateColumns: "repeat(auto-fit, minmax(155px, 1fr))",
+	gap: "10px",
+	alignItems: "stretch",
+};
+
+const metricGridStyle = {
+	display: "grid",
+	gridTemplateColumns: "repeat(auto-fit, minmax(175px, 1fr))",
 	gap: "12px",
+	alignItems: "stretch",
+};
+
+const twoColumnGridStyle = {
+	display: "grid",
+	gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+	gap: "12px",
+	alignItems: "stretch",
+};
+
+const dashboardRowStyle = {
+	display: "grid",
+	gridTemplateColumns: "minmax(360px, 1.4fr) repeat(3, minmax(160px, 0.7fr))",
+	gap: "12px",
+	alignItems: "stretch",
 };
 
 const cardStyle = {
-	padding: "18px",
+	padding: "16px",
 	borderRadius: "8px",
 	background: "rgba(255, 255, 255, 0.96)",
 	border: `1px solid ${boatTheme.colors.line}`,
@@ -100,6 +123,8 @@ const cardStyle = {
 const menuCardStyle = {
 	...cardStyle,
 	width: "100%",
+	minHeight: "104px",
+	padding: "14px",
 	textAlign: "left" as const,
 	cursor: "pointer",
 	font: "inherit",
@@ -116,14 +141,34 @@ const labelStyle = {
 
 const valueStyle = {
 	margin: 0,
-	fontSize: "1.15rem",
+	fontSize: "1.12rem",
 	fontWeight: 800,
 	color: boatTheme.colors.navy,
 };
 
+const metricValueStyle = {
+	...valueStyle,
+	fontSize: "1.45rem",
+};
+
+const menuTitleStyle = {
+	margin: 0,
+	fontSize: "0.98rem",
+	fontWeight: 850,
+	lineHeight: 1.18,
+	color: boatTheme.colors.navy,
+};
+
+const menuSubtitleStyle = {
+	margin: 0,
+	fontSize: "0.82rem",
+	lineHeight: 1.45,
+	color: boatTheme.colors.muted,
+};
+
 const textStyle = {
 	margin: 0,
-	lineHeight: 1.75,
+	lineHeight: 1.65,
 	color: boatTheme.colors.muted,
 };
 
@@ -143,9 +188,9 @@ const tableWrapStyle = {
 
 const tableStyle = {
 	width: "100%",
-	minWidth: "920px",
+	minWidth: "1260px",
 	borderCollapse: "collapse" as const,
-	fontSize: "0.92rem",
+	fontSize: "0.9rem",
 };
 
 const thStyle = {
@@ -159,7 +204,7 @@ const thStyle = {
 };
 
 const tdStyle = {
-	padding: "12px 10px",
+	padding: "10px 10px",
 	borderBottom: `1px solid ${boatTheme.colors.line}`,
 	color: boatTheme.colors.ink,
 	verticalAlign: "top" as const,
@@ -214,7 +259,7 @@ function hasDerivedFile(manifest: BoatExManifest | null, part: string): boolean 
 
 function SectionShell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
 	return (
-		<section style={{ ...cardStyle, gap: "14px" }}>
+		<section style={{ ...cardStyle, gap: "14px", padding: "18px" }}>
 			<div>
 				<p style={labelStyle}>{subtitle}</p>
 				<p style={valueStyle}>{title}</p>
@@ -226,7 +271,7 @@ function SectionShell({ title, subtitle, children }: { title: string; subtitle: 
 
 function PendingPanel({ status, reason, source }: { status: string; reason: string; source?: string }) {
 	return (
-		<section style={cardGridStyle}>
+		<section style={twoColumnGridStyle}>
 			<article style={cardStyle}>
 				<p style={labelStyle}>STATUS</p>
 				<p style={valueStyle}>{status}</p>
@@ -300,7 +345,7 @@ function VenueEvidenceSection({ venueEvidence }: { venueEvidence: BoatExVenueEvi
 					</tbody>
 				</table>
 			</div>
-			<section style={cardGridStyle}>
+			<section style={{ ...cardGridStyle, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))" }}>
 				{venueEvidence.venues.map((venue) => (
 					<article key={`venue-card-${venue.venueCode}`} style={cardStyle}>
 						<p style={labelStyle}>{venue.venueCode}</p>
@@ -324,7 +369,7 @@ function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvi
 	return (
 		<>
 			<div style={tableWrapStyle}>
-				<table style={{ ...tableStyle, minWidth: "1120px" }}>
+				<table style={{ ...tableStyle, minWidth: "1460px" }}>
 					<thead>
 						<tr>
 							<th style={thStyle}>Racer</th>
@@ -369,7 +414,7 @@ function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvi
 					</tbody>
 				</table>
 			</div>
-			<section style={cardGridStyle}>
+			<section style={{ ...cardGridStyle, gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))" }}>
 				{topRacers.map((racer) => (
 					<article key={`racer-card-${racer.racerKey}`} style={cardStyle}>
 						<p style={labelStyle}>{racer.registrationNumber ?? racer.identityStatus}</p>
@@ -394,7 +439,7 @@ function WeatherSection({ venueEvidence }: { venueEvidence: BoatExVenueEvidenceF
 
 	return (
 		<div style={tableWrapStyle}>
-			<table style={tableStyle}>
+			<table style={{ ...tableStyle, minWidth: "1180px" }}>
 				<thead>
 					<tr>
 						<th style={thStyle}>Venue</th>
@@ -514,61 +559,73 @@ export function BoatExPage() {
 			case "overview":
 				return (
 					<SectionShell title="Overview" subtitle="Whole summary">
-						<section style={cardGridStyle}>
+						<section style={metricGridStyle}>
 							<article style={cardStyle}>
 								<p style={labelStyle}>LATEST DATE</p>
-								<p style={valueStyle}>{latestDate}</p>
+								<p style={metricValueStyle}>{latestDate}</p>
 								<p style={textStyle}>Latest date from the Phase 3 history manifest.</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>RECORDS</p>
-								<p style={valueStyle}>{records}</p>
+								<p style={metricValueStyle}>{records}</p>
 								<p style={textStyle}>History race records used by derived evidence.</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>VENUES</p>
-								<p style={valueStyle}>{venues}</p>
+								<p style={metricValueStyle}>{venues}</p>
 								<p style={textStyle}>Venue evidence count.</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>RACERS</p>
-								<p style={valueStyle}>{racerEvidence?.summary.racerCount ?? "missing"}</p>
+								<p style={metricValueStyle}>{racerEvidence?.summary.racerCount ?? "missing"}</p>
 								<p style={textStyle}>Racer evidence count.</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>APPEARANCES</p>
-								<p style={valueStyle}>{racerEvidence?.summary.appearanceCount ?? "missing"}</p>
+								<p style={metricValueStyle}>{racerEvidence?.summary.appearanceCount ?? "missing"}</p>
 								<p style={textStyle}>Source-backed racer appearances.</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>DERIVED FILES</p>
-								<p style={valueStyle}>{derivedManifestFiles}</p>
+								<p style={metricValueStyle}>{derivedManifestFiles}</p>
 								<p style={textStyle}>Derived manifest entries.</p>
 							</article>
 						</section>
-						<section style={cardStyle}>
-							<p style={labelStyle}>SAFETY NOTE</p>
-							<ul style={noteListStyle}>
-								<li>Source-backed evidence only.</li>
-								<li>No fake completion, no fake score, and no inferred ranking.</li>
-								<li>One history day means analysis remains {analysisStatus}.</li>
-							</ul>
+						<section style={twoColumnGridStyle}>
+							<article style={cardStyle}>
+								<p style={labelStyle}>SAFETY NOTE</p>
+								<ul style={noteListStyle}>
+									<li>Source-backed evidence only.</li>
+									<li>No fake completion, no fake score, and no inferred ranking.</li>
+									<li>One history day means analysis remains {analysisStatus}.</li>
+								</ul>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>PC DASHBOARD</p>
+								<p style={valueStyle}>desktop-first layout</p>
+								<p style={textStyle}>Cards, tables, and section content use wider grid tracks so the EX page reads as a dense desktop analysis dashboard.</p>
+							</article>
 						</section>
 					</SectionShell>
 				);
 			case "identity":
 				return (
 					<SectionShell title="Identity" subtitle="Racer source">
-						<section style={cardGridStyle}>
+						<section style={metricGridStyle}>
 							<article style={cardStyle}>
 								<p style={labelStyle}>RACERS</p>
-								<p style={valueStyle}>{racerEvidence?.summary.racerCount ?? "missing"}</p>
+								<p style={metricValueStyle}>{racerEvidence?.summary.racerCount ?? "missing"}</p>
 								<p style={textStyle}>Registration numbers are used as primary keys when present.</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>APPEARANCES</p>
-								<p style={valueStyle}>{racerEvidence?.summary.appearanceCount ?? "missing"}</p>
+								<p style={metricValueStyle}>{racerEvidence?.summary.appearanceCount ?? "missing"}</p>
 								<p style={textStyle}>Racer-profile, ST, and exhibition labels remain insufficient-history.</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>COURSE CHANGE</p>
+								<p style={metricValueStyle}>source-backed</p>
+								<p style={textStyle}>Final-course gaps are shown as source missing, not as a pattern.</p>
 							</article>
 						</section>
 						<RacerEvidenceSection racerEvidence={racerEvidence} />
@@ -577,25 +634,25 @@ export function BoatExPage() {
 			case "data-coverage":
 				return (
 					<SectionShell title="Data Coverage" subtitle="Auto update / source">
-						<section style={cardGridStyle}>
+						<section style={metricGridStyle}>
 							<article style={cardStyle}>
 								<p style={labelStyle}>HISTORY RECORDS</p>
-								<p style={valueStyle}>{records}</p>
+								<p style={metricValueStyle}>{records}</p>
 								<p style={textStyle}>Phase 3 history source.</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>VENUE EVIDENCE</p>
-								<p style={valueStyle}>{venueEvidenceAvailable ? "available" : "missing"}</p>
+								<p style={metricValueStyle}>{venueEvidenceAvailable ? "available" : "missing"}</p>
 								<p style={textStyle}>Phase 4 derived evidence.</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>RACER EVIDENCE</p>
-								<p style={valueStyle}>{racerEvidenceAvailable ? "available" : "missing"}</p>
+								<p style={metricValueStyle}>{racerEvidenceAvailable ? "available" : "missing"}</p>
 								<p style={textStyle}>Phase 5 derived evidence.</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>DERIVED MANIFEST</p>
-								<p style={valueStyle}>{derivedManifestFiles}</p>
+								<p style={metricValueStyle}>{derivedManifestFiles}</p>
 								<p style={textStyle}>Expected entries include venue evidence and racer evidence.</p>
 							</article>
 						</section>
@@ -733,13 +790,33 @@ export function BoatExPage() {
 			eyebrow="BOATRACE EX DATA LABO"
 			title="KURARI BOAT EX"
 			description="BOATRACE EX DATA LABO / source-backed analysis"
+			contentMaxWidth="1720px"
+			contentPaddingInline="28px"
+			heroMaxWidth="1720px"
 		>
-			<section style={cardStyle}>
-				<p style={labelStyle}>STATUS</p>
-				<p style={valueStyle}>{loadState.message}</p>
-				<p style={textStyle}>
-					Use the cards below to switch sections inside this EX page. The URL hash route stays unchanged.
-				</p>
+			<section style={dashboardRowStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>STATUS</p>
+					<p style={valueStyle}>{loadState.message}</p>
+					<p style={textStyle}>
+						Use the cards below to switch sections inside this EX page. The URL hash route stays unchanged.
+					</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>DATE</p>
+					<p style={metricValueStyle}>{latestDate}</p>
+					<p style={textStyle}>latest history</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>RECORDS</p>
+					<p style={metricValueStyle}>{records}</p>
+					<p style={textStyle}>source-backed</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>RACERS</p>
+					<p style={metricValueStyle}>{racerEvidence?.summary.racerCount ?? "missing"}</p>
+					<p style={textStyle}>identity evidence</p>
+				</article>
 			</section>
 
 			<section style={sectionMenuStyle} aria-label="BOATRACE EX sections">
@@ -759,8 +836,8 @@ export function BoatExPage() {
 							aria-pressed={isActive}
 						>
 							<p style={labelStyle}>{section.status}</p>
-							<p style={valueStyle}>{section.title}</p>
-							<p style={textStyle}>{section.subtitle}</p>
+							<p style={menuTitleStyle}>{section.title}</p>
+							<p style={menuSubtitleStyle}>{section.subtitle}</p>
 						</button>
 					);
 				})}
