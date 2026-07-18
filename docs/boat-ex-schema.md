@@ -444,3 +444,36 @@ Phase 6C changes only workflow wiring and documentation. It does not change EX
 generated JSON locally, does not make scheduled EX generation active by default,
 and does not allow fake dates, fake scores, empty-history overwrites, review
 archive reads, or prediction-signal generation.
+
+## Phase 6D Auto Date Resolver and Workflow Summary
+
+Phase 6D adds `--date auto` to the daily runner and checker. Auto mode resolves
+the target date from source-backed BOATRACE generated JSON:
+
+```text
+public/data/boatrace/today.generated.json
+public/data/boatrace/today-race-details.generated.json
+public/data/boatrace/upcoming-schedule.generated.json
+public/data/boatrace/venue-extras.generated.json
+```
+
+The resolver extracts explicit generated-date fields such as `date`,
+`sessionDate`, `generatedFor`, and range `startDate`, then chooses the maximum
+candidate. It falls back to `public/data/boatrace-ex/index.generated.json`
+`latestDate` only when no source-backed BOATRACE date can be resolved, and the
+summary records `dateResolution.fallbackUsed`.
+
+`--date latest` remains separate: it reads only the EX index `latestDate` and is
+intended for already generated EX data. `latest` should not be used when the
+goal is to discover a newly updated BOATRACE generated-feed date.
+
+The daily runner and checker summaries include `requestedDate`, resolved
+`date`, and `dateResolution`. The workflow dispatch default for
+`boatrace_ex_date` is `auto`, and successful manual EX runs append a Step Summary
+with the requested date, resolved date, refresh-history flag, completion status,
+and available EX counts.
+
+Phase 6D still keeps scheduled EX execution disabled by default. It does not
+commit generated JSON locally, does not read or edit `public/data/reviews/**`,
+does not invent dates or empty histories, and does not create prediction scores,
+rankings, today-flow values, or racer labels.

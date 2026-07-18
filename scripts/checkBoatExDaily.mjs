@@ -13,7 +13,7 @@ function parseArgs(argv) {
 		const arg = argv[index];
 		if (arg === "--date") {
 			const next = argv[index + 1];
-			if (!next || next.startsWith("--")) throw new Error("--date requires YYYY-MM-DD or latest");
+			if (!next || next.startsWith("--")) throw new Error("--date requires YYYY-MM-DD, latest, or auto");
 			args.date = next;
 			index += 1;
 			continue;
@@ -21,7 +21,7 @@ function parseArgs(argv) {
 		throw new Error(`Unknown argument: ${arg}`);
 	}
 	if (!args.date) throw new Error("--date is required");
-	if (args.date !== "latest" && !/^\d{4}-\d{2}-\d{2}$/.test(args.date)) {
+	if (!["latest", "auto"].includes(args.date) && !/^\d{4}-\d{2}-\d{2}$/.test(args.date)) {
 		throw new Error(`Invalid --date value: ${args.date}`);
 	}
 	return args;
@@ -33,6 +33,87 @@ function absolute(relativePath) {
 
 function readJson(relativePath) {
 	return JSON.parse(fs.readFileSync(absolute(relativePath), "utf8"));
+}
+
+function readJsonIfExists(relativePath) {
+	const filePath = absolute(relativePath);
+	if (!fs.existsSync(filePath)) return null;
+	return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
+function isDateString(value) {
+	return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
+function collectDateCandidatesFromValue(value, output = []) {
+	if (Array.isArray(value)) {
+		for (const item of value) collectDateCandidatesFromValue(item, output);
+		return output;
+	}
+	if (!value || typeof value !== "object") return output;
+
+	for (const [key, item] of Object.entries(value)) {
+		if (["date", "sessionDate", "generatedFor"].includes(key) && isDateString(item)) {
+			output.push(item);
+			continue;
+		}
+		if (key === "range" && item && typeof item === "object" && isDateString(item.startDate)) {
+			output.push(item.startDate);
+			continue;
+		}
+		collectDateCandidatesFromValue(item, output);
+	}
+	return output;
+}
+
+function collectPrimaryDateCandidates(value) {
+	if (!value || typeof value !== "object" || Array.isArray(value)) return [];
+	const output = [];
+	for (const key of ["date", "sessionDate", "generatedFor"]) {
+		if (isDateString(value[key])) output.push(value[key]);
+	}
+	if (value.range && typeof value.range === "object" && isDateString(value.range.startDate)) {
+		output.push(value.range.startDate);
+	}
+	return output;
+}
+
+function collectAutoDateCandidates() {
+	const sourcePaths = [
+		"public/data/boatrace/today.generated.json",
+		"public/data/boatrace/today-race-details.generated.json",
+		"public/data/boatrace/upcoming-schedule.generated.json",
+		"public/data/boatrace/venue-extras.generated.json",
+	];
+	const candidates = [];
+	const fallbackCandidates = [];
+	for (const sourcePath of sourcePaths) {
+		const data = readJsonIfExists(sourcePath);
+		if (!data) continue;
+		for (const date of collectPrimaryDateCandidates(data)) {
+			candidates.push({ date, source: sourcePath });
+		}
+		for (const date of collectDateCandidatesFromValue(data)) {
+			fallbackCandidates.push({ date, source: sourcePath });
+		}
+	}
+	return candidates.length > 0 ? candidates : fallbackCandidates;
+}
+
+function uniqueSortedDates(candidates) {
+	return [...new Set(candidates.map((candidate) => candidate.date))].sort();
+}
+
+function buildLatestDateResolution(index) {
+	if (!index.latestDate) throw new Error("date index latestDate is missing");
+	return {
+		date: index.latestDate,
+		dateResolution: {
+			mode: "latest",
+			source: "public/data/boatrace-ex/index.generated.json",
+			fallbackUsed: false,
+		},
+	};
 }
 
 function parseJsonFromStdout(stdout) {
@@ -62,9 +143,44 @@ function runNode(script, args) {
 }
 
 function resolveDate(dateArg, index) {
-	if (dateArg !== "latest") return dateArg;
-	if (!index.latestDate) throw new Error("date index latestDate is missing");
-	return index.latestDate;
+	if (/^\d{4}-\d{2}-\d{2}$/.test(dateArg)) {
+		return {
+			date: dateArg,
+			dateResolution: {
+				mode: "explicit",
+				source: "cli",
+				fallbackUsed: false,
+			},
+		};
+	}
+	if (dateArg === "latest") return buildLatestDateResolution(index);
+
+	const candidates = collectAutoDateCandidates();
+	const dates = uniqueSortedDates(candidates);
+	if (dates.length > 0) {
+		const date = dates.at(-1);
+		const source = candidates.find((candidate) => candidate.date === date)?.source ?? null;
+		return {
+			date,
+			dateResolution: {
+				mode: "auto",
+				source,
+				fallbackUsed: false,
+				candidates: dates,
+			},
+		};
+	}
+
+	const latest = buildLatestDateResolution(index);
+	return {
+		date: latest.date,
+		dateResolution: {
+			mode: "auto",
+			source: latest.dateResolution.source,
+			fallbackUsed: true,
+			candidates: [],
+		},
+	};
 }
 
 function collectSourcePaths(value, output = []) {
@@ -99,7 +215,8 @@ function assertNoProhibitedDerivedPaths(files) {
 function main() {
 	const args = parseArgs(process.argv.slice(2));
 	const index = readJson("public/data/boatrace-ex/index.generated.json");
-	const date = resolveDate(args.date, index);
+	const resolved = resolveDate(args.date, index);
+	const date = resolved.date;
 
 	if (!Array.isArray(index.availableDates) || !index.availableDates.includes(date)) {
 		throw new Error(`${date} is not present in date index availableDates`);
@@ -137,7 +254,9 @@ function main() {
 
 	console.log(JSON.stringify({
 		ok: true,
+		requestedDate: args.date,
 		date,
+		dateResolution: resolved.dateResolution,
 		latestDate: index.latestDate,
 		dateCount: index.summary.dateCount,
 		records: history.records,
