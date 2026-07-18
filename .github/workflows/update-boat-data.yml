@@ -23,6 +23,21 @@ on:
           - morning
           - day
           - night
+      run_boatrace_ex:
+        description: Run BOATRACE EX daily pipeline
+        required: false
+        default: false
+        type: boolean
+      boatrace_ex_date:
+        description: BOATRACE EX target date, YYYY-MM-DD or latest
+        required: false
+        default: latest
+        type: string
+      boatrace_ex_refresh_history:
+        description: Refresh BOATRACE EX history even when it already exists
+        required: false
+        default: false
+        type: boolean
   schedule:
     # 00:05 JST and 06:05 JST. GitHub Actions schedules are UTC.
     # 06:05 JST refreshes all official pre-race material once after morning publication.
@@ -77,6 +92,24 @@ jobs:
 
           echo "=== venue-extras.generated.json ==="
           head -n 20 public/data/boatrace/venue-extras.generated.json
+
+      - name: Run BOATRACE EX daily pipeline
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_boatrace_ex == true }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          EX_DATE="${{ inputs.boatrace_ex_date }}"
+          REFRESH_HISTORY="${{ inputs.boatrace_ex_refresh_history }}"
+
+          ARGS=(--date "$EX_DATE")
+          if [ "$REFRESH_HISTORY" = "true" ]; then
+            ARGS+=(--refresh-history)
+          fi
+
+          node scripts/generateBoatExDaily.mjs "${ARGS[@]}"
+          node scripts/checkBoatExDaily.mjs --date "$EX_DATE"
+          node scripts/checkBoatExDateIndex.mjs
 
       - name: Commit generated data
         run: |

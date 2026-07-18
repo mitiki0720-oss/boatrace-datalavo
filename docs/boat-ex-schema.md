@@ -413,3 +413,34 @@ manifest entries.
 Phase 6B does not add GitHub Actions workflow integration. It also must not read
 `public/data/reviews/**`, invent missing dates or counts, or emit fake scores,
 rankings, racer labels, today-flow values, or prediction signals.
+
+## Phase 6C Optional Workflow Dispatch
+
+Phase 6C connects the Phase 6B daily runner to
+`.github/workflows/update-boat-data.yml` as an optional `workflow_dispatch` path.
+It adds these dispatch inputs:
+
+- `run_boatrace_ex`
+- `boatrace_ex_date`
+- `boatrace_ex_refresh_history`
+
+The EX step is guarded so it runs only when the event is `workflow_dispatch` and
+`run_boatrace_ex` is true. Scheduled runs do not execute the EX pipeline by
+default.
+
+The step runs:
+
+```text
+node scripts/generateBoatExDaily.mjs --date <input date>
+node scripts/checkBoatExDaily.mjs --date <input date>
+node scripts/checkBoatExDateIndex.mjs
+```
+
+When `boatrace_ex_refresh_history` is true, `--refresh-history` is passed to the
+generator. The default remains false so existing Phase 3 history is checked and
+reused instead of regenerated.
+
+Phase 6C changes only workflow wiring and documentation. It does not change EX
+generated JSON locally, does not make scheduled EX generation active by default,
+and does not allow fake dates, fake scores, empty-history overwrites, review
+archive reads, or prediction-signal generation.

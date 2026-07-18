@@ -1,6 +1,6 @@
 # BOATRACE EX Daily Pipeline Runner v0
 
-Phase 6B adds a manual runner for the BOATRACE EX daily pipeline. It is a local orchestration script only; it is not wired into GitHub Actions yet.
+Phase 6B adds a manual runner for the BOATRACE EX daily pipeline. Phase 6C wires that runner into `update-boat-data` as an optional `workflow_dispatch` step.
 
 ## Commands
 
@@ -43,13 +43,31 @@ The runner must not invent missing dates, counts, venue-bias scores, rough-index
 
 Empty outputs remain guarded by the existing lower-level generators and checkers. A normal daily run should fail instead of overwriting useful EX files with empty output.
 
+## Workflow Dispatch
+
+Phase 6C adds optional inputs to `.github/workflows/update-boat-data.yml`:
+
+- `run_boatrace_ex`: default `false`. When false, the EX pipeline is not executed.
+- `boatrace_ex_date`: default `latest`. Accepts `latest` or `YYYY-MM-DD`.
+- `boatrace_ex_refresh_history`: default `false`. Set true only when existing EX history should be regenerated.
+
+The workflow step runs only with:
+
+```text
+github.event_name == 'workflow_dispatch' && inputs.run_boatrace_ex == true
+```
+
+Scheduled workflow runs do not execute the EX pipeline by default. The normal BOATRACE generated-data update path remains unchanged unless the dispatch input explicitly enables EX.
+
+Workflow integration does not permit fake completion. Empty history is still refused by the existing lower-level guards, and the workflow checker must pass before generated data is committed.
+
 ## Scope
 
-Phase 6B does not add or modify GitHub Actions workflows. Workflow integration is planned for Phase 6C.
+Phase 6C adds optional workflow integration only. It does not make EX a fully automatic daily production pipeline.
 
 Later phases:
 
-- Phase 6C: safe integration into the update-boat-data workflow
+- Phase 6D: harden workflow operation after manual dispatch runs
 - Phase 7: multi-day venue bias
 - Phase 8: rough index
 - Phase 9: today flow
