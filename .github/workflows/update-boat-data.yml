@@ -107,48 +107,15 @@ jobs:
             ARGS+=(--refresh-history)
           fi
 
-          GENERATE_SUMMARY="$(mktemp)"
-          CHECK_SUMMARY="$(mktemp)"
+          echo "## BOATRACE EX daily pipeline" >> "$GITHUB_STEP_SUMMARY"
+          echo "- requested date: $EX_DATE" >> "$GITHUB_STEP_SUMMARY"
+          echo "- refresh history: $REFRESH_HISTORY" >> "$GITHUB_STEP_SUMMARY"
 
-          node scripts/generateBoatExDaily.mjs "${ARGS[@]}" | tee "$GENERATE_SUMMARY"
-          node scripts/checkBoatExDaily.mjs --date "$EX_DATE" | tee "$CHECK_SUMMARY"
+          node scripts/generateBoatExDaily.mjs "${ARGS[@]}"
+          node scripts/checkBoatExDaily.mjs --date "$EX_DATE"
           node scripts/checkBoatExDateIndex.mjs
 
-          node - "$GITHUB_STEP_SUMMARY" "$GENERATE_SUMMARY" "$CHECK_SUMMARY" "$EX_DATE" "$REFRESH_HISTORY" <<'NODE'
-          const fs = require("node:fs");
-          const [summaryPath, generatePath, checkPath, requestedDate, refreshHistory] = process.argv.slice(2);
-
-          function readSummary(filePath) {
-            try {
-              const text = fs.readFileSync(filePath, "utf8");
-              const start = text.indexOf("{");
-              const end = text.lastIndexOf("}");
-              if (start < 0 || end < start) return {};
-              return JSON.parse(text.slice(start, end + 1));
-            } catch {
-              return {};
-            }
-          }
-
-          const generated = readSummary(generatePath);
-          const checked = readSummary(checkPath);
-          const lines = [
-            "## BOATRACE EX daily pipeline",
-            `- requested date: ${requestedDate}`,
-            `- resolved date: ${checked.date ?? generated.date ?? "unknown"}`,
-            `- refresh history: ${refreshHistory}`,
-            `- status: completed`,
-          ];
-
-          if (checked.latestDate ?? generated.dateIndex?.latestDate) lines.push(`- latestDate: ${checked.latestDate ?? generated.dateIndex.latestDate}`);
-          if (checked.dateCount ?? generated.dateIndex?.dateCount) lines.push(`- dateCount: ${checked.dateCount ?? generated.dateIndex.dateCount}`);
-          if (checked.records ?? generated.history?.records) lines.push(`- records: ${checked.records ?? generated.history.records}`);
-          if (checked.venues ?? generated.history?.venues) lines.push(`- venues: ${checked.venues ?? generated.history.venues}`);
-          if (checked.racerCount ?? generated.racerEvidence?.racerCount) lines.push(`- racerCount: ${checked.racerCount ?? generated.racerEvidence.racerCount}`);
-          if (checked.appearanceCount ?? generated.racerEvidence?.appearanceCount) lines.push(`- appearanceCount: ${checked.appearanceCount ?? generated.racerEvidence.appearanceCount}`);
-
-          fs.appendFileSync(summaryPath, `${lines.join("\n")}\n`);
-          NODE
+          echo "- status: completed" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit generated data
         run: |

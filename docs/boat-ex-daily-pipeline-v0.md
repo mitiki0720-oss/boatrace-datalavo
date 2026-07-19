@@ -84,11 +84,10 @@ Scheduled workflow runs do not execute the EX pipeline by default. The normal BO
 
 Workflow integration does not permit fake completion. Empty history is still refused by the existing lower-level guards, and the workflow checker must pass before generated data is committed.
 
-After a successful manual EX run, the workflow appends a Step Summary with the
-requested date, resolved date, refresh-history flag, completion status, and the
-available generate/check counts such as `latestDate`, `dateCount`, `records`,
-`venues`, `racerCount`, and `appearanceCount`. Summary parsing is best-effort
-and must not hide generator or checker failures.
+The workflow appends a simple Step Summary with the requested date,
+refresh-history flag, and completion status. Generator and checker JSON remains
+available in the job log. The summary path intentionally avoids heredoc parsing
+so it cannot break the YAML structure or hide generator or checker failures.
 
 ## Scope
 
