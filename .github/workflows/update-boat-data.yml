@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Update mode
+        description: "Update mode"
         required: false
         default: initial
         type: choice
@@ -14,7 +14,7 @@ on:
           - results
           - final
       targetSession:
-        description: Target session
+        description: "Target session"
         required: false
         default: auto
         type: choice
@@ -24,16 +24,16 @@ on:
           - day
           - night
       run_boatrace_ex:
-        description: Run BOATRACE EX daily pipeline, true or false
+        description: "Run BOATRACE EX daily pipeline, true or false"
         required: false
         default: "false"
       boatrace_ex_date:
-        description: BOATRACE EX target date: auto, latest, or YYYY-MM-DD
+        description: "BOATRACE EX target date: auto, latest, or YYYY-MM-DD"
         required: false
         default: auto
         type: string
       boatrace_ex_refresh_history:
-        description: Refresh BOATRACE EX history even when it already exists, true or false
+        description: "Refresh BOATRACE EX history even when it already exists, true or false"
         required: false
         default: "false"
   schedule:
