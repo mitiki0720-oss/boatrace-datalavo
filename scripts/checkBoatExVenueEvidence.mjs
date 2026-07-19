@@ -92,37 +92,86 @@ function validateVenue(venue, index, date, errors) {
 	assert(Array.isArray(venue.warnings), `${location}: warnings must be an array`, errors);
 }
 
+function collectHistoryVenueStats(history, errors) {
+	const venues = new Map();
+	for (const [index, record] of (Array.isArray(history.records) ? history.records : []).entries()) {
+		const location = `history.records[${index}]`;
+		const venueCode = String(record?.venueCode ?? "");
+		const venueName = String(record?.venueName ?? "");
+		assert(venueCode.length > 0, `${location}: venueCode is required`, errors);
+		assert(venueName.length > 0, `${location}: venueName is required`, errors);
+		if (!venueCode || !venueName) continue;
+
+		const venue = venues.get(venueCode) ?? { venueName, recordCount: 0 };
+		assert(venue.venueName === venueName, `${location}: venueName must be consistent for ${venueCode}`, errors);
+		venue.recordCount += 1;
+		venues.set(venueCode, venue);
+	}
+	return venues;
+}
+
+function validateProvenance(evidence, historyPath, coveragePath, errors) {
+	const allowedPaths = new Set([historyPath, coveragePath]);
+	assert(Array.isArray(evidence.sourceFiles), "evidence.sourceFiles must be an array", errors);
+	for (const source of evidence.sourceFiles ?? []) {
+		const sourcePath = String(source.sourcePath ?? "");
+		assert(!sourcePath.startsWith("public/data/reviews/"), `sourceFiles path is prohibited: ${sourcePath}`, errors);
+		assert(!/^public\/data\/boatrace\/[^/]+\.generated\.json$/.test(sourcePath), `direct boatrace generated source is prohibited: ${sourcePath}`, errors);
+		assert(allowedPaths.has(sourcePath), `sourceFiles path must be derived history or coverage: ${sourcePath}`, errors);
+	}
+	for (const requiredPath of allowedPaths) {
+		assert((evidence.sourceFiles ?? []).some((source) => source.sourcePath === requiredPath), `sourceFiles must include ${requiredPath}`, errors);
+	}
+}
+
 function main() {
 	const args = parseArgs(process.argv.slice(2));
 	const date = args.date;
 	if (!date) throw new Error("--date is required");
 
+	const historyPath = `public/data/boatrace-ex/history/races/${date}.json`;
+	const coveragePath = `public/data/boatrace-ex/coverage/${date}.json`;
 	const evidencePath = `public/data/boatrace-ex/derived/venue-evidence/${date}.json`;
 	const manifestPath = "public/data/boatrace-ex/derived/manifest.generated.json";
+	const history = readJson(historyPath);
 	const evidence = readJson(evidencePath);
 	const manifest = readJson(manifestPath);
 	const errors = [];
+	const historyRecords = Array.isArray(history.records) ? history.records : [];
+	const historyVenues = collectHistoryVenueStats(history, errors);
+
+	assert(history.date === date, "history.date mismatch", errors);
+	assert(Array.isArray(history.records), "history.records must be an array", errors);
 
 	assert(evidence.schemaVersion === 1, "evidence.schemaVersion must be 1", errors);
 	assert(evidence.kind === "boatrace-ex-venue-evidence", "evidence.kind mismatch", errors);
 	assert(evidence.date === date, "evidence.date mismatch", errors);
-	assert(Array.isArray(evidence.sourceFiles), "evidence.sourceFiles must be an array", errors);
-	for (const source of evidence.sourceFiles ?? []) {
-		assert(!String(source.sourcePath ?? "").startsWith("public/data/reviews/"), `sourceFiles path is prohibited: ${source.sourcePath}`, errors);
-		assert(!/^public\/data\/boatrace\/[^/]+\.generated\.json$/.test(String(source.sourcePath ?? "")), `direct boatrace generated source is prohibited: ${source.sourcePath}`, errors);
-	}
+	validateProvenance(evidence, historyPath, coveragePath, errors);
 
 	assert(Array.isArray(evidence.venues), "evidence.venues must be an array", errors);
 	assert(evidence.summary?.venueCount === evidence.venues?.length, "summary.venueCount must match venues.length", errors);
 	assert(evidence.summary?.recordCount === evidence.venues?.reduce((sum, venue) => sum + Number(venue.raceCount ?? 0), 0), "summary.recordCount must match venue race counts", errors);
+	assert(evidence.summary?.recordCount === historyRecords.length, "summary.recordCount must match history record count", errors);
+	assert(evidence.summary?.venueCount === historyVenues.size, "summary.venueCount must match history venue count", errors);
+	assert(evidence.venues?.length === historyVenues.size, "venues.length must match history venue count", errors);
 
 	if (!args.allowEmpty) {
-		assert(evidence.venues?.length === 13, "venues.length must be 13", errors);
-		assert(evidence.summary?.recordCount === 156, "summary.recordCount must be 156", errors);
-		assert(evidence.summary?.venueCount === 13, "summary.venueCount must be 13", errors);
+		assert(historyRecords.length > 0, "history records must not be empty", errors);
+		assert(historyVenues.size > 0, "history venues must not be empty", errors);
 	}
 
-	evidence.venues?.forEach((venue, index) => validateVenue(venue, index, date, errors));
+	const evidenceVenueCodes = new Set();
+	evidence.venues?.forEach((venue, index) => {
+		validateVenue(venue, index, date, errors);
+		assert(!evidenceVenueCodes.has(venue.venueCode), `duplicate venueCode: ${venue.venueCode}`, errors);
+		evidenceVenueCodes.add(venue.venueCode);
+		const historyVenue = historyVenues.get(venue.venueCode);
+		assert(Boolean(historyVenue), `venues[${index}]: venueCode is missing from history: ${venue.venueCode}`, errors);
+		if (historyVenue) {
+			assert(venue.venueName === historyVenue.venueName, `venues[${index}]: venueName must match history`, errors);
+			assert(venue.raceCount === historyVenue.recordCount, `venues[${index}]: raceCount must match history`, errors);
+		}
+	});
 
 	assert(manifest.schemaVersion === 1, "manifest.schemaVersion must be 1", errors);
 	assert(manifest.kind === "boatrace-ex-derived-manifest", "manifest.kind mismatch", errors);
@@ -141,9 +190,11 @@ function main() {
 		ok: true,
 		date,
 		evidencePath,
+		historyPath,
 		manifestPath,
 		records: evidence.summary.recordCount,
 		venues: evidence.summary.venueCount,
+		mode: "dynamic",
 		derivedManifestFiles: manifest.files.length,
 	}, null, 2));
 }

@@ -36,6 +36,11 @@ The runner resolves the target date, then executes the existing EX scripts in or
 
 For an existing history date, the default behavior is to avoid regenerating Phase 3 history, coverage, and the Phase 3 manifest.
 
+Venue and racer evidence checks derive record, venue, racer, and appearance
+counts from the selected date's Phase 3 history. They validate that derived
+evidence and provenance match that source-backed history, rather than applying
+the initial sample date's counts to later daily runs.
+
 For an auto-resolved date whose history is not generated yet, `--dry-run` calls
 the history generator in dry-run mode and prints a summary without writing files.
 The follow-on venue evidence, racer evidence, and date-index steps are skipped
@@ -77,7 +82,7 @@ Phase 6C adds optional inputs to `.github/workflows/update-boat-data.yml`:
 The workflow step runs only with:
 
 ```text
-github.event_name == 'workflow_dispatch' && inputs.run_boatrace_ex == true
+github.event_name == 'workflow_dispatch' && inputs.run_boatrace_ex == 'true'
 ```
 
 Scheduled workflow runs do not execute the EX pipeline by default. The normal BOATRACE generated-data update path remains unchanged unless the dispatch input explicitly enables EX.

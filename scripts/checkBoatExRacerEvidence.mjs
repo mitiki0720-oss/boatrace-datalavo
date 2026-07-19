@@ -119,29 +119,94 @@ function validateRacer(racer, index, errors) {
 	}
 }
 
+function racerKeyForHistory(racer, record) {
+	if (racer.registrationNumber) return `registrationNumber:${racer.registrationNumber}`;
+	return [
+		"unverified",
+		String(racer.racerName ?? "unknown").trim() || "unknown",
+		String(racer.branch ?? "unknown").trim() || "unknown",
+		record.venueCode,
+		record.raceNo,
+		racer.lane,
+	].join(":");
+}
+
+function collectHistoryRacerStats(history) {
+	const racers = new Map();
+	let appearanceCount = 0;
+	for (const record of Array.isArray(history.records) ? history.records : []) {
+		for (const racer of Array.isArray(record?.racer) ? record.racer : []) {
+			if (!racer?.racerName || !Number.isFinite(Number(racer.lane))) continue;
+			const racerKey = racerKeyForHistory(racer, record);
+			const appearance = {
+				raceKey: record.raceKey,
+				frameNo: Number(racer.lane),
+			};
+			const racerStats = racers.get(racerKey) ?? { appearances: [] };
+			racerStats.appearances.push(appearance);
+			racers.set(racerKey, racerStats);
+			appearanceCount += 1;
+		}
+	}
+	return { racers, appearanceCount };
+}
+
+function raceEvidenceCounts(raceEvidence) {
+	const counts = new Map();
+	for (const entry of raceEvidence ?? []) {
+		const key = `${entry.raceKey}:${entry.frameNo}`;
+		counts.set(key, (counts.get(key) ?? 0) + 1);
+	}
+	return counts;
+}
+
+function equalCounts(left, right) {
+	return left.size === right.size && [...left].every(([key, value]) => right.get(key) === value);
+}
+
+function validateProvenance(evidence, historyPath, coveragePath, venueEvidencePath, errors) {
+	const allowedPaths = new Set([historyPath, coveragePath, venueEvidencePath]);
+	assert(Array.isArray(evidence.sourceFiles), "evidence.sourceFiles must be an array", errors);
+	for (const source of evidence.sourceFiles ?? []) {
+		const sourcePath = String(source.sourcePath ?? "");
+		assert(!sourcePath.startsWith("public/data/reviews/"), `sourceFiles path is prohibited: ${sourcePath}`, errors);
+		assert(!/^public\/data\/boatrace\/[^/]+\.generated\.json$/.test(sourcePath), `direct boatrace generated source is prohibited: ${sourcePath}`, errors);
+		assert(allowedPaths.has(sourcePath), `sourceFiles path must be derived EX evidence: ${sourcePath}`, errors);
+	}
+	for (const requiredPath of [historyPath, coveragePath]) {
+		assert((evidence.sourceFiles ?? []).some((source) => source.sourcePath === requiredPath), `sourceFiles must include ${requiredPath}`, errors);
+	}
+}
+
 function main() {
 	const args = parseArgs(process.argv.slice(2));
 	const date = args.date;
 	if (!date) throw new Error("--date is required");
 
+	const historyPath = `public/data/boatrace-ex/history/races/${date}.json`;
+	const coveragePath = `public/data/boatrace-ex/coverage/${date}.json`;
+	const venueEvidencePath = `public/data/boatrace-ex/derived/venue-evidence/${date}.json`;
 	const evidencePath = `public/data/boatrace-ex/derived/racer-evidence/${date}.json`;
 	const manifestPath = "public/data/boatrace-ex/derived/manifest.generated.json";
+	const history = readJson(historyPath);
 	const evidence = readJson(evidencePath);
 	const manifest = readJson(manifestPath);
 	const errors = [];
+	const historyStats = collectHistoryRacerStats(history);
+
+	assert(history.date === date, "history.date mismatch", errors);
+	assert(Array.isArray(history.records), "history.records must be an array", errors);
 
 	assert(evidence.schemaVersion === 1, "evidence.schemaVersion must be 1", errors);
 	assert(evidence.kind === "boatrace-ex-racer-evidence", "evidence.kind mismatch", errors);
 	assert(evidence.date === date, "evidence.date mismatch", errors);
-	assert(Array.isArray(evidence.sourceFiles), "evidence.sourceFiles must be an array", errors);
-	for (const source of evidence.sourceFiles ?? []) {
-		assert(!String(source.sourcePath ?? "").startsWith("public/data/reviews/"), `sourceFiles path is prohibited: ${source.sourcePath}`, errors);
-		assert(!/^public\/data\/boatrace\/[^/]+\.generated\.json$/.test(String(source.sourcePath ?? "")), `direct boatrace generated source is prohibited: ${source.sourcePath}`, errors);
-	}
+	validateProvenance(evidence, historyPath, coveragePath, venueEvidencePath, errors);
 
 	assert(Array.isArray(evidence.racers), "evidence.racers must be an array", errors);
 	assert(evidence.summary?.racerCount === evidence.racers?.length, "summary.racerCount must match racers.length", errors);
 	assert(evidence.summary?.appearanceCount === evidence.racers?.reduce((sum, racer) => sum + Number(racer.appearanceCount ?? 0), 0), "summary.appearanceCount must match racer appearance counts", errors);
+	assert(evidence.summary?.racerCount === historyStats.racers.size, "summary.racerCount must match history racer count", errors);
+	assert(evidence.summary?.appearanceCount === historyStats.appearanceCount, "summary.appearanceCount must match history appearance count", errors);
 
 	if (!args.allowEmpty) {
 		assert(evidence.racers?.length > 0, "racers must not be empty", errors);
@@ -153,6 +218,12 @@ function main() {
 		assert(!racerKeys.has(racer.racerKey), `duplicate racerKey: ${racer.racerKey}`, errors);
 		racerKeys.add(racer.racerKey);
 		validateRacer(racer, index, errors);
+		const historyRacer = historyStats.racers.get(racer.racerKey);
+		assert(Boolean(historyRacer), `racers[${index}]: racerKey is missing from history: ${racer.racerKey}`, errors);
+		if (historyRacer) {
+			assert(racer.appearanceCount === historyRacer.appearances.length, `racers[${index}]: appearanceCount must match history`, errors);
+			assert(equalCounts(raceEvidenceCounts(racer.raceEvidence), raceEvidenceCounts(historyRacer.appearances)), `racers[${index}]: raceEvidence must match history appearances`, errors);
+		}
 	});
 
 	assert(manifest.schemaVersion === 1, "manifest.schemaVersion must be 1", errors);
@@ -173,9 +244,11 @@ function main() {
 		ok: true,
 		date,
 		evidencePath,
+		historyPath,
 		manifestPath,
 		racerCount: evidence.summary.racerCount,
 		appearanceCount: evidence.summary.appearanceCount,
+		mode: "dynamic",
 		derivedManifestFiles: manifest.files.length,
 	}, null, 2));
 }
