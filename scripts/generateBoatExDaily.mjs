@@ -309,6 +309,15 @@ function main() {
 	const venueBiasGenerated = runNode("scripts/generateBoatExVenueBias.mjs", [...(args.dryRun ? ["--dry-run"] : [])]);
 	const venueBiasChecked = runNode("scripts/checkBoatExVenueBias.mjs", []);
 
+        const roughIndexGenerated = runNode(
+                "scripts/generateBoatExRoughIndex.mjs",
+                [...(args.dryRun ? ["--dry-run"] : [])],
+        );
+        const roughIndexChecked = runNode(
+                "scripts/checkBoatExRoughIndex.mjs",
+                [],
+        );
+
 	console.log(JSON.stringify({
 		ok: true,
 		dryRun: args.dryRun,
@@ -334,6 +343,33 @@ function main() {
 			venueCount: venueBiasChecked.venueCount ?? venueBiasGenerated?.venueCount ?? null,
 			readiness: venueBiasChecked.readiness ?? venueBiasGenerated?.readiness ?? null,
 		},
+                roughIndex: {
+                        status: "checked",
+                        dateCount:
+                                roughIndexChecked.dateCount ??
+                                roughIndexGenerated?.dateCount ??
+                                null,
+                        raceCount:
+                                roughIndexChecked.raceCount ??
+                                roughIndexGenerated?.raceCount ??
+                                null,
+                        venueCount:
+                                roughIndexChecked.venueCount ??
+                                roughIndexGenerated?.venueCount ??
+                                null,
+                        resultAvailableRaceCount:
+                                roughIndexChecked.resultAvailableRaceCount ??
+                                roughIndexGenerated?.resultAvailableRaceCount ??
+                                null,
+                        payoutAvailableRaceCount:
+                                roughIndexChecked.payoutAvailableRaceCount ??
+                                roughIndexGenerated?.payoutAvailableRaceCount ??
+                                null,
+                        readiness:
+                                roughIndexChecked.readiness ??
+                                roughIndexGenerated?.readiness ??
+                                null,
+                },
 		warnings,
 	}, null, 2));
 }
