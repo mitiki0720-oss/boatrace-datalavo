@@ -72,18 +72,18 @@ const sectionCards: Array<{
 	subtitle: string;
 	status: "ready" | "available" | "pending" | "insufficient-history";
 }> = [
-	{ key: "overview", title: "OVERVIEW", subtitle: "Whole summary", status: "ready" },
-	{ key: "identity", title: "IDENTITY", subtitle: "Racer source", status: "available" },
-	{ key: "data-coverage", title: "DATA COVERAGE", subtitle: "Auto update / source", status: "available" },
-	{ key: "trend-lab", title: "TREND LAB", subtitle: "Roadmap data", status: "pending" },
-	{ key: "trifecta-ranking", title: "Trifecta Ranking", subtitle: "3-ren-tan v1", status: "pending" },
-	{ key: "rough-index", title: "Rough Index", subtitle: "Result return v1", status: "insufficient-history" },
-	{ key: "race-transition", title: "Race Transition", subtitle: "Transition v1", status: "pending" },
-	{ key: "weather", title: "WEATHER", subtitle: "Wind / wave facts", status: "available" },
-	{ key: "venue-bias", title: "Venue Bias", subtitle: "Venue bias v1", status: "available" },
-	{ key: "today-flow", title: "Today Flow", subtitle: "Today flow meter v1", status: "insufficient-history" },
-	{ key: "prediction-structure", title: "Prediction Structure LAB", subtitle: "Coverage map v1", status: "pending" },
-	{ key: "ex-analysis", title: "EX ANALYSIS", subtitle: "Venue / racer matchup", status: "pending" },
+	{ key: "overview", title: "概要", subtitle: "全体サマリー", status: "ready" },
+	{ key: "identity", title: "選手・出走者データ", subtitle: "選手情報", status: "available" },
+	{ key: "data-coverage", title: "データ充足状況", subtitle: "自動更新・出典", status: "available" },
+	{ key: "trend-lab", title: "傾向分析ラボ", subtitle: "計画データ", status: "pending" },
+	{ key: "trifecta-ranking", title: "3連単ランキング", subtitle: "3連単 v1", status: "pending" },
+	{ key: "rough-index", title: "荒れ指数", subtitle: "結果・払戻 v1", status: "insufficient-history" },
+	{ key: "race-transition", title: "レース推移", subtitle: "推移 v1", status: "pending" },
+	{ key: "weather", title: "天候・水面", subtitle: "風・波の事実", status: "available" },
+	{ key: "venue-bias", title: "会場傾向", subtitle: "会場傾向 v1", status: "available" },
+	{ key: "today-flow", title: "当日フロー", subtitle: "当日フロー v1", status: "insufficient-history" },
+	{ key: "prediction-structure", title: "予測構造ラボ", subtitle: "カバレッジマップ v1", status: "pending" },
+	{ key: "ex-analysis", title: "EX分析", subtitle: "会場・選手の照合", status: "pending" },
 ];
 
 const cardGridStyle = {
@@ -229,7 +229,17 @@ function findLatestHistoryFile(manifest: BoatExManifest | null): BoatExManifestF
 }
 
 function statusLabel(status: string | undefined): string {
-	return status || "unknown";
+	const value = status ?? "unknown";
+	const labels: Record<string, string> = {
+		available: "表示可能",
+		ready: "準備完了",
+		pending: "準備中",
+		"insufficient-history": "履歴不足",
+		missing: "なし",
+		error: "エラー",
+		unknown: "不明",
+	};
+	return labels[value] ?? value;
 }
 
 function countLabel(value: number | undefined, total: number): string {
@@ -237,31 +247,31 @@ function countLabel(value: number | undefined, total: number): string {
 }
 
 function numberLabel(value: number | null | undefined, digits = 2): string {
-	if (typeof value !== "number") return "missing";
+	if (typeof value !== "number") return "なし";
 	return value.toFixed(digits).replace(/\.?0+$/u, "");
 }
 
 function yenLabel(value: number | null | undefined): string {
-	if (typeof value !== "number") return "missing";
-	return `${value.toLocaleString("ja-JP")} yen`;
+	if (typeof value !== "number") return "なし";
+	return `${value.toLocaleString("ja-JP")}円`;
 }
 
 function venueReadinessLabel(venue: BoatExVenueEvidenceItem, key: "venueBias" | "roughIndex" | "todayFlow"): string {
-	return venue.derivedReadiness[key]?.status ?? "pending";
+	return statusLabel(venue.derivedReadiness[key]?.status ?? "pending");
 }
 
 function racerReadinessLabel(
 	racer: BoatExRacerEvidenceItem,
 	key: "racerProfile" | "courseChangePattern" | "exhibitionReliability" | "startTimingPattern",
 ): string {
-	return racer.derivedReadiness[key]?.status ?? "pending";
+	return statusLabel(racer.derivedReadiness[key]?.status ?? "pending");
 }
 
 function courseChangeLabel(racer: BoatExRacerEvidenceItem): string {
-	if (racer.courseChangeEvidence.sourceStatus === "missing") return "source missing";
+	if (racer.courseChangeEvidence.sourceStatus === "missing") return "ソースなし";
 	const frameCount = racer.courseChangeEvidence.frameToFinalCourseChangedCount;
 	const exhibitionCount = racer.courseChangeEvidence.exhibitionToFinalCourseChangedCount;
-	return `frame ${frameCount ?? "unknown"} / exhibition ${exhibitionCount ?? "unknown"}`;
+	return `枠番 ${frameCount ?? "不明"} / 展示 ${exhibitionCount ?? "不明"}`;
 }
 
 function hasDerivedFile(manifest: BoatExManifest | null, part: string): boolean {
@@ -273,7 +283,7 @@ function findDateIndexEntry(dateIndex: BoatExDateIndexFile | null, date: string)
 }
 
 function readinessLabel(entry: BoatExDateIndexEntry | undefined, key: keyof BoatExDateIndexEntry["readiness"]): string {
-	return entry?.readiness?.[key] ?? "index missing";
+	return statusLabel(entry?.readiness?.[key] ?? "missing");
 }
 
 function SectionShell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
@@ -292,21 +302,21 @@ function PendingPanel({ status, reason, source }: { status: string; reason: stri
 	return (
 		<section style={twoColumnGridStyle}>
 			<article style={cardStyle}>
-				<p style={labelStyle}>STATUS</p>
-				<p style={valueStyle}>{status}</p>
+				<p style={labelStyle}>状態</p>
+				<p style={valueStyle}>{statusLabel(status)}</p>
 				<p style={textStyle}>{reason}</p>
 			</article>
 			<article style={cardStyle}>
-				<p style={labelStyle}>SOURCE POLICY</p>
-				<p style={valueStyle}>{source ?? "source-backed only"}</p>
-				<p style={textStyle}>No fake score, no inferred ranking, and no high-confidence label is shown in this phase.</p>
+				<p style={labelStyle}>出典ポリシー</p>
+				<p style={valueStyle}>{source ?? "ソースに基づく情報のみ"}</p>
+				<p style={textStyle}>このフェーズでは架空のスコア、推定ランキング、高確度ラベルを表示しません。</p>
 			</article>
 		</section>
 	);
 }
 
 function VenueEvidenceSection({ venueEvidence }: { venueEvidence: BoatExVenueEvidenceFile | null }) {
-	if (!venueEvidence) return <p style={textStyle}>EX venue evidence missing. Static fallback values are not used.</p>;
+	if (!venueEvidence) return <p style={textStyle}>EX会場エビデンスがありません。固定値は使用しません。</p>;
 
 	return (
 		<>
@@ -314,16 +324,16 @@ function VenueEvidenceSection({ venueEvidence }: { venueEvidence: BoatExVenueEvi
 				<table style={tableStyle}>
 					<thead>
 						<tr>
-							<th style={thStyle}>Venue</th>
-							<th style={thStyle}>Races</th>
-							<th style={thStyle}>Result</th>
-							<th style={thStyle}>Exhibition</th>
-							<th style={thStyle}>Weather</th>
-							<th style={thStyle}>Payout</th>
-							<th style={thStyle}>venueBias</th>
-							<th style={thStyle}>roughIndex</th>
-							<th style={thStyle}>todayFlow</th>
-							<th style={thStyle}>warnings</th>
+							<th style={thStyle}>会場</th>
+							<th style={thStyle}>レース数</th>
+							<th style={thStyle}>結果</th>
+							<th style={thStyle}>展示</th>
+							<th style={thStyle}>天候</th>
+							<th style={thStyle}>払戻</th>
+							<th style={thStyle}>会場傾向</th>
+							<th style={thStyle}>荒れ指数</th>
+							<th style={thStyle}>当日フロー</th>
+							<th style={thStyle}>注意事項</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -351,14 +361,14 @@ function VenueEvidenceSection({ venueEvidence }: { venueEvidence: BoatExVenueEvi
 									{statusLabel(venue.coverage.weather)}
 								</td>
 								<td style={tdStyle}>
-									Average {yenLabel(venue.resultEvidence.averageTrifectaPayout)}
+									平均 {yenLabel(venue.resultEvidence.averageTrifectaPayout)}
 									<br />
-									Max {yenLabel(venue.resultEvidence.maxTrifectaPayout)}
+									最大 {yenLabel(venue.resultEvidence.maxTrifectaPayout)}
 								</td>
 								<td style={tdStyle}>{venueReadinessLabel(venue, "venueBias")}</td>
 								<td style={tdStyle}>{venueReadinessLabel(venue, "roughIndex")}</td>
 								<td style={tdStyle}>{venueReadinessLabel(venue, "todayFlow")}</td>
-								<td style={tdStyle}>{venue.warnings.length > 0 ? venue.warnings.join(" / ") : "none"}</td>
+								<td style={tdStyle}>{venue.warnings.length > 0 ? venue.warnings.join(" / ") : "なし"}</td>
 							</tr>
 						))}
 					</tbody>
@@ -369,11 +379,11 @@ function VenueEvidenceSection({ venueEvidence }: { venueEvidence: BoatExVenueEvi
 					<article key={`venue-card-${venue.venueCode}`} style={cardStyle}>
 						<p style={labelStyle}>{venue.venueCode}</p>
 						<p style={valueStyle}>{venue.venueName}</p>
-						<p style={textStyle}>Races: {venue.raceCount}</p>
-						<p style={textStyle}>Result: {countLabel(venue.availability.officialResultCount, venue.raceCount)}</p>
-						<p style={textStyle}>Exhibition: {countLabel(venue.availability.officialExhibitionCount, venue.raceCount)}</p>
-						<p style={textStyle}>Weather: {countLabel(venue.availability.weatherCount, venue.raceCount)}</p>
-						<p style={textStyle}>venueBias: {venueReadinessLabel(venue, "venueBias")}</p>
+						<p style={textStyle}>レース数: {venue.raceCount}</p>
+						<p style={textStyle}>結果: {countLabel(venue.availability.officialResultCount, venue.raceCount)}</p>
+						<p style={textStyle}>展示: {countLabel(venue.availability.officialExhibitionCount, venue.raceCount)}</p>
+						<p style={textStyle}>天候: {countLabel(venue.availability.weatherCount, venue.raceCount)}</p>
+						<p style={textStyle}>会場傾向: {venueReadinessLabel(venue, "venueBias")}</p>
 					</article>
 				))}
 			</section>
@@ -382,7 +392,7 @@ function VenueEvidenceSection({ venueEvidence }: { venueEvidence: BoatExVenueEvi
 }
 
 function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvidenceFile | null }) {
-	if (!racerEvidence) return <p style={textStyle}>EX racer evidence missing. Static fallback values are not used.</p>;
+	if (!racerEvidence) return <p style={textStyle}>EX選手エビデンスがありません。固定値は使用しません。</p>;
 	const topRacers = racerEvidence.racers.slice(0, 50);
 
 	return (
@@ -391,18 +401,18 @@ function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvi
 				<table style={{ ...tableStyle, minWidth: "1460px" }}>
 					<thead>
 						<tr>
-							<th style={thStyle}>Racer</th>
-							<th style={thStyle}>Reg no.</th>
-							<th style={thStyle}>Branch</th>
-							<th style={thStyle}>Class</th>
-							<th style={thStyle}>Starts</th>
-							<th style={thStyle}>Avg ST</th>
-							<th style={thStyle}>Avg exhibition</th>
-							<th style={thStyle}>Course change</th>
-							<th style={thStyle}>Result evidence</th>
-							<th style={thStyle}>racerProfile</th>
-							<th style={thStyle}>courseChange</th>
-							<th style={thStyle}>warnings</th>
+							<th style={thStyle}>選手</th>
+							<th style={thStyle}>登録番号</th>
+							<th style={thStyle}>支部</th>
+							<th style={thStyle}>級別</th>
+							<th style={thStyle}>出走数</th>
+							<th style={thStyle}>平均ST</th>
+							<th style={thStyle}>平均展示タイム</th>
+							<th style={thStyle}>進入変更</th>
+							<th style={thStyle}>結果エビデンス</th>
+							<th style={thStyle}>選手プロファイル</th>
+							<th style={thStyle}>進入変更</th>
+							<th style={thStyle}>注意事項</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -411,23 +421,23 @@ function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvi
 								<td style={tdStyle}>
 									<strong>{racer.racerName}</strong>
 									<br />
-									<span>{racer.identityStatus}</span>
+									<span>{statusLabel(racer.identityStatus)}</span>
 								</td>
-								<td style={tdStyle}>{racer.registrationNumber ?? "missing"}</td>
-								<td style={tdStyle}>{racer.branch ?? "missing"}</td>
-								<td style={tdStyle}>{racer.className ?? "missing"}</td>
+								<td style={tdStyle}>{racer.registrationNumber ?? "なし"}</td>
+								<td style={tdStyle}>{racer.branch ?? "なし"}</td>
+								<td style={tdStyle}>{racer.className ?? "なし"}</td>
 								<td style={tdStyle}>{racer.appearanceCount}</td>
 								<td style={tdStyle}>{numberLabel(racer.startEvidence.averageST, 3)}</td>
 								<td style={tdStyle}>{numberLabel(racer.exhibitionEvidence.averageExhibitionTime, 2)}</td>
 								<td style={tdStyle}>{courseChangeLabel(racer)}</td>
 								<td style={tdStyle}>
-									Results {racer.resultEvidence.availableCount}
+									結果 {racer.resultEvidence.availableCount}
 									<br />
-									Win {racer.resultEvidence.winCount} / Top3 {racer.resultEvidence.top3Count}
+									1着 {racer.resultEvidence.winCount} / 3着内 {racer.resultEvidence.top3Count}
 								</td>
 								<td style={tdStyle}>{racerReadinessLabel(racer, "racerProfile")}</td>
 								<td style={tdStyle}>{racerReadinessLabel(racer, "courseChangePattern")}</td>
-								<td style={tdStyle}>{racer.warnings.length > 0 ? racer.warnings.join(" / ") : "none"}</td>
+								<td style={tdStyle}>{racer.warnings.length > 0 ? racer.warnings.join(" / ") : "なし"}</td>
 							</tr>
 						))}
 					</tbody>
@@ -436,16 +446,16 @@ function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvi
 			<section style={{ ...cardGridStyle, gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))" }}>
 				{topRacers.map((racer) => (
 					<article key={`racer-card-${racer.racerKey}`} style={cardStyle}>
-						<p style={labelStyle}>{racer.registrationNumber ?? racer.identityStatus}</p>
+						<p style={labelStyle}>{racer.registrationNumber ?? statusLabel(racer.identityStatus)}</p>
 						<p style={valueStyle}>{racer.racerName}</p>
-						<p style={textStyle}>Branch / class: {racer.branch ?? "missing"} / {racer.className ?? "missing"}</p>
-						<p style={textStyle}>Starts: {racer.appearanceCount}</p>
-						<p style={textStyle}>Average ST: {numberLabel(racer.startEvidence.averageST, 3)}</p>
-						<p style={textStyle}>Average exhibition: {numberLabel(racer.exhibitionEvidence.averageExhibitionTime, 2)}</p>
-						<p style={textStyle}>Course change: {courseChangeLabel(racer)}</p>
-						<p style={textStyle}>racerProfile: {racerReadinessLabel(racer, "racerProfile")}</p>
-						<p style={textStyle}>courseChangePattern: {racerReadinessLabel(racer, "courseChangePattern")}</p>
-						<p style={textStyle}>exhibitionReliability: {racerReadinessLabel(racer, "exhibitionReliability")}</p>
+						<p style={textStyle}>支部 / 級別: {racer.branch ?? "なし"} / {racer.className ?? "なし"}</p>
+						<p style={textStyle}>出走数: {racer.appearanceCount}</p>
+						<p style={textStyle}>平均ST: {numberLabel(racer.startEvidence.averageST, 3)}</p>
+						<p style={textStyle}>平均展示タイム: {numberLabel(racer.exhibitionEvidence.averageExhibitionTime, 2)}</p>
+						<p style={textStyle}>進入変更: {courseChangeLabel(racer)}</p>
+						<p style={textStyle}>選手プロファイル: {racerReadinessLabel(racer, "racerProfile")}</p>
+						<p style={textStyle}>進入変更傾向: {racerReadinessLabel(racer, "courseChangePattern")}</p>
+						<p style={textStyle}>展示信頼性: {racerReadinessLabel(racer, "exhibitionReliability")}</p>
 					</article>
 				))}
 			</section>
@@ -454,20 +464,20 @@ function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvi
 }
 
 function WeatherSection({ venueEvidence }: { venueEvidence: BoatExVenueEvidenceFile | null }) {
-	if (!venueEvidence) return <p style={textStyle}>Weather evidence missing. Static fallback values are not used.</p>;
+	if (!venueEvidence) return <p style={textStyle}>天候エビデンスがありません。固定値は使用しません。</p>;
 
 	return (
 		<div style={tableWrapStyle}>
 			<table style={{ ...tableStyle, minWidth: "1180px" }}>
 				<thead>
 					<tr>
-						<th style={thStyle}>Venue</th>
-						<th style={thStyle}>Weather count</th>
-						<th style={thStyle}>Wind avg</th>
-						<th style={thStyle}>Wind max</th>
-						<th style={thStyle}>Wave avg</th>
-						<th style={thStyle}>Wave max</th>
-						<th style={thStyle}>Status</th>
+						<th style={thStyle}>会場</th>
+						<th style={thStyle}>天候件数</th>
+						<th style={thStyle}>平均風速</th>
+						<th style={thStyle}>最大風速</th>
+						<th style={thStyle}>平均波高</th>
+						<th style={thStyle}>最大波高</th>
+						<th style={thStyle}>状態</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -495,34 +505,34 @@ function boatNumberCountLabel(counts: Record<"1" | "2" | "3" | "4" | "5" | "6", 
 function boatNumberRateLabel(rates: Record<"1" | "2" | "3" | "4" | "5" | "6", number | null>): string {
 	return ["1", "2", "3", "4", "5", "6"].map((boatNumber) => {
 		const rate = rates[boatNumber as keyof typeof rates];
-		return `${boatNumber}:${rate === null ? "n/a" : `${numberLabel(rate * 100, 1)}%`}`;
+		return `${boatNumber}:${rate === null ? "該当なし" : `${numberLabel(rate * 100, 1)}%`}`;
 	}).join(" / ");
 }
 
 function VenueBiasSection({ venueBias }: { venueBias: BoatExVenueBiasV1File | null }) {
-	if (!venueBias) return <p style={textStyle}>Venue bias evidence missing. Static fallback values are not used.</p>;
+	if (!venueBias) return <p style={textStyle}>会場傾向エビデンスがありません。固定値は使用しません。</p>;
 
 	return (
 		<>
 			<section style={metricGridStyle}>
 				<article style={cardStyle}>
-					<p style={labelStyle}>STATUS</p>
-					<p style={metricValueStyle}>{venueBias.status}</p>
-					<p style={textStyle}>Source-backed venue bias data.</p>
+					<p style={labelStyle}>状態</p>
+					<p style={metricValueStyle}>{statusLabel(venueBias.status)}</p>
+					<p style={textStyle}>ソースに基づく会場傾向データです。</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>DATE RANGE</p>
-					<p style={valueStyle}>{venueBias.dateRange.from} to {venueBias.dateRange.to}</p>
-					<p style={textStyle}>{venueBias.dateRange.dateCount} available dates.</p>
+					<p style={labelStyle}>対象期間</p>
+					<p style={valueStyle}>{venueBias.dateRange.from} から {venueBias.dateRange.to}</p>
+					<p style={textStyle}>利用可能な日付: {venueBias.dateRange.dateCount}日</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>RACES / VENUES</p>
+					<p style={labelStyle}>レース数 / 会場数</p>
 					<p style={metricValueStyle}>{venueBias.summary.raceCount} / {venueBias.summary.venueCount}</p>
-					<p style={textStyle}>All history records and distinct venue IDs in the selected date range.</p>
+					<p style={textStyle}>対象期間内の全履歴レコードと重複しない会場IDです。</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>READINESS</p>
-					<p style={metricValueStyle}>{venueBias.readiness.status}</p>
+					<p style={labelStyle}>準備状況</p>
+					<p style={metricValueStyle}>{statusLabel(venueBias.readiness.status)}</p>
 					<p style={textStyle}>{venueBias.readiness.reason}</p>
 				</article>
 			</section>
@@ -530,16 +540,16 @@ function VenueBiasSection({ venueBias }: { venueBias: BoatExVenueBiasV1File | nu
 				<table style={{ ...tableStyle, minWidth: "1480px" }}>
 					<thead>
 						<tr>
-							<th style={thStyle}>Venue</th>
-							<th style={thStyle}>Dates</th>
-							<th style={thStyle}>Races</th>
-							<th style={thStyle}>Result</th>
-							<th style={thStyle}>Exhibition</th>
-							<th style={thStyle}>1st boat counts</th>
-							<th style={thStyle}>1st boat rates</th>
-							<th style={thStyle}>Top 3 boat counts</th>
-							<th style={thStyle}>Top 3 boat rates</th>
-							<th style={thStyle}>Readiness</th>
+							<th style={thStyle}>会場</th>
+							<th style={thStyle}>日数</th>
+							<th style={thStyle}>レース数</th>
+							<th style={thStyle}>結果</th>
+							<th style={thStyle}>展示</th>
+							<th style={thStyle}>1着艇番件数</th>
+							<th style={thStyle}>1着艇番比率</th>
+							<th style={thStyle}>3着内艇番件数</th>
+							<th style={thStyle}>3着内艇番比率</th>
+							<th style={thStyle}>準備状況</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -554,7 +564,7 @@ function VenueBiasSection({ venueBias }: { venueBias: BoatExVenueBiasV1File | nu
 								<td style={tdStyle}>{boatNumberRateLabel(venue.firstPlaceBoatNumberRates)}</td>
 								<td style={tdStyle}>{boatNumberCountLabel(venue.top3BoatNumberCounts)}</td>
 								<td style={tdStyle}>{boatNumberRateLabel(venue.top3BoatNumberRates)}</td>
-								<td style={tdStyle}>{venue.readiness.status}</td>
+								<td style={tdStyle}>{statusLabel(venue.readiness.status)}</td>
 							</tr>
 						))}
 					</tbody>
@@ -565,40 +575,40 @@ function VenueBiasSection({ venueBias }: { venueBias: BoatExVenueBiasV1File | nu
 }
 
 function RoughIndexSection({ roughIndex }: { roughIndex: BoatExRoughIndexV1File | null }) {
-	if (!roughIndex) return <p style={textStyle}>Rough index evidence missing. Static fallback values are not used.</p>;
+	if (!roughIndex) return <p style={textStyle}>荒れ指数エビデンスがありません。固定値は使用しません。</p>;
 
 	return (
 		<>
 			<section style={metricGridStyle}>
 				<article style={cardStyle}>
-					<p style={labelStyle}>STATUS</p>
-					<p style={metricValueStyle}>{roughIndex.status}</p>
-					<p style={textStyle}>Source-backed rough index file status.</p>
+					<p style={labelStyle}>状態</p>
+					<p style={metricValueStyle}>{statusLabel(roughIndex.status)}</p>
+					<p style={textStyle}>履歴・結果・払戻に基づく荒れ指数ファイルの状態です。</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>READINESS</p>
-					<p style={metricValueStyle}>{roughIndex.readiness.status}</p>
+					<p style={labelStyle}>準備状況</p>
+					<p style={metricValueStyle}>{statusLabel(roughIndex.readiness.status)}</p>
 					<p style={textStyle}>{roughIndex.readiness.reason}</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>DATE RANGE</p>
-					<p style={valueStyle}>{roughIndex.dateRange.from} to {roughIndex.dateRange.to}</p>
-					<p style={textStyle}>{roughIndex.dateRange.dateCount} source-backed dates.</p>
+					<p style={labelStyle}>対象期間</p>
+					<p style={valueStyle}>{roughIndex.dateRange.from} から {roughIndex.dateRange.to}</p>
+					<p style={textStyle}>ソースに基づく日付: {roughIndex.dateRange.dateCount}日</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>RACES / VENUES</p>
+					<p style={labelStyle}>レース数 / 会場数</p>
 					<p style={metricValueStyle}>{roughIndex.summary.raceCount} / {roughIndex.summary.venueCount}</p>
-					<p style={textStyle}>History races and distinct venues.</p>
+					<p style={textStyle}>履歴レース数と重複しない会場数です。</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>PAYOUT COVERAGE</p>
+					<p style={labelStyle}>払戻充足数</p>
 					<p style={metricValueStyle}>{roughIndex.summary.payoutAvailableRaceCount}</p>
-					<p style={textStyle}>Minimum required: {roughIndex.thresholds.minPayoutRaceCount} races.</p>
+					<p style={textStyle}>必要最小件数: {roughIndex.thresholds.minPayoutRaceCount}レース</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>HIGH PAYOUT THRESHOLD</p>
+					<p style={labelStyle}>高額払戻しの基準</p>
 					<p style={metricValueStyle}>{yenLabel(roughIndex.thresholds.trifectaHighPayoutThreshold)}</p>
-					<p style={textStyle}>No rate or rough score is emitted without payout evidence.</p>
+					<p style={textStyle}>払戻エビデンスがないため、比率・荒れ指数は出力しません。</p>
 				</article>
 			</section>
 
@@ -606,14 +616,14 @@ function RoughIndexSection({ roughIndex }: { roughIndex: BoatExRoughIndexV1File 
 				<table style={{ ...tableStyle, minWidth: "1320px" }}>
 					<thead>
 						<tr>
-							<th style={thStyle}>Venue</th>
-							<th style={thStyle}>Dates</th>
-							<th style={thStyle}>Races</th>
-							<th style={thStyle}>Results</th>
-							<th style={thStyle}>Payouts</th>
-							<th style={thStyle}>Trifecta</th>
-							<th style={thStyle}>Over threshold</th>
-							<th style={thStyle}>Readiness</th>
+							<th style={thStyle}>会場</th>
+							<th style={thStyle}>日数</th>
+							<th style={thStyle}>レース数</th>
+							<th style={thStyle}>結果</th>
+							<th style={thStyle}>払戻</th>
+							<th style={thStyle}>3連単</th>
+							<th style={thStyle}>基準超過</th>
+							<th style={thStyle}>準備状況</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -627,7 +637,7 @@ function RoughIndexSection({ roughIndex }: { roughIndex: BoatExRoughIndexV1File 
 								<td style={tdStyle}>{venue.trifectaAvailableRaceCount}</td>
 								<td style={tdStyle}>{venue.trifectaOver10000RaceCount}</td>
 								<td style={tdStyle}>
-									{venue.readiness.status}
+									{statusLabel(venue.readiness.status)}
 									<br />
 									<span>{venue.readiness.reason}</span>
 								</td>
@@ -639,7 +649,7 @@ function RoughIndexSection({ roughIndex }: { roughIndex: BoatExRoughIndexV1File 
 
 			{roughIndex.warnings.length > 0 ? (
 				<section style={cardStyle}>
-					<p style={labelStyle}>WARNINGS</p>
+					<p style={labelStyle}>注意事項</p>
 					<ul style={noteListStyle}>
 						{roughIndex.warnings.map((warning) => (
 							<li key={warning}>{warning}</li>
@@ -652,40 +662,40 @@ function RoughIndexSection({ roughIndex }: { roughIndex: BoatExRoughIndexV1File 
 }
 
 function TodayFlowSection({ todayFlow }: { todayFlow: BoatExTodayFlowV1File | null }) {
-	if (!todayFlow) return <p style={textStyle}>Today flow evidence missing. Static fallback values are not used.</p>;
+	if (!todayFlow) return <p style={textStyle}>当日フローエビデンスがありません。固定値は使用しません。</p>;
 
 	return (
 		<>
 			<section style={metricGridStyle}>
 				<article style={cardStyle}>
-					<p style={labelStyle}>STATUS</p>
-					<p style={metricValueStyle}>{todayFlow.status}</p>
-					<p style={textStyle}>Source-backed same-day flow file status.</p>
+					<p style={labelStyle}>状態</p>
+					<p style={metricValueStyle}>{statusLabel(todayFlow.status)}</p>
+					<p style={textStyle}>ソースに基づく当日フローファイルの状態です。</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>READINESS</p>
-					<p style={metricValueStyle}>{todayFlow.readiness.status}</p>
+					<p style={labelStyle}>準備状況</p>
+					<p style={metricValueStyle}>{statusLabel(todayFlow.readiness.status)}</p>
 					<p style={textStyle}>{todayFlow.readiness.reason}</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>TARGET DATE</p>
-					<p style={valueStyle}>{todayFlow.targetDate ?? "missing"}</p>
-					<p style={textStyle}>{todayFlow.dateRange?.dateCount ?? 0} source-backed date.</p>
+					<p style={labelStyle}>対象日</p>
+					<p style={valueStyle}>{todayFlow.targetDate ?? "なし"}</p>
+					<p style={textStyle}>ソースに基づく日付: {todayFlow.dateRange?.dateCount ?? 0}日</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>RACES / VENUES</p>
+					<p style={labelStyle}>レース数 / 会場数</p>
 					<p style={metricValueStyle}>{todayFlow.summary.raceCount} / {todayFlow.summary.venueCount}</p>
-					<p style={textStyle}>Target-date race records and venues.</p>
+					<p style={textStyle}>対象日のレースレコードと会場数です。</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>RESULT COVERAGE</p>
+					<p style={labelStyle}>結果充足数</p>
 					<p style={metricValueStyle}>{todayFlow.summary.resultAvailableRaceCount}</p>
-					<p style={textStyle}>{todayFlow.summary.trifectaAvailableRaceCount} trifecta results.</p>
+					<p style={textStyle}>3連単結果: {todayFlow.summary.trifectaAvailableRaceCount}件</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>PAYOUT COVERAGE</p>
+					<p style={labelStyle}>払戻充足数</p>
 					<p style={metricValueStyle}>{todayFlow.summary.payoutAvailableRaceCount}</p>
-					<p style={textStyle}>High payouts are shown only when source-backed.</p>
+					<p style={textStyle}>高額払戻しはソースで確認できる場合のみ表示します。</p>
 				</article>
 			</section>
 
@@ -693,16 +703,16 @@ function TodayFlowSection({ todayFlow }: { todayFlow: BoatExTodayFlowV1File | nu
 				<table style={{ ...tableStyle, minWidth: "1480px" }}>
 					<thead>
 						<tr>
-							<th style={thStyle}>Venue</th>
-							<th style={thStyle}>Races</th>
-							<th style={thStyle}>Results</th>
-							<th style={thStyle}>1st boat sequence</th>
-							<th style={thStyle}>Recent 1st boats</th>
-							<th style={thStyle}>Inside wins</th>
-							<th style={thStyle}>Outside wins</th>
-							<th style={thStyle}>Payout races</th>
-							<th style={thStyle}>High payout races</th>
-							<th style={thStyle}>Notes</th>
+							<th style={thStyle}>会場</th>
+							<th style={thStyle}>レース数</th>
+							<th style={thStyle}>結果</th>
+							<th style={thStyle}>1着艇番推移</th>
+							<th style={thStyle}>直近の1着艇番</th>
+							<th style={thStyle}>イン勝ち</th>
+							<th style={thStyle}>アウト勝ち</th>
+							<th style={thStyle}>払戻レース</th>
+							<th style={thStyle}>高額払戻レース</th>
+							<th style={thStyle}>補足</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -711,8 +721,8 @@ function TodayFlowSection({ todayFlow }: { todayFlow: BoatExTodayFlowV1File | nu
 								<td style={tdStyle}>{venue.venueName} ({venue.venueCode})</td>
 								<td style={tdStyle}>{venue.raceCount}</td>
 								<td style={tdStyle}>{venue.resultAvailableRaceCount}</td>
-								<td style={tdStyle}>{venue.firstPlaceBoatSequence.map((race) => `R${race.raceNo}:${race.firstPlaceBoat ?? "-"}`).join(" / ")}</td>
-								<td style={tdStyle}>{venue.recentFirstPlaceBoats.join(" / ") || "missing"}</td>
+								<td style={tdStyle}>{venue.firstPlaceBoatSequence.map((race) => `第${race.raceNo}R:${race.firstPlaceBoat ?? "-"}`).join(" / ")}</td>
+								<td style={tdStyle}>{venue.recentFirstPlaceBoats.join(" / ") || "なし"}</td>
 								<td style={tdStyle}>{venue.insideWinCount}</td>
 								<td style={tdStyle}>{venue.outsideWinCount}</td>
 								<td style={tdStyle}>{venue.payoutAvailableRaceCount}</td>
@@ -726,7 +736,7 @@ function TodayFlowSection({ todayFlow }: { todayFlow: BoatExTodayFlowV1File | nu
 
 			{todayFlow.warnings.length > 0 ? (
 				<section style={cardStyle}>
-					<p style={labelStyle}>WARNINGS</p>
+					<p style={labelStyle}>注意事項</p>
 					<ul style={noteListStyle}>
 						{todayFlow.warnings.map((warning) => <li key={warning}>{warning}</li>)}
 					</ul>
@@ -737,47 +747,47 @@ function TodayFlowSection({ todayFlow }: { todayFlow: BoatExTodayFlowV1File | nu
 }
 
 function PredictionStructureSection({ predictionStructure }: { predictionStructure: BoatExPredictionStructureV1File | null }) {
-	if (!predictionStructure) return <p style={textStyle}>Prediction structure evidence missing. Static fallback values are not used.</p>;
+	if (!predictionStructure) return <p style={textStyle}>予測構造エビデンスがありません。固定値は使用しません。</p>;
 
 	return (
 		<>
 			<section style={metricGridStyle}>
 				<article style={cardStyle}>
-					<p style={labelStyle}>STATUS</p>
-					<p style={metricValueStyle}>{predictionStructure.status}</p>
-					<p style={textStyle}>Source-backed coverage map status.</p>
+					<p style={labelStyle}>状態</p>
+					<p style={metricValueStyle}>{statusLabel(predictionStructure.status)}</p>
+					<p style={textStyle}>ソースに基づくカバレッジマップの状態です。</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>READINESS</p>
-					<p style={metricValueStyle}>{predictionStructure.readiness.status}</p>
+					<p style={labelStyle}>準備状況</p>
+					<p style={metricValueStyle}>{statusLabel(predictionStructure.readiness.status)}</p>
 					<p style={textStyle}>{predictionStructure.readiness.reason}</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>TARGET DATE</p>
+					<p style={labelStyle}>対象日</p>
 					<p style={valueStyle}>{predictionStructure.targetDate}</p>
-					<p style={textStyle}>{predictionStructure.dateRange.dateCount} source-backed date.</p>
+					<p style={textStyle}>ソースに基づく日付: {predictionStructure.dateRange.dateCount}日</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>RACES / VENUES</p>
+					<p style={labelStyle}>レース数 / 会場数</p>
 					<p style={metricValueStyle}>{predictionStructure.summary.raceCount} / {predictionStructure.summary.venueCount}</p>
-					<p style={textStyle}>Target-date coverage only.</p>
+					<p style={textStyle}>対象日のカバレッジのみを表示します。</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>RESULT / EXHIBITION</p>
+					<p style={labelStyle}>結果 / 展示</p>
 					<p style={metricValueStyle}>{predictionStructure.summary.resultAvailableRaceCount} / {predictionStructure.summary.exhibitionAvailableRaceCount}</p>
-					<p style={textStyle}>Result and exhibition coverage counts.</p>
+					<p style={textStyle}>結果・展示のカバレッジ件数です。</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>WEATHER / RACER</p>
+					<p style={labelStyle}>天候 / 選手</p>
 					<p style={metricValueStyle}>{predictionStructure.summary.weatherAvailableRaceCount} / {predictionStructure.summary.racerAvailableRaceCount}</p>
-					<p style={textStyle}>Weather and racer coverage counts.</p>
+					<p style={textStyle}>天候・選手のカバレッジ件数です。</p>
 				</article>
 			</section>
 
 			<div style={tableWrapStyle}>
 				<table style={{ ...tableStyle, minWidth: "1360px" }}>
 					<thead><tr>
-						<th style={thStyle}>Venue</th><th style={thStyle}>Races</th><th style={thStyle}>Official</th><th style={thStyle}>Result</th><th style={thStyle}>Exhibition</th><th style={thStyle}>Weather</th><th style={thStyle}>Motor</th><th style={thStyle}>Boat</th><th style={thStyle}>Racer</th><th style={thStyle}>Warnings</th>
+						<th style={thStyle}>会場</th><th style={thStyle}>レース数</th><th style={thStyle}>公式</th><th style={thStyle}>結果</th><th style={thStyle}>展示</th><th style={thStyle}>天候</th><th style={thStyle}>モーター</th><th style={thStyle}>ボート</th><th style={thStyle}>選手</th><th style={thStyle}>注意事項</th>
 					</tr></thead>
 					<tbody>{predictionStructure.venues.map((venue) => (
 						<tr key={venue.venueCode}>
@@ -787,7 +797,7 @@ function PredictionStructureSection({ predictionStructure }: { predictionStructu
 				</table>
 			</div>
 
-			{predictionStructure.warnings.length > 0 ? <section style={cardStyle}><p style={labelStyle}>WARNINGS</p><ul style={noteListStyle}>{predictionStructure.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></section> : null}
+			{predictionStructure.warnings.length > 0 ? <section style={cardStyle}><p style={labelStyle}>注意事項</p><ul style={noteListStyle}>{predictionStructure.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></section> : null}
 		</>
 	);
 }
@@ -805,7 +815,7 @@ export function BoatExPage() {
 		roughIndex: null,
 		todayFlow: null,
 		predictionStructure: null,
-		message: "Checking EX evidence.",
+		message: "EXエビデンスを確認しています。",
 	});
 
 	useEffect(() => {
@@ -877,7 +887,7 @@ export function BoatExPage() {
 					roughIndex,
 					todayFlow,
 					predictionStructure,
-						message: indexMissing ? "EX date index missing. Using manifest latest date." : "EX section navigation is ready.",
+						message: indexMissing ? "EX日付indexがありません。manifestの最新日付を使用します。" : "EXセクションを表示できます。",
 					});
 				}
 			} catch {
@@ -893,7 +903,7 @@ export function BoatExPage() {
 					roughIndex: null,
 					todayFlow: null,
 					predictionStructure: null,
-						message: "EX evidence missing.",
+						message: "EXエビデンスがありません。",
 					});
 				}
 			}
@@ -913,15 +923,15 @@ export function BoatExPage() {
 	const roughIndex = loadState.roughIndex;
 	const todayFlow = loadState.todayFlow;
 	const predictionStructure = loadState.predictionStructure;
-	const latestDate = loadState.dateIndex?.latestDate ?? venueEvidence?.date ?? racerEvidence?.date ?? latestHistory?.date ?? "missing";
+	const latestDate = loadState.dateIndex?.latestDate ?? venueEvidence?.date ?? racerEvidence?.date ?? latestHistory?.date ?? "なし";
 	const dateIndexEntry = findDateIndexEntry(loadState.dateIndex, latestDate);
-	const availableDateCount = loadState.dateIndex?.summary.dateCount ?? "index missing";
-	const availableDates = loadState.dateIndex?.availableDates.join(", ") || "index missing";
-	const records = venueEvidence?.summary.recordCount ?? "missing";
-	const venues = venueEvidence?.summary.venueCount ?? "missing";
-	const historyDays = venueEvidence?.summary.historyDays ?? racerEvidence?.summary.historyDays ?? "missing";
+	const availableDateCount = loadState.dateIndex?.summary.dateCount ?? "日付indexなし";
+	const availableDates = loadState.dateIndex?.availableDates.join(", ") || "日付indexなし";
+	const records = venueEvidence?.summary.recordCount ?? "なし";
+	const venues = venueEvidence?.summary.venueCount ?? "なし";
+	const historyDays = venueEvidence?.summary.historyDays ?? racerEvidence?.summary.historyDays ?? "なし";
 	const analysisStatus = venueEvidence?.summary.analysisStatus ?? racerEvidence?.summary.analysisStatus ?? "pending";
-	const derivedManifestFiles = loadState.derivedManifest?.files?.length ?? "missing";
+	const derivedManifestFiles = loadState.derivedManifest?.files?.length ?? "なし";
 	const venueEvidenceAvailable = hasDerivedFile(loadState.derivedManifest, "/venue-evidence/");
 	const racerEvidenceAvailable = hasDerivedFile(loadState.derivedManifest, "/racer-evidence/");
 	const venueBiasAvailable = hasDerivedFile(loadState.derivedManifest, "/venue-bias/");
@@ -933,98 +943,98 @@ export function BoatExPage() {
 		switch (activeSection) {
 			case "overview":
 				return (
-					<SectionShell title="Overview" subtitle="Whole summary">
+					<SectionShell title="概要" subtitle="全体サマリー">
 						<section style={metricGridStyle}>
 							<article style={cardStyle}>
-								<p style={labelStyle}>LATEST DATE</p>
+								<p style={labelStyle}>最新日付</p>
 								<p style={metricValueStyle}>{latestDate}</p>
-								<p style={textStyle}>Latest date from the Phase 6A date index, with manifest fallback.</p>
+								<p style={textStyle}>Phase 6Aの日付indexを優先し、ない場合はmanifestの最新日付を使用します。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>AVAILABLE DATES</p>
+								<p style={labelStyle}>利用可能日数</p>
 								<p style={metricValueStyle}>{availableDateCount}</p>
 								<p style={textStyle}>{availableDates}</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>RECORDS</p>
+								<p style={labelStyle}>履歴レコード</p>
 								<p style={metricValueStyle}>{records}</p>
-								<p style={textStyle}>History race records used by derived evidence.</p>
+								<p style={textStyle}>派生エビデンスに使用する履歴レースレコードです。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>VENUES</p>
+								<p style={labelStyle}>会場数</p>
 								<p style={metricValueStyle}>{venues}</p>
-								<p style={textStyle}>Venue evidence count.</p>
+								<p style={textStyle}>会場エビデンスの件数です。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>RACERS</p>
-								<p style={metricValueStyle}>{racerEvidence?.summary.racerCount ?? "missing"}</p>
-								<p style={textStyle}>Racer evidence count.</p>
+								<p style={labelStyle}>選手数</p>
+								<p style={metricValueStyle}>{racerEvidence?.summary.racerCount ?? "なし"}</p>
+								<p style={textStyle}>選手エビデンスの件数です。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>APPEARANCES</p>
-								<p style={metricValueStyle}>{racerEvidence?.summary.appearanceCount ?? "missing"}</p>
-								<p style={textStyle}>Source-backed racer appearances.</p>
+								<p style={labelStyle}>出走回数</p>
+								<p style={metricValueStyle}>{racerEvidence?.summary.appearanceCount ?? "なし"}</p>
+								<p style={textStyle}>ソースに基づく選手の出走回数です。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>DERIVED FILES</p>
+								<p style={labelStyle}>派生ファイル</p>
 								<p style={metricValueStyle}>{derivedManifestFiles}</p>
-								<p style={textStyle}>Derived manifest entries.</p>
+								<p style={textStyle}>派生manifestのエントリー数です。</p>
 							</article>
 						</section>
 						<section style={cardGridStyle}>
 							<article style={cardStyle}>
-								<p style={labelStyle}>SAFETY NOTE</p>
+								<p style={labelStyle}>注意事項</p>
 								<ul style={noteListStyle}>
-									<li>Source-backed evidence only.</li>
-									<li>No fake completion, no fake score, and no inferred ranking.</li>
-									<li>Venue bias readiness: {venueBias?.readiness.status ?? analysisStatus}.</li>
+									<li>ソースに基づくエビデンスのみを表示します。</li>
+									<li>架空の完了状態、スコア、推定ランキングは表示しません。</li>
+									<li>会場傾向の準備状況: {statusLabel(venueBias?.readiness.status ?? analysisStatus)}。</li>
 								</ul>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>PHASE 6A READINESS</p>
+								<p style={labelStyle}>Phase 6A 準備状況</p>
 								<ul style={noteListStyle}>
-									<li>Multi-day analysis: {readinessLabel(dateIndexEntry, "multiDayAnalysis")}</li>
-									<li>Venue bias scoring: {readinessLabel(dateIndexEntry, "venueBias")}</li>
-									<li>Racer profile scoring: {readinessLabel(dateIndexEntry, "racerProfile")}</li>
-									<li>Prediction signals: {readinessLabel(dateIndexEntry, "predictionSignals")}</li>
+									<li>複数日分析: {readinessLabel(dateIndexEntry, "multiDayAnalysis")}</li>
+									<li>会場傾向: {readinessLabel(dateIndexEntry, "venueBias")}</li>
+									<li>選手プロファイル: {readinessLabel(dateIndexEntry, "racerProfile")}</li>
+									<li>予測シグナル: {readinessLabel(dateIndexEntry, "predictionSignals")}</li>
 								</ul>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>DAILY PIPELINE</p>
-								<p style={valueStyle}>manual runner ready</p>
+								<p style={labelStyle}>日次パイプライン</p>
+								<p style={valueStyle}>手動実行可能</p>
 								<ul style={noteListStyle}>
-									<li>date index: {loadState.dateIndex ? "available" : "EX date index missing"}</li>
-									<li>latestDate: {latestDate}</li>
-									<li>dateCount: {availableDateCount}</li>
-									<li>next: workflow integration pending</li>
+									<li>日付index: {loadState.dateIndex ? "表示可能" : "EX日付indexなし"}</li>
+									<li>最新日付: {latestDate}</li>
+									<li>日数: {availableDateCount}</li>
+									<li>次の工程: workflow統合は準備中</li>
 								</ul>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>PC DASHBOARD</p>
-								<p style={valueStyle}>desktop-first layout</p>
-								<p style={textStyle}>Cards, tables, and section content use wider grid tracks so the EX page reads as a dense desktop analysis dashboard.</p>
+								<p style={labelStyle}>PCダッシュボード</p>
+								<p style={valueStyle}>デスクトップ優先レイアウト</p>
+								<p style={textStyle}>カード、表、セクションは広めのグリッドで表示し、EXページを高密度な分析ダッシュボードとして構成しています。</p>
 							</article>
 						</section>
 					</SectionShell>
 				);
 			case "identity":
 				return (
-					<SectionShell title="Identity" subtitle="Racer source">
+					<SectionShell title="選手・出走者データ" subtitle="選手情報">
 						<section style={metricGridStyle}>
 							<article style={cardStyle}>
-								<p style={labelStyle}>RACERS</p>
-								<p style={metricValueStyle}>{racerEvidence?.summary.racerCount ?? "missing"}</p>
-								<p style={textStyle}>Registration numbers are used as primary keys when present.</p>
+								<p style={labelStyle}>選手数</p>
+								<p style={metricValueStyle}>{racerEvidence?.summary.racerCount ?? "なし"}</p>
+								<p style={textStyle}>登録番号がある場合は主キーとして使用します。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>APPEARANCES</p>
-								<p style={metricValueStyle}>{racerEvidence?.summary.appearanceCount ?? "missing"}</p>
-								<p style={textStyle}>Racer-profile, ST, and exhibition labels remain insufficient-history.</p>
+								<p style={labelStyle}>出走回数</p>
+								<p style={metricValueStyle}>{racerEvidence?.summary.appearanceCount ?? "なし"}</p>
+								<p style={textStyle}>選手プロファイル、ST、展示のラベルは履歴不足のままです。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>COURSE CHANGE</p>
-								<p style={metricValueStyle}>source-backed</p>
-								<p style={textStyle}>Final-course gaps are shown as source missing, not as a pattern.</p>
+								<p style={labelStyle}>進入変更</p>
+								<p style={metricValueStyle}>ソースに基づく情報</p>
+								<p style={textStyle}>最終進入の欠損は傾向として補わず、ソースなしとして表示します。</p>
 							</article>
 						</section>
 						<RacerEvidenceSection racerEvidence={racerEvidence} />
@@ -1032,49 +1042,49 @@ export function BoatExPage() {
 				);
 			case "data-coverage":
 				return (
-					<SectionShell title="Data Coverage" subtitle="Auto update / source">
+					<SectionShell title="データ充足状況" subtitle="自動更新・出典">
 						<section style={metricGridStyle}>
 							<article style={cardStyle}>
-								<p style={labelStyle}>HISTORY RECORDS</p>
+								<p style={labelStyle}>履歴レコード</p>
 								<p style={metricValueStyle}>{records}</p>
-								<p style={textStyle}>Phase 3 history source.</p>
+								<p style={textStyle}>Phase 3の履歴ソースです。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>DATE INDEX</p>
-								<p style={metricValueStyle}>{loadState.dateIndex ? "available" : "missing"}</p>
-								<p style={textStyle}>latestDate {latestDate} / dateCount {availableDateCount}</p>
+								<p style={labelStyle}>日付index</p>
+								<p style={metricValueStyle}>{loadState.dateIndex ? "表示可能" : "なし"}</p>
+								<p style={textStyle}>最新日付 {latestDate} / 日数 {availableDateCount}</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>DAILY PIPELINE</p>
-								<p style={metricValueStyle}>manual</p>
-								<p style={textStyle}>Runner is ready. Workflow integration is pending.</p>
+								<p style={labelStyle}>日次パイプライン</p>
+								<p style={metricValueStyle}>手動</p>
+								<p style={textStyle}>実行環境は準備済みです。workflow統合は準備中です。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>VENUE EVIDENCE</p>
-								<p style={metricValueStyle}>{venueEvidenceAvailable ? "available" : "missing"}</p>
-								<p style={textStyle}>Phase 4 derived evidence.</p>
+								<p style={labelStyle}>会場エビデンス</p>
+								<p style={metricValueStyle}>{venueEvidenceAvailable ? "表示可能" : "なし"}</p>
+								<p style={textStyle}>Phase 4の派生エビデンスです。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>RACER EVIDENCE</p>
-								<p style={metricValueStyle}>{racerEvidenceAvailable ? "available" : "missing"}</p>
-								<p style={textStyle}>Phase 5 derived evidence.</p>
+								<p style={labelStyle}>選手エビデンス</p>
+								<p style={metricValueStyle}>{racerEvidenceAvailable ? "表示可能" : "なし"}</p>
+								<p style={textStyle}>Phase 5の派生エビデンスです。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>DERIVED MANIFEST</p>
+								<p style={labelStyle}>派生manifest</p>
 								<p style={metricValueStyle}>{derivedManifestFiles}</p>
-								<p style={textStyle}>Expected entries include venue, racer, and venue bias evidence.</p>
+								<p style={textStyle}>会場、選手、会場傾向のエビデンスを含む想定です。</p>
 							</article>
 						</section>
 						<section style={cardStyle}>
-							<p style={labelStyle}>SOURCE FILES</p>
+							<p style={labelStyle}>ソースファイル</p>
 							<ul style={noteListStyle}>
-								<li>date index: {loadState.dateIndex ? "available" : "EX date index missing"}</li>
-								<li>rough index: {roughIndexAvailable ? "available" : "missing"}</li>
-								<li>today flow: {todayFlowAvailable ? "available" : "missing"}</li>
-								<li>prediction structure: {predictionStructureAvailable ? "available" : "missing"}</li>
+								<li>日付index: {loadState.dateIndex ? "表示可能" : "EX日付indexなし"}</li>
+								<li>荒れ指数: {roughIndexAvailable ? "表示可能" : "なし"}</li>
+								<li>当日フロー: {todayFlowAvailable ? "表示可能" : "なし"}</li>
+								<li>予測構造: {predictionStructureAvailable ? "表示可能" : "なし"}</li>
 								{(loadState.derivedManifest?.sourceFiles ?? []).map((source) => (
 									<li key={`${source.sourceName}-${source.sourcePath}`}>
-										{source.sourceName}: {source.sourceStatus} / {source.coverageStatus}
+										{source.sourceName}: {statusLabel(source.sourceStatus)} / {statusLabel(source.coverageStatus)}
 									</li>
 								))}
 							</ul>
@@ -1083,111 +1093,111 @@ export function BoatExPage() {
 				);
 			case "trend-lab":
 				return (
-					<SectionShell title="Trend Lab" subtitle="Roadmap data">
+					<SectionShell title="傾向分析ラボ" subtitle="計画データ">
 						<PendingPanel
 							status="pending"
-							reason="Trend lab requires multi-day history accumulation before score, trend, or signal generation."
-							source="Phase 6: multi-day history, Phase 7: venue bias, Phase 8: rough index, Phase 9: today flow, Phase 10: prediction signals."
+							reason="スコア、傾向、シグナルの生成には複数日の履歴蓄積が必要です。"
+							source="Phase 6: 複数日履歴、Phase 7: 会場傾向、Phase 8: 荒れ指数、Phase 9: 当日フロー、Phase 10: 予測シグナル。"
 						/>
 					</SectionShell>
 				);
 			case "trifecta-ranking":
 				return (
-					<SectionShell title="Trifecta Ranking" subtitle="3-ren-tan v1">
+					<SectionShell title="3連単ランキング" subtitle="3連単 v1">
 						<PendingPanel
 							status="pending"
-							reason="Trifecta ranking will be generated after multi-day officialResult.trifecta and payout accumulation."
-							source="Planned source: officialResult.trifecta / payout / raceKey."
+							reason="複数日のofficialResult.trifectaと払戻の蓄積後に3連単ランキングを生成します。"
+							source="計画中のソース: officialResult.trifecta / payout / raceKey。"
 						/>
 					</SectionShell>
 				);
 			case "rough-index":
 				return (
-					<SectionShell title="Rough Index" subtitle="Result return v1">
+					<SectionShell title="荒れ指数" subtitle="結果・払戻 v1">
 						<PendingPanel
 							status={roughIndex?.readiness.status ?? "insufficient-history"}
-							reason={roughIndex?.readiness.reason ?? "Rough index evidence is missing."}
-							source="Only source-backed history/result/payout facts are shown. No synthetic roughness score is generated."
+							reason={roughIndex?.readiness.reason ?? "荒れ指数エビデンスがありません。"}
+							source="ソースに基づく履歴・結果・払戻の事実のみを表示します。合成された荒れ指数スコアは生成しません。"
 						/>
 						<RoughIndexSection roughIndex={roughIndex} />
 					</SectionShell>
 				);
 			case "race-transition":
 				return (
-					<SectionShell title="Race Transition" subtitle="Transition v1">
+					<SectionShell title="レース推移" subtitle="推移 v1">
 						<PendingPanel
 							status="pending"
-							reason="Race-to-race transitions and repeated inside/outside patterns are planned for a later validated phase."
+							reason="レース間の推移とイン・アウトの反復傾向は、後続の検証済みフェーズで扱います。"
 						/>
 					</SectionShell>
 				);
 			case "weather":
 				return (
-					<SectionShell title="Weather" subtitle="Wind / wave facts">
+					<SectionShell title="天候・水面" subtitle="風・波の事実">
 						<WeatherSection venueEvidence={venueEvidence} />
 					</SectionShell>
 				);
 			case "venue-bias":
 				return (
-					<SectionShell title="Venue Bias" subtitle="Venue bias v1">
+					<SectionShell title="会場傾向" subtitle="会場傾向 v1">
 						<PendingPanel
 							status={venueBias?.readiness.status ?? "insufficient-history"}
-							reason={venueBias?.readiness.reason ?? "Venue bias evidence is missing."}
-							source="Counts and rates are source-backed history facts; no score, ranking, or recommendation is generated."
+							reason={venueBias?.readiness.reason ?? "会場傾向エビデンスがありません。"}
+							source="件数と比率は履歴に基づく事実です。スコア、ランキング、推奨は生成しません。"
 						/>
 						<VenueBiasSection venueBias={venueBias} />
 					</SectionShell>
 				);
 			case "today-flow":
 				return (
-					<SectionShell title="Today Flow" subtitle="Today flow meter v1">
+					<SectionShell title="当日フロー" subtitle="当日フロー v1">
 						<PendingPanel
 							status={todayFlow?.readiness.status ?? "insufficient-history"}
-							reason={todayFlow?.readiness.reason ?? "Today flow evidence is missing."}
-							source="Only source-backed same-day/result facts are shown. No prediction or synthetic flow score is generated."
+							reason={todayFlow?.readiness.reason ?? "当日フローエビデンスがありません。"}
+							source="ソースに基づく当日・結果の事実のみを表示します。予測や合成フロースコアは生成しません。"
 						/>
 						<TodayFlowSection todayFlow={todayFlow} />
 					</SectionShell>
 				);
 			case "prediction-structure":
 				return (
-					<SectionShell title="Prediction Structure LAB" subtitle="Coverage map v1">
+					<SectionShell title="予測構造ラボ" subtitle="カバレッジマップ v1">
 						<PendingPanel
 							status={predictionStructure?.readiness.status ?? "insufficient-history"}
-							reason={predictionStructure?.readiness.reason ?? "Prediction structure evidence is missing."}
-							source="Only source-backed coverage facts are shown. No betting recommendation, prediction, or synthetic score is generated."
+							reason={predictionStructure?.readiness.reason ?? "予測構造エビデンスがありません。"}
+							source="ソースに基づく予測材料のカバレッジだけを表示します。投票推奨、予測、合成スコアは生成しません。"
 						/>
 						<PredictionStructureSection predictionStructure={predictionStructure} />
 					</SectionShell>
 				);
 			case "ex-analysis":
 				return (
-					<SectionShell title="EX Analysis" subtitle="Venue / racer matchup">
+					<SectionShell title="EX分析" subtitle="会場・選手の照合">
 						<section style={cardGridStyle}>
 							<article style={cardStyle}>
-								<p style={labelStyle}>VENUE EVIDENCE</p>
-								<p style={valueStyle}>{venueEvidenceAvailable ? "available" : "missing"}</p>
-								<p style={textStyle}>Venue table is source-backed and keeps venueBias insufficient-history.</p>
+								<p style={labelStyle}>会場エビデンス</p>
+								<p style={valueStyle}>{venueEvidenceAvailable ? "表示可能" : "なし"}</p>
+								<p style={textStyle}>会場表はソースに基づき、会場傾向は履歴不足のまま扱います。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>VENUE BIAS</p>
-								<p style={valueStyle}>{venueBiasAvailable ? "available" : "missing"}</p>
-								<p style={textStyle}>{venueBias?.readiness.status ?? "insufficient-history"} factual counts and rates.</p>
+								<p style={labelStyle}>会場傾向</p>
+								<p style={valueStyle}>{venueBiasAvailable ? "表示可能" : "なし"}</p>
+								<p style={textStyle}>{statusLabel(venueBias?.readiness.status ?? "insufficient-history")}の事実に基づく件数と比率です。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>RACER EVIDENCE</p>
-								<p style={valueStyle}>{racerEvidenceAvailable ? "available" : "missing"}</p>
-								<p style={textStyle}>Racer table is source-backed and keeps racerProfile insufficient-history.</p>
+								<p style={labelStyle}>選手エビデンス</p>
+								<p style={valueStyle}>{racerEvidenceAvailable ? "表示可能" : "なし"}</p>
+								<p style={textStyle}>選手表はソースに基づき、選手プロファイルは履歴不足のまま扱います。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>COURSE CHANGE</p>
-								<p style={valueStyle}>source-backed only</p>
-								<p style={textStyle}>When final course is missing, course-change evidence is displayed as source missing.</p>
+								<p style={labelStyle}>進入変更</p>
+								<p style={valueStyle}>ソースに基づく情報のみ</p>
+								<p style={textStyle}>最終進入がない場合、進入変更エビデンスはソースなしとして表示します。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>NEXT</p>
-								<p style={valueStyle}>pending</p>
-								<p style={textStyle}>Matchup analysis, prediction signals, and review diffs are later phases.</p>
+								<p style={labelStyle}>次の工程</p>
+								<p style={valueStyle}>準備中</p>
+								<p style={textStyle}>対戦分析、予測シグナル、レビュー差分は後続フェーズで扱います。</p>
 							</article>
 						</section>
 					</SectionShell>
@@ -1201,42 +1211,42 @@ export function BoatExPage() {
 		<PageShell
 			eyebrow="BOATRACE EX DATA LABO"
 			title="KURARI BOAT EX"
-			description="BOATRACE EX DATA LABO / source-backed analysis"
+			description="BOATRACE EX データラボ / ソースに基づく分析"
 			contentMaxWidth="1880px"
 			contentPaddingInline="24px"
 			heroMaxWidth="1880px"
 		>
 			<section style={dashboardRowStyle}>
 				<article style={cardStyle}>
-					<p style={labelStyle}>STATUS</p>
+					<p style={labelStyle}>状態</p>
 					<p style={valueStyle}>{loadState.message}</p>
 					<p style={textStyle}>
-						Use the cards below to switch sections inside this EX page. The URL hash route stays unchanged.
+						下のカードでEXページ内のセクションを切り替えます。URLハッシュの経路は変更しません。
 					</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>DATE</p>
+					<p style={labelStyle}>日付</p>
 					<p style={metricValueStyle}>{latestDate}</p>
-					<p style={textStyle}>{loadState.dateIndex ? "latest index" : "manifest fallback"}</p>
+					<p style={textStyle}>{loadState.dateIndex ? "最新index" : "manifestの代替値"}</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>DATES</p>
+					<p style={labelStyle}>日数</p>
 					<p style={metricValueStyle}>{availableDateCount}</p>
-					<p style={textStyle}>available dates</p>
+					<p style={textStyle}>利用可能な日付</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>RECORDS</p>
+					<p style={labelStyle}>レコード</p>
 					<p style={metricValueStyle}>{records}</p>
-					<p style={textStyle}>source-backed</p>
+					<p style={textStyle}>ソースに基づく情報</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>RACERS</p>
-					<p style={metricValueStyle}>{racerEvidence?.summary.racerCount ?? "missing"}</p>
-					<p style={textStyle}>identity evidence</p>
+					<p style={labelStyle}>選手数</p>
+					<p style={metricValueStyle}>{racerEvidence?.summary.racerCount ?? "なし"}</p>
+					<p style={textStyle}>選手識別エビデンス</p>
 				</article>
 			</section>
 
-			<section style={sectionMenuStyle} aria-label="BOATRACE EX sections">
+			<section style={sectionMenuStyle} aria-label="BOATRACE EX セクション">
 				{sectionCards.map((section) => {
 					const isActive = activeSection === section.key;
 					return (
@@ -1252,7 +1262,7 @@ export function BoatExPage() {
 							}}
 							aria-pressed={isActive}
 						>
-							<p style={labelStyle}>{section.status}</p>
+							<p style={labelStyle}>{statusLabel(section.status)}</p>
 							<p style={menuTitleStyle}>{section.title}</p>
 							<p style={menuSubtitleStyle}>{section.subtitle}</p>
 						</button>
