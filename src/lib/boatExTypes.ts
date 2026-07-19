@@ -734,6 +734,70 @@ export interface BoatExRoughIndexV1File {
         warnings: string[];
 }
 
+export type BoatExTodayFlowReadinessStatus =
+	| "ready"
+	| "available"
+	| "insufficient-history"
+	| "pending";
+
+export interface BoatExTodayFlowReadiness {
+	status: BoatExTodayFlowReadinessStatus;
+	reason: string;
+}
+
+export interface BoatExTodayFlowSequenceItem {
+	raceNo: number;
+	firstPlaceBoat: string | null;
+	trifecta: string | null;
+	payoutYen: number | null;
+}
+
+export interface BoatExTodayFlowVenue {
+	venueCode: BoatExVenueCode;
+	venueName: string;
+	raceCount: number;
+	resultAvailableRaceCount: number;
+	firstPlaceBoatCounts: BoatExBoatNumberCounts;
+	firstPlaceBoatSequence: BoatExTodayFlowSequenceItem[];
+	latestKnownRaceNo: number | null;
+	recentFirstPlaceBoats: string[];
+	insideWinCount: number;
+	outsideWinCount: number;
+	payoutAvailableRaceCount: number;
+	highPayoutRaceCount: number;
+	notes: string[];
+}
+
+export interface BoatExTodayFlowSourceFile {
+	sourceName: string;
+	sourcePath: string;
+	sourceStatus: string;
+	coverageStatus: string;
+}
+
+export interface BoatExTodayFlowV1File {
+	schemaVersion: "boat-ex-today-flow-v1";
+	generatedAt: string;
+	status: "available" | "missing" | "error";
+	readiness: BoatExTodayFlowReadiness;
+	targetDate: BoatExDateKey | null;
+	dateRange?: {
+		from: BoatExDateKey;
+		to: BoatExDateKey;
+		dateCount: number;
+	};
+	summary: {
+		venueCount: number;
+		raceCount: number;
+		resultAvailableRaceCount: number;
+		trifectaAvailableRaceCount: number;
+		payoutAvailableRaceCount: number;
+	};
+	venues: BoatExTodayFlowVenue[];
+	sourceFiles: BoatExTodayFlowSourceFile[];
+	warnings: string[];
+}
+
 export type BoatExDateIndexStatus = "available" | "partial" | "missing" | "pending" | "unknown";
 
 export interface BoatExDateIndexSourceState {

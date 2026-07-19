@@ -232,11 +232,12 @@ function main() {
                 "scripts/checkBoatExRoughIndex.mjs",
                 [],
         );
+	const todayFlow = runNode("scripts/checkBoatExTodayFlow.mjs", []);
 
 	const derivedManifest = readJson("public/data/boatrace-ex/derived/manifest.generated.json");
-        if (!Array.isArray(derivedManifest.files) || derivedManifest.files.length < 4) {
+	if (!Array.isArray(derivedManifest.files) || derivedManifest.files.length < 5) {
                 throw new Error(
-                        "derived manifest entries must include venue evidence, racer evidence, venue bias, and rough index",
+				"derived manifest entries must include venue evidence, racer evidence, venue bias, rough index, and today flow",
                 );
 	}
 
@@ -263,6 +264,10 @@ function main() {
                                 "public/data/boatrace-ex/derived/rough-index/latest.json",
                         ),
                 },
+		{
+			path: "public/data/boatrace-ex/derived/today-flow/latest.json",
+			data: readJson("public/data/boatrace-ex/derived/today-flow/latest.json"),
+		},
 		{
 			path: "public/data/boatrace-ex/derived/manifest.generated.json",
 			data: derivedManifest,
@@ -296,6 +301,14 @@ function main() {
                                 roughIndex.payoutAvailableRaceCount,
                         readiness: roughIndex.readiness,
                 },
+		todayFlow: {
+			targetDate: todayFlow.targetDate,
+			venueCount: todayFlow.venueCount,
+			raceCount: todayFlow.raceCount,
+			resultAvailableRaceCount: todayFlow.resultAvailableRaceCount,
+			payoutAvailableRaceCount: todayFlow.payoutAvailableRaceCount,
+			readiness: todayFlow.readiness,
+		},
 	}, null, 2));
 }
 

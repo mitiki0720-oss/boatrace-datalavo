@@ -7,6 +7,7 @@ import type {
 	BoatExRacerEvidenceFile,
 	BoatExRacerEvidenceItem,
 	BoatExRoughIndexV1File,
+	BoatExTodayFlowV1File,
 	BoatExVenueBiasV1File,
 	BoatExVenueEvidenceFile,
 	BoatExVenueEvidenceItem,
@@ -59,6 +60,7 @@ type LoadState = {
 	racerEvidence: BoatExRacerEvidenceFile | null;
 	venueBias: BoatExVenueBiasV1File | null;
 	roughIndex: BoatExRoughIndexV1File | null;
+	todayFlow: BoatExTodayFlowV1File | null;
 	message: string;
 };
 
@@ -647,6 +649,91 @@ function RoughIndexSection({ roughIndex }: { roughIndex: BoatExRoughIndexV1File 
 	);
 }
 
+function TodayFlowSection({ todayFlow }: { todayFlow: BoatExTodayFlowV1File | null }) {
+	if (!todayFlow) return <p style={textStyle}>Today flow evidence missing. Static fallback values are not used.</p>;
+
+	return (
+		<>
+			<section style={metricGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>STATUS</p>
+					<p style={metricValueStyle}>{todayFlow.status}</p>
+					<p style={textStyle}>Source-backed same-day flow file status.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>READINESS</p>
+					<p style={metricValueStyle}>{todayFlow.readiness.status}</p>
+					<p style={textStyle}>{todayFlow.readiness.reason}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>TARGET DATE</p>
+					<p style={valueStyle}>{todayFlow.targetDate ?? "missing"}</p>
+					<p style={textStyle}>{todayFlow.dateRange?.dateCount ?? 0} source-backed date.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>RACES / VENUES</p>
+					<p style={metricValueStyle}>{todayFlow.summary.raceCount} / {todayFlow.summary.venueCount}</p>
+					<p style={textStyle}>Target-date race records and venues.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>RESULT COVERAGE</p>
+					<p style={metricValueStyle}>{todayFlow.summary.resultAvailableRaceCount}</p>
+					<p style={textStyle}>{todayFlow.summary.trifectaAvailableRaceCount} trifecta results.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>PAYOUT COVERAGE</p>
+					<p style={metricValueStyle}>{todayFlow.summary.payoutAvailableRaceCount}</p>
+					<p style={textStyle}>High payouts are shown only when source-backed.</p>
+				</article>
+			</section>
+
+			<div style={tableWrapStyle}>
+				<table style={{ ...tableStyle, minWidth: "1480px" }}>
+					<thead>
+						<tr>
+							<th style={thStyle}>Venue</th>
+							<th style={thStyle}>Races</th>
+							<th style={thStyle}>Results</th>
+							<th style={thStyle}>1st boat sequence</th>
+							<th style={thStyle}>Recent 1st boats</th>
+							<th style={thStyle}>Inside wins</th>
+							<th style={thStyle}>Outside wins</th>
+							<th style={thStyle}>Payout races</th>
+							<th style={thStyle}>High payout races</th>
+							<th style={thStyle}>Notes</th>
+						</tr>
+					</thead>
+					<tbody>
+						{todayFlow.venues.map((venue) => (
+							<tr key={venue.venueCode}>
+								<td style={tdStyle}>{venue.venueName} ({venue.venueCode})</td>
+								<td style={tdStyle}>{venue.raceCount}</td>
+								<td style={tdStyle}>{venue.resultAvailableRaceCount}</td>
+								<td style={tdStyle}>{venue.firstPlaceBoatSequence.map((race) => `R${race.raceNo}:${race.firstPlaceBoat ?? "-"}`).join(" / ")}</td>
+								<td style={tdStyle}>{venue.recentFirstPlaceBoats.join(" / ") || "missing"}</td>
+								<td style={tdStyle}>{venue.insideWinCount}</td>
+								<td style={tdStyle}>{venue.outsideWinCount}</td>
+								<td style={tdStyle}>{venue.payoutAvailableRaceCount}</td>
+								<td style={tdStyle}>{venue.highPayoutRaceCount}</td>
+								<td style={tdStyle}>{venue.notes.join(" ") || "-"}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+
+			{todayFlow.warnings.length > 0 ? (
+				<section style={cardStyle}>
+					<p style={labelStyle}>WARNINGS</p>
+					<ul style={noteListStyle}>
+						{todayFlow.warnings.map((warning) => <li key={warning}>{warning}</li>)}
+					</ul>
+				</section>
+			) : null}
+		</>
+	);
+}
+
 export function BoatExPage() {
 	const [activeSection, setActiveSection] = useState<BoatExSectionKey>("overview");
 	const [loadState, setLoadState] = useState<LoadState>({
@@ -658,6 +745,7 @@ export function BoatExPage() {
 		racerEvidence: null,
 		venueBias: null,
 		roughIndex: null,
+		todayFlow: null,
 		message: "Checking EX evidence.",
 	});
 
@@ -688,7 +776,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -698,6 +786,7 @@ export function BoatExPage() {
 					}),
 					fetch(withBasePath("data/boatrace-ex/derived/venue-bias/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/rough-index/latest.json"), { cache: "no-store" }),
+					fetch(withBasePath("data/boatrace-ex/derived/today-flow/latest.json"), { cache: "no-store" }),
 				]);
 
 				if (!derivedManifestResponse.ok) throw new Error(`derived manifest fetch failed: ${derivedManifestResponse.status}`);
@@ -705,12 +794,14 @@ export function BoatExPage() {
 				if (!racerResponse.ok) throw new Error(`racer evidence fetch failed: ${racerResponse.status}`);
 				if (!venueBiasResponse.ok) throw new Error(`venue bias fetch failed: ${venueBiasResponse.status}`);
 				if (!roughIndexResponse.ok) throw new Error(`rough index fetch failed: ${roughIndexResponse.status}`);
+				if (!todayFlowResponse.ok) throw new Error(`today flow fetch failed: ${todayFlowResponse.status}`);
 
 				const derivedManifest = await derivedManifestResponse.json() as BoatExManifest;
 				const venueEvidence = await venueResponse.json() as BoatExVenueEvidenceFile;
 				const racerEvidence = await racerResponse.json() as BoatExRacerEvidenceFile;
 				const venueBias = await venueBiasResponse.json() as BoatExVenueBiasV1File;
 				const roughIndex = await roughIndexResponse.json() as BoatExRoughIndexV1File;
+				const todayFlow = await todayFlowResponse.json() as BoatExTodayFlowV1File;
 
 				if (isMounted) {
 					setLoadState({
@@ -722,6 +813,7 @@ export function BoatExPage() {
 					racerEvidence,
 					venueBias,
 					roughIndex,
+					todayFlow,
 						message: indexMissing ? "EX date index missing. Using manifest latest date." : "EX section navigation is ready.",
 					});
 				}
@@ -736,6 +828,7 @@ export function BoatExPage() {
 					racerEvidence: null,
 					venueBias: null,
 					roughIndex: null,
+					todayFlow: null,
 						message: "EX evidence missing.",
 					});
 				}
@@ -754,6 +847,7 @@ export function BoatExPage() {
 	const racerEvidence = loadState.racerEvidence;
 	const venueBias = loadState.venueBias;
 	const roughIndex = loadState.roughIndex;
+	const todayFlow = loadState.todayFlow;
 	const latestDate = loadState.dateIndex?.latestDate ?? venueEvidence?.date ?? racerEvidence?.date ?? latestHistory?.date ?? "missing";
 	const dateIndexEntry = findDateIndexEntry(loadState.dateIndex, latestDate);
 	const availableDateCount = loadState.dateIndex?.summary.dateCount ?? "index missing";
@@ -767,6 +861,7 @@ export function BoatExPage() {
 	const racerEvidenceAvailable = hasDerivedFile(loadState.derivedManifest, "/racer-evidence/");
 	const venueBiasAvailable = hasDerivedFile(loadState.derivedManifest, "/venue-bias/");
 	const roughIndexAvailable = hasDerivedFile(loadState.derivedManifest, "/rough-index/");
+	const todayFlowAvailable = hasDerivedFile(loadState.derivedManifest, "/today-flow/");
 
 	function renderActiveSection() {
 		switch (activeSection) {
@@ -909,6 +1004,7 @@ export function BoatExPage() {
 							<ul style={noteListStyle}>
 								<li>date index: {loadState.dateIndex ? "available" : "EX date index missing"}</li>
 								<li>rough index: {roughIndexAvailable ? "available" : "missing"}</li>
+								<li>today flow: {todayFlowAvailable ? "available" : "missing"}</li>
 								{(loadState.derivedManifest?.sourceFiles ?? []).map((source) => (
 									<li key={`${source.sourceName}-${source.sourcePath}`}>
 										{source.sourceName}: {source.sourceStatus} / {source.coverageStatus}
@@ -979,9 +1075,11 @@ export function BoatExPage() {
 				return (
 					<SectionShell title="Today Flow" subtitle="Today flow meter v1">
 						<PendingPanel
-							status="insufficient-history"
-							reason="Today flow meter requires same-day sequence rules plus validated result, exhibition, and weather changes."
+							status={todayFlow?.readiness.status ?? "insufficient-history"}
+							reason={todayFlow?.readiness.reason ?? "Today flow evidence is missing."}
+							source="Only source-backed same-day/result facts are shown. No prediction or synthetic flow score is generated."
 						/>
+						<TodayFlowSection todayFlow={todayFlow} />
 					</SectionShell>
 				);
 			case "prediction-structure":
