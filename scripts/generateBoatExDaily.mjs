@@ -278,6 +278,10 @@ function main() {
 				dateIndex: {
 					status: "skipped",
 				},
+				venueBias: {
+					status: "skipped",
+					reason: `${historyPath} was not written during dry-run.`,
+				},
 				warnings,
 			}, null, 2));
 			return;
@@ -302,6 +306,8 @@ function main() {
 	}
 	const dateIndex = summarizeDateIndex();
 	runNode("scripts/checkBoatExDateIndex.mjs", [...(args.allowEmpty ? ["--allow-empty"] : [])]);
+	const venueBiasGenerated = runNode("scripts/generateBoatExVenueBias.mjs", [...(args.dryRun ? ["--dry-run"] : [])]);
+	const venueBiasChecked = runNode("scripts/checkBoatExVenueBias.mjs", []);
 
 	console.log(JSON.stringify({
 		ok: true,
@@ -321,6 +327,13 @@ function main() {
 			appearanceCount: racerChecked.appearanceCount ?? racerGenerated?.appearanceCount ?? null,
 		},
 		dateIndex,
+		venueBias: {
+			status: "checked",
+			dateCount: venueBiasChecked.dateCount ?? venueBiasGenerated?.dateCount ?? null,
+			raceCount: venueBiasChecked.raceCount ?? venueBiasGenerated?.raceCount ?? null,
+			venueCount: venueBiasChecked.venueCount ?? venueBiasGenerated?.venueCount ?? null,
+			readiness: venueBiasChecked.readiness ?? venueBiasGenerated?.readiness ?? null,
+		},
 		warnings,
 	}, null, 2));
 }

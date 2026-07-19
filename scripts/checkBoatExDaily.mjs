@@ -227,10 +227,11 @@ function main() {
 	const venue = runNode("scripts/checkBoatExVenueEvidence.mjs", ["--date", date]);
 	const racer = runNode("scripts/checkBoatExRacerEvidence.mjs", ["--date", date]);
 	runNode("scripts/checkBoatExDateIndex.mjs", []);
+	const venueBias = runNode("scripts/checkBoatExVenueBias.mjs", []);
 
 	const derivedManifest = readJson("public/data/boatrace-ex/derived/manifest.generated.json");
-	if (!Array.isArray(derivedManifest.files) || derivedManifest.files.length < 2) {
-		throw new Error("derived manifest entries must be >= 2");
+	if (!Array.isArray(derivedManifest.files) || derivedManifest.files.length < 3) {
+		throw new Error("derived manifest entries must include venue evidence, racer evidence, and venue bias");
 	}
 
 	assertNoProhibitedDerivedPaths([
@@ -245,6 +246,10 @@ function main() {
 		{
 			path: "public/data/boatrace-ex/derived/racer-evidence",
 			data: readJson(`public/data/boatrace-ex/derived/racer-evidence/${date}.json`),
+		},
+		{
+			path: "public/data/boatrace-ex/derived/venue-bias/latest.json",
+			data: readJson("public/data/boatrace-ex/derived/venue-bias/latest.json"),
 		},
 		{
 			path: "public/data/boatrace-ex/derived/manifest.generated.json",
@@ -263,6 +268,12 @@ function main() {
 		venues: venue.venues,
 		racerCount: racer.racerCount,
 		appearanceCount: racer.appearanceCount,
+		venueBias: {
+			dateCount: venueBias.dateCount,
+			raceCount: venueBias.raceCount,
+			venueCount: venueBias.venueCount,
+			readiness: venueBias.readiness,
+		},
 	}, null, 2));
 }
 

@@ -637,6 +637,53 @@ export interface BoatExRacerEvidenceFile {
 	racers: BoatExRacerEvidenceItem[];
 }
 
+export type BoatExVenueBiasReadinessStatus = "ready" | "insufficient-history";
+
+export interface BoatExVenueBiasReadiness {
+	status: BoatExVenueBiasReadinessStatus;
+	reason: string;
+	minDateCount?: number;
+}
+
+export type BoatExBoatNumberCounts = Record<"1" | "2" | "3" | "4" | "5" | "6", number>;
+export type BoatExBoatNumberRates = Record<"1" | "2" | "3" | "4" | "5" | "6", number | null>;
+
+export interface BoatExVenueBiasV1Item {
+	venueId: BoatExVenueCode;
+	venueName: string;
+	dateCount: number;
+	raceCount: number;
+	resultAvailableRaceCount: number;
+	exhibitionAvailableRaceCount: number;
+	readiness: BoatExVenueBiasReadiness;
+	firstPlaceBoatNumberCounts: BoatExBoatNumberCounts;
+	firstPlaceBoatNumberRates: BoatExBoatNumberRates;
+	top3BoatNumberCounts: BoatExBoatNumberCounts;
+	top3BoatNumberRates: BoatExBoatNumberRates;
+}
+
+export interface BoatExVenueBiasV1File {
+	schemaVersion: "boat-ex-venue-bias-v1";
+	generatedAt: string;
+	status: "available";
+	readiness: BoatExVenueBiasReadiness;
+	dateRange: {
+		from: BoatExDateKey;
+		to: BoatExDateKey;
+		dates: BoatExDateKey[];
+		dateCount: number;
+	};
+	summary: {
+		raceCount: number;
+		venueCount: number;
+		resultAvailableRaceCount: number;
+		exhibitionAvailableRaceCount: number;
+	};
+	venues: BoatExVenueBiasV1Item[];
+	sourceFiles: string[];
+	warnings: string[];
+}
+
 export type BoatExDateIndexStatus = "available" | "partial" | "missing" | "pending" | "unknown";
 
 export interface BoatExDateIndexSourceState {

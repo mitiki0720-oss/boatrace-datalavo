@@ -32,7 +32,8 @@ The runner resolves the target date, then executes the existing EX scripts in or
 3. Generate and check venue evidence.
 4. Generate and check racer evidence.
 5. Generate and check the date index.
-6. Print a JSON summary.
+6. Generate and check Venue Bias v1 from all date-index history files.
+7. Print a JSON summary.
 
 For an existing history date, the default behavior is to avoid regenerating Phase 3 history, coverage, and the Phase 3 manifest.
 
@@ -40,6 +41,10 @@ Venue and racer evidence checks derive record, venue, racer, and appearance
 counts from the selected date's Phase 3 history. They validate that derived
 evidence and provenance match that source-backed history, rather than applying
 the initial sample date's counts to later daily runs.
+
+Venue Bias v1 runs after the date index so it can aggregate every available EX
+history date. Its output remains factual counts and rates with readiness; it
+does not add a score, ranking, or venue recommendation.
 
 For an auto-resolved date whose history is not generated yet, `--dry-run` calls
 the history generator in dry-run mode and prints a summary without writing files.

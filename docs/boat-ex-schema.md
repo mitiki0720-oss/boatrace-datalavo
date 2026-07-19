@@ -414,6 +414,25 @@ Phase 6B does not add GitHub Actions workflow integration. It also must not read
 `public/data/reviews/**`, invent missing dates or counts, or emit fake scores,
 rankings, racer labels, today-flow values, or prediction signals.
 
+## Phase 7 Venue Bias v1
+
+Phase 7 adds a factual multi-date venue aggregation at:
+
+```text
+public/data/boatrace-ex/derived/venue-bias/latest.json
+```
+
+It reads the EX date index and each source-backed Phase 3 history file listed
+in `availableDates`. The output records date range, race and venue counts,
+result/exhibition availability, and per-venue first-place and top-three
+boat-number counts and rates. It does not emit a score, ranking,
+recommendation, prediction, or venue-play interpretation.
+
+Venue Bias remains `insufficient-history` until the date index contains at
+least seven dates. The generator updates only its `latest.json` and the derived
+manifest entry; the checker recomputes every count from history and rejects
+review sources and direct BOATRACE generated JSON sources.
+
 ## Phase 6C Optional Workflow Dispatch
 
 Phase 6C connects the Phase 6B daily runner to

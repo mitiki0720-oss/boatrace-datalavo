@@ -6,6 +6,7 @@ import type {
 	BoatExDateIndexFile,
 	BoatExRacerEvidenceFile,
 	BoatExRacerEvidenceItem,
+	BoatExVenueBiasV1File,
 	BoatExVenueEvidenceFile,
 	BoatExVenueEvidenceItem,
 } from "../lib/boatExTypes";
@@ -55,6 +56,7 @@ type LoadState = {
 	dateIndex: BoatExDateIndexFile | null;
 	venueEvidence: BoatExVenueEvidenceFile | null;
 	racerEvidence: BoatExRacerEvidenceFile | null;
+	venueBias: BoatExVenueBiasV1File | null;
 	message: string;
 };
 
@@ -72,7 +74,7 @@ const sectionCards: Array<{
 	{ key: "rough-index", title: "Rough Index", subtitle: "Result return v1", status: "insufficient-history" },
 	{ key: "race-transition", title: "Race Transition", subtitle: "Transition v1", status: "pending" },
 	{ key: "weather", title: "WEATHER", subtitle: "Wind / wave facts", status: "available" },
-	{ key: "venue-bias", title: "Venue Bias", subtitle: "Venue bias v1", status: "insufficient-history" },
+	{ key: "venue-bias", title: "Venue Bias", subtitle: "Venue bias v1", status: "available" },
 	{ key: "today-flow", title: "Today Flow", subtitle: "Today flow meter v1", status: "insufficient-history" },
 	{ key: "prediction-structure", title: "Prediction Structure LAB", subtitle: "Coverage map v1", status: "pending" },
 	{ key: "ex-analysis", title: "EX ANALYSIS", subtitle: "Venue / racer matchup", status: "pending" },
@@ -480,6 +482,82 @@ function WeatherSection({ venueEvidence }: { venueEvidence: BoatExVenueEvidenceF
 	);
 }
 
+function boatNumberCountLabel(counts: Record<"1" | "2" | "3" | "4" | "5" | "6", number>): string {
+	return ["1", "2", "3", "4", "5", "6"].map((boatNumber) => `${boatNumber}:${counts[boatNumber as keyof typeof counts]}`).join(" / ");
+}
+
+function boatNumberRateLabel(rates: Record<"1" | "2" | "3" | "4" | "5" | "6", number | null>): string {
+	return ["1", "2", "3", "4", "5", "6"].map((boatNumber) => {
+		const rate = rates[boatNumber as keyof typeof rates];
+		return `${boatNumber}:${rate === null ? "n/a" : `${numberLabel(rate * 100, 1)}%`}`;
+	}).join(" / ");
+}
+
+function VenueBiasSection({ venueBias }: { venueBias: BoatExVenueBiasV1File | null }) {
+	if (!venueBias) return <p style={textStyle}>Venue bias evidence missing. Static fallback values are not used.</p>;
+
+	return (
+		<>
+			<section style={metricGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>STATUS</p>
+					<p style={metricValueStyle}>{venueBias.status}</p>
+					<p style={textStyle}>Source-backed venue bias data.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>DATE RANGE</p>
+					<p style={valueStyle}>{venueBias.dateRange.from} to {venueBias.dateRange.to}</p>
+					<p style={textStyle}>{venueBias.dateRange.dateCount} available dates.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>RACES / VENUES</p>
+					<p style={metricValueStyle}>{venueBias.summary.raceCount} / {venueBias.summary.venueCount}</p>
+					<p style={textStyle}>All history records and distinct venue IDs in the selected date range.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>READINESS</p>
+					<p style={metricValueStyle}>{venueBias.readiness.status}</p>
+					<p style={textStyle}>{venueBias.readiness.reason}</p>
+				</article>
+			</section>
+			<div style={tableWrapStyle}>
+				<table style={{ ...tableStyle, minWidth: "1480px" }}>
+					<thead>
+						<tr>
+							<th style={thStyle}>Venue</th>
+							<th style={thStyle}>Dates</th>
+							<th style={thStyle}>Races</th>
+							<th style={thStyle}>Result</th>
+							<th style={thStyle}>Exhibition</th>
+							<th style={thStyle}>1st boat counts</th>
+							<th style={thStyle}>1st boat rates</th>
+							<th style={thStyle}>Top 3 boat counts</th>
+							<th style={thStyle}>Top 3 boat rates</th>
+							<th style={thStyle}>Readiness</th>
+						</tr>
+					</thead>
+					<tbody>
+						{venueBias.venues.map((venue) => (
+							<tr key={venue.venueId}>
+								<td style={tdStyle}>{venue.venueName} ({venue.venueId})</td>
+								<td style={tdStyle}>{venue.dateCount}</td>
+								<td style={tdStyle}>{venue.raceCount}</td>
+								<td style={tdStyle}>{venue.resultAvailableRaceCount}</td>
+								<td style={tdStyle}>{venue.exhibitionAvailableRaceCount}</td>
+								<td style={tdStyle}>{boatNumberCountLabel(venue.firstPlaceBoatNumberCounts)}</td>
+								<td style={tdStyle}>{boatNumberRateLabel(venue.firstPlaceBoatNumberRates)}</td>
+								<td style={tdStyle}>{boatNumberCountLabel(venue.top3BoatNumberCounts)}</td>
+								<td style={tdStyle}>{boatNumberRateLabel(venue.top3BoatNumberRates)}</td>
+								<td style={tdStyle}>{venue.readiness.status}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</>
+	);
+}
+
 export function BoatExPage() {
 	const [activeSection, setActiveSection] = useState<BoatExSectionKey>("overview");
 	const [loadState, setLoadState] = useState<LoadState>({
@@ -489,6 +567,7 @@ export function BoatExPage() {
 		dateIndex: null,
 		venueEvidence: null,
 		racerEvidence: null,
+		venueBias: null,
 		message: "Checking EX evidence.",
 	});
 
@@ -519,7 +598,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -527,15 +606,18 @@ export function BoatExPage() {
 					fetch(withBasePath(`data/boatrace-ex/derived/racer-evidence/${targetDate}.json`), {
 						cache: "no-store",
 					}),
+					fetch(withBasePath("data/boatrace-ex/derived/venue-bias/latest.json"), { cache: "no-store" }),
 				]);
 
 				if (!derivedManifestResponse.ok) throw new Error(`derived manifest fetch failed: ${derivedManifestResponse.status}`);
 				if (!venueResponse.ok) throw new Error(`venue evidence fetch failed: ${venueResponse.status}`);
 				if (!racerResponse.ok) throw new Error(`racer evidence fetch failed: ${racerResponse.status}`);
+				if (!venueBiasResponse.ok) throw new Error(`venue bias fetch failed: ${venueBiasResponse.status}`);
 
 				const derivedManifest = await derivedManifestResponse.json() as BoatExManifest;
 				const venueEvidence = await venueResponse.json() as BoatExVenueEvidenceFile;
 				const racerEvidence = await racerResponse.json() as BoatExRacerEvidenceFile;
+				const venueBias = await venueBiasResponse.json() as BoatExVenueBiasV1File;
 
 				if (isMounted) {
 					setLoadState({
@@ -543,8 +625,9 @@ export function BoatExPage() {
 						manifest,
 						derivedManifest,
 						dateIndex,
-						venueEvidence,
-						racerEvidence,
+					venueEvidence,
+					racerEvidence,
+					venueBias,
 						message: indexMissing ? "EX date index missing. Using manifest latest date." : "EX section navigation is ready.",
 					});
 				}
@@ -555,8 +638,9 @@ export function BoatExPage() {
 						manifest: null,
 						derivedManifest: null,
 						dateIndex: null,
-						venueEvidence: null,
-						racerEvidence: null,
+					venueEvidence: null,
+					racerEvidence: null,
+					venueBias: null,
 						message: "EX evidence missing.",
 					});
 				}
@@ -573,6 +657,7 @@ export function BoatExPage() {
 	const latestHistory = useMemo(() => findLatestHistoryFile(loadState.manifest), [loadState.manifest]);
 	const venueEvidence = loadState.venueEvidence;
 	const racerEvidence = loadState.racerEvidence;
+	const venueBias = loadState.venueBias;
 	const latestDate = loadState.dateIndex?.latestDate ?? venueEvidence?.date ?? racerEvidence?.date ?? latestHistory?.date ?? "missing";
 	const dateIndexEntry = findDateIndexEntry(loadState.dateIndex, latestDate);
 	const availableDateCount = loadState.dateIndex?.summary.dateCount ?? "index missing";
@@ -584,6 +669,7 @@ export function BoatExPage() {
 	const derivedManifestFiles = loadState.derivedManifest?.files?.length ?? "missing";
 	const venueEvidenceAvailable = hasDerivedFile(loadState.derivedManifest, "/venue-evidence/");
 	const racerEvidenceAvailable = hasDerivedFile(loadState.derivedManifest, "/racer-evidence/");
+	const venueBiasAvailable = hasDerivedFile(loadState.derivedManifest, "/venue-bias/");
 
 	function renderActiveSection() {
 		switch (activeSection) {
@@ -633,7 +719,7 @@ export function BoatExPage() {
 								<ul style={noteListStyle}>
 									<li>Source-backed evidence only.</li>
 									<li>No fake completion, no fake score, and no inferred ranking.</li>
-									<li>One history day means analysis remains {analysisStatus}.</li>
+									<li>Venue bias readiness: {venueBias?.readiness.status ?? analysisStatus}.</li>
 								</ul>
 							</article>
 							<article style={cardStyle}>
@@ -718,7 +804,7 @@ export function BoatExPage() {
 							<article style={cardStyle}>
 								<p style={labelStyle}>DERIVED MANIFEST</p>
 								<p style={metricValueStyle}>{derivedManifestFiles}</p>
-								<p style={textStyle}>Expected entries include venue evidence and racer evidence.</p>
+								<p style={textStyle}>Expected entries include venue, racer, and venue bias evidence.</p>
 							</article>
 						</section>
 						<section style={cardStyle}>
@@ -782,10 +868,11 @@ export function BoatExPage() {
 				return (
 					<SectionShell title="Venue Bias" subtitle="Venue bias v1">
 						<PendingPanel
-							status="insufficient-history"
-							reason="Venue bias is not confirmed from one history day. The table below shows source-backed venue evidence only."
+							status={venueBias?.readiness.status ?? "insufficient-history"}
+							reason={venueBias?.readiness.reason ?? "Venue bias evidence is missing."}
+							source="Counts and rates are source-backed history facts; no score, ranking, or recommendation is generated."
 						/>
-						<VenueEvidenceSection venueEvidence={venueEvidence} />
+						<VenueBiasSection venueBias={venueBias} />
 					</SectionShell>
 				);
 			case "today-flow":
@@ -827,6 +914,11 @@ export function BoatExPage() {
 								<p style={labelStyle}>VENUE EVIDENCE</p>
 								<p style={valueStyle}>{venueEvidenceAvailable ? "available" : "missing"}</p>
 								<p style={textStyle}>Venue table is source-backed and keeps venueBias insufficient-history.</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>VENUE BIAS</p>
+								<p style={valueStyle}>{venueBiasAvailable ? "available" : "missing"}</p>
+								<p style={textStyle}>{venueBias?.readiness.status ?? "insufficient-history"} factual counts and rates.</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>RACER EVIDENCE</p>
