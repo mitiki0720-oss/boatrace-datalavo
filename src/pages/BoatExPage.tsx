@@ -1155,7 +1155,7 @@ export function BoatExPage() {
 						<PendingPanel
 							status={predictionStructure?.readiness.status ?? "insufficient-history"}
 							reason={predictionStructure?.readiness.reason ?? "Prediction structure evidence is missing."}
-							source="Only source-backed coverage facts are shown. No prediction, ranking, recommendation, or synthetic score is generated."
+							source="Only source-backed coverage facts are shown. No betting recommendation, prediction, or synthetic score is generated."
 						/>
 						<PredictionStructureSection predictionStructure={predictionStructure} />
 					</SectionShell>
