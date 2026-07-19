@@ -1,17 +1,18 @@
 {
   "schemaVersion": 1,
   "kind": "boatrace-ex-date-index",
-  "generatedAt": "2026-07-18T02:45:16.661Z",
-  "latestDate": "2026-07-13",
+  "generatedAt": "2026-07-19T05:24:17.668Z",
+  "latestDate": "2026-07-19",
   "availableDates": [
-    "2026-07-13"
+    "2026-07-13",
+    "2026-07-19"
   ],
   "summary": {
-    "dateCount": 1,
-    "historyDateCount": 1,
-    "coverageDateCount": 1,
-    "venueEvidenceDateCount": 1,
-    "racerEvidenceDateCount": 1
+    "dateCount": 2,
+    "historyDateCount": 2,
+    "coverageDateCount": 2,
+    "venueEvidenceDateCount": 2,
+    "racerEvidenceDateCount": 2
   },
   "dates": [
     {
@@ -37,6 +38,40 @@
         "status": "available",
         "racerCount": 581,
         "appearanceCount": 936
+      },
+      "readiness": {
+        "multiDayAnalysis": "insufficient-history",
+        "venueBias": "insufficient-history",
+        "roughIndex": "insufficient-history",
+        "racerProfile": "insufficient-history",
+        "todayFlow": "pending",
+        "predictionSignals": "pending"
+      },
+      "warnings": []
+    },
+    {
+      "date": "2026-07-19",
+      "history": {
+        "path": "public/data/boatrace-ex/history/races/2026-07-19.json",
+        "status": "available",
+        "recordCount": 192,
+        "venueCount": 16
+      },
+      "coverage": {
+        "path": "public/data/boatrace-ex/coverage/2026-07-19.json",
+        "status": "available"
+      },
+      "venueEvidence": {
+        "path": "public/data/boatrace-ex/derived/venue-evidence/2026-07-19.json",
+        "status": "available",
+        "venueCount": 16,
+        "recordCount": 192
+      },
+      "racerEvidence": {
+        "path": "public/data/boatrace-ex/derived/racer-evidence/2026-07-19.json",
+        "status": "available",
+        "racerCount": 714,
+        "appearanceCount": 1152
       },
       "readiness": {
         "multiDayAnalysis": "insufficient-history",
