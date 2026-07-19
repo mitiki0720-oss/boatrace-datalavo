@@ -228,10 +228,16 @@ function main() {
 	const racer = runNode("scripts/checkBoatExRacerEvidence.mjs", ["--date", date]);
 	runNode("scripts/checkBoatExDateIndex.mjs", []);
 	const venueBias = runNode("scripts/checkBoatExVenueBias.mjs", []);
+        const roughIndex = runNode(
+                "scripts/checkBoatExRoughIndex.mjs",
+                [],
+        );
 
 	const derivedManifest = readJson("public/data/boatrace-ex/derived/manifest.generated.json");
-	if (!Array.isArray(derivedManifest.files) || derivedManifest.files.length < 3) {
-		throw new Error("derived manifest entries must include venue evidence, racer evidence, and venue bias");
+        if (!Array.isArray(derivedManifest.files) || derivedManifest.files.length < 4) {
+                throw new Error(
+                        "derived manifest entries must include venue evidence, racer evidence, venue bias, and rough index",
+                );
 	}
 
 	assertNoProhibitedDerivedPaths([
@@ -251,6 +257,12 @@ function main() {
 			path: "public/data/boatrace-ex/derived/venue-bias/latest.json",
 			data: readJson("public/data/boatrace-ex/derived/venue-bias/latest.json"),
 		},
+                {
+                        path: "public/data/boatrace-ex/derived/rough-index/latest.json",
+                        data: readJson(
+                                "public/data/boatrace-ex/derived/rough-index/latest.json",
+                        ),
+                },
 		{
 			path: "public/data/boatrace-ex/derived/manifest.generated.json",
 			data: derivedManifest,
@@ -274,6 +286,16 @@ function main() {
 			venueCount: venueBias.venueCount,
 			readiness: venueBias.readiness,
 		},
+                roughIndex: {
+                        dateCount: roughIndex.dateCount,
+                        raceCount: roughIndex.raceCount,
+                        venueCount: roughIndex.venueCount,
+                        resultAvailableRaceCount:
+                                roughIndex.resultAvailableRaceCount,
+                        payoutAvailableRaceCount:
+                                roughIndex.payoutAvailableRaceCount,
+                        readiness: roughIndex.readiness,
+                },
 	}, null, 2));
 }
 

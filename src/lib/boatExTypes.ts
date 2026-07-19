@@ -684,6 +684,56 @@ export interface BoatExVenueBiasV1File {
 	warnings: string[];
 }
 
+export type BoatExRoughIndexReadinessStatus = "ready" | "insufficient-history";
+
+export interface BoatExRoughIndexReadiness {
+        status: BoatExRoughIndexReadinessStatus;
+        reason: string;
+        minDateCount: number;
+        minPayoutRaceCount: number;
+}
+
+export interface BoatExRoughIndexV1Item {
+        venueId: BoatExVenueCode;
+        venueName: string;
+        dateCount: number;
+        raceCount: number;
+        resultAvailableRaceCount: number;
+        payoutAvailableRaceCount: number;
+        trifectaAvailableRaceCount: number;
+        trifectaOver10000RaceCount: number;
+        readiness: BoatExRoughIndexReadiness;
+}
+
+export interface BoatExRoughIndexV1File {
+        schemaVersion: "boat-ex-rough-index-v1";
+        generatedAt: string;
+        status: "available";
+        readiness: BoatExRoughIndexReadiness;
+        dateRange: {
+                from: BoatExDateKey;
+                to: BoatExDateKey;
+                dates: BoatExDateKey[];
+                dateCount: number;
+        };
+        thresholds: {
+                minDateCount: number;
+                minPayoutRaceCount: number;
+                trifectaHighPayoutThreshold: number;
+        };
+        summary: {
+                raceCount: number;
+                venueCount: number;
+                resultAvailableRaceCount: number;
+                payoutAvailableRaceCount: number;
+                trifectaAvailableRaceCount: number;
+                trifectaOver10000RaceCount: number;
+        };
+        venues: BoatExRoughIndexV1Item[];
+        sourceFiles: string[];
+        warnings: string[];
+}
+
 export type BoatExDateIndexStatus = "available" | "partial" | "missing" | "pending" | "unknown";
 
 export interface BoatExDateIndexSourceState {

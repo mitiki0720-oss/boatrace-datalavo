@@ -6,6 +6,7 @@ import type {
 	BoatExDateIndexFile,
 	BoatExRacerEvidenceFile,
 	BoatExRacerEvidenceItem,
+	BoatExRoughIndexV1File,
 	BoatExVenueBiasV1File,
 	BoatExVenueEvidenceFile,
 	BoatExVenueEvidenceItem,
@@ -57,6 +58,7 @@ type LoadState = {
 	venueEvidence: BoatExVenueEvidenceFile | null;
 	racerEvidence: BoatExRacerEvidenceFile | null;
 	venueBias: BoatExVenueBiasV1File | null;
+	roughIndex: BoatExRoughIndexV1File | null;
 	message: string;
 };
 
@@ -558,6 +560,93 @@ function VenueBiasSection({ venueBias }: { venueBias: BoatExVenueBiasV1File | nu
 	);
 }
 
+function RoughIndexSection({ roughIndex }: { roughIndex: BoatExRoughIndexV1File | null }) {
+	if (!roughIndex) return <p style={textStyle}>Rough index evidence missing. Static fallback values are not used.</p>;
+
+	return (
+		<>
+			<section style={metricGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>STATUS</p>
+					<p style={metricValueStyle}>{roughIndex.status}</p>
+					<p style={textStyle}>Source-backed rough index file status.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>READINESS</p>
+					<p style={metricValueStyle}>{roughIndex.readiness.status}</p>
+					<p style={textStyle}>{roughIndex.readiness.reason}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>DATE RANGE</p>
+					<p style={valueStyle}>{roughIndex.dateRange.from} to {roughIndex.dateRange.to}</p>
+					<p style={textStyle}>{roughIndex.dateRange.dateCount} source-backed dates.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>RACES / VENUES</p>
+					<p style={metricValueStyle}>{roughIndex.summary.raceCount} / {roughIndex.summary.venueCount}</p>
+					<p style={textStyle}>History races and distinct venues.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>PAYOUT COVERAGE</p>
+					<p style={metricValueStyle}>{roughIndex.summary.payoutAvailableRaceCount}</p>
+					<p style={textStyle}>Minimum required: {roughIndex.thresholds.minPayoutRaceCount} races.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>HIGH PAYOUT THRESHOLD</p>
+					<p style={metricValueStyle}>{yenLabel(roughIndex.thresholds.trifectaHighPayoutThreshold)}</p>
+					<p style={textStyle}>No rate or rough score is emitted without payout evidence.</p>
+				</article>
+			</section>
+
+			<div style={tableWrapStyle}>
+				<table style={{ ...tableStyle, minWidth: "1320px" }}>
+					<thead>
+						<tr>
+							<th style={thStyle}>Venue</th>
+							<th style={thStyle}>Dates</th>
+							<th style={thStyle}>Races</th>
+							<th style={thStyle}>Results</th>
+							<th style={thStyle}>Payouts</th>
+							<th style={thStyle}>Trifecta</th>
+							<th style={thStyle}>Over threshold</th>
+							<th style={thStyle}>Readiness</th>
+						</tr>
+					</thead>
+					<tbody>
+						{roughIndex.venues.map((venue) => (
+							<tr key={venue.venueId}>
+								<td style={tdStyle}>{venue.venueName} ({venue.venueId})</td>
+								<td style={tdStyle}>{venue.dateCount}</td>
+								<td style={tdStyle}>{venue.raceCount}</td>
+								<td style={tdStyle}>{venue.resultAvailableRaceCount}</td>
+								<td style={tdStyle}>{venue.payoutAvailableRaceCount}</td>
+								<td style={tdStyle}>{venue.trifectaAvailableRaceCount}</td>
+								<td style={tdStyle}>{venue.trifectaOver10000RaceCount}</td>
+								<td style={tdStyle}>
+									{venue.readiness.status}
+									<br />
+									<span>{venue.readiness.reason}</span>
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+
+			{roughIndex.warnings.length > 0 ? (
+				<section style={cardStyle}>
+					<p style={labelStyle}>WARNINGS</p>
+					<ul style={noteListStyle}>
+						{roughIndex.warnings.map((warning) => (
+							<li key={warning}>{warning}</li>
+						))}
+					</ul>
+				</section>
+			) : null}
+		</>
+	);
+}
+
 export function BoatExPage() {
 	const [activeSection, setActiveSection] = useState<BoatExSectionKey>("overview");
 	const [loadState, setLoadState] = useState<LoadState>({
@@ -568,6 +657,7 @@ export function BoatExPage() {
 		venueEvidence: null,
 		racerEvidence: null,
 		venueBias: null,
+		roughIndex: null,
 		message: "Checking EX evidence.",
 	});
 
@@ -598,7 +688,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -607,17 +697,20 @@ export function BoatExPage() {
 						cache: "no-store",
 					}),
 					fetch(withBasePath("data/boatrace-ex/derived/venue-bias/latest.json"), { cache: "no-store" }),
+					fetch(withBasePath("data/boatrace-ex/derived/rough-index/latest.json"), { cache: "no-store" }),
 				]);
 
 				if (!derivedManifestResponse.ok) throw new Error(`derived manifest fetch failed: ${derivedManifestResponse.status}`);
 				if (!venueResponse.ok) throw new Error(`venue evidence fetch failed: ${venueResponse.status}`);
 				if (!racerResponse.ok) throw new Error(`racer evidence fetch failed: ${racerResponse.status}`);
 				if (!venueBiasResponse.ok) throw new Error(`venue bias fetch failed: ${venueBiasResponse.status}`);
+				if (!roughIndexResponse.ok) throw new Error(`rough index fetch failed: ${roughIndexResponse.status}`);
 
 				const derivedManifest = await derivedManifestResponse.json() as BoatExManifest;
 				const venueEvidence = await venueResponse.json() as BoatExVenueEvidenceFile;
 				const racerEvidence = await racerResponse.json() as BoatExRacerEvidenceFile;
 				const venueBias = await venueBiasResponse.json() as BoatExVenueBiasV1File;
+				const roughIndex = await roughIndexResponse.json() as BoatExRoughIndexV1File;
 
 				if (isMounted) {
 					setLoadState({
@@ -628,6 +721,7 @@ export function BoatExPage() {
 					venueEvidence,
 					racerEvidence,
 					venueBias,
+					roughIndex,
 						message: indexMissing ? "EX date index missing. Using manifest latest date." : "EX section navigation is ready.",
 					});
 				}
@@ -641,6 +735,7 @@ export function BoatExPage() {
 					venueEvidence: null,
 					racerEvidence: null,
 					venueBias: null,
+					roughIndex: null,
 						message: "EX evidence missing.",
 					});
 				}
@@ -658,6 +753,7 @@ export function BoatExPage() {
 	const venueEvidence = loadState.venueEvidence;
 	const racerEvidence = loadState.racerEvidence;
 	const venueBias = loadState.venueBias;
+	const roughIndex = loadState.roughIndex;
 	const latestDate = loadState.dateIndex?.latestDate ?? venueEvidence?.date ?? racerEvidence?.date ?? latestHistory?.date ?? "missing";
 	const dateIndexEntry = findDateIndexEntry(loadState.dateIndex, latestDate);
 	const availableDateCount = loadState.dateIndex?.summary.dateCount ?? "index missing";
@@ -670,6 +766,7 @@ export function BoatExPage() {
 	const venueEvidenceAvailable = hasDerivedFile(loadState.derivedManifest, "/venue-evidence/");
 	const racerEvidenceAvailable = hasDerivedFile(loadState.derivedManifest, "/racer-evidence/");
 	const venueBiasAvailable = hasDerivedFile(loadState.derivedManifest, "/venue-bias/");
+	const roughIndexAvailable = hasDerivedFile(loadState.derivedManifest, "/rough-index/");
 
 	function renderActiveSection() {
 		switch (activeSection) {
@@ -811,6 +908,7 @@ export function BoatExPage() {
 							<p style={labelStyle}>SOURCE FILES</p>
 							<ul style={noteListStyle}>
 								<li>date index: {loadState.dateIndex ? "available" : "EX date index missing"}</li>
+								<li>rough index: {roughIndexAvailable ? "available" : "missing"}</li>
 								{(loadState.derivedManifest?.sourceFiles ?? []).map((source) => (
 									<li key={`${source.sourceName}-${source.sourcePath}`}>
 										{source.sourceName}: {source.sourceStatus} / {source.coverageStatus}
@@ -844,9 +942,11 @@ export function BoatExPage() {
 				return (
 					<SectionShell title="Rough Index" subtitle="Result return v1">
 						<PendingPanel
-							status="insufficient-history"
-							reason="Roughness scoring needs multi-day result and payout validation. One history day is not enough."
+							status={roughIndex?.readiness.status ?? "insufficient-history"}
+							reason={roughIndex?.readiness.reason ?? "Rough index evidence is missing."}
+							source="Only source-backed history/result/payout facts are shown. No synthetic roughness score is generated."
 						/>
+						<RoughIndexSection roughIndex={roughIndex} />
 					</SectionShell>
 				);
 			case "race-transition":
