@@ -325,6 +325,14 @@ function main() {
                 "scripts/checkBoatExTodayFlow.mjs",
                 [],
         );
+	const predictionStructureGenerated = runNode(
+		"scripts/generateBoatExPredictionStructure.mjs",
+		[...(args.dryRun ? ["--dry-run"] : [])],
+	);
+	const predictionStructureChecked = runNode(
+		"scripts/checkBoatExPredictionStructure.mjs",
+		[],
+	);
 
 	console.log(JSON.stringify({
 		ok: true,
@@ -386,6 +394,14 @@ function main() {
 			resultAvailableRaceCount: todayFlowChecked.resultAvailableRaceCount ?? todayFlowGenerated?.resultAvailableRaceCount ?? null,
 			payoutAvailableRaceCount: todayFlowChecked.payoutAvailableRaceCount ?? todayFlowGenerated?.payoutAvailableRaceCount ?? null,
 			readiness: todayFlowChecked.readiness ?? todayFlowGenerated?.readiness ?? null,
+		},
+		predictionStructure: {
+			status: "checked",
+			targetDate: predictionStructureChecked.targetDate ?? predictionStructureGenerated?.targetDate ?? null,
+			venueCount: predictionStructureChecked.venueCount ?? predictionStructureGenerated?.venueCount ?? null,
+			raceCount: predictionStructureChecked.raceCount ?? predictionStructureGenerated?.raceCount ?? null,
+			resultAvailableRaceCount: predictionStructureChecked.resultAvailableRaceCount ?? predictionStructureGenerated?.resultAvailableRaceCount ?? null,
+			readiness: predictionStructureChecked.readiness ?? predictionStructureGenerated?.readiness ?? null,
 		},
 		warnings,
 	}, null, 2));
