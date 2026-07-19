@@ -317,6 +317,14 @@ function main() {
                 "scripts/checkBoatExRoughIndex.mjs",
                 [],
         );
+        const todayFlowGenerated = runNode(
+                "scripts/generateBoatExTodayFlow.mjs",
+                [...(args.dryRun ? ["--dry-run"] : [])],
+        );
+        const todayFlowChecked = runNode(
+                "scripts/checkBoatExTodayFlow.mjs",
+                [],
+        );
 
 	console.log(JSON.stringify({
 		ok: true,
@@ -370,6 +378,15 @@ function main() {
                                 roughIndexGenerated?.readiness ??
                                 null,
                 },
+		todayFlow: {
+			status: "checked",
+			targetDate: todayFlowChecked.targetDate ?? todayFlowGenerated?.targetDate ?? null,
+			venueCount: todayFlowChecked.venueCount ?? todayFlowGenerated?.venueCount ?? null,
+			raceCount: todayFlowChecked.raceCount ?? todayFlowGenerated?.raceCount ?? null,
+			resultAvailableRaceCount: todayFlowChecked.resultAvailableRaceCount ?? todayFlowGenerated?.resultAvailableRaceCount ?? null,
+			payoutAvailableRaceCount: todayFlowChecked.payoutAvailableRaceCount ?? todayFlowGenerated?.payoutAvailableRaceCount ?? null,
+			readiness: todayFlowChecked.readiness ?? todayFlowGenerated?.readiness ?? null,
+		},
 		warnings,
 	}, null, 2));
 }
