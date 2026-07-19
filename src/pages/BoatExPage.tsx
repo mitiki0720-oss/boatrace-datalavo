@@ -6,6 +6,7 @@ import type {
 	BoatExDateIndexFile,
 	BoatExRacerEvidenceFile,
 	BoatExRacerEvidenceItem,
+	BoatExPredictionStructureV1File,
 	BoatExRoughIndexV1File,
 	BoatExTodayFlowV1File,
 	BoatExVenueBiasV1File,
@@ -61,6 +62,7 @@ type LoadState = {
 	venueBias: BoatExVenueBiasV1File | null;
 	roughIndex: BoatExRoughIndexV1File | null;
 	todayFlow: BoatExTodayFlowV1File | null;
+	predictionStructure: BoatExPredictionStructureV1File | null;
 	message: string;
 };
 
@@ -734,6 +736,62 @@ function TodayFlowSection({ todayFlow }: { todayFlow: BoatExTodayFlowV1File | nu
 	);
 }
 
+function PredictionStructureSection({ predictionStructure }: { predictionStructure: BoatExPredictionStructureV1File | null }) {
+	if (!predictionStructure) return <p style={textStyle}>Prediction structure evidence missing. Static fallback values are not used.</p>;
+
+	return (
+		<>
+			<section style={metricGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>STATUS</p>
+					<p style={metricValueStyle}>{predictionStructure.status}</p>
+					<p style={textStyle}>Source-backed coverage map status.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>READINESS</p>
+					<p style={metricValueStyle}>{predictionStructure.readiness.status}</p>
+					<p style={textStyle}>{predictionStructure.readiness.reason}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>TARGET DATE</p>
+					<p style={valueStyle}>{predictionStructure.targetDate}</p>
+					<p style={textStyle}>{predictionStructure.dateRange.dateCount} source-backed date.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>RACES / VENUES</p>
+					<p style={metricValueStyle}>{predictionStructure.summary.raceCount} / {predictionStructure.summary.venueCount}</p>
+					<p style={textStyle}>Target-date coverage only.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>RESULT / EXHIBITION</p>
+					<p style={metricValueStyle}>{predictionStructure.summary.resultAvailableRaceCount} / {predictionStructure.summary.exhibitionAvailableRaceCount}</p>
+					<p style={textStyle}>Result and exhibition coverage counts.</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>WEATHER / RACER</p>
+					<p style={metricValueStyle}>{predictionStructure.summary.weatherAvailableRaceCount} / {predictionStructure.summary.racerAvailableRaceCount}</p>
+					<p style={textStyle}>Weather and racer coverage counts.</p>
+				</article>
+			</section>
+
+			<div style={tableWrapStyle}>
+				<table style={{ ...tableStyle, minWidth: "1360px" }}>
+					<thead><tr>
+						<th style={thStyle}>Venue</th><th style={thStyle}>Races</th><th style={thStyle}>Official</th><th style={thStyle}>Result</th><th style={thStyle}>Exhibition</th><th style={thStyle}>Weather</th><th style={thStyle}>Motor</th><th style={thStyle}>Boat</th><th style={thStyle}>Racer</th><th style={thStyle}>Warnings</th>
+					</tr></thead>
+					<tbody>{predictionStructure.venues.map((venue) => (
+						<tr key={venue.venueCode}>
+							<td style={tdStyle}>{venue.venueName} ({venue.venueCode})</td><td style={tdStyle}>{venue.raceCount}</td><td style={tdStyle}>{venue.officialRaceCount}</td><td style={tdStyle}>{venue.resultAvailableRaceCount}</td><td style={tdStyle}>{venue.exhibitionAvailableRaceCount}</td><td style={tdStyle}>{venue.weatherAvailableRaceCount}</td><td style={tdStyle}>{venue.motorAvailableRaceCount}</td><td style={tdStyle}>{venue.boatAvailableRaceCount}</td><td style={tdStyle}>{venue.racerAvailableRaceCount}</td><td style={tdStyle}>{venue.warnings.join(" ") || "-"}</td>
+						</tr>
+					))}</tbody>
+				</table>
+			</div>
+
+			{predictionStructure.warnings.length > 0 ? <section style={cardStyle}><p style={labelStyle}>WARNINGS</p><ul style={noteListStyle}>{predictionStructure.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></section> : null}
+		</>
+	);
+}
+
 export function BoatExPage() {
 	const [activeSection, setActiveSection] = useState<BoatExSectionKey>("overview");
 	const [loadState, setLoadState] = useState<LoadState>({
@@ -746,6 +804,7 @@ export function BoatExPage() {
 		venueBias: null,
 		roughIndex: null,
 		todayFlow: null,
+		predictionStructure: null,
 		message: "Checking EX evidence.",
 	});
 
@@ -776,7 +835,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -787,6 +846,7 @@ export function BoatExPage() {
 					fetch(withBasePath("data/boatrace-ex/derived/venue-bias/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/rough-index/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/today-flow/latest.json"), { cache: "no-store" }),
+					fetch(withBasePath("data/boatrace-ex/derived/prediction-structure/latest.json"), { cache: "no-store" }),
 				]);
 
 				if (!derivedManifestResponse.ok) throw new Error(`derived manifest fetch failed: ${derivedManifestResponse.status}`);
@@ -795,6 +855,7 @@ export function BoatExPage() {
 				if (!venueBiasResponse.ok) throw new Error(`venue bias fetch failed: ${venueBiasResponse.status}`);
 				if (!roughIndexResponse.ok) throw new Error(`rough index fetch failed: ${roughIndexResponse.status}`);
 				if (!todayFlowResponse.ok) throw new Error(`today flow fetch failed: ${todayFlowResponse.status}`);
+				if (!predictionStructureResponse.ok) throw new Error(`prediction structure fetch failed: ${predictionStructureResponse.status}`);
 
 				const derivedManifest = await derivedManifestResponse.json() as BoatExManifest;
 				const venueEvidence = await venueResponse.json() as BoatExVenueEvidenceFile;
@@ -802,6 +863,7 @@ export function BoatExPage() {
 				const venueBias = await venueBiasResponse.json() as BoatExVenueBiasV1File;
 				const roughIndex = await roughIndexResponse.json() as BoatExRoughIndexV1File;
 				const todayFlow = await todayFlowResponse.json() as BoatExTodayFlowV1File;
+				const predictionStructure = await predictionStructureResponse.json() as BoatExPredictionStructureV1File;
 
 				if (isMounted) {
 					setLoadState({
@@ -814,6 +876,7 @@ export function BoatExPage() {
 					venueBias,
 					roughIndex,
 					todayFlow,
+					predictionStructure,
 						message: indexMissing ? "EX date index missing. Using manifest latest date." : "EX section navigation is ready.",
 					});
 				}
@@ -829,6 +892,7 @@ export function BoatExPage() {
 					venueBias: null,
 					roughIndex: null,
 					todayFlow: null,
+					predictionStructure: null,
 						message: "EX evidence missing.",
 					});
 				}
@@ -848,6 +912,7 @@ export function BoatExPage() {
 	const venueBias = loadState.venueBias;
 	const roughIndex = loadState.roughIndex;
 	const todayFlow = loadState.todayFlow;
+	const predictionStructure = loadState.predictionStructure;
 	const latestDate = loadState.dateIndex?.latestDate ?? venueEvidence?.date ?? racerEvidence?.date ?? latestHistory?.date ?? "missing";
 	const dateIndexEntry = findDateIndexEntry(loadState.dateIndex, latestDate);
 	const availableDateCount = loadState.dateIndex?.summary.dateCount ?? "index missing";
@@ -862,6 +927,7 @@ export function BoatExPage() {
 	const venueBiasAvailable = hasDerivedFile(loadState.derivedManifest, "/venue-bias/");
 	const roughIndexAvailable = hasDerivedFile(loadState.derivedManifest, "/rough-index/");
 	const todayFlowAvailable = hasDerivedFile(loadState.derivedManifest, "/today-flow/");
+	const predictionStructureAvailable = hasDerivedFile(loadState.derivedManifest, "/prediction-structure/");
 
 	function renderActiveSection() {
 		switch (activeSection) {
@@ -1005,6 +1071,7 @@ export function BoatExPage() {
 								<li>date index: {loadState.dateIndex ? "available" : "EX date index missing"}</li>
 								<li>rough index: {roughIndexAvailable ? "available" : "missing"}</li>
 								<li>today flow: {todayFlowAvailable ? "available" : "missing"}</li>
+								<li>prediction structure: {predictionStructureAvailable ? "available" : "missing"}</li>
 								{(loadState.derivedManifest?.sourceFiles ?? []).map((source) => (
 									<li key={`${source.sourceName}-${source.sourcePath}`}>
 										{source.sourceName}: {source.sourceStatus} / {source.coverageStatus}
@@ -1085,23 +1152,12 @@ export function BoatExPage() {
 			case "prediction-structure":
 				return (
 					<SectionShell title="Prediction Structure LAB" subtitle="Coverage map v1">
-						<section style={cardGridStyle}>
-							<article style={cardStyle}>
-								<p style={labelStyle}>OFFICIAL</p>
-								<p style={valueStyle}>available / partial</p>
-								<p style={textStyle}>Race, result, exhibition, weather, motor, boat, and racer fields are represented through history and evidence files.</p>
-							</article>
-							<article style={cardStyle}>
-								<p style={labelStyle}>USER SOURCES</p>
-								<p style={valueStyle}>not-supported</p>
-								<p style={textStyle}>Prediction, summary, and review archives are not read in this EX phase.</p>
-							</article>
-							<article style={cardStyle}>
-								<p style={labelStyle}>SIGNALS</p>
-								<p style={valueStyle}>pending</p>
-								<p style={textStyle}>Prediction signals are scheduled for a later phase.</p>
-							</article>
-						</section>
+						<PendingPanel
+							status={predictionStructure?.readiness.status ?? "insufficient-history"}
+							reason={predictionStructure?.readiness.reason ?? "Prediction structure evidence is missing."}
+							source="Only source-backed coverage facts are shown. No betting recommendation, prediction, or synthetic score is generated."
+						/>
+						<PredictionStructureSection predictionStructure={predictionStructure} />
 					</SectionShell>
 				);
 			case "ex-analysis":

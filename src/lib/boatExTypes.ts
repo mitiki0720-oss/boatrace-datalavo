@@ -798,6 +798,59 @@ export interface BoatExTodayFlowV1File {
 	warnings: string[];
 }
 
+export interface BoatExPredictionStructureReadiness {
+	status: "insufficient-history";
+	reason: string;
+}
+
+export interface BoatExPredictionStructureVenue {
+	venueCode: BoatExVenueCode;
+	venueName: string;
+	raceCount: number;
+	officialRaceCount: number;
+	resultAvailableRaceCount: number;
+	exhibitionAvailableRaceCount: number;
+	weatherAvailableRaceCount: number;
+	motorAvailableRaceCount: number;
+	boatAvailableRaceCount: number;
+	racerAvailableRaceCount: number;
+	warnings: string[];
+}
+
+export interface BoatExPredictionStructureSourceFile {
+	sourceName: string;
+	sourcePath: string;
+	sourceStatus: string;
+	coverageStatus: string;
+}
+
+export interface BoatExPredictionStructureV1File {
+	schemaVersion: "boat-ex-prediction-structure-v1";
+	generatedAt: string;
+	status: "available";
+	readiness: BoatExPredictionStructureReadiness;
+	targetDate: BoatExDateKey;
+	dateRange: {
+		from: BoatExDateKey;
+		to: BoatExDateKey;
+		dateCount: number;
+	};
+	summary: {
+		venueCount: number;
+		raceCount: number;
+		officialRaceCount: number;
+		resultAvailableRaceCount: number;
+		exhibitionAvailableRaceCount: number;
+		weatherAvailableRaceCount: number;
+		motorAvailableRaceCount: number;
+		boatAvailableRaceCount: number;
+		racerAvailableRaceCount: number;
+	};
+	venues: BoatExPredictionStructureVenue[];
+	sourceFiles: BoatExPredictionStructureSourceFile[];
+	warnings: string[];
+}
+
 export type BoatExDateIndexStatus = "available" | "partial" | "missing" | "pending" | "unknown";
 
 export interface BoatExDateIndexSourceState {
