@@ -116,6 +116,10 @@ function buildExhibitionGapsCheckArgs() {
 	return ["scripts/checkBoatExhibitionGaps.mjs"];
 }
 
+function buildExhibitionCoverageCheckArgs() {
+	return ["scripts/checkBoatExhibitionCoverage.mjs"];
+}
+
 function runNodeScript(args) {
 	return new Promise((resolve, reject) => {
 		const child = spawn(process.execPath, args, {
@@ -180,6 +184,8 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 	if (venueExtrasArgs) {
 		console.log("[update-boat-data] exhibition gap check enabled");
 		await runNodeScript(appendOutputDir(buildExhibitionGapsCheckArgs(), rawOptions.outputDir));
+		console.log("[update-boat-data] exhibition coverage check enabled");
+		await runNodeScript(appendOutputDir(buildExhibitionCoverageCheckArgs(), rawOptions.outputDir));
 	}
 }
 

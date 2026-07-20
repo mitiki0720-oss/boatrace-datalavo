@@ -1111,6 +1111,7 @@ function normalizeRaceData(rawRace, venue, generatedAt, source) {
 		status: rawRace?.status ?? "scheduled",
 		racers: Array.isArray(rawRace?.racers) ? rawRace.racers : [],
 		exhibitions: Array.isArray(rawRace?.exhibitions) ? rawRace.exhibitions : [],
+		exhibitionCoverage: rawRace?.exhibitionCoverage,
 		oddsPreview: normalizeOddsPreview(rawRace?.oddsPreview, generatedAt),
 		result: normalizeResult(rawRace?.result, generatedAt),
 		weatherActual: rawRace?.weatherActual ? normalizeWeatherActual(rawRace.weatherActual, generatedAt, source) : undefined,
@@ -2499,13 +2500,16 @@ function parseExhibitionRowsFromBeforeInfo($) {
 	);
 }
 
-function parseBeforeInfoPage(html, { date, raceNo, deadlineTime, fallbackUpdatedAt, source }) {
+function parseBeforeInfoPage(html, { date, raceNo, deadlineTime, fallbackUpdatedAt, source, sourceUrl, fetchedAt }) {
 	const $ = load(html);
 	const raceDeadlineMap = new Map([[raceNo, deadlineTime]]);
 
 	return {
 		raceNo,
 		exhibitions: parseExhibitionRowsFromBeforeInfo($),
+		source,
+		sourceUrl,
+		fetchedAt,
 		weatherActual: parseVenueWeatherPage(html, {
 			date,
 			raceDeadlineMap,
@@ -2549,7 +2553,8 @@ function parseVenueWeatherPage(html, { date, raceDeadlineMap, fallbackUpdatedAt,
 }
 
 async function fetchRaceBeforeInfo(venue, raceNo, { timestamps, deadlineTime, fallbackUpdatedAt }) {
-	const html = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.venueBeforeInfo(venue.venueCode, timestamps.dateKey, raceNo));
+	const sourceUrl = OFFICIAL_ENDPOINTS.venueBeforeInfo(venue.venueCode, timestamps.dateKey, raceNo);
+	const html = await fetchOfficialHtml(sourceUrl);
 	if (!html) {
 		return null;
 	}
@@ -2560,7 +2565,19 @@ async function fetchRaceBeforeInfo(venue, raceNo, { timestamps, deadlineTime, fa
 		deadlineTime,
 		fallbackUpdatedAt,
 		source: "official:owpc-html+beforeinfo",
+		sourceUrl,
+		fetchedAt: timestamps.generatedAt,
 	});
+}
+
+async function readExistingVenueExtrasFeed(timestamps) {
+	try {
+		const raw = await readFile(path.join(outputDirectory, "venue-extras.generated.json"), "utf8");
+		const feed = JSON.parse(raw);
+		return feed?.date === timestamps.date ? feed : null;
+	} catch {
+		return null;
+	}
 }
 
 async function fetchVenueWeather(venue, { timestamps, raceTitles, fallbackVenue }) {
@@ -2681,8 +2698,83 @@ function hasValidRacerRows(racers) {
 	});
 }
 
-function mergeVenueRaces(venue, fallbackVenue, raceTitles, resultListRaces, raceOddsMap, raceBeforeInfoMap, date, generatedAt, timestamps) {
+function countExhibitionTimes(rows) {
+	return (Array.isArray(rows) ? rows : []).filter((row) =>
+		Boolean(compactText(row?.exhibitionTime ?? row?.displayTime ?? row?.time)),
+	).length;
+}
+
+function buildExhibitionCoverage({ officialBeforeInfo, officialExhibitions, venueExtraExhibitions, fallbackRace, generatedAt }) {
+	const officialTimeAvailableCount = countExhibitionTimes(officialExhibitions);
+	if (officialTimeAvailableCount > 0) {
+		return {
+			status: officialTimeAvailableCount >= 6 ? "available" : "partial",
+			source: officialBeforeInfo?.source ?? "official:owpc-html+beforeinfo",
+			sourceUrl: officialBeforeInfo?.sourceUrl ?? "",
+			updatedAt: officialBeforeInfo?.fetchedAt ?? generatedAt,
+			timeAvailableCount: officialTimeAvailableCount,
+		};
+	}
+
+	const venueExtraTimeAvailableCount = countExhibitionTimes(venueExtraExhibitions);
+	if (venueExtraTimeAvailableCount > 0) {
+		return {
+			status: venueExtraTimeAvailableCount >= 6 ? "available" : "partial",
+			source: "venue-extras:official-beforeinfo",
+			sourceUrl: "",
+			updatedAt: generatedAt,
+			timeAvailableCount: venueExtraTimeAvailableCount,
+		};
+	}
+
+	if (officialBeforeInfo) {
+		const timeAvailableCount = countExhibitionTimes(officialExhibitions);
+		return {
+			status: "official-unpublished",
+			source: officialBeforeInfo.source ?? "official:owpc-html+beforeinfo",
+			sourceUrl: officialBeforeInfo.sourceUrl ?? "",
+			updatedAt: officialBeforeInfo.fetchedAt ?? generatedAt,
+			timeAvailableCount,
+		};
+	}
+
+	const fallbackExhibitions = Array.isArray(fallbackRace?.exhibitions) ? fallbackRace.exhibitions : [];
+	const fallbackTimeAvailableCount = countExhibitionTimes(fallbackExhibitions);
+	if (fallbackTimeAvailableCount > 0) {
+		const priorCoverage = fallbackRace?.exhibitionCoverage ?? {};
+		return {
+			status: fallbackTimeAvailableCount >= 6 ? "preserved" : "partial",
+			source: priorCoverage.source ?? "previous-official-snapshot",
+			sourceUrl: priorCoverage.sourceUrl ?? "",
+			updatedAt: priorCoverage.updatedAt ?? fallbackRace?.updatedAt ?? "",
+			timeAvailableCount: fallbackTimeAvailableCount,
+		};
+	}
+
+	return {
+		status: "pending",
+		source: "official-beforeinfo-fetch-unavailable",
+		sourceUrl: "",
+		updatedAt: "",
+		timeAvailableCount: 0,
+	};
+}
+
+function getVenueExtraExhibitions(venueExtraRace) {
+	const officialBeforeInfo = venueExtraRace?.officialBeforeInfo ?? {};
+	const candidates = [
+		officialBeforeInfo.exhibitionRows,
+		officialBeforeInfo.beforeInfo,
+		venueExtraRace?.beforeInfo,
+		venueExtraRace?.originalExhibition,
+	];
+
+	return candidates.find((rows) => countExhibitionTimes(rows) > 0) ?? [];
+}
+
+function mergeVenueRaces(venue, fallbackVenue, venueExtrasVenue, raceTitles, resultListRaces, raceOddsMap, raceBeforeInfoMap, date, generatedAt, timestamps) {
 	const fallbackRaceMap = new Map((fallbackVenue?.races ?? []).map((race) => [race.raceNo, race]));
+	const venueExtraRaceMap = new Map((venueExtrasVenue?.races ?? []).map((race) => [race.raceNo, race]));
 	const raceTitleMap = new Map((raceTitles ?? []).map((race) => [race.raceNo, race]));
 	const officialRaceMap = new Map();
 
@@ -2712,6 +2804,15 @@ function mergeVenueRaces(venue, fallbackVenue, raceTitles, resultListRaces, race
 		const officialBeforeInfo = raceBeforeInfoMap.get(raceNo) ?? null;
 		const officialRacers = Array.isArray(officialRace?.racers) ? officialRace.racers : [];
 		const officialExhibitions = Array.isArray(officialBeforeInfo?.exhibitions) ? officialBeforeInfo.exhibitions : [];
+		const venueExtraExhibitions = getVenueExtraExhibitions(venueExtraRaceMap.get(raceNo));
+		const exhibitionCoverage = buildExhibitionCoverage({ officialBeforeInfo, officialExhibitions, venueExtraExhibitions, fallbackRace, generatedAt });
+		const exhibitions = countExhibitionTimes(officialExhibitions) > 0
+			? officialExhibitions
+			: countExhibitionTimes(venueExtraExhibitions) > 0
+				? venueExtraExhibitions
+				: officialExhibitions.length
+					? officialExhibitions
+					: fallbackRace?.exhibitions ?? [];
 const deadlineTime =
 officialRace?.deadlineTime ??
 fallbackRace?.deadlineTime ??
@@ -2738,7 +2839,8 @@ timestamps,
                : hasValidRacerRows(fallbackRace?.racers)
                  ? fallbackRace.racers
                  : [],
-			exhibitions: officialExhibitions.length ? officialExhibitions : fallbackRace?.exhibitions ?? [],
+			exhibitions,
+			exhibitionCoverage,
 			oddsPreview,
 			result: mergedResult,
 			weatherActual: officialBeforeInfo?.weatherActual ?? fallbackRace?.weatherActual,
@@ -2779,7 +2881,7 @@ export async function fetchTodayRaceIndex({ existingFeed, timestamps }) {
 	};
 }
 
-export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, timestamps, updateOptions = {} }) {
+export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, venueExtrasVenueByCode = new Map(), timestamps, updateOptions = {} }) {
 	const options = normalizeUpdateOptions(updateOptions);
 	const foundFallbackVenue = fallbackVenueByCode.get(venue.venueCode) ?? null;
 	const fallbackVenue = foundFallbackVenue?.date === timestamps.date ? foundFallbackVenue : null;
@@ -2819,7 +2921,10 @@ timestamps,
 				: RACE_NUMBERS;
 	const skippedTargetRaceNumbers = plannedTargetRaceNumbers.filter((raceNo) => completedRaceNumbers.has(raceNo));
 	const targetRaceNumbers = plannedTargetRaceNumbers.filter((raceNo) => !completedRaceNumbers.has(raceNo));
-	const beforeInfoTargetRaceNumbers = getBeforeInfoTargetRaceNumbers(targetRaceNumbers, options).filter((raceNo) => !completedRaceNumbers.has(raceNo));
+	// Exhibition pages are rechecked for every race so an earlier empty response can be recovered on later hourly runs.
+	const beforeInfoTargetRaceNumbers = options.fetchSections.beforeInfo
+		? (options.targetRaceNumbers.length ? options.targetRaceNumbers : RACE_NUMBERS)
+		: [];
 	const detailedTargets = options.fetchSections.detailedResults
 		? (options.mode === "results" || options.mode === "final"
 			? targetRaceNumbers
@@ -2890,7 +2995,7 @@ const detailedHtml = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.venueResult(venu
 		)
 		: [];
 	const raceBeforeInfoMap = new Map(raceBeforeInfoResults.filter(Boolean).map((item) => [item.raceNo, item]));
-	const mergedRaces = mergeVenueRaces(venue, fallbackVenue, raceTitles, resultListRaces, raceOddsMap, raceBeforeInfoMap, timestamps.date, timestamps.generatedAt, timestamps);
+	const mergedRaces = mergeVenueRaces(venue, fallbackVenue, venueExtrasVenueByCode.get(venue.venueCode) ?? null, raceTitles, resultListRaces, raceOddsMap, raceBeforeInfoMap, timestamps.date, timestamps.generatedAt, timestamps);
 	const officialVenueWeather =
 		Array.from(raceBeforeInfoMap.values()).find((item) => hasResolvedWeatherActual(item.weatherActual))?.weatherActual ??
 		(options.fetchSections.venueWeather ? await fetchVenueWeather(venue, { timestamps, raceTitles, fallbackVenue }) : null);
@@ -2980,6 +3085,7 @@ export async function main(rawOptions = {}) {
 	const timestamps = getJstTimestampParts(baseOptions.targetDate);
 	const existingFeedRaw = await readExistingFeed(timestamps);
 	const existingFeed = existingFeedRaw?.date === timestamps.date ? existingFeedRaw : null;
+	const existingVenueExtrasFeed = await readExistingVenueExtrasFeed(timestamps);
 	if (existingFeedRaw?.date && existingFeedRaw.date !== timestamps.date) {
 		console.log(`[update-today-race-details] ignore existing feed for ${existingFeedRaw.date}; targetDate is ${timestamps.date}`);
 	}
@@ -2992,6 +3098,7 @@ export async function main(rawOptions = {}) {
 				: baseOptions.targetSession,
 	});
 	const fallbackVenueByCode = new Map((existingFeed?.venues ?? []).map((venue) => [venue.venueCode, venue]));
+	const venueExtrasVenueByCode = new Map((existingVenueExtrasFeed?.venues ?? []).map((venue) => [venue.venueCode, venue]));
 	const normalizedVenueDetails = [];
 	const completedSkipSummary = {
 		skipped: 0,
@@ -3000,7 +3107,7 @@ export async function main(rawOptions = {}) {
 	};
 
 	for (const venue of raceIndex.venues ?? []) {
-		const rawVenue = await fetchVenueRaceDetails(venue, { fallbackVenueByCode, timestamps, updateOptions });
+		const rawVenue = await fetchVenueRaceDetails(venue, { fallbackVenueByCode, venueExtrasVenueByCode, timestamps, updateOptions });
 		const completedSkip = rawVenue?.updateStats?.completedSkip;
 		if (completedSkip) {
 			completedSkipSummary.skipped += completedSkip.skipped ?? 0;
