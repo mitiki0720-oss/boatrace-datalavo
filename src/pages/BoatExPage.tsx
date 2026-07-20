@@ -802,6 +802,218 @@ function PredictionStructureSection({ predictionStructure }: { predictionStructu
 	);
 }
 
+type ExAnalysisVenueRow = {
+	venueCode: string;
+	venueName: string;
+	venueBias: BoatExVenueBiasV1File["venues"][number] | null;
+	roughIndex: BoatExRoughIndexV1File["venues"][number] | null;
+	todayFlow: BoatExTodayFlowV1File["venues"][number] | null;
+	predictionStructure: BoatExPredictionStructureV1File["venues"][number] | null;
+	ambiguousSources: string[];
+};
+
+function buildExAnalysisVenueRows(
+	venueBias: BoatExVenueBiasV1File | null,
+	roughIndex: BoatExRoughIndexV1File | null,
+	todayFlow: BoatExTodayFlowV1File | null,
+	predictionStructure: BoatExPredictionStructureV1File | null,
+): ExAnalysisVenueRow[] {
+	const rows = new Map<string, ExAnalysisVenueRow>();
+	const rowFor = (venueCode: string, venueName: string) => {
+		const key = `${venueCode}\u0000${venueName}`;
+		const existing = rows.get(key);
+		if (existing) return existing;
+
+		const row: ExAnalysisVenueRow = {
+			venueCode,
+			venueName,
+			venueBias: null,
+			roughIndex: null,
+			todayFlow: null,
+			predictionStructure: null,
+			ambiguousSources: [],
+		};
+		rows.set(key, row);
+		return row;
+	};
+
+	const addUnique = <T,>(
+		label: string,
+		entries: T[],
+		getCode: (entry: T) => string,
+		getName: (entry: T) => string,
+		assign: (row: ExAnalysisVenueRow, entry: T | null) => void,
+	) => {
+		const seen = new Set<string>();
+		for (const entry of entries) {
+			const venueCode = getCode(entry);
+			const venueName = getName(entry);
+			const key = `${venueCode}\u0000${venueName}`;
+			const row = rowFor(venueCode, venueName);
+			if (seen.has(key)) {
+				assign(row, null);
+				if (!row.ambiguousSources.includes(label)) row.ambiguousSources.push(label);
+				continue;
+			}
+			seen.add(key);
+			assign(row, entry);
+		}
+	};
+
+	addUnique("会場傾向", venueBias?.venues ?? [], (venue) => venue.venueId, (venue) => venue.venueName, (row, venue) => {
+		row.venueBias = venue;
+	});
+	addUnique("荒れ指数", roughIndex?.venues ?? [], (venue) => venue.venueId, (venue) => venue.venueName, (row, venue) => {
+		row.roughIndex = venue;
+	});
+	addUnique("当日フロー", todayFlow?.venues ?? [], (venue) => venue.venueCode, (venue) => venue.venueName, (row, venue) => {
+		row.todayFlow = venue;
+	});
+	addUnique("予測構造", predictionStructure?.venues ?? [], (venue) => venue.venueCode, (venue) => venue.venueName, (row, venue) => {
+		row.predictionStructure = venue;
+	});
+
+	return [...rows.values()].sort((left, right) => left.venueName.localeCompare(right.venueName, "ja"));
+}
+
+function ExAnalysisHubSection({
+	venueBias,
+	roughIndex,
+	todayFlow,
+	predictionStructure,
+}: {
+	venueBias: BoatExVenueBiasV1File | null;
+	roughIndex: BoatExRoughIndexV1File | null;
+	todayFlow: BoatExTodayFlowV1File | null;
+	predictionStructure: BoatExPredictionStructureV1File | null;
+}) {
+	const venueRows = buildExAnalysisVenueRows(venueBias, roughIndex, todayFlow, predictionStructure);
+	const targetDates = [...new Set([
+		todayFlow?.targetDate,
+		predictionStructure?.targetDate,
+		venueBias?.dateRange.to,
+		roughIndex?.dateRange.to,
+	].filter((date): date is string => Boolean(date)))];
+	const sourceFiles = [
+		...(venueBias?.sourceFiles.map((path) => `会場傾向: ${path}`) ?? []),
+		...(roughIndex?.sourceFiles.map((path) => `荒れ指数: ${path}`) ?? []),
+		...(todayFlow?.sourceFiles.map((source) => `当日フロー: ${source.sourcePath}`) ?? []),
+		...(predictionStructure?.sourceFiles.map((source) => `予測構造: ${source.sourcePath}`) ?? []),
+	];
+	const warnings = [
+		...(venueBias?.warnings.map((warning) => `会場傾向: ${warning}`) ?? []),
+		...(roughIndex?.warnings.map((warning) => `荒れ指数: ${warning}`) ?? []),
+		...(todayFlow?.warnings.map((warning) => `当日フロー: ${warning}`) ?? []),
+		...(predictionStructure?.warnings.map((warning) => `予測構造: ${warning}`) ?? []),
+	];
+
+	if (!venueBias && !roughIndex && !todayFlow && !predictionStructure) {
+		return <p style={textStyle}>EX分析に使用できる派生エビデンスがありません。固定値は使用しません。</p>;
+	}
+
+	return (
+		<>
+			<section style={metricGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>EX分析 v1</p>
+					<p style={metricValueStyle}>ソースに基づく照合</p>
+					<p style={textStyle}>投票推奨、予測、合成スコアは生成しません。</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>対象日 / 期間終端</p>
+					<p style={valueStyle}>{targetDates.join(" / ") || "なし"}</p>
+					<p style={textStyle}>複数の値がある場合は、各派生ファイルの値をそのまま併記します。</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>参照会場数</p>
+					<p style={metricValueStyle}>{venueRows.length}</p>
+					<p style={textStyle}>会場コードと会場名の完全一致時だけ同じ行に表示します。</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>当日レース / 結果 / 払戻</p>
+					<p style={metricValueStyle}>{todayFlow ? `${todayFlow.summary.raceCount} / ${todayFlow.summary.resultAvailableRaceCount} / ${todayFlow.summary.payoutAvailableRaceCount}` : "なし"}</p>
+					<p style={textStyle}>当日フローのsource-backed件数です。</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>予測材料カバレッジ</p>
+					<p style={metricValueStyle}>{predictionStructure ? `${predictionStructure.summary.officialRaceCount} / ${predictionStructure.summary.exhibitionAvailableRaceCount} / ${predictionStructure.summary.racerAvailableRaceCount}` : "なし"}</p>
+					<p style={textStyle}>公式 / 展示 / 選手のカバレッジ件数です。</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>注意事項</p>
+					<p style={metricValueStyle}>{warnings.length}</p>
+					<p style={textStyle}>各派生ファイルに記録されたwarningの合計です。</p>
+				</article>
+			</section>
+
+			<section style={cardGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>会場傾向</p>
+					<p style={valueStyle}>{venueBias ? statusLabel(venueBias.readiness.status) : "なし"}</p>
+					<p style={textStyle}>{venueBias ? `期間: ${venueBias.dateRange.from} から ${venueBias.dateRange.to} / 会場: ${venueBias.summary.venueCount} / レース: ${venueBias.summary.raceCount}` : "派生ファイルなし"}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>荒れ指数</p>
+					<p style={valueStyle}>{roughIndex ? statusLabel(roughIndex.readiness.status) : "なし"}</p>
+					<p style={textStyle}>{roughIndex ? `期間: ${roughIndex.dateRange.from} から ${roughIndex.dateRange.to} / 会場: ${roughIndex.summary.venueCount} / 払戻: ${roughIndex.summary.payoutAvailableRaceCount}` : "派生ファイルなし"}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>当日フロー</p>
+					<p style={valueStyle}>{todayFlow ? statusLabel(todayFlow.readiness.status) : "なし"}</p>
+					<p style={textStyle}>{todayFlow ? `対象日: ${todayFlow.targetDate ?? "なし"} / 会場: ${todayFlow.summary.venueCount} / レース: ${todayFlow.summary.raceCount}` : "派生ファイルなし"}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>予測構造</p>
+					<p style={valueStyle}>{predictionStructure ? statusLabel(predictionStructure.readiness.status) : "なし"}</p>
+					<p style={textStyle}>{predictionStructure ? `対象日: ${predictionStructure.targetDate} / 会場: ${predictionStructure.summary.venueCount} / レース: ${predictionStructure.summary.raceCount}` : "派生ファイルなし"}</p>
+				</article>
+			</section>
+
+			<div style={tableWrapStyle}>
+				<table style={{ ...tableStyle, minWidth: "1480px" }}>
+					<thead>
+						<tr>
+							<th style={thStyle}>会場</th>
+							<th style={thStyle}>会場傾向</th>
+							<th style={thStyle}>荒れ指数</th>
+							<th style={thStyle}>当日フロー</th>
+							<th style={thStyle}>予測構造</th>
+							<th style={thStyle}>照合状態</th>
+						</tr>
+					</thead>
+					<tbody>
+						{venueRows.map((venue) => (
+							<tr key={`${venue.venueCode}-${venue.venueName}`}>
+								<td style={tdStyle}>{venue.venueName} ({venue.venueCode})</td>
+								<td style={tdStyle}>{venue.venueBias ? `日数 ${venue.venueBias.dateCount} / レース ${venue.venueBias.raceCount} / 結果 ${venue.venueBias.resultAvailableRaceCount}` : "なし"}</td>
+								<td style={tdStyle}>{venue.roughIndex ? `日数 ${venue.roughIndex.dateCount} / レース ${venue.roughIndex.raceCount} / 払戻 ${venue.roughIndex.payoutAvailableRaceCount}` : "なし"}</td>
+								<td style={tdStyle}>{venue.todayFlow ? `レース ${venue.todayFlow.raceCount} / 結果 ${venue.todayFlow.resultAvailableRaceCount} / 払戻 ${venue.todayFlow.payoutAvailableRaceCount}` : "なし"}</td>
+								<td style={tdStyle}>{venue.predictionStructure ? `公式 ${venue.predictionStructure.officialRaceCount} / 展示 ${venue.predictionStructure.exhibitionAvailableRaceCount} / 選手 ${venue.predictionStructure.racerAvailableRaceCount}` : "なし"}</td>
+								<td style={tdStyle}>{venue.ambiguousSources.length > 0 ? `同一ソース内で重複: ${venue.ambiguousSources.join(" / ")}` : "会場コード・会場名の完全一致"}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+
+			<section style={twoColumnGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>ソースファイル</p>
+					<ul style={noteListStyle}>
+						{sourceFiles.length > 0 ? sourceFiles.map((source) => <li key={source}>{source}</li>) : <li>なし</li>}
+					</ul>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>警告</p>
+					<ul style={noteListStyle}>
+						{warnings.length > 0 ? warnings.map((warning) => <li key={warning}>{warning}</li>) : <li>なし</li>}
+					</ul>
+				</article>
+			</section>
+		</>
+	);
+}
+
 export function BoatExPage() {
 	const [activeSection, setActiveSection] = useState<BoatExSectionKey>("overview");
 	const [loadState, setLoadState] = useState<LoadState>({
@@ -1172,34 +1384,13 @@ export function BoatExPage() {
 				);
 			case "ex-analysis":
 				return (
-					<SectionShell title="EX分析" subtitle="会場・選手の照合">
-						<section style={cardGridStyle}>
-							<article style={cardStyle}>
-								<p style={labelStyle}>会場エビデンス</p>
-								<p style={valueStyle}>{venueEvidenceAvailable ? "表示可能" : "なし"}</p>
-								<p style={textStyle}>会場表はソースに基づき、会場傾向は履歴不足のまま扱います。</p>
-							</article>
-							<article style={cardStyle}>
-								<p style={labelStyle}>会場傾向</p>
-								<p style={valueStyle}>{venueBiasAvailable ? "表示可能" : "なし"}</p>
-								<p style={textStyle}>{statusLabel(venueBias?.readiness.status ?? "insufficient-history")}の事実に基づく件数と比率です。</p>
-							</article>
-							<article style={cardStyle}>
-								<p style={labelStyle}>選手エビデンス</p>
-								<p style={valueStyle}>{racerEvidenceAvailable ? "表示可能" : "なし"}</p>
-								<p style={textStyle}>選手表はソースに基づき、選手プロファイルは履歴不足のまま扱います。</p>
-							</article>
-							<article style={cardStyle}>
-								<p style={labelStyle}>進入変更</p>
-								<p style={valueStyle}>ソースに基づく情報のみ</p>
-								<p style={textStyle}>最終進入がない場合、進入変更エビデンスはソースなしとして表示します。</p>
-							</article>
-							<article style={cardStyle}>
-								<p style={labelStyle}>次の工程</p>
-								<p style={valueStyle}>準備中</p>
-								<p style={textStyle}>対戦分析、予測シグナル、レビュー差分は後続フェーズで扱います。</p>
-							</article>
-						</section>
+					<SectionShell title="EX分析" subtitle="既存派生データの照合">
+						<ExAnalysisHubSection
+							venueBias={venueBias}
+							roughIndex={roughIndex}
+							todayFlow={todayFlow}
+							predictionStructure={predictionStructure}
+						/>
 					</SectionShell>
 				);
 			default:
