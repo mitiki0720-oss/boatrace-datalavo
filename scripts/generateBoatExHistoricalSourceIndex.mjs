@@ -56,11 +56,11 @@ function unique(values) {
 }
 
 function resolveSourceRoot() {
+	if (process.env.BOAT_EX_HISTORICAL_SOURCE_ROOT) return path.resolve(process.env.BOAT_EX_HISTORICAL_SOURCE_ROOT);
 	const candidates = [
-		process.env.BOAT_EX_HISTORICAL_SOURCE_ROOT,
 		repoRoot,
 		path.resolve(repoRoot, "..", "boatrace-datalavo"),
-	].filter(Boolean);
+	];
 	return candidates
 		.map((candidate) => ({
 			candidate,
@@ -189,7 +189,25 @@ function writeJson(relativePath, value) {
 	fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
+function readJsonIfPresent(relativePath) {
+	const filePath = absolute(relativePath);
+	if (!fs.existsSync(filePath)) return null;
+	try {
+		return JSON.parse(fs.readFileSync(filePath, "utf8"));
+	} catch {
+		return null;
+	}
+}
+
+function shouldPreserveExistingCoverage(existingCoverage, scannedCoverage, force) {
+	if (force || !existingCoverage || typeof existingCoverage.sourceCount !== "number" || typeof existingCoverage.dateCount !== "number") return false;
+	return scannedCoverage.sourceCount < existingCoverage.sourceCount
+		|| scannedCoverage.dateCount < existingCoverage.dateCount;
+}
+
 function main() {
+	const force = process.argv.includes("--force");
+	const existingCoverage = readJsonIfPresent(COVERAGE_PATH);
 	const sourceRoot = resolveSourceRoot();
 	const roots = [
 		"public/data/reviews",
@@ -214,9 +232,16 @@ function main() {
 		sources,
 	};
 	const coverage = summarize(sources, generatedAt);
+	if (shouldPreserveExistingCoverage(existingCoverage, coverage, force)) {
+		console.log("[historical-source-index] preserved existing index because scanned source coverage is smaller than committed coverage.");
+		console.log(`existing: ${existingCoverage.sourceCount} sources / ${existingCoverage.dateCount} dates`);
+		console.log(`scanned: ${coverage.sourceCount} sources / ${coverage.dateCount} dates`);
+		console.log(JSON.stringify({ ok: true, preserved: true, indexPath: INDEX_PATH, coveragePath: COVERAGE_PATH, ...existingCoverage }, null, 2));
+		return;
+	}
 	writeJson(INDEX_PATH, index);
 	writeJson(COVERAGE_PATH, coverage);
-	console.log(JSON.stringify({ ok: true, indexPath: INDEX_PATH, coveragePath: COVERAGE_PATH, ...coverage }, null, 2));
+	console.log(JSON.stringify({ ok: true, preserved: false, indexPath: INDEX_PATH, coveragePath: COVERAGE_PATH, ...coverage }, null, 2));
 }
 
 main();

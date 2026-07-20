@@ -1157,6 +1157,10 @@ export function BoatExPage() {
 	const todayFlow = loadState.todayFlow;
 	const predictionStructure = loadState.predictionStructure;
 	const historicalSourceCoverage = loadState.historicalSourceCoverage;
+	const historicalSourceDateRange = historicalSourceCoverage?.dateFrom && historicalSourceCoverage.dateTo
+		? `${historicalSourceCoverage.dateFrom} ～ ${historicalSourceCoverage.dateTo}`
+		: "日付未解決";
+	const historicalSourceWarning = historicalSourceCoverage?.warnings[0] ?? "日付または会場が未解決の素材があります";
 	const latestDate = loadState.dateIndex?.latestDate ?? venueEvidence?.date ?? racerEvidence?.date ?? latestHistory?.date ?? "なし";
 	const dateIndexEntry = findDateIndexEntry(loadState.dateIndex, latestDate);
 	const availableDateCount = loadState.dateIndex?.summary.dateCount ?? "日付indexなし";
@@ -1185,9 +1189,29 @@ export function BoatExPage() {
 								<p style={textStyle}>Phase 6Aの日付indexを優先し、ない場合はmanifestの最新日付を使用します。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>利用可能日数</p>
+								<p style={labelStyle}>EX分析済み日数</p>
 								<p style={metricValueStyle}>{availableDateCount}</p>
-								<p style={textStyle}>{availableDates}</p>
+								<p style={textStyle}>派生分析に利用できる日付: {availableDates}</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>過去素材日数</p>
+								<p style={metricValueStyle}>{historicalSourceCoverage?.dateCount ?? "なし"}</p>
+								<p style={textStyle}>{historicalSourceDateRange}</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>過去素材数</p>
+								<p style={metricValueStyle}>{historicalSourceCoverage?.sourceCount ?? "なし"}</p>
+								<p style={textStyle}>レビュー / 会場画像 / 生成済み / EX派生素材</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>過去素材会場</p>
+								<p style={metricValueStyle}>{historicalSourceCoverage?.venueCount ?? "なし"}</p>
+								<p style={textStyle}>索引化できた会場数</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>未解決素材</p>
+								<p style={metricValueStyle}>{historicalSourceCoverage?.unresolvedSourceCount ?? "なし"}</p>
+								<p style={textStyle}>{historicalSourceWarning}</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>履歴レコード</p>
@@ -1444,9 +1468,29 @@ export function BoatExPage() {
 					<p style={textStyle}>{loadState.dateIndex ? "最新index" : "manifestの代替値"}</p>
 				</article>
 				<article style={cardStyle}>
-					<p style={labelStyle}>日数</p>
+					<p style={labelStyle}>EX分析済み日数</p>
 					<p style={metricValueStyle}>{availableDateCount}</p>
-					<p style={textStyle}>利用可能な日付</p>
+					<p style={textStyle}>派生分析に利用できる日付</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>過去素材日数</p>
+					<p style={metricValueStyle}>{historicalSourceCoverage?.dateCount ?? "なし"}</p>
+					<p style={textStyle}>{historicalSourceDateRange}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>過去素材数</p>
+					<p style={metricValueStyle}>{historicalSourceCoverage?.sourceCount ?? "なし"}</p>
+					<p style={textStyle}>レビュー / 会場画像 / 生成済み / EX派生素材</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>過去素材会場</p>
+					<p style={metricValueStyle}>{historicalSourceCoverage?.venueCount ?? "なし"}</p>
+					<p style={textStyle}>索引化できた会場数</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>未解決素材</p>
+					<p style={metricValueStyle}>{historicalSourceCoverage?.unresolvedSourceCount ?? "なし"}</p>
+					<p style={textStyle}>{historicalSourceWarning}</p>
 				</article>
 				<article style={cardStyle}>
 					<p style={labelStyle}>レコード</p>
