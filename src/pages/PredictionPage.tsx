@@ -739,6 +739,7 @@ const buildExhibitionStatusLabel = (params: {
 	feedUpdatedAt?: string;
 	extraUpdatedAt?: string;
 }) => {
+	const coverage = toLooseRecord(toLooseRecord(params.race).exhibitionCoverage);
 	const rows = getRaceExhibitionRows(params.race, params.raceExtra);
 	const exhibitionFrames = new Set(
 		rows
@@ -755,7 +756,7 @@ const buildExhibitionStatusLabel = (params: {
 			.filter((frameNo) => Number.isInteger(frameNo) && frameNo >= 1 && frameNo <= 6),
 	);
 	const exhibitionTimeCount = exhibitionFrames.size;
-	const updatedAt = params.extraUpdatedAt || params.feedUpdatedAt || "";
+	const updatedAt = readLooseString(coverage.updatedAt) || params.extraUpdatedAt || params.feedUpdatedAt || "";
 
 	if (exhibitionTimeCount >= 6) {
 		return {
@@ -773,10 +774,18 @@ const buildExhibitionStatusLabel = (params: {
 		};
 	}
 
+	if (readLooseString(coverage.status) === "official-unpublished") {
+		return {
+			level: "waiting" as const,
+			title: "公式未掲載",
+			detail: updatedAt ? `公式直前情報を確認 ${formatJstDateTimeLabel(updatedAt)}` : "公式直前情報を確認中",
+		};
+	}
+
 	return {
 		level: "waiting" as const,
 		title: "展示タイム未取得",
-		detail: "展示が入るまで予想注意",
+		detail: "公式直前情報を確認中",
 	};
 };
 
@@ -895,8 +904,10 @@ const raceExhibitionStatusMap = useMemo<Record<string, PredictionRaceExhibitionS
 				status.level === "ready"
 					? "展示タイムOK"
 					: status.level === "partial"
-						? status.title.replace("展示タイム ", "展示")
-						: "展示未取得",
+						? "展示一部あり"
+						: status.title === "公式未掲載"
+							? "公式未掲載"
+							: "展示未取得",
 		};
 
 		return acc;
