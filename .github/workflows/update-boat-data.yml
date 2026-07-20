@@ -43,15 +43,16 @@ on:
     - cron: "5 21 * * *"
 
 concurrency:
-  group: boat-data-update-main
-  cancel-in-progress: false
+  group: update-boat-data-main
+  cancel-in-progress: true
 
 permissions:
   contents: write
 
 jobs:
   update-boat-data:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
@@ -115,7 +116,9 @@ jobs:
           echo "- status: completed" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit generated data
+        shell: bash
         run: |
+          timeout 5m bash -euo pipefail <<'BASH'
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
@@ -125,7 +128,7 @@ jobs:
           git add public/data
 
           echo "=== git status before commit ==="
-          git status --short
+          git status --short --untracked-files=no
 
           if git diff --cached --quiet; then
             echo "No generated data changes."
@@ -133,17 +136,19 @@ jobs:
             git commit -m "Update boat race generated data"
 
             echo "=== git status after commit ==="
-            git status --short
+            git status --short --untracked-files=no
 
             if ! git diff --quiet || ! git diff --cached --quiet; then
               echo "::error::Uncommitted changes remain after generated data commit"
-              git status --short
+              git status --short --untracked-files=no
               exit 1
             fi
 
             for i in 1 2 3; do
               git pull --rebase origin main
-              if git push; then
+              echo "--- git push start ---"
+              if git push origin HEAD:main; then
+                echo "--- git push done ---"
                 break
               fi
 
@@ -155,3 +160,4 @@ jobs:
               sleep 5
             done
           fi
+          BASH
