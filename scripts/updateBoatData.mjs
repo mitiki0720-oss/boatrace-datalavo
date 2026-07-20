@@ -120,6 +120,14 @@ function buildExhibitionCoverageCheckArgs() {
 	return ["scripts/checkBoatExhibitionCoverage.mjs"];
 }
 
+function buildBoatExHistoricalSourceIndexArgs() {
+	return ["scripts/generateBoatExHistoricalSourceIndex.mjs"];
+}
+
+function buildBoatExHistoricalSourceIndexCheckArgs() {
+	return ["scripts/checkBoatExHistoricalSourceIndex.mjs"];
+}
+
 function runNodeScript(args) {
 	return new Promise((resolve, reject) => {
 		const child = spawn(process.execPath, args, {
@@ -180,6 +188,10 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 
 	console.log("[update-boat-data] upcoming schedule update enabled");
 	await runNodeScript(appendOutputDir(buildUpcomingScheduleArgs(options), rawOptions.outputDir));
+
+	console.log("[update-boat-data] BOATRACE EX historical source index enabled");
+	await runNodeScript(buildBoatExHistoricalSourceIndexArgs());
+	await runNodeScript(buildBoatExHistoricalSourceIndexCheckArgs());
 
 	if (venueExtrasArgs) {
 		console.log("[update-boat-data] exhibition gap check enabled");

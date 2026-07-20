@@ -775,6 +775,66 @@ export interface BoatExTodayFlowSourceFile {
 	coverageStatus: string;
 }
 
+export type BoatExHistoricalSourceType =
+	| "review-text"
+	| "review-json"
+	| "dog-image"
+	| "boatrace-generated-json"
+	| "boatrace-ex-derived-json"
+	| "unknown";
+
+export type BoatExHistoricalSourceKind =
+	| "prediction-review"
+	| "result-summary"
+	| "exhibition-evidence"
+	| "venue-image"
+	| "daily-generated"
+	| "derived-ex"
+	| "unknown";
+
+export interface BoatExHistoricalSourceEntry {
+	sourceId: string;
+	sourceType: BoatExHistoricalSourceType;
+	sourceKind: BoatExHistoricalSourceKind;
+	date: BoatExDateKey | null;
+	venueName: string | null;
+	venueCode: BoatExVenueCode | null;
+	relativePath: string;
+	fileName: string;
+	extension: string;
+	sizeBytes: number;
+	mtime: string;
+	parsedStatus: "parsed" | "not-applicable" | "invalid-json" | "unresolved";
+	warnings: string[];
+}
+
+export interface BoatExHistoricalSourceIndexFile {
+	schemaVersion: "boat-ex-historical-source-index-v1";
+	kind: "boatrace-ex-historical-source-index";
+	generatedAt: string;
+	sources: BoatExHistoricalSourceEntry[];
+}
+
+export interface BoatExHistoricalSourceCoverageFile {
+	schemaVersion: "boat-ex-history-coverage-v1";
+	kind: "boatrace-ex-history-coverage";
+	ok: true;
+	generatedAt: string;
+	sourceIndexPath: string;
+	dateFrom: BoatExDateKey | null;
+	dateTo: BoatExDateKey | null;
+	dateCount: number;
+	venueCount: number;
+	venueNames: string[];
+	sourceCount: number;
+	reviewFileCount: number;
+	dogImageCount: number;
+	boatraceGeneratedJsonCount: number;
+	boatraceExDerivedJsonCount: number;
+	unresolvedSourceCount: number;
+	warnings: string[];
+}
+
 export interface BoatExTodayFlowV1File {
 	schemaVersion: "boat-ex-today-flow-v1";
 	generatedAt: string;

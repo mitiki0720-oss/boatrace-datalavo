@@ -4,6 +4,7 @@ import { withBasePath } from "../lib/assetPath";
 import type {
 	BoatExDateIndexEntry,
 	BoatExDateIndexFile,
+	BoatExHistoricalSourceCoverageFile,
 	BoatExRacerEvidenceFile,
 	BoatExRacerEvidenceItem,
 	BoatExPredictionStructureV1File,
@@ -63,6 +64,7 @@ type LoadState = {
 	roughIndex: BoatExRoughIndexV1File | null;
 	todayFlow: BoatExTodayFlowV1File | null;
 	predictionStructure: BoatExPredictionStructureV1File | null;
+	historicalSourceCoverage: BoatExHistoricalSourceCoverageFile | null;
 	message: string;
 };
 
@@ -881,11 +883,13 @@ function ExAnalysisHubSection({
 	roughIndex,
 	todayFlow,
 	predictionStructure,
+	historicalSourceCoverage,
 }: {
 	venueBias: BoatExVenueBiasV1File | null;
 	roughIndex: BoatExRoughIndexV1File | null;
 	todayFlow: BoatExTodayFlowV1File | null;
 	predictionStructure: BoatExPredictionStructureV1File | null;
+	historicalSourceCoverage: BoatExHistoricalSourceCoverageFile | null;
 }) {
 	const venueRows = buildExAnalysisVenueRows(venueBias, roughIndex, todayFlow, predictionStructure);
 	const targetDates = [...new Set([
@@ -905,9 +909,10 @@ function ExAnalysisHubSection({
 		...(roughIndex?.warnings.map((warning) => `荒れ指数: ${warning}`) ?? []),
 		...(todayFlow?.warnings.map((warning) => `当日フロー: ${warning}`) ?? []),
 		...(predictionStructure?.warnings.map((warning) => `予測構造: ${warning}`) ?? []),
+		...(historicalSourceCoverage?.warnings.map((warning) => `過去素材: ${warning}`) ?? []),
 	];
 
-	if (!venueBias && !roughIndex && !todayFlow && !predictionStructure) {
+	if (!venueBias && !roughIndex && !todayFlow && !predictionStructure && !historicalSourceCoverage) {
 		return <p style={textStyle}>EX分析に使用できる派生エビデンスがありません。固定値は使用しません。</p>;
 	}
 
@@ -938,6 +943,16 @@ function ExAnalysisHubSection({
 					<p style={labelStyle}>予測材料カバレッジ</p>
 					<p style={metricValueStyle}>{predictionStructure ? `${predictionStructure.summary.officialRaceCount} / ${predictionStructure.summary.exhibitionAvailableRaceCount} / ${predictionStructure.summary.racerAvailableRaceCount}` : "なし"}</p>
 					<p style={textStyle}>公式 / 展示 / 選手のカバレッジ件数です。</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>過去素材</p>
+					<p style={metricValueStyle}>{historicalSourceCoverage?.sourceCount ?? "なし"}</p>
+					<p style={textStyle}>{historicalSourceCoverage ? `${historicalSourceCoverage.dateFrom ?? "日付未解決"} から ${historicalSourceCoverage.dateTo ?? "日付未解決"} / ${historicalSourceCoverage.dateCount}日 / ${historicalSourceCoverage.venueCount}会場` : "過去素材indexなし"}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>素材内訳</p>
+					<p style={metricValueStyle}>{historicalSourceCoverage ? `${historicalSourceCoverage.reviewFileCount} / ${historicalSourceCoverage.dogImageCount}` : "なし"}</p>
+					<p style={textStyle}>レビュー / 会場画像。未解決: {historicalSourceCoverage?.unresolvedSourceCount ?? "なし"}</p>
 				</article>
 				<article style={cardStyle}>
 					<p style={labelStyle}>注意事項</p>
@@ -1027,6 +1042,7 @@ export function BoatExPage() {
 		roughIndex: null,
 		todayFlow: null,
 		predictionStructure: null,
+		historicalSourceCoverage: null,
 		message: "EXエビデンスを確認しています。",
 	});
 
@@ -1057,7 +1073,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, historicalSourceCoverageResponse] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1069,6 +1085,7 @@ export function BoatExPage() {
 					fetch(withBasePath("data/boatrace-ex/derived/rough-index/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/today-flow/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/prediction-structure/latest.json"), { cache: "no-store" }),
+					fetch(withBasePath("data/boatrace-ex/derived/history-coverage/latest.json"), { cache: "no-store" }),
 				]);
 
 				if (!derivedManifestResponse.ok) throw new Error(`derived manifest fetch failed: ${derivedManifestResponse.status}`);
@@ -1078,6 +1095,7 @@ export function BoatExPage() {
 				if (!roughIndexResponse.ok) throw new Error(`rough index fetch failed: ${roughIndexResponse.status}`);
 				if (!todayFlowResponse.ok) throw new Error(`today flow fetch failed: ${todayFlowResponse.status}`);
 				if (!predictionStructureResponse.ok) throw new Error(`prediction structure fetch failed: ${predictionStructureResponse.status}`);
+				if (!historicalSourceCoverageResponse.ok) throw new Error(`historical source coverage fetch failed: ${historicalSourceCoverageResponse.status}`);
 
 				const derivedManifest = await derivedManifestResponse.json() as BoatExManifest;
 				const venueEvidence = await venueResponse.json() as BoatExVenueEvidenceFile;
@@ -1086,6 +1104,7 @@ export function BoatExPage() {
 				const roughIndex = await roughIndexResponse.json() as BoatExRoughIndexV1File;
 				const todayFlow = await todayFlowResponse.json() as BoatExTodayFlowV1File;
 				const predictionStructure = await predictionStructureResponse.json() as BoatExPredictionStructureV1File;
+				const historicalSourceCoverage = await historicalSourceCoverageResponse.json() as BoatExHistoricalSourceCoverageFile;
 
 				if (isMounted) {
 					setLoadState({
@@ -1099,6 +1118,7 @@ export function BoatExPage() {
 					roughIndex,
 					todayFlow,
 					predictionStructure,
+					historicalSourceCoverage,
 						message: indexMissing ? "EX日付indexがありません。manifestの最新日付を使用します。" : "EXセクションを表示できます。",
 					});
 				}
@@ -1115,6 +1135,7 @@ export function BoatExPage() {
 					roughIndex: null,
 					todayFlow: null,
 					predictionStructure: null,
+					historicalSourceCoverage: null,
 						message: "EXエビデンスがありません。",
 					});
 				}
@@ -1135,6 +1156,7 @@ export function BoatExPage() {
 	const roughIndex = loadState.roughIndex;
 	const todayFlow = loadState.todayFlow;
 	const predictionStructure = loadState.predictionStructure;
+	const historicalSourceCoverage = loadState.historicalSourceCoverage;
 	const latestDate = loadState.dateIndex?.latestDate ?? venueEvidence?.date ?? racerEvidence?.date ?? latestHistory?.date ?? "なし";
 	const dateIndexEntry = findDateIndexEntry(loadState.dateIndex, latestDate);
 	const availableDateCount = loadState.dateIndex?.summary.dateCount ?? "日付indexなし";
@@ -1390,6 +1412,7 @@ export function BoatExPage() {
 							roughIndex={roughIndex}
 							todayFlow={todayFlow}
 							predictionStructure={predictionStructure}
+							historicalSourceCoverage={historicalSourceCoverage}
 						/>
 					</SectionShell>
 				);
