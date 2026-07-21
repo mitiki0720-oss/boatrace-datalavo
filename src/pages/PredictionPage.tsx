@@ -72,6 +72,7 @@ import {
 	buildBoatJohnsonGeneratedPayload,
 	buildBoatJohnsonRecordsFromPredictionRecords,
 	loadBoatJohnsonPredictionRecords,
+	pruneBoatJohnsonPredictionRecordsByDate,
 	saveBoatJohnsonPredictionRecords,
 } from "../lib/boatJohnsonPredictionStorage";
 
@@ -1803,7 +1804,6 @@ const practiceSummary = useMemo(() => {
 	const handlePruneBoatLocalStorage = () => {
 		const pruneResult = pruneBoatLocalRecordsByDate({
 			activeDate: activePredictionDate,
-			keepDates: [activePredictionDate],
 		});
 		autoSettledFingerprintRef.current.clear();
 		setPredictionRecordsVersion((current) => current + 1);
@@ -2423,7 +2423,11 @@ const handleSelectRace = (raceId: string) => {
 			practiceResultRecords: loadBoatPracticeResultRecords(),
 			updatedAt: new Date().toISOString(),
 		});
-		const johnsonSaveResult = saveBoatJohnsonPredictionRecords(mergedJohnsonRecords);
+		const todayOnlyJohnsonRecords = pruneBoatJohnsonPredictionRecordsByDate(
+			mergedJohnsonRecords,
+			[activePredictionDate],
+		);
+		const johnsonSaveResult = saveBoatJohnsonPredictionRecords(todayOnlyJohnsonRecords);
 
 		if (!johnsonSaveResult.ok) {
 			setSavedMessage("保存容量がいっぱいのため、ジョンソン化を保存できませんでした");

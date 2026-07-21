@@ -6,7 +6,7 @@ export const BOAT_JOHNSON_PREDICTION_STORAGE_KEY = "kurari-boat-data-labo-johnso
 
 export type BoatJohnsonPredictionRecordMap = Record<string, BoatJohnsonPredictionRecord>;
 
-const BOAT_JOHNSON_FALLBACK_KEEP_DAYS = 2;
+const BOAT_JOHNSON_FALLBACK_KEEP_DAYS = 1;
 
 const readPracticeNumber = (value: unknown): number => {
 	if (typeof value === "number" && Number.isFinite(value)) {

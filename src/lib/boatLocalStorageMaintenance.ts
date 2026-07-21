@@ -228,7 +228,6 @@ export function cleanupBoatVenueLocalStorage(
 
 export type PruneBoatLocalRecordsByDateParams = {
 	activeDate: string;
-	keepDates: string[];
 };
 
 export type PruneBoatLocalRecordsByDateResult = {
@@ -240,14 +239,8 @@ export type PruneBoatLocalRecordsByDateResult = {
 };
 
 export function pruneBoatLocalRecordsByDate(params: PruneBoatLocalRecordsByDateParams): PruneBoatLocalRecordsByDateResult {
-	const activeDate = String(params.activeDate || params.keepDates[0] || "").trim();
-	const keepDates = Array.from(
-		new Set(
-			params.keepDates
-				.map((date) => String(date ?? "").trim())
-				.filter(Boolean),
-		),
-	);
+	const activeDate = String(params.activeDate || "").trim();
+	const keepDates = activeDate ? [activeDate] : [];
 
 	return {
 		activeDate,
