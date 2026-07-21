@@ -113,6 +113,20 @@ function buildRecordsArray(recordMap) {
   });
 }
 
+function readActiveDate(todayFeed) {
+  const date = String(todayFeed?.date ?? "").trim();
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : "";
+}
+
+function filterNotificationKeysByActiveDate(keys, activeDate) {
+  const datePrefix = `:${activeDate}:`;
+  return Array.from(new Set(
+    asArray(keys)
+      .map((item) => String(item))
+      .filter((key) => key.includes(datePrefix)),
+  ));
+}
+
 function getResultOrder(race) {
   const result = asRecord(race?.result);
   const finishOrder = result.finishOrder ?? race?.finishOrder;
@@ -406,11 +420,25 @@ async function postNotificationsToSlack(notifications) {
 async function main() {
   const predictionsPayload = await loadJson(PREDICTIONS_FILE, createEmptyPayload());
   const todayFeed = await loadJson(TODAY_DETAILS_FILE, null);
-  const recordMap = buildRecordMap(predictionsPayload);
-  const notifiedResultKeys = new Set(asArray(predictionsPayload.notifiedSlackResultKeys).map((item) => String(item)));
+  const activeDate = readActiveDate(todayFeed);
+  if (!activeDate) {
+    console.warn("[notify-boat-slack-hits] No active date in today-race-details; preserving Johnson predictions JSON.");
+    return;
+  }
+
+  const allRecordMap = buildRecordMap(predictionsPayload);
+  const recordMap = new Map(
+    [...allRecordMap.entries()].filter(([, record]) => record.date === activeDate),
+  );
+  const storedResultKeys = asArray(predictionsPayload.notifiedSlackResultKeys).map((item) => String(item));
+  const storedHitKeys = asArray(predictionsPayload.notifiedSlackHitKeys).map((item) => String(item));
+  const activeResultKeys = filterNotificationKeysByActiveDate(storedResultKeys, activeDate);
+  const activeHitKeys = filterNotificationKeysByActiveDate(storedHitKeys, activeDate);
+  const notifiedResultKeys = new Set(activeResultKeys);
 
   console.log("[notify-boat-slack-hits] loaded", {
     recordCount: recordMap.size,
+    activeDate,
     venueCount: asArray(todayFeed?.venues).length,
     dryRun: DRY_RUN,
     shouldWrite: SHOULD_WRITE,
@@ -419,7 +447,7 @@ async function main() {
   });
 
   const notifications = [];
-  let recordsChanged = false;
+  let recordsChanged = recordMap.size !== allRecordMap.size;
 
   for (const [raceKey, record] of recordMap.entries()) {
     const raceInfo = findRaceForRecord(todayFeed, record);
@@ -458,6 +486,14 @@ async function main() {
 
   const sendResult = await postNotificationsToSlack(notifications);
   const canPersistNotificationKeys = SHOULD_WRITE && sendResult.deliveredKeys.length > 0;
+  const nextResultKeys = canPersistNotificationKeys
+    ? Array.from(new Set([...activeResultKeys, ...sendResult.deliveredKeys]))
+    : activeResultKeys;
+  const nextHitKeys = canPersistNotificationKeys
+    ? Array.from(new Set([...activeHitKeys, ...sendResult.deliveredHitKeys]))
+    : activeHitKeys;
+  const notificationKeysChanged = JSON.stringify(storedResultKeys) !== JSON.stringify(nextResultKeys)
+    || JSON.stringify(storedHitKeys) !== JSON.stringify(nextHitKeys);
 
   const nextPayload = {
     ...createEmptyPayload(),
@@ -465,18 +501,8 @@ async function main() {
     generatedAt: predictionsPayload.generatedAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     records: buildRecordsArray(recordMap),
-    notifiedSlackResultKeys: canPersistNotificationKeys
-      ? Array.from(new Set([
-          ...asArray(predictionsPayload.notifiedSlackResultKeys).map((item) => String(item)),
-          ...sendResult.deliveredKeys,
-        ])).slice(-1000)
-      : asArray(predictionsPayload.notifiedSlackResultKeys).map((item) => String(item)),
-    notifiedSlackHitKeys: canPersistNotificationKeys
-      ? Array.from(new Set([
-          ...asArray(predictionsPayload.notifiedSlackHitKeys).map((item) => String(item)),
-          ...sendResult.deliveredHitKeys,
-        ])).slice(-1000)
-      : asArray(predictionsPayload.notifiedSlackHitKeys).map((item) => String(item)),
+    notifiedSlackResultKeys: nextResultKeys,
+    notifiedSlackHitKeys: nextHitKeys,
     slackNotifiedAt: canPersistNotificationKeys ? new Date().toISOString() : predictionsPayload.slackNotifiedAt,
   };
 
@@ -484,7 +510,7 @@ async function main() {
     return;
   }
 
-  if (!recordsChanged && !canPersistNotificationKeys) {
+  if (!recordsChanged && !notificationKeysChanged && !canPersistNotificationKeys) {
     console.log("[notify-boat-slack-hits] No JSON updates to write.");
     return;
   }

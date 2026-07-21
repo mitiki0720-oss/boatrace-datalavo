@@ -98,8 +98,8 @@ const pruned = pruneBoatRecordMapByOperationalDate({
 	archiveVerifiedDates: ["2026-06-03"],
 	label: "cutover",
 });
-assert.deepEqual(Object.keys(pruned.records).sort(), ["current", "previous"], "localStorage prune should keep current and previous dates only");
-assert.equal(pruned.removedCount, 1, "localStorage prune should remove 2+ day old active records after archive verification");
+assert.deepEqual(Object.keys(pruned.records).sort(), ["current"], "localStorage prune should keep only the current operational date");
+assert.equal(pruned.removedCount, 2, "localStorage prune should remove all non-current records");
 
 const browserWarnings = [];
 const browserPruned = pruneBoatRecordMapByOperationalDate({
@@ -114,9 +114,9 @@ const browserPruned = pruneBoatRecordMapByOperationalDate({
 	label: "browser",
 	warnings: browserWarnings,
 });
-assert.deepEqual(Object.keys(browserPruned.records).sort(), ["current", "previous", "unarchivedOld"], "browser prune should delete only archived 2+ day old records");
-assert.equal(browserPruned.removedCount, 1, "browser prune should remove the archived old record");
-assert.ok(browserWarnings.some((warning) => warning.includes("keep unarchived date 2026-06-03")), "browser prune should warn for unverified archive dates");
+assert.deepEqual(Object.keys(browserPruned.records).sort(), ["current"], "browser prune should remove previous, old, future, and invalid records");
+assert.equal(browserPruned.removedCount, 3, "browser prune should remove every non-current record");
+assert.equal(browserWarnings.length, 0, "today-only browser prune should not retain archive exceptions");
 
 const rolloverSource = fs.readFileSync(path.join(repoRoot, "scripts", "runBoatDailyRollover.mjs"), "utf8");
 assert.match(rolloverSource, /archive verification failed/);
