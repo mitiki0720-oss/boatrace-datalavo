@@ -1,58 +1,130 @@
 $ErrorActionPreference = "Stop"
 
-# localStorage だけではスマホや GitHub Actions から読めないため、Downloads に出た JSON を repo の generated JSON へ橋渡しする。
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $DownloadDir = Join-Path $env:USERPROFILE "Downloads"
-$ProcessedDir = Join-Path $DownloadDir "processed-boat-johnson"
-$TargetDir = Join-Path $ProjectRoot "public\data\boatrace"
-$TargetFile = Join-Path $TargetDir "johnson-predictions.generated.json"
+$CheckerPath = Join-Path $ProjectRoot "scripts\checkBoatJohnsonPredictionsJson.mjs"
 $LogFile = Join-Path $ProjectRoot "scripts\boat-johnson-auto-push-log.txt"
+$StateFile = Join-Path $ProjectRoot ".git\boat-johnson-watch-state.txt"
+$TargetRelativePath = "public/data/boatrace/johnson-predictions.generated.json"
+$MaxPushAttempts = 4
+$WatchStartedAt = Get-Date
+$Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 function Write-Log {
   param([string]$Message)
 
-  $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-  $line = "[$timestamp] $Message"
+  $line = "[{0}] {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $Message
   Write-Host $line
-
-  $logDir = Split-Path -Parent $LogFile
-  if (!(Test-Path $logDir)) {
-    New-Item -ItemType Directory -Path $logDir -Force | Out-Null
-  }
-
-  Add-Content -Path $LogFile -Value $line -Encoding UTF8
+  [System.IO.File]::AppendAllText($LogFile, "$line`r`n", $Utf8NoBom)
 }
 
-function Invoke-GitCommand {
-  param([string]$Command)
+function Invoke-LoggedCommand {
+  param(
+    [string]$WorkingDirectory,
+    [string]$File,
+    [string[]]$Arguments
+  )
 
-  Set-Location $ProjectRoot
-  Write-Log "RUN: git $Command"
+  $display = "$File $($Arguments -join ' ')"
+  Write-Log "RUN: $display"
+  Push-Location $WorkingDirectory
+  try {
+    $output = @(& $File @Arguments 2>&1 | ForEach-Object { [string]$_ })
+    $exitCode = $LASTEXITCODE
+  } catch {
+    $output = @($_.Exception.Message)
+    $exitCode = 1
+  } finally {
+    Pop-Location
+  }
 
-  $output = cmd /c "git $Command 2>&1"
-  $exitCode = $LASTEXITCODE
-
-  if ($output) {
-    $output | ForEach-Object { Write-Log "GIT: $_" }
+  foreach ($line in $output) {
+    if ($line) {
+      Write-Log "OUTPUT: $line"
+    }
   }
 
   Write-Log "EXIT: $exitCode"
-  return $exitCode
+  return [pscustomobject]@{ ExitCode = $exitCode; Output = $output }
+}
+
+function Invoke-Git {
+  param([string]$WorkingDirectory, [string[]]$Arguments)
+  return Invoke-LoggedCommand -WorkingDirectory $WorkingDirectory -File "git" -Arguments $Arguments
+}
+
+function Get-OperationDate {
+  $jst = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([System.DateTimeOffset]::UtcNow, "Tokyo Standard Time")
+  return $jst.ToString("yyyy-MM-dd")
+}
+
+function Get-DownloadSignature {
+  param([System.IO.FileInfo]$File)
+  return "{0}|{1}|{2}" -f $File.FullName, $File.LastWriteTimeUtc.Ticks, $File.Length
+}
+
+function Get-ProcessedSignature {
+  if (!(Test-Path -LiteralPath $StateFile)) {
+    return ""
+  }
+
+  return [System.IO.File]::ReadAllText($StateFile, [System.Text.Encoding]::UTF8).Trim()
+}
+
+function Save-ProcessedSignature {
+  param([string]$Signature)
+  [System.IO.File]::WriteAllText($StateFile, $Signature + "`n", $Utf8NoBom)
+}
+
+function Test-OriginalRepositoryState {
+  $gitDir = Join-Path $ProjectRoot ".git"
+  $blockedPaths = @(
+    (Join-Path $gitDir "rebase-merge"),
+    (Join-Path $gitDir "rebase-apply"),
+    (Join-Path $gitDir "MERGE_HEAD"),
+    (Join-Path $gitDir "CHERRY_PICK_HEAD")
+  )
+
+  foreach ($blockedPath in $blockedPaths) {
+    if (Test-Path -LiteralPath $blockedPath) {
+      Write-Log "Stop: original repository has an in-progress Git operation at $blockedPath"
+      return $false
+    }
+  }
+
+  return $true
+}
+
+function Test-DownloadName {
+  param([string]$Name)
+  return $Name -eq "boat-johnson-predictions.generated.json" `
+    -or $Name -like "boat-johnson-predictions.generated (*.json)" `
+    -or $Name -like "boat-johnson-from-browser-????-??-??.json"
+}
+
+function Get-LatestDownload {
+  if (!(Test-Path -LiteralPath $DownloadDir)) {
+    Write-Log "Download directory does not exist: $DownloadDir"
+    return $null
+  }
+
+  return Get-ChildItem -LiteralPath $DownloadDir -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.LastWriteTime -gt $WatchStartedAt -and (Test-DownloadName -Name $_.Name) } |
+    Sort-Object -Property LastWriteTime -Descending |
+    Select-Object -First 1
 }
 
 function Wait-FileReady {
-  param([string]$Path)
+  param([System.IO.FileInfo]$File)
 
-  for ($i = 0; $i -lt 10; $i++) {
+  for ($attempt = 0; $attempt -lt 12; $attempt++) {
     try {
-      $stream = [System.IO.File]::Open($Path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::None)
+      $stream = [System.IO.File]::Open($File.FullName, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::None)
       $stream.Close()
-
-      $firstSize = (Get-Item -LiteralPath $Path).Length
+      $firstLength = (Get-Item -LiteralPath $File.FullName).Length
       Start-Sleep -Milliseconds 500
-      $secondSize = (Get-Item -LiteralPath $Path).Length
-
-      if ($firstSize -eq $secondSize -and $secondSize -gt 0) {
+      $secondLength = (Get-Item -LiteralPath $File.FullName).Length
+      if ($firstLength -gt 0 -and $firstLength -eq $secondLength) {
         return $true
       }
     } catch {
@@ -63,302 +135,162 @@ function Wait-FileReady {
   return $false
 }
 
-function Get-JsonPreviewText {
-  param([string]$Text)
-
-  if ([string]::IsNullOrEmpty($Text)) {
-    return ""
-  }
-
-  if ($Text.Length -le 200) {
-    return $Text.Replace("`r", "\\r").Replace("`n", "\\n")
-  }
-
-  return $Text.Substring(0, 200).Replace("`r", "\\r").Replace("`n", "\\n")
+function Invoke-JsonCheck {
+  param([string]$Path, [string]$OperationDate)
+  return Invoke-LoggedCommand -WorkingDirectory $ProjectRoot -File "node" -Arguments @($CheckerPath, $Path, "--expected-date", $OperationDate)
 }
 
-function Convert-FromJsonCompat {
-  param([string]$Text)
-
-  if ($PSVersionTable.PSVersion.Major -ge 6) {
-    return $Text | ConvertFrom-Json -Depth 100
-  }
-
-  return $Text | ConvertFrom-Json
-}
-
-function New-EmptyPayload {
-  return [ordered]@{
-    generatedAt = [DateTimeOffset]::Now.ToString("o")
-    updatedAt = [DateTimeOffset]::Now.ToString("o")
-    version = 1
-    source = "kurari-boat-prediction-page"
-    records = @()
-    notifiedSlackResultKeys = @()
-    notifiedSlackHitKeys = @()
+function Remove-TemporaryWorktree {
+  param([string]$WorktreePath)
+  if (Test-Path -LiteralPath $WorktreePath) {
+    $result = Invoke-Git -WorkingDirectory $ProjectRoot -Arguments @("worktree", "remove", "--force", $WorktreePath)
+    if ($result.ExitCode -ne 0) {
+      Write-Log "Temporary worktree cleanup failed: $WorktreePath"
+    }
   }
 }
 
-function Load-JsonObject {
-  param(
-    [string]$Path,
-    [switch]$AllowMissing
-  )
+function Test-PushRetryable {
+  param([string[]]$Output)
+  $text = $Output -join "`n"
+  return $text -match "non-fast-forward|rejected|cannot lock ref|fetch first"
+}
 
-  if (!(Test-Path $Path)) {
-    if ($AllowMissing) {
-      return [pscustomobject]@{
-        Success = $true
-        Payload = (New-EmptyPayload)
-      }
-    }
+function Publish-Download {
+  param([System.IO.FileInfo]$SourceFile)
 
-    Write-Log "JSON file not found: $Path"
-    return [pscustomobject]@{
-      Success = $false
-      Payload = $null
-    }
+  if (!(Test-OriginalRepositoryState)) {
+    return "stop"
   }
 
-  try {
-    $raw = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
-    if ([string]::IsNullOrWhiteSpace($raw)) {
-      return [pscustomobject]@{
-        Success = $true
-        Payload = (New-EmptyPayload)
-      }
-    }
+  if (!(Wait-FileReady -File $SourceFile)) {
+    Write-Log "File is not ready: $($SourceFile.FullName)"
+    return "retry-later"
+  }
 
-    return [pscustomobject]@{
-      Success = $true
-      Payload = (Convert-FromJsonCompat -Text $raw)
-    }
-  } catch {
-    Write-Log "JSON parse failed: $Path"
-    try {
-      $item = Get-Item -LiteralPath $Path -ErrorAction Stop
-      Write-Log "JSON file size: $($item.Length) bytes"
-    } catch {
-      Write-Log "JSON file size: unavailable"
-    }
+  $operationDate = Get-OperationDate
+  Write-Log "Detected download: $($SourceFile.Name) size=$($SourceFile.Length) lastWrite=$($SourceFile.LastWriteTime.ToString('o'))"
+  $sourceCheck = Invoke-JsonCheck -Path $SourceFile.FullName -OperationDate $operationDate
+  if ($sourceCheck.ExitCode -ne 0) {
+    Write-Log "Source JSON validation failed."
+    return "stop"
+  }
+
+  for ($attempt = 1; $attempt -le $MaxPushAttempts; $attempt++) {
+    $worktreePath = Join-Path ([System.IO.Path]::GetTempPath()) ("boatrace-johnson-push-{0}-{1}" -f (Get-Date -Format "yyyyMMddHHmmssfff"), $attempt)
+    $created = $false
 
     try {
-      $previewRaw = Get-Content -LiteralPath $Path -Raw -Encoding UTF8 -ErrorAction Stop
-      Write-Log "JSON preview: $(Get-JsonPreviewText -Text $previewRaw)"
-    } catch {
-      Write-Log "JSON preview: unavailable"
-    }
+      Write-Log "Push attempt $attempt/$MaxPushAttempts"
+      $fetch = Invoke-Git -WorkingDirectory $ProjectRoot -Arguments @("fetch", "origin", "main")
+      if ($fetch.ExitCode -ne 0) {
+        return "stop"
+      }
 
-    Write-Log "ConvertFrom-Json error: $($_.Exception.Message)"
-    return [pscustomobject]@{
-      Success = $false
-      Payload = $null
-    }
-  }
-}
+      $addWorktree = Invoke-Git -WorkingDirectory $ProjectRoot -Arguments @("worktree", "add", "--detach", $worktreePath, "origin/main")
+      if ($addWorktree.ExitCode -ne 0) {
+        return "stop"
+      }
+      $created = $true
+      Write-Log "Temporary worktree: $worktreePath"
 
-function Convert-ToRecordMap {
-  param([object]$Payload)
+      $targetPath = Join-Path $worktreePath $TargetRelativePath
+      [System.IO.Directory]::CreateDirectory((Split-Path -Parent $targetPath)) | Out-Null
+      Copy-Item -LiteralPath $SourceFile.FullName -Destination $targetPath -Force
+      Write-Log "Copied source JSON by bytes to temporary worktree target."
 
-  $map = @{}
-  $records = $Payload.records
+      $targetCheck = Invoke-JsonCheck -Path $targetPath -OperationDate $operationDate
+      if ($targetCheck.ExitCode -ne 0) {
+        Write-Log "Target JSON validation failed."
+        return "stop"
+      }
 
-  if ($records -is [System.Collections.IEnumerable] -and !($records -is [string])) {
-    foreach ($record in $records) {
-      if ($null -ne $record -and $record.raceKey) {
-        $map[$record.raceKey] = $record
+      $stage = Invoke-Git -WorkingDirectory $worktreePath -Arguments @("add", "--", $TargetRelativePath)
+      if ($stage.ExitCode -ne 0) {
+        return "stop"
+      }
+
+      $staged = Invoke-Git -WorkingDirectory $worktreePath -Arguments @("diff", "--cached", "--name-only")
+      $stagedFiles = @($staged.Output | Where-Object { $_ })
+      Write-Log "Staged files: $($stagedFiles -join ', ')"
+      if ($staged.ExitCode -ne 0 -or $stagedFiles.Count -ne 1 -or $stagedFiles[0] -ne $TargetRelativePath) {
+        Write-Log "Stop: unexpected staged file set."
+        return "stop"
+      }
+
+      $check = Invoke-Git -WorkingDirectory $worktreePath -Arguments @("diff", "--check", "--cached")
+      if ($check.ExitCode -ne 0) {
+        return "stop"
+      }
+
+      $hasDiff = Invoke-Git -WorkingDirectory $worktreePath -Arguments @("diff", "--cached", "--quiet")
+      if ($hasDiff.ExitCode -eq 0) {
+        Write-Log "No target JSON diff on latest origin/main. Marking download as processed."
+        return "processed"
+      }
+      if ($hasDiff.ExitCode -ne 1) {
+        return "stop"
+      }
+
+      $commitMessage = "Update boat Johnson predictions for $operationDate"
+      $commit = Invoke-Git -WorkingDirectory $worktreePath -Arguments @("commit", "-m", $commitMessage)
+      if ($commit.ExitCode -ne 0) {
+        return "stop"
+      }
+
+      $hash = Invoke-Git -WorkingDirectory $worktreePath -Arguments @("rev-parse", "HEAD")
+      if ($hash.ExitCode -ne 0) {
+        return "stop"
+      }
+      Write-Log "Commit hash: $($hash.Output[0])"
+
+      $push = Invoke-Git -WorkingDirectory $worktreePath -Arguments @("push", "origin", "HEAD:main")
+      if ($push.ExitCode -eq 0) {
+        Write-Log "Push succeeded on attempt $attempt."
+        return "processed"
+      }
+
+      Write-Log "Push failed on attempt $attempt."
+      if (!(Test-PushRetryable -Output $push.Output) -or $attempt -eq $MaxPushAttempts) {
+        return "stop"
+      }
+    } finally {
+      if ($created) {
+        Remove-TemporaryWorktree -WorktreePath $worktreePath
       }
     }
-    return $map
   }
 
-  if ($records -and $records.PSObject.Properties) {
-    foreach ($property in $records.PSObject.Properties) {
-      if ($property.Value) {
-        $map[$property.Name] = $property.Value
-      }
-    }
-  }
-
-  return $map
+  return "stop"
 }
 
-function Convert-ToSortedRecords {
-  param([hashtable]$RecordMap)
-
-  return @($RecordMap.Values | Sort-Object -Property @(
-    @{ Expression = { $_.date }; Descending = $true },
-    @{ Expression = { $_.updatedAt }; Descending = $true },
-    @{ Expression = { $_.savedAt }; Descending = $true },
-    @{ Expression = { [int]($_.raceNo) }; Descending = $false }
-  ))
+if (!(Test-Path -LiteralPath $CheckerPath)) {
+  throw "Missing JSON checker: $CheckerPath"
 }
 
-function Save-MergedPredictionJson {
-  param([string]$SourceFile)
-
-  $incomingLoadResult = Load-JsonObject -Path $SourceFile
-  if (!$incomingLoadResult.Success) {
-    Write-Log "Skip update because incoming JSON could not be parsed."
-    return $null
-  }
-
-  $targetLoadResult = Load-JsonObject -Path $TargetFile -AllowMissing
-  if (!$targetLoadResult.Success) {
-    Write-Log "Skip update because target JSON could not be parsed."
-    return $null
-  }
-
-  $incomingPayload = $incomingLoadResult.Payload
-  $targetPayload = $targetLoadResult.Payload
-
-  $incomingRecords = Convert-ToRecordMap -Payload $incomingPayload
-  Write-Log "Parsed incoming records: $($incomingRecords.Count)"
-  if ($incomingRecords.Count -le 0) {
-    Write-Log "Incoming records are 0. Skip update."
-    return $null
-  }
-
-  $targetRecords = Convert-ToRecordMap -Payload $targetPayload
-
-  foreach ($key in $incomingRecords.Keys) {
-    $targetRecords[$key] = $incomingRecords[$key]
-  }
-
-  $nextPayload = [ordered]@{
-    generatedAt = [DateTimeOffset]::Now.ToString("o")
-    updatedAt = [DateTimeOffset]::Now.ToString("o")
-    version = 1
-    source = "kurari-boat-prediction-page"
-    records = (Convert-ToSortedRecords -RecordMap $targetRecords)
-    notifiedSlackResultKeys = @($targetPayload.notifiedSlackResultKeys)
-    notifiedSlackHitKeys = @($targetPayload.notifiedSlackHitKeys)
-  }
-
-  if (!(Test-Path $TargetDir)) {
-    New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null
-  }
-
-  $json = $nextPayload | ConvertTo-Json -Depth 100
-  [System.IO.File]::WriteAllText($TargetFile, "$json`n", [System.Text.UTF8Encoding]::new($false))
-  Write-Log "Updated johnson-predictions.generated.json with $($incomingRecords.Count) incoming record(s)."
-
-  return [pscustomobject]@{
-    IncomingCount = $incomingRecords.Count
-  }
-}
-
-function Archive-ProcessedJson {
-  param([string]$SourceFile)
-
-  if (!(Test-Path $SourceFile)) {
-    return
-  }
-
-  if (!(Test-Path $ProcessedDir)) {
-    New-Item -ItemType Directory -Path $ProcessedDir -Force | Out-Null
-  }
-
-  $baseName = [System.IO.Path]::GetFileNameWithoutExtension($SourceFile)
-  $extension = [System.IO.Path]::GetExtension($SourceFile)
-  $archiveName = "{0}-{1}{2}" -f $baseName, (Get-Date -Format "yyyyMMdd-HHmmssfff"), $extension
-  $archivePath = Join-Path $ProcessedDir $archiveName
-  Move-Item -LiteralPath $SourceFile -Destination $archivePath -Force
-  Write-Log "Archived processed json: $archivePath"
-}
-
-function Publish-PredictionJson {
-  param([string]$SourceFile)
-
-  try {
-    if (!(Test-Path $SourceFile)) {
-      Write-Log "Source file not found: $SourceFile"
-      return
-    }
-
-    if (!(Wait-FileReady -Path $SourceFile)) {
-      Write-Log "File is not ready: $SourceFile"
-      return
-    }
-
-    $mergeResult = Save-MergedPredictionJson -SourceFile $SourceFile
-    if ($null -eq $mergeResult) {
-      return
-    }
-
-    Archive-ProcessedJson -SourceFile $SourceFile
-
-    $addExit = Invoke-GitCommand "add public/data/boatrace/johnson-predictions.generated.json"
-    if ($addExit -ne 0) {
-      Write-Log "git add failed."
-      return
-    }
-
-    $diffExit = Invoke-GitCommand "diff --cached --quiet"
-    if ($diffExit -eq 0) {
-      Write-Log "No git changes. Skip commit and push."
-      return
-    }
-
-    $commitExit = Invoke-GitCommand "commit -m \"Update boat Johnson predictions\""
-    if ($commitExit -ne 0) {
-      Write-Log "git commit failed."
-      return
-    }
-
-    $pullExit = Invoke-GitCommand "pull --rebase --autostash origin main"
-    if ($pullExit -ne 0) {
-      Write-Log "git pull --rebase failed. Resolve the conflict in this repo and restart the watcher."
-      return
-    }
-
-    $pushExit = Invoke-GitCommand "push"
-    if ($pushExit -eq 0) {
-      Write-Log "git push completed. MobilePage / Slack script can now read the generated JSON."
-    } else {
-      Write-Log "git push failed."
-    }
-  } catch {
-    Write-Log "ERROR: $($_.Exception.Message)"
-  }
-}
-
-Write-Log "Watcher started."
-Write-Log "PowerShell version: $($PSVersionTable.PSVersion.ToString())"
+Write-Log "Johnson watcher started. Downloads created after $($WatchStartedAt.ToString('o')) are eligible."
 Write-Log "Download directory: $DownloadDir"
-Write-Log "Target file: $TargetFile"
-Write-Log "Watching boat-johnson-predictions.generated*.json"
-Write-Log "Press Ctrl + C to stop."
-
-$watcher = New-Object System.IO.FileSystemWatcher
-$watcher.Path = $DownloadDir
-$watcher.Filter = "boat-johnson-predictions.generated*.json"
-$watcher.IncludeSubdirectories = $false
-$watcher.EnableRaisingEvents = $true
-
-$script:lastHandledPath = ""
-$script:lastHandledAt = Get-Date "2000-01-01"
-
-$action = {
-  $path = $Event.SourceEventArgs.FullPath
-  $now = Get-Date
-
-  if ($path -eq $script:lastHandledPath -and (($now - $script:lastHandledAt).TotalSeconds -lt 3)) {
-    return
-  }
-
-  $script:lastHandledPath = $path
-  $script:lastHandledAt = $now
-
-  Start-Sleep -Milliseconds 800
-  Write-Log "Detected json: $path"
-  Publish-PredictionJson -SourceFile $path
-}
-
-Register-ObjectEvent $watcher Created -Action $action | Out-Null
-Register-ObjectEvent $watcher Changed -Action $action | Out-Null
-Register-ObjectEvent $watcher Renamed -Action $action | Out-Null
+Write-Log "Target: $TargetRelativePath"
+Write-Log "Press Ctrl+C to stop."
 
 while ($true) {
+  try {
+    $source = Get-LatestDownload
+    if ($null -ne $source) {
+      $signature = Get-DownloadSignature -File $source
+      if ($signature -ne (Get-ProcessedSignature)) {
+        $result = Publish-Download -SourceFile $source
+        if ($result -eq "processed") {
+          Save-ProcessedSignature -Signature $signature
+        } elseif ($result -eq "stop") {
+          Write-Log "Watcher stopped after an unrecoverable processing error."
+          break
+        }
+      }
+    }
+  } catch {
+    Write-Log "Watcher error: $($_.Exception.Message)"
+  }
+
   Start-Sleep -Seconds 2
 }
