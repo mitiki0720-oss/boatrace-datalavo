@@ -343,16 +343,19 @@ const downloadJsonFile = (filename: string, text: string): void => {
 	const link = document.createElement("a");
 	link.href = url;
 	link.download = filename;
-	document.body.append(link);
-	link.click();
-	link.remove();
-	URL.revokeObjectURL(url);
+	document.body.appendChild(link);
+	try {
+		link.click();
+	} finally {
+		link.remove();
+		window.setTimeout(() => URL.revokeObjectURL(url), 0);
+	}
 };
 
 const buildDownloadableJohnsonPayloadText = (payload: unknown): string | null => {
 	try {
-		const safePayload = JSON.parse(JSON.stringify(payload));
-		return `${JSON.stringify(safePayload, null, 2)}\n`;
+		const json = JSON.stringify(payload, null, 2);
+		return typeof json === "string" ? `${json}\n` : null;
 	} catch (error) {
 		console.error("[boat-johnson-export] failed to serialize payload", error);
 		return null;

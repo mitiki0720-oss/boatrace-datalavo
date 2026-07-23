@@ -7,6 +7,16 @@ echo Keep this window open.
 echo Press Ctrl + C to stop.
 echo.
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0watch-boat-johnson-and-push.ps1"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0watch-boat-johnson-and-push.ps1" %*
+set "WATCH_EXIT=%ERRORLEVEL%"
 
+if not "%WATCH_EXIT%"=="0" (
+  echo.
+  echo Watcher stopped with exit code %WATCH_EXIT%. Review scripts\boat-johnson-auto-push-log.txt.
+  pause
+  exit /b %WATCH_EXIT%
+)
+
+echo.
+echo Watcher ended normally. Review scripts\boat-johnson-auto-push-log.txt.
 pause
