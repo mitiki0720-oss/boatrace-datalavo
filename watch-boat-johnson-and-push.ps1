@@ -10,6 +10,8 @@ $CheckerPath = Join-Path $ProjectRoot "scripts\checkBoatJohnsonPredictionsJson.m
 $LogFile = Join-Path $ProjectRoot "scripts\boat-johnson-auto-push-log.txt"
 $StateFile = Join-Path $ProjectRoot ".git\boat-johnson-watch-state.txt"
 $TargetRelativePath = "public/data/boatrace/johnson-predictions.generated.json"
+$RejectedDownloadDir = Join-Path $DownloadDir "rejected-boat-johnson"
+$PendingDownloadDir = Join-Path $DownloadDir "pending-boat-johnson"
 $MaxPushAttempts = 4
 $WatchStartedAt = Get-Date
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
@@ -90,6 +92,31 @@ function Write-Heartbeat {
   if (($now - $script:LastHeartbeatAt).TotalSeconds -ge 30) {
     Write-Log $Message
     $script:LastHeartbeatAt = $now
+  }
+}
+
+function Move-DownloadToFolder {
+  param(
+    [System.IO.FileInfo]$File,
+    [string]$DestinationDirectory,
+    [string]$Reason
+  )
+
+  try {
+    [System.IO.Directory]::CreateDirectory($DestinationDirectory) | Out-Null
+    $destinationPath = Join-Path $DestinationDirectory $File.Name
+    if (Test-Path -LiteralPath $destinationPath) {
+      $baseName = [System.IO.Path]::GetFileNameWithoutExtension($File.Name)
+      $extension = [System.IO.Path]::GetExtension($File.Name)
+      $destinationPath = Join-Path $DestinationDirectory ("{0}-{1}{2}" -f $baseName, (Get-Date -Format "yyyyMMddHHmmssfff"), $extension)
+    }
+
+    Move-Item -LiteralPath $File.FullName -Destination $destinationPath -Force
+    Write-Log "$Reason Source JSON moved to: $destinationPath"
+    return $destinationPath
+  } catch {
+    Write-Log "$Reason Failed to move source JSON: $($_.Exception.Message)"
+    return $null
   }
 }
 
@@ -205,7 +232,7 @@ function Remove-TemporaryWorktree {
 function Test-PushRetryable {
   param([string[]]$Output)
   $text = $Output -join "`n"
-  return $text -match "non-fast-forward|rejected|cannot lock ref|fetch first"
+  return $text -match "non-fast-forward|rejected|cannot lock ref|fetch first|timed out|network|connection|unable to access|could not resolve|TLS|index\.lock"
 }
 
 function Publish-Download {
@@ -224,7 +251,8 @@ function Publish-Download {
   Write-Log "Detected download: $($SourceFile.Name) size=$($SourceFile.Length) lastWrite=$($SourceFile.LastWriteTime.ToString('o'))"
   $sourceCheck = Invoke-JsonCheck -Path $SourceFile.FullName -OperationDate $operationDate
   if ($sourceCheck.ExitCode -ne 0) {
-    Write-Log "Source JSON validation failed."
+    Write-Log "Source JSON validation failed. Checker output above includes the reason."
+	Move-DownloadToFolder -File $SourceFile -DestinationDirectory $RejectedDownloadDir -Reason "Rejected invalid Johnson JSON." | Out-Null
     return "rejected"
   }
 
@@ -236,11 +264,21 @@ function Publish-Download {
       Write-Log "Push attempt $attempt/$MaxPushAttempts"
       $fetch = Invoke-Git -WorkingDirectory $ProjectRoot -Arguments @("fetch", "origin", "main")
       if ($fetch.ExitCode -ne 0) {
+        Write-Log "git fetch origin main failed on attempt $attempt/$MaxPushAttempts. Full stdout/stderr is logged above."
+        if ($attempt -lt $MaxPushAttempts) {
+          Start-Sleep -Seconds (2 * $attempt)
+          continue
+        }
         return "failed"
       }
 
       $addWorktree = Invoke-Git -WorkingDirectory $ProjectRoot -Arguments @("worktree", "add", "--detach", $worktreePath, "origin/main")
       if ($addWorktree.ExitCode -ne 0) {
+        Write-Log "Temporary worktree creation failed on attempt $attempt/$MaxPushAttempts."
+        if ($attempt -lt $MaxPushAttempts) {
+          Start-Sleep -Seconds (2 * $attempt)
+          continue
+        }
         return "failed"
       }
       $created = $true
@@ -253,7 +291,8 @@ function Publish-Download {
 
       $targetCheck = Invoke-JsonCheck -Path $targetPath -OperationDate $operationDate
       if ($targetCheck.ExitCode -ne 0) {
-        Write-Log "Target JSON validation failed."
+        Write-Log "Target JSON validation failed. Checker output above includes the reason."
+		Move-DownloadToFolder -File $SourceFile -DestinationDirectory $RejectedDownloadDir -Reason "Rejected target Johnson JSON." | Out-Null
         return "rejected"
       }
 
@@ -306,6 +345,8 @@ function Publish-Download {
       if (!(Test-PushRetryable -Output $push.Output) -or $attempt -eq $MaxPushAttempts) {
         return "failed"
       }
+
+      Start-Sleep -Seconds (2 * $attempt)
     } finally {
       if ($created) {
         Remove-TemporaryWorktree -WorktreePath $worktreePath
@@ -339,7 +380,12 @@ while ($true) {
           Write-Log "Watcher remains active after rejecting candidate JSON."
         } elseif ($result -eq "failed") {
           $script:FailedSignature = $candidate.Signature
-          Write-Log "Watcher remains active after publish failure; save a newer download to retry."
+          $pendingPath = Move-DownloadToFolder -File $candidate.File -DestinationDirectory $PendingDownloadDir -Reason "Publish failed after $MaxPushAttempts attempts."
+          if ($pendingPath) {
+            Write-Log "Watcher remains active after publish failure. Retry this file later with -ImportLatest after checking the pending folder."
+          } else {
+            Write-Log "Watcher remains active after publish failure; save a newer download to retry."
+          }
         }
     }
   } catch {
