@@ -362,6 +362,30 @@ const buildDownloadableJohnsonPayloadText = (payload: unknown): string | null =>
 	}
 };
 
+const boatJohnsonMojibakePattern = /[\u95c3\u87bb\u6fc2\u7e72\uf8f0\u90b1\u9036\u9aad\u8b5b\u83a8\u8b01\u7e3a\u7e67\u8373\u873f\u86ef\u87f7\u83a0]/u;
+const boatJohnsonDisallowedControlPattern = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u;
+
+const getBoatJohnsonTextIntegrityIssue = (text: string): string | null => {
+	const controlCharacter = text.match(boatJohnsonDisallowedControlPattern)?.[0];
+	if (controlCharacter) {
+		return `\u5236\u5fa1\u6587\u5b57 U+${controlCharacter.codePointAt(0)?.toString(16).toUpperCase().padStart(4, "0")}`;
+	}
+
+	const mojibakeCharacter = text.match(boatJohnsonMojibakePattern)?.[0];
+	return mojibakeCharacter ? `\u6587\u5b57\u5316\u3051\u7591\u3044\u6587\u5b57\u300c${mojibakeCharacter}\u300d` : null;
+};
+
+const getSavedBoatJohnsonTextIntegrityIssue = (records: Array<{ raceKey?: string; predictionText?: string }>): string | null => {
+	for (const record of records) {
+		const issue = getBoatJohnsonTextIntegrityIssue(String(record.predictionText ?? ""));
+		if (issue) {
+			return `${record.raceKey || "\u4fdd\u5b58\u6e08\u307f\u4e88\u60f3"}: ${issue}`;
+		}
+	}
+
+	return null;
+};
+
 const resolvePracticeStakeYen = (record: BoatPracticeResultRecord): number =>
 	readPracticeNumber(record.totalStakeYen ?? record.betSummary?.totalStakeYen ?? record.investmentAmount);
 
@@ -2376,6 +2400,13 @@ const handleSelectRace = (raceId: string) => {
 				return;
 			}
 
+			const currentDraftTextIssue = getBoatJohnsonTextIntegrityIssue(predictionText);
+			if (currentDraftTextIssue) {
+				console.warn("[boat-johnson-export] blocked mojibake prediction text", { currentDraftTextIssue });
+				setSavedMessage(`\u4fdd\u5b58\u6e08\u307f\u4e88\u60f3\u30c6\u30ad\u30b9\u30c8\u304c\u6587\u5b57\u5316\u3051\u3057\u3066\u3044\u307e\u3059\u3002\u518d\u4fdd\u5b58\u3057\u3066\u304f\u3060\u3055\u3044\u3002 (${currentDraftTextIssue})`);
+				return;
+			}
+
 			const synced = syncPredictionTicketsFromText(predictionText, {
 				applyInvestment: !savedPracticeResultRecord && !isInvestmentAmountManual,
 			});
@@ -2418,6 +2449,13 @@ const handleSelectRace = (raceId: string) => {
 
 		if (todayPredictionRecords.length <= 0) {
 			setSavedMessage("ジョンソン化できる保存済み予想がありません");
+			return;
+		}
+
+		const savedTextIssue = getSavedBoatJohnsonTextIntegrityIssue(todayPredictionRecords);
+		if (savedTextIssue) {
+			console.warn("[boat-johnson-export] blocked mojibake saved prediction text", { savedTextIssue });
+			setSavedMessage(`\u4fdd\u5b58\u6e08\u307f\u4e88\u60f3\u30c6\u30ad\u30b9\u30c8\u304c\u6587\u5b57\u5316\u3051\u3057\u3066\u3044\u307e\u3059\u3002\u518d\u4fdd\u5b58\u3057\u3066\u304f\u3060\u3055\u3044\u3002 (${savedTextIssue})`);
 			return;
 		}
 
