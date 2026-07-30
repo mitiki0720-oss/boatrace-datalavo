@@ -29,7 +29,7 @@ const runChecker = (fixturePath) => spawnSync(process.execPath, [checkerPath, fi
 });
 
 try {
-	const valid = runChecker(writeFixture("valid.json", createPayload("\u65e5\u4ed8: 2026-07-24\n\u4f1a\u5834: \u82a6\u5c4b\u7af6\u8247\u5834\n1R: \u8cb7\u3044\u76ee 1-2-3")));
+	const valid = runChecker(writeFixture("valid.json", createPayload("\u65e5\u4ed8: 2026-07-24\n\u4f1a\u5834: \u3073\u308f\u3053\u7af6\u8247\u5834\n1R \u51fa\u8d70\u8868\n\u8cb7\u3044\u76ee 1-2-3")));
 	assert.equal(valid.status, 0, valid.stderr || valid.stdout);
 
 	const mojibake = runChecker(writeFixture("mojibake.json", createPayload("\u95c3\u3066\u87bb\u72d7\u306f\u6fc2\u30fb\uf8f0\u30b4\u7e72\u0031R\u7e72\u7e67\u30b5\u30f3")));

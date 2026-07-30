@@ -1,5 +1,6 @@
 param(
-  [switch]$ImportLatest
+  [switch]$ImportLatest,
+  [string]$ExpectedDate
 )
 
 $ErrorActionPreference = "Stop"
@@ -19,6 +20,14 @@ $script:LastHeartbeatAt = Get-Date "2000-01-01"
 $script:RejectedSignature = ""
 $script:FailedSignature = ""
 
+try { [Console]::OutputEncoding = $Utf8NoBom } catch {}
+try { [Console]::InputEncoding = $Utf8NoBom } catch {}
+$OutputEncoding = $Utf8NoBom
+
+if ($ExpectedDate -and $ExpectedDate -notmatch '^\d{4}-\d{2}-\d{2}$') {
+  throw "ExpectedDate must use YYYY-MM-DD: $ExpectedDate"
+}
+
 function Write-Log {
   param([string]$Message)
 
@@ -36,25 +45,58 @@ function Invoke-LoggedCommand {
 
   $display = "$File $($Arguments -join ' ')"
   Write-Log "RUN: $display"
-  Push-Location $WorkingDirectory
+
+  $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+  $startInfo.FileName = $File
+  $startInfo.WorkingDirectory = $WorkingDirectory
+  $startInfo.UseShellExecute = $false
+  $startInfo.CreateNoWindow = $true
+  $startInfo.RedirectStandardOutput = $true
+  $startInfo.RedirectStandardError = $true
+  $startInfo.Arguments = (($Arguments | ForEach-Object { '"' + ([string]$_).Replace('"', '\"') + '"' }) -join ' ')
+
+  try { $startInfo.StandardOutputEncoding = $Utf8NoBom } catch {}
+  try { $startInfo.StandardErrorEncoding = $Utf8NoBom } catch {}
+
   try {
-    $output = @(& $File @Arguments 2>&1 | ForEach-Object { [string]$_ })
-    $exitCode = $LASTEXITCODE
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $startInfo
+    if (!$process.Start()) {
+      throw "Failed to start process: $File"
+    }
+
+    $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+    $stderrTask = $process.StandardError.ReadToEndAsync()
+    $process.WaitForExit()
+    $stdout = $stdoutTask.GetAwaiter().GetResult()
+    $stderr = $stderrTask.GetAwaiter().GetResult()
+    $exitCode = $process.ExitCode
   } catch {
-    $output = @($_.Exception.Message)
+    $stdout = ""
+    $stderr = $_.Exception.ToString()
     $exitCode = 1
-  } finally {
-    Pop-Location
   }
 
-  foreach ($line in $output) {
+  $stdoutLines = @($stdout -split "`r?`n" | Where-Object { $_ })
+  $stderrLines = @($stderr -split "`r?`n" | Where-Object { $_ })
+  foreach ($line in $stdoutLines) {
     if ($line) {
-      Write-Log "OUTPUT: $line"
+      Write-Log "STDOUT: $line"
+    }
+  }
+  foreach ($line in $stderrLines) {
+    if ($line) {
+      Write-Log "STDERR: $line"
     }
   }
 
   Write-Log "EXIT: $exitCode"
-  return [pscustomobject]@{ ExitCode = $exitCode; Output = $output }
+  return [pscustomobject]@{
+    ExitCode = $exitCode
+    StdOut = $stdoutLines
+    StdErr = $stderrLines
+    Output = @($stdoutLines + $stderrLines)
+  }
 }
 
 function Invoke-Git {
@@ -62,7 +104,22 @@ function Invoke-Git {
   return Invoke-LoggedCommand -WorkingDirectory $WorkingDirectory -File "git" -Arguments $Arguments
 }
 
+function Invoke-StableFetch {
+  param([int]$Attempt)
+
+  $arguments = @("-c", "gc.auto=0", "-c", "maintenance.auto=false", "fetch", "--no-tags")
+  if ($Attempt -gt 1) {
+    $arguments += "--verbose"
+  }
+  $arguments += @("origin", "main")
+  return Invoke-Git -WorkingDirectory $ProjectRoot -Arguments $arguments
+}
+
 function Get-OperationDate {
+  if ($ExpectedDate) {
+    return $ExpectedDate
+  }
+
   $jst = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([System.DateTimeOffset]::UtcNow, "Tokyo Standard Time")
   return $jst.ToString("yyyy-MM-dd")
 }
@@ -153,7 +210,14 @@ function Get-DownloadCandidates {
     return @()
   }
 
-  return Get-ChildItem -LiteralPath $DownloadDir -File -ErrorAction SilentlyContinue |
+  $candidateDirectories = @($DownloadDir)
+  if ($ImportLatest -and (Test-Path -LiteralPath $PendingDownloadDir)) {
+    $candidateDirectories += $PendingDownloadDir
+    Write-Heartbeat "ImportLatest also checks pending JSONs: $PendingDownloadDir"
+  }
+
+  return $candidateDirectories |
+    ForEach-Object { Get-ChildItem -LiteralPath $_ -File -ErrorAction SilentlyContinue } |
     Where-Object { Test-DownloadName -Name $_.Name } |
     Sort-Object -Property LastWriteTime -Descending
 }
@@ -262,9 +326,9 @@ function Publish-Download {
 
     try {
       Write-Log "Push attempt $attempt/$MaxPushAttempts"
-      $fetch = Invoke-Git -WorkingDirectory $ProjectRoot -Arguments @("fetch", "origin", "main")
+      $fetch = Invoke-StableFetch -Attempt $attempt
       if ($fetch.ExitCode -ne 0) {
-        Write-Log "git fetch origin main failed on attempt $attempt/$MaxPushAttempts. Full stdout/stderr is logged above."
+        Write-Log "git fetch origin main failed on attempt $attempt/$MaxPushAttempts. stdout/stderr are logged separately above."
         if ($attempt -lt $MaxPushAttempts) {
           Start-Sleep -Seconds (2 * $attempt)
           continue
@@ -365,7 +429,7 @@ Write-Log "Johnson watcher started. Downloads created after $($WatchStartedAt.To
 Write-Log "Download directory: $DownloadDir"
 Write-Log "Target: $TargetRelativePath"
 Write-Log "Patterns: boat-johnson-predictions.generated.json; boat-johnson-predictions.generated (N).json; boat-johnson-from-browser-YYYY-MM-DD.json; boat-johnson-from-browser-YYYY-MM-DD (N).json"
-Write-Log "Startup baseline: $($WatchStartedAt.ToString('o')); ImportLatest=$ImportLatest"
+Write-Log "Startup baseline: $($WatchStartedAt.ToString('o')); ImportLatest=$ImportLatest; ExpectedDate=$(Get-OperationDate)"
 Write-Log "Press Ctrl+C to stop."
 
 while ($true) {

@@ -1,5 +1,6 @@
 @echo off
 cd /d "%~dp0"
+chcp 65001 >nul
 
 echo Start safe boat Johnson predictions watcher.
 echo Downloads are validated by Node.js and published through a temporary clean worktree.
