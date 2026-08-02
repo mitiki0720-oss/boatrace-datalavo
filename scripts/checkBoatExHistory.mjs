@@ -105,8 +105,14 @@ function validateRaceRecord(record, index, targetDate, errors) {
 		assert(Array.isArray(record.officialRace.sources), `${location}.officialRace: sources required`, errors);
 	}
 
-	for (const field of ["prediction", "summary", "review", "derivedSignals"]) {
-		assert(record[field] === undefined, `${location}: ${field} must not be generated in Phase 3 history v0`, errors);
+	if (record.prediction !== undefined) {
+		assert(record.prediction && typeof record.prediction === "object", `${location}: prediction must be an object`, errors);
+		assert(record.prediction?.sourceStatus === "available", `${location}: prediction sourceStatus must be available`, errors);
+		assert(Array.isArray(record.prediction?.sources) && record.prediction.sources.length > 0, `${location}: prediction sources are required`, errors);
+		record.prediction?.sources?.forEach((source, sourceIndex) => validateSourceMeta(source, `${location}.prediction.sources[${sourceIndex}]`, errors));
+	}
+	for (const field of ["summary", "review", "derivedSignals"]) {
+		assert(record[field] === undefined, `${location}: ${field} must not be generated in history`, errors);
 	}
 }
 
