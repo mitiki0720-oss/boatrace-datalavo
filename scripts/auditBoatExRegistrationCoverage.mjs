@@ -127,6 +127,10 @@ const candidateBridge = [...identities.values()].filter((identity) => identity.o
 const unresolved = [...unresolvedIdentities.values()];
 const currentOfficialExactBridgeCount = [...currentDatePairs].filter((pair) => currentOfficialPairs.has(pair)).length;
 const historyCoverage = readJson("public/data/boatrace-ex/derived/history-coverage/latest.json");
+const registrationBridgeRelativePath = `public/data/boatrace-ex/audit/registration-bridge-${auditDate}.generated.json`;
+const registrationBridge = fs.existsSync(path.join(rootDir, registrationBridgeRelativePath))
+	? readJson(registrationBridgeRelativePath)
+	: null;
 const derivedReadiness = Object.fromEntries([
 	["venueBias", readJson("public/data/boatrace-ex/derived/venue-bias/latest.json")],
 	["roughIndex", readJson("public/data/boatrace-ex/derived/rough-index/latest.json")],
@@ -148,6 +152,7 @@ const audit = {
 			`public/data/boatrace-ex/derived/racer-evidence/${date}.json`,
 		]),
 		...sourcePaths,
+		...(registrationBridge ? [registrationBridgeRelativePath] : []),
 	],
 	coverage: {
 		latestDate: index.latestDate,
@@ -169,6 +174,13 @@ const audit = {
 		currentOfficialExactBridgeCount,
 		currentOfficialUnmatchedBridgeCount: Math.max(currentDatePairs.size - currentOfficialExactBridgeCount, 0),
 	},
+	registrationBridge: registrationBridge ? {
+		mode: registrationBridge.mode,
+		safeBridgeCount: Number(registrationBridge.classification?.safeBridge?.count ?? 0),
+		candidateBridgeCount: Number(registrationBridge.classification?.candidateBridge?.count ?? 0),
+		unresolvedCount: Number(registrationBridge.classification?.unresolved?.count ?? 0),
+		changedDates: registrationBridge.coverage?.changedDates ?? [],
+	} : null,
 	bridgeClassification: {
 		safeBridge: { count: safeBridge.length, rule: "Explicit registrationNumber with available official source provenance in EX history." },
 		candidateBridge: { count: candidateBridge.length, rule: "Explicit registrationNumber exists but official source provenance is absent; do not write automatically." },
@@ -210,6 +222,7 @@ const markdown = `# Boat EX Registration Coverage Audit (${auditDate})\n\n` +
 	`- latest-date exact official registrationNumber and racerName pairs: ${audit.identityCoverage.currentOfficialExactBridgeCount}\n` +
 	`- latest-date unmatched explicit pairs: ${audit.identityCoverage.currentOfficialUnmatchedBridgeCount}\n` +
 	`- unresolved historical source materials: ${audit.coverage.sourceUnresolvedCount}\n\n` +
+	`- registration bridge safe/candidate/unresolved: ${audit.registrationBridge ? `${audit.registrationBridge.safeBridgeCount}/${audit.registrationBridge.candidateBridgeCount}/${audit.registrationBridge.unresolvedCount}` : "not run"}\n\n` +
 	`safeBridge means the EX history already contains an explicit registration number with official source provenance. It is the only class eligible for a future automatic bridge. candidateBridge and unresolved records must not be written automatically.\n\n` +
 	`## Readiness\n\n` +
 	Object.entries(audit.coverage.derivedReadiness).map(([key, value]) => `- ${key}: ${value}`).join("\n") +

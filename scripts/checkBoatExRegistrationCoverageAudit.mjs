@@ -27,6 +27,12 @@ assert(audit.identityCoverage.racerIdentityCount === audit.bridgeClassification.
 assert(audit.identityCoverage.withoutRegistrationAppearanceCount >= 0, "withoutRegistrationAppearanceCount must be non-negative");
 assert(Array.isArray(audit.sourceFiles) && audit.sourceFiles.every((sourcePath) => !sourcePath.startsWith("public/data/reviews/") && !sourcePath.startsWith("public/dog/")), "audit must not read reviews or dog sources");
 assert(Array.isArray(audit.nextBridgePlan) && audit.nextBridgePlan.length >= 3, "nextBridgePlan must contain at least three steps");
+if (audit.registrationBridge !== null && audit.registrationBridge !== undefined) {
+    assert(Number.isInteger(audit.registrationBridge.safeBridgeCount) && audit.registrationBridge.safeBridgeCount >= 0, "registration bridge safeBridgeCount must be non-negative");
+    assert(Number.isInteger(audit.registrationBridge.candidateBridgeCount) && audit.registrationBridge.candidateBridgeCount >= 0, "registration bridge candidateBridgeCount must be non-negative");
+    assert(Number.isInteger(audit.registrationBridge.unresolvedCount) && audit.registrationBridge.unresolvedCount >= 0, "registration bridge unresolvedCount must be non-negative");
+    assert(Array.isArray(audit.registrationBridge.changedDates), "registration bridge changedDates must be an array");
+}
 assert(fs.existsSync(markdownPath), "audit markdown must exist");
 
 if (errors.length) {

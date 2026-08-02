@@ -1,0 +1,1932 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-registration-bridge-audit",
+  "auditDate": "2026-08-02",
+  "generatedAt": "2026-08-02T22:55:45.192Z",
+  "mode": "write",
+  "policy": "Only an exact date + venueCode + raceNo + official boatNo tuple with one normalized exact racerName match and explicit official registrationNumber is written. No fuzzy matching, inferred identity, or dog/review registration number is allowed.",
+  "readOnlyInputs": {
+    "reviewSourceRoot": {
+      "path": "C:\\Users\\mitik\\Desktop\\ボートレースウェブ作成用\\boatrace-datalavo\\public\\data\\reviews",
+      "fileCount": 1479,
+      "usedForRegistrationBridge": false
+    },
+    "dogSourceRoot": {
+      "path": "C:\\Users\\mitik\\Desktop\\ボートレースウェブ作成用\\boatrace-datalavo\\public\\dog",
+      "fileCount": 738,
+      "usedForRegistrationBridge": false
+    }
+  },
+  "officialSource": {
+    "sourceFiles": [
+      "public/data/boatrace-ex/source/official-details/2026-08-03.json"
+    ],
+    "rejectedFiles": [],
+    "candidateEntryCount": 600
+  },
+  "coverage": {
+    "dates": [
+      "2026-05-24",
+      "2026-05-25",
+      "2026-05-26",
+      "2026-05-27",
+      "2026-05-28",
+      "2026-05-29",
+      "2026-05-30",
+      "2026-05-31",
+      "2026-06-01",
+      "2026-06-02",
+      "2026-06-03",
+      "2026-06-04",
+      "2026-06-05",
+      "2026-06-06",
+      "2026-06-07",
+      "2026-06-08",
+      "2026-06-09",
+      "2026-06-10",
+      "2026-06-11",
+      "2026-06-12",
+      "2026-06-13",
+      "2026-06-14",
+      "2026-06-15",
+      "2026-06-17",
+      "2026-06-18",
+      "2026-06-19",
+      "2026-06-20",
+      "2026-06-21",
+      "2026-06-22",
+      "2026-06-23",
+      "2026-06-24",
+      "2026-06-25",
+      "2026-06-27",
+      "2026-06-28",
+      "2026-06-30",
+      "2026-07-01",
+      "2026-07-02",
+      "2026-07-03",
+      "2026-07-04",
+      "2026-07-05",
+      "2026-07-06",
+      "2026-07-07",
+      "2026-07-08",
+      "2026-07-09",
+      "2026-07-10",
+      "2026-07-11",
+      "2026-07-12",
+      "2026-07-13",
+      "2026-07-14",
+      "2026-07-15",
+      "2026-07-16",
+      "2026-07-17",
+      "2026-07-18",
+      "2026-07-19",
+      "2026-07-20",
+      "2026-07-21",
+      "2026-07-22",
+      "2026-07-23",
+      "2026-07-24",
+      "2026-07-25",
+      "2026-07-26",
+      "2026-07-27",
+      "2026-07-28",
+      "2026-07-29",
+      "2026-07-30",
+      "2026-07-31",
+      "2026-08-01",
+      "2026-08-02"
+    ],
+    "dateCount": 68,
+    "before": {
+      "registrationAppearanceCount": 2952,
+      "missingRegistrationAppearanceCount": 49752
+    },
+    "after": {
+      "registrationAppearanceCount": 2952,
+      "missingRegistrationAppearanceCount": 49752
+    },
+    "changedDates": []
+  },
+  "classification": {
+    "safeBridge": {
+      "count": 0,
+      "rule": "Exact official tuple and normalized racerName match with explicit registrationNumber and provenance.",
+      "appearances": []
+    },
+    "candidateBridge": {
+      "count": 0,
+      "reasons": {},
+      "samples": []
+    },
+    "unresolved": {
+      "count": 49752,
+      "reasons": {
+        "history-official-boatNo-missing": 49752
+      },
+      "samples": [
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 1,
+          "racerName": "鶴田 勇雄",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 2,
+          "racerName": "村田 敦",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 3,
+          "racerName": "深澤 達徳",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 4,
+          "racerName": "服部 剛",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 5,
+          "racerName": "羽野 諒",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 6,
+          "racerName": "西岡 育未",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 1,
+          "racerName": "三馬 崇史",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 2,
+          "racerName": "三品 隆浩",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 3,
+          "racerName": "雑賀 勇貴",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 4,
+          "racerName": "毒島 誠",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 5,
+          "racerName": "畑 和宏",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 6,
+          "racerName": "星 栄爾",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 1,
+          "racerName": "深川 真二",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 2,
+          "racerName": "山田 竜一",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 3,
+          "racerName": "中田 友也",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 4,
+          "racerName": "新井 英孝",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 5,
+          "racerName": "土屋 実沙希",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 6,
+          "racerName": "山口 隼人",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 1,
+          "racerName": "小池 修平",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 2,
+          "racerName": "浮田 圭浩",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 3,
+          "racerName": "富田 恕生",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 4,
+          "racerName": "本橋 克洋",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 5,
+          "racerName": "齊藤 廉",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 6,
+          "racerName": "濱野 斗馬",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 1,
+          "racerName": "伏田 裕隆",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 2,
+          "racerName": "西川 新太郎",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 3,
+          "racerName": "深川 麻奈美",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 4,
+          "racerName": "久富 政弘",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 5,
+          "racerName": "上田 紗奈",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 6,
+          "racerName": "小林 泰",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 1,
+          "racerName": "赤井 睦",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 2,
+          "racerName": "羽野 諒",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 3,
+          "racerName": "齋藤 達希",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 4,
+          "racerName": "山一 鉄也",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 5,
+          "racerName": "中村 裕将",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 6,
+          "racerName": "河村 了",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 1,
+          "racerName": "小畑 実成",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 2,
+          "racerName": "上野 秀和",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 3,
+          "racerName": "松下 知幸",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 4,
+          "racerName": "星 栄爾",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 5,
+          "racerName": "村田 敦",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 6,
+          "racerName": "新井 英孝",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 1,
+          "racerName": "畑 和宏",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 2,
+          "racerName": "濱野 斗馬",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 3,
+          "racerName": "佐藤 博亮",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 4,
+          "racerName": "深澤 達徳",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 5,
+          "racerName": "山田 竜一",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 6,
+          "racerName": "大神 康司",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 1,
+          "racerName": "土屋 実沙希",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 2,
+          "racerName": "向井田 真紀",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 3,
+          "racerName": "西岡 育未",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 4,
+          "racerName": "上田 紗奈",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 5,
+          "racerName": "川井 萌",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 6,
+          "racerName": "千葉 真弥",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 1,
+          "racerName": "山一 鉄也",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 2,
+          "racerName": "服部 剛",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 3,
+          "racerName": "伏田 裕隆",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 4,
+          "racerName": "富田 恕生",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 5,
+          "racerName": "三品 隆浩",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 6,
+          "racerName": "坂本 雄紀",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 1,
+          "racerName": "本橋 克洋",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 2,
+          "racerName": "中村 裕将",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 3,
+          "racerName": "小畑 実成",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 4,
+          "racerName": "鶴田 勇雄",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 5,
+          "racerName": "西川 新太郎",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 6,
+          "racerName": "中田 友也",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 1,
+          "racerName": "毒島 誠",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 2,
+          "racerName": "深川 真二",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 3,
+          "racerName": "河村 了",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 4,
+          "racerName": "小池 修平",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 5,
+          "racerName": "佐藤 博亮",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-24",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 6,
+          "racerName": "深川 麻奈美",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 1,
+          "racerName": "濱野 斗馬",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 2,
+          "racerName": "赤井 睦",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 3,
+          "racerName": "上野 秀和",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 4,
+          "racerName": "雑賀 勇貴",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 5,
+          "racerName": "服部 剛",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 6,
+          "racerName": "齊藤 廉",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 1,
+          "racerName": "千葉 真弥",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 2,
+          "racerName": "齋藤 達希",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 3,
+          "racerName": "向井田 真紀",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 4,
+          "racerName": "深川 真二",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 5,
+          "racerName": "星 栄爾",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 6,
+          "racerName": "山口 隼人",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 1,
+          "racerName": "河村 了",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 2,
+          "racerName": "川井 萌",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 3,
+          "racerName": "土屋 実沙希",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 4,
+          "racerName": "畑 和宏",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 5,
+          "racerName": "坂本 雄紀",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 6,
+          "racerName": "羽野 諒",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 1,
+          "racerName": "深川 麻奈美",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 2,
+          "racerName": "三馬 崇史",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 3,
+          "racerName": "上田 紗奈",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 4,
+          "racerName": "村田 敦",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 5,
+          "racerName": "浮田 圭浩",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 6,
+          "racerName": "小池 修平",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 1,
+          "racerName": "小林 泰",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 2,
+          "racerName": "齊藤 廉",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 3,
+          "racerName": "西川 新太郎",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 4,
+          "racerName": "大神 康司",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 5,
+          "racerName": "富田 恕生",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 6,
+          "racerName": "毒島 誠",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 1,
+          "racerName": "山田 竜一",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 2,
+          "racerName": "松下 知幸",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 3,
+          "racerName": "三品 隆浩",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 4,
+          "racerName": "佐藤 博亮",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 5,
+          "racerName": "上野 秀和",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 6,
+          "racerName": "鶴田 勇雄",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 1,
+          "racerName": "西岡 育未",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 2,
+          "racerName": "雑賀 勇貴",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 3,
+          "racerName": "中村 裕将",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 4,
+          "racerName": "川井 萌",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 5,
+          "racerName": "深澤 達徳",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 6,
+          "racerName": "齋藤 達希",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 1,
+          "racerName": "星 栄爾",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 2,
+          "racerName": "河村 了",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 3,
+          "racerName": "新井 英孝",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 4,
+          "racerName": "伏田 裕隆",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 5,
+          "racerName": "本橋 克洋",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 6,
+          "racerName": "上田 紗奈",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 1,
+          "racerName": "中田 友也",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 2,
+          "racerName": "富田 恕生",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 3,
+          "racerName": "服部 剛",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 4,
+          "racerName": "向井田 真紀",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 5,
+          "racerName": "深川 麻奈美",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 6,
+          "racerName": "小畑 実成",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 1,
+          "racerName": "大神 康司",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 2,
+          "racerName": "坂本 雄紀",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 3,
+          "racerName": "小池 修平",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 4,
+          "racerName": "松下 知幸",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 5,
+          "racerName": "千葉 真弥",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 6,
+          "racerName": "山一 鉄也",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 1,
+          "racerName": "佐藤 博亮",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 2,
+          "racerName": "毒島 誠",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 3,
+          "racerName": "羽野 諒",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 4,
+          "racerName": "三馬 崇史",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 5,
+          "racerName": "赤井 睦",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 11,
+          "boatNo": 6,
+          "racerName": "深澤 達徳",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 1,
+          "racerName": "深川 真二",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 2,
+          "racerName": "土屋 実沙希",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 3,
+          "racerName": "浮田 圭浩",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 4,
+          "racerName": "小林 泰",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 5,
+          "racerName": "濱野 斗馬",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-25",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 12,
+          "boatNo": 6,
+          "racerName": "伏田 裕隆",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 1,
+          "racerName": "深川 麻奈美",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 2,
+          "racerName": "中村 裕将",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 3,
+          "racerName": "毒島 誠",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 4,
+          "racerName": "齊藤 廉",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 5,
+          "racerName": "新井 英孝",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 1,
+          "boatNo": 6,
+          "racerName": "山口 隼人",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 1,
+          "racerName": "大神 康司",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 2,
+          "racerName": "小畑 実成",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 3,
+          "racerName": "上野 秀和",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 4,
+          "racerName": "河村 了",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 5,
+          "racerName": "向井田 真紀",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 2,
+          "boatNo": 6,
+          "racerName": "浮田 圭浩",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 1,
+          "racerName": "山一 鉄也",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 2,
+          "racerName": "西岡 育未",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 3,
+          "racerName": "深川 真二",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 4,
+          "racerName": "赤井 睦",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 5,
+          "racerName": "三馬 崇史",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 3,
+          "boatNo": 6,
+          "racerName": "雑賀 勇貴",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 1,
+          "racerName": "小池 修平",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 2,
+          "racerName": "齋藤 達希",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 3,
+          "racerName": "畑 和宏",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 4,
+          "racerName": "千葉 真弥",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 5,
+          "racerName": "伏田 裕隆",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 4,
+          "boatNo": 6,
+          "racerName": "土屋 実沙希",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 1,
+          "racerName": "鶴田 勇雄",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 2,
+          "racerName": "星 栄爾",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 3,
+          "racerName": "富田 恕生",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 4,
+          "racerName": "坂本 雄紀",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 5,
+          "racerName": "山口 隼人",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 5,
+          "boatNo": 6,
+          "racerName": "佐藤 博亮",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 1,
+          "racerName": "深澤 達徳",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 2,
+          "racerName": "本橋 克洋",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 3,
+          "racerName": "小林 泰",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 4,
+          "racerName": "中村 裕将",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 5,
+          "racerName": "小畑 実成",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 6,
+          "boatNo": 6,
+          "racerName": "山田 竜一",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 1,
+          "racerName": "新井 英孝",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 2,
+          "racerName": "羽野 諒",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 3,
+          "racerName": "三品 隆浩",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 4,
+          "racerName": "上野 秀和",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 5,
+          "racerName": "雑賀 勇貴",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 7,
+          "boatNo": 6,
+          "racerName": "川井 萌",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 1,
+          "racerName": "上田 紗奈",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 2,
+          "racerName": "浮田 圭浩",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 3,
+          "racerName": "千葉 真弥",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 4,
+          "racerName": "中田 友也",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 5,
+          "racerName": "松下 知幸",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 8,
+          "boatNo": 6,
+          "racerName": "深川 真二",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 1,
+          "racerName": "坂本 雄紀",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 2,
+          "racerName": "向井田 真紀",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 3,
+          "racerName": "村田 敦",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 4,
+          "racerName": "深川 麻奈美",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 5,
+          "racerName": "齋藤 達希",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 9,
+          "boatNo": 6,
+          "racerName": "赤井 睦",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 1,
+          "racerName": "佐藤 博亮",
+          "reason": "history-official-boatNo-missing"
+        },
+        {
+          "date": "2026-05-26",
+          "venueCode": "21",
+          "venueName": "芦屋",
+          "raceNo": 10,
+          "boatNo": 2,
+          "racerName": "小林 泰",
+          "reason": "history-official-boatNo-missing"
+        }
+      ]
+    }
+  },
+  "warnings": [
+    "No source-backed safeBridge appearance met every required exact-match condition; history registration values were not changed."
+  ]
+}
