@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-registration-coverage-audit",
+  "auditDate": "2026-08-02",
+  "generatedAt": "2026-08-02T14:28:33.209Z",
+  "sourceFiles": [
+    "public/data/boatrace-ex/index.generated.json",
+    "public/data/boatrace-ex/manifest.generated.json",
+    "public/data/boatrace-ex/derived/history-coverage/latest.json",
+    "public/data/boatrace-ex/history/races/2026-07-13.json",
+    "public/data/boatrace-ex/derived/racer-evidence/2026-07-13.json",
+    "public/data/boatrace-ex/history/races/2026-07-19.json",
+    "public/data/boatrace-ex/derived/racer-evidence/2026-07-19.json",
+    "public/data/boatrace-ex/history/races/2026-08-02.json",
+    "public/data/boatrace-ex/derived/racer-evidence/2026-08-02.json",
+    "public/data/boatrace/today.generated.json",
+    "public/data/boatrace/today-race-details.generated.json",
+    "public/data/boatrace/upcoming-schedule.generated.json",
+    "public/data/boatrace/venue-extras.generated.json"
+  ],
+  "coverage": {
+    "latestDate": "2026-08-02",
+    "availableDates": [
+      "2026-07-13",
+      "2026-07-19",
+      "2026-08-02"
+    ],
+    "availableDateCount": 3,
+    "perDate": [
+      {
+        "date": "2026-07-13",
+        "raceCount": 156,
+        "venueCount": 13,
+        "racerEvidenceRacerCount": 581,
+        "racerEvidenceAppearanceCount": 936,
+        "participantAppearanceCount": 936,
+        "registrationAppearanceCount": 936,
+        "withoutRegistrationAppearanceCount": 0
+      },
+      {
+        "date": "2026-07-19",
+        "raceCount": 192,
+        "venueCount": 16,
+        "racerEvidenceRacerCount": 714,
+        "racerEvidenceAppearanceCount": 1152,
+        "participantAppearanceCount": 1152,
+        "registrationAppearanceCount": 1152,
+        "withoutRegistrationAppearanceCount": 0
+      },
+      {
+        "date": "2026-08-02",
+        "raceCount": 144,
+        "venueCount": 12,
+        "racerEvidenceRacerCount": 527,
+        "racerEvidenceAppearanceCount": 864,
+        "participantAppearanceCount": 864,
+        "registrationAppearanceCount": 864,
+        "withoutRegistrationAppearanceCount": 0
+      }
+    ],
+    "totalRaceCount": 492,
+    "totalVenueCount": 23,
+    "totalAppearanceCount": 2952,
+    "derivedReadiness": {
+      "venueBias": "insufficient-history",
+      "roughIndex": "insufficient-history",
+      "todayFlow": "available",
+      "predictionStructure": "insufficient-history"
+    },
+    "sourceUnresolvedCount": 151
+  },
+  "identityCoverage": {
+    "racerIdentityCount": 1287,
+    "registrationRacerCount": 1287,
+    "withoutRegistrationRacerCount": 0,
+    "registrationAppearanceCount": 2952,
+    "withoutRegistrationAppearanceCount": 0,
+    "currentOfficialExactBridgeCount": 527,
+    "currentOfficialUnmatchedBridgeCount": 0
+  },
+  "bridgeClassification": {
+    "safeBridge": {
+      "count": 1287,
+      "rule": "Explicit registrationNumber with available official source provenance in EX history."
+    },
+    "candidateBridge": {
+      "count": 0,
+      "rule": "Explicit registrationNumber exists but official source provenance is absent; do not write automatically."
+    },
+    "unresolved": {
+      "count": 0,
+      "rule": "No valid registrationNumber exists; preserve unresolved without inference."
+    }
+  },
+  "officialGeneratedFeeds": [
+    {
+      "sourcePath": "public/data/boatrace/today.generated.json",
+      "exists": true,
+      "parsed": true,
+      "registrationPairCount": 527
+    },
+    {
+      "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+      "exists": true,
+      "parsed": true,
+      "registrationPairCount": 527
+    },
+    {
+      "sourcePath": "public/data/boatrace/upcoming-schedule.generated.json",
+      "exists": true,
+      "parsed": true,
+      "registrationPairCount": 0
+    },
+    {
+      "sourcePath": "public/data/boatrace/venue-extras.generated.json",
+      "exists": true,
+      "parsed": true,
+      "registrationPairCount": 537
+    }
+  ],
+  "warnings": [
+    "Historical source index has 151 unresolved source materials; they are not racer registration guesses."
+  ],
+  "nextBridgePlan": [
+    "Add an official-source reader that carries only explicit registrationNo/registrationNumber values into the EX input contract.",
+    "Match by the exact source-backed race participant tuple; do not use fuzzy name matching or inferred registration numbers.",
+    "Write only safeBridge records after a checker confirms source provenance and registrationNumber format.",
+    "Keep candidateBridge and unresolved records as audit output for review; do not backfill them automatically."
+  ]
+}
