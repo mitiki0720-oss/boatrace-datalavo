@@ -49,6 +49,12 @@ function readJson(relativePath) {
 	return JSON.parse(fs.readFileSync(absolutePath, "utf8"));
 }
 
+function readJsonIfExists(relativePath) {
+	const absolutePath = path.join(repoRoot, relativePath);
+	if (!fs.existsSync(absolutePath)) return null;
+	return JSON.parse(fs.readFileSync(absolutePath, "utf8"));
+}
+
 function readRequiredInputs({ date, allowEmpty }) {
 	const historyPath = `public/data/boatrace-ex/history/races/${date}.json`;
 	const coveragePath = `public/data/boatrace-ex/coverage/${date}.json`;
@@ -278,6 +284,31 @@ function createEmptyOutputMessage({ date, records, venues, allowed }) {
 	].join("\n");
 }
 
+function mergeManifest({ date, generatedAt, sourceFiles, outputPath, records, venues }) {
+	const manifestPath = `${OUTPUT_ROOT}/manifest.generated.json`;
+	const existing = readJsonIfExists(manifestPath);
+	const files = toArray(existing?.files).filter((file) => file?.path !== outputPath);
+	files.push({
+		path: outputPath,
+		kind: "derived",
+		date,
+		generatedAt,
+		sourceStatus: records.length > 0 ? "available" : "parse-empty",
+		coverageStatus: venues.length > 0 ? "partial" : "missing",
+	});
+	return {
+		schemaVersion: 1,
+		kind: MANIFEST_KIND,
+		generatedAt,
+		sourceFiles,
+		files: files.sort((left, right) => {
+			const order = (file) => String(file.path ?? "").includes("/venue-evidence/") ? 0 :
+				String(file.path ?? "").includes("/racer-evidence/") ? 1 : 2;
+			return order(left) - order(right) || String(left.path ?? "").localeCompare(String(right.path ?? ""));
+		}),
+	};
+}
+
 function main() {
 	const args = parseArgs(process.argv.slice(2));
 	const date = args.date;
@@ -342,22 +373,7 @@ function main() {
 		},
 		venues,
 	};
-	const manifestJson = {
-		schemaVersion: 1,
-		kind: MANIFEST_KIND,
-		generatedAt,
-		sourceFiles,
-		files: [
-			{
-				path: outputPath,
-				kind: "derived",
-				date,
-				generatedAt,
-				sourceStatus: records.length > 0 ? "available" : "parse-empty",
-				coverageStatus: venues.length > 0 ? "partial" : "missing",
-			},
-		],
-	};
+	const manifestJson = mergeManifest({ date, generatedAt, sourceFiles, outputPath, records, venues });
 
 	writeJson(outputPath, evidenceJson, args.dryRun);
 	writeJson(manifestPath, manifestJson, args.dryRun);

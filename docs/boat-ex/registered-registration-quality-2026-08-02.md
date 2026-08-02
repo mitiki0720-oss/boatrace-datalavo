@@ -18,11 +18,11 @@
 - sameNameMultipleRegistrationNoCount: 0
 - raceLevelDuplicateRegistrationNoCount: 0
 - raceLevelDuplicateBoatNoCount: 0
-- provenanceCompleteCount: 0
-- provenanceMissingCount: 2952
+- provenanceCompleteCount: 2952
+- provenanceMissingCount: 0
 - collisionCount: 0
 - aliasCandidateCount: 0
-- safeRegisteredIdentityCount: 0
+- safeRegisteredIdentityCount: 1287
 - racerEvidenceMatchedRegistrationCount: 1822
 - racerEvidenceMismatchCount: 0
 
@@ -30,7 +30,7 @@
 
 - collision: 0
 - aliasCandidate: 0
-- safeSameRacer: 0
+- safeSameRacer: 1287
 - sameNameMultipleRegistrationNo: 0
 
 ## Provenance
