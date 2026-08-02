@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-registration-coverage-audit",
   "auditDate": "2026-08-02",
-  "generatedAt": "2026-08-02T22:09:18.606Z",
+  "generatedAt": "2026-08-02T22:55:46.920Z",
   "sourceFiles": [
     "public/data/boatrace-ex/index.generated.json",
     "public/data/boatrace-ex/manifest.generated.json",
@@ -146,7 +146,8 @@
     "public/data/boatrace/today.generated.json",
     "public/data/boatrace/today-race-details.generated.json",
     "public/data/boatrace/upcoming-schedule.generated.json",
-    "public/data/boatrace/venue-extras.generated.json"
+    "public/data/boatrace/venue-extras.generated.json",
+    "public/data/boatrace-ex/audit/registration-bridge-2026-08-02.generated.json"
   ],
   "coverage": {
     "latestDate": "2026-08-02",
@@ -923,6 +924,13 @@
     "currentOfficialExactBridgeCount": 387,
     "currentOfficialUnmatchedBridgeCount": 140
   },
+  "registrationBridge": {
+    "mode": "write",
+    "safeBridgeCount": 0,
+    "candidateBridgeCount": 0,
+    "unresolvedCount": 49752,
+    "changedDates": []
+  },
   "bridgeClassification": {
     "safeBridge": {
       "count": 1287,
@@ -942,13 +950,13 @@
       "sourcePath": "public/data/boatrace/today.generated.json",
       "exists": true,
       "parsed": true,
-      "registrationPairCount": 374
+      "registrationPairCount": 516
     },
     {
       "sourcePath": "public/data/boatrace/today-race-details.generated.json",
       "exists": true,
       "parsed": true,
-      "registrationPairCount": 374
+      "registrationPairCount": 516
     },
     {
       "sourcePath": "public/data/boatrace/upcoming-schedule.generated.json",
@@ -960,7 +968,7 @@
       "sourcePath": "public/data/boatrace/venue-extras.generated.json",
       "exists": true,
       "parsed": true,
-      "registrationPairCount": 397
+      "registrationPairCount": 530
     }
   ],
   "warnings": [

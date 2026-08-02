@@ -92,6 +92,8 @@
 - latest-date unmatched explicit pairs: 140
 - unresolved historical source materials: 151
 
+- registration bridge safe/candidate/unresolved: 0/0/49752
+
 safeBridge means the EX history already contains an explicit registration number with official source provenance. It is the only class eligible for a future automatic bridge. candidateBridge and unresolved records must not be written automatically.
 
 ## Readiness
