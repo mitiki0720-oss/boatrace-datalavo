@@ -5,8 +5,12 @@ import type {
 	BoatExDateIndexEntry,
 	BoatExDateIndexFile,
 	BoatExHistoricalSourceCoverageFile,
+	BoatExRacerEvidenceRegistryLinkageAuditFile,
 	BoatExRacerEvidenceFile,
 	BoatExRacerEvidenceItem,
+	BoatExRegisteredRacerIdentityRegistryFile,
+	BoatExRegisteredRegistrationQualityAuditFile,
+	BoatExRegistrationProvenanceAuditFile,
 	BoatExPredictionStructureV1File,
 	BoatExRoughIndexV1File,
 	BoatExTodayFlowV1File,
@@ -65,6 +69,10 @@ type LoadState = {
 	todayFlow: BoatExTodayFlowV1File | null;
 	predictionStructure: BoatExPredictionStructureV1File | null;
 	historicalSourceCoverage: BoatExHistoricalSourceCoverageFile | null;
+	registeredIdentityRegistry: BoatExRegisteredRacerIdentityRegistryFile | null;
+	registryLinkageAudit: BoatExRacerEvidenceRegistryLinkageAuditFile | null;
+	registrationQualityAudit: BoatExRegisteredRegistrationQualityAuditFile | null;
+	registrationProvenanceAudit: BoatExRegistrationProvenanceAuditFile | null;
 	message: string;
 };
 
@@ -284,6 +292,11 @@ function findDateIndexEntry(dateIndex: BoatExDateIndexFile | null, date: string)
 	return dateIndex?.dates.find((entry) => entry.date === date);
 }
 
+async function fetchOptionalJson<T>(path: string): Promise<T | null> {
+	const response = await fetch(withBasePath(path), { cache: "no-store" });
+	return response.ok ? await response.json() as T : null;
+}
+
 function readinessLabel(entry: BoatExDateIndexEntry | undefined, key: keyof BoatExDateIndexEntry["readiness"]): string {
 	return statusLabel(entry?.readiness?.[key] ?? "missing");
 }
@@ -393,6 +406,109 @@ function VenueEvidenceSection({ venueEvidence }: { venueEvidence: BoatExVenueEvi
 	);
 }
 
+function RegistryLinkageDetails({ racer }: { racer: BoatExRacerEvidenceItem }) {
+	if (!racer.registrationNumber) {
+		return <span>登録番号未解決: 名前だけでは紐づけません</span>;
+	}
+
+	if (!racer.identityRegistryMatched) {
+		return <span>登録番号あり / レジストリ未リンク</span>;
+	}
+
+	return (
+		<>
+			<strong>登録番号完全一致リンク</strong>
+			<br />
+			<span>キー: {racer.identityRegistryKey}</span>
+			<br />
+			<span>ソース: {racer.identityRegistrySource}</span>
+			<br />
+			<span>正式名: {racer.canonicalRacerName}</span>
+			<br />
+			<span>履歴: {racer.registryAppearanceCount}件 / {racer.registryFirstSeenDate} - {racer.registryLastSeenDate}</span>
+			<br />
+			<span>会場: {racer.registryVenueCount} / 出典: {racer.registryProvenanceCount}</span>
+		</>
+	);
+}
+
+function RegisteredIdentityRegistrySection({
+	registry,
+	linkageAudit,
+	qualityAudit,
+	provenanceAudit,
+}: {
+	registry: BoatExRegisteredRacerIdentityRegistryFile | null;
+	linkageAudit: BoatExRacerEvidenceRegistryLinkageAuditFile | null;
+	qualityAudit: BoatExRegisteredRegistrationQualityAuditFile | null;
+	provenanceAudit: BoatExRegistrationProvenanceAuditFile | null;
+}) {
+	const summary = registry?.summary;
+	const linkage = linkageAudit?.counts;
+	const quality = qualityAudit?.summary;
+	const provenance = provenanceAudit?.after;
+
+	return (
+		<section style={{ ...cardStyle, gap: "14px" }}>
+			<div>
+				<p style={labelStyle}>登録番号identityレジストリ</p>
+				<p style={valueStyle}>登録番号の完全一致で参照する選手identity</p>
+				<p style={textStyle}>名前だけの統合、推測補完、未解決行のlookupは行いません。</p>
+			</div>
+			<section style={metricGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>安全なidentity</p>
+					<p style={metricValueStyle}>{summary?.identityCount ?? "未読込"}</p>
+					<p style={textStyle}>登録番号を主キーにしたidentity数</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>登録番号あり出走</p>
+					<p style={metricValueStyle}>{quality?.registeredAppearanceCount ?? summary?.sourceAppearanceCount ?? "未読込"}</p>
+					<p style={textStyle}>公式出典が完備された対象</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>選手エビデンスリンク</p>
+					<p style={metricValueStyle}>{linkage?.linked ?? "未読込"}</p>
+					<p style={textStyle}>レジストリ未リンク {linkage?.unlinkedRegistered ?? "未読込"}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>登録番号未解決</p>
+					<p style={metricValueStyle}>{linkage?.unresolvedExcluded ?? summary?.unresolvedExcludedCount ?? "未読込"}</p>
+					<p style={textStyle}>安全なレジストリには入れず、名前だけでは紐づけない</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>衝突 / alias候補</p>
+					<p style={metricValueStyle}>{quality?.collisionCount ?? summary?.collisionCount ?? "未読込"} / {quality?.aliasCandidateCount ?? summary?.aliasCandidateCount ?? "未読込"}</p>
+					<p style={textStyle}>衝突、別名候補は安全な対象として扱わない</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>出典の完全性</p>
+					<p style={metricValueStyle}>{provenance?.provenanceCompleteCount ?? quality?.provenanceCompleteCount ?? "未読込"} / {provenance?.provenanceMissingCount ?? quality?.provenanceMissingCount ?? "未読込"}</p>
+					<p style={textStyle}>完備 / 欠損</p>
+				</article>
+			</section>
+			<section style={twoColumnGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>対象範囲</p>
+					<p style={textStyle}>初回確認: {summary?.firstSeenDate ?? "未読込"}</p>
+					<p style={textStyle}>最終確認: {summary?.lastSeenDate ?? "未読込"}</p>
+					<p style={textStyle}>レジストリ欠損: {linkage?.registryMissing ?? "未読込"} / 衝突: {linkage?.collision ?? "未読込"}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>出典 / 監査</p>
+					<ul style={noteListStyle}>
+						<li><code>/data/boatrace-ex/identity/registered-racers.generated.json</code></li>
+						<li><code>/data/boatrace-ex/audit/registered-racer-identity-registry-{registry?.summary.lastSeenDate ?? "latest"}.generated.json</code></li>
+						<li><code>/data/boatrace-ex/audit/racer-evidence-registry-linkage-{linkageAudit?.auditDate ?? "latest"}.generated.json</code></li>
+						<li><code>/data/boatrace-ex/audit/registered-registration-quality-{qualityAudit?.auditDate ?? "latest"}.generated.json</code></li>
+						<li><code>/data/boatrace-ex/audit/registration-provenance-{provenanceAudit?.auditDate ?? "latest"}.generated.json</code></li>
+					</ul>
+				</article>
+			</section>
+		</section>
+	);
+}
+
 function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvidenceFile | null }) {
 	if (!racerEvidence) return <p style={textStyle}>EX選手エビデンスがありません。固定値は使用しません。</p>;
 	const topRacers = racerEvidence.racers.slice(0, 50);
@@ -400,11 +516,12 @@ function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvi
 	return (
 		<>
 			<div style={tableWrapStyle}>
-				<table style={{ ...tableStyle, minWidth: "1460px" }}>
+				<table style={{ ...tableStyle, minWidth: "1680px" }}>
 					<thead>
 						<tr>
 							<th style={thStyle}>選手</th>
 							<th style={thStyle}>登録番号</th>
+							<th style={thStyle}>登録identity link</th>
 							<th style={thStyle}>支部</th>
 							<th style={thStyle}>級別</th>
 							<th style={thStyle}>出走数</th>
@@ -426,6 +543,7 @@ function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvi
 									<span>{statusLabel(racer.identityStatus)}</span>
 								</td>
 								<td style={tdStyle}>{racer.registrationNumber ?? "なし"}</td>
+								<td style={tdStyle}><RegistryLinkageDetails racer={racer} /></td>
 								<td style={tdStyle}>{racer.branch ?? "なし"}</td>
 								<td style={tdStyle}>{racer.className ?? "なし"}</td>
 								<td style={tdStyle}>{racer.appearanceCount}</td>
@@ -452,6 +570,7 @@ function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvi
 						<p style={valueStyle}>{racer.racerName}</p>
 						<p style={textStyle}>支部 / 級別: {racer.branch ?? "なし"} / {racer.className ?? "なし"}</p>
 						<p style={textStyle}>出走数: {racer.appearanceCount}</p>
+						<div style={textStyle}><RegistryLinkageDetails racer={racer} /></div>
 						<p style={textStyle}>平均ST: {numberLabel(racer.startEvidence.averageST, 3)}</p>
 						<p style={textStyle}>平均展示タイム: {numberLabel(racer.exhibitionEvidence.averageExhibitionTime, 2)}</p>
 						<p style={textStyle}>進入変更: {courseChangeLabel(racer)}</p>
@@ -1043,6 +1162,10 @@ export function BoatExPage() {
 		todayFlow: null,
 		predictionStructure: null,
 		historicalSourceCoverage: null,
+		registeredIdentityRegistry: null,
+		registryLinkageAudit: null,
+		registrationQualityAudit: null,
+		registrationProvenanceAudit: null,
 		message: "EXエビデンスを確認しています。",
 	});
 
@@ -1073,7 +1196,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, historicalSourceCoverageResponse] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, historicalSourceCoverageResponse, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1086,6 +1209,10 @@ export function BoatExPage() {
 					fetch(withBasePath("data/boatrace-ex/derived/today-flow/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/prediction-structure/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/history-coverage/latest.json"), { cache: "no-store" }),
+					fetchOptionalJson<BoatExRegisteredRacerIdentityRegistryFile>("data/boatrace-ex/identity/registered-racers.generated.json"),
+					fetchOptionalJson<BoatExRacerEvidenceRegistryLinkageAuditFile>(`data/boatrace-ex/audit/racer-evidence-registry-linkage-${targetDate}.generated.json`),
+					fetchOptionalJson<BoatExRegisteredRegistrationQualityAuditFile>(`data/boatrace-ex/audit/registered-registration-quality-${targetDate}.generated.json`),
+					fetchOptionalJson<BoatExRegistrationProvenanceAuditFile>(`data/boatrace-ex/audit/registration-provenance-${targetDate}.generated.json`),
 				]);
 
 				if (!derivedManifestResponse.ok) throw new Error(`derived manifest fetch failed: ${derivedManifestResponse.status}`);
@@ -1119,6 +1246,10 @@ export function BoatExPage() {
 					todayFlow,
 					predictionStructure,
 					historicalSourceCoverage,
+					registeredIdentityRegistry,
+					registryLinkageAudit,
+					registrationQualityAudit,
+					registrationProvenanceAudit,
 						message: indexMissing ? "EX日付indexがありません。manifestの最新日付を使用します。" : "EXセクションを表示できます。",
 					});
 				}
@@ -1136,6 +1267,10 @@ export function BoatExPage() {
 					todayFlow: null,
 					predictionStructure: null,
 					historicalSourceCoverage: null,
+					registeredIdentityRegistry: null,
+					registryLinkageAudit: null,
+					registrationQualityAudit: null,
+					registrationProvenanceAudit: null,
 						message: "EXエビデンスがありません。",
 					});
 				}
@@ -1157,6 +1292,10 @@ export function BoatExPage() {
 	const todayFlow = loadState.todayFlow;
 	const predictionStructure = loadState.predictionStructure;
 	const historicalSourceCoverage = loadState.historicalSourceCoverage;
+	const registeredIdentityRegistry = loadState.registeredIdentityRegistry;
+	const registryLinkageAudit = loadState.registryLinkageAudit;
+	const registrationQualityAudit = loadState.registrationQualityAudit;
+	const registrationProvenanceAudit = loadState.registrationProvenanceAudit;
 	const historicalSourceDateRange = historicalSourceCoverage?.dateFrom && historicalSourceCoverage.dateTo
 		? `${historicalSourceCoverage.dateFrom} ～ ${historicalSourceCoverage.dateTo}`
 		: "日付未解決";
@@ -1192,6 +1331,36 @@ export function BoatExPage() {
 								<p style={labelStyle}>EX分析済み日数</p>
 								<p style={metricValueStyle}>{availableDateCount}</p>
 								<p style={textStyle}>派生分析に利用できる日付: {availableDates}</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>登録identity数</p>
+								<p style={metricValueStyle}>{registeredIdentityRegistry?.summary.identityCount ?? "未読込"}</p>
+								<p style={textStyle}>公式出典が完備された登録番号identity</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>登録番号あり出走</p>
+								<p style={metricValueStyle}>{registrationQualityAudit?.summary.registeredAppearanceCount ?? registeredIdentityRegistry?.summary.sourceAppearanceCount ?? "未読込"}</p>
+								<p style={textStyle}>登録番号の完全一致でレジストリ化された出走</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>エビデンスリンク済み</p>
+								<p style={metricValueStyle}>{registryLinkageAudit?.counts.linked ?? "未読込"}</p>
+								<p style={textStyle}>未リンク {registryLinkageAudit?.counts.unlinkedRegistered ?? "未読込"}</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>登録番号未解決</p>
+								<p style={metricValueStyle}>{registryLinkageAudit?.counts.unresolvedExcluded ?? registeredIdentityRegistry?.summary.unresolvedExcludedCount ?? "未読込"}</p>
+								<p style={textStyle}>名前だけでは紐づけず、安全なレジストリから除外</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>衝突 / alias候補</p>
+								<p style={metricValueStyle}>{registrationQualityAudit?.summary.collisionCount ?? registeredIdentityRegistry?.summary.collisionCount ?? "未読込"} / {registrationQualityAudit?.summary.aliasCandidateCount ?? registeredIdentityRegistry?.summary.aliasCandidateCount ?? "未読込"}</p>
+								<p style={textStyle}>安全なレジストリには入れない監査対象</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>出典 完備 / 欠損</p>
+								<p style={metricValueStyle}>{registrationProvenanceAudit?.after.provenanceCompleteCount ?? registrationQualityAudit?.summary.provenanceCompleteCount ?? "未読込"} / {registrationProvenanceAudit?.after.provenanceMissingCount ?? registrationQualityAudit?.summary.provenanceMissingCount ?? "未読込"}</p>
+								<p style={textStyle}>出典に基づく登録番号provenance</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>過去素材日数</p>
@@ -1295,6 +1464,12 @@ export function BoatExPage() {
 								<p style={textStyle}>最終進入の欠損は傾向として補わず、ソースなしとして表示します。</p>
 							</article>
 						</section>
+						<RegisteredIdentityRegistrySection
+							registry={registeredIdentityRegistry}
+							linkageAudit={registryLinkageAudit}
+							qualityAudit={registrationQualityAudit}
+							provenanceAudit={registrationProvenanceAudit}
+						/>
 						<RacerEvidenceSection racerEvidence={racerEvidence} />
 					</SectionShell>
 				);

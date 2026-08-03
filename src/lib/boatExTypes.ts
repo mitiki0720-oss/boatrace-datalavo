@@ -618,6 +618,18 @@ export interface BoatExRacerEvidenceItem {
 		boatNos: string[];
 		sourceStatus: "partial" | "missing";
 	};
+	/** Registry linkage is only populated from an exact registration number match. */
+	identityRegistryKey?: string;
+	identityRegistryMatched?: boolean;
+	identityRegistrySource?: string;
+	canonicalRacerName?: string;
+	normalizedRacerName?: string;
+	nameVariants?: string[];
+	registryAppearanceCount?: number;
+	registryFirstSeenDate?: BoatExDateKey;
+	registryLastSeenDate?: BoatExDateKey;
+	registryVenueCount?: number;
+	registryProvenanceCount?: number;
 	derivedReadiness: BoatExRacerDerivedReadiness;
 	warnings: string[];
 }
@@ -635,6 +647,65 @@ export interface BoatExRacerEvidenceFile {
 		analysisStatus: "insufficient-history" | "missing";
 	};
 	racers: BoatExRacerEvidenceItem[];
+}
+
+export interface BoatExRegisteredRacerIdentitySummary {
+	identityCount: number;
+	sourceAppearanceCount: number;
+	firstSeenDate: BoatExDateKey;
+	lastSeenDate: BoatExDateKey;
+	collisionCount: number;
+	aliasCandidateCount: number;
+	unresolvedExcludedCount: number;
+	provenanceIncompleteRegisteredCount: number;
+}
+
+export interface BoatExRegisteredRacerIdentityRegistryFile {
+	schemaVersion: number;
+	kind: "boatrace-ex-registered-racer-identity-registry";
+	generatedAt: string;
+	summary: BoatExRegisteredRacerIdentitySummary;
+}
+
+export interface BoatExRacerEvidenceRegistryLinkageAuditFile {
+	schemaVersion: number;
+	kind: "boatrace-ex-racer-evidence-registry-linkage-audit";
+	auditDate: BoatExDateKey;
+	registryIdentityCount: number;
+	counts: {
+		linked: number;
+		unlinkedRegistered: number;
+		unresolvedExcluded: number;
+		registryMissing: number;
+		collision: number;
+	};
+}
+
+export interface BoatExRegisteredRegistrationQualityAuditFile {
+	schemaVersion: number;
+	kind: "boatrace-ex-registered-registration-quality-audit";
+	auditDate: BoatExDateKey;
+	summary: {
+		registeredAppearanceCount: number;
+		provenanceCompleteCount: number;
+		provenanceMissingCount: number;
+		collisionCount: number;
+		aliasCandidateCount: number;
+		safeRegisteredIdentityCount: number;
+		racerEvidenceMatchedRegistrationCount: number;
+		racerEvidenceMismatchCount: number;
+	};
+}
+
+export interface BoatExRegistrationProvenanceAuditFile {
+	schemaVersion: number;
+	kind: "boatrace-ex-registration-provenance-audit";
+	auditDate: BoatExDateKey;
+	after: {
+		provenanceCompleteCount: number;
+		provenanceMissingCount: number;
+		registrationValueHash: string;
+	};
 }
 
 export type BoatExVenueBiasReadinessStatus = "ready" | "insufficient-history";
