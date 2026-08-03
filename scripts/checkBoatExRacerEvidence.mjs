@@ -165,13 +165,14 @@ function equalCounts(left, right) {
 }
 
 function validateProvenance(evidence, historyPath, coveragePath, venueEvidencePath, errors) {
-	const allowedPaths = new Set([historyPath, coveragePath, venueEvidencePath]);
+	const identityRegistryPath = "public/data/boatrace-ex/identity/registered-racers.generated.json";
+	const allowedPaths = new Set([historyPath, coveragePath, venueEvidencePath, identityRegistryPath]);
 	assert(Array.isArray(evidence.sourceFiles), "evidence.sourceFiles must be an array", errors);
 	for (const source of evidence.sourceFiles ?? []) {
 		const sourcePath = String(source.sourcePath ?? "");
 		assert(!sourcePath.startsWith("public/data/reviews/"), `sourceFiles path is prohibited: ${sourcePath}`, errors);
 		assert(!/^public\/data\/boatrace\/[^/]+\.generated\.json$/.test(sourcePath), `direct boatrace generated source is prohibited: ${sourcePath}`, errors);
-		assert(allowedPaths.has(sourcePath), `sourceFiles path must be derived EX evidence: ${sourcePath}`, errors);
+		assert(allowedPaths.has(sourcePath), `sourceFiles path must be derived EX evidence or registered identity registry: ${sourcePath}`, errors);
 	}
 	for (const requiredPath of [historyPath, coveragePath]) {
 		assert((evidence.sourceFiles ?? []).some((source) => source.sourcePath === requiredPath), `sourceFiles must include ${requiredPath}`, errors);

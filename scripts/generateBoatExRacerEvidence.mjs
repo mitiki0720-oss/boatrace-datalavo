@@ -9,6 +9,7 @@ const repoRoot = path.resolve(__dirname, "..");
 const OUTPUT_ROOT = "public/data/boatrace-ex/derived";
 const KIND = "boatrace-ex-racer-evidence";
 const MANIFEST_KIND = "boatrace-ex-derived-manifest";
+const IDENTITY_REGISTRY_PATH = "public/data/boatrace-ex/identity/registered-racers.generated.json";
 
 function parseArgs(argv) {
 	const args = {
@@ -258,7 +259,7 @@ function createAppearance(record, racer, officialRacer) {
 	};
 }
 
-function buildRacerEvidence(racerKey, appearances) {
+function buildRacerEvidence(racerKey, appearances, identityRegistry) {
 	const first = appearances[0];
 	const registrationNumber = first.registrationNumber ?? null;
 	const warnings = [];
@@ -355,6 +356,7 @@ function buildRacerEvidence(racerKey, appearances) {
 		});
 	}
 
+	const registryIdentity = registrationNumber ? identityRegistry.get(String(registrationNumber)) : null;
 	return {
 		racerKey,
 		identityStatus,
@@ -406,12 +408,25 @@ function buildRacerEvidence(racerKey, appearances) {
 			boatNos: [...boatNos].sort(),
 			sourceStatus: motorNos.size > 0 || boatNos.size > 0 ? "partial" : "missing",
 		},
+		...(registryIdentity ? {
+			identityRegistryKey: registryIdentity.registrationNo,
+			identityRegistryMatched: true,
+			identityRegistrySource: "registered-racers.generated.json",
+			canonicalRacerName: registryIdentity.canonicalRacerName,
+			normalizedRacerName: registryIdentity.normalizedRacerName,
+			nameVariants: registryIdentity.nameVariants,
+			registryAppearanceCount: registryIdentity.appearanceCount,
+			registryFirstSeenDate: registryIdentity.firstSeenDate,
+			registryLastSeenDate: registryIdentity.lastSeenDate,
+			registryVenueCount: registryIdentity.venues.length,
+			registryProvenanceCount: registryIdentity.provenanceCount,
+		} : {}),
 		derivedReadiness: readiness(),
 		warnings,
 	};
 }
 
-function createRacerEvidence(date, records) {
+function createRacerEvidence(date, records, identityRegistry) {
 	const appearancesByRacer = new Map();
 
 	for (const record of records) {
@@ -434,7 +449,7 @@ function createRacerEvidence(date, records) {
 	}
 
 	return [...appearancesByRacer.entries()]
-		.map(([racerKey, appearances]) => buildRacerEvidence(racerKey, appearances))
+		.map(([racerKey, appearances]) => buildRacerEvidence(racerKey, appearances, identityRegistry))
 		.sort((left, right) => (
 			Number(right.appearanceCount) - Number(left.appearanceCount) ||
 			String(left.racerName).localeCompare(String(right.racerName), "ja")
@@ -495,10 +510,15 @@ function main() {
 	const manifestPath = `${OUTPUT_ROOT}/manifest.generated.json`;
 	const { history, coverage } = readRequiredInputs({ date, allowEmpty: args.allowEmpty });
 	const venueEvidence = readJsonIfExists(`${OUTPUT_ROOT}/venue-evidence/${date}.json`);
+	const registry = readJsonIfExists(IDENTITY_REGISTRY_PATH);
+	const identityRegistry = new Map(toArray(registry?.identities).map((identity) => [String(identity.registrationNo), identity]));
 	const records = toArray(history.records);
-	const racers = createRacerEvidence(date, records);
+	const racers = createRacerEvidence(date, records, identityRegistry);
 	const generatedAt = new Date().toISOString();
-	const sourceFiles = sourceFilesFor(date, history, coverage, venueEvidence);
+	const sourceFiles = [
+		...sourceFilesFor(date, history, coverage, venueEvidence),
+		...(registry ? [{ sourceName: "registered-racers.generated.json", sourceType: "derived", sourcePath: IDENTITY_REGISTRY_PATH, generatedAt: registry.generatedAt, sourceStatus: "available", coverageStatus: "partial" }] : []),
+	];
 	const appearanceCount = racers.reduce((sum, racer) => sum + racer.appearanceCount, 0);
 	const isEmptyOutput = records.length === 0 || racers.length === 0 || appearanceCount === 0;
 
