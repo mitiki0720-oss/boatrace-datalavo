@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
 
 const OUTPUT_PATH = "public/data/boatrace-ex/derived/rough-index/latest.json";
+const PAYOUT_AUDIT_DIRECTORY = "public/data/boatrace-ex/audit";
 const DERIVED_MANIFEST_PATH = "public/data/boatrace-ex/derived/manifest.generated.json";
 const DATE_INDEX_PATH = "public/data/boatrace-ex/index.generated.json";
 
@@ -92,10 +93,6 @@ function payoutTypeText(item) {
                 item.betType,
                 item.type,
                 item.name,
-                item.label,
-                item.betName,
-                item.wagerType,
-                item.category,
         ]
                 .filter((value) => typeof value === "string")
                 .join(" ")
@@ -119,11 +116,10 @@ function payoutAmount(item) {
         }
 
         const candidates = [
+                item.payoutYen,
                 item.amount,
                 item.payoutAmount,
-                item.payoff,
                 item.payout,
-                item.value,
                 item.yen,
         ];
 
@@ -365,18 +361,17 @@ function mergeManifest(entry, generatedAt) {
         const existing = readJsonIfExists(DERIVED_MANIFEST_PATH);
 
         const files = Array.isArray(existing?.files)
-                ? existing.files.filter(
-                        (file) => file?.path !== entry.path,
-                )
+                ? [...existing.files]
                 : [];
-
-        files.push(entry);
-
-        files.sort((left, right) =>
-                String(left.path ?? "").localeCompare(
-                        String(right.path ?? ""),
-                ),
+        const existingIndex = files.findIndex(
+                (file) => file?.path === entry.path,
         );
+
+        if (existingIndex >= 0) {
+                files[existingIndex] = entry;
+        } else {
+                files.push(entry);
+        }
 
         return {
                 schemaVersion: 1,
@@ -387,6 +382,43 @@ function mergeManifest(entry, generatedAt) {
                         : [],
                 files,
         };
+}
+
+function buildPayoutContractAudit(roughIndex, generatedAt) {
+        return {
+                schemaVersion: 1,
+                kind: "boatrace-ex-rough-index-payout-contract-audit",
+                auditDate: roughIndex.dateRange.to,
+                generatedAt,
+                mode: "source-backed",
+                contract: {
+                        recordPath: "officialResult.payout[]",
+                        trifectaTypeFields: ["betType", "type", "name"],
+                        trifectaTypeValues: ["3連単", "三連単", "trifecta"],
+                        amountFields: ["payoutYen", "amount", "payoutAmount", "payout", "yen"],
+                        amountFormat: "non-negative integer or yen-formatted string",
+                        note: "Only payout values already present in BOATRACE EX history are counted. No payout value is inferred or generated.",
+                },
+                summary: {
+                        dateCount: roughIndex.dateRange.dateCount,
+                        raceCount: roughIndex.summary.raceCount,
+                        resultAvailableRaceCount:
+                                roughIndex.summary.resultAvailableRaceCount,
+                        payoutAvailableRaceCount:
+                                roughIndex.summary.payoutAvailableRaceCount,
+                        trifectaAvailableRaceCount:
+                                roughIndex.summary.trifectaAvailableRaceCount,
+                        trifectaOver10000RaceCount:
+                                roughIndex.summary.trifectaOver10000RaceCount,
+                        readiness: roughIndex.readiness.status,
+                },
+                sourceFiles: roughIndex.sourceFiles,
+                warnings: roughIndex.warnings,
+        };
+}
+
+function payoutAuditPath(date) {
+        return `${PAYOUT_AUDIT_DIRECTORY}/rough-index-payout-contract-${date}.generated.json`;
 }
 
 function main() {
@@ -400,6 +432,7 @@ function main() {
                 generatedAt,
                 ...roughIndex,
         };
+        const auditPath = payoutAuditPath(output.dateRange.to);
 
         const manifest = mergeManifest(
                 {
@@ -416,8 +449,10 @@ function main() {
                 },
                 generatedAt,
         );
+        const payoutAudit = buildPayoutContractAudit(roughIndex, generatedAt);
 
         writeJson(OUTPUT_PATH, output, args.dryRun);
+        writeJson(auditPath, payoutAudit, args.dryRun);
         writeJson(DERIVED_MANIFEST_PATH, manifest, args.dryRun);
 
         console.log(
@@ -426,6 +461,7 @@ function main() {
                                 ok: true,
                                 dryRun: args.dryRun,
                                 path: OUTPUT_PATH,
+                                auditPath,
                                 dateCount: output.dateRange.dateCount,
                                 raceCount: output.summary.raceCount,
                                 venueCount: output.summary.venueCount,
