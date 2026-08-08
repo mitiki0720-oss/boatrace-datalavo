@@ -92,10 +92,6 @@ function payoutTypeText(item) {
                 item.betType,
                 item.type,
                 item.name,
-                item.label,
-                item.betName,
-                item.wagerType,
-                item.category,
         ]
                 .filter(
                         (value) =>
@@ -126,11 +122,10 @@ function payoutAmount(item) {
         }
 
         const candidates = [
+                item.payoutYen,
                 item.amount,
                 item.payoutAmount,
-                item.payoff,
                 item.payout,
-                item.value,
                 item.yen,
         ];
 
