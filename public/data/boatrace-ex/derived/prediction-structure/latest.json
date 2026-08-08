@@ -1,10 +1,27 @@
 {
   "schemaVersion": "boat-ex-prediction-structure-v1",
-  "generatedAt": "2026-08-02T22:09:16.977Z",
+  "generatedAt": "2026-08-08T23:06:57.529Z",
   "status": "available",
   "readiness": {
     "status": "insufficient-history",
-    "reason": "Prediction Structure LAB exposes source-backed coverage only; prediction signals are not generated."
+    "reason": "predictionTextAvailableRaceCount 0 is below minimum 30; structuredTicketAvailableRaceCount 0 is below minimum 30; evaluatedPredictionRaceCount 0 is below minimum 30",
+    "missingRequirements": [
+      "predictionTextAvailableRaceCount 0 is below minimum 30",
+      "structuredTicketAvailableRaceCount 0 is below minimum 30",
+      "evaluatedPredictionRaceCount 0 is below minimum 30"
+    ],
+    "availableCounts": {
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "resultAvailableRaceCount": 144,
+      "payoutAvailableRaceCount": 144
+    },
+    "thresholds": {
+      "minPredictionTextRaceCount": 30,
+      "minStructuredTicketRaceCount": 30,
+      "minEvaluatedPredictionRaceCount": 30
+    }
   },
   "targetDate": "2026-08-02",
   "dateRange": {
@@ -17,11 +34,15 @@
     "raceCount": 144,
     "officialRaceCount": 144,
     "resultAvailableRaceCount": 144,
+    "payoutAvailableRaceCount": 144,
     "exhibitionAvailableRaceCount": 144,
     "weatherAvailableRaceCount": 144,
     "motorAvailableRaceCount": 144,
     "boatAvailableRaceCount": 144,
-    "racerAvailableRaceCount": 144
+    "racerAvailableRaceCount": 144,
+    "predictionTextAvailableRaceCount": 0,
+    "structuredTicketAvailableRaceCount": 0,
+    "evaluatedPredictionRaceCount": 0
   },
   "venues": [
     {
@@ -30,12 +51,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     },
     {
       "venueCode": "05",
@@ -43,12 +71,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     },
     {
       "venueCode": "06",
@@ -56,12 +91,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     },
     {
       "venueCode": "08",
@@ -69,12 +111,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     },
     {
       "venueCode": "11",
@@ -82,12 +131,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     },
     {
       "venueCode": "13",
@@ -95,12 +151,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     },
     {
       "venueCode": "15",
@@ -108,12 +171,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     },
     {
       "venueCode": "16",
@@ -121,12 +191,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     },
     {
       "venueCode": "20",
@@ -134,12 +211,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     },
     {
       "venueCode": "21",
@@ -147,12 +231,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     },
     {
       "venueCode": "22",
@@ -160,12 +251,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     },
     {
       "venueCode": "23",
@@ -173,12 +271,19 @@
       "raceCount": 12,
       "officialRaceCount": 12,
       "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "exhibitionAvailableRaceCount": 12,
       "weatherAvailableRaceCount": 12,
       "motorAvailableRaceCount": 12,
       "boatAvailableRaceCount": 12,
       "racerAvailableRaceCount": 12,
-      "warnings": []
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "warnings": [
+        "No source-backed prediction text is available for this venue.",
+        "No source-backed structured prediction tickets are available for this venue."
+      ]
     }
   ],
   "sourceFiles": [
@@ -196,6 +301,6 @@
     }
   ],
   "warnings": [
-    "Prediction Structure LAB reports source-backed coverage only. Prediction signals are not generated."
+    "Prediction Structure LAB does not infer tickets, hits, misses, or payout values. See readiness.missingRequirements for the source-backed gaps."
   ]
 }
