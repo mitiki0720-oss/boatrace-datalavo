@@ -572,8 +572,12 @@ export interface BoatExRacerDerivedReadiness {
 
 export interface BoatExRacerEvidenceItem {
 	racerKey: string;
-	identityStatus: "verified" | "unverified";
+	identityStatus: "verified" | "name-linked" | "unverified";
 	registrationNumber: string | null;
+	resolvedRegistrationNo?: string | null;
+	identityLinkMethod?: "exact-normalized-name-unique" | "ambiguous" | null;
+	registrationNoSourceStatus?: "name-linked-from-registry" | null;
+	officialRegistrationNoAvailable?: boolean;
 	racerName: string;
 	branch: string | null;
 	className: string | null;
@@ -643,6 +647,9 @@ export interface BoatExRacerEvidenceFile {
 	summary: {
 		racerCount: number;
 		appearanceCount: number;
+		officialRegistrationNumberRacerCount?: number;
+		nameLinkedRacerCount?: number;
+		unresolvedRacerCount?: number;
 		historyDays: number;
 		analysisStatus: "insufficient-history" | "missing";
 	};
@@ -674,11 +681,50 @@ export interface BoatExRacerEvidenceRegistryLinkageAuditFile {
 	registryIdentityCount: number;
 	counts: {
 		linked: number;
+		nameLinked?: number;
+		nameLinkedAppearances?: number;
 		unlinkedRegistered: number;
 		unresolvedExcluded: number;
+		registryNameMissing?: number;
+		ambiguousNameSkipped?: number;
 		registryMissing: number;
 		collision: number;
 	};
+}
+
+export interface BoatExNameIdentityBridgeAuditFile {
+	schemaVersion: number;
+	kind: "boatrace-ex-name-identity-bridge-audit";
+	auditDate: BoatExDateKey;
+	counts: {
+		sourceUnresolvedAppearances: number;
+		exactUniqueNameLinked: number;
+		exactUniqueNameLinkedAppearances: number;
+		ambiguousSkipped: number;
+		registryNameMissing: number;
+		registryMissing: number;
+		collision: number;
+		officialRegistrationNoLinkedRacerEvidence: number;
+	};
+}
+
+export interface BoatExTabCompletenessAuditFile {
+	schemaVersion: number;
+	kind: "boatrace-ex-tab-completeness-audit";
+	auditDate: BoatExDateKey;
+	summary: {
+		tabCount: number;
+		readyCount: number;
+		availableCount: number;
+		insufficientHistoryCount: number;
+		pendingCount: number;
+	};
+	tabs: Array<{
+		key: string;
+		status: string;
+		reason: string;
+		sourcePaths: string[];
+	}>;
 }
 
 export interface BoatExRegisteredRegistrationQualityAuditFile {

@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-racer-evidence-registry-linkage-audit",
   "auditDate": "2026-08-02",
-  "generatedAt": "2026-08-03T11:39:12.526Z",
+  "generatedAt": "2026-08-09T11:51:17.805Z",
   "mode": "write",
-  "policy": "Exact registrationNo lookup only. No history, registrationNo, or racerName mutation.",
+  "policy": "Exact official registrationNo lookup first. Missing official registrationNo may be linked only by a unique exact normalized registry name. No fuzzy, partial, guessed, history, or official registrationNo mutation.",
   "sourceFiles": [
     "public/data/boatrace-ex/identity/registered-racers.generated.json",
     "public/data/boatrace-ex/derived/racer-evidence/2026-05-24.json",
@@ -150,13 +150,18 @@
       "2026-08-01",
       "2026-08-02"
     ],
-    "historyModified": false
+    "historyModified": false,
+    "officialRegistrationNoModified": false
   },
   "registryIdentityCount": 1287,
   "counts": {
     "linked": 1822,
+    "nameLinked": 25728,
+    "nameLinkedAppearances": 41551,
     "unlinkedRegistered": 0,
-    "unresolvedExcluded": 49752,
+    "unresolvedExcluded": 8201,
+    "registryNameMissing": 8201,
+    "ambiguousNameSkipped": 0,
     "registryMissing": 0,
     "collision": 0
   },
@@ -460,6 +465,358 @@
       "registrationNo": "3611",
       "racerName": "岩崎 芳美",
       "identityRegistryKey": "3611"
+    }
+  ],
+  "nameLinkedSamples": [
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "5008",
+      "racerName": "羽野 諒",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4308",
+      "racerName": "河村 了",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "3202",
+      "racerName": "三品 隆浩",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "3514",
+      "racerName": "山一 鉄也",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "3505",
+      "racerName": "山田 竜一",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "3233",
+      "racerName": "小畑 実成",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "5057",
+      "racerName": "上田 紗奈",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4631",
+      "racerName": "新井 英孝",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4447",
+      "racerName": "深川 麻奈美",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4114",
+      "racerName": "深澤 達徳",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4216",
+      "racerName": "星 栄爾",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4016",
+      "racerName": "西川 新太郎",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4211",
+      "racerName": "村田 敦",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "3075",
+      "racerName": "中村 裕将",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4238",
+      "racerName": "毒島 誠",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "3757",
+      "racerName": "畑 和宏",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "5105",
+      "racerName": "富田 恕生",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4619",
+      "racerName": "伏田 裕隆",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4417",
+      "racerName": "服部 剛",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "5136",
+      "racerName": "濱野 斗馬",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "3508",
+      "racerName": "久富 政弘",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4784",
+      "racerName": "向井田 真紀",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "5150",
+      "racerName": "坂本 雄紀",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4639",
+      "racerName": "雑賀 勇貴",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "5243",
+      "racerName": "三馬 崇史",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "5468",
+      "racerName": "山口 隼人",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "3910",
+      "racerName": "松下 知幸",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4180",
+      "racerName": "上野 秀和",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4733",
+      "racerName": "赤井 睦",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4775",
+      "racerName": "千葉 真弥",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "5174",
+      "racerName": "川井 萌",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4202",
+      "racerName": "浮田 圭浩",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "4740",
+      "racerName": "齋藤 達希",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-24",
+      "resolvedRegistrationNo": "5351",
+      "racerName": "齊藤 廉",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 1
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "5008",
+      "racerName": "羽野 諒",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "4308",
+      "racerName": "河村 了",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "4784",
+      "racerName": "向井田 真紀",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "5150",
+      "racerName": "坂本 雄紀",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "4639",
+      "racerName": "雑賀 勇貴",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "5243",
+      "racerName": "三馬 崇史",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "3910",
+      "racerName": "松下 知幸",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "5057",
+      "racerName": "上田 紗奈",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "4180",
+      "racerName": "上野 秀和",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "4447",
+      "racerName": "深川 麻奈美",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "4114",
+      "racerName": "深澤 達徳",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "4216",
+      "racerName": "星 栄爾",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "4733",
+      "racerName": "赤井 睦",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "4775",
+      "racerName": "千葉 真弥",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "5174",
+      "racerName": "川井 萌",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
+    },
+    {
+      "date": "2026-05-25",
+      "resolvedRegistrationNo": "4238",
+      "racerName": "毒島 誠",
+      "method": "exact-normalized-name-unique",
+      "appearanceCount": 2
     }
   ],
   "unlinkedSamples": []

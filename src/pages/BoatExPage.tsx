@@ -5,6 +5,7 @@ import type {
 	BoatExDateIndexEntry,
 	BoatExDateIndexFile,
 	BoatExHistoricalSourceCoverageFile,
+	BoatExNameIdentityBridgeAuditFile,
 	BoatExRacerEvidenceRegistryLinkageAuditFile,
 	BoatExRacerEvidenceFile,
 	BoatExRacerEvidenceItem,
@@ -14,6 +15,7 @@ import type {
 	BoatExPredictionStructureV1File,
 	BoatExRoughIndexV1File,
 	BoatExTodayFlowV1File,
+	BoatExTabCompletenessAuditFile,
 	BoatExVenueBiasV1File,
 	BoatExVenueEvidenceFile,
 	BoatExVenueEvidenceItem,
@@ -73,6 +75,8 @@ type LoadState = {
 	registryLinkageAudit: BoatExRacerEvidenceRegistryLinkageAuditFile | null;
 	registrationQualityAudit: BoatExRegisteredRegistrationQualityAuditFile | null;
 	registrationProvenanceAudit: BoatExRegistrationProvenanceAuditFile | null;
+	nameIdentityBridgeAudit: BoatExNameIdentityBridgeAuditFile | null;
+	tabCompletenessAudit: BoatExTabCompletenessAuditFile | null;
 	message: string;
 };
 
@@ -85,15 +89,15 @@ const sectionCards: Array<{
 	{ key: "overview", title: "概要", subtitle: "全体サマリー", status: "ready" },
 	{ key: "identity", title: "選手・出走者データ", subtitle: "選手情報", status: "available" },
 	{ key: "data-coverage", title: "データ充足状況", subtitle: "自動更新・出典", status: "available" },
-	{ key: "trend-lab", title: "傾向分析ラボ", subtitle: "計画データ", status: "pending" },
-	{ key: "trifecta-ranking", title: "3連単ランキング", subtitle: "3連単 v1", status: "pending" },
-	{ key: "rough-index", title: "荒れ指数", subtitle: "結果・払戻 v1", status: "insufficient-history" },
-	{ key: "race-transition", title: "レース推移", subtitle: "推移 v1", status: "pending" },
+	{ key: "trend-lab", title: "傾向分析ラボ", subtitle: "結果・払戻カバレッジ", status: "available" },
+	{ key: "trifecta-ranking", title: "3連単ランキング", subtitle: "結果・払戻カバレッジ", status: "available" },
+	{ key: "rough-index", title: "荒れ指数", subtitle: "結果・払戻 v1", status: "ready" },
+	{ key: "race-transition", title: "レース推移", subtitle: "当日結果フロー", status: "available" },
 	{ key: "weather", title: "天候・水面", subtitle: "風・波の事実", status: "available" },
 	{ key: "venue-bias", title: "会場傾向", subtitle: "会場傾向 v1", status: "available" },
-	{ key: "today-flow", title: "当日フロー", subtitle: "当日フロー v1", status: "insufficient-history" },
-	{ key: "prediction-structure", title: "予測構造ラボ", subtitle: "カバレッジマップ v1", status: "pending" },
-	{ key: "ex-analysis", title: "EX分析", subtitle: "会場・選手の照合", status: "pending" },
+	{ key: "today-flow", title: "当日フロー", subtitle: "当日フロー v1", status: "available" },
+	{ key: "prediction-structure", title: "予測構造ラボ", subtitle: "カバレッジマップ v1", status: "insufficient-history" },
+	{ key: "ex-analysis", title: "EX分析", subtitle: "会場・選手の照合", status: "available" },
 ];
 
 const cardGridStyle = {
@@ -245,6 +249,10 @@ function statusLabel(status: string | undefined): string {
 		ready: "準備完了",
 		pending: "準備中",
 		"insufficient-history": "履歴不足",
+		verified: "公式登録番号あり",
+		"name-linked": "名前完全一致・一意リンク",
+		unverified: "登録番号未解決",
+		ambiguous: "曖昧候補を除外",
 		missing: "なし",
 		error: "エラー",
 		unknown: "不明",
@@ -407,6 +415,22 @@ function VenueEvidenceSection({ venueEvidence }: { venueEvidence: BoatExVenueEvi
 }
 
 function RegistryLinkageDetails({ racer }: { racer: BoatExRacerEvidenceItem }) {
+	if (!racer.registrationNumber && racer.resolvedRegistrationNo && racer.identityLinkMethod === "exact-normalized-name-unique") {
+		return (
+			<>
+				<strong>名前完全一致・一意の補助リンク</strong>
+				<br />
+				<span>公式登録番号: 未収録（変更しません）</span>
+				<br />
+				<span>参照登録番号: {racer.resolvedRegistrationNo}</span>
+				<br />
+				<span>照合方法: exact-normalized-name-unique</span>
+				<br />
+				<span>ソース: {racer.identityRegistrySource}</span>
+			</>
+		);
+	}
+
 	if (!racer.registrationNumber) {
 		return <span>登録番号未解決: 名前だけでは紐づけません</span>;
 	}
@@ -437,16 +461,19 @@ function RegisteredIdentityRegistrySection({
 	linkageAudit,
 	qualityAudit,
 	provenanceAudit,
+	nameIdentityBridgeAudit,
 }: {
 	registry: BoatExRegisteredRacerIdentityRegistryFile | null;
 	linkageAudit: BoatExRacerEvidenceRegistryLinkageAuditFile | null;
 	qualityAudit: BoatExRegisteredRegistrationQualityAuditFile | null;
 	provenanceAudit: BoatExRegistrationProvenanceAuditFile | null;
+	nameIdentityBridgeAudit: BoatExNameIdentityBridgeAuditFile | null;
 }) {
 	const summary = registry?.summary;
 	const linkage = linkageAudit?.counts;
 	const quality = qualityAudit?.summary;
 	const provenance = provenanceAudit?.after;
+	const nameBridge = nameIdentityBridgeAudit?.counts;
 
 	return (
 		<section style={{ ...cardStyle, gap: "14px" }}>
@@ -477,6 +504,16 @@ function RegisteredIdentityRegistrySection({
 					<p style={textStyle}>安全なレジストリには入れず、名前だけでは紐づけない</p>
 				</article>
 				<article style={cardStyle}>
+					<p style={labelStyle}>名前完全一致・一意リンク</p>
+					<p style={metricValueStyle}>{nameBridge?.exactUniqueNameLinked ?? linkage?.nameLinked ?? "未読込"}</p>
+					<p style={textStyle}>公式登録番号を変えず、補助フィールドだけを追加</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>曖昧名を除外</p>
+					<p style={metricValueStyle}>{nameBridge?.ambiguousSkipped ?? linkage?.ambiguousNameSkipped ?? "未読込"}</p>
+					<p style={textStyle}>候補が複数の名前はリンクしない</p>
+				</article>
+				<article style={cardStyle}>
 					<p style={labelStyle}>衝突 / alias候補</p>
 					<p style={metricValueStyle}>{quality?.collisionCount ?? summary?.collisionCount ?? "未読込"} / {quality?.aliasCandidateCount ?? summary?.aliasCandidateCount ?? "未読込"}</p>
 					<p style={textStyle}>衝突、別名候補は安全な対象として扱わない</p>
@@ -502,6 +539,7 @@ function RegisteredIdentityRegistrySection({
 						<li><code>/data/boatrace-ex/audit/racer-evidence-registry-linkage-{linkageAudit?.auditDate ?? "latest"}.generated.json</code></li>
 						<li><code>/data/boatrace-ex/audit/registered-registration-quality-{qualityAudit?.auditDate ?? "latest"}.generated.json</code></li>
 						<li><code>/data/boatrace-ex/audit/registration-provenance-{provenanceAudit?.auditDate ?? "latest"}.generated.json</code></li>
+						<li><code>/data/boatrace-ex/audit/name-identity-bridge-{nameIdentityBridgeAudit?.auditDate ?? "latest"}.generated.json</code></li>
 					</ul>
 				</article>
 			</section>
@@ -923,6 +961,42 @@ function PredictionStructureSection({ predictionStructure }: { predictionStructu
 	);
 }
 
+function ReadinessMatrixSection({ audit }: { audit: BoatExTabCompletenessAuditFile | null }) {
+	if (!audit) return <p style={textStyle}>タブ充足状況監査を読み込めません。</p>;
+
+	return (
+		<section style={cardStyle}>
+			<div>
+				<p style={labelStyle}>readiness matrix</p>
+				<p style={valueStyle}>各タブの出典・状態・理由</p>
+				<p style={textStyle}>推測値ではなく、生成済みのsource-backedデータまたは監査結果を表示します。</p>
+			</div>
+			<div style={tableWrapStyle}>
+				<table style={{ ...tableStyle, minWidth: "960px" }}>
+					<thead>
+						<tr>
+							<th style={thStyle}>タブ</th>
+							<th style={thStyle}>状態</th>
+							<th style={thStyle}>理由</th>
+							<th style={thStyle}>出典</th>
+						</tr>
+					</thead>
+					<tbody>
+						{audit.tabs.map((tab) => (
+							<tr key={tab.key}>
+								<td style={tdStyle}>{tab.key}</td>
+								<td style={tdStyle}>{statusLabel(tab.status)}</td>
+								<td style={tdStyle}>{tab.reason}</td>
+								<td style={tdStyle}>{tab.sourcePaths.join("\n")}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</section>
+	);
+}
+
 type ExAnalysisVenueRow = {
 	venueCode: string;
 	venueName: string;
@@ -1166,6 +1240,8 @@ export function BoatExPage() {
 		registryLinkageAudit: null,
 		registrationQualityAudit: null,
 		registrationProvenanceAudit: null,
+		nameIdentityBridgeAudit: null,
+		tabCompletenessAudit: null,
 		message: "EXエビデンスを確認しています。",
 	});
 
@@ -1196,7 +1272,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, historicalSourceCoverageResponse, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, historicalSourceCoverageResponse, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1213,6 +1289,8 @@ export function BoatExPage() {
 					fetchOptionalJson<BoatExRacerEvidenceRegistryLinkageAuditFile>(`data/boatrace-ex/audit/racer-evidence-registry-linkage-${targetDate}.generated.json`),
 					fetchOptionalJson<BoatExRegisteredRegistrationQualityAuditFile>(`data/boatrace-ex/audit/registered-registration-quality-${targetDate}.generated.json`),
 					fetchOptionalJson<BoatExRegistrationProvenanceAuditFile>(`data/boatrace-ex/audit/registration-provenance-${targetDate}.generated.json`),
+					fetchOptionalJson<BoatExNameIdentityBridgeAuditFile>(`data/boatrace-ex/audit/name-identity-bridge-${targetDate}.generated.json`),
+					fetchOptionalJson<BoatExTabCompletenessAuditFile>(`data/boatrace-ex/audit/tab-completeness-${targetDate}.generated.json`),
 				]);
 
 				if (!derivedManifestResponse.ok) throw new Error(`derived manifest fetch failed: ${derivedManifestResponse.status}`);
@@ -1250,6 +1328,8 @@ export function BoatExPage() {
 					registryLinkageAudit,
 					registrationQualityAudit,
 					registrationProvenanceAudit,
+					nameIdentityBridgeAudit,
+					tabCompletenessAudit,
 						message: indexMissing ? "EX日付indexがありません。manifestの最新日付を使用します。" : "EXセクションを表示できます。",
 					});
 				}
@@ -1271,6 +1351,8 @@ export function BoatExPage() {
 					registryLinkageAudit: null,
 					registrationQualityAudit: null,
 					registrationProvenanceAudit: null,
+					nameIdentityBridgeAudit: null,
+					tabCompletenessAudit: null,
 						message: "EXエビデンスがありません。",
 					});
 				}
@@ -1296,6 +1378,8 @@ export function BoatExPage() {
 	const registryLinkageAudit = loadState.registryLinkageAudit;
 	const registrationQualityAudit = loadState.registrationQualityAudit;
 	const registrationProvenanceAudit = loadState.registrationProvenanceAudit;
+	const nameIdentityBridgeAudit = loadState.nameIdentityBridgeAudit;
+	const tabCompletenessAudit = loadState.tabCompletenessAudit;
 	const historicalSourceDateRange = historicalSourceCoverage?.dateFrom && historicalSourceCoverage.dateTo
 		? `${historicalSourceCoverage.dateFrom} ～ ${historicalSourceCoverage.dateTo}`
 		: "日付未解決";
@@ -1343,10 +1427,20 @@ export function BoatExPage() {
 								<p style={textStyle}>登録番号の完全一致でレジストリ化された出走</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>エビデンスリンク済み</p>
-								<p style={metricValueStyle}>{registryLinkageAudit?.counts.linked ?? "未読込"}</p>
-								<p style={textStyle}>未リンク {registryLinkageAudit?.counts.unlinkedRegistered ?? "未読込"}</p>
-							</article>
+							<p style={labelStyle}>エビデンスリンク済み</p>
+							<p style={metricValueStyle}>{registryLinkageAudit?.counts.linked ?? "未読込"}</p>
+							<p style={textStyle}>未リンク {registryLinkageAudit?.counts.unlinkedRegistered ?? "未読込"}</p>
+						</article>
+						<article style={cardStyle}>
+							<p style={labelStyle}>名前完全一致・一意リンク</p>
+							<p style={metricValueStyle}>{nameIdentityBridgeAudit?.counts.exactUniqueNameLinked ?? registryLinkageAudit?.counts.nameLinked ?? "未読込"}</p>
+							<p style={textStyle}>公式登録番号を保持した補助リンク</p>
+						</article>
+						<article style={cardStyle}>
+							<p style={labelStyle}>曖昧名を除外</p>
+							<p style={metricValueStyle}>{nameIdentityBridgeAudit?.counts.ambiguousSkipped ?? registryLinkageAudit?.counts.ambiguousNameSkipped ?? "未読込"}</p>
+							<p style={textStyle}>複数候補の名前は未解決のまま保持</p>
+						</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>登録番号未解決</p>
 								<p style={metricValueStyle}>{registryLinkageAudit?.counts.unresolvedExcluded ?? registeredIdentityRegistry?.summary.unresolvedExcludedCount ?? "未読込"}</p>
@@ -1408,6 +1502,7 @@ export function BoatExPage() {
 								<p style={textStyle}>派生manifestのエントリー数です。</p>
 							</article>
 						</section>
+						<ReadinessMatrixSection audit={tabCompletenessAudit} />
 						<section style={cardGridStyle}>
 							<article style={cardStyle}>
 								<p style={labelStyle}>注意事項</p>
@@ -1469,6 +1564,7 @@ export function BoatExPage() {
 							linkageAudit={registryLinkageAudit}
 							qualityAudit={registrationQualityAudit}
 							provenanceAudit={registrationProvenanceAudit}
+							nameIdentityBridgeAudit={nameIdentityBridgeAudit}
 						/>
 						<RacerEvidenceSection racerEvidence={racerEvidence} />
 					</SectionShell>
@@ -1526,22 +1622,26 @@ export function BoatExPage() {
 				);
 			case "trend-lab":
 				return (
-					<SectionShell title="傾向分析ラボ" subtitle="計画データ">
+					<SectionShell title="傾向分析ラボ" subtitle="結果・払戻カバレッジ">
 						<PendingPanel
-							status="pending"
-							reason="スコア、傾向、シグナルの生成には複数日の履歴蓄積が必要です。"
-							source="Phase 6: 複数日履歴、Phase 7: 会場傾向、Phase 8: 荒れ指数、Phase 9: 当日フロー、Phase 10: 予測シグナル。"
+							status={venueBias?.readiness.status ?? "insufficient-history"}
+							reason={venueBias?.readiness.reason ?? "会場傾向エビデンスがありません。"}
+							source="会場傾向と荒れ指数の履歴結果・払戻カバレッジを表示します。予測シグナルや合成スコアは生成しません。"
 						/>
+						<VenueBiasSection venueBias={venueBias} />
+						<RoughIndexSection roughIndex={roughIndex} />
 					</SectionShell>
 				);
 			case "trifecta-ranking":
 				return (
-					<SectionShell title="3連単ランキング" subtitle="3連単 v1">
+					<SectionShell title="3連単ランキング" subtitle="結果・払戻カバレッジ">
 						<PendingPanel
-							status="pending"
-							reason="複数日のofficialResult.trifectaと払戻の蓄積後に3連単ランキングを生成します。"
-							source="計画中のソース: officialResult.trifecta / payout / raceKey。"
+							status={roughIndex?.readiness.status ?? "insufficient-history"}
+							reason="3連単の結果・払戻事実を表示します。組み合わせの予測ランキングは構造化した予測票がないため生成しません。"
+							source="officialResult.trifecta / officialResult.payout / public/data/boatrace-ex/derived/rough-index/latest.json"
 						/>
+						<RoughIndexSection roughIndex={roughIndex} />
+						<TodayFlowSection todayFlow={todayFlow} />
 					</SectionShell>
 				);
 			case "rough-index":
@@ -1557,11 +1657,13 @@ export function BoatExPage() {
 				);
 			case "race-transition":
 				return (
-					<SectionShell title="レース推移" subtitle="推移 v1">
+					<SectionShell title="レース推移" subtitle="当日結果フロー">
 						<PendingPanel
-							status="pending"
-							reason="レース間の推移とイン・アウトの反復傾向は、後続の検証済みフェーズで扱います。"
+							status={todayFlow?.readiness.status ?? "insufficient-history"}
+							reason={todayFlow?.readiness.reason ?? "当日フローエビデンスがありません。"}
+							source="同日の着順、イン・アウト、払戻のsource-backed事実を表示します。遷移予測は生成しません。"
 						/>
+						<TodayFlowSection todayFlow={todayFlow} />
 					</SectionShell>
 				);
 			case "weather":

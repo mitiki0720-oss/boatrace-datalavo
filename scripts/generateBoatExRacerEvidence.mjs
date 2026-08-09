@@ -189,9 +189,58 @@ function readiness() {
 	};
 }
 
-function racerKeyFor(racer, record) {
+function normalizeName(value) {
+	return String(value ?? "").trim().normalize("NFKC").replace(/\s+/gu, " ");
+}
+
+function isRegistrationNumber(value) {
+	const normalized = String(value ?? "").trim();
+	return /^\d{4,6}$/u.test(normalized) && normalized !== "0000";
+}
+
+function buildIdentityNameIndex(identities) {
+	const names = new Map();
+	for (const identity of identities) {
+		if (!isRegistrationNumber(identity?.registrationNo)) continue;
+		for (const value of [
+			identity.normalizedRacerName,
+			identity.canonicalRacerName,
+			...toArray(identity.nameVariants),
+		]) {
+			const normalizedName = normalizeName(value);
+			if (!normalizedName) continue;
+			const entry = names.get(normalizedName) ?? { identities: new Map() };
+			entry.identities.set(String(identity.registrationNo), identity);
+			names.set(normalizedName, entry);
+		}
+	}
+	return names;
+}
+
+function resolveNameLinkedIdentity(racer, identityNameIndex) {
+	if (isRegistrationNumber(racer?.registrationNumber)) return { status: "official-registration-number-present" };
+	const normalizedName = normalizeName(racer?.racerName);
+	if (!normalizedName) return { status: "missing-name" };
+	const entry = identityNameIndex.get(normalizedName);
+	if (!entry) return { status: "registry-missing", normalizedName };
+	if (entry.identities.size !== 1) {
+		return {
+			status: "ambiguous",
+			normalizedName,
+			candidateRegistrationNos: [...entry.identities.keys()].sort(),
+		};
+	}
+	return {
+		status: "exact-normalized-name-unique",
+		normalizedName,
+		identity: [...entry.identities.values()][0],
+	};
+}
+
+function racerKeyFor(racer, record, nameLink) {
 	const registrationNumber = racer?.registrationNumber;
-	if (registrationNumber) return `registrationNumber:${registrationNumber}`;
+	if (isRegistrationNumber(registrationNumber)) return `registrationNumber:${registrationNumber}`;
+	if (nameLink?.identity?.registrationNo) return `nameLinkedRegistrationNumber:${nameLink.identity.registrationNo}`;
 	return [
 		"unverified",
 		String(racer?.racerName ?? "unknown").trim() || "unknown",
@@ -261,10 +310,17 @@ function createAppearance(record, racer, officialRacer) {
 
 function buildRacerEvidence(racerKey, appearances, identityRegistry) {
 	const first = appearances[0];
-	const registrationNumber = first.registrationNumber ?? null;
+	const registrationNumber = isRegistrationNumber(first.registrationNumber) ? String(first.registrationNumber) : null;
+	const resolvedRegistrationNo = first.resolvedRegistrationNo ?? null;
+	const identityLinkMethod = first.identityLinkMethod ?? null;
+	const registrationNoSourceStatus = first.registrationNoSourceStatus ?? null;
 	const warnings = [];
-	const identityStatus = registrationNumber ? "verified" : "unverified";
-	if (!registrationNumber) warnings.push("registrationNumber is missing; racer identity is unverified.");
+	const identityStatus = registrationNumber ? "verified" : resolvedRegistrationNo ? "name-linked" : "unverified";
+	if (!registrationNumber && resolvedRegistrationNo) {
+		warnings.push("official registrationNumber is missing; identity is name-linked from the registry by exact unique normalized name.");
+	} else if (!registrationNumber) {
+		warnings.push("registrationNumber is missing; racer identity is unverified.");
+	}
 
 	const venues = new Map();
 	const frames = {};
@@ -356,11 +412,16 @@ function buildRacerEvidence(racerKey, appearances, identityRegistry) {
 		});
 	}
 
-	const registryIdentity = registrationNumber ? identityRegistry.get(String(registrationNumber)) : null;
+	const registryLookupKey = registrationNumber ?? resolvedRegistrationNo;
+	const registryIdentity = registryLookupKey ? identityRegistry.get(String(registryLookupKey)) : null;
 	return {
 		racerKey,
 		identityStatus,
 		registrationNumber,
+		resolvedRegistrationNo,
+		identityLinkMethod,
+		registrationNoSourceStatus,
+		officialRegistrationNoAvailable: Boolean(registrationNumber),
 		racerName: first.racerName,
 		branch: first.branch ?? null,
 		className: first.className ?? null,
@@ -411,7 +472,7 @@ function buildRacerEvidence(racerKey, appearances, identityRegistry) {
 		...(registryIdentity ? {
 			identityRegistryKey: registryIdentity.registrationNo,
 			identityRegistryMatched: true,
-			identityRegistrySource: "registered-racers.generated.json",
+			identityRegistrySource: registrationNumber ? "registered-racers.generated.json" : "registered-racers.generated.json:name-index",
 			canonicalRacerName: registryIdentity.canonicalRacerName,
 			normalizedRacerName: registryIdentity.normalizedRacerName,
 			nameVariants: registryIdentity.nameVariants,
@@ -426,7 +487,7 @@ function buildRacerEvidence(racerKey, appearances, identityRegistry) {
 	};
 }
 
-function createRacerEvidence(date, records, identityRegistry) {
+function createRacerEvidence(date, records, identityRegistry, identityNameIndex) {
 	const appearancesByRacer = new Map();
 
 	for (const record of records) {
@@ -434,10 +495,14 @@ function createRacerEvidence(date, records, identityRegistry) {
 		for (const racer of racers) {
 			if (!racer?.racerName || !Number.isFinite(Number(racer.lane))) continue;
 			const officialRacer = findByLane(record.officialRace?.racers, racer.lane);
-			const racerKey = racerKeyFor(racer, record);
+			const nameLink = resolveNameLinkedIdentity(racer, identityNameIndex);
+			const racerKey = racerKeyFor(racer, record, nameLink);
 			const appearance = {
 				...createAppearance(record, racer, officialRacer),
-				registrationNumber: racer.registrationNumber ?? null,
+				registrationNumber: isRegistrationNumber(racer.registrationNumber) ? String(racer.registrationNumber) : null,
+				resolvedRegistrationNo: nameLink.identity?.registrationNo ?? null,
+				identityLinkMethod: nameLink.identity ? "exact-normalized-name-unique" : nameLink.status === "ambiguous" ? "ambiguous" : null,
+				registrationNoSourceStatus: nameLink.identity ? "name-linked-from-registry" : null,
 				racerName: racer.racerName,
 				branch: racer.branch ?? null,
 				className: racer.className ?? null,
@@ -511,9 +576,11 @@ function main() {
 	const { history, coverage } = readRequiredInputs({ date, allowEmpty: args.allowEmpty });
 	const venueEvidence = readJsonIfExists(`${OUTPUT_ROOT}/venue-evidence/${date}.json`);
 	const registry = readJsonIfExists(IDENTITY_REGISTRY_PATH);
-	const identityRegistry = new Map(toArray(registry?.identities).map((identity) => [String(identity.registrationNo), identity]));
+	const registryIdentities = toArray(registry?.identities);
+	const identityRegistry = new Map(registryIdentities.map((identity) => [String(identity.registrationNo), identity]));
+	const identityNameIndex = buildIdentityNameIndex(registryIdentities);
 	const records = toArray(history.records);
-	const racers = createRacerEvidence(date, records, identityRegistry);
+	const racers = createRacerEvidence(date, records, identityRegistry, identityNameIndex);
 	const generatedAt = new Date().toISOString();
 	const sourceFiles = [
 		...sourceFilesFor(date, history, coverage, venueEvidence),
@@ -554,6 +621,9 @@ function main() {
 		summary: {
 			racerCount: racers.length,
 			appearanceCount,
+			officialRegistrationNumberRacerCount: racers.filter((racer) => racer.registrationNumber).length,
+			nameLinkedRacerCount: racers.filter((racer) => !racer.registrationNumber && racer.resolvedRegistrationNo).length,
+			unresolvedRacerCount: racers.filter((racer) => !racer.registrationNumber && !racer.resolvedRegistrationNo).length,
 			historyDays: records.length > 0 ? 1 : 0,
 			analysisStatus: records.length > 0 ? "insufficient-history" : "missing",
 		},
