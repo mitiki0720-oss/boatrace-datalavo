@@ -11,25 +11,71 @@ const markdownPath = `docs/boat-ex/racer-evidence-registry-linkage-${auditDate}.
 const audit = readJson(auditPath);
 const registryByNo = new Map((registry.identities ?? []).map((identity) => [String(identity.registrationNo), identity]));
 const errors = [];
-const assert = (condition, message) => { if (!condition) errors.push(message); };
+const assert = (condition, message) => {
+	if (!condition) errors.push(message);
+};
 const valid = (value) => /^\d{4,6}$/.test(String(value ?? "")) && value !== "0000";
-const counts = { linked: 0, unlinkedRegistered: 0, unresolvedExcluded: 0, registryMissing: 0, collision: 0 };
+const counts = {
+	linked: 0,
+	nameLinked: 0,
+	nameLinkedAppearances: 0,
+	unlinkedRegistered: 0,
+	unresolvedExcluded: 0,
+	registryNameMissing: 0,
+	ambiguousNameSkipped: 0,
+	registryMissing: 0,
+	collision: 0,
+};
+
 for (const date of audit.coverage?.dates ?? []) {
 	const evidence = readJson(`public/data/boatrace-ex/derived/racer-evidence/${date}.json`);
 	for (const racer of evidence.racers ?? []) {
-		if (!valid(racer.registrationNumber)) { counts.unresolvedExcluded += 1; continue; }
+		if (!valid(racer.registrationNumber)) {
+			if (valid(racer.resolvedRegistrationNo) && racer.identityLinkMethod === "exact-normalized-name-unique") {
+				const identity = registryByNo.get(String(racer.resolvedRegistrationNo));
+				if (!identity) {
+					counts.registryMissing += 1;
+					continue;
+				}
+				assert(racer.officialRegistrationNoAvailable === false, `${date}/${racer.racerName}: name-linked racer must preserve missing official registrationNumber`);
+				assert(racer.registrationNoSourceStatus === "name-linked-from-registry", `${date}/${racer.racerName}: name-linked source status mismatch`);
+				assert(racer.identityRegistryMatched === true && racer.identityRegistryKey === identity.registrationNo, `${date}/${racer.racerName}: name-linked identity metadata missing`);
+				assert(racer.identityRegistrySource === "registered-racers.generated.json:name-index", `${date}/${racer.racerName}: name-linked source marker mismatch`);
+				assert(racer.normalizedRacerName === identity.normalizedRacerName, `${date}/${racer.racerName}: name-linked normalized name mismatch`);
+				counts.nameLinked += 1;
+				counts.nameLinkedAppearances += Number(racer.appearanceCount ?? 0);
+				continue;
+			}
+			counts.unresolvedExcluded += 1;
+			if (racer.identityLinkMethod === "ambiguous") counts.ambiguousNameSkipped += 1;
+			else counts.registryNameMissing += 1;
+			continue;
+		}
+
 		const identity = registryByNo.get(String(racer.registrationNumber));
-		if (!identity) { counts.registryMissing += 1; continue; }
-		if (racer.identityRegistryMatched !== true || racer.identityRegistryKey !== identity.registrationNo) { counts.unlinkedRegistered += 1; continue; }
+		if (!identity) {
+			counts.registryMissing += 1;
+			continue;
+		}
+		if (racer.identityRegistryMatched !== true || racer.identityRegistryKey !== identity.registrationNo) {
+			counts.unlinkedRegistered += 1;
+			continue;
+		}
 		assert(racer.identityRegistrySource === "registered-racers.generated.json", `registry source missing for ${date}/${racer.registrationNumber}`);
 		assert(racer.canonicalRacerName === identity.canonicalRacerName && racer.normalizedRacerName === identity.normalizedRacerName, `registry identity mismatch for ${date}/${racer.registrationNumber}`);
 		counts.linked += 1;
 	}
 }
+
 assert(audit.kind === "boatrace-ex-racer-evidence-registry-linkage-audit", "audit kind mismatch");
 assert(audit.registryIdentityCount === registry.identities.length, "registry identity count mismatch");
 assert(audit.coverage?.historyModified === false, "linkage must not modify history");
+assert(audit.coverage?.officialRegistrationNoModified === false, "linkage must not modify official registrationNo fields");
 for (const key of Object.keys(counts)) assert(audit.counts?.[key] === counts[key], `audit ${key} count mismatch`);
 assert(fs.existsSync(path.join(root, markdownPath)), "linkage markdown must exist");
-if (errors.length > 0) { console.error(errors.join("\n")); process.exitCode = 1; }
-else console.log(JSON.stringify({ ok: true, auditPath, markdownPath, registryIdentityCount: registry.identities.length, ...counts }, null, 2));
+if (errors.length > 0) {
+	console.error(errors.join("\n"));
+	process.exitCode = 1;
+} else {
+	console.log(JSON.stringify({ ok: true, auditPath, markdownPath, registryIdentityCount: registry.identities.length, ...counts }, null, 2));
+}

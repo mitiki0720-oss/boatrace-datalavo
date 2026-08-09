@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-tab-completeness-audit",
+  "auditDate": "2026-08-02",
+  "generatedAt": "2026-08-09T11:51:19.162Z",
+  "policy": "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. No fake score, rank, prediction, ticket parsing, or result inference is used.",
+  "summary": {
+    "tabCount": 12,
+    "readyCount": 4,
+    "availableCount": 7,
+    "insufficientHistoryCount": 1,
+    "pendingCount": 0
+  },
+  "tabs": [
+    {
+      "key": "overview",
+      "status": "ready",
+      "reason": "Latest EX index and readiness matrix are available.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/index.generated.json",
+        "public/data/boatrace-ex/derived/history-coverage/latest.json"
+      ]
+    },
+    {
+      "key": "identity",
+      "status": "available",
+      "reason": "Racer evidence, registered identity registry, and name identity audit are available.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/racer-evidence/2026-08-02.json",
+        "public/data/boatrace-ex/audit/name-identity-bridge-2026-08-02.generated.json"
+      ]
+    },
+    {
+      "key": "data-coverage",
+      "status": "available",
+      "reason": "Date, history, and derived coverage files are available.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/index.generated.json",
+        "public/data/boatrace-ex/derived/history-coverage/latest.json",
+        "public/data/boatrace-ex/derived/venue-evidence/2026-08-02.json"
+      ]
+    },
+    {
+      "key": "trend-lab",
+      "status": "ready",
+      "reason": "dateCount 68 meets minDateCount 7",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/venue-bias/latest.json",
+        "public/data/boatrace-ex/derived/rough-index/latest.json"
+      ]
+    },
+    {
+      "key": "trifecta-ranking",
+      "status": "available",
+      "reason": "Only source-backed trifecta result and payout coverage is presented; no ranking prediction is generated.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/rough-index/latest.json",
+        "public/data/boatrace-ex/derived/today-flow/latest.json"
+      ]
+    },
+    {
+      "key": "rough-index",
+      "status": "ready",
+      "reason": "history and payout samples meet the minimum thresholds",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/rough-index/latest.json"
+      ]
+    },
+    {
+      "key": "race-transition",
+      "status": "available",
+      "reason": "Source-backed same-day result and payout facts are available.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/today-flow/latest.json"
+      ]
+    },
+    {
+      "key": "weather",
+      "status": "available",
+      "reason": "Venue evidence contains source-backed weather coverage.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/venue-evidence/2026-08-02.json"
+      ]
+    },
+    {
+      "key": "venue-bias",
+      "status": "ready",
+      "reason": "dateCount 68 meets minDateCount 7",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/venue-bias/latest.json"
+      ]
+    },
+    {
+      "key": "today-flow",
+      "status": "available",
+      "reason": "Source-backed same-day result and payout facts are available.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/today-flow/latest.json"
+      ]
+    },
+    {
+      "key": "prediction-structure",
+      "status": "insufficient-history",
+      "reason": "predictionTextAvailableRaceCount 0 is below minimum 30; structuredTicketAvailableRaceCount 0 is below minimum 30; evaluatedPredictionRaceCount 0 is below minimum 30",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/prediction-structure/latest.json",
+        "public/data/boatrace-ex/audit/prediction-structure-contract-2026-08-02.generated.json"
+      ]
+    },
+    {
+      "key": "ex-analysis",
+      "status": "available",
+      "reason": "The hub joins source-backed venue, rough index, today flow, and prediction-structure availability without ranking them.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/venue-bias/latest.json",
+        "public/data/boatrace-ex/derived/rough-index/latest.json",
+        "public/data/boatrace-ex/derived/today-flow/latest.json",
+        "public/data/boatrace-ex/derived/prediction-structure/latest.json"
+      ]
+    }
+  ]
+}
