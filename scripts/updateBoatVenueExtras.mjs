@@ -348,13 +348,20 @@ function parseCliArgs(argv = process.argv.slice(2)) {
 		const value = separatorIndex >= 0 ? trimmed.slice(separatorIndex + 1) : argv[index + 1];
 
 		switch (key) {
-			case "target-date":
-			case "targetDate":
-				parsed.targetDate = value;
-				if (separatorIndex < 0) {
-					index += 1;
-				}
-				break;
+		case "target-date":
+		case "targetDate":
+			parsed.targetDate = value;
+			if (separatorIndex < 0) {
+				index += 1;
+			}
+			break;
+		case "target-venues":
+		case "targetVenues":
+			parsed.targetVenues = value;
+			if (separatorIndex < 0) {
+				index += 1;
+			}
+			break;
 			case "output-dir":
 			case "outputDir":
 				parsed.outputDir = value;
@@ -370,10 +377,22 @@ function parseCliArgs(argv = process.argv.slice(2)) {
 	return parsed;
 }
 
+function parseTargetVenues(value) {
+	return Array.from(
+		new Set(
+			String(value ?? "")
+				.split(",")
+				.map((item) => item.trim().toLowerCase())
+				.filter(Boolean),
+		),
+	);
+}
+
 function parseUpdateBoatVenueExtrasOptions(argv = process.argv.slice(2), env = process.env) {
 	const cliArgs = parseCliArgs(argv);
 	return {
 		targetDate: normalizeTargetDate(cliArgs.targetDate ?? env.BOAT_RACE_TARGET_DATE),
+		targetVenues: parseTargetVenues(cliArgs.targetVenues ?? env.BOAT_RACE_TARGET_VENUES),
 		outputDir: cliArgs.outputDir ? path.resolve(projectRoot, cliArgs.outputDir) : outputDirectory,
 	};
 }
@@ -658,6 +677,27 @@ function findVenue(feed, venueName) {
 	}
 
 	return feed.venues.find((venue) => venue.venueName === venueName) ?? null;
+}
+
+function venueMatchesTarget(venue, targetVenues) {
+	if (!targetVenues.length) {
+		return true;
+	}
+
+	return [venue?.venueCode, venue?.venueName, venue?.id]
+		.filter(Boolean)
+		.some((value) => targetVenues.includes(String(value).toLowerCase()));
+}
+
+function filterFeedToTargetVenues(feed, targetVenues) {
+	if (!targetVenues.length || !Array.isArray(feed?.venues)) {
+		return feed;
+	}
+
+	return {
+		...feed,
+		venues: feed.venues.filter((venue) => venueMatchesTarget(venue, targetVenues)),
+	};
 }
 
 function getRaceList(venue) {
@@ -18968,7 +19008,7 @@ async function createHeiwajimaVenue(feed) {
 	}
 }
 
-async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
+export async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	setOutputDirectory(rawOptions.outputDir);
 	const timestamps = getJstTimestampParts(rawOptions.targetDate);
 	const generatedAt = getJstTimestamp();
@@ -18976,126 +19016,131 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	const feed = await readTodayRaceDetails();
 	const date = normalizeTargetDate(rawOptions.targetDate ?? feed?.date, timestamps.date);
 	const previousVenueExtrasFeed = previousVenueExtrasFeedRaw?.date === date ? previousVenueExtrasFeedRaw : null;
+	const targetVenues = parseTargetVenues(rawOptions.targetVenues);
+	const targetFeed = filterFeedToTargetVenues(feed, targetVenues);
 	const venueMap = new Map(
-		createOfficialBeforeInfoVenues(feed).map((venue) => [venue.venueName, venue]),
+		(targetVenues.length ? previousVenueExtrasFeed?.venues ?? [] : []).map((venue) => [venue.venueName, venue]),
 	);
+	for (const venue of createOfficialBeforeInfoVenues(targetFeed)) {
+		venueMap.set(venue.venueName, mergeVenueRecord(venueMap.get(venue.venueName) ?? null, venue));
+	}
 
-	const edogawaVenue = await createEdogawaVenue(feed, date);
+	const edogawaVenue = await createEdogawaVenue(targetFeed, date);
 	if (edogawaVenue) {
 		venueMap.set(edogawaVenue.venueName, mergeVenueRecord(venueMap.get(edogawaVenue.venueName) ?? null, edogawaVenue));
 	}
 
-	const gamagoriVenue = await createGamagoriVenue(feed, date);
+	const gamagoriVenue = await createGamagoriVenue(targetFeed, date);
 	if (gamagoriVenue) {
 		venueMap.set(gamagoriVenue.venueName, mergeVenueRecord(venueMap.get(gamagoriVenue.venueName) ?? null, gamagoriVenue));
 	}
 
-	const shimonosekiVenue = await createShimonosekiVenue(feed, date);
+	const shimonosekiVenue = await createShimonosekiVenue(targetFeed, date);
 	if (shimonosekiVenue) {
 		venueMap.set(shimonosekiVenue.venueName, mergeVenueRecord(venueMap.get(shimonosekiVenue.venueName) ?? null, shimonosekiVenue));
 	}
 
-	const omuraVenue = await createOmuraVenue(feed, date);
+	const omuraVenue = await createOmuraVenue(targetFeed, date);
 	if (omuraVenue) {
 		venueMap.set(omuraVenue.venueName, mergeVenueRecord(venueMap.get(omuraVenue.venueName) ?? null, omuraVenue));
 	}
 
-	const karatsuVenue = await createKaratsuVenue(feed);
+	const karatsuVenue = await createKaratsuVenue(targetFeed);
 	if (karatsuVenue) {
 		venueMap.set(karatsuVenue.venueName, mergeVenueRecord(venueMap.get(karatsuVenue.venueName) ?? null, karatsuVenue));
 	}
 
-	const marugameVenue = await createMarugameVenue(feed, date);
+	const marugameVenue = await createMarugameVenue(targetFeed, date);
 	if (marugameVenue) {
 		venueMap.set(marugameVenue.venueName, mergeVenueRecord(venueMap.get(marugameVenue.venueName) ?? null, marugameVenue));
 	}
 
-	const tokuyamaVenue = await createTokuyamaVenue(feed, date);
+	const tokuyamaVenue = await createTokuyamaVenue(targetFeed, date);
 	if (tokuyamaVenue) {
 		venueMap.set(tokuyamaVenue.venueName, mergeVenueRecord(venueMap.get(tokuyamaVenue.venueName) ?? null, tokuyamaVenue));
 	}
 
-	const mikuniVenue = await createMikuniVenue(feed);
+	const mikuniVenue = await createMikuniVenue(targetFeed);
 	if (mikuniVenue) {
 		venueMap.set(mikuniVenue.venueName, mergeVenueRecord(venueMap.get(mikuniVenue.venueName) ?? null, mikuniVenue));
 	}
 
-	const narutoVenue = await createNarutoVenue(feed, date);
+	const narutoVenue = await createNarutoVenue(targetFeed, date);
 	if (narutoVenue) {
 		venueMap.set(narutoVenue.venueName, mergeVenueRecord(venueMap.get(narutoVenue.venueName) ?? null, narutoVenue));
 	}
 
-	const tamagawaVenue = await createTamagawaVenue(feed, date);
+	const tamagawaVenue = await createTamagawaVenue(targetFeed, date);
 	if (tamagawaVenue) {
 		venueMap.set(tamagawaVenue.venueName, mergeVenueRecord(venueMap.get(tamagawaVenue.venueName) ?? null, tamagawaVenue));
 	}
 
-	const tsuVenue = await createTsuVenue(feed, date);
+	const tsuVenue = await createTsuVenue(targetFeed, date);
 	if (tsuVenue) {
 		venueMap.set(tsuVenue.venueName, mergeVenueRecord(venueMap.get(tsuVenue.venueName) ?? null, tsuVenue));
 	}
 
-	const wakamatsuVenue = await createWakamatsuVenue(feed, date);
+	const wakamatsuVenue = await createWakamatsuVenue(targetFeed, date);
 	if (wakamatsuVenue) {
 		venueMap.set(wakamatsuVenue.venueName, mergeVenueRecord(venueMap.get(wakamatsuVenue.venueName) ?? null, wakamatsuVenue));
 	}
 
-	const tokonameVenue = await createTokonameVenue(feed);
+	const tokonameVenue = await createTokonameVenue(targetFeed);
 	if (tokonameVenue) {
 		venueMap.set(tokonameVenue.venueName, mergeVenueRecord(venueMap.get(tokonameVenue.venueName) ?? null, tokonameVenue));
 	}
 
-	const ashiyaVenue = await createAshiyaVenue(feed, date);
+	const ashiyaVenue = await createAshiyaVenue(targetFeed, date);
 	if (ashiyaVenue) {
 		venueMap.set(ashiyaVenue.venueName, mergeVenueRecord(venueMap.get(ashiyaVenue.venueName) ?? null, ashiyaVenue));
 	}
 
-	const kiryuVenue = await createKiryuVenue(feed, date);
+	const kiryuVenue = await createKiryuVenue(targetFeed, date);
 	if (kiryuVenue) {
 		venueMap.set(kiryuVenue.venueName, mergeVenueRecord(venueMap.get(kiryuVenue.venueName) ?? null, kiryuVenue));
 	}
 
-	const heiwajimaVenue = await createHeiwajimaVenue(feed);
+	const heiwajimaVenue = await createHeiwajimaVenue(targetFeed);
 	if (heiwajimaVenue) {
 		venueMap.set(heiwajimaVenue.venueName, mergeVenueRecord(venueMap.get(heiwajimaVenue.venueName) ?? null, heiwajimaVenue));
 	}
 
-	const suminoeVenue = await createSuminoeVenue(feed, date);
+	const suminoeVenue = await createSuminoeVenue(targetFeed, date);
 	if (suminoeVenue) {
 		venueMap.set(suminoeVenue.venueName, mergeVenueRecord(venueMap.get(suminoeVenue.venueName) ?? null, suminoeVenue));
 	}
 
-	const miyajimaVenue = await createMiyajimaVenue(feed, date);
+	const miyajimaVenue = await createMiyajimaVenue(targetFeed, date);
 	if (miyajimaVenue) {
 		venueMap.set(miyajimaVenue.venueName, mergeVenueRecord(venueMap.get(miyajimaVenue.venueName) ?? null, miyajimaVenue));
 	}
 
-	const amagasakiVenue = await createAmagasakiVenue(feed, date);
+	const amagasakiVenue = await createAmagasakiVenue(targetFeed, date);
 	if (amagasakiVenue) {
 		venueMap.set(amagasakiVenue.venueName, mergeVenueRecord(venueMap.get(amagasakiVenue.venueName) ?? null, amagasakiVenue));
 	}
 
-	const hamanakoVenue = await buildHamanakoVenueExtras(feed, date);
+	const hamanakoVenue = await buildHamanakoVenueExtras(targetFeed, date);
 	if (hamanakoVenue) {
 		venueMap.set(hamanakoVenue.venueName, mergeVenueRecord(venueMap.get(hamanakoVenue.venueName) ?? null, hamanakoVenue));
 	}
 
-	const todaVenue = await buildTodaVenueExtras(feed, date);
+	const todaVenue = await buildTodaVenueExtras(targetFeed, date);
 	if (todaVenue) {
 		venueMap.set(todaVenue.venueName, mergeVenueRecord(venueMap.get(todaVenue.venueName) ?? null, todaVenue));
 	}
 
-	const fukuokaVenue = await createFukuokaVenue(feed, date);
+	const fukuokaVenue = await createFukuokaVenue(targetFeed, date);
 	if (fukuokaVenue) {
 		venueMap.set(fukuokaVenue.venueName, mergeVenueRecord(venueMap.get(fukuokaVenue.venueName) ?? null, fukuokaVenue));
 	}
 
-	const kojimaVenue = await createKojimaVenue(feed, date);
+	const kojimaVenue = await createKojimaVenue(targetFeed, date);
 	if (kojimaVenue) {
 		venueMap.set(kojimaVenue.venueName, mergeVenueRecord(venueMap.get(kojimaVenue.venueName) ?? null, kojimaVenue));
 	}
 
-	const biwakoVenue = await createBiwakoVenue(feed, date);
+	const biwakoVenue = await createBiwakoVenue(targetFeed, date);
 	if (biwakoVenue) {
 		venueMap.set(biwakoVenue.venueName, mergeVenueRecord(venueMap.get(biwakoVenue.venueName) ?? null, biwakoVenue));
 	}
@@ -19120,10 +19165,17 @@ async function main(rawOptions = parseUpdateBoatVenueExtrasOptions()) {
 	console.log(`source: ${output.source}`);
 	console.log(`date: ${output.date}`);
 	console.log(`venues: ${venues.length}`);
+	if (targetVenues.length) {
+		console.log(`[venue-extras] targeted venues: ${targetVenues.join(", ")}`);
+	}
 	console.log(`[venue-extras] preserved exhibition snapshots: ${preservationResult.preservedCount}`);
 }
 
-main().catch((error) => {
-	console.error(error);
-	process.exitCode = 1;
-});
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
+
+if (isDirectRun) {
+	main().catch((error) => {
+		console.error(error);
+		process.exitCode = 1;
+	});
+}

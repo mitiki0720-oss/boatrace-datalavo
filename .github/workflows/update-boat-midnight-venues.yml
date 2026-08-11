@@ -1,0 +1,73 @@
+name: Update midnight boat venue data
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: "Target date, auto or YYYY-MM-DD"
+        required: false
+        default: "auto"
+        type: string
+  schedule:
+    # 17:05 through 23:50 JST. GitHub Actions schedules are UTC.
+    - cron: "5,20,35,50 8-14 * * *"
+
+concurrency:
+  group: boat-midnight-update-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  update-midnight-venues:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update detected midnight venues
+        run: node scripts/updateBoatMidnightVenues.mjs --target-date "${{ inputs.target_date || 'auto' }}"
+
+      - name: Check midnight venue update audit
+        run: node scripts/checkBoatMidnightVenueUpdate.mjs
+
+      - name: Commit generated midnight venue data
+        timeout-minutes: 5
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- \
+            public/data/boatrace/today.generated.json \
+            public/data/boatrace/today-race-details.generated.json \
+            public/data/boatrace/venue-extras.generated.json \
+            public/data/boatrace/audit/
+          if git diff --cached --quiet; then
+            echo "No midnight venue data changes to commit."
+            exit 0
+          fi
+          unexpected="$(git diff --cached --name-only | grep -Ev '^public/data/boatrace/(today\.generated\.json|today-race-details\.generated\.json|venue-extras\.generated\.json|audit/midnight-venue-update-[0-9]{4}-[0-9]{2}-[0-9]{2}\.generated\.json)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected staged generated data:"
+            echo "$unexpected"
+            exit 1
+          fi
+          git diff --cached --name-only
+          git diff --check --cached
+          git commit -m "Update midnight boat venue data"
+          echo "--- git push start ---"
+          git push origin HEAD:main
+          echo "--- git push done ---"

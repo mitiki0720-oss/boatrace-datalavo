@@ -3107,6 +3107,12 @@ export async function main(rawOptions = {}) {
 	};
 
 	for (const venue of raceIndex.venues ?? []) {
+		const fallbackVenue = fallbackVenueByCode.get(venue.venueCode) ?? null;
+		const preserveFilteredVenue = Boolean(
+			updateOptions.targetVenues.length &&
+			fallbackVenue?.date === timestamps.date &&
+			!venueMatchesTarget(venue, fallbackVenue, updateOptions.targetVenues),
+		);
 		const rawVenue = await fetchVenueRaceDetails(venue, { fallbackVenueByCode, venueExtrasVenueByCode, timestamps, updateOptions });
 		const completedSkip = rawVenue?.updateStats?.completedSkip;
 		if (completedSkip) {
@@ -3114,7 +3120,9 @@ export async function main(rawOptions = {}) {
 			completedSkipSummary.updated += completedSkip.updated ?? 0;
 			completedSkipSummary.keys.push(...(completedSkip.keys ?? []));
 		}
-		normalizedVenueDetails.push(normalizeVenueData(rawVenue, timestamps.generatedAt, raceIndex.source));
+		normalizedVenueDetails.push(
+			preserveFilteredVenue ? rawVenue : normalizeVenueData(rawVenue, timestamps.generatedAt, raceIndex.source),
+		);
 	}
 
 	const feed = buildTodayRaceDetailsFeed({ raceIndex, venueDetails: normalizedVenueDetails, generatedAt: timestamps.generatedAt, date: timestamps.date });
