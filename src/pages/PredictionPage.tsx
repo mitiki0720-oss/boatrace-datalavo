@@ -23,6 +23,13 @@ import {
 	type ParsedBoatBetSummary,
 } from "../lib/boatBetParser";
 import { buildBoatPredictionMaterial, buildBoatPredictionVenueContextMaterial } from "../lib/boatPredictionMaterial";
+import {
+	buildBoatPredictionGptCopyHeader,
+	buildBoatPredictionGptCopyRaceContext,
+	buildBoatPredictionGptCopyVenueContext,
+	loadBoatPredictionGptCopyExContext,
+	type BoatPredictionGptCopyExContext,
+} from "../lib/boatPredictionGptCopyExContext";
 import { parseBoatPredictionTickets } from "../lib/boatPredictionParser";
 import {
 	findBoatRaceResultForPractice,
@@ -852,6 +859,7 @@ export function PredictionPage() {
 	const [isResultAutoApplied, setIsResultAutoApplied] = useState(false);
 	const [predictionRecordsVersion, setPredictionRecordsVersion] = useState(0);
 	const [bulkGptMaterialRangeKey, setBulkGptMaterialRangeKey] = useState<"1r6r" | "7r12r">("1r6r");
+	const [gptCopyExContext, setGptCopyExContext] = useState<BoatPredictionGptCopyExContext | null>(null);
 	const [autoSettleState, setAutoSettleState] = useState({
 		enabled: true,
 		autoSettledCount: 0,
@@ -879,6 +887,19 @@ export function PredictionPage() {
 		() => (dataUpdatedAt ? resolveActiveBoatOperationDate(todayFeed.date) : getBoatOperationDate()),
 		[dataUpdatedAt, todayFeed.date],
 	);
+	useEffect(() => {
+		let active = true;
+
+		void loadBoatPredictionGptCopyExContext(activePredictionDate).then((context) => {
+			if (active) {
+				setGptCopyExContext(context);
+			}
+		});
+
+		return () => {
+			active = false;
+		};
+	}, [activePredictionDate]);
 	const johnsonCoverageSummary = useMemo(() => {
 		const savedPredictionRecords = Object.values(loadBoatPredictionRecords())
 			.filter((record) => record.date === activePredictionDate && Boolean(record.predictionText?.trim()));
@@ -1569,12 +1590,113 @@ const buildPracticeFallbackRaceKey = (params: {
 		todayFeed.generatedAt,
 		venueExtrasFeed?.generatedAt,
 	]);
+	const bulkGptMaterialSummary7R12RWithEx = useMemo(() => {
+		const expectedRaceNumbers = [7, 8, 9, 10, 11, 12];
+		const raceRangeLabel = "7R〜12R";
+
+		if (!selectedVenue) {
+			return {
+				materialText: [
+					"GPTへの素材 7R〜12Rまとめ",
+					`対象日: ${activePredictionDate}`,
+					"対象会場: 未選択",
+					"EX分析: 会場未選択のため未取得",
+				].join("\n"),
+				raceRangeLabel,
+				generatedRaceCount: 0,
+				expectedRaceCount: 0,
+				readyRaceCount: 0,
+				partialRaceCount: 0,
+				waitingRaceCount: 0,
+				missingRaceLabels: [],
+			};
+		}
+
+		const selectedRaces = selectedVenueRaces
+			.filter((race) => expectedRaceNumbers.includes(Number(race.raceNo)))
+			.sort((left, right) => Number(left.raceNo) - Number(right.raceNo));
+		const statusCounts = { ready: 0, partial: 0, waiting: 0 };
+		const sections = selectedRaces.map((race) => {
+			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
+			const exhibitionStatus = buildExhibitionStatusLabel({
+				race,
+				raceExtra,
+				feedUpdatedAt: todayFeed.generatedAt,
+				extraUpdatedAt: venueExtrasFeed?.generatedAt,
+			});
+			statusCounts[exhibitionStatus.level] += 1;
+			const currentMaterial = buildBoatPredictionMaterial({
+				venue: selectedVenue,
+				race,
+				venueExtra: selectedVenueExtra,
+				raceExtra,
+				venueFeatureNote: selectedVenueFeatureNote,
+				venueFeatureInsights,
+				includeVenueContext: false,
+			});
+
+			return [
+				"============================================================",
+				buildBoatPredictionGptCopyRaceContext({
+					feed: todayFeed,
+					venue: selectedVenue,
+					race,
+					exContext: gptCopyExContext,
+				}),
+				"【通常素材】",
+				currentMaterial,
+			].join("\n");
+		});
+		const normalVenueContext = buildBoatPredictionVenueContextMaterial({
+			venue: selectedVenue,
+			venueFeatureNote: selectedVenueFeatureNote,
+			venueFeatureInsights,
+		});
+		const materialText = [
+			buildBoatPredictionGptCopyHeader({
+				feed: todayFeed,
+				venue: selectedVenue,
+				races: selectedRaces,
+				raceRangeLabel,
+				exContext: gptCopyExContext,
+			}),
+			"",
+			buildBoatPredictionGptCopyVenueContext({ venue: selectedVenue, exContext: gptCopyExContext }),
+			"",
+			"【通常会場素材】",
+			normalVenueContext,
+			"",
+			"【レース別素材】",
+			sections.length > 0 ? sections.join("\n\n") : "7R〜12Rに実在するレースがありません。",
+		].join("\n");
+
+		return {
+			materialText,
+			raceRangeLabel,
+			generatedRaceCount: selectedRaces.length,
+			expectedRaceCount: selectedRaces.length,
+			readyRaceCount: statusCounts.ready,
+			partialRaceCount: statusCounts.partial,
+			waitingRaceCount: statusCounts.waiting,
+			missingRaceLabels: [],
+		};
+	}, [
+		activePredictionDate,
+		gptCopyExContext,
+		selectedVenue,
+		selectedVenueRaces,
+		selectedVenueExtra,
+		selectedVenueFeatureNote,
+		venueFeatureInsights,
+		todayFeed,
+		venueExtrasFeed?.generatedAt,
+	]);
 	const bulkGptMaterialRangePresets = [
 		{ key: "1r6r", label: "1R〜6R" },
 		{ key: "7r12r", label: "7R〜12R" },
 	];
 	const activeBulkGptMaterialSummary =
-		bulkGptMaterialRangeKey === "7r12r" ? bulkGptMaterialSummary7R12R : bulkGptMaterialSummary1R6R;
+		bulkGptMaterialRangeKey === "7r12r" ? bulkGptMaterialSummary7R12RWithEx : bulkGptMaterialSummary1R6R;
 	const venueCount = venues.length;
 	const isWaitingForTodayFeed = venueCount === 0;
 	const raceCount = races.length;
@@ -3457,6 +3579,7 @@ body:has(.prediction-page-root) {
 					waitingRaceCount={activeBulkGptMaterialSummary.waitingRaceCount}
 					missingRaceLabels={activeBulkGptMaterialSummary.missingRaceLabels}
 					activeRangeKey={bulkGptMaterialRangeKey}
+					includesExContext={bulkGptMaterialRangeKey === "7r12r"}
 					rangePresets={bulkGptMaterialRangePresets}
 					onSelectRange={(key) => {
 						if (key === "1r6r" || key === "7r12r") {

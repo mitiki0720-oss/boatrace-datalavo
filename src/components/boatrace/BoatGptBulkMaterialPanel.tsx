@@ -18,6 +18,7 @@ type BoatGptBulkMaterialPanelProps = {
 		label: string;
 	}>;
 	onSelectRange: (key: string) => void;
+	includesExContext?: boolean;
 };
 
 const wrapStyle = {
@@ -218,6 +219,7 @@ export function BoatGptBulkMaterialPanel({
 	activeRangeKey,
 	rangePresets,
 	onSelectRange,
+	includesExContext = false,
 }: BoatGptBulkMaterialPanelProps) {
 	const [statusText, setStatusText] = useState<string>("");
 	const statusTimerRef = useRef<number | null>(null);
@@ -249,7 +251,7 @@ export function BoatGptBulkMaterialPanel({
 	const handleCopy = async () => {
 		try {
 			await navigator.clipboard.writeText(materialText);
-			showTemporaryStatus("1R〜6Rまとめ素材をコピーしました。", 1000);
+			showTemporaryStatus(`${raceRangeLabel}まとめ素材をコピーしました。`, 1000);
 		} catch {
 			showTemporaryStatus("コピーに失敗しました。textareaから手動コピーしてください。", 3000);
 		}
@@ -312,6 +314,7 @@ export function BoatGptBulkMaterialPanel({
 						<span style={chipStyle}>展示未取得 {waitingRaceCount + missingRaceLabels.length}R</span>
 						<span style={chipStyle}>{charCount.toLocaleString("ja-JP")}文字</span>
 						<span style={chipStyle}>{lineCount.toLocaleString("ja-JP")}行</span>
+						{includesExContext ? <span style={chipStyle}>EX分析入り</span> : null}
 						{isExhibitionWaiting ? (
 							<span style={warningChipStyle}>展示未完了の事前予想素材を含みます</span>
 						) : null}
@@ -319,7 +322,7 @@ export function BoatGptBulkMaterialPanel({
 				</div>
 				<div style={actionRowStyle}>
 					<button type="button" style={primaryButtonStyle} onClick={handleCopy}>
-						{raceRangeLabel}まとめコピー
+						{raceRangeLabel}まとめコピー{includesExContext ? "（EX分析入り）" : ""}
 					</button>
 					<button type="button" style={secondaryButtonStyle} onClick={handleDownload}>
 						TXTダウンロード
