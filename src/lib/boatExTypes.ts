@@ -727,6 +727,76 @@ export interface BoatExTabCompletenessAuditFile {
 	}>;
 }
 
+export type BoatExRaceAnalysisStatus = "available" | "missing" | "not-supported";
+
+export interface BoatExRaceAnalysisRacer {
+	lane: number | null;
+	racerName: string;
+	officialRegistrationNo: string | null;
+	resolvedRegistrationNo: string | null;
+	linkageStatus: "official-registration" | "exact-name-linked" | "unresolved";
+	branch: string | null;
+	className: string | null;
+	motorNo: string | null;
+	boatNo: string | null;
+	sourceStatus: string;
+}
+
+export interface BoatExRaceAnalysisItem {
+	date: BoatExDateKey;
+	venueCode: BoatExVenueCode;
+	venueName: string;
+	raceNo: number;
+	raceKey: BoatExRaceKey;
+	raceTitle: string | null;
+	closingTime: string | null;
+	dayPart: string | null;
+	sourceStatus: string;
+	resultStatus: BoatExRaceAnalysisStatus;
+	payoutStatus: BoatExRaceAnalysisStatus;
+	exhibitionStatus: BoatExRaceAnalysisStatus;
+	weatherStatus: BoatExRaceAnalysisStatus;
+	waterStatus: BoatExRaceAnalysisStatus;
+	predictionStructureStatus: string;
+	racerEvidenceStatus: BoatExRaceAnalysisStatus;
+	officialResult: { finishOrder: number[]; trifecta: string | null; trifectaPayoutYen: number | null; winningTechnique: string | null };
+	exhibition: Array<{ lane: number | null; exhibitionTime: string | null; startTiming: string | null; course: string | null }>;
+	weather: { weather: string | null; windDirection: string | null; windSpeed: string | null; waveHeight: string | null; waterTemperature: string | null } | null;
+	waterCondition: unknown;
+	racers: BoatExRaceAnalysisRacer[];
+	racerLinkageSummary: { racerCount: number; officialRegistrationLinkedCount: number; nameLinkedCount: number; unresolvedCount: number; ambiguousCount: number; collisionCount: number };
+	sourcePaths: Record<string, string>;
+	analysisNotes: string[];
+}
+
+export interface BoatExRaceAnalysisFile {
+	schemaVersion: "boat-ex-race-analysis-v1";
+	kind: "boatrace-ex-race-analysis";
+	generatedAt: string;
+	targetDate: BoatExDateKey;
+	summary: {
+		generatedAt: string;
+		targetDate: BoatExDateKey;
+		latestDate: BoatExDateKey;
+		dateCount: number;
+		historyRaceCount: number;
+		latestRaceCount: number;
+		venueCount: number;
+		resultAvailableRaceCount: number;
+		payoutAvailableRaceCount: number;
+		exhibitionAvailableRaceCount: number;
+		weatherAvailableRaceCount: number;
+		waterConditionAvailableRaceCount: number;
+		racerEvidenceAvailableRaceCount: number;
+		officialRegistrationLinkedCount: number;
+		nameLinkedCount: number;
+		unresolvedRacerCount: number;
+		readiness: BoatExDerivedReadiness;
+	};
+	sourceFiles: string[];
+	races: BoatExRaceAnalysisItem[];
+}
+
 export interface BoatExRegisteredRegistrationQualityAuditFile {
 	schemaVersion: number;
 	kind: "boatrace-ex-registered-registration-quality-audit";
