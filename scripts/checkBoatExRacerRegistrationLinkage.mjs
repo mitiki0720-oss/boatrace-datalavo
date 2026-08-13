@@ -1,0 +1,12 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."); const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
+const args = process.argv.slice(2); const date = args.find((arg) => /^\d{4}-\d{2}-\d{2}$/.test(arg)) ?? "2026-08-13"; const write = args.includes("--write"); const registry = read("public/data/boatrace-ex/identity/registered-racers.generated.json"); const today = read("public/data/boatrace/today.generated.json");
+const known = new Set((registry.identities ?? []).map((item) => String(item.registrationNo))); const racers = (today.venues ?? []).flatMap((venue) => (venue.races ?? []).flatMap((race) => race.racers ?? [])); const registrationNumbers = racers.map((racer) => String(racer.registrationNo ?? "")).filter(Boolean); const exactLinkedCount = registrationNumbers.filter((number) => known.has(number)).length;
+const output = { schemaVersion: 1, kind: "boat-ex-racer-registration-linkage-audit-v1", generatedAt: new Date().toISOString(), targetDate: date, sourcePaths: ["public/data/boatrace/today.generated.json", "public/data/boatrace-ex/identity/registered-racers.generated.json"], summary: { currentRacerCount: racers.length, currentRegistrationNumberCount: registrationNumbers.length, exactRegistryLinkedCount: exactLinkedCount, unmatchedRegistrationNumberCount: registrationNumbers.length - exactLinkedCount }, rule: "registrationNo exact match only; no name matching or inference" };
+const outputPath = `public/data/boatrace-ex/audit/racer-registration-linkage-audit-${date}.generated.json`;
+if (write) fs.writeFileSync(path.join(root, outputPath), `${JSON.stringify(output, null, 2)}\n`, "utf8");
+const audited = write ? output : read(outputPath);
+if (audited.kind !== "boat-ex-racer-registration-linkage-audit-v1" || audited.targetDate !== date || audited.rule !== output.rule || audited.summary.exactRegistryLinkedCount !== output.summary.exactRegistryLinkedCount) throw new Error("registration linkage audit is stale or invalid");
+console.log(JSON.stringify({ ok: true, outputPath, summary: audited.summary, wrote: write }, null, 2));

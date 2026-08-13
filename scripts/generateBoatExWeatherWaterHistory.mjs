@@ -27,6 +27,11 @@ const max = (values) => values.length ? Math.max(...values) : null;
 const increment = (record, key) => { record[key] = (record[key] ?? 0) + 1; };
 const windBand = (value) => value === null ? "unknown" : value <= 2 ? "0-2m" : value <= 5 ? "3-5m" : "6m+";
 const waveBand = (value) => value === null ? "unknown" : value <= 2 ? "0-2cm" : value <= 5 ? "3-5cm" : "6cm+";
+const courseCounts = () => ({ "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0 });
+const profile = (map, key) => map.get(key) ?? { key, raceCount: 0, courseFirstCounts: courseCounts(), payoutAvailableRaceCount: 0, trifectaOver10000Count: 0 };
+const addProfile = (map, key, first, payout) => { const item = profile(map, key); map.set(key, item); item.raceCount += 1; if (first) increment(item.courseFirstCounts, first); if (payout !== null) { item.payoutAvailableRaceCount += 1; if (payout > 10000) item.trifectaOver10000Count += 1; } };
+const finalizeProfiles = (map) => [...map.values()].map((item) => ({ ...item, courseFirstRates: Object.fromEntries(Object.entries(item.courseFirstCounts).map(([course, count]) => [course, item.raceCount ? Math.round((count / item.raceCount) * 10000) / 10000 : null])), roughRate: item.payoutAvailableRaceCount ? Math.round((item.trifectaOver10000Count / item.payoutAvailableRaceCount) * 10000) / 10000 : null, readiness: item.raceCount >= minWeatherRaceCount ? "ready" : item.raceCount ? "low-sample" : "missing" }));
+const trifectaPayout = (result) => numberValue(asArray(result?.payout).find((item) => /3連単|三連単/u.test(asText(item?.betType)))?.payoutYen);
 
 function parseArgs(argv) {
 	const args = { dryRun: false };
@@ -52,6 +57,7 @@ function emptyVenue(record) {
 		windDirectionCounts: {},
 		windSpeedBandCounts: { "0-2m": 0, "3-5m": 0, "6m+": 0, unknown: 0 },
 		waveHeightBandCounts: { "0-2cm": 0, "3-5cm": 0, "6cm+": 0, unknown: 0 },
+		conditionProfiles: { weather: new Map(), windDirection: new Map(), windSpeedBand: new Map(), waveHeightBand: new Map(), exact: new Map() },
 	};
 }
 
@@ -79,6 +85,7 @@ function finalizeVenue(venue) {
 		windDirectionCounts: venue.windDirectionCounts,
 		windSpeedBandCounts: venue.windSpeedBandCounts,
 		waveHeightBandCounts: venue.waveHeightBandCounts,
+		conditionProfiles: Object.fromEntries(Object.entries(venue.conditionProfiles).map(([key, value]) => [key, finalizeProfiles(value)])),
 		readiness,
 		warnings: [],
 	};
@@ -127,8 +134,17 @@ function main() {
 			if (direction) increment(venue.windDirectionCounts, direction);
 			const wind = numberValue(weather.windSpeedMps);
 			const wave = numberValue(weather.waveHeightCm);
-			increment(venue.windSpeedBandCounts, windBand(wind));
-			increment(venue.waveHeightBandCounts, waveBand(wave));
+			const windSpeedBand = windBand(wind);
+			const waveHeightBand = waveBand(wave);
+			const first = String(asArray(record.officialResult?.finishOrder)[0] ?? "").match(/^[1-6]$/u)?.[0] ?? null;
+			const payout = trifectaPayout(record.officialResult);
+			if (condition) addProfile(venue.conditionProfiles.weather, condition, first, payout);
+			if (direction) addProfile(venue.conditionProfiles.windDirection, direction, first, payout);
+			addProfile(venue.conditionProfiles.windSpeedBand, windSpeedBand, first, payout);
+			addProfile(venue.conditionProfiles.waveHeightBand, waveHeightBand, first, payout);
+			if (condition || direction || wind !== null || wave !== null) addProfile(venue.conditionProfiles.exact, JSON.stringify({ weather: condition || null, windDirection: direction || null, windSpeedBand, waveHeightBand }), first, payout);
+			increment(venue.windSpeedBandCounts, windSpeedBand);
+			increment(venue.waveHeightBandCounts, waveHeightBand);
 			if (wind !== null) { venue.windSpeeds.push(wind); venue.windSpeedAvailableRaceCount += 1; windSpeedAvailableRaceCount += 1; }
 			if (wave !== null) { venue.waveHeights.push(wave); venue.waveHeightAvailableRaceCount += 1; waveHeightAvailableRaceCount += 1; }
 		}

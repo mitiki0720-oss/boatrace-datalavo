@@ -83,6 +83,12 @@ type BoatExWeatherWaterHistoryVenue = {
 	windDirectionCounts: Record<string, number>;
 	windSpeedBandCounts: Record<string, number>;
 	waveHeightBandCounts: Record<string, number>;
+	conditionProfiles: {
+		weather: Array<{ key: string; raceCount: number; readiness: string }>;
+		windDirection: Array<{ key: string; raceCount: number; readiness: string }>;
+		windSpeedBand: Array<{ key: string; raceCount: number; readiness: string }>;
+		waveHeightBand: Array<{ key: string; raceCount: number; readiness: string }>;
+	};
 	readiness: { status: string };
 };
 
@@ -736,6 +742,14 @@ function WeatherHistorySection({ weatherWaterHistory }: { weatherWaterHistory: B
 					))}</tbody>
 				</table>
 			</div>
+			<section style={metricGridStyle}>
+				{(["weather", "windDirection", "windSpeedBand", "waveHeightBand"] as const).map((dimension) => (
+					<article key={dimension} style={cardStyle}>
+						<p style={labelStyle}>{dimension === "weather" ? "天候別" : dimension === "windDirection" ? "風向別" : dimension === "windSpeedBand" ? "風速帯別" : "波高帯別"}</p>
+						<p style={textStyle}>{weatherWaterHistory.venues.flatMap((venue) => venue.conditionProfiles?.[dimension] ?? []).slice(0, 12).map((item) => `${item.key}:${item.raceCount}R (${item.readiness})`).join(" / ") || "未取得"}</p>
+					</article>
+				))}
+			</section>
 		</>
 	);
 }

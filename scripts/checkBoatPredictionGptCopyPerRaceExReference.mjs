@@ -47,6 +47,7 @@ const {
 	buildBoatPredictionGptCopyRaceContext,
 	buildBoatPredictionGptCopyExWeatherWaterBlock,
 	buildBoatPredictionGptCopyExVenueSignalsBlock,
+	buildBoatPredictionGptCopyExUsefulSignalsBlocks,
 	getBoatPredictionGptCopyExReference,
 	getBoatPredictionGptCopyExWeatherWaterReference,
 } = exContextModule.exports;
@@ -109,7 +110,7 @@ const exRace = ({ official = 0, exact = 0, unresolved = 0, sourceStatus = "compl
 const weatherWaterFixture = ({ coverage = "available", weatherCount = 12, wind = 4.2, wave = 3.1 } = {}) => ({
 	dateRange: { from: "2026-05-24", to: "2026-08-02", dateCount: 68 },
 	generatedAt: "2026-08-13T12:00:00+09:00",
-	sourceFiles: [{ sourceName: "boatrace-ex-history-races" }],
+	sourceFiles: [{ sourceName: "boatrace-ex-date-index" }, { sourceName: "boatrace-ex-history-races" }],
 	venues: [{
 		venueCode: "01",
 		venueName: "桐生",
@@ -123,6 +124,7 @@ const weatherWaterFixture = ({ coverage = "available", weatherCount = 12, wind =
 		windDirectionCounts: coverage === "missing" ? {} : { "南": weatherCount },
 		windSpeedBandCounts: coverage === "missing" ? {} : { "3-5m": weatherCount },
 		waveHeightBandCounts: coverage === "missing" ? {} : { "3-5cm": weatherCount },
+		conditionProfiles: { exact: [{ key: JSON.stringify({ weather: "晴", windDirection: "北", windSpeedBand: "3-5m", waveHeightBand: "3-5cm" }), raceCount: 4, readiness: "low-sample" }] },
 		readiness: { status: coverage === "available" ? "ready" : "insufficient-history" },
 	}],
 });
@@ -165,6 +167,10 @@ const contextFor = (raceAnalysis, venueEvidence = weatherWaterFixture()) => ({
 	venueEvidenceDate: "2026-08-13",
 	weatherWaterHistory: venueEvidence,
 	weatherWaterHistoryPath: "public/data/boatrace-ex/derived/weather-water-history/latest.json",
+	venueRaceBandHistory: { dateRange: { from: "2026-05-24", to: "2026-08-02" }, venues: [{ venueCode: "01", venueName: "桐生", bands: [{ raceBand: "7R-12R", raceCount: 50, lane1FirstRate: 0.5, centerOuterFirstRate: 0.5, trifectaOver10000Count: 8, trifectaPayoutAvailableRaceCount: 50, trifectaOver10000Rate: 0.16, readiness: { status: "ready" } }] }] },
+	decisionMethodHistory: { venues: [{ venueCode: "01", venueName: "桐生", winningDecisionCounts: { "逃げ": 30, "差し": 8 } }] },
+	entryShiftHistory: { venues: [{ venueCode: "01", venueName: "桐生", raceCount: 30, frameNariRate: 0.8, lane1InsideCount: 28, entryShiftRaceCount: 6 }] },
+	motorBoatHistory: { venues: [{ venueCode: "01", venueName: "桐生", motors: [{ number: "21", raceCount: 6, firstCount: 2, top2Count: 3, top3Count: 4 }] }] },
 });
 const getReference = (context, inputRace = race, inputRaceExtra = raceExtra) => getBoatPredictionGptCopyExReference({
 	venue,
@@ -210,8 +216,9 @@ const partialWeatherWater = getBoatPredictionGptCopyExWeatherWaterReference({ ve
 const missingWeatherWater = getBoatPredictionGptCopyExWeatherWaterReference({ venue, race, raceExtra, exContext: contextFor([], null) });
 const weatherWaterBlock = buildBoatPredictionGptCopyExWeatherWaterBlock(availableWeatherWater);
 const venueSignalsBlock = buildBoatPredictionGptCopyExVenueSignalsBlock({ venue, exContext: contextFor([]) });
+const usefulSignalsBlocks = buildBoatPredictionGptCopyExUsefulSignalsBlocks({ venue, race, weatherReference: availableWeatherWater, exContext: contextFor([]) }).join("\n");
 const fullRaceContext = buildBoatPredictionGptCopyRaceContext({ feed, venue, race, raceExtra, venueTimeKind: "day", exContext: contextFor([exRace({ official: 5, exact: 1 })]) });
-const activeBlockOrder = ["時間帯:", "【出走表】", "【KURARI BOAT EX 参照情報】", "【KURARI BOAT EX 天候・水面 履歴】", "【KURARI BOAT EX 当日coverage】", "【展示情報】", "【EXレース分析】", "【EX選手情報】", "【source-backed / cautions】"];
+const activeBlockOrder = ["時間帯:", "【出走表】", "【KURARI BOAT EX 参照情報】", "【KURARI BOAT EX 天候・水面 履歴】", "【KURARI BOAT EX 当日coverage】", "【KURARI BOAT EX レース帯履歴】", "【展示情報】", "【EXレース分析】", "【EX選手情報】", "【source-backed / cautions】"];
 const forbidden = ["fake", "score", "rank", "generatedPrediction", "generatedTicket"];
 const requiredSourceFragments = [
 	"getBoatPredictionGptCopyExReference",
@@ -242,13 +249,14 @@ const checks = {
 		`EX参照 weather source: 通常素材[C]と共通 (${weatherReference.source})`,
 		`EX参照 weather 表示時点: ${weatherReference.observedAt}`,
 	].every((line) => referenceWeatherBlock.includes(line)) && !referenceWeatherBlock.includes("東北東 3m"),
-	exWeatherWater: weatherWaterBlock.includes("【KURARI BOAT EX 天候・水面 履歴】") && weatherWaterBlock.includes("EX天候・水面履歴: available") && weatherWaterBlock.includes("EX風・波データ: available") && weatherWaterBlock.includes("平均風速: 4.2m/s") && weatherWaterBlock.includes("平均波高: 3.1cm") && weatherWaterBlock.includes("条件一致: partial") && weatherWaterBlock.includes("当日条件: 天候") && weatherWaterBlock.includes("参照source: public/data/boatrace-ex/derived/weather-water-history/latest.json") && weatherWaterBlock.includes("データ期間: 履歴") && weatherWaterBlock.includes("LOW SAMPLE (0R)") && partialWeatherWater.availability === "partial" && partialWeatherWater.sampleStatus.includes("LOW SAMPLE") && missingWeatherWater.availability === "missing" && missingWeatherWater.sampleStatus === "未取得",
+	exWeatherWater: weatherWaterBlock.includes("【KURARI BOAT EX 天候・水面 履歴】") && weatherWaterBlock.includes("EX天候・水面履歴: available") && weatherWaterBlock.includes("EX風・波データ: available") && weatherWaterBlock.includes("平均風速: 4.2m/s") && weatherWaterBlock.includes("平均波高: 3.1cm") && weatherWaterBlock.includes("条件一致: partial") && weatherWaterBlock.includes("当日条件: 天候") && weatherWaterBlock.includes("(3-5m)") && weatherWaterBlock.includes("(3-5cm)") && weatherWaterBlock.includes("参照source: public/data/boatrace-ex/derived/weather-water-history/latest.json") && weatherWaterBlock.includes("データ期間: 履歴 2026-05-24〜2026-08-02") && weatherWaterBlock.includes("参照source名: boatrace-ex-date-index / boatrace-ex-history-races ×68日") && weatherWaterBlock.includes("LOW SAMPLE (0R)") && partialWeatherWater.availability === "partial" && partialWeatherWater.sampleStatus.includes("LOW SAMPLE") && missingWeatherWater.availability === "missing" && missingWeatherWater.sampleStatus === "未取得",
 	exVenueRoughFlow: venueSignalsBlock.includes("会場傾向 データ期間: 履歴") && venueSignalsBlock.includes("イン/中外傾向: イン寄り") && venueSignalsBlock.includes("コース別1着率: 1号艇 50.0%") && venueSignalsBlock.includes("EX履歴 展示coverage: 433/8784R") && venueSignalsBlock.includes("荒れ指数 データ期間: 履歴") && venueSignalsBlock.includes("荒れやすさ: 3連単 10,000円超 20/100R (20.0%)") && venueSignalsBlock.includes("EX当日フロー: available") && venueSignalsBlock.includes("1R～6R フロー: 1号艇:1 / 3号艇:1") && venueSignalsBlock.includes("7R～12R フロー: 1号艇:1 / 2号艇:1") && venueSignalsBlock.includes("当日風・波・イン変化: 未取得"),
+	usefulSignals: ["【KURARI BOAT EX レース帯履歴】", "【KURARI BOAT EX 条件別履歴】", "完全一致サンプル: 4R", "【KURARI BOAT EX 決まり手履歴】", "【KURARI BOAT EX 進入履歴】", "【KURARI BOAT EX モーター履歴】"].every((fragment) => usefulSignalsBlocks.includes(fragment)),
 	availabilityAndCautions: fullRaceContext.includes("EX race-analysis shard: source-backed") && fullRaceContext.includes("通常素材 展示availability: 展示取得済み") && fullRaceContext.includes("展示取得済みのため、展示反映済み素材として扱ってください。") && !fullRaceContext.includes("展示未取得は事前予想として扱ってください。") && fullRaceContext.includes("オッズ情報は含まれていますが") && !fullRaceContext.includes("オッズはこのコピー素材に含めない。"),
 	bettingRules: normalWeatherMaterial.includes("買い目は3連単10点。") && normalWeatherMaterial.includes("厚め2点、本線3点、中穴3点、大穴2点。") && normalWeatherMaterial.includes("2連単は使わない。") && !["3連単は厚め2点、本線6点", "2連単は穴狙い2点", "本線6点"].some((fragment) => normalWeatherMaterial.includes(fragment)),
 	activePerRaceBlock: activeBlock.includes("【KURARI BOAT EX 参照情報】") && activeBlock.includes("当日EXレース分析: 未取得"),
 	raceBlockOrder: activeBlockOrder.every((label) => activeBlock.includes(label)) && activeBlockOrder.every((label, index) => index === 0 || activeBlock.indexOf(activeBlockOrder[index - 1]) < activeBlock.indexOf(label)),
-	sourceAndPanelWiring: exContextSource.includes("weatherWaterHistoryPath") && exContextSource.includes("venueEvidenceDate") && exContextSource.includes("buildBoatPredictionGptCopyExDailyCoverageBlock") && exContextSource.includes("derived/weather-water-history/latest.json") && exContextSource.includes("derived/venue-evidence/") && exContextSource.includes("level = \"D\"") && pageSource.includes("getBoatPredictionExhibitionAvailability") && pageSource.includes("exReferenceLevelCounts") && boatExPageSource.includes("WeatherHistorySection"),
+	sourceAndPanelWiring: exContextSource.includes("weatherWaterHistoryPath") && exContextSource.includes("venueEvidenceDate") && exContextSource.includes("buildBoatPredictionGptCopyExDailyCoverageBlock") && exContextSource.includes("buildBoatPredictionGptCopyExUsefulSignalsBlocks") && exContextSource.includes("derived/weather-water-history/latest.json") && exContextSource.includes("derived/venue-evidence/") && exContextSource.includes("venue-race-band-history") && exContextSource.includes("level = \"D\"") && pageSource.includes("getBoatPredictionExhibitionAvailability") && pageSource.includes("exReferenceLevelCounts") && boatExPageSource.includes("WeatherHistorySection"),
 	noForbiddenOutput: forbidden.every((fragment) => !Object.values(references).some((reference) => buildBoatPredictionGptCopyExReferenceBlock(reference).includes(fragment))),
 };
 const ok = Object.values(checks).every(Boolean);
