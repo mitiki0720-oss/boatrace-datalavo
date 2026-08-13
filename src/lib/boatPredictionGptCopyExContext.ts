@@ -7,6 +7,11 @@ import type {
 } from "./boatExTypes";
 import { withBasePath } from "./assetPath";
 import { getBoatPredictionRaceTimeLabel, type BoatPredictionVenueTimeKind } from "./boatPredictionGptCopy";
+import {
+	getBoatPredictionExhibitionAvailability,
+	resolveBoatPredictionWeatherReference,
+} from "./boatPredictionMaterial";
+import type { BoatVenueExtraRace, BoatVenueExtraVenue } from "./boatVenueExtrasFeed";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -41,6 +46,8 @@ export type BoatPredictionGptCopyExReference = {
 	todayFlowStatus: string;
 	raceAnalysisStatus: string;
 	weatherSummary: string;
+	weatherSource: string;
+	weatherObservedAt: string;
 	exhibitionSummary: string;
 	cautions: string[];
 };
@@ -165,24 +172,6 @@ const readSummaryValue = (file: JsonRecord | null, key: string): string => {
 const readReadinessStatus = (file: JsonRecord | null): string =>
 	asText(asRecord(file?.readiness)?.status);
 
-const formatWeatherSummary = (venue: BoatTodayVenueItem, race: BoatRaceItem): string => {
-	const weather = race.weatherActual ?? venue.weatherActual;
-	if (!weather) {
-		return unavailable;
-	}
-
-	const details = [
-		weather.weather,
-		weather.windDirection ? `風 ${weather.windDirection}` : null,
-		weather.windSpeed ? `${weather.windSpeed}` : null,
-		weather.waveHeight ? `波 ${weather.waveHeight}` : null,
-	]
-		.filter(Boolean)
-		.join(" / ");
-	const source = weather.source ?? weather.sourceLabel;
-	return `${details || unavailable} / source ${asText(source)}`;
-};
-
 export function buildBoatPredictionGptCopyVenueContext(params: {
 	venue: BoatTodayVenueItem;
 	exContext: BoatPredictionGptCopyExContext | null;
@@ -225,9 +214,11 @@ function findExRace(exContext: BoatPredictionGptCopyExContext | null, venue: Boa
 export function getBoatPredictionGptCopyExReference(params: {
 	venue: BoatTodayVenueItem;
 	race: BoatRaceItem;
+	venueExtra?: BoatVenueExtraVenue | null;
+	raceExtra?: BoatVenueExtraRace | null;
 	exContext: BoatPredictionGptCopyExContext | null;
 }): BoatPredictionGptCopyExReference {
-	const { venue, race, exContext } = params;
+	const { venue, race, venueExtra, raceExtra, exContext } = params;
 	const exRace = findExRace(exContext, venue, race);
 	const linkage = exRace?.racerLinkageSummary;
 	const racerCount = linkage?.racerCount ?? exRace?.racers.length ?? race.racers?.length ?? 0;
@@ -240,15 +231,15 @@ export function getBoatPredictionGptCopyExReference(params: {
 	const venueFeatureStatus = readReadinessStatus(exContext?.roughIndex ?? null);
 	const todayFlowStatus = readReadinessStatus(exContext?.todayFlow ?? null);
 	const raceAnalysisStatus = exRace ? "source-backed" : unavailable;
-	const exhibitionSummary = exRace?.exhibitionStatus === "available"
-		? "available"
-		: "未取得 / 事前予想";
-	const weatherSummary = formatWeatherSummary(venue, race);
+	const exhibitionAvailability = getBoatPredictionExhibitionAvailability({ race, raceExtra });
+	const exhibitionSummary = exhibitionAvailability.label;
+	const weather = resolveBoatPredictionWeatherReference({ race, venue, venueExtra, raceExtra });
+	const weatherSummary = `${weather.weather} / 風 ${weather.windDirection} ${weather.windSpeed} / 波 ${weather.waveHeight}`;
 	let level: BoatPredictionGptCopyExReferenceLevel;
 	if (!exContext) {
 		level = "unknown";
 	} else if (!exRace) {
-		level = exContext.raceAnalysis.length > 0 ? "D" : "unknown";
+		level = "D";
 	} else if (exRace.sourceStatus !== "complete" || exRace.racerEvidenceStatus !== "available") {
 		level = "D";
 	} else if (
@@ -270,8 +261,11 @@ export function getBoatPredictionGptCopyExReference(params: {
 		!exRace ? "当日EXレース分析は未取得です。現在のsourceのavailabilityだけで判断してください。" : null,
 		unresolvedCount > 0 ? `選手EXリンク未解決: ${unresolvedCount}名。推測補完はしないでください。` : null,
 		lowSampleCount > 0 ? `LOW SAMPLE: ${lowSampleCount}名。参考情報として扱ってください。` : null,
-		exRace?.exhibitionStatus !== "available" ? "展示情報は未取得または一部未取得です。事前予想として扱ってください。" : null,
-		weatherSummary === unavailable ? "天候・風・波は未取得です。現在sourceにない値は補完しないでください。" : null,
+		exhibitionAvailability.status === "missing" ? "展示情報は未取得です。事前予想として扱ってください。" : null,
+		exhibitionAvailability.status === "partial" ? "展示情報は一部取得です。未取得値は補完しないでください。" : null,
+		weather.weather === unavailable && weather.windDirection === unavailable && weather.waveHeight === unavailable
+			? "天候・風・波は未取得です。現在sourceにない値は補完しないでください。"
+			: null,
 	].filter((value): value is string => Boolean(value));
 
 	return {
@@ -287,6 +281,8 @@ export function getBoatPredictionGptCopyExReference(params: {
 		todayFlowStatus,
 		raceAnalysisStatus,
 		weatherSummary,
+		weatherSource: weather.source,
+		weatherObservedAt: weather.observedAt,
 		exhibitionSummary,
 		cautions,
 	};
@@ -303,6 +299,10 @@ export function buildBoatPredictionGptCopyExReferenceBlock(reference: BoatPredic
 		`当日フロー: ${reference.todayFlowStatus}`,
 		`当日EXレース分析: ${reference.raceAnalysisStatus}`,
 		`当日天候・風・波: ${reference.weatherSummary}`,
+		`通常素材 weather source: ${reference.weatherSource}`,
+		`通常素材 weather 表示時点: ${reference.weatherObservedAt}`,
+		`EX参照 weather source: 通常素材[C]と共通 (${reference.weatherSource})`,
+		`EX参照 weather 表示時点: ${reference.weatherObservedAt}`,
 		`展示情報: ${reference.exhibitionSummary}`,
 		...(reference.lowSampleCount > 0 ? [`LOW SAMPLE: ${reference.lowSampleCount}名`] : []),
 		"EX使用上の注意:",
@@ -333,16 +333,18 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 	feed: BoatTodayFeed;
 	venue: BoatTodayVenueItem;
 	race: BoatRaceItem;
+	venueExtra?: BoatVenueExtraVenue | null;
+	raceExtra?: BoatVenueExtraRace | null;
 	venueTimeKind: BoatPredictionVenueTimeKind;
 	exContext: BoatPredictionGptCopyExContext | null;
 }): string {
-	const { feed, venue, race, venueTimeKind, exContext } = params;
+	const { feed, venue, race, venueExtra, raceExtra, venueTimeKind, exContext } = params;
 	const sourceName = asText(venue.source ?? feed.source);
 	const sourceAcquiredAt = asText(venue.generatedAt ?? feed.generatedAt);
 	const sourceStatus = readSourceStatus(venue.source ?? feed.source);
 	const exRace = findExRace(exContext, venue, race);
-	const exReference = getBoatPredictionGptCopyExReference({ venue, race, exContext });
-	const exhibition = exRace?.exhibitionStatus === "available" ? "展示情報はsource-backed" : "展示未取得 / 事前予想";
+	const exReference = getBoatPredictionGptCopyExReference({ venue, race, venueExtra, raceExtra, exContext });
+	const exhibition = exReference.exhibitionSummary;
 	const notes = exRace?.analysisNotes.filter(Boolean).slice(0, 3) ?? [];
 	const racerLines = exRace?.racers.length
 		? exRace.racers.map((racer) => {

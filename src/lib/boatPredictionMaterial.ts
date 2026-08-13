@@ -220,44 +220,70 @@ const resolveWeatherRecord = (
 	return fallbackRecord;
 };
 
+export type BoatPredictionWeatherReference = {
+	weather: string;
+	temperature: string;
+	waterTemperature: string;
+	windDirection: string;
+	windSpeed: string;
+	waveHeight: string;
+	observedAt: string;
+	source: string;
+};
+
+// Keep every consumer on the same final weather record as normal material [C].
+export function resolveBoatPredictionWeatherReference(params: {
+	race: BoatRaceItem;
+	venue: BoatTodayVenueItem;
+	venueExtra?: BoatVenueExtraVenue | null;
+	raceExtra?: BoatVenueExtraRace | null;
+}): BoatPredictionWeatherReference {
+	const { race, venue, venueExtra, raceExtra } = params;
+	const record = resolveWeatherRecord(race, venue, venueExtra, raceExtra);
+	const venueRecord = isMaterialRecord(venue) ? venue : null;
+	const venueExtraRecord = isMaterialRecord(venueExtra) ? venueExtra : null;
+	const source =
+		readWeatherValue(record, ["source", "sourceLabel"]) ||
+		readMaterialString(venueExtraRecord?.source) ||
+		readMaterialString(venueRecord?.source);
+
+	return {
+		weather: toDisplay(readWeatherValue(record, ["weather", "weatherText", "condition", "conditionText", "tenko"])),
+		temperature: toDisplay(readWeatherValue(record, ["temperature", "airTemperature", "temp", "airTemp"], "℃")),
+		waterTemperature: toDisplay(readWeatherValue(record, ["waterTemperature", "waterTemp"], "℃")),
+		windDirection: toDisplay(readWeatherValue(record, ["windDirection", "windDirectionText", "windDir", "wind"])),
+		windSpeed: toDisplay(readWeatherValue(record, ["windSpeed", "windVelocity", "windSpeedMps"], "m")),
+		waveHeight: toDisplay(readWeatherValue(record, ["waveHeight", "wave", "waveCm"], "cm")),
+		observedAt: toDisplay(readWeatherValue(record, ["observedAt", "measuredAt", "updatedAt", "time", "displayTime"])),
+		source: toDisplay(source),
+	};
+}
+
 const buildWeatherMaterialBlock = (
 	race: BoatRaceItem,
 	venue: BoatTodayVenueItem,
 	venueExtra?: BoatVenueExtraVenue | null,
 	raceExtra?: BoatVenueExtraRace | null,
 ): string => {
+	const weather = resolveBoatPredictionWeatherReference({ race, venue, venueExtra, raceExtra });
 	const record = resolveWeatherRecord(race, venue, venueExtra, raceExtra);
-	const venueRecord = isMaterialRecord(venue) ? venue : null;
-	const venueExtraRecord = isMaterialRecord(venueExtra) ? venueExtra : null;
-
-	const weather = readWeatherValue(record, ["weather", "weatherText", "condition", "conditionText", "tenko"]);
-	const temperature = readWeatherValue(record, ["temperature", "airTemperature", "temp", "airTemp"], "℃");
-	const waterTemperature = readWeatherValue(record, ["waterTemperature", "waterTemp"], "℃");
-	const windDirection = readWeatherValue(record, ["windDirection", "windDirectionText", "windDir", "wind"]);
-	const windSpeed = readWeatherValue(record, ["windSpeed", "windVelocity", "windSpeedMps"], "m");
-	const waveHeight = readWeatherValue(record, ["waveHeight", "wave", "waveCm"], "cm");
 	const pressure = readWeatherValue(record, ["pressure", "airPressure"], "hPa");
 	const humidity = readWeatherValue(record, ["humidity"], "%");
 	const rainfall = readWeatherValue(record, ["rainfall", "rain"], "mm");
-	const observedAt = readWeatherValue(record, ["observedAt", "measuredAt", "updatedAt", "time", "displayTime"]);
-	const source =
-		readWeatherValue(record, ["source", "sourceLabel"]) ||
-		readMaterialString(venueExtraRecord?.source) ||
-		readMaterialString(venueRecord?.source);
 
 	return [
 		"[C. 天気 / 風 / 波]",
-		`天候: ${toDisplay(weather)}`,
-		`気温: ${toDisplay(temperature)}`,
-		`水温: ${toDisplay(waterTemperature)}`,
-		`風向: ${toDisplay(windDirection)}`,
-		`風速: ${toDisplay(windSpeed)}`,
-		`波高: ${toDisplay(waveHeight)}`,
+		`天候: ${weather.weather}`,
+		`気温: ${weather.temperature}`,
+		`水温: ${weather.waterTemperature}`,
+		`風向: ${weather.windDirection}`,
+		`風速: ${weather.windSpeed}`,
+		`波高: ${weather.waveHeight}`,
 		`気圧: ${toDisplay(pressure)}`,
 		`湿度: ${toDisplay(humidity)}`,
 		`雨量: ${toDisplay(rainfall)}`,
-		`表示時点: ${toDisplay(observedAt)}`,
-		`データソース: ${toDisplay(source)}`,
+		`表示時点: ${weather.observedAt}`,
+		`データソース: ${weather.source}`,
 	].join("\n");
 };
 
@@ -1006,6 +1032,11 @@ const buildExhibitionBlock = (item: BoatExhibitionItem) => [
 	`- メモ: ${toDisplay(item.memo)}`,
 ].join("\n");
 
+const hasPredictionExhibitionValue = (value: unknown): boolean => {
+	const text = readMaterialString(value).normalize("NFKC");
+	return Boolean(text && !["-", "--", "未取得", "確認中", "未設定"].includes(text));
+};
+
 const hasResolvedPredictionExhibition = (item: BoatExhibitionItem): boolean => {
 	const memo = readMaterialString(item.memo);
 	const hasOriginalExhibitionMetric =
@@ -1014,68 +1045,12 @@ const hasResolvedPredictionExhibition = (item: BoatExhibitionItem): boolean => {
 		memo.includes("直線 ");
 
 	return Boolean(
-		readMaterialString(item.exhibitionTime) ||
-			readMaterialString(item.tilt) ||
-			readMaterialString(item.startTiming) ||
+		hasPredictionExhibitionValue(item.exhibitionTime) ||
+			hasPredictionExhibitionValue(item.tilt) ||
+			hasPredictionExhibitionValue(item.startTiming) ||
+			hasPredictionExhibitionValue(item.course) ||
 			hasOriginalExhibitionMetric,
 	);
-};
-
-const isUsablePredictionExhibitionTimeValue = (value: unknown): boolean => {
-	const text = readMaterialString(value)
-		.normalize("NFKC")
-		.replace(/秒$/u, "")
-		.trim();
-
-	if (!text || ["-", "--", "未取得", "確認中", "未設定"].includes(text)) {
-		return false;
-	}
-
-	const parsed = Number(text);
-	return Number.isFinite(parsed) && parsed >= 5 && parsed < 10;
-};
-
-const countOfficialPredictionExhibitionTimes = (
-	race: BoatRaceItem,
-	raceExtra?: BoatVenueExtraRace | null,
-): number => {
-	const raceRecord = isMaterialRecord(race) ? race as MaterialRecord : {};
-	const raceExtraRecord = isMaterialRecord(raceExtra) ? raceExtra : {};
-	const officialBeforeInfo = readOfficialBeforeInfo(raceExtra ?? undefined);
-
-	const rows = [
-		...toMaterialRecordArray(raceRecord.exhibitions),
-		...toMaterialRecordArray(officialBeforeInfo?.exhibitionRows),
-		...toMaterialRecordArray(officialBeforeInfo?.beforeInfo),
-		...toMaterialRecordArray(raceExtraRecord.beforeInfo),
-	];
-
-	const frames = new Set<number>();
-
-	for (const row of rows) {
-		const frameNo = readMaterialNumber(
-			row.frameNo ??
-			row.frame ??
-			row.lane ??
-			row.boatNumber,
-		);
-
-		const hasUsableExhibitionTime = [
-			row.exhibitionTime,
-			row.exhibition,
-			row.displayTime,
-			row.tenjiTime,
-			row.showTime,
-			row["展示"],
-			row["展示タイム"],
-		].some(isUsablePredictionExhibitionTimeValue);
-
-		if (frameNo && hasUsableExhibitionTime) {
-			frames.add(frameNo);
-		}
-	}
-
-	return frames.size;
 };
 
 const resolvePredictionExhibitions = (
@@ -1091,8 +1066,10 @@ const resolvePredictionExhibitions = (
 
 	const officialBeforeInfo = readOfficialBeforeInfo(raceExtra ?? undefined);
 	const officialRows = toMaterialRecordArray(officialBeforeInfo?.exhibitionRows);
+	const officialBeforeRows = toMaterialRecordArray(officialBeforeInfo?.beforeInfo);
 	const originalRows = toMaterialRecordArray(raceExtra?.originalExhibition);
 	const startRows = toMaterialRecordArray(raceExtra?.startExhibition);
+	const beforeRows = toMaterialRecordArray((raceExtra as MaterialRecord | null | undefined)?.beforeInfo);
 
 	const byFrame = new Map<number, MaterialRecord>();
 
@@ -1107,8 +1084,10 @@ const resolvePredictionExhibitions = (
 	};
 
 	officialRows.forEach(mergeRow);
+	officialBeforeRows.forEach(mergeRow);
 	originalRows.forEach(mergeRow);
 	startRows.forEach(mergeRow);
+	beforeRows.forEach(mergeRow);
 
 	return sortByFrameNo([...byFrame.values()]).map((row) => {
 		const lapTime = readFirstMaterialString(row.lapTime, row.oneLapTime, row.oneRoundTime, row.halfLapTime);
@@ -1131,12 +1110,66 @@ const resolvePredictionExhibitions = (
 			weightAdjustment: adjustment,
 			tilt: readFirstMaterialString(row.tilt),
 			startTiming: readFirstMaterialString(row.startTiming, row.st, row.officialStart),
-			course: readFirstMaterialString(row.course, row.courseNo, row.frameNo),
+			course: readFirstMaterialString(row.course, row.courseNo),
 			evaluation: readFirstMaterialString(row.exhibitionEvaluation, row.evaluation) as BoatExhibitionItem["evaluation"],
 			memo,
 		};
 	}).filter(hasResolvedPredictionExhibition);
 };
+
+export type BoatPredictionExhibitionAvailability = {
+	status: "complete" | "partial" | "missing";
+	availableFrameCount: number;
+	hasExhibitionTime: boolean;
+	hasStartTiming: boolean;
+	hasCourse: boolean;
+	hasTilt: boolean;
+	label: string;
+};
+
+export function getBoatPredictionExhibitionAvailability(params: {
+	race: BoatRaceItem;
+	raceExtra?: BoatVenueExtraRace | null;
+}): BoatPredictionExhibitionAvailability {
+	const exhibitions = resolvePredictionExhibitions(params.race, params.raceExtra);
+	const availableFrames = new Set<number>();
+	let hasExhibitionTime = false;
+	let hasStartTiming = false;
+	let hasCourse = false;
+	let hasTilt = false;
+
+	for (const item of exhibitions) {
+		const hasAny = [item.exhibitionTime, item.startTiming, item.course, item.tilt]
+			.some(hasPredictionExhibitionValue);
+		if (hasAny && Number.isInteger(item.frameNo) && item.frameNo >= 1 && item.frameNo <= 6) {
+			availableFrames.add(item.frameNo);
+		}
+		hasExhibitionTime ||= hasPredictionExhibitionValue(item.exhibitionTime);
+		hasStartTiming ||= hasPredictionExhibitionValue(item.startTiming);
+		hasCourse ||= hasPredictionExhibitionValue(item.course);
+		hasTilt ||= hasPredictionExhibitionValue(item.tilt);
+	}
+
+	const availableFrameCount = availableFrames.size;
+	const status = availableFrameCount >= 6
+		? "complete"
+		: availableFrameCount > 0
+			? "partial"
+			: "missing";
+	const detailNames = [
+		hasExhibitionTime ? "展示タイム" : "",
+		hasStartTiming ? "展示ST" : "",
+		hasCourse ? "進入" : "",
+		hasTilt ? "チルト" : "",
+	].filter(Boolean);
+	const label = status === "complete"
+		? `展示取得済み (${availableFrameCount}/6艇: ${detailNames.join("・")})`
+		: status === "partial"
+			? `展示一部取得 (${availableFrameCount}/6艇: ${detailNames.join("・")})`
+			: "展示未取得 / 事前予想";
+
+	return { status, availableFrameCount, hasExhibitionTime, hasStartTiming, hasCourse, hasTilt, label };
+}
 
 const readFirstRecord = (...values: unknown[]): MaterialRecord | null => {
 	for (const value of values) {
@@ -1396,8 +1429,8 @@ export function buildBoatPredictionMaterial(params: {
 	const { venue, race, venueExtra, raceExtra, venueFeatureNote, venueFeatureInsights = [], includeVenueContext = true } = params;
 	const racers = toMaterialArray<BoatRacerItem>((race as { racers?: unknown }).racers);
 	const exhibitions = resolvePredictionExhibitions(race, raceExtra);
-	const officialExhibitionTimeCount = countOfficialPredictionExhibitionTimes(race, raceExtra);
-	const hasCompletePredictionExhibition = officialExhibitionTimeCount >= 6;
+	const exhibitionAvailability = getBoatPredictionExhibitionAvailability({ race, raceExtra });
+	const hasCompletePredictionExhibition = exhibitionAvailability.status === "complete";
 	const venueStartExhibitionMaterial = buildVenueStartExhibitionBlock(racers, raceExtra);
 	const raceStartExhibitionMaterial = buildStartExhibitionBlock(race);
 
@@ -1465,7 +1498,9 @@ export function buildBoatPredictionMaterial(params: {
 	"[I. 予想時点チェック]",
 	hasCompletePredictionExhibition
 		? "素材モード: 展示反映済み"
-		: `素材モード: 展示未完了の事前予想（公式展示タイム ${officialExhibitionTimeCount}/6艇）`,
+		: exhibitionAvailability.status === "partial"
+			? `素材モード: 展示一部取得（${exhibitionAvailability.label}）`
+			: "素材モード: 展示未取得の事前予想",
 	...(hasCompletePredictionExhibition
 		? [
 				"- 公式展示タイム6艇分を取得済みです。展示・進入・モーター・ボート・風・波・公式オッズを総合して予想できます。",
@@ -1482,7 +1517,9 @@ export function buildBoatPredictionMaterial(params: {
 	"[J. GPTへの予想依頼メモ]",
 	hasCompletePredictionExhibition
 		? "この資料をもとに、展示・進入・モーター・ボート・風・波を総合し、オッズではなく展開を重視して競艇予想をしてください。"
-		: `この資料は展示未完了の事前予想素材です。公式展示タイムは ${officialExhibitionTimeCount}/6艇です。出走表・天気・モーター・ボートを中心に、オッズではなく展開を重視して競艇予想をしてください。展示取得後は再確認してください。`,
+		: exhibitionAvailability.status === "partial"
+			? `この資料は展示一部取得素材です（${exhibitionAvailability.label}）。未取得値を補完せず、出走表・天気・モーター・ボートと取得済み展示情報を中心に、オッズではなく展開を重視して競艇予想をしてください。`
+			: "この資料は展示未取得の事前予想素材です。出走表・天気・モーター・ボートを中心に、オッズではなく展開を重視して競艇予想をしてください。展示取得後は再確認してください。",
 	"買い目は3連単10点。",
 	"厚め2点、本線3点、中穴3点、大穴2点。",
 	"2連単は使わない。",
