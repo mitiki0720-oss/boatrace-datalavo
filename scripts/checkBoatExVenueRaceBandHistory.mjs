@@ -1,0 +1,3 @@
+import fs from "node:fs";
+const path = "public/data/boatrace-ex/derived/venue-race-band-history/latest.json";
+try { const data = JSON.parse(fs.readFileSync(path, "utf8")); if (data.kind !== "boat-ex-venue-race-band-history-v1" || !(data.dateRange?.dateCount > 1) || !(data.summary?.raceCount > 12) || !(data.venues?.length > 0) || !data.venues.every((venue) => venue.bands?.some((band) => band.raceBand === "1R-6R" && band.raceCount > 0))) throw new Error("invalid venue race-band history"); console.log(JSON.stringify({ ok: true, dateRange: data.dateRange, summary: data.summary }, null, 2)); } catch (error) { console.error(error.message); process.exitCode = 1; }

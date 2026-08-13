@@ -34,6 +34,9 @@ try {
 		for (const field of ["weatherConditionCounts", "windDirectionCounts", "windSpeedBandCounts", "waveHeightBandCounts"]) {
 			if (!venue[field] || typeof venue[field] !== "object") fail(`missing ${field}: ${venue.venueCode}`);
 		}
+		for (const field of ["weather", "windDirection", "windSpeedBand", "waveHeightBand", "exact"]) {
+			if (!Array.isArray(venue.conditionProfiles?.[field])) fail(`missing condition profile ${field}: ${venue.venueCode}`);
+		}
 	}
 	if (venueCodes.size !== weatherHistory.summary.venueCount) fail("venue count mismatch");
 	for (const source of asArray(weatherHistory.sourceFiles)) {

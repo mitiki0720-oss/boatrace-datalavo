@@ -1,0 +1,3 @@
+import fs from "node:fs";
+const path = "public/data/boatrace-ex/derived/decision-method-history/latest.json";
+try { const data = JSON.parse(fs.readFileSync(path, "utf8")); if (data.kind !== "boat-ex-decision-method-history-v1" || !(data.summary?.sourceAvailableRaceCount > 0) || !(data.venues?.length > 0) || !data.venues.some((venue) => Object.keys(venue.winningDecisionCounts ?? {}).length > 0)) throw new Error("source field unavailable: officialResult.winningTechnique"); console.log(JSON.stringify({ ok: true, dateRange: data.dateRange, summary: data.summary }, null, 2)); } catch (error) { console.error(error.message); process.exitCode = 1; }
