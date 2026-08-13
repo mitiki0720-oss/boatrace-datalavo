@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-tab-completeness-audit",
   "auditDate": "2026-08-02",
-  "generatedAt": "2026-08-13T02:27:54.570Z",
+  "generatedAt": "2026-08-13T02:48:24.165Z",
   "policy": "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. No fake score, rank, prediction, ticket parsing, or result inference is used.",
   "summary": {
     "tabCount": 13,
@@ -110,9 +110,11 @@
     {
       "key": "race-analysis",
       "status": "ready",
-      "reason": "Every latest-date history record is represented with source-backed status and paths.",
+      "reason": "Every latest-date history record is represented with source-backed status and paths. Historical index covers 68 dates.",
       "sourcePaths": [
         "public/data/boatrace-ex/derived/race-analysis/latest.json",
+        "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
+        "public/data/boatrace-ex/derived/race-analysis/history-index.json",
         "public/data/boatrace-ex/derived/racer-evidence/2026-08-02.json",
         "public/data/boatrace-ex/derived/venue-evidence/2026-08-02.json"
       ]

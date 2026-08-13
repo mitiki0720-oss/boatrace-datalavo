@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "boat-ex-historical-race-analysis-v1",
+  "kind": "boatrace-ex-historical-race-analysis-summary",
+  "generatedAt": "2026-08-13T02:48:20.509Z",
+  "dateRange": {
+    "firstDate": "2026-05-24",
+    "latestDate": "2026-08-02",
+    "dateCount": 68
+  },
+  "summary": {
+    "raceCount": 8784,
+    "venueCount": 24,
+    "resultAvailableRaceCount": 8668,
+    "payoutAvailableRaceCount": 8657,
+    "exhibitionAvailableRaceCount": 433,
+    "weatherAvailableRaceCount": 8784,
+    "waterConditionAvailableRaceCount": 0,
+    "racerEvidenceAvailableRaceCount": 8784,
+    "officialRegistrationLinkedCount": 2952,
+    "nameLinkedCount": 41551,
+    "unresolvedRacerCount": 8201,
+    "readiness": {
+      "status": "ready",
+      "reason": "All indexed history dates are represented as separately fetched source-backed race-analysis shards."
+    }
+  },
+  "sourceFiles": [
+    "public/data/boatrace-ex/index.generated.json",
+    "public/data/boatrace-ex/derived/rough-index/latest.json",
+    "public/data/boatrace-ex/derived/race-analysis/latest.json"
+  ]
+}
