@@ -11,6 +11,8 @@ const requiredPageFragments = [
 	"buildBoatPredictionGptCopyHeader({",
 	"buildBoatPredictionGptCopyVenueContext({",
 	"buildBoatPredictionGptCopyRaceContext({",
+	"getBoatPredictionGptCopyExReference({",
+	"exReferenceLevelCounts",
 	'includesExContext={bulkGptMaterialRangeKey === "7r12r"}',
 ];
 const requiredContextFragments = [
@@ -30,6 +32,10 @@ const requiredContextFragments = [
 	"【source-backed / cautions】",
 	"officialRegistrationNo",
 	"resolvedRegistrationNo",
+	"buildBoatPredictionGptCopyExReferenceBlock",
+	"KURARI BOAT EX 参照情報",
+	"EX参照レベル:",
+	"登録番号/選手EXリンク:",
 ];
 const forbiddenContextFragments = ["fake", "score", "rank", "generatedPrediction", "generatedTicket"];
 

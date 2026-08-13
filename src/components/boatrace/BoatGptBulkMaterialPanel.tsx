@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { BoatPredictionGptCopyExReferenceLevel } from "../../lib/boatPredictionGptCopyExContext";
 import type { BoatPredictionVenueTimeKind } from "../../lib/boatPredictionGptCopy";
 import { boatTheme } from "../../lib/theme";
 
@@ -21,6 +22,7 @@ type BoatGptBulkMaterialPanelProps = {
 	}>;
 	onSelectRange: (key: string) => void;
 	includesExContext?: boolean;
+	exReferenceLevelCounts?: Partial<Record<BoatPredictionGptCopyExReferenceLevel, number>>;
 };
 
 const wrapStyle = {
@@ -223,12 +225,15 @@ export function BoatGptBulkMaterialPanel({
 	rangePresets,
 	onSelectRange,
 	includesExContext = false,
+	exReferenceLevelCounts,
 }: BoatGptBulkMaterialPanelProps) {
 	const [statusText, setStatusText] = useState<string>("");
 	const statusTimerRef = useRef<number | null>(null);
 	const lineCount = materialText ? materialText.split(/\r?\n/).length : 0;
 	const charCount = materialText.length;
 	const isExhibitionWaiting = waitingRaceCount > 0 || partialRaceCount > 0 || missingRaceLabels.length > 0;
+	const exReferenceRaceCount = Object.values(exReferenceLevelCounts ?? {}).reduce((total, count) => total + (count ?? 0), 0);
+	const sourceBackedExReferenceCount = (exReferenceLevelCounts?.A ?? 0) + (exReferenceLevelCounts?.B ?? 0) + (exReferenceLevelCounts?.C ?? 0);
 
 	useEffect(() => {
 		return () => {
@@ -319,6 +324,8 @@ export function BoatGptBulkMaterialPanel({
 						<span style={chipStyle}>{charCount.toLocaleString("ja-JP")}文字</span>
 						<span style={chipStyle}>{lineCount.toLocaleString("ja-JP")}行</span>
 						{includesExContext ? <span style={chipStyle}>EX分析入り</span> : null}
+						{exReferenceRaceCount > 0 ? <span style={chipStyle}>レースごとEX参照情報を含む {exReferenceRaceCount}R</span> : null}
+						{sourceBackedExReferenceCount > 0 ? <span style={chipStyle}>EX参照情報 source-backed {sourceBackedExReferenceCount}R</span> : null}
 						{isExhibitionWaiting ? (
 							<span style={warningChipStyle}>展示未完了の事前予想素材を含みます</span>
 						) : null}
@@ -341,6 +348,7 @@ export function BoatGptBulkMaterialPanel({
 					{ label: "対象会場", value: venueName },
 					{ label: "対象レース範囲", value: raceRangeLabel },
 					{ label: "コピー範囲時間帯", value: rangeTimeKind ?? "-" },
+					{ label: "EX参照情報", value: exReferenceRaceCount > 0 ? `${exReferenceRaceCount}R / source-backed ${sourceBackedExReferenceCount}R` : "未取得" },
 					{ label: "生成済みレース数", value: `${generatedRaceCount}/${expectedRaceCount}R` },
 					{ label: "展示タイム取得状況", value: `OK ${readyRaceCount}R / 一部 ${partialRaceCount}R / 未取得 ${waitingRaceCount + missingRaceLabels.length}R` },
 					{ label: "未取得注記", value: missingRaceLabels.length > 0 ? `${missingRaceLabels.join(", ")} は未取得` : "未取得Rなし" },
