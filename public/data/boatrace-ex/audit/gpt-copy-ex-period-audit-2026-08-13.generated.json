@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "kind": "boat-ex-gpt-copy-period-audit-v1",
+  "generatedAt": "2026-08-13T14:18:16.901Z",
+  "targetDate": "2026-08-13",
+  "latestExDate": "2026-08-02",
+  "historicalDateRange": {
+    "dataPeriodType": "historical",
+    "from": "2026-05-24",
+    "to": "2026-08-02",
+    "dateCount": 68
+  },
+  "signals": [
+    {
+      "signalName": "weather-water-history",
+      "sourcePath": "public/data/boatrace-ex/derived/weather-water-history/latest.json",
+      "dataPeriodType": "historical",
+      "from": "2026-05-24",
+      "to": "2026-08-02",
+      "dateCount": 68,
+      "targetDate": "2026-08-13",
+      "targetDateMatches": null,
+      "safeForPredictionCopy": true,
+      "reason": "history/races aggregation; historical reference only"
+    },
+    {
+      "signalName": "venue-bias",
+      "sourcePath": "public/data/boatrace-ex/derived/venue-bias/latest.json",
+      "dataPeriodType": "historical",
+      "from": "2026-05-24",
+      "to": "2026-08-02",
+      "dateCount": 68,
+      "targetDate": "2026-08-13",
+      "targetDateMatches": null,
+      "safeForPredictionCopy": true,
+      "reason": "historical venue tendency reference"
+    },
+    {
+      "signalName": "rough-index",
+      "sourcePath": "public/data/boatrace-ex/derived/rough-index/latest.json",
+      "dataPeriodType": "historical",
+      "from": "2026-05-24",
+      "to": "2026-08-02",
+      "dateCount": 68,
+      "targetDate": "2026-08-13",
+      "targetDateMatches": null,
+      "safeForPredictionCopy": "caution",
+      "reason": "historical payout reference; no condition-match inference"
+    },
+    {
+      "signalName": "today-flow",
+      "sourcePath": "public/data/boatrace-ex/derived/today-flow/latest.json",
+      "dataPeriodType": "latest-day",
+      "from": "2026-08-02",
+      "to": "2026-08-02",
+      "dateCount": 1,
+      "targetDate": "2026-08-13",
+      "targetDateMatches": false,
+      "safeForPredictionCopy": false,
+      "reason": "target-date mismatch; do not use as today flow"
+    },
+    {
+      "signalName": "race-analysis",
+      "sourcePath": "public/data/boatrace-ex/derived/race-analysis/latest.json",
+      "dataPeriodType": "latest-day",
+      "from": "2026-08-02",
+      "to": "2026-08-02",
+      "dateCount": 1,
+      "targetDate": "2026-08-13",
+      "targetDateMatches": false,
+      "safeForPredictionCopy": false,
+      "reason": "target-date file is missing; latest-day analysis must not be used as today analysis"
+    },
+    {
+      "signalName": "venue-evidence",
+      "sourcePath": "public/data/boatrace-ex/derived/venue-evidence/2026-08-02.json",
+      "dataPeriodType": "daily",
+      "from": "2026-08-02",
+      "to": "2026-08-02",
+      "dateCount": 1,
+      "targetDate": "2026-08-13",
+      "targetDateMatches": false,
+      "safeForPredictionCopy": false,
+      "reason": "target-date mismatch; daily coverage is not prediction-day evidence"
+    },
+    {
+      "signalName": "racer-evidence",
+      "sourcePath": "public/data/boatrace-ex/derived/racer-evidence/2026-08-02.json",
+      "dataPeriodType": "daily",
+      "from": "2026-08-02",
+      "to": "2026-08-02",
+      "dateCount": 1,
+      "targetDate": "2026-08-13",
+      "targetDateMatches": false,
+      "safeForPredictionCopy": false,
+      "reason": "target-date mismatch; daily racer evidence is not prediction-day evidence"
+    },
+    {
+      "signalName": "registered-racers",
+      "sourcePath": "public/data/boatrace-ex/identity/registered-racers.generated.json",
+      "dataPeriodType": "historical",
+      "from": "2026-07-13",
+      "to": "2026-08-02",
+      "dateCount": null,
+      "targetDate": "2026-08-13",
+      "targetDateMatches": null,
+      "safeForPredictionCopy": true,
+      "reason": "registered identities with official provenance; historical identity reference only"
+    },
+    {
+      "signalName": "prediction-structure",
+      "sourcePath": "public/data/boatrace-ex/derived/prediction-structure/latest.json",
+      "dataPeriodType": "latest-day",
+      "from": "2026-08-02",
+      "to": "2026-08-02",
+      "dateCount": 1,
+      "targetDate": "2026-08-13",
+      "targetDateMatches": false,
+      "safeForPredictionCopy": false,
+      "reason": "target-date mismatch; do not use as today prediction structure"
+    }
+  ],
+  "warnings": [
+    "today-flow: target-date mismatch; do not use as today flow",
+    "race-analysis: target-date file is missing; latest-day analysis must not be used as today analysis",
+    "venue-evidence: target-date mismatch; daily coverage is not prediction-day evidence",
+    "racer-evidence: target-date mismatch; daily racer evidence is not prediction-day evidence",
+    "prediction-structure: target-date mismatch; do not use as today prediction structure"
+  ]
+}

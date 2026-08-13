@@ -68,12 +68,37 @@ type BoatExManifest = {
 	files?: BoatExManifestFile[];
 };
 
+type BoatExWeatherWaterHistoryVenue = {
+	venueCode: string;
+	venueName: string;
+	dateCount: number;
+	raceCount: number;
+	weatherAvailableRaceCount: number;
+	weatherCoverageRate: number;
+	windSpeedAverageMps: number | null;
+	windSpeedMaxMps: number | null;
+	waveHeightAverageCm: number | null;
+	waveHeightMaxCm: number | null;
+	weatherConditionCounts: Record<string, number>;
+	windDirectionCounts: Record<string, number>;
+	windSpeedBandCounts: Record<string, number>;
+	waveHeightBandCounts: Record<string, number>;
+	readiness: { status: string };
+};
+
+type BoatExWeatherWaterHistoryFile = {
+	dateRange: { from: string; to: string; dateCount: number };
+	summary: { raceCount: number; venueCount: number; weatherAvailableRaceCount: number };
+	venues: BoatExWeatherWaterHistoryVenue[];
+};
+
 type LoadState = {
 	status: "loading" | "ready" | "missing";
 	manifest: BoatExManifest | null;
 	derivedManifest: BoatExManifest | null;
 	dateIndex: BoatExDateIndexFile | null;
 	venueEvidence: BoatExVenueEvidenceFile | null;
+	weatherWaterHistory: BoatExWeatherWaterHistoryFile | null;
 	racerEvidence: BoatExRacerEvidenceFile | null;
 	venueBias: BoatExVenueBiasV1File | null;
 	roughIndex: BoatExRoughIndexV1File | null;
@@ -637,7 +662,7 @@ function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvi
 	);
 }
 
-function WeatherSection({ venueEvidence }: { venueEvidence: BoatExVenueEvidenceFile | null }) {
+function DailyWeatherSection({ venueEvidence }: { venueEvidence: BoatExVenueEvidenceFile | null }) {
 	if (!venueEvidence) return <p style={textStyle}>天候エビデンスがありません。固定値は使用しません。</p>;
 
 	return (
@@ -669,6 +694,49 @@ function WeatherSection({ venueEvidence }: { venueEvidence: BoatExVenueEvidenceF
 				</tbody>
 			</table>
 		</div>
+	);
+}
+
+function WeatherHistorySection({ weatherWaterHistory }: { weatherWaterHistory: BoatExWeatherWaterHistoryFile | null }) {
+	if (!weatherWaterHistory) return <p style={textStyle}>履歴天候・水面エビデンスがありません。固定値は使用しません。</p>;
+	const { dateRange, summary, venues } = weatherWaterHistory;
+	return (
+		<>
+			<section style={metricGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>履歴対象期間</p>
+					<p style={valueStyle}>{dateRange.from} から {dateRange.to}</p>
+					<p style={textStyle}>{dateRange.dateCount}日分の `history/races` を再集計しています。</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>履歴レース / 会場</p>
+					<p style={metricValueStyle}>{summary.raceCount} / {summary.venueCount}</p>
+					<p style={textStyle}>天候あり {summary.weatherAvailableRaceCount}R。日次venue evidenceではありません。</p>
+				</article>
+			</section>
+			<div style={tableWrapStyle}>
+				<table style={{ ...tableStyle, minWidth: "1540px" }}>
+					<thead><tr>
+						<th style={thStyle}>会場</th><th style={thStyle}>日数 / レース</th><th style={thStyle}>天候coverage</th>
+						<th style={thStyle}>平均 / 最大風速</th><th style={thStyle}>平均 / 最大波高</th><th style={thStyle}>風速帯</th>
+						<th style={thStyle}>波高帯</th><th style={thStyle}>天候 / 風向</th><th style={thStyle}>状態</th>
+					</tr></thead>
+					<tbody>{venues.map((venue) => (
+						<tr key={`weather-history-${venue.venueCode}`}>
+							<td style={tdStyle}>{venue.venueName}</td>
+							<td style={tdStyle}>{venue.dateCount}日 / {venue.raceCount}R</td>
+							<td style={tdStyle}>{venue.weatherAvailableRaceCount}/{venue.raceCount}R</td>
+							<td style={tdStyle}>{numberLabel(venue.windSpeedAverageMps, 2)} / {numberLabel(venue.windSpeedMaxMps, 2)} m/s</td>
+							<td style={tdStyle}>{numberLabel(venue.waveHeightAverageCm, 2)} / {numberLabel(venue.waveHeightMaxCm, 2)} cm</td>
+							<td style={tdStyle}>{Object.entries(venue.windSpeedBandCounts).map(([band, count]) => `${band}:${count}`).join(" / ")}</td>
+							<td style={tdStyle}>{Object.entries(venue.waveHeightBandCounts).map(([band, count]) => `${band}:${count}`).join(" / ")}</td>
+							<td style={tdStyle}>{Object.entries(venue.weatherConditionCounts).map(([name, count]) => `${name}:${count}`).join(" / ") || "未取得"}<br />{Object.entries(venue.windDirectionCounts).map(([name, count]) => `${name}:${count}`).join(" / ") || "未取得"}</td>
+							<td style={tdStyle}>{statusLabel(venue.readiness.status)}</td>
+						</tr>
+					))}</tbody>
+				</table>
+			</div>
+		</>
 	);
 }
 
@@ -1419,6 +1487,7 @@ export function BoatExPage() {
 		derivedManifest: null,
 		dateIndex: null,
 		venueEvidence: null,
+		weatherWaterHistory: null,
 		racerEvidence: null,
 		venueBias: null,
 		roughIndex: null,
@@ -1466,7 +1535,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historicalSourceCoverageResponse, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1484,6 +1553,7 @@ export function BoatExPage() {
 					fetch(withBasePath("data/boatrace-ex/derived/race-analysis/history-summary.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/race-analysis/history-index.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/history-coverage/latest.json"), { cache: "no-store" }),
+					fetch(withBasePath("data/boatrace-ex/derived/weather-water-history/latest.json"), { cache: "no-store" }),
 					fetchOptionalJson<BoatExRegisteredRacerIdentityRegistryFile>("data/boatrace-ex/identity/registered-racers.generated.json"),
 					fetchOptionalJson<BoatExRacerEvidenceRegistryLinkageAuditFile>(`data/boatrace-ex/audit/racer-evidence-registry-linkage-${targetDate}.generated.json`),
 					fetchOptionalJson<BoatExRegisteredRegistrationQualityAuditFile>(`data/boatrace-ex/audit/registered-registration-quality-${targetDate}.generated.json`),
@@ -1505,6 +1575,7 @@ export function BoatExPage() {
 				if (!historicalRaceAnalysisSummaryResponse.ok) throw new Error(`historical race analysis summary fetch failed: ${historicalRaceAnalysisSummaryResponse.status}`);
 				if (!historicalRaceAnalysisIndexResponse.ok) throw new Error(`historical race analysis index fetch failed: ${historicalRaceAnalysisIndexResponse.status}`);
 				if (!historicalSourceCoverageResponse.ok) throw new Error(`historical source coverage fetch failed: ${historicalSourceCoverageResponse.status}`);
+				if (!weatherWaterHistoryResponse.ok) throw new Error(`weather water history fetch failed: ${weatherWaterHistoryResponse.status}`);
 
 				const derivedManifest = await derivedManifestResponse.json() as BoatExManifest;
 				const venueEvidence = await venueResponse.json() as BoatExVenueEvidenceFile;
@@ -1519,6 +1590,7 @@ export function BoatExPage() {
 				const historicalRaceAnalysisSummary = await historicalRaceAnalysisSummaryResponse.json() as BoatExHistoricalRaceAnalysisSummaryFile;
 				const historicalRaceAnalysisIndex = await historicalRaceAnalysisIndexResponse.json() as BoatExHistoricalRaceAnalysisIndexFile;
 				const historicalSourceCoverage = await historicalSourceCoverageResponse.json() as BoatExHistoricalSourceCoverageFile;
+				const weatherWaterHistory = await weatherWaterHistoryResponse.json() as BoatExWeatherWaterHistoryFile;
 
 				if (isMounted) {
 					setLoadState({
@@ -1527,6 +1599,7 @@ export function BoatExPage() {
 						derivedManifest,
 						dateIndex,
 					venueEvidence,
+					weatherWaterHistory,
 					racerEvidence,
 					venueBias,
 					roughIndex,
@@ -1555,6 +1628,7 @@ export function BoatExPage() {
 						derivedManifest: null,
 						dateIndex: null,
 					venueEvidence: null,
+					weatherWaterHistory: null,
 					racerEvidence: null,
 					venueBias: null,
 					roughIndex: null,
@@ -1587,6 +1661,7 @@ export function BoatExPage() {
 
 	const latestHistory = useMemo(() => findLatestHistoryFile(loadState.manifest), [loadState.manifest]);
 	const venueEvidence = loadState.venueEvidence;
+	const weatherWaterHistory = loadState.weatherWaterHistory;
 	const racerEvidence = loadState.racerEvidence;
 	const venueBias = loadState.venueBias;
 	const roughIndex = loadState.roughIndex;
@@ -1894,7 +1969,16 @@ export function BoatExPage() {
 			case "weather":
 				return (
 					<SectionShell title="天候・水面" subtitle="風・波の事実">
-						<WeatherSection venueEvidence={venueEvidence} />
+						<div style={{ display: "grid", gap: "12px" }}>
+							<p style={labelStyle}>当日coverage</p>
+							<p style={textStyle}>日次の会場エビデンス。履歴分布とは区別して表示します。</p>
+							<DailyWeatherSection venueEvidence={venueEvidence} />
+						</div>
+						<div style={{ display: "grid", gap: "12px" }}>
+							<p style={labelStyle}>履歴天候・水面</p>
+							<p style={textStyle}>全EX履歴から集計した会場別の風速帯・波高帯・天候・風向別サンプルです。</p>
+							<WeatherHistorySection weatherWaterHistory={weatherWaterHistory} />
+						</div>
 					</SectionShell>
 				);
 			case "venue-bias":
