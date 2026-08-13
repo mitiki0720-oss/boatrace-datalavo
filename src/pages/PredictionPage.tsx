@@ -27,8 +27,10 @@ import {
 	buildBoatPredictionGptCopyHeader,
 	buildBoatPredictionGptCopyRaceContext,
 	buildBoatPredictionGptCopyVenueContext,
+	getBoatPredictionGptCopyExReference,
 	loadBoatPredictionGptCopyExContext,
 	type BoatPredictionGptCopyExContext,
+	type BoatPredictionGptCopyExReferenceLevel,
 } from "../lib/boatPredictionGptCopyExContext";
 import {
 	applyBoatPredictionGptCopyTimeLabel,
@@ -1487,7 +1489,10 @@ const buildPracticeFallbackRaceKey = (params: {
 		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
 		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, "1R〜6R");
 		const statusCounts = { ready: 0, partial: 0, waiting: 0 };
+		const exReferenceLevelCounts: Partial<Record<BoatPredictionGptCopyExReferenceLevel, number>> = {};
 		const sections = selectedRaces.map((race) => {
+			const exReference = getBoatPredictionGptCopyExReference({ venue: selectedVenue, race, exContext: gptCopyExContext });
+			exReferenceLevelCounts[exReference.level] = (exReferenceLevelCounts[exReference.level] ?? 0) + 1;
 			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
 			const exhibitionStatus = buildExhibitionStatusLabel({
 				race,
@@ -1547,6 +1552,7 @@ const buildPracticeFallbackRaceKey = (params: {
 			materialText,
 			raceRangeLabel,
 			rangeTimeKind,
+			exReferenceLevelCounts,
 			generatedRaceCount: selectedRaces.length,
 			expectedRaceCount: selectedRaces.length,
 			readyRaceCount: statusCounts.ready,
@@ -1728,7 +1734,10 @@ const buildPracticeFallbackRaceKey = (params: {
 		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
 		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, "7R〜12R");
 		const statusCounts = { ready: 0, partial: 0, waiting: 0 };
+		const exReferenceLevelCounts: Partial<Record<BoatPredictionGptCopyExReferenceLevel, number>> = {};
 		const sections = selectedRaces.map((race) => {
+			const exReference = getBoatPredictionGptCopyExReference({ venue: selectedVenue, race, exContext: gptCopyExContext });
+			exReferenceLevelCounts[exReference.level] = (exReferenceLevelCounts[exReference.level] ?? 0) + 1;
 			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
 			const exhibitionStatus = buildExhibitionStatusLabel({
 				race,
@@ -1792,6 +1801,7 @@ const buildPracticeFallbackRaceKey = (params: {
 			materialText,
 			raceRangeLabel,
 			rangeTimeKind,
+			exReferenceLevelCounts,
 			generatedRaceCount: selectedRaces.length,
 			expectedRaceCount: selectedRaces.length,
 			readyRaceCount: statusCounts.ready,
@@ -1816,6 +1826,7 @@ const buildPracticeFallbackRaceKey = (params: {
 	];
 	const activeBulkGptMaterialSummary = {
 		rangeTimeKind: undefined,
+		exReferenceLevelCounts: undefined,
 		...(bulkGptMaterialRangeKey === "7r12r" ? bulkGptMaterialSummary7R12RWithEx : bulkGptMaterialSummary1R6RWithTimeLabels),
 	};
 	const venueCount = venues.length;
@@ -3694,6 +3705,7 @@ body:has(.prediction-page-root) {
 					dateLabel={activePredictionDate}
 					raceRangeLabel={activeBulkGptMaterialSummary.raceRangeLabel}
 					rangeTimeKind={activeBulkGptMaterialSummary.rangeTimeKind}
+					exReferenceLevelCounts={activeBulkGptMaterialSummary.exReferenceLevelCounts}
 					generatedRaceCount={activeBulkGptMaterialSummary.generatedRaceCount}
 					expectedRaceCount={activeBulkGptMaterialSummary.expectedRaceCount}
 					readyRaceCount={activeBulkGptMaterialSummary.readyRaceCount}
