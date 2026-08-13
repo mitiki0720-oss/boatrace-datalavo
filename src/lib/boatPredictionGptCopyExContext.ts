@@ -6,6 +6,7 @@ import type {
 	BoatExRaceAnalysisItem,
 } from "./boatExTypes";
 import { withBasePath } from "./assetPath";
+import { getBoatPredictionRaceTimeLabel, type BoatPredictionVenueTimeKind } from "./boatPredictionGptCopy";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -105,9 +106,11 @@ export function buildBoatPredictionGptCopyHeader(params: {
 	venue: BoatTodayVenueItem;
 	races: BoatRaceItem[];
 	raceRangeLabel: string;
+	rangePurposeLabel: string;
+	venueTimeKind: BoatPredictionVenueTimeKind;
 	exContext: BoatPredictionGptCopyExContext | null;
 }): string {
-	const { feed, venue, races, raceRangeLabel, exContext } = params;
+	const { feed, venue, races, raceRangeLabel, rangePurposeLabel, venueTimeKind, exContext } = params;
 	const raceLabels = races.map((race) => `${race.raceNo}R`).join(" / ") || unavailable;
 	const sourceName = venue.source ?? feed.source;
 	const sourceAcquiredAt = venue.generatedAt ?? feed.generatedAt;
@@ -120,6 +123,8 @@ export function buildBoatPredictionGptCopyHeader(params: {
 		`開催・節: ${asText(venue.title)}`,
 		`運用日: ${asText(feed.date)}`,
 		`対象レース範囲: ${raceRangeLabel}（実在: ${raceLabels}）`,
+		`会場時間帯: ${venueTimeKind}`,
+		`用途: ${rangePurposeLabel}`,
 		"============================================================",
 		"このコピー素材のsource:",
 		`- source name: ${asText(sourceName)}`,
@@ -154,7 +159,9 @@ export function buildBoatPredictionGptCopyVenueContext(params: {
 		`EX会場傾向: ${asText(venueBiasReadiness?.status)}`,
 		`EX荒れ指数素材: ${asText(roughIndexReadiness?.status)}`,
 		`EX当日フロー: ${asText(todayFlowReadiness?.status)}`,
-		`EX履歴レース数: ${readSummaryValue(exContext?.venueBias ?? null, "raceCount")}`,
+		`EX当日レース分析: ${sourceState ? "source-backed" : "未取得（当日race-analysis shard未取得）"}`,
+		`EX全履歴レース数: ${readSummaryValue(exContext?.venueBias ?? null, "raceCount")}`,
+		"EX選手情報: source-backed linkageのみを表示。",
 		"注意: EX情報は記録済みのsource-backed availabilityのみ。予測、買い目、結果、払戻の内容はこの素材に追加しない。",
 	].join("\n");
 }
@@ -194,9 +201,10 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 	feed: BoatTodayFeed;
 	venue: BoatTodayVenueItem;
 	race: BoatRaceItem;
+	venueTimeKind: BoatPredictionVenueTimeKind;
 	exContext: BoatPredictionGptCopyExContext | null;
 }): string {
-	const { feed, venue, race, exContext } = params;
+	const { feed, venue, race, venueTimeKind, exContext } = params;
 	const sourceName = asText(venue.source ?? feed.source);
 	const sourceAcquiredAt = asText(venue.generatedAt ?? feed.generatedAt);
 	const sourceStatus = readSourceStatus(venue.source ?? feed.source);
@@ -216,6 +224,7 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 
 	return [
 		`[日付 ${venue.date ?? feed.date} ${venue.venueName} ${race.raceNo}R]`,
+		`時間帯: ${getBoatPredictionRaceTimeLabel(venueTimeKind, race)}`,
 		"【出走表】",
 		...formatRoster(race.racers ?? [], sourceName, sourceAcquiredAt, sourceStatus),
 		"【展示情報】",
