@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "boat-ex-entry-shift-history-v1",
-  "generatedAt": "2026-08-13T15:07:39.347Z",
+  "generatedAt": "2026-08-13T23:01:17.278Z",
   "sourceFiles": [
     {
       "sourceName": "boatrace-ex-history-races",
@@ -18,13 +18,17 @@
   "summary": {
     "sourceField": "officialExhibition.entries.course",
     "venueCount": 23,
-    "exhibitionRaceCount": 433
+    "exhibitionRaceCount": 433,
+    "courseAvailableRaceCount": 361,
+    "sourceFieldInsufficientRaceCount": 72
   },
   "venues": [
     {
       "venueCode": "03",
       "venueName": "江戸川",
       "raceCount": 12,
+      "courseAvailableRaceCount": 12,
+      "sourceFieldInsufficientRaceCount": 0,
       "frameToCourseCounts": {
         "1": {
           "1": 12
@@ -77,64 +81,69 @@
       "venueCode": "04",
       "venueName": "平和島",
       "raceCount": 24,
+      "courseAvailableRaceCount": 17,
+      "sourceFieldInsufficientRaceCount": 7,
       "frameToCourseCounts": {
         "1": {
-          "1": 18
+          "1": 17
         },
         "2": {
-          "2": 17,
+          "2": 16,
           "3": 1
         },
         "3": {
           "2": 1,
-          "3": 17
+          "3": 16
         },
         "4": {
-          "4": 16,
+          "4": 15,
           "5": 2
         },
         "5": {
           "4": 1,
           "5": 15,
-          "6": 2
+          "6": 1
         },
         "6": {
           "4": 1,
           "6": 16
         }
       },
-      "frameNariRaceCount": 20,
-      "entryShiftRaceCount": 4,
-      "lane1InsideCount": 18,
+      "frameNariRaceCount": 14,
+      "entryShiftRaceCount": 3,
+      "lane1InsideCount": 17,
       "byRaceBand": {
         "1R-4R": {
           "raceCount": 8,
           "entryShiftRaceCount": 2
         },
         "5R-8R": {
-          "raceCount": 8,
-          "entryShiftRaceCount": 2
+          "raceCount": 5,
+          "entryShiftRaceCount": 1
         },
         "9R-12R": {
-          "raceCount": 8,
+          "raceCount": 4,
           "entryShiftRaceCount": 0
         }
       },
-      "frameNariRate": 0.8333333333333334,
-      "entryShiftRate": 0.16666666666666666,
-      "lane1InsideRate": 0.75,
+      "frameNariRate": 0.8235294117647058,
+      "entryShiftRate": 0.17647058823529413,
+      "lane1InsideRate": 1,
       "readiness": {
         "status": "low-sample",
         "minRaceCount": 30
       },
       "warnings": [
-        "LOW SAMPLE"
+        "LOW SAMPLE",
+        "source field insufficient"
       ]
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceCount": 31,
+      "courseAvailableRaceCount": 31,
+      "sourceFieldInsufficientRaceCount": 0,
       "frameToCourseCounts": {
         "1": {
           "1": 31
@@ -193,6 +202,8 @@
       "venueCode": "06",
       "venueName": "浜名湖",
       "raceCount": 24,
+      "courseAvailableRaceCount": 12,
+      "sourceFieldInsufficientRaceCount": 12,
       "frameToCourseCounts": {
         "1": {
           "1": 12
@@ -217,38 +228,41 @@
           "6": 11
         }
       },
-      "frameNariRaceCount": 23,
+      "frameNariRaceCount": 11,
       "entryShiftRaceCount": 1,
       "lane1InsideCount": 12,
       "byRaceBand": {
         "1R-4R": {
-          "raceCount": 8,
+          "raceCount": 4,
           "entryShiftRaceCount": 0
         },
         "5R-8R": {
-          "raceCount": 8,
+          "raceCount": 4,
           "entryShiftRaceCount": 0
         },
         "9R-12R": {
-          "raceCount": 8,
+          "raceCount": 4,
           "entryShiftRaceCount": 1
         }
       },
-      "frameNariRate": 0.9583333333333334,
-      "entryShiftRate": 0.041666666666666664,
-      "lane1InsideRate": 0.5,
+      "frameNariRate": 0.9166666666666666,
+      "entryShiftRate": 0.08333333333333333,
+      "lane1InsideRate": 1,
       "readiness": {
         "status": "low-sample",
         "minRaceCount": 30
       },
       "warnings": [
-        "LOW SAMPLE"
+        "LOW SAMPLE",
+        "source field insufficient"
       ]
     },
     {
       "venueCode": "07",
       "venueName": "蒲郡",
       "raceCount": 10,
+      "courseAvailableRaceCount": 10,
+      "sourceFieldInsufficientRaceCount": 0,
       "frameToCourseCounts": {
         "1": {
           "1": 10
@@ -308,6 +322,8 @@
       "venueCode": "09",
       "venueName": "津",
       "raceCount": 24,
+      "courseAvailableRaceCount": 20,
+      "sourceFieldInsufficientRaceCount": 4,
       "frameToCourseCounts": {
         "1": {
           "1": 20
@@ -333,7 +349,7 @@
           "6": 16
         }
       },
-      "frameNariRaceCount": 20,
+      "frameNariRaceCount": 16,
       "entryShiftRaceCount": 4,
       "lane1InsideCount": 20,
       "byRaceBand": {
@@ -346,25 +362,28 @@
           "entryShiftRaceCount": 1
         },
         "9R-12R": {
-          "raceCount": 8,
+          "raceCount": 4,
           "entryShiftRaceCount": 1
         }
       },
-      "frameNariRate": 0.8333333333333334,
-      "entryShiftRate": 0.16666666666666666,
-      "lane1InsideRate": 0.8333333333333334,
+      "frameNariRate": 0.8,
+      "entryShiftRate": 0.2,
+      "lane1InsideRate": 1,
       "readiness": {
         "status": "low-sample",
         "minRaceCount": 30
       },
       "warnings": [
-        "LOW SAMPLE"
+        "LOW SAMPLE",
+        "source field insufficient"
       ]
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceCount": 24,
+      "courseAvailableRaceCount": 24,
+      "sourceFieldInsufficientRaceCount": 0,
       "frameToCourseCounts": {
         "1": {
           "1": 24
@@ -421,6 +440,8 @@
       "venueCode": "14",
       "venueName": "鳴門",
       "raceCount": 12,
+      "courseAvailableRaceCount": 12,
+      "sourceFieldInsufficientRaceCount": 0,
       "frameToCourseCounts": {
         "1": {
           "1": 11,
@@ -483,6 +504,8 @@
       "venueCode": "15",
       "venueName": "丸亀",
       "raceCount": 23,
+      "courseAvailableRaceCount": 23,
+      "sourceFieldInsufficientRaceCount": 0,
       "frameToCourseCounts": {
         "1": {
           "1": 23
@@ -543,32 +566,32 @@
       "venueCode": "16",
       "venueName": "児島",
       "raceCount": 30,
+      "courseAvailableRaceCount": 29,
+      "sourceFieldInsufficientRaceCount": 1,
       "frameToCourseCounts": {
         "1": {
-          "1": 30
+          "1": 29
         },
         "2": {
-          "2": 27,
+          "2": 26,
           "3": 1,
           "4": 2
         },
         "3": {
           "2": 2,
           "3": 25,
-          "4": 1,
           "6": 2
         },
         "4": {
           "2": 1,
           "3": 2,
-          "4": 26,
-          "5": 1
+          "4": 26
         },
         "5": {
           "3": 1,
           "4": 1,
           "5": 26,
-          "6": 2
+          "6": 1
         },
         "6": {
           "5": 3,
@@ -576,12 +599,12 @@
         }
       },
       "frameNariRaceCount": 24,
-      "entryShiftRaceCount": 6,
-      "lane1InsideCount": 30,
+      "entryShiftRaceCount": 5,
+      "lane1InsideCount": 29,
       "byRaceBand": {
         "1R-4R": {
-          "raceCount": 12,
-          "entryShiftRaceCount": 2
+          "raceCount": 11,
+          "entryShiftRaceCount": 1
         },
         "5R-8R": {
           "raceCount": 10,
@@ -592,19 +615,24 @@
           "entryShiftRaceCount": 2
         }
       },
-      "frameNariRate": 0.8,
-      "entryShiftRate": 0.2,
+      "frameNariRate": 0.8275862068965517,
+      "entryShiftRate": 0.1724137931034483,
       "lane1InsideRate": 1,
       "readiness": {
-        "status": "ready",
+        "status": "low-sample",
         "minRaceCount": 30
       },
-      "warnings": []
+      "warnings": [
+        "LOW SAMPLE",
+        "source field insufficient"
+      ]
     },
     {
       "venueCode": "19",
       "venueName": "下関",
       "raceCount": 3,
+      "courseAvailableRaceCount": 2,
+      "sourceFieldInsufficientRaceCount": 1,
       "frameToCourseCounts": {
         "1": {
           "1": 2
@@ -625,30 +653,33 @@
           "6": 2
         }
       },
-      "frameNariRaceCount": 3,
+      "frameNariRaceCount": 2,
       "entryShiftRaceCount": 0,
       "lane1InsideCount": 2,
       "byRaceBand": {
         "1R-4R": {
-          "raceCount": 3,
+          "raceCount": 2,
           "entryShiftRaceCount": 0
         }
       },
       "frameNariRate": 1,
       "entryShiftRate": 0,
-      "lane1InsideRate": 0.6666666666666666,
+      "lane1InsideRate": 1,
       "readiness": {
         "status": "low-sample",
         "minRaceCount": 30
       },
       "warnings": [
-        "LOW SAMPLE"
+        "LOW SAMPLE",
+        "source field insufficient"
       ]
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceCount": 30,
+      "courseAvailableRaceCount": 29,
+      "sourceFieldInsufficientRaceCount": 1,
       "frameToCourseCounts": {
         "1": {
           "1": 29
@@ -674,7 +705,7 @@
           "6": 27
         }
       },
-      "frameNariRaceCount": 27,
+      "frameNariRaceCount": 26,
       "entryShiftRaceCount": 3,
       "lane1InsideCount": 29,
       "byRaceBand": {
@@ -683,7 +714,7 @@
           "entryShiftRaceCount": 1
         },
         "5R-8R": {
-          "raceCount": 10,
+          "raceCount": 9,
           "entryShiftRaceCount": 1
         },
         "9R-12R": {
@@ -691,19 +722,24 @@
           "entryShiftRaceCount": 1
         }
       },
-      "frameNariRate": 0.9,
-      "entryShiftRate": 0.1,
-      "lane1InsideRate": 0.9666666666666667,
+      "frameNariRate": 0.896551724137931,
+      "entryShiftRate": 0.10344827586206896,
+      "lane1InsideRate": 1,
       "readiness": {
-        "status": "ready",
+        "status": "low-sample",
         "minRaceCount": 30
       },
-      "warnings": []
+      "warnings": [
+        "LOW SAMPLE",
+        "source field insufficient"
+      ]
     },
     {
       "venueCode": "23",
       "venueName": "唐津",
       "raceCount": 24,
+      "courseAvailableRaceCount": 24,
+      "sourceFieldInsufficientRaceCount": 0,
       "frameToCourseCounts": {
         "1": {
           "1": 22,
@@ -767,6 +803,8 @@
       "venueCode": "01",
       "venueName": "桐生",
       "raceCount": 24,
+      "courseAvailableRaceCount": 12,
+      "sourceFieldInsufficientRaceCount": 12,
       "frameToCourseCounts": {
         "1": {
           "1": 12
@@ -794,38 +832,41 @@
           "6": 10
         }
       },
-      "frameNariRaceCount": 22,
+      "frameNariRaceCount": 10,
       "entryShiftRaceCount": 2,
       "lane1InsideCount": 12,
       "byRaceBand": {
         "1R-4R": {
-          "raceCount": 8,
+          "raceCount": 4,
           "entryShiftRaceCount": 0
         },
         "5R-8R": {
-          "raceCount": 8,
+          "raceCount": 4,
           "entryShiftRaceCount": 1
         },
         "9R-12R": {
-          "raceCount": 8,
+          "raceCount": 4,
           "entryShiftRaceCount": 1
         }
       },
-      "frameNariRate": 0.9166666666666666,
-      "entryShiftRate": 0.08333333333333333,
-      "lane1InsideRate": 0.5,
+      "frameNariRate": 0.8333333333333334,
+      "entryShiftRate": 0.16666666666666666,
+      "lane1InsideRate": 1,
       "readiness": {
         "status": "low-sample",
         "minRaceCount": 30
       },
       "warnings": [
-        "LOW SAMPLE"
+        "LOW SAMPLE",
+        "source field insufficient"
       ]
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceCount": 12,
+      "courseAvailableRaceCount": 8,
+      "sourceFieldInsufficientRaceCount": 4,
       "frameToCourseCounts": {
         "1": {
           "1": 8
@@ -848,7 +889,7 @@
           "6": 8
         }
       },
-      "frameNariRaceCount": 11,
+      "frameNariRaceCount": 7,
       "entryShiftRaceCount": 1,
       "lane1InsideCount": 8,
       "byRaceBand": {
@@ -859,27 +900,26 @@
         "5R-8R": {
           "raceCount": 4,
           "entryShiftRaceCount": 0
-        },
-        "9R-12R": {
-          "raceCount": 4,
-          "entryShiftRaceCount": 0
         }
       },
-      "frameNariRate": 0.9166666666666666,
-      "entryShiftRate": 0.08333333333333333,
-      "lane1InsideRate": 0.6666666666666666,
+      "frameNariRate": 0.875,
+      "entryShiftRate": 0.125,
+      "lane1InsideRate": 1,
       "readiness": {
         "status": "low-sample",
         "minRaceCount": 30
       },
       "warnings": [
-        "LOW SAMPLE"
+        "LOW SAMPLE",
+        "source field insufficient"
       ]
     },
     {
       "venueCode": "08",
       "venueName": "常滑",
       "raceCount": 21,
+      "courseAvailableRaceCount": 20,
+      "sourceFieldInsufficientRaceCount": 1,
       "frameToCourseCounts": {
         "1": {
           "1": 20
@@ -902,7 +942,7 @@
           "6": 19
         }
       },
-      "frameNariRaceCount": 20,
+      "frameNariRaceCount": 19,
       "entryShiftRaceCount": 1,
       "lane1InsideCount": 20,
       "byRaceBand": {
@@ -915,25 +955,28 @@
           "entryShiftRaceCount": 1
         },
         "9R-12R": {
-          "raceCount": 5,
+          "raceCount": 4,
           "entryShiftRaceCount": 0
         }
       },
-      "frameNariRate": 0.9523809523809523,
-      "entryShiftRate": 0.047619047619047616,
-      "lane1InsideRate": 0.9523809523809523,
+      "frameNariRate": 0.95,
+      "entryShiftRate": 0.05,
+      "lane1InsideRate": 1,
       "readiness": {
         "status": "low-sample",
         "minRaceCount": 30
       },
       "warnings": [
-        "LOW SAMPLE"
+        "LOW SAMPLE",
+        "source field insufficient"
       ]
     },
     {
       "venueCode": "10",
       "venueName": "三国",
       "raceCount": 12,
+      "courseAvailableRaceCount": 12,
+      "sourceFieldInsufficientRaceCount": 0,
       "frameToCourseCounts": {
         "1": {
           "1": 12
@@ -989,6 +1032,8 @@
       "venueCode": "11",
       "venueName": "びわこ",
       "raceCount": 24,
+      "courseAvailableRaceCount": 8,
+      "sourceFieldInsufficientRaceCount": 16,
       "frameToCourseCounts": {
         "1": {
           "1": 7,
@@ -1014,71 +1059,60 @@
           "6": 7
         }
       },
-      "frameNariRaceCount": 23,
+      "frameNariRaceCount": 7,
       "entryShiftRaceCount": 1,
       "lane1InsideCount": 7,
       "byRaceBand": {
         "1R-4R": {
-          "raceCount": 8,
+          "raceCount": 4,
           "entryShiftRaceCount": 1
         },
         "5R-8R": {
-          "raceCount": 8,
-          "entryShiftRaceCount": 0
-        },
-        "9R-12R": {
-          "raceCount": 8,
+          "raceCount": 4,
           "entryShiftRaceCount": 0
         }
       },
-      "frameNariRate": 0.9583333333333334,
-      "entryShiftRate": 0.041666666666666664,
-      "lane1InsideRate": 0.2916666666666667,
+      "frameNariRate": 0.875,
+      "entryShiftRate": 0.125,
+      "lane1InsideRate": 0.875,
       "readiness": {
         "status": "low-sample",
         "minRaceCount": 30
       },
       "warnings": [
-        "LOW SAMPLE"
+        "LOW SAMPLE",
+        "source field insufficient"
       ]
     },
     {
       "venueCode": "12",
       "venueName": "住之江",
       "raceCount": 12,
+      "courseAvailableRaceCount": 0,
+      "sourceFieldInsufficientRaceCount": 12,
       "frameToCourseCounts": {},
-      "frameNariRaceCount": 12,
+      "frameNariRaceCount": 0,
       "entryShiftRaceCount": 0,
       "lane1InsideCount": 0,
-      "byRaceBand": {
-        "1R-4R": {
-          "raceCount": 4,
-          "entryShiftRaceCount": 0
-        },
-        "5R-8R": {
-          "raceCount": 4,
-          "entryShiftRaceCount": 0
-        },
-        "9R-12R": {
-          "raceCount": 4,
-          "entryShiftRaceCount": 0
-        }
-      },
-      "frameNariRate": 1,
-      "entryShiftRate": 0,
-      "lane1InsideRate": 0,
+      "byRaceBand": {},
+      "frameNariRate": null,
+      "entryShiftRate": null,
+      "lane1InsideRate": null,
       "readiness": {
-        "status": "low-sample",
+        "status": "missing",
         "minRaceCount": 30
       },
       "warnings": [
-        "LOW SAMPLE"
+        "LOW SAMPLE",
+        "source field insufficient"
       ]
     },
     {
       "venueCode": "17",
       "venueName": "宮島",
       "raceCount": 9,
+      "courseAvailableRaceCount": 8,
+      "sourceFieldInsufficientRaceCount": 1,
       "frameToCourseCounts": {
         "1": {
           "1": 8
@@ -1099,7 +1133,7 @@
           "6": 8
         }
       },
-      "frameNariRaceCount": 9,
+      "frameNariRaceCount": 8,
       "entryShiftRaceCount": 0,
       "lane1InsideCount": 8,
       "byRaceBand": {
@@ -1110,27 +1144,26 @@
         "5R-8R": {
           "raceCount": 4,
           "entryShiftRaceCount": 0
-        },
-        "9R-12R": {
-          "raceCount": 1,
-          "entryShiftRaceCount": 0
         }
       },
       "frameNariRate": 1,
       "entryShiftRate": 0,
-      "lane1InsideRate": 0.8888888888888888,
+      "lane1InsideRate": 1,
       "readiness": {
         "status": "low-sample",
         "minRaceCount": 30
       },
       "warnings": [
-        "LOW SAMPLE"
+        "LOW SAMPLE",
+        "source field insufficient"
       ]
     },
     {
       "venueCode": "18",
       "venueName": "徳山",
       "raceCount": 12,
+      "courseAvailableRaceCount": 12,
+      "sourceFieldInsufficientRaceCount": 0,
       "frameToCourseCounts": {
         "1": {
           "1": 12
@@ -1185,6 +1218,8 @@
       "venueCode": "21",
       "venueName": "芦屋",
       "raceCount": 24,
+      "courseAvailableRaceCount": 24,
+      "sourceFieldInsufficientRaceCount": 0,
       "frameToCourseCounts": {
         "1": {
           "1": 24
@@ -1245,6 +1280,8 @@
       "venueCode": "20",
       "venueName": "若松",
       "raceCount": 12,
+      "courseAvailableRaceCount": 12,
+      "sourceFieldInsufficientRaceCount": 0,
       "frameToCourseCounts": {
         "1": {
           "1": 12

@@ -59,6 +59,8 @@ export type BoatPredictionGptCopyExReference = {
 	weatherSummary: string;
 	weatherSource: string;
 	weatherObservedAt: string;
+	weatherSourceAcquiredAt: string;
+	weatherNeedsRefreshCaution: boolean;
 	weatherWaterAvailability: "available" | "partial" | "missing" | "unknown";
 	dailyWeatherAvailability: "available" | "target-date-mismatch" | "unknown";
 	exhibitionSummary: string;
@@ -194,6 +196,16 @@ export function buildBoatPredictionGptCopyHeader(params: {
 	const raceLabels = races.map((race) => `${race.raceNo}R`).join(" / ") || unavailable;
 	const sourceName = venue.source ?? feed.source;
 	const sourceAcquiredAt = venue.generatedAt ?? feed.generatedAt;
+	const hasHistoricalEx = Boolean(
+		exContext?.weatherWaterHistory ||
+		exContext?.venueBias ||
+		exContext?.roughIndex ||
+		exContext?.venueRaceBandHistory ||
+		exContext?.decisionMethodHistory ||
+		exContext?.entryShiftHistory ||
+		exContext?.motorBoatHistory,
+	);
+	const historicalRange = formatDateRange(exContext?.weatherWaterHistory ?? exContext?.venueBias ?? null);
 
 	return [
 		"============================================================",
@@ -211,8 +223,11 @@ export function buildBoatPredictionGptCopyHeader(params: {
 		`- source name: ${asText(sourceName)}`,
 		`- source acquired at: ${asText(sourceAcquiredAt)}`,
 		`- source status: ${readSourceStatus(sourceName)}`,
-		`- EX source: ${exContext?.raceAnalysis.length ? "BOATRACE EX race analysis" : unavailable}`,
-		`- EX generatedAt: ${asText(exContext?.generatedAt)}`,
+		`- 対象日EX race-analysis source: ${exContext?.raceAnalysis.length ? "BOATRACE EX race analysis" : unavailable}`,
+		`- 対象日EX generatedAt: ${asText(exContext?.generatedAt)}`,
+		`- EX履歴source: ${hasHistoricalEx ? "available" : unavailable}`,
+		`- EX履歴データ期間: ${historicalRange}`,
+		`- EX履歴source種別: ${hasHistoricalEx ? "source-backed derived" : unavailable}`,
 		`- EX audit path: ${asText(exContext?.auditPath)}`,
 	].join("\n");
 }
@@ -236,13 +251,17 @@ export function buildBoatPredictionGptCopyVenueContext(params: {
 	const venueBiasReadiness = asRecord(exContext?.venueBias?.readiness);
 	const roughIndexReadiness = asRecord(exContext?.roughIndex?.readiness);
 	const todayFlowReadiness = asRecord(exContext?.todayFlow?.readiness);
+	const todayFlowTargetDate = asText(exContext?.todayFlow?.targetDate, "");
+	const todayFlowStatus = todayFlowTargetDate && todayFlowTargetDate === venue.date
+		? asText(todayFlowReadiness?.status)
+		: exContext ? "対象日不一致" : "unknown";
 
 	return [
 		`【EX会場共有情報 / ${venue.venueName}】`,
 		`対象日EXレース分析: ${sourceState ? "利用可能" : unavailable}`,
 		`EX会場傾向: ${asText(venueBiasReadiness?.status)}`,
 		`EX荒れ指数素材: ${asText(roughIndexReadiness?.status)}`,
-		`EX当日フロー: ${asText(todayFlowReadiness?.status)}`,
+		`EX当日フロー: ${todayFlowStatus}`,
 		`EX当日レース分析: ${sourceState ? "source-backed" : "未取得（当日race-analysis shard未取得）"}`,
 		`EX全履歴レース数: ${readSummaryValue(exContext?.venueBias ?? null, "raceCount")}`,
 		"EX選手情報: source-backed linkageのみを表示。",
@@ -513,7 +532,7 @@ export function buildBoatPredictionGptCopyExUsefulSignalsBlocks(params: {
 			`同風向サンプル: ${weatherReference.conditionCounts.windDirection}R`,
 			`同風速帯サンプル: ${weatherReference.conditionCounts.windSpeedBand}R`,
 			`同波高帯サンプル: ${weatherReference.conditionCounts.waveHeightBand}R`,
-			`完全一致サンプル: ${asText(exact?.raceCount)}R`,
+			`完全一致サンプル: ${exact ? `${readNumber(exact.raceCount) ?? 0}R` : weatherReference.currentConditions.windSpeedBand === "unknown" && weatherReference.currentConditions.waveHeightBand === "unknown" ? unavailable : "0R"}`,
 			`条件別メモ: ${asText(exact?.readiness) === "ready" ? "available" : "LOW SAMPLE。過信しない。"}`,
 		].join("\n"),
 		[
@@ -524,9 +543,9 @@ export function buildBoatPredictionGptCopyExUsefulSignalsBlocks(params: {
 		].join("\n"),
 		[
 			"【KURARI BOAT EX 進入履歴】",
-			`枠なり傾向: ${shortRate(entryVenue?.frameNariRate)}`,
-			`1号艇イン取得: ${asText(entryVenue?.lane1InsideCount)}/${asText(entryVenue?.raceCount)}R`,
-			`進入入替: ${asText(entryVenue?.entryShiftRaceCount)}R`,
+			`枠なり傾向: ${(readNumber(entryVenue?.courseAvailableRaceCount) ?? readNumber(entryVenue?.raceCount) ?? 0) > 0 ? shortRate(entryVenue?.frameNariRate) : "未判定（source field insufficient）"}`,
+			`1号艇イン取得: ${(readNumber(entryVenue?.courseAvailableRaceCount) ?? readNumber(entryVenue?.raceCount) ?? 0) > 0 ? `${asText(entryVenue?.lane1InsideCount)}/${asText(entryVenue?.courseAvailableRaceCount ?? entryVenue?.raceCount)}R` : "未判定（source field insufficient）"}`,
+			`進入入替: ${(readNumber(entryVenue?.courseAvailableRaceCount) ?? readNumber(entryVenue?.raceCount) ?? 0) > 0 ? `${asText(entryVenue?.entryShiftRaceCount)}R` : "未判定（source field insufficient）"}`,
 			"注意: 当日展示の進入を最優先。履歴は補助。",
 		].join("\n"),
 		[
@@ -624,7 +643,6 @@ export function buildBoatPredictionGptCopyExVenueSignalsBlock(params: {
 		`コース別1着数: ${[1, 2, 3, 4, 5, 6].map((boat) => `${boat}号艇 ${asText(firstPlaceCounts?.[String(boat)])}`).join(" / ")}`,
 		`EX履歴 展示coverage: ${asText(asRecord(exContext?.venueBias?.summary)?.exhibitionAvailableRaceCount)}/${asText(asRecord(exContext?.venueBias?.summary)?.raceCount)}R`,
 		"注意: EX履歴展示coverageが低い場合は、通常素材の当日展示情報を優先する。",
-		"決まり手履歴傾向: 未取得（venue-bias v1に決まり手の履歴集計はありません）",
 		"EX会場傾向 source: public/data/boatrace-ex/derived/venue-bias/latest.json",
 		`荒れ指数 データ期間: 履歴 ${formatDateRange(exContext?.roughIndex ?? null)}`,
 		`EX荒れ指数: ${asText(asRecord(roughIndex?.readiness)?.status)}`,
@@ -660,9 +678,9 @@ export function getBoatPredictionGptCopyExReference(params: {
 	const racerCount = linkage?.racerCount ?? exRace?.racers.length ?? race.racers?.length ?? 0;
 	const registeredIdentityNumbers = new Set(exContext?.registeredIdentities.map((item) => item.registrationNo) ?? []);
 	const directRegistrationLinkedCount = (race.racers ?? []).filter((racer) => registeredIdentityNumbers.has(asText(racer.registrationNo, ""))).length;
-	const officialRegistrationLinkedCount = linkage?.officialRegistrationLinkedCount ?? directRegistrationLinkedCount;
-	const exactNameLinkedCount = linkage?.nameLinkedCount ?? 0;
-	const linkedCount = officialRegistrationLinkedCount + exactNameLinkedCount;
+	const officialRegistrationLinkedCount = Math.max(linkage?.officialRegistrationLinkedCount ?? 0, directRegistrationLinkedCount);
+	const exactNameLinkedCount = 0;
+	const linkedCount = officialRegistrationLinkedCount;
 	const unresolvedCount = linkage?.unresolvedCount ?? Math.max(0, racerCount - linkedCount);
 	const lowSampleCount = linkedCount > 0 && linkedCount < 3 ? linkedCount : 0;
 	const venueExStatus = readReadinessStatus(exContext?.venueBias ?? null);
@@ -675,6 +693,10 @@ export function getBoatPredictionGptCopyExReference(params: {
 	const exhibitionAvailability = getBoatPredictionExhibitionAvailability({ race, raceExtra });
 	const exhibitionSummary = exhibitionAvailability.label;
 	const weather = resolveBoatPredictionWeatherReference({ race, venue, venueExtra, raceExtra });
+	const weatherSourceAcquiredAt = asText(venue.generatedAt, "");
+	const weatherObservedAtMs = Date.parse(weather.observedAt);
+	const weatherSourceAcquiredAtMs = Date.parse(weatherSourceAcquiredAt);
+	const weatherNeedsRefreshCaution = Number.isFinite(weatherObservedAtMs) && Number.isFinite(weatherSourceAcquiredAtMs) && weatherObservedAtMs < weatherSourceAcquiredAtMs;
 	const weatherSummary = `${weather.weather} / 風 ${weather.windDirection} ${weather.windSpeed} / 波 ${weather.waveHeight}`;
 	const weatherWater = getBoatPredictionGptCopyExWeatherWaterReference({ venue, race, venueExtra, raceExtra, exContext });
 	let level: BoatPredictionGptCopyExReferenceLevel;
@@ -725,6 +747,8 @@ export function getBoatPredictionGptCopyExReference(params: {
 		weatherSummary,
 		weatherSource: weather.source,
 		weatherObservedAt: weather.observedAt,
+		weatherSourceAcquiredAt: asText(weatherSourceAcquiredAt),
+		weatherNeedsRefreshCaution,
 		weatherWaterAvailability: weatherWater.availability,
 		dailyWeatherAvailability: exContext ? exContext.venueEvidenceDate === venue.date ? "available" : "target-date-mismatch" : "unknown",
 		exhibitionSummary,
@@ -736,8 +760,9 @@ export function buildBoatPredictionGptCopyExReferenceBlock(reference: BoatPredic
 	return [
 		"【KURARI BOAT EX 参照情報】",
 		`EX参照レベル: ${reference.level}`,
-		`登録番号/選手EXリンク: ${reference.linkedCount}/${reference.racerCount}`,
-		`公式登録番号リンク: ${reference.officialRegistrationLinkedCount}名 / 完全一致リンク: ${reference.exactNameLinkedCount}名 / 未リンク: ${reference.unresolvedCount}名`,
+		`登録番号exactリンク: ${reference.linkedCount}/${reference.racerCount}`,
+		`未リンク: ${reference.unresolvedCount}名`,
+		"氏名推測リンク: 使用禁止（registrationNo exact matchのみ）",
 		`会場EX: ${reference.venueExStatus}`,
 		`会場特徴: ${reference.venueFeatureStatus}`,
 		`当日フロー: ${reference.todayFlowStatus}`,
@@ -745,6 +770,8 @@ export function buildBoatPredictionGptCopyExReferenceBlock(reference: BoatPredic
 		`当日天候・風・波: ${reference.weatherSummary}`,
 		`通常素材 weather source: ${reference.weatherSource}`,
 		`通常素材 weather 表示時点: ${reference.weatherObservedAt}`,
+		`通常素材 source acquired at: ${reference.weatherSourceAcquiredAt}`,
+		...(reference.weatherNeedsRefreshCaution ? ["通常素材 weather 注意: weather値は未更新/確認中。出走表source取得時刻とは異なる。"] : []),
 		`EX参照 weather source: 通常素材[C]と共通 (${reference.weatherSource})`,
 		`EX参照 weather 表示時点: ${reference.weatherObservedAt}`,
 		`EX天候・水面履歴 availability: ${reference.weatherWaterAvailability}`,
