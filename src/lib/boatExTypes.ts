@@ -1096,8 +1096,9 @@ export interface BoatExTodayFlowV1File {
 }
 
 export interface BoatExPredictionStructureReadiness {
-	status: "insufficient-history";
+	status: "ready" | "partial" | "insufficient-history" | "unavailable";
 	reason: string;
+	missingRequirements?: string[];
 }
 
 export interface BoatExPredictionStructureVenue {
@@ -1111,6 +1112,9 @@ export interface BoatExPredictionStructureVenue {
 	motorAvailableRaceCount: number;
 	boatAvailableRaceCount: number;
 	racerAvailableRaceCount: number;
+	predictionTextAvailableRaceCount: number;
+	structuredTicketAvailableRaceCount: number;
+	evaluatedPredictionRaceCount: number;
 	warnings: string[];
 }
 
@@ -1142,10 +1146,92 @@ export interface BoatExPredictionStructureV1File {
 		motorAvailableRaceCount: number;
 		boatAvailableRaceCount: number;
 		racerAvailableRaceCount: number;
+		predictionTextAvailableRaceCount: number;
+		structuredTicketAvailableRaceCount: number;
+		structuredTicketCount: number;
+		classifiedTicketCount: number;
+		unclassifiedTicketCount: number;
+		evaluatedPredictionRaceCount: number;
+		hitRaceCount: number;
+		missRaceCount: number;
+		payoutLinkedHitCount: number;
+		totalSourceBackedPayoutYen: number;
 	};
 	venues: BoatExPredictionStructureVenue[];
 	sourceFiles: BoatExPredictionStructureSourceFile[];
 	warnings: string[];
+}
+
+export interface BoatExStructuredTicket {
+	ticketId: string;
+	group: "\u539a\u3081" | "\u672c\u7dda" | "\u4e2d\u7a74" | "\u5927\u7a74" | "unclassified-source-text";
+	boatNumbers: number[];
+	sourceText: string;
+	sourceLineHint?: number;
+	sourcePath: string;
+	parseMethod: "strict-ticket-pattern";
+}
+
+export interface BoatExStructuredTicketsDateFile {
+	schemaVersion: "boat-ex-structured-tickets-v1";
+	kind: "boatrace-ex-structured-tickets-date";
+	date: BoatExDateKey;
+	summary: {
+		date: BoatExDateKey;
+		raceCount: number;
+		predictionTextAvailableRaceCount: number;
+		structuredTicketAvailableRaceCount: number;
+		structuredTicketCount: number;
+		evaluatedPredictionRaceCount: number;
+		hitRaceCount: number;
+		missRaceCount: number;
+		readiness: BoatExPredictionStructureReadiness;
+	};
+	races: Array<{
+		date: BoatExDateKey;
+		venueCode: BoatExVenueCode;
+		venueName: string;
+		raceNo: number;
+		predictionTextAvailable: boolean;
+		structuredTickets: BoatExStructuredTicket[];
+		officialResult: { finishOrder: number[]; trifectaPayoutYen: number | null };
+		evaluation: { evaluationStatus: "evaluated" | "result-unavailable" | "structured-ticket-unavailable"; hit: boolean | null; hitTicketId: string | null; payoutYen: number | null };
+		skippedReasons: string[];
+		sourcePaths: { history: string; prediction: string | null };
+	}>;
+}
+
+export interface BoatExStructuredTicketsHistorySummaryFile {
+	schemaVersion: "boat-ex-structured-tickets-v1";
+	kind: "boatrace-ex-structured-tickets-history-summary";
+	periodStart: BoatExDateKey | null;
+	periodEnd: BoatExDateKey;
+	dateCount: number;
+	historyRaceCount: number;
+	predictionTextAvailableRaceCount: number;
+	structuredTicketAvailableRaceCount: number;
+	structuredTicketCount: number;
+	classifiedTicketCount: number;
+	unclassifiedTicketCount: number;
+	evaluatedPredictionRaceCount: number;
+	hitRaceCount: number;
+	missRaceCount: number;
+	payoutLinkedHitCount: number;
+	totalSourceBackedPayoutYen: number;
+	readiness: BoatExPredictionStructureReadiness;
+	parserVersion: string;
+	parserRules: string[];
+	skippedReasons: Record<string, number>;
+	sourcePaths: string[];
+	auditPaths: string[];
+}
+
+export interface BoatExStructuredTicketsHistoryIndexFile {
+	schemaVersion: "boat-ex-structured-tickets-v1";
+	kind: "boatrace-ex-structured-tickets-history-index";
+	latestDate: BoatExDateKey;
+	dateCount: number;
+	dates: Array<{ date: BoatExDateKey; path: string; raceCount: number; predictionTextAvailableRaceCount: number; structuredTicketAvailableRaceCount: number; structuredTicketCount: number; evaluatedPredictionRaceCount: number; hitRaceCount: number; missRaceCount: number; readiness: BoatExPredictionStructureReadiness }>;
 }
 
 export type BoatExDateIndexStatus = "available" | "partial" | "missing" | "pending" | "unknown";

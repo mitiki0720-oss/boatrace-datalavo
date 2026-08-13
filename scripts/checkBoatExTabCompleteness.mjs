@@ -25,6 +25,8 @@ const venueBias = readJson("public/data/boatrace-ex/derived/venue-bias/latest.js
 const roughIndex = readJson("public/data/boatrace-ex/derived/rough-index/latest.json");
 const todayFlow = readJson("public/data/boatrace-ex/derived/today-flow/latest.json");
 const predictionStructure = readJson("public/data/boatrace-ex/derived/prediction-structure/latest.json");
+const structuredTicketsHistorySummary = readJson("public/data/boatrace-ex/derived/prediction-structure/history-summary.json");
+const structuredTicketsHistoryIndex = readJson("public/data/boatrace-ex/derived/prediction-structure/history-index.json");
 const historyCoverage = readJson("public/data/boatrace-ex/derived/history-coverage/latest.json");
 const raceAnalysis = readJson("public/data/boatrace-ex/derived/race-analysis/latest.json");
 const historicalRaceAnalysisSummary = readJson("public/data/boatrace-ex/derived/race-analysis/history-summary.json");
@@ -39,6 +41,8 @@ const sourcePaths = {
 	roughIndex: "public/data/boatrace-ex/derived/rough-index/latest.json",
 	todayFlow: "public/data/boatrace-ex/derived/today-flow/latest.json",
 	predictionStructure: "public/data/boatrace-ex/derived/prediction-structure/latest.json",
+	structuredTicketsHistorySummary: "public/data/boatrace-ex/derived/prediction-structure/history-summary.json",
+	structuredTicketsHistoryIndex: "public/data/boatrace-ex/derived/prediction-structure/history-index.json",
 	raceAnalysis: "public/data/boatrace-ex/derived/race-analysis/latest.json",
 	historicalRaceAnalysisSummary: "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
 	historicalRaceAnalysisIndex: "public/data/boatrace-ex/derived/race-analysis/history-index.json",
@@ -61,7 +65,7 @@ const tabs = [
 	{ key: "weather", status: "available", reason: "Venue evidence contains source-backed weather coverage.", sourcePaths: [sourcePaths.venue] },
 	{ key: "venue-bias", status: venueBias.readiness.status, reason: venueBias.readiness.reason, sourcePaths: [sourcePaths.venueBias] },
 	{ key: "today-flow", status: todayFlow.readiness.status, reason: todayFlow.readiness.reason, sourcePaths: [sourcePaths.todayFlow] },
-	{ key: "prediction-structure", status: predictionStructure.readiness.status, reason: predictionStructure.readiness.reason, sourcePaths: [sourcePaths.predictionStructure, sourcePaths.predictionAudit] },
+	{ key: "prediction-structure", status: structuredTicketsHistorySummary.readiness.status, reason: `${predictionStructure.readiness.reason} Strict structured ticket history covers ${structuredTicketsHistoryIndex.dateCount} dates.`, sourcePaths: [sourcePaths.predictionStructure, sourcePaths.structuredTicketsHistorySummary, sourcePaths.structuredTicketsHistoryIndex, sourcePaths.predictionAudit] },
 	{ key: "race-analysis", status: historicalRaceAnalysisSummary.summary.readiness.status, reason: `${raceAnalysis.summary.readiness.reason} Historical index covers ${historicalRaceAnalysisIndex.dateCount} dates.`, sourcePaths: [sourcePaths.raceAnalysis, sourcePaths.historicalRaceAnalysisSummary, sourcePaths.historicalRaceAnalysisIndex, sourcePaths.racer, sourcePaths.venue] },
 	{ key: "ex-analysis", status: "available", reason: "The hub joins source-backed venue, rough index, today flow, and prediction-structure availability without ranking them.", sourcePaths: [sourcePaths.venueBias, sourcePaths.roughIndex, sourcePaths.todayFlow, sourcePaths.predictionStructure] },
 ];
@@ -72,7 +76,7 @@ const audit = {
 	kind: "boatrace-ex-tab-completeness-audit",
 	auditDate: targetDate,
 	generatedAt: new Date().toISOString(),
-	policy: "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. No fake score, rank, prediction, ticket parsing, or result inference is used.",
+	policy: "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. Strict source-text ticket extraction and exact-order evaluation are limited to the documented prediction-structure contract; no fake score, rank, recommendation, inferred result, or inferred payout is used.",
 	summary: {
 		tabCount: tabs.length,
 		readyCount: tabs.filter((tab) => tab.status === "ready").length,

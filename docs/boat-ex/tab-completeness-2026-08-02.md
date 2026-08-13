@@ -10,7 +10,7 @@
 - weather: available - Venue evidence contains source-backed weather coverage.
 - venue-bias: ready - dateCount 68 meets minDateCount 7
 - today-flow: available - Source-backed same-day result and payout facts are available.
-- prediction-structure: insufficient-history - predictionTextAvailableRaceCount 0 is below minimum 30; structuredTicketAvailableRaceCount 0 is below minimum 30; evaluatedPredictionRaceCount 0 is below minimum 30
+- prediction-structure: insufficient-history - Strict structured ticket coverage is source-backed but remains below the 30-race readiness threshold. Strict structured ticket history covers 68 dates.
 - race-analysis: ready - Every latest-date history record is represented with source-backed status and paths. Historical index covers 68 dates.
 - ex-analysis: available - The hub joins source-backed venue, rough index, today flow, and prediction-structure availability without ranking them.
 
