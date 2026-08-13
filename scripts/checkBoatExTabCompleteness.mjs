@@ -26,6 +26,7 @@ const roughIndex = readJson("public/data/boatrace-ex/derived/rough-index/latest.
 const todayFlow = readJson("public/data/boatrace-ex/derived/today-flow/latest.json");
 const predictionStructure = readJson("public/data/boatrace-ex/derived/prediction-structure/latest.json");
 const historyCoverage = readJson("public/data/boatrace-ex/derived/history-coverage/latest.json");
+const raceAnalysis = readJson("public/data/boatrace-ex/derived/race-analysis/latest.json");
 const nameBridgePath = `public/data/boatrace-ex/audit/name-identity-bridge-${targetDate}.generated.json`;
 const predictionAuditPath = `public/data/boatrace-ex/audit/prediction-structure-contract-${targetDate}.generated.json`;
 const sourcePaths = {
@@ -36,6 +37,7 @@ const sourcePaths = {
 	roughIndex: "public/data/boatrace-ex/derived/rough-index/latest.json",
 	todayFlow: "public/data/boatrace-ex/derived/today-flow/latest.json",
 	predictionStructure: "public/data/boatrace-ex/derived/prediction-structure/latest.json",
+	raceAnalysis: "public/data/boatrace-ex/derived/race-analysis/latest.json",
 	historyCoverage: "public/data/boatrace-ex/derived/history-coverage/latest.json",
 	nameBridge: nameBridgePath,
 	predictionAudit: predictionAuditPath,
@@ -56,6 +58,7 @@ const tabs = [
 	{ key: "venue-bias", status: venueBias.readiness.status, reason: venueBias.readiness.reason, sourcePaths: [sourcePaths.venueBias] },
 	{ key: "today-flow", status: todayFlow.readiness.status, reason: todayFlow.readiness.reason, sourcePaths: [sourcePaths.todayFlow] },
 	{ key: "prediction-structure", status: predictionStructure.readiness.status, reason: predictionStructure.readiness.reason, sourcePaths: [sourcePaths.predictionStructure, sourcePaths.predictionAudit] },
+	{ key: "race-analysis", status: raceAnalysis.summary.readiness.status, reason: raceAnalysis.summary.readiness.reason, sourcePaths: [sourcePaths.raceAnalysis, sourcePaths.racer, sourcePaths.venue] },
 	{ key: "ex-analysis", status: "available", reason: "The hub joins source-backed venue, rough index, today flow, and prediction-structure availability without ranking them.", sourcePaths: [sourcePaths.venueBias, sourcePaths.roughIndex, sourcePaths.todayFlow, sourcePaths.predictionStructure] },
 ];
 const auditPath = `public/data/boatrace-ex/audit/tab-completeness-${targetDate}.generated.json`;
@@ -83,7 +86,7 @@ if (write) {
 }
 
 const existing = write ? audit : readJson(auditPath);
-const expectedKeys = ["overview", "identity", "data-coverage", "trend-lab", "trifecta-ranking", "rough-index", "race-transition", "weather", "venue-bias", "today-flow", "prediction-structure", "ex-analysis"];
+const expectedKeys = ["overview", "identity", "data-coverage", "trend-lab", "trifecta-ranking", "rough-index", "race-transition", "weather", "venue-bias", "today-flow", "prediction-structure", "race-analysis", "ex-analysis"];
 const errors = [];
 const actualTabs = existing.tabs ?? [];
 if (actualTabs.length !== expectedKeys.length) errors.push("tab count mismatch");

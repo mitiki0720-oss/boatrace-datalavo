@@ -13,6 +13,8 @@ import type {
 	BoatExRegisteredRegistrationQualityAuditFile,
 	BoatExRegistrationProvenanceAuditFile,
 	BoatExPredictionStructureV1File,
+	BoatExRaceAnalysisFile,
+	BoatExRaceAnalysisItem,
 	BoatExRoughIndexV1File,
 	BoatExTodayFlowV1File,
 	BoatExTabCompletenessAuditFile,
@@ -34,6 +36,7 @@ type BoatExSectionKey =
 	| "venue-bias"
 	| "today-flow"
 	| "prediction-structure"
+	| "race-analysis"
 	| "ex-analysis";
 
 type BoatExManifestFile = {
@@ -70,6 +73,7 @@ type LoadState = {
 	roughIndex: BoatExRoughIndexV1File | null;
 	todayFlow: BoatExTodayFlowV1File | null;
 	predictionStructure: BoatExPredictionStructureV1File | null;
+	raceAnalysis: BoatExRaceAnalysisFile | null;
 	historicalSourceCoverage: BoatExHistoricalSourceCoverageFile | null;
 	registeredIdentityRegistry: BoatExRegisteredRacerIdentityRegistryFile | null;
 	registryLinkageAudit: BoatExRacerEvidenceRegistryLinkageAuditFile | null;
@@ -97,6 +101,7 @@ const sectionCards: Array<{
 	{ key: "venue-bias", title: "会場傾向", subtitle: "会場傾向 v1", status: "available" },
 	{ key: "today-flow", title: "当日フロー", subtitle: "当日フロー v1", status: "available" },
 	{ key: "prediction-structure", title: "予測構造ラボ", subtitle: "カバレッジマップ v1", status: "insufficient-history" },
+	{ key: "race-analysis", title: "全レース分析", subtitle: "最新日の全レース詳細", status: "ready" },
 	{ key: "ex-analysis", title: "EX分析", subtitle: "会場・選手の照合", status: "available" },
 ];
 
@@ -905,6 +910,66 @@ function TodayFlowSection({ todayFlow }: { todayFlow: BoatExTodayFlowV1File | nu
 	);
 }
 
+function analysisStatusLabel(status: string) {
+	if (status === "available" || status === "complete") return "取得済み";
+	if (status === "not-supported") return "対象外";
+	if (status === "missing") return "未取得";
+	return statusLabel(status);
+}
+
+function RaceAnalysisSection({ raceAnalysis }: { raceAnalysis: BoatExRaceAnalysisFile | null }) {
+	const [selectedRaceKey, setSelectedRaceKey] = useState<string | null>(null);
+	if (!raceAnalysis) return <p style={textStyle}>全レース分析エビデンスを読み込めません。</p>;
+	const selectedRace = raceAnalysis.races.find((race) => race.raceKey === selectedRaceKey) ?? raceAnalysis.races[0] ?? null;
+	if (!selectedRace) return <p style={textStyle}>最新日のレース記録がありません。</p>;
+	const summary = raceAnalysis.summary;
+	return (
+		<>
+			<section style={metricGridStyle}>
+				<article style={cardStyle}><p style={labelStyle}>対象日 / レース数</p><p style={metricValueStyle}>{summary.targetDate} / {summary.latestRaceCount}R</p><p style={textStyle}>最新日historyの全レースを表示対象にします。</p></article>
+				<article style={cardStyle}><p style={labelStyle}>結果 / 払戻</p><p style={metricValueStyle}>{summary.resultAvailableRaceCount} / {summary.payoutAvailableRaceCount}</p><p style={textStyle}>公式結果と3連単払戻の取得済み件数です。</p></article>
+				<article style={cardStyle}><p style={labelStyle}>展示 / 天候</p><p style={metricValueStyle}>{summary.exhibitionAvailableRaceCount} / {summary.weatherAvailableRaceCount}</p><p style={textStyle}>展示と天候・風・波の取得済み件数です。</p></article>
+				<article style={cardStyle}><p style={labelStyle}>選手リンク</p><p style={metricValueStyle}>{summary.officialRegistrationLinkedCount} / {summary.nameLinkedCount}</p><p style={textStyle}>公式登録番号 / 完全一致補助リンク。未解決 {summary.unresolvedRacerCount}。</p></article>
+			</section>
+			<section style={{ ...cardStyle, gap: "12px" }}>
+				<p style={labelStyle}>最新日 全レース</p>
+				<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "8px", maxHeight: "520px", overflowY: "auto" }}>
+					{raceAnalysis.races.map((race) => {
+						const isSelected = selectedRace.raceKey === race.raceKey;
+						return <button key={race.raceKey} type="button" onClick={() => setSelectedRaceKey(race.raceKey)} style={{ textAlign: "left", border: `1px solid ${isSelected ? boatTheme.colors.aquaDeep : boatTheme.colors.line}`, borderRadius: "6px", padding: "10px", background: isSelected ? "rgba(223, 245, 255, 0.98)" : "#fff", cursor: "pointer" }}>
+							<strong>{race.venueName} {race.raceNo}R</strong>
+							<span style={{ display: "block", fontSize: "12px", color: boatTheme.colors.muted, marginTop: "4px" }}>締切 {race.closingTime ?? "未取得"} / 結果 {analysisStatusLabel(race.resultStatus)}</span>
+							<span style={{ display: "block", fontSize: "12px", color: boatTheme.colors.muted, marginTop: "2px" }}>払戻 {analysisStatusLabel(race.payoutStatus)} / 展示 {analysisStatusLabel(race.exhibitionStatus)} / 天候 {analysisStatusLabel(race.weatherStatus)}</span>
+							<span style={{ display: "block", fontSize: "12px", color: boatTheme.colors.muted, marginTop: "2px" }}>公式 {race.racerLinkageSummary.officialRegistrationLinkedCount} / 名前 {race.racerLinkageSummary.nameLinkedCount} / 未解決 {race.racerLinkageSummary.unresolvedCount}</span>
+						</button>;
+					})}
+				</div>
+			</section>
+			<section style={twoColumnGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>選択レース</p>
+					<p style={valueStyle}>{selectedRace.venueName} {selectedRace.raceNo}R {selectedRace.raceTitle ?? ""}</p>
+					<p style={textStyle}>締切: {selectedRace.closingTime ?? "未取得"} / 開催区分: {selectedRace.dayPart ?? "未取得"} / 公式レース: {analysisStatusLabel(selectedRace.sourceStatus)}</p>
+					<p style={textStyle}>結果: {selectedRace.officialResult.finishOrder.length ? selectedRace.officialResult.finishOrder.join("-") : "未取得"} / 3連単: {selectedRace.officialResult.trifecta ?? "未取得"} / 払戻: {selectedRace.officialResult.trifectaPayoutYen?.toLocaleString("ja-JP") ?? "未取得"}{selectedRace.officialResult.trifectaPayoutYen !== null ? "円" : ""}</p>
+					<p style={textStyle}>天候: {selectedRace.weather ? `${selectedRace.weather.weather ?? "未取得"} / 風 ${selectedRace.weather.windDirection ?? "未取得"} ${selectedRace.weather.windSpeed ?? ""} / 波 ${selectedRace.weather.waveHeight ?? "未取得"} / 水温 ${selectedRace.weather.waterTemperature ?? "未取得"}` : "未取得"}</p>
+					<p style={textStyle}>展示: {selectedRace.exhibition.length > 0 ? selectedRace.exhibition.map((entry) => `${entry.lane}号艇 ${entry.exhibitionTime ?? "--"} / ST ${entry.startTiming ?? "--"}`).join(" | ") : "未取得"}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>分析可能性と不足理由</p>
+					<ul style={noteListStyle}>{selectedRace.analysisNotes.map((note) => <li key={note}>{note}</li>)}</ul>
+					<p style={textStyle}>結果 {analysisStatusLabel(selectedRace.resultStatus)} / 払戻 {analysisStatusLabel(selectedRace.payoutStatus)} / 展示 {analysisStatusLabel(selectedRace.exhibitionStatus)} / 天候 {analysisStatusLabel(selectedRace.weatherStatus)} / 水面 {analysisStatusLabel(selectedRace.waterStatus)}</p>
+					<p style={textStyle}>選手リンク: 公式 {selectedRace.racerLinkageSummary.officialRegistrationLinkedCount}、名前完全一致 {selectedRace.racerLinkageSummary.nameLinkedCount}、未解決 {selectedRace.racerLinkageSummary.unresolvedCount}</p>
+				</article>
+			</section>
+			<section style={{ ...cardStyle, gap: "10px" }}>
+				<p style={labelStyle}>出走選手</p>
+				<div style={tableWrapStyle}><table style={{ ...tableStyle, minWidth: "900px" }}><thead><tr><th style={thStyle}>艇番</th><th style={thStyle}>選手</th><th style={thStyle}>公式登録番号</th><th style={thStyle}>完全一致参照番号</th><th style={thStyle}>リンク状態</th><th style={thStyle}>支部 / 級別</th><th style={thStyle}>モーター / ボート</th></tr></thead><tbody>{selectedRace.racers.map((racer) => <tr key={`${selectedRace.raceKey}-${racer.lane}`}><td style={tdStyle}>{racer.lane ?? "--"}</td><td style={tdStyle}>{racer.racerName || "未取得"}</td><td style={tdStyle}>{racer.officialRegistrationNo ?? "なし"}</td><td style={tdStyle}>{racer.resolvedRegistrationNo ?? "なし"}</td><td style={tdStyle}>{racer.linkageStatus === "official-registration" ? "公式登録番号" : racer.linkageStatus === "exact-name-linked" ? "名前完全一致" : "未解決"}</td><td style={tdStyle}>{racer.branch ?? "未取得"} / {racer.className ?? "未取得"}</td><td style={tdStyle}>{racer.motorNo ?? "--"} / {racer.boatNo ?? "--"}</td></tr>)}</tbody></table></div>
+			</section>
+			<section style={cardStyle}><p style={labelStyle}>source path / audit path</p><ul style={noteListStyle}>{Object.entries(selectedRace.sourcePaths).map(([label, sourcePath]) => <li key={label}>{label}: <code>{sourcePath}</code></li>)}</ul></section>
+		</>
+	);
+}
+
 function PredictionStructureSection({ predictionStructure }: { predictionStructure: BoatExPredictionStructureV1File | null }) {
 	if (!predictionStructure) return <p style={textStyle}>予測構造エビデンスがありません。固定値は使用しません。</p>;
 
@@ -1235,6 +1300,7 @@ export function BoatExPage() {
 		roughIndex: null,
 		todayFlow: null,
 		predictionStructure: null,
+		raceAnalysis: null,
 		historicalSourceCoverage: null,
 		registeredIdentityRegistry: null,
 		registryLinkageAudit: null,
@@ -1272,7 +1338,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, historicalSourceCoverageResponse, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, raceAnalysisResponse, historicalSourceCoverageResponse, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1284,6 +1350,7 @@ export function BoatExPage() {
 					fetch(withBasePath("data/boatrace-ex/derived/rough-index/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/today-flow/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/prediction-structure/latest.json"), { cache: "no-store" }),
+					fetch(withBasePath("data/boatrace-ex/derived/race-analysis/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/history-coverage/latest.json"), { cache: "no-store" }),
 					fetchOptionalJson<BoatExRegisteredRacerIdentityRegistryFile>("data/boatrace-ex/identity/registered-racers.generated.json"),
 					fetchOptionalJson<BoatExRacerEvidenceRegistryLinkageAuditFile>(`data/boatrace-ex/audit/racer-evidence-registry-linkage-${targetDate}.generated.json`),
@@ -1300,6 +1367,7 @@ export function BoatExPage() {
 				if (!roughIndexResponse.ok) throw new Error(`rough index fetch failed: ${roughIndexResponse.status}`);
 				if (!todayFlowResponse.ok) throw new Error(`today flow fetch failed: ${todayFlowResponse.status}`);
 				if (!predictionStructureResponse.ok) throw new Error(`prediction structure fetch failed: ${predictionStructureResponse.status}`);
+				if (!raceAnalysisResponse.ok) throw new Error(`race analysis fetch failed: ${raceAnalysisResponse.status}`);
 				if (!historicalSourceCoverageResponse.ok) throw new Error(`historical source coverage fetch failed: ${historicalSourceCoverageResponse.status}`);
 
 				const derivedManifest = await derivedManifestResponse.json() as BoatExManifest;
@@ -1309,6 +1377,7 @@ export function BoatExPage() {
 				const roughIndex = await roughIndexResponse.json() as BoatExRoughIndexV1File;
 				const todayFlow = await todayFlowResponse.json() as BoatExTodayFlowV1File;
 				const predictionStructure = await predictionStructureResponse.json() as BoatExPredictionStructureV1File;
+				const raceAnalysis = await raceAnalysisResponse.json() as BoatExRaceAnalysisFile;
 				const historicalSourceCoverage = await historicalSourceCoverageResponse.json() as BoatExHistoricalSourceCoverageFile;
 
 				if (isMounted) {
@@ -1323,6 +1392,7 @@ export function BoatExPage() {
 					roughIndex,
 					todayFlow,
 					predictionStructure,
+					raceAnalysis,
 					historicalSourceCoverage,
 					registeredIdentityRegistry,
 					registryLinkageAudit,
@@ -1346,6 +1416,7 @@ export function BoatExPage() {
 					roughIndex: null,
 					todayFlow: null,
 					predictionStructure: null,
+					raceAnalysis: null,
 					historicalSourceCoverage: null,
 					registeredIdentityRegistry: null,
 					registryLinkageAudit: null,
@@ -1373,6 +1444,7 @@ export function BoatExPage() {
 	const roughIndex = loadState.roughIndex;
 	const todayFlow = loadState.todayFlow;
 	const predictionStructure = loadState.predictionStructure;
+	const raceAnalysis = loadState.raceAnalysis;
 	const historicalSourceCoverage = loadState.historicalSourceCoverage;
 	const registeredIdentityRegistry = loadState.registeredIdentityRegistry;
 	const registryLinkageAudit = loadState.registryLinkageAudit;
@@ -1399,6 +1471,7 @@ export function BoatExPage() {
 	const roughIndexAvailable = hasDerivedFile(loadState.derivedManifest, "/rough-index/");
 	const todayFlowAvailable = hasDerivedFile(loadState.derivedManifest, "/today-flow/");
 	const predictionStructureAvailable = hasDerivedFile(loadState.derivedManifest, "/prediction-structure/");
+	const raceAnalysisAvailable = hasDerivedFile(loadState.derivedManifest, "/race-analysis/");
 
 	function renderActiveSection() {
 		switch (activeSection) {
@@ -1703,6 +1776,17 @@ export function BoatExPage() {
 							source="ソースに基づく予測材料のカバレッジだけを表示します。投票推奨、予測、合成スコアは生成しません。"
 						/>
 						<PredictionStructureSection predictionStructure={predictionStructure} />
+					</SectionShell>
+				);
+			case "race-analysis":
+				return (
+					<SectionShell title="全レース分析" subtitle="最新日の会場別・R別ソース確認">
+						<PendingPanel
+							status={raceAnalysis?.summary.readiness.status ?? "insufficient-history"}
+							reason={raceAnalysis?.summary.readiness.reason ?? "全レース分析エビデンスがありません。"}
+							source="history、公式結果・払戻、展示、天候、選手エビデンスの状態だけを表示します。予測、推奨、合成スコアは生成しません。"
+						/>
+						<RaceAnalysisSection raceAnalysis={raceAnalysis} />
 					</SectionShell>
 				);
 			case "ex-analysis":

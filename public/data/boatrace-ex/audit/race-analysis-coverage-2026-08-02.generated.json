@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-race-analysis-coverage-audit",
+  "auditDate": "2026-08-02",
+  "generatedAt": "2026-08-13T02:27:54.385Z",
+  "summary": {
+    "generatedAt": "2026-08-13T02:27:54.385Z",
+    "targetDate": "2026-08-02",
+    "latestDate": "2026-08-02",
+    "dateCount": 68,
+    "historyRaceCount": 8784,
+    "latestRaceCount": 144,
+    "venueCount": 12,
+    "resultAvailableRaceCount": 144,
+    "payoutAvailableRaceCount": 144,
+    "exhibitionAvailableRaceCount": 144,
+    "weatherAvailableRaceCount": 144,
+    "waterConditionAvailableRaceCount": 0,
+    "racerEvidenceAvailableRaceCount": 144,
+    "officialRegistrationLinkedCount": 864,
+    "nameLinkedCount": 0,
+    "unresolvedRacerCount": 0,
+    "readiness": {
+      "status": "ready",
+      "reason": "Every latest-date history record is represented with source-backed status and paths."
+    }
+  },
+  "expectedRaceCount": 144,
+  "actualRaceCount": 144,
+  "venueEvidenceRaceCount": 144,
+  "todayFlowRaceCount": 144,
+  "todayFlowResultAvailableRaceCount": 144,
+  "duplicateRaceKeys": [],
+  "policy": "All records expose source-backed availability only. No prediction, inferred result, fake exhibition, fake payout, score, rank, fuzzy match, or partial name match is generated.",
+  "sourcePaths": {
+    "history": "public/data/boatrace-ex/history/races/2026-08-02.json",
+    "coverage": "public/data/boatrace-ex/coverage/2026-08-02.json",
+    "racerEvidence": "public/data/boatrace-ex/derived/racer-evidence/2026-08-02.json",
+    "venueEvidence": "public/data/boatrace-ex/derived/venue-evidence/2026-08-02.json",
+    "todayFlow": "public/data/boatrace-ex/derived/today-flow/latest.json",
+    "roughIndex": "public/data/boatrace-ex/derived/rough-index/latest.json",
+    "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json",
+    "nameIdentityAudit": "public/data/boatrace-ex/audit/name-identity-bridge-2026-08-02.generated.json",
+    "registryLinkageAudit": "public/data/boatrace-ex/audit/racer-evidence-registry-linkage-2026-08-02.generated.json"
+  }
+}
