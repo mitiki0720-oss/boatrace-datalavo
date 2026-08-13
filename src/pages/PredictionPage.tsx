@@ -30,6 +30,13 @@ import {
 	loadBoatPredictionGptCopyExContext,
 	type BoatPredictionGptCopyExContext,
 } from "../lib/boatPredictionGptCopyExContext";
+import {
+	applyBoatPredictionGptCopyTimeLabel,
+	buildBoatPredictionGptBettingInstruction,
+	getBoatPredictionRaceTimeLabel,
+	getBoatPredictionRangePurposeLabel,
+	getBoatPredictionVenueTimeKind,
+} from "../lib/boatPredictionGptCopy";
 import { parseBoatPredictionTickets } from "../lib/boatPredictionParser";
 import {
 	findBoatRaceResultForPractice,
@@ -1455,6 +1462,104 @@ const buildPracticeFallbackRaceKey = (params: {
 		todayFeed.generatedAt,
 		venueExtrasFeed?.generatedAt,
 	]);
+	const bulkGptMaterialSummary1R6RWithTimeLabels = useMemo(() => {
+		const expectedRaceNumbers = [1, 2, 3, 4, 5, 6];
+		const raceRangeLabel = "1R〜6R";
+
+		if (!selectedVenue) {
+			return {
+				materialText: "GPTへの素材\n対象会場: 未選択",
+				raceRangeLabel,
+				generatedRaceCount: 0,
+				expectedRaceCount: 0,
+				readyRaceCount: 0,
+				partialRaceCount: 0,
+				waitingRaceCount: 0,
+				missingRaceLabels: [],
+			};
+		}
+
+		const selectedRaces = selectedVenueRaces
+			.filter((race) => expectedRaceNumbers.includes(Number(race.raceNo)))
+			.sort((left, right) => Number(left.raceNo) - Number(right.raceNo));
+		const venueTimeKind = getBoatPredictionVenueTimeKind(selectedVenue, selectedVenueRaces);
+		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(venueTimeKind, "1R〜6R");
+		const statusCounts = { ready: 0, partial: 0, waiting: 0 };
+		const sections = selectedRaces.map((race) => {
+			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
+			const exhibitionStatus = buildExhibitionStatusLabel({
+				race,
+				raceExtra,
+				feedUpdatedAt: todayFeed.generatedAt,
+				extraUpdatedAt: venueExtrasFeed?.generatedAt,
+			});
+			statusCounts[exhibitionStatus.level] += 1;
+			return [
+				"============================================================",
+				buildBoatPredictionGptCopyRaceContext({
+					feed: todayFeed,
+					venue: selectedVenue,
+					race,
+					venueTimeKind,
+					exContext: gptCopyExContext,
+				}),
+				"【通常素材】",
+				applyBoatPredictionGptCopyTimeLabel(buildBoatPredictionMaterial({
+					venue: selectedVenue,
+					race,
+					venueExtra: selectedVenueExtra,
+					raceExtra,
+					venueFeatureNote: selectedVenueFeatureNote,
+					venueFeatureInsights,
+					includeVenueContext: false,
+				}), getBoatPredictionRaceTimeLabel(venueTimeKind, race)),
+			].join("\n");
+		});
+		const materialText = [
+			buildBoatPredictionGptCopyHeader({
+				feed: todayFeed,
+				venue: selectedVenue,
+				races: selectedRaces,
+				raceRangeLabel,
+				rangePurposeLabel,
+				venueTimeKind,
+				exContext: gptCopyExContext,
+			}),
+			"",
+			buildBoatPredictionGptBettingInstruction(),
+			"",
+			buildBoatPredictionGptCopyVenueContext({ venue: selectedVenue, exContext: gptCopyExContext }),
+			"",
+			"【通常会場素材】",
+			buildBoatPredictionVenueContextMaterial({
+				venue: selectedVenue,
+				venueFeatureNote: selectedVenueFeatureNote,
+				venueFeatureInsights,
+			}),
+			"",
+			sections.length > 0 ? sections.join("\n\n") : "1R〜6Rに実在するレースがありません。",
+		].join("\n");
+
+		return {
+			materialText,
+			raceRangeLabel,
+			generatedRaceCount: selectedRaces.length,
+			expectedRaceCount: selectedRaces.length,
+			readyRaceCount: statusCounts.ready,
+			partialRaceCount: statusCounts.partial,
+			waitingRaceCount: statusCounts.waiting,
+			missingRaceLabels: [],
+		};
+	}, [
+		gptCopyExContext,
+		selectedVenue,
+		selectedVenueRaces,
+		selectedVenueExtra,
+		selectedVenueFeatureNote,
+		venueFeatureInsights,
+		todayFeed,
+		venueExtrasFeed?.generatedAt,
+	]);
 	const bulkGptMaterialSummary7R12R = useMemo(() => {
 		const expectedRaceNumbers = [7, 8, 9, 10, 11, 12];
 		const raceRangeLabel = "7R〜12R";
@@ -1615,6 +1720,8 @@ const buildPracticeFallbackRaceKey = (params: {
 		const selectedRaces = selectedVenueRaces
 			.filter((race) => expectedRaceNumbers.includes(Number(race.raceNo)))
 			.sort((left, right) => Number(left.raceNo) - Number(right.raceNo));
+		const venueTimeKind = getBoatPredictionVenueTimeKind(selectedVenue, selectedVenueRaces);
+		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(venueTimeKind, "7R〜12R");
 		const statusCounts = { ready: 0, partial: 0, waiting: 0 };
 		const sections = selectedRaces.map((race) => {
 			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
@@ -1625,7 +1732,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				extraUpdatedAt: venueExtrasFeed?.generatedAt,
 			});
 			statusCounts[exhibitionStatus.level] += 1;
-			const currentMaterial = buildBoatPredictionMaterial({
+			const currentMaterial = applyBoatPredictionGptCopyTimeLabel(buildBoatPredictionMaterial({
 				venue: selectedVenue,
 				race,
 				venueExtra: selectedVenueExtra,
@@ -1633,15 +1740,16 @@ const buildPracticeFallbackRaceKey = (params: {
 				venueFeatureNote: selectedVenueFeatureNote,
 				venueFeatureInsights,
 				includeVenueContext: false,
-			});
+			}), getBoatPredictionRaceTimeLabel(venueTimeKind, race));
 
 			return [
 				"============================================================",
 				buildBoatPredictionGptCopyRaceContext({
 					feed: todayFeed,
-					venue: selectedVenue,
-					race,
-					exContext: gptCopyExContext,
+				venue: selectedVenue,
+				race,
+				venueTimeKind,
+				exContext: gptCopyExContext,
 				}),
 				"【通常素材】",
 				currentMaterial,
@@ -1658,8 +1766,12 @@ const buildPracticeFallbackRaceKey = (params: {
 				venue: selectedVenue,
 				races: selectedRaces,
 				raceRangeLabel,
+				rangePurposeLabel,
+				venueTimeKind,
 				exContext: gptCopyExContext,
 			}),
+			"",
+			buildBoatPredictionGptBettingInstruction(),
 			"",
 			buildBoatPredictionGptCopyVenueContext({ venue: selectedVenue, exContext: gptCopyExContext }),
 			"",
@@ -1696,7 +1808,7 @@ const buildPracticeFallbackRaceKey = (params: {
 		{ key: "7r12r", label: "7R〜12R" },
 	];
 	const activeBulkGptMaterialSummary =
-		bulkGptMaterialRangeKey === "7r12r" ? bulkGptMaterialSummary7R12RWithEx : bulkGptMaterialSummary1R6R;
+		bulkGptMaterialRangeKey === "7r12r" ? bulkGptMaterialSummary7R12RWithEx : bulkGptMaterialSummary1R6RWithTimeLabels;
 	const venueCount = venues.length;
 	const isWaitingForTodayFeed = venueCount === 0;
 	const raceCount = races.length;
