@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import type { BoatPredictionRecord, BoatPredictionTicket } from "../lib/boatraceTypes";
+import type { BoatPredictionRecord, BoatPredictionTicket, BoatRaceItem } from "../lib/boatraceTypes";
 import { BoatGptMaterialPanel } from "../components/boatrace/BoatGptMaterialPanel";
 import { BoatGptBulkMaterialPanel } from "../components/boatrace/BoatGptBulkMaterialPanel";
 import { BoatPracticeResultPanel } from "../components/boatrace/BoatPracticeResultPanel";
@@ -22,7 +22,11 @@ import {
 	type ParsedBoatBet,
 	type ParsedBoatBetSummary,
 } from "../lib/boatBetParser";
-import { buildBoatPredictionMaterial, buildBoatPredictionVenueContextMaterial } from "../lib/boatPredictionMaterial";
+import {
+	buildBoatPredictionMaterial,
+	buildBoatPredictionVenueContextMaterial,
+	getBoatPredictionExhibitionAvailability,
+} from "../lib/boatPredictionMaterial";
 import {
 	buildBoatPredictionGptCopyHeader,
 	buildBoatPredictionGptCopyRaceContext,
@@ -53,6 +57,7 @@ import {
 	findSelectedVenueExtra,
 	loadBoatVenueExtrasFeed,
 	type BoatVenueExtrasFeed,
+	type BoatVenueExtraRace,
 } from "../lib/boatVenueExtrasFeed";
 import {
 	loadBoatVenueFeatureIndex,
@@ -732,52 +737,6 @@ const toLooseRecord = (value: unknown): Record<string, unknown> =>
 		? value as Record<string, unknown>
 		: {};
 
-const isUsableExhibitionTimeValue = (value: unknown): boolean => {
-	const text = readLooseString(value)
-		.normalize("NFKC")
-		.replace(/秒$/u, "")
-		.trim();
-
-	if (!text || ["-", "--", "未取得", "確認中", "未設定"].includes(text)) {
-		return false;
-	}
-
-	const parsed = Number(text);
-	return Number.isFinite(parsed) && parsed >= 5 && parsed < 10;
-};
-
-const hasExhibitionTimeValue = (row: unknown): boolean => {
-	const record = toLooseRecord(row);
-
-	return [
-		record.exhibitionTime,
-		record.exhibition,
-		record.displayTime,
-		record.tenjiTime,
-		record.showTime,
-		record["展示"],
-		record["展示タイム"],
-	].some(isUsableExhibitionTimeValue);
-};
-
-const getRaceExhibitionRows = (
-	race: unknown,
-	raceExtra: unknown,
-): unknown[] => {
-	const raceRecord = toLooseRecord(race);
-	const extraRecord = toLooseRecord(raceExtra);
-	const officialBeforeInfo = toLooseRecord(extraRecord.officialBeforeInfo);
-
-	const candidates = [
-		raceRecord.exhibitions,
-		officialBeforeInfo.exhibitionRows,
-		officialBeforeInfo.beforeInfo,
-		extraRecord.beforeInfo,
-	];
-
-	return candidates.flatMap((candidate) => toArray<unknown>(candidate));
-};
-
 const buildExhibitionStatusLabel = (params: {
 	race: unknown;
 	raceExtra: unknown;
@@ -785,36 +744,24 @@ const buildExhibitionStatusLabel = (params: {
 	extraUpdatedAt?: string;
 }) => {
 	const coverage = toLooseRecord(toLooseRecord(params.race).exhibitionCoverage);
-	const rows = getRaceExhibitionRows(params.race, params.raceExtra);
-	const exhibitionFrames = new Set(
-		rows
-			.filter(hasExhibitionTimeValue)
-			.map((row) => {
-				const record = toLooseRecord(row);
-				return Number(
-					record.frameNo ??
-					record.frame ??
-					record.lane ??
-					record.boatNumber,
-				);
-			})
-			.filter((frameNo) => Number.isInteger(frameNo) && frameNo >= 1 && frameNo <= 6),
-	);
-	const exhibitionTimeCount = exhibitionFrames.size;
+	const availability = getBoatPredictionExhibitionAvailability({
+		race: params.race as BoatRaceItem,
+		raceExtra: params.raceExtra as BoatVenueExtraRace | null,
+	});
 	const updatedAt = readLooseString(coverage.updatedAt) || params.extraUpdatedAt || params.feedUpdatedAt || "";
 
-	if (exhibitionTimeCount >= 6) {
+	if (availability.status === "complete") {
 		return {
 			level: "ready" as const,
-			title: "展示タイム 6艇取得済み",
+			title: availability.label,
 			detail: updatedAt ? `更新 ${formatJstDateTimeLabel(updatedAt)}` : "更新時刻未取得",
 		};
 	}
 
-	if (exhibitionTimeCount > 0) {
+	if (availability.status === "partial") {
 		return {
 			level: "partial" as const,
-			title: `展示タイム ${exhibitionTimeCount}/6艇`,
+			title: availability.label,
 			detail: updatedAt ? `更新 ${formatJstDateTimeLabel(updatedAt)}` : "一部取得済み",
 		};
 	}
@@ -822,15 +769,15 @@ const buildExhibitionStatusLabel = (params: {
 	if (readLooseString(coverage.status) === "official-unpublished") {
 		return {
 			level: "waiting" as const,
-			title: "公式未掲載",
+			title: "展示未取得 / 事前予想",
 			detail: updatedAt ? `公式直前情報を確認 ${formatJstDateTimeLabel(updatedAt)}` : "公式直前情報を確認中",
 		};
 	}
 
 	return {
 		level: "waiting" as const,
-		title: "展示タイム未取得",
-		detail: "公式直前情報を確認中",
+		title: "展示未取得 / 事前予想",
+		detail: "公式直前情報を確認中。事前予想として扱います。",
 	};
 };
 
@@ -1491,9 +1438,15 @@ const buildPracticeFallbackRaceKey = (params: {
 		const statusCounts = { ready: 0, partial: 0, waiting: 0 };
 		const exReferenceLevelCounts: Partial<Record<BoatPredictionGptCopyExReferenceLevel, number>> = {};
 		const sections = selectedRaces.map((race) => {
-			const exReference = getBoatPredictionGptCopyExReference({ venue: selectedVenue, race, exContext: gptCopyExContext });
-			exReferenceLevelCounts[exReference.level] = (exReferenceLevelCounts[exReference.level] ?? 0) + 1;
 			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
+			const exReference = getBoatPredictionGptCopyExReference({
+				venue: selectedVenue,
+				race,
+				venueExtra: selectedVenueExtra,
+				raceExtra,
+				exContext: gptCopyExContext,
+			});
+			exReferenceLevelCounts[exReference.level] = (exReferenceLevelCounts[exReference.level] ?? 0) + 1;
 			const exhibitionStatus = buildExhibitionStatusLabel({
 				race,
 				raceExtra,
@@ -1507,6 +1460,8 @@ const buildPracticeFallbackRaceKey = (params: {
 					feed: todayFeed,
 					venue: selectedVenue,
 					race,
+					venueExtra: selectedVenueExtra,
+					raceExtra,
 					venueTimeKind,
 					exContext: gptCopyExContext,
 				}),
@@ -1736,9 +1691,15 @@ const buildPracticeFallbackRaceKey = (params: {
 		const statusCounts = { ready: 0, partial: 0, waiting: 0 };
 		const exReferenceLevelCounts: Partial<Record<BoatPredictionGptCopyExReferenceLevel, number>> = {};
 		const sections = selectedRaces.map((race) => {
-			const exReference = getBoatPredictionGptCopyExReference({ venue: selectedVenue, race, exContext: gptCopyExContext });
-			exReferenceLevelCounts[exReference.level] = (exReferenceLevelCounts[exReference.level] ?? 0) + 1;
 			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
+			const exReference = getBoatPredictionGptCopyExReference({
+				venue: selectedVenue,
+				race,
+				venueExtra: selectedVenueExtra,
+				raceExtra,
+				exContext: gptCopyExContext,
+			});
+			exReferenceLevelCounts[exReference.level] = (exReferenceLevelCounts[exReference.level] ?? 0) + 1;
 			const exhibitionStatus = buildExhibitionStatusLabel({
 				race,
 				raceExtra,
@@ -1760,10 +1721,12 @@ const buildPracticeFallbackRaceKey = (params: {
 				"============================================================",
 				buildBoatPredictionGptCopyRaceContext({
 					feed: todayFeed,
-				venue: selectedVenue,
-				race,
-				venueTimeKind,
-				exContext: gptCopyExContext,
+					venue: selectedVenue,
+					race,
+					venueExtra: selectedVenueExtra,
+					raceExtra,
+					venueTimeKind,
+					exContext: gptCopyExContext,
 				}),
 				"【通常素材】",
 				currentMaterial,
