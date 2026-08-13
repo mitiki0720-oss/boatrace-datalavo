@@ -1,10 +1,22 @@
 # Prediction GPT Copy Time Labels
 
+## Current Contract
+
+GPT copy uses three distinct labels. `venueTimeKind` describes the whole venue from its title and all available closing times. `rangeTimeKind` uses only the existing races in the selected 1R〜6R or 7R〜12R range, and drives both `コピー範囲時間帯` and `用途`. `raceTimeKind` uses each race's individual closing time.
+
+Midnight venues remain midnight for every range and race. For every other venue, a range is midnight when its latest closing time is 21:00 or later, night when its first closing time is 17:00 or later, morning when its first closing time is before 10:30, and day otherwise. Missing races are not synthesized. The purpose labels are `モーニング/前半予想`, `デイ/前半予想`, `ナイター/前半予想`, and `ミッドナイト/前半予想`, with the matching latter-half form for 7R〜12R.
+
+The current betting contract is 3連単10点: 厚め2点、本線3点、中穴3点、大穴2点. 2連単は使わない. The copy prioritizes race development over odds, treats missing exhibition information as a pre-race prediction state, and separates output by race for copying.
+
+`scripts/checkBoatPredictionGptCopyTimeLabels.mjs` covers the 下関、唐津、戸田、蒲郡、大村 boundary cases. `scripts/checkBoatPredictionGptCopyAllVenueTimeLabels.mjs` audits all active venues in `today.generated.json` and a 24-venue classifier fixture set without changing data.
+
+## Previous Model
+
 ## Time Classification
 
 The GPT copy classifies a venue from its event name and the first and latest closing times. A venue is `midnight` when the title contains `ミッドナイト`, the latest closing time is 21:00 or later, or the venue starts at 17:00 or later and ends at 21:00 or later. Morning venues start before 10:30, night venues start at 17:00 or later, and all remaining venues are day venues.
 
-Each race uses its own closing time. Midnight venues remain midnight for every race. Other races are morning before 10:30, day before 17:00, night before 21:00, and midnight from 21:00 onward. The range purpose label is derived from that venue classification, so a midnight 1R to 6R copy is never labelled morning or day.
+Each race uses its own closing time. Midnight venues remain midnight for every race. Other races are morning before 10:30, day before 17:00, night before 21:00, and midnight from 21:00 onward. The range purpose label is derived from `rangeTimeKind`, so a midnight 1R to 6R copy is never labelled morning or day.
 
 ## Betting Contract
 
