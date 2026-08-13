@@ -27,6 +27,8 @@ const todayFlow = readJson("public/data/boatrace-ex/derived/today-flow/latest.js
 const predictionStructure = readJson("public/data/boatrace-ex/derived/prediction-structure/latest.json");
 const historyCoverage = readJson("public/data/boatrace-ex/derived/history-coverage/latest.json");
 const raceAnalysis = readJson("public/data/boatrace-ex/derived/race-analysis/latest.json");
+const historicalRaceAnalysisSummary = readJson("public/data/boatrace-ex/derived/race-analysis/history-summary.json");
+const historicalRaceAnalysisIndex = readJson("public/data/boatrace-ex/derived/race-analysis/history-index.json");
 const nameBridgePath = `public/data/boatrace-ex/audit/name-identity-bridge-${targetDate}.generated.json`;
 const predictionAuditPath = `public/data/boatrace-ex/audit/prediction-structure-contract-${targetDate}.generated.json`;
 const sourcePaths = {
@@ -38,6 +40,8 @@ const sourcePaths = {
 	todayFlow: "public/data/boatrace-ex/derived/today-flow/latest.json",
 	predictionStructure: "public/data/boatrace-ex/derived/prediction-structure/latest.json",
 	raceAnalysis: "public/data/boatrace-ex/derived/race-analysis/latest.json",
+	historicalRaceAnalysisSummary: "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
+	historicalRaceAnalysisIndex: "public/data/boatrace-ex/derived/race-analysis/history-index.json",
 	historyCoverage: "public/data/boatrace-ex/derived/history-coverage/latest.json",
 	nameBridge: nameBridgePath,
 	predictionAudit: predictionAuditPath,
@@ -58,7 +62,7 @@ const tabs = [
 	{ key: "venue-bias", status: venueBias.readiness.status, reason: venueBias.readiness.reason, sourcePaths: [sourcePaths.venueBias] },
 	{ key: "today-flow", status: todayFlow.readiness.status, reason: todayFlow.readiness.reason, sourcePaths: [sourcePaths.todayFlow] },
 	{ key: "prediction-structure", status: predictionStructure.readiness.status, reason: predictionStructure.readiness.reason, sourcePaths: [sourcePaths.predictionStructure, sourcePaths.predictionAudit] },
-	{ key: "race-analysis", status: raceAnalysis.summary.readiness.status, reason: raceAnalysis.summary.readiness.reason, sourcePaths: [sourcePaths.raceAnalysis, sourcePaths.racer, sourcePaths.venue] },
+	{ key: "race-analysis", status: historicalRaceAnalysisSummary.summary.readiness.status, reason: `${raceAnalysis.summary.readiness.reason} Historical index covers ${historicalRaceAnalysisIndex.dateCount} dates.`, sourcePaths: [sourcePaths.raceAnalysis, sourcePaths.historicalRaceAnalysisSummary, sourcePaths.historicalRaceAnalysisIndex, sourcePaths.racer, sourcePaths.venue] },
 	{ key: "ex-analysis", status: "available", reason: "The hub joins source-backed venue, rough index, today flow, and prediction-structure availability without ranking them.", sourcePaths: [sourcePaths.venueBias, sourcePaths.roughIndex, sourcePaths.todayFlow, sourcePaths.predictionStructure] },
 ];
 const auditPath = `public/data/boatrace-ex/audit/tab-completeness-${targetDate}.generated.json`;

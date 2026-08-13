@@ -735,6 +735,9 @@ export interface BoatExRaceAnalysisRacer {
 	officialRegistrationNo: string | null;
 	resolvedRegistrationNo: string | null;
 	linkageStatus: "official-registration" | "exact-name-linked" | "unresolved";
+	identityLinkMethod?: string | null;
+	registrationNoSourceStatus?: string | null;
+	officialRegistrationNoAvailable?: boolean;
 	branch: string | null;
 	className: string | null;
 	motorNo: string | null;
@@ -757,7 +760,7 @@ export interface BoatExRaceAnalysisItem {
 	exhibitionStatus: BoatExRaceAnalysisStatus;
 	weatherStatus: BoatExRaceAnalysisStatus;
 	waterStatus: BoatExRaceAnalysisStatus;
-	predictionStructureStatus: string;
+	predictionStructureStatus?: string;
 	racerEvidenceStatus: BoatExRaceAnalysisStatus;
 	officialResult: { finishOrder: number[]; trifecta: string | null; trifectaPayoutYen: number | null; winningTechnique: string | null };
 	exhibition: Array<{ lane: number | null; exhibitionTime: string | null; startTiming: string | null; course: string | null }>;
@@ -793,6 +796,53 @@ export interface BoatExRaceAnalysisFile {
 		unresolvedRacerCount: number;
 		readiness: BoatExDerivedReadiness;
 	};
+	sourceFiles: string[];
+	races: BoatExRaceAnalysisItem[];
+}
+
+export interface BoatExHistoricalRaceAnalysisDateSummary {
+	date: BoatExDateKey;
+	path: string;
+	raceCount: number;
+	venueCount: number;
+	resultAvailableRaceCount: number;
+	payoutAvailableRaceCount: number;
+	exhibitionAvailableRaceCount: number;
+	weatherAvailableRaceCount: number;
+	waterConditionAvailableRaceCount: number;
+	racerEvidenceAvailableRaceCount: number;
+	officialRegistrationLinkedCount: number;
+	nameLinkedCount: number;
+	unresolvedRacerCount: number;
+	readiness: BoatExDerivedReadiness;
+}
+
+export interface BoatExHistoricalRaceAnalysisSummaryFile {
+	schemaVersion: "boat-ex-historical-race-analysis-v1";
+	kind: "boatrace-ex-historical-race-analysis-summary";
+	generatedAt: string;
+	dateRange: { firstDate: BoatExDateKey | null; latestDate: BoatExDateKey; dateCount: number };
+	summary: Omit<BoatExHistoricalRaceAnalysisDateSummary, "date" | "path">;
+	sourceFiles: string[];
+}
+
+export interface BoatExHistoricalRaceAnalysisIndexFile {
+	schemaVersion: "boat-ex-historical-race-analysis-v1";
+	kind: "boatrace-ex-historical-race-analysis-index";
+	generatedAt: string;
+	latestDate: BoatExDateKey;
+	dateCount: number;
+	summary: Omit<BoatExHistoricalRaceAnalysisDateSummary, "date" | "path">;
+	dates: BoatExHistoricalRaceAnalysisDateSummary[];
+	sourceFiles: string[];
+}
+
+export interface BoatExHistoricalRaceAnalysisDateFile {
+	schemaVersion: "boat-ex-historical-race-analysis-v1";
+	kind: "boatrace-ex-historical-race-analysis-date";
+	generatedAt: string;
+	date: BoatExDateKey;
+	summary: Omit<BoatExHistoricalRaceAnalysisDateSummary, "date" | "path">;
 	sourceFiles: string[];
 	races: BoatExRaceAnalysisItem[];
 }
