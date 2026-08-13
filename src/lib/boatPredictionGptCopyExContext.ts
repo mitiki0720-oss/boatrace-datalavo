@@ -4,6 +4,8 @@ import type {
 	BoatExHistoricalRaceAnalysisIndexFile,
 	BoatExRaceAnalysisFile,
 	BoatExRaceAnalysisItem,
+	BoatExVenueEvidenceFile,
+	BoatExVenueEvidenceItem,
 } from "./boatExTypes";
 import { withBasePath } from "./assetPath";
 import { getBoatPredictionRaceTimeLabel, type BoatPredictionVenueTimeKind } from "./boatPredictionGptCopy";
@@ -29,6 +31,8 @@ export type BoatPredictionGptCopyExContext = {
 	venueBias: JsonRecord | null;
 	roughIndex: JsonRecord | null;
 	todayFlow: JsonRecord | null;
+	venueEvidence: BoatExVenueEvidenceFile | null;
+	venueEvidencePath: string;
 };
 
 export type BoatPredictionGptCopyExReferenceLevel = "A" | "B" | "C" | "D" | "unknown";
@@ -48,8 +52,24 @@ export type BoatPredictionGptCopyExReference = {
 	weatherSummary: string;
 	weatherSource: string;
 	weatherObservedAt: string;
+	weatherWaterAvailability: "available" | "partial" | "missing" | "unknown";
 	exhibitionSummary: string;
 	cautions: string[];
+};
+
+export type BoatPredictionGptCopyExWeatherWaterReference = {
+	availability: "available" | "partial" | "missing" | "unknown";
+	windWaveAvailability: "available" | "partial" | "missing" | "unknown";
+	conditionMatch: string;
+	sampleStatus: string;
+	weatherCount: number;
+	raceCount: number;
+	windSpeedAverageMps: number | null;
+	windSpeedMaxMps: number | null;
+	waveHeightAverageCm: number | null;
+	waveHeightMaxCm: number | null;
+	sourcePath: string;
+	sourceNames: string[];
 };
 
 const unavailable = "未取得";
@@ -98,13 +118,15 @@ async function fetchJson<T>(path: string): Promise<T | null> {
 }
 
 export async function loadBoatPredictionGptCopyExContext(date: string): Promise<BoatPredictionGptCopyExContext> {
-	const [latest, historyIndex, venueBias, roughIndex, todayFlow, identityRegistry] = await Promise.all([
+	const venueEvidencePath = `public/data/boatrace-ex/derived/venue-evidence/${date}.json`;
+	const [latest, historyIndex, venueBias, roughIndex, todayFlow, identityRegistry, venueEvidence] = await Promise.all([
 		fetchJson<BoatExRaceAnalysisFile>("data/boatrace-ex/derived/race-analysis/latest.json"),
 		fetchJson<BoatExHistoricalRaceAnalysisIndexFile>("data/boatrace-ex/derived/race-analysis/history-index.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/derived/venue-bias/latest.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/derived/rough-index/latest.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/derived/today-flow/latest.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/identity/registered-racers.generated.json"),
+		fetchJson<BoatExVenueEvidenceFile>(venueEvidencePath.replace(/^public\//, "")),
 	]);
 	const latestForDate = latest?.targetDate === date ? latest : null;
 	const dateEntry = historyIndex?.dates.find((entry) => entry.date === date);
@@ -124,6 +146,8 @@ export async function loadBoatPredictionGptCopyExContext(date: string): Promise<
 		venueBias,
 		roughIndex,
 		todayFlow,
+		venueEvidence,
+		venueEvidencePath,
 	};
 }
 
@@ -211,6 +235,106 @@ function findExRace(exContext: BoatPredictionGptCopyExContext | null, venue: Boa
 	) ?? null;
 }
 
+const findVenueWeatherEvidence = (
+	venueEvidence: BoatExVenueEvidenceFile,
+	venue: BoatTodayVenueItem,
+): BoatExVenueEvidenceItem | null => venueEvidence.venues.find((item) =>
+	(Boolean(venue.venueCode) && item.venueCode === venue.venueCode) || item.venueName === venue.venueName,
+) ?? null;
+
+const metricLabel = (value: number | null, unit: string): string => value === null ? unavailable : `${value}${unit}`;
+
+export function getBoatPredictionGptCopyExWeatherWaterReference(params: {
+	venue: BoatTodayVenueItem;
+	exContext: BoatPredictionGptCopyExContext | null;
+}): BoatPredictionGptCopyExWeatherWaterReference {
+	const { venue, exContext } = params;
+	const sourcePath = exContext?.venueEvidencePath ?? "public/data/boatrace-ex/derived/venue-evidence/<対象日>.json";
+	if (!exContext) {
+		return {
+			availability: "unknown",
+			windWaveAvailability: "unknown",
+			conditionMatch: "未取得（EX context未読込）",
+			sampleStatus: "unknown",
+			weatherCount: 0,
+			raceCount: 0,
+			windSpeedAverageMps: null,
+			windSpeedMaxMps: null,
+			waveHeightAverageCm: null,
+			waveHeightMaxCm: null,
+			sourcePath,
+			sourceNames: [],
+		};
+	}
+
+	const venueEvidence = exContext.venueEvidence;
+	const evidence = venueEvidence ? findVenueWeatherEvidence(venueEvidence, venue) : null;
+	const sourceNames = venueEvidence?.sourceFiles.map((source) => source.sourceName).filter(Boolean) ?? [];
+	if (!evidence) {
+		return {
+			availability: "missing",
+			windWaveAvailability: "missing",
+			conditionMatch: "未取得（対象日・会場のEX天候・水面エビデンスなし）",
+			sampleStatus: "未取得",
+			weatherCount: 0,
+			raceCount: 0,
+			windSpeedAverageMps: null,
+			windSpeedMaxMps: null,
+			waveHeightAverageCm: null,
+			waveHeightMaxCm: null,
+			sourcePath,
+			sourceNames,
+		};
+	}
+
+	const { weatherEvidence, availability, coverage } = evidence;
+	const hasWind = weatherEvidence.windSpeedAverageMps !== null || weatherEvidence.windSpeedMaxMps !== null;
+	const hasWave = weatherEvidence.waveHeightAverageCm !== null || weatherEvidence.waveHeightMaxCm !== null;
+	const windWaveAvailability = hasWind && hasWave
+		? coverage.weather === "available" ? "available" : "partial"
+		: hasWind || hasWave || availability.weatherCount > 0 ? "partial" : "missing";
+	const weatherAvailability = coverage.weather === "available" && windWaveAvailability === "available"
+		? "available"
+		: windWaveAvailability === "missing" ? "missing" : "partial";
+	const sampleStatus = availability.weatherCount === 0
+		? "未取得"
+		: availability.weatherCount < 6
+			? `LOW SAMPLE (${availability.weatherCount}/${evidence.raceCount}R)`
+			: `sufficient (${availability.weatherCount}/${evidence.raceCount}R)`;
+
+	return {
+		availability: weatherAvailability,
+		windWaveAvailability,
+		conditionMatch: "条件一致不足（EX天候・水面タブは会場集計で、当日条件別の比較データは未提供）",
+		sampleStatus,
+		weatherCount: availability.weatherCount,
+		raceCount: evidence.raceCount,
+		windSpeedAverageMps: weatherEvidence.windSpeedAverageMps,
+		windSpeedMaxMps: weatherEvidence.windSpeedMaxMps,
+		waveHeightAverageCm: weatherEvidence.waveHeightAverageCm,
+		waveHeightMaxCm: weatherEvidence.waveHeightMaxCm,
+		sourcePath,
+		sourceNames,
+	};
+}
+
+export function buildBoatPredictionGptCopyExWeatherWaterBlock(reference: BoatPredictionGptCopyExWeatherWaterReference): string {
+	return [
+		"【KURARI BOAT EX 天候・水面】",
+		`EX天候・水面: ${reference.availability}`,
+		`EX風・波データ: ${reference.windWaveAvailability}`,
+		`EX天候件数: ${reference.weatherCount}/${reference.raceCount}R`,
+		`平均風速: ${metricLabel(reference.windSpeedAverageMps, "m/s")} / 最大風速: ${metricLabel(reference.windSpeedMaxMps, "m/s")}`,
+		`平均波高: ${metricLabel(reference.waveHeightAverageCm, "cm")} / 最大波高: ${metricLabel(reference.waveHeightMaxCm, "cm")}`,
+		`条件一致: ${reference.conditionMatch}`,
+		`サンプル: ${reference.sampleStatus}`,
+		`参照source: ${reference.sourcePath}`,
+		`参照source名: ${reference.sourceNames.join(" / ") || unavailable}`,
+		"EX水面メモ: EXページ「天候・水面」タブの会場別風速・波高集計のみを表示しています。",
+		"EX予想補助: EX天候・水面は当日の風・波・展示と合わせて展開判断に使ってください。LOW SAMPLEまたは条件一致不足の場合は過信しないでください。",
+	].join("\n");
+}
+
 export function getBoatPredictionGptCopyExReference(params: {
 	venue: BoatTodayVenueItem;
 	race: BoatRaceItem;
@@ -235,6 +359,7 @@ export function getBoatPredictionGptCopyExReference(params: {
 	const exhibitionSummary = exhibitionAvailability.label;
 	const weather = resolveBoatPredictionWeatherReference({ race, venue, venueExtra, raceExtra });
 	const weatherSummary = `${weather.weather} / 風 ${weather.windDirection} ${weather.windSpeed} / 波 ${weather.waveHeight}`;
+	const weatherWater = getBoatPredictionGptCopyExWeatherWaterReference({ venue, exContext });
 	let level: BoatPredictionGptCopyExReferenceLevel;
 	if (!exContext) {
 		level = "unknown";
@@ -246,12 +371,12 @@ export function getBoatPredictionGptCopyExReference(params: {
 		racerCount > 0 &&
 		linkedCount >= racerCount - 1 &&
 		exRace.exhibitionStatus === "available" &&
-		exRace.weatherStatus === "available"
+		weatherWater.availability === "available"
 	) {
 		level = "A";
-	} else if (linkedCount >= 3) {
+	} else if (linkedCount >= 3 && (weatherWater.availability === "available" || weatherWater.availability === "partial")) {
 		level = "B";
-	} else if (linkedCount >= 1) {
+	} else if (linkedCount >= 1 && weatherWater.availability === "partial") {
 		level = "C";
 	} else {
 		level = "D";
@@ -283,6 +408,7 @@ export function getBoatPredictionGptCopyExReference(params: {
 		weatherSummary,
 		weatherSource: weather.source,
 		weatherObservedAt: weather.observedAt,
+		weatherWaterAvailability: weatherWater.availability,
 		exhibitionSummary,
 		cautions,
 	};
@@ -303,6 +429,7 @@ export function buildBoatPredictionGptCopyExReferenceBlock(reference: BoatPredic
 		`通常素材 weather 表示時点: ${reference.weatherObservedAt}`,
 		`EX参照 weather source: 通常素材[C]と共通 (${reference.weatherSource})`,
 		`EX参照 weather 表示時点: ${reference.weatherObservedAt}`,
+		`EX天候・水面 availability: ${reference.weatherWaterAvailability}`,
 		`展示情報: ${reference.exhibitionSummary}`,
 		...(reference.lowSampleCount > 0 ? [`LOW SAMPLE: ${reference.lowSampleCount}名`] : []),
 		"EX使用上の注意:",
@@ -344,6 +471,8 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 	const sourceStatus = readSourceStatus(venue.source ?? feed.source);
 	const exRace = findExRace(exContext, venue, race);
 	const exReference = getBoatPredictionGptCopyExReference({ venue, race, venueExtra, raceExtra, exContext });
+	const exWeatherWater = getBoatPredictionGptCopyExWeatherWaterReference({ venue, exContext });
+	const normalExhibition = getBoatPredictionExhibitionAvailability({ race, raceExtra });
 	const exhibition = exReference.exhibitionSummary;
 	const notes = exRace?.analysisNotes.filter(Boolean).slice(0, 3) ?? [];
 	const racerLines = exRace?.racers.length
@@ -363,20 +492,27 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 		"【出走表】",
 		...formatRoster(race.racers ?? [], sourceName, sourceAcquiredAt, sourceStatus),
 		buildBoatPredictionGptCopyExReferenceBlock(exReference),
+		buildBoatPredictionGptCopyExWeatherWaterBlock(exWeatherWater),
 		"【展示情報】",
 		exhibition,
 		"【EXレース分析】",
-		`EX分析状態: ${exRace ? "source-backed" : unavailable}`,
+		`EX race-analysis shard: ${exRace ? "source-backed" : unavailable}`,
 		`EXレースsource: ${asText(exRace?.sourceStatus)}`,
-		`EX展示availability: ${asText(exRace?.exhibitionStatus)}`,
-		`EX気象availability: ${asText(exRace?.weatherStatus)}`,
+		`EX shard由来 展示availability: ${asText(exRace?.exhibitionStatus)}`,
+		`通常素材 展示availability: ${normalExhibition.label}`,
+		`EX shard由来 気象availability: ${asText(exRace?.weatherStatus)}`,
 		`EX選手evidence availability: ${asText(exRace?.racerEvidenceStatus)}`,
 		`EX audit path: ${asText(exContext?.auditPath)}`,
 		"【EX選手情報】",
 		...racerLines,
 		"【source-backed / cautions】",
-		"- オッズはこのコピー素材に含めない。",
-		"- 展示未取得は事前予想として扱う。",
+		"- オッズ情報は含まれていますが、予想ではオッズを優先せず、展開・展示・機力・会場傾向・EX天候・水面を重視してください。",
+		normalExhibition.status === "complete"
+			? "- 展示取得済みのため、展示反映済み素材として扱ってください。"
+			: normalExhibition.status === "partial"
+				? "- 展示一部取得です。欠けている展示項目は過信せず、通常sourceと合わせて判断してください。"
+				: "- 展示未取得は事前予想として扱ってください。",
+		"- EX天候・水面は、過去/当日source-backedな参照材料です。",
 		`- EX分析が未取得または一部の場合: ${exRace ? "availabilityのみを利用" : "未取得"}`,
 		...notes.map((note) => `- EX note: ${note}`),
 	].join("\n");
