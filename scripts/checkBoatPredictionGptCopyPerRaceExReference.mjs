@@ -45,6 +45,7 @@ const {
 	buildBoatPredictionGptCopyExReferenceBlock,
 	buildBoatPredictionGptCopyRaceContext,
 	buildBoatPredictionGptCopyExWeatherWaterBlock,
+	buildBoatPredictionGptCopyExVenueSignalsBlock,
 	getBoatPredictionGptCopyExReference,
 	getBoatPredictionGptCopyExWeatherWaterReference,
 } = exContextModule.exports;
@@ -129,9 +130,31 @@ const contextFor = (raceAnalysis, venueEvidence = weatherWaterFixture()) => ({
 	auditPath: "public/data/boatrace-ex/audit/example.json",
 	raceAnalysis,
 	registeredIdentities: [],
-	venueBias: { readiness: { status: "ready" } },
-	roughIndex: { readiness: { status: "ready" } },
-	todayFlow: { readiness: { status: "available" } },
+	venueBias: {
+		readiness: { status: "ready" },
+		venues: [{
+			venueId: "01",
+			venueName: "桐生",
+			readiness: { status: "ready" },
+			firstPlaceBoatNumberCounts: { 1: 50, 2: 12, 3: 10, 4: 8, 5: 6, 6: 4 },
+			firstPlaceBoatNumberRates: { 1: 0.5, 2: 0.12, 3: 0.1, 4: 0.08, 5: 0.06, 6: 0.04 },
+		}],
+	},
+	roughIndex: {
+		readiness: { status: "ready" },
+		venues: [{ venueId: "01", venueName: "桐生", readiness: { status: "ready" }, raceCount: 100, trifectaOver10000RaceCount: 20 }],
+	},
+	todayFlow: {
+		readiness: { status: "available" },
+		targetDate: "2026-08-13",
+		venues: [{
+			venueCode: "01",
+			venueName: "桐生",
+			firstPlaceBoatSequence: [{ raceNo: 1, firstPlaceBoat: "1" }, { raceNo: 2, firstPlaceBoat: "3" }, { raceNo: 7, firstPlaceBoat: "2" }, { raceNo: 8, firstPlaceBoat: "1" }],
+			insideWinCount: 2,
+			outsideWinCount: 2,
+		}],
+	},
 	venueEvidence,
 	venueEvidencePath: "public/data/boatrace-ex/derived/venue-evidence/2026-08-13.json",
 });
@@ -178,6 +201,7 @@ const availableWeatherWater = getBoatPredictionGptCopyExWeatherWaterReference({ 
 const partialWeatherWater = getBoatPredictionGptCopyExWeatherWaterReference({ venue, exContext: contextFor([], weatherWaterFixture({ coverage: "partial", weatherCount: 2, wave: null })) });
 const missingWeatherWater = getBoatPredictionGptCopyExWeatherWaterReference({ venue, exContext: contextFor([], null) });
 const weatherWaterBlock = buildBoatPredictionGptCopyExWeatherWaterBlock(availableWeatherWater);
+const venueSignalsBlock = buildBoatPredictionGptCopyExVenueSignalsBlock({ venue, exContext: contextFor([]) });
 const fullRaceContext = buildBoatPredictionGptCopyRaceContext({ feed, venue, race, raceExtra, venueTimeKind: "day", exContext: contextFor([exRace({ official: 5, exact: 1 })]) });
 const activeBlockOrder = ["時間帯:", "【出走表】", "【KURARI BOAT EX 参照情報】", "【展示情報】", "【EXレース分析】", "【EX選手情報】", "【source-backed / cautions】"];
 const forbidden = ["fake", "score", "rank", "generatedPrediction", "generatedTicket"];
@@ -211,6 +235,7 @@ const checks = {
 		`EX参照 weather 表示時点: ${weatherReference.observedAt}`,
 	].every((line) => referenceWeatherBlock.includes(line)) && !referenceWeatherBlock.includes("東北東 3m"),
 	exWeatherWater: weatherWaterBlock.includes("【KURARI BOAT EX 天候・水面】") && weatherWaterBlock.includes("EX天候・水面: available") && weatherWaterBlock.includes("EX風・波データ: available") && weatherWaterBlock.includes("平均風速: 4.2m/s") && weatherWaterBlock.includes("平均波高: 3.1cm") && weatherWaterBlock.includes("条件一致: 条件一致不足") && weatherWaterBlock.includes("参照source: public/data/boatrace-ex/derived/venue-evidence/2026-08-13.json") && partialWeatherWater.availability === "partial" && partialWeatherWater.sampleStatus.includes("LOW SAMPLE") && missingWeatherWater.availability === "missing" && missingWeatherWater.sampleStatus === "未取得",
+	exVenueRoughFlow: venueSignalsBlock.includes("EX天候・水面履歴: missing") && venueSignalsBlock.includes("風速帯・波高帯・天候・風向別履歴: 未取得") && venueSignalsBlock.includes("イン/中外傾向: イン寄り") && venueSignalsBlock.includes("コース別1着率: 1号艇:50.0%") && venueSignalsBlock.includes("荒れ根拠: 3連単1万円超 20/100R (20.0%)") && venueSignalsBlock.includes("今日の条件で使える根拠: 条件一致不足") && venueSignalsBlock.includes("1R〜6R フロー: 1号艇:1 / 3号艇:1") && venueSignalsBlock.includes("7R〜12R フロー: 1号艇:1 / 2号艇:1") && venueSignalsBlock.includes("当日風・波変化: 未取得"),
 	availabilityAndCautions: fullRaceContext.includes("EX race-analysis shard: source-backed") && fullRaceContext.includes("通常素材 展示availability: 展示取得済み") && fullRaceContext.includes("展示取得済みのため、展示反映済み素材として扱ってください。") && !fullRaceContext.includes("展示未取得は事前予想として扱ってください。") && fullRaceContext.includes("オッズ情報は含まれていますが") && !fullRaceContext.includes("オッズはこのコピー素材に含めない。"),
 	bettingRules: normalWeatherMaterial.includes("買い目は3連単10点。") && normalWeatherMaterial.includes("厚め2点、本線3点、中穴3点、大穴2点。") && normalWeatherMaterial.includes("2連単は使わない。") && !["3連単は厚め2点、本線6点", "2連単は穴狙い2点", "本線6点"].some((fragment) => normalWeatherMaterial.includes(fragment)),
 	activePerRaceBlock: activeBlock.includes("【KURARI BOAT EX 参照情報】") && activeBlock.includes("当日EXレース分析: 未取得"),
