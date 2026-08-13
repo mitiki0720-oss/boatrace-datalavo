@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { BoatPredictionVenueTimeKind } from "../../lib/boatPredictionGptCopy";
 import { boatTheme } from "../../lib/theme";
 
 type BoatGptBulkMaterialPanelProps = {
@@ -6,6 +7,7 @@ type BoatGptBulkMaterialPanelProps = {
 	venueName: string;
 	dateLabel: string;
 	raceRangeLabel: string;
+	rangeTimeKind?: BoatPredictionVenueTimeKind;
 	generatedRaceCount: number;
 	expectedRaceCount: number;
 	readyRaceCount?: number;
@@ -210,6 +212,7 @@ export function BoatGptBulkMaterialPanel({
 	venueName,
 	dateLabel,
 	raceRangeLabel,
+	rangeTimeKind,
 	generatedRaceCount,
 	expectedRaceCount,
 	readyRaceCount = 0,
@@ -306,6 +309,7 @@ export function BoatGptBulkMaterialPanel({
 						<span style={chipStyle}>対象日 {dateLabel}</span>
 						<span style={chipStyle}>対象会場 {venueName}</span>
 						<span style={chipStyle}>対象R {raceRangeLabel}</span>
+						{rangeTimeKind ? <span style={chipStyle}>コピー範囲時間帯 {rangeTimeKind}</span> : null}
 						<span style={chipStyle}>
 							生成済み {generatedRaceCount}/{expectedRaceCount}R
 						</span>
@@ -336,6 +340,7 @@ export function BoatGptBulkMaterialPanel({
 					{ label: "対象日", value: dateLabel },
 					{ label: "対象会場", value: venueName },
 					{ label: "対象レース範囲", value: raceRangeLabel },
+					{ label: "コピー範囲時間帯", value: rangeTimeKind ?? "-" },
 					{ label: "生成済みレース数", value: `${generatedRaceCount}/${expectedRaceCount}R` },
 					{ label: "展示タイム取得状況", value: `OK ${readyRaceCount}R / 一部 ${partialRaceCount}R / 未取得 ${waitingRaceCount + missingRaceLabels.length}R` },
 					{ label: "未取得注記", value: missingRaceLabels.length > 0 ? `${missingRaceLabels.join(", ")} は未取得` : "未取得Rなし" },

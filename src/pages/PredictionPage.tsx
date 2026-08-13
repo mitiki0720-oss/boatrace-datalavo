@@ -34,6 +34,7 @@ import {
 	applyBoatPredictionGptCopyTimeLabel,
 	buildBoatPredictionGptBettingInstruction,
 	getBoatPredictionRaceTimeLabel,
+	getBoatPredictionRangeTimeKind,
 	getBoatPredictionRangePurposeLabel,
 	getBoatPredictionVenueTimeKind,
 } from "../lib/boatPredictionGptCopy";
@@ -1483,7 +1484,8 @@ const buildPracticeFallbackRaceKey = (params: {
 			.filter((race) => expectedRaceNumbers.includes(Number(race.raceNo)))
 			.sort((left, right) => Number(left.raceNo) - Number(right.raceNo));
 		const venueTimeKind = getBoatPredictionVenueTimeKind(selectedVenue, selectedVenueRaces);
-		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(venueTimeKind, "1R〜6R");
+		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
+		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, "1R〜6R");
 		const statusCounts = { ready: 0, partial: 0, waiting: 0 };
 		const sections = selectedRaces.map((race) => {
 			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
@@ -1523,6 +1525,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				raceRangeLabel,
 				rangePurposeLabel,
 				venueTimeKind,
+				rangeTimeKind,
 				exContext: gptCopyExContext,
 			}),
 			"",
@@ -1543,6 +1546,7 @@ const buildPracticeFallbackRaceKey = (params: {
 		return {
 			materialText,
 			raceRangeLabel,
+			rangeTimeKind,
 			generatedRaceCount: selectedRaces.length,
 			expectedRaceCount: selectedRaces.length,
 			readyRaceCount: statusCounts.ready,
@@ -1721,7 +1725,8 @@ const buildPracticeFallbackRaceKey = (params: {
 			.filter((race) => expectedRaceNumbers.includes(Number(race.raceNo)))
 			.sort((left, right) => Number(left.raceNo) - Number(right.raceNo));
 		const venueTimeKind = getBoatPredictionVenueTimeKind(selectedVenue, selectedVenueRaces);
-		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(venueTimeKind, "7R〜12R");
+		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
+		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, "7R〜12R");
 		const statusCounts = { ready: 0, partial: 0, waiting: 0 };
 		const sections = selectedRaces.map((race) => {
 			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
@@ -1768,6 +1773,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				raceRangeLabel,
 				rangePurposeLabel,
 				venueTimeKind,
+				rangeTimeKind,
 				exContext: gptCopyExContext,
 			}),
 			"",
@@ -1785,6 +1791,7 @@ const buildPracticeFallbackRaceKey = (params: {
 		return {
 			materialText,
 			raceRangeLabel,
+			rangeTimeKind,
 			generatedRaceCount: selectedRaces.length,
 			expectedRaceCount: selectedRaces.length,
 			readyRaceCount: statusCounts.ready,
@@ -1807,8 +1814,10 @@ const buildPracticeFallbackRaceKey = (params: {
 		{ key: "1r6r", label: "1R〜6R" },
 		{ key: "7r12r", label: "7R〜12R" },
 	];
-	const activeBulkGptMaterialSummary =
-		bulkGptMaterialRangeKey === "7r12r" ? bulkGptMaterialSummary7R12RWithEx : bulkGptMaterialSummary1R6RWithTimeLabels;
+	const activeBulkGptMaterialSummary = {
+		rangeTimeKind: undefined,
+		...(bulkGptMaterialRangeKey === "7r12r" ? bulkGptMaterialSummary7R12RWithEx : bulkGptMaterialSummary1R6RWithTimeLabels),
+	};
 	const venueCount = venues.length;
 	const isWaitingForTodayFeed = venueCount === 0;
 	const raceCount = races.length;
@@ -3684,6 +3693,7 @@ body:has(.prediction-page-root) {
 					venueName={selectedVenue?.venueName ?? "-"}
 					dateLabel={activePredictionDate}
 					raceRangeLabel={activeBulkGptMaterialSummary.raceRangeLabel}
+					rangeTimeKind={activeBulkGptMaterialSummary.rangeTimeKind}
 					generatedRaceCount={activeBulkGptMaterialSummary.generatedRaceCount}
 					expectedRaceCount={activeBulkGptMaterialSummary.expectedRaceCount}
 					readyRaceCount={activeBulkGptMaterialSummary.readyRaceCount}

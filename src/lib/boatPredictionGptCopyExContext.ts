@@ -108,9 +108,10 @@ export function buildBoatPredictionGptCopyHeader(params: {
 	raceRangeLabel: string;
 	rangePurposeLabel: string;
 	venueTimeKind: BoatPredictionVenueTimeKind;
+	rangeTimeKind: BoatPredictionVenueTimeKind;
 	exContext: BoatPredictionGptCopyExContext | null;
 }): string {
-	const { feed, venue, races, raceRangeLabel, rangePurposeLabel, venueTimeKind, exContext } = params;
+	const { feed, venue, races, raceRangeLabel, rangePurposeLabel, venueTimeKind, rangeTimeKind, exContext } = params;
 	const raceLabels = races.map((race) => `${race.raceNo}R`).join(" / ") || unavailable;
 	const sourceName = venue.source ?? feed.source;
 	const sourceAcquiredAt = venue.generatedAt ?? feed.generatedAt;
@@ -124,6 +125,7 @@ export function buildBoatPredictionGptCopyHeader(params: {
 		`運用日: ${asText(feed.date)}`,
 		`対象レース範囲: ${raceRangeLabel}（実在: ${raceLabels}）`,
 		`会場時間帯: ${venueTimeKind}`,
+		`コピー範囲時間帯: ${rangeTimeKind}`,
 		`用途: ${rangePurposeLabel}`,
 		"============================================================",
 		"このコピー素材のsource:",

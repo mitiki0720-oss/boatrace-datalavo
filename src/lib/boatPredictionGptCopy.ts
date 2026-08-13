@@ -39,6 +39,36 @@ export const getBoatPredictionVenueTimeKind = (venue: BoatTodayVenueItem, races:
 	return "day";
 };
 
+export const getBoatPredictionRangeTimeKind = (
+	venueTimeKind: BoatPredictionVenueTimeKind,
+	races: BoatRaceItem[],
+): BoatPredictionVenueTimeKind => {
+	if (venueTimeKind === "midnight") {
+		return "midnight";
+	}
+
+	const minutes = races
+		.map(raceMinutes)
+		.filter((value): value is number => value !== null)
+		.sort((left, right) => left - right);
+	const rangeFirst = minutes[0] ?? null;
+	const rangeLatest = minutes.length > 0 ? minutes[minutes.length - 1] : null;
+
+	if (rangeFirst === null || rangeLatest === null) {
+		return venueTimeKind;
+	}
+	if (rangeLatest >= 21 * 60) {
+		return "midnight";
+	}
+	if (rangeFirst >= 17 * 60) {
+		return "night";
+	}
+	if (rangeFirst < 10 * 60 + 30) {
+		return "morning";
+	}
+	return "day";
+};
+
 export const getBoatPredictionRaceTimeLabel = (
 	venueTimeKind: BoatPredictionVenueTimeKind,
 	race: BoatRaceItem,
@@ -65,16 +95,16 @@ export const getBoatPredictionRaceTimeLabel = (
 };
 
 export const getBoatPredictionRangePurposeLabel = (
-	venueTimeKind: BoatPredictionVenueTimeKind,
+	rangeTimeKind: BoatPredictionVenueTimeKind,
 	raceRange: "1R〜6R" | "7R〜12R",
 ): string => {
-	const rangeLabel = raceRange === "1R〜6R" ? "前半予想用" : "後半予想用";
+	const rangeLabel = raceRange === "1R〜6R" ? "前半予想" : "後半予想";
 	const prefix = {
 		morning: "モーニング",
 		day: "デイ",
 		night: "ナイター",
 		midnight: "ミッドナイト",
-	}[venueTimeKind];
+	}[rangeTimeKind];
 
 	return `${prefix}/${rangeLabel}`;
 };
