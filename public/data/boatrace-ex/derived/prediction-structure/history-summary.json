@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "boat-ex-structured-tickets-v1",
+  "kind": "boatrace-ex-structured-tickets-history-summary",
+  "generatedAt": "2026-08-13T04:21:16.047Z",
+  "periodStart": "2026-05-24",
+  "periodEnd": "2026-08-02",
+  "dateCount": 68,
+  "historyRaceCount": 8784,
+  "raceCount": 8784,
+  "predictionTextAvailableRaceCount": 8292,
+  "structuredTicketAvailableRaceCount": 1,
+  "structuredTicketCount": 10,
+  "classifiedTicketCount": 10,
+  "unclassifiedTicketCount": 0,
+  "evaluatedPredictionRaceCount": 1,
+  "hitRaceCount": 1,
+  "missRaceCount": 0,
+  "resultUnavailableEvaluationCount": 0,
+  "payoutLinkedHitCount": 1,
+  "totalSourceBackedPayoutYen": 770,
+  "readiness": {
+    "status": "insufficient-history",
+    "reason": "Strict structured ticket coverage is source-backed but remains below the 30-race readiness threshold.",
+    "missingRequirements": [
+      "strict-structured-ticket-coverage-below-30"
+    ]
+  },
+  "parserVersion": "boat-ex-strict-ticket-parser-v1",
+  "parserRules": [
+    "Only source-backed prediction.textExcerpt values are read.",
+    "Only text after the first buy-ticket marker is eligible.",
+    "A ticket section must contain the 3-trifecta marker and an allowed group label.",
+    "Only a line-level ordered three-boat pattern using 1 through 6 is accepted.",
+    "Repeated boat numbers, formation expressions, entrance assumptions, prose, and non-ticket text are skipped.",
+    "A hit requires an exact ordered match against officialResult.finishOrder[0..2]."
+  ],
+  "skippedReasons": {
+    "buy-ticket-marker-unavailable": 8205,
+    "strict-ticket-pattern-unavailable": 86,
+    "prediction-text-unavailable": 492
+  },
+  "sourcePaths": [
+    "public/data/boatrace-ex/index.generated.json"
+  ],
+  "auditPaths": [
+    "public/data/boatrace-ex/audit/structured-tickets-evaluation-2026-08-02.generated.json"
+  ]
+}

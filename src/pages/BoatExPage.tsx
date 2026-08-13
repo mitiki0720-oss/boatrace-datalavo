@@ -13,6 +13,9 @@ import type {
 	BoatExRegisteredRegistrationQualityAuditFile,
 	BoatExRegistrationProvenanceAuditFile,
 	BoatExPredictionStructureV1File,
+	BoatExStructuredTicketsDateFile,
+	BoatExStructuredTicketsHistoryIndexFile,
+	BoatExStructuredTicketsHistorySummaryFile,
 	BoatExHistoricalRaceAnalysisDateFile,
 	BoatExHistoricalRaceAnalysisIndexFile,
 	BoatExHistoricalRaceAnalysisSummaryFile,
@@ -76,6 +79,8 @@ type LoadState = {
 	roughIndex: BoatExRoughIndexV1File | null;
 	todayFlow: BoatExTodayFlowV1File | null;
 	predictionStructure: BoatExPredictionStructureV1File | null;
+	structuredTicketsHistorySummary: BoatExStructuredTicketsHistorySummaryFile | null;
+	structuredTicketsHistoryIndex: BoatExStructuredTicketsHistoryIndexFile | null;
 	raceAnalysis: BoatExRaceAnalysisFile | null;
 	historicalRaceAnalysisSummary: BoatExHistoricalRaceAnalysisSummaryFile | null;
 	historicalRaceAnalysisIndex: BoatExHistoricalRaceAnalysisIndexFile | null;
@@ -1113,6 +1118,38 @@ function PredictionStructureSection({ predictionStructure }: { predictionStructu
 	);
 }
 
+function StructuredTicketHistorySection({ summary, historyIndex }: { summary: BoatExStructuredTicketsHistorySummaryFile | null; historyIndex: BoatExStructuredTicketsHistoryIndexFile | null }) {
+	const [selectedDate, setSelectedDate] = useState("");
+	const [dateFile, setDateFile] = useState<BoatExStructuredTicketsDateFile | null>(null);
+	useEffect(() => {
+		if (historyIndex?.latestDate && !historyIndex.dates.some((entry) => entry.date === selectedDate)) setSelectedDate(historyIndex.latestDate);
+	}, [historyIndex, selectedDate]);
+	useEffect(() => {
+		const entry = historyIndex?.dates.find((candidate) => candidate.date === selectedDate);
+		if (!entry) return;
+		let cancelled = false;
+		setDateFile(null);
+		void fetch(withBasePath(entry.path.replace(/^public\//, "")), { cache: "no-store" })
+			.then(async (response) => { if (!response.ok) throw new Error("structured ticket shard fetch failed"); return await response.json() as BoatExStructuredTicketsDateFile; })
+			.then((value) => { if (!cancelled) setDateFile(value); })
+			.catch(() => { if (!cancelled) setDateFile(null); });
+		return () => { cancelled = true; };
+	}, [historyIndex, selectedDate]);
+	if (!summary || !historyIndex) return <p style={textStyle}>構造化券種の履歴 summary がありません。</p>;
+	const evaluated = (dateFile?.races ?? []).filter((race) => race.evaluation.evaluationStatus === "evaluated");
+	return <>
+		<section style={metricGridStyle}>
+			<article style={cardStyle}><p style={labelStyle}>予想文あり</p><p style={metricValueStyle}>{summary.predictionTextAvailableRaceCount}</p><p style={textStyle}>履歴 {summary.historyRaceCount}R 中の source-backed 件数。</p></article>
+			<article style={cardStyle}><p style={labelStyle}>構造化券種 / 券数</p><p style={metricValueStyle}>{summary.structuredTicketAvailableRaceCount} / {summary.structuredTicketCount}</p><p style={textStyle}>strict parser で読めたレース / 券数。</p></article>
+			<article style={cardStyle}><p style={labelStyle}>評価: 的中 / 不的中</p><p style={metricValueStyle}>{summary.hitRaceCount} / {summary.missRaceCount}</p><p style={textStyle}>完全一致の着順だけで判定します。</p></article>
+			<article style={cardStyle}><p style={labelStyle}>払戻連結 / 合計</p><p style={metricValueStyle}>{summary.payoutLinkedHitCount} / {summary.totalSourceBackedPayoutYen.toLocaleString("ja-JP")}</p><p style={textStyle}>公式3連単払戻がある的中だけを合算します。</p></article>
+		</section>
+		<section style={cardStyle}><p style={labelStyle}>strict parser</p><p style={textStyle}>{summary.parserRules.join(" ")}</p><p style={textStyle}>skip: {Object.entries(summary.skippedReasons).map(([reason, count]) => `${reason} ${count}`).join(" / ")}</p><p style={textStyle}>audit: <code>{summary.auditPaths[0]}</code></p></section>
+		<section style={cardStyle}><label style={textStyle}>日付<select value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} style={{ display: "block", marginTop: "4px" }}>{historyIndex.dates.map((entry) => <option key={entry.date} value={entry.date}>{entry.date} - 券種 {entry.structuredTicketAvailableRaceCount} / 評価 {entry.evaluatedPredictionRaceCount}</option>)}</select></label></section>
+		{dateFile ? <section style={cardStyle}><p style={labelStyle}>{dateFile.date} の評価レース</p>{evaluated.length === 0 ? <p style={textStyle}>この日には strict structured ticket の評価レースがありません。</p> : <ul style={noteListStyle}>{evaluated.map((race) => <li key={`${race.date}:${race.venueCode}:${race.raceNo}`}>{race.venueName} {race.raceNo}R: {race.structuredTickets.map((ticket) => `${ticket.group} ${ticket.boatNumbers.join("-")}`).join(", ")} / 着順 {race.officialResult.finishOrder.join("-")} / {race.evaluation.hit ? "的中" : "不的中"} / 払戻 {race.evaluation.payoutYen?.toLocaleString("ja-JP") ?? "未連結"}<br /><code>{race.sourcePaths.prediction ?? race.sourcePaths.history}</code></li>)}</ul>}</section> : <p style={textStyle}>日別券種 shard を読み込んでいます。</p>}
+	</>;
+}
+
 function ReadinessMatrixSection({ audit }: { audit: BoatExTabCompletenessAuditFile | null }) {
 	if (!audit) return <p style={textStyle}>タブ充足状況監査を読み込めません。</p>;
 
@@ -1388,6 +1425,8 @@ export function BoatExPage() {
 		todayFlow: null,
 		predictionStructure: null,
 		raceAnalysis: null,
+		structuredTicketsHistorySummary: null,
+		structuredTicketsHistoryIndex: null,
 		historicalRaceAnalysisSummary: null,
 		historicalRaceAnalysisIndex: null,
 		historicalSourceCoverage: null,
@@ -1427,7 +1466,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historicalSourceCoverageResponse, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historicalSourceCoverageResponse, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1439,6 +1478,8 @@ export function BoatExPage() {
 					fetch(withBasePath("data/boatrace-ex/derived/rough-index/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/today-flow/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/prediction-structure/latest.json"), { cache: "no-store" }),
+					fetch(withBasePath("data/boatrace-ex/derived/prediction-structure/history-summary.json"), { cache: "no-store" }),
+					fetch(withBasePath("data/boatrace-ex/derived/prediction-structure/history-index.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/race-analysis/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/race-analysis/history-summary.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/race-analysis/history-index.json"), { cache: "no-store" }),
@@ -1458,6 +1499,8 @@ export function BoatExPage() {
 				if (!roughIndexResponse.ok) throw new Error(`rough index fetch failed: ${roughIndexResponse.status}`);
 				if (!todayFlowResponse.ok) throw new Error(`today flow fetch failed: ${todayFlowResponse.status}`);
 				if (!predictionStructureResponse.ok) throw new Error(`prediction structure fetch failed: ${predictionStructureResponse.status}`);
+				if (!structuredTicketsHistorySummaryResponse.ok) throw new Error(`structured ticket history summary fetch failed: ${structuredTicketsHistorySummaryResponse.status}`);
+				if (!structuredTicketsHistoryIndexResponse.ok) throw new Error(`structured ticket history index fetch failed: ${structuredTicketsHistoryIndexResponse.status}`);
 				if (!raceAnalysisResponse.ok) throw new Error(`race analysis fetch failed: ${raceAnalysisResponse.status}`);
 				if (!historicalRaceAnalysisSummaryResponse.ok) throw new Error(`historical race analysis summary fetch failed: ${historicalRaceAnalysisSummaryResponse.status}`);
 				if (!historicalRaceAnalysisIndexResponse.ok) throw new Error(`historical race analysis index fetch failed: ${historicalRaceAnalysisIndexResponse.status}`);
@@ -1470,6 +1513,8 @@ export function BoatExPage() {
 				const roughIndex = await roughIndexResponse.json() as BoatExRoughIndexV1File;
 				const todayFlow = await todayFlowResponse.json() as BoatExTodayFlowV1File;
 				const predictionStructure = await predictionStructureResponse.json() as BoatExPredictionStructureV1File;
+				const structuredTicketsHistorySummary = await structuredTicketsHistorySummaryResponse.json() as BoatExStructuredTicketsHistorySummaryFile;
+				const structuredTicketsHistoryIndex = await structuredTicketsHistoryIndexResponse.json() as BoatExStructuredTicketsHistoryIndexFile;
 				const raceAnalysis = await raceAnalysisResponse.json() as BoatExRaceAnalysisFile;
 				const historicalRaceAnalysisSummary = await historicalRaceAnalysisSummaryResponse.json() as BoatExHistoricalRaceAnalysisSummaryFile;
 				const historicalRaceAnalysisIndex = await historicalRaceAnalysisIndexResponse.json() as BoatExHistoricalRaceAnalysisIndexFile;
@@ -1487,6 +1532,8 @@ export function BoatExPage() {
 					roughIndex,
 					todayFlow,
 					predictionStructure,
+					structuredTicketsHistorySummary,
+					structuredTicketsHistoryIndex,
 					raceAnalysis,
 					historicalRaceAnalysisSummary,
 					historicalRaceAnalysisIndex,
@@ -1513,6 +1560,8 @@ export function BoatExPage() {
 					roughIndex: null,
 					todayFlow: null,
 					predictionStructure: null,
+					structuredTicketsHistorySummary: null,
+					structuredTicketsHistoryIndex: null,
 					raceAnalysis: null,
 					historicalRaceAnalysisSummary: null,
 					historicalRaceAnalysisIndex: null,
@@ -1543,6 +1592,8 @@ export function BoatExPage() {
 	const roughIndex = loadState.roughIndex;
 	const todayFlow = loadState.todayFlow;
 	const predictionStructure = loadState.predictionStructure;
+	const structuredTicketsHistorySummary = loadState.structuredTicketsHistorySummary;
+	const structuredTicketsHistoryIndex = loadState.structuredTicketsHistoryIndex;
 	const raceAnalysis = loadState.raceAnalysis;
 	const historicalRaceAnalysisSummary = loadState.historicalRaceAnalysisSummary;
 	const historicalRaceAnalysisIndex = loadState.historicalRaceAnalysisIndex;
@@ -1877,6 +1928,7 @@ export function BoatExPage() {
 							source="ソースに基づく予測材料のカバレッジだけを表示します。投票推奨、予測、合成スコアは生成しません。"
 						/>
 						<PredictionStructureSection predictionStructure={predictionStructure} />
+						<StructuredTicketHistorySection summary={structuredTicketsHistorySummary} historyIndex={structuredTicketsHistoryIndex} />
 					</SectionShell>
 				);
 			case "race-analysis":

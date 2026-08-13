@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-tab-completeness-audit",
   "auditDate": "2026-08-02",
-  "generatedAt": "2026-08-13T02:48:24.165Z",
-  "policy": "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. No fake score, rank, prediction, ticket parsing, or result inference is used.",
+  "generatedAt": "2026-08-13T04:21:17.099Z",
+  "policy": "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. Strict source-text ticket extraction and exact-order evaluation are limited to the documented prediction-structure contract; no fake score, rank, recommendation, inferred result, or inferred payout is used.",
   "summary": {
     "tabCount": 13,
     "readyCount": 5,
@@ -101,9 +101,11 @@
     {
       "key": "prediction-structure",
       "status": "insufficient-history",
-      "reason": "predictionTextAvailableRaceCount 0 is below minimum 30; structuredTicketAvailableRaceCount 0 is below minimum 30; evaluatedPredictionRaceCount 0 is below minimum 30",
+      "reason": "Strict structured ticket coverage is source-backed but remains below the 30-race readiness threshold. Strict structured ticket history covers 68 dates.",
       "sourcePaths": [
         "public/data/boatrace-ex/derived/prediction-structure/latest.json",
+        "public/data/boatrace-ex/derived/prediction-structure/history-summary.json",
+        "public/data/boatrace-ex/derived/prediction-structure/history-index.json",
         "public/data/boatrace-ex/audit/prediction-structure-contract-2026-08-02.generated.json"
       ]
     },
