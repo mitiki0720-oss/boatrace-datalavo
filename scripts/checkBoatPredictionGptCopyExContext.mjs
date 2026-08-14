@@ -51,6 +51,9 @@ const requiredContextFragments = [
 	"formatRacerFeatureLines",
 	"KURARI BOAT EX 選手特徴",
 	"登録番号の完全一致と履歴ソースに基づく記述統計",
+	"currentDayPredictionCoverage",
+	"KURARI BOAT EX 当日予想coverage",
+	"race-analysis: 未取得（結果・払戻の確定後に生成）",
 ];
 const forbiddenContextFragments = ["fake", "score", "rank", "generatedPrediction", "generatedTicket"];
 

@@ -711,6 +711,33 @@ export interface BoatExRacerIdentityUnresolvedAuditFile {
 	};
 }
 
+export interface BoatExCurrentDayPredictionCoverageFile {
+	schemaVersion: number;
+	kind: "boatrace-ex-current-day-prediction-coverage";
+	targetDate: BoatExDateKey;
+	generatedAt: string;
+	sourcePath: string;
+	venueCount: number;
+	raceCount: number;
+	slotCount: number;
+	entriesCompleteRaceCount: number;
+	registrationPresentCount: number;
+	registrationMissingCount: number;
+	exactRegistryLinkedCount: number;
+	weatherAvailableRaceCount: number;
+	windAvailableRaceCount: number;
+	waveAvailableRaceCount: number;
+	exhibitionDisplayTimeCompleteRaceCount: number;
+	exhibitionDisplayTimePartialRaceCount: number;
+	exhibitionDisplayTimeMissingRaceCount: number;
+	motorAvailableSlotCount: number;
+	boatAvailableSlotCount: number;
+	resultAvailableRaceCount: number;
+	payoutAvailableRaceCount: number;
+	resultStatus: "pre-race" | "partial-result" | "completed";
+	sourceKinds: string[];
+}
+
 export interface BoatExRacerEvidenceRegistryLinkageAuditFile {
 	schemaVersion: number;
 	kind: "boatrace-ex-racer-evidence-registry-linkage-audit";
