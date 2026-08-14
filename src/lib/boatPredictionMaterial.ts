@@ -1134,6 +1134,8 @@ export type BoatPredictionExhibitionAvailability = {
 	status: "complete" | "partial" | "missing";
 	availableFrameCount: number;
 	exhibitionTimeFrameCount: number;
+	hasNonTimeInfo: boolean;
+	nonTimeInfoLabel: string;
 	hasExhibitionTime: boolean;
 	hasStartTiming: boolean;
 	hasCourse: boolean;
@@ -1171,9 +1173,10 @@ export function getBoatPredictionExhibitionAvailability(params: {
 
 	const availableFrameCount = availableFrames.size;
 	const exhibitionTimeFrameCount = exhibitionTimeFrames.size;
+	const hasNonTimeInfo = availableFrameCount > exhibitionTimeFrameCount;
 	const status = exhibitionTimeFrameCount >= 6
 		? "complete"
-		: exhibitionTimeFrameCount > 0 || availableFrameCount > 0
+		: exhibitionTimeFrameCount > 0
 			? "partial"
 			: "missing";
 	const detailNames = [
@@ -1182,18 +1185,19 @@ export function getBoatPredictionExhibitionAvailability(params: {
 		hasCourse ? "進入" : "",
 		hasTilt ? "チルト" : "",
 	].filter(Boolean);
+	const nonTimeInfoLabel = detailNames.filter((name) => name !== "展示タイム").join("・");
 	const label = status === "complete"
 		? `展示取得済み (${exhibitionTimeFrameCount}/6艇: ${detailNames.join("・")})`
 		: status === "partial"
-			? exhibitionTimeFrameCount > 0
-				? `展示タイム一部取得 (${exhibitionTimeFrameCount}/6艇: ${detailNames.join("・")})`
-				: `展示情報一部取得（タイム未取得: ${detailNames.join("・")}）`
-			: "展示未取得 / 事前予想";
+			? `展示タイム一部取得 ${exhibitionTimeFrameCount}/6`
+			: "展示タイム未取得 / 事前予想";
 
 	return {
 		status,
 		availableFrameCount,
 		exhibitionTimeFrameCount,
+		hasNonTimeInfo,
+		nonTimeInfoLabel,
 		hasExhibitionTime,
 		hasStartTiming,
 		hasCourse,
@@ -1210,9 +1214,6 @@ export function getBoatPredictionExhibitionCardLabel(
 	}
 	if (availability.exhibitionTimeFrameCount > 0) {
 		return `展示タイム一部取得 ${availability.exhibitionTimeFrameCount}/6`;
-	}
-	if (availability.availableFrameCount > 0) {
-		return "展示情報一部取得（タイム未取得）";
 	}
 	return "展示タイム未取得";
 }
@@ -1526,6 +1527,10 @@ export function buildBoatPredictionMaterial(params: {
 		].join("\n"),
 		[
 			"[F. 展示情報]",
+			exhibitionAvailability.label,
+			exhibitionAvailability.status === "missing" && exhibitionAvailability.hasNonTimeInfo
+				? `参考: ${exhibitionAvailability.nonTimeInfoLabel || "非タイム展示項目"}がsourceに含まれますが、展示タイム未取得のため展示反映扱いにはしません。`
+				: "",
 			exhibitions.length > 0
 			    ? exhibitions.map((item) => buildExhibitionBlock(item)).join("\n\n")
 				: "- 展示更新待ち（事前予想は可能です。展示取得後に再コピーしてください）",
@@ -1545,8 +1550,8 @@ export function buildBoatPredictionMaterial(params: {
 	hasCompletePredictionExhibition
 		? "素材モード: 展示反映済み"
 		: exhibitionAvailability.status === "partial"
-			? `素材モード: 展示一部取得（${exhibitionAvailability.label}）`
-			: "素材モード: 展示未取得の事前予想",
+			? `素材モード: ${exhibitionAvailability.label}`
+			: "素材モード: 展示タイム未取得 / 事前予想",
 	...(hasCompletePredictionExhibition
 		? [
 				"- 公式展示タイム6艇分を取得済みです。展示・進入・モーター・ボート・風・波・公式オッズを総合して予想できます。",
@@ -1554,12 +1559,15 @@ export function buildBoatPredictionMaterial(params: {
 			]
 		: exhibitionAvailability.status === "partial"
 			? [
-				"- 展示一部取得です。欠けている展示項目は推測で補完せず、取得済みの展示・出走表・天気・モーター・公式オッズを合わせて判断してください。",
+				"- 展示タイム一部取得です。未取得の展示タイムは推測で補完せず、取得済みの展示タイム・出走表・天気・モーター・公式オッズを合わせて判断してください。",
 				"- この素材は予想用のため、着順・払戻・決まり手などの結果情報は含めません。",
 			]
 			: [
 				"- 出走表・天気・モーター・公式オッズを使って事前予想できます。",
-				"- 展示未取得は事前予想として扱ってください。",
+				"- 展示タイム未取得です。展示反映済み素材として扱わず、事前予想として扱ってください。",
+				...(exhibitionAvailability.hasNonTimeInfo
+					? ["- 進入・チルト・体重など非タイム項目が含まれていても、展示タイム未取得なら展示反映扱いにしないでください。"]
+					: []),
 				"- 展示取得後は、最新素材を再コピーしてください。",
 				"- この素材は予想用のため、着順・払戻・決まり手などの結果情報は含めません。",
 			]),
@@ -1569,8 +1577,8 @@ export function buildBoatPredictionMaterial(params: {
 	hasCompletePredictionExhibition
 		? "この資料をもとに、展示・進入・モーター・ボート・風・波を総合し、オッズではなく展開を重視して競艇予想をしてください。"
 		: exhibitionAvailability.status === "partial"
-			? `この資料は展示一部取得素材です（${exhibitionAvailability.label}）。未取得値を補完せず、出走表・天気・モーター・ボートと取得済み展示情報を中心に、オッズではなく展開を重視して競艇予想をしてください。`
-			: "この資料は展示未取得の事前予想素材です。出走表・天気・モーター・ボートを中心に、オッズではなく展開を重視して競艇予想をしてください。展示取得後は再確認してください。",
+			? `この資料は${exhibitionAvailability.label}素材です。未取得の展示タイムを補完せず、出走表・天気・モーター・ボートと取得済み展示タイムを中心に、オッズではなく展開を重視して競艇予想をしてください。`
+			: "この資料は展示タイム未取得の事前予想素材です。非タイム項目があっても展示反映扱いにせず、出走表・天気・モーター・ボートを中心に、オッズではなく展開を重視して競艇予想をしてください。展示取得後は再確認してください。",
 	"買い目は3連単10点。",
 	"厚め2点、本線3点、中穴3点、大穴2点。",
 	"2連単は使わない。",
