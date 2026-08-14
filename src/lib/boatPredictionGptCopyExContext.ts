@@ -725,8 +725,11 @@ export function getBoatPredictionGptCopyExReference(params: {
 		!exRace ? "当日EXレース分析は未取得です。現在のsourceのavailabilityだけで判断してください。" : null,
 		unresolvedCount > 0 ? `選手EXリンク未解決: ${unresolvedCount}名。推測補完はしないでください。` : null,
 		lowSampleCount > 0 ? `LOW SAMPLE: ${lowSampleCount}名。参考情報として扱ってください。` : null,
-		exhibitionAvailability.status === "missing" ? "展示情報は未取得です。事前予想として扱ってください。" : null,
-		exhibitionAvailability.status === "partial" ? "展示情報は一部取得です。未取得値は補完しないでください。" : null,
+		exhibitionAvailability.status === "missing" ? "展示タイム未取得です。展示反映済み素材として扱わず、事前予想として扱ってください。" : null,
+		exhibitionAvailability.status === "missing" && exhibitionAvailability.hasNonTimeInfo
+			? "進入・チルト・体重など非タイム項目が含まれていても、展示タイム未取得なら展示反映扱いにしないでください。"
+			: null,
+		exhibitionAvailability.status === "partial" ? "展示タイム一部取得です。未取得の展示タイムは補完しないでください。" : null,
 		weather.weather === unavailable && weather.windDirection === unavailable && weather.waveHeight === unavailable
 			? "天候・風・波は未取得です。現在sourceにない値は補完しないでください。"
 			: null,
@@ -865,8 +868,11 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 		normalExhibition.status === "complete"
 			? "- 展示取得済みのため、展示反映済み素材として扱ってください。"
 			: normalExhibition.status === "partial"
-				? "- 展示一部取得です。欠けている展示項目は過信せず、通常sourceと合わせて判断してください。"
-				: "- 展示未取得は事前予想として扱ってください。",
+				? "- 展示タイム一部取得です。未取得の展示タイムは過信せず、通常sourceと合わせて判断してください。"
+				: "- 展示タイム未取得です。展示反映済み素材として扱わず、事前予想として扱ってください。",
+		normalExhibition.status === "missing" && normalExhibition.hasNonTimeInfo
+			? `- 非タイム展示項目: ${normalExhibition.nonTimeInfoLabel || "sourceにあり"}。展示タイム未取得のため展示反映扱いにはしません。`
+			: null,
 		"- EX天候・水面は、過去/当日source-backedな参照材料です。",
 		`- EX分析が未取得または一部の場合: ${exRace ? "availabilityのみを利用" : "未取得"}`,
 		...notes.map((note) => `- EX note: ${note}`),
