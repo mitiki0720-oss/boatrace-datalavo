@@ -498,8 +498,12 @@ function resultNeedsCompletion(result) {
 }
 
 function normalizeRaceNo(value) {
-	const raceNo = Number.parseInt(String(value ?? ""), 10);
-	return Number.isInteger(raceNo) && raceNo >= 1 && raceNo <= 12 ? raceNo : null;
+	if (typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 12) {
+		return value;
+	}
+
+	const match = compactText(value).match(/^0*([1-9]|1[0-2])\s*(?:R)?$/iu);
+	return match ? Number(match[1]) : null;
 }
 
 function getDetailResult(detail) {
@@ -2779,15 +2783,6 @@ function getVenueExtraExhibitions(venueExtraRace) {
 	];
 
 	return candidates.find((rows) => countExhibitionTimes(rows) > 0) ?? [];
-}
-
-function normalizeRaceNo(value) {
-	if (typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 12) {
-		return value;
-	}
-
-	const match = compactText(value).match(/^0*([1-9]|1[0-2])\s*(?:R)?$/iu);
-	return match ? Number(match[1]) : null;
 }
 
 function buildRaceNoMap(races) {
