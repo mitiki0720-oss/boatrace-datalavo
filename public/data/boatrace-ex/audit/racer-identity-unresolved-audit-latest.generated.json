@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-racer-identity-unresolved-audit",
+  "auditDate": "2026-08-15",
+  "generatedAt": "2026-08-14T22:15:33.746Z",
+  "policy": "registrationNo exact only; name-only is never an exact identity",
+  "sourceFiles": [
+    "public/data/boatrace/today.generated.json",
+    "public/data/boatrace/today-race-details.generated.json",
+    "public/data/boatrace-ex/identity/registered-racers.generated.json",
+    "public/data/boatrace-ex/index.generated.json"
+  ],
+  "unresolved": {
+    "appearanceCount": 49752,
+    "uniqueRacerCount": 1593,
+    "bySource": {
+      "user": 49752
+    },
+    "parserDroppedRegistrationNo": 0,
+    "historicalSourceNameOnly": 49752
+  },
+  "currentDay": {
+    "date": "2026-08-15",
+    "venueCount": 18,
+    "raceCount": 216,
+    "slotCount": 1296,
+    "registrationPresentCount": 1296,
+    "registrationMissingCount": 0,
+    "exactRegistryLinkedCount": 1098,
+    "missingExamples": []
+  },
+  "classifications": [
+    "source-missing-registrationNo",
+    "parser-dropped-registrationNo",
+    "historical-source-name-only",
+    "stale-generated-source",
+    "foreign-racer-alias-needed",
+    "unsafe-name-only",
+    "unknown"
+  ]
+}

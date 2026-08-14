@@ -28,6 +28,17 @@ export type BoatPredictionGptCopyExContext = {
 		firstSeenDate: string;
 		lastSeenDate: string;
 	}>;
+	racerFeatures: Array<{
+		registrationNo: string;
+		name: string;
+		historyStarts: number;
+		sampleLevel: string;
+		venues: Array<{ venueCode: string; starts: number; sampleLevel: string }>;
+		frames: Array<{ frameNo: number; starts: number; sampleLevel: string }>;
+		startTiming: { sampleCount: number; average: number | null; sampleLevel: string };
+		winMethodCounts: Record<string, number>;
+		recent: { last5: { starts: number; averageST: number | null }; last10: { starts: number; averageST: number | null } };
+	}>;
 	venueBias: JsonRecord | null;
 	roughIndex: JsonRecord | null;
 	todayFlow: JsonRecord | null;
@@ -133,7 +144,7 @@ async function fetchJson<T>(path: string): Promise<T | null> {
 
 export async function loadBoatPredictionGptCopyExContext(date: string): Promise<BoatPredictionGptCopyExContext> {
 	const weatherWaterHistoryPath = "public/data/boatrace-ex/derived/weather-water-history/latest.json";
-	const [latest, historyIndex, dateIndex, venueBias, roughIndex, todayFlow, identityRegistry, weatherWaterHistory, venueRaceBandHistory, decisionMethodHistory, entryShiftHistory, motorBoatHistory] = await Promise.all([
+	const [latest, historyIndex, dateIndex, venueBias, roughIndex, todayFlow, identityRegistry, racerFeaturesFile, weatherWaterHistory, venueRaceBandHistory, decisionMethodHistory, entryShiftHistory, motorBoatHistory] = await Promise.all([
 		fetchJson<BoatExRaceAnalysisFile>("data/boatrace-ex/derived/race-analysis/latest.json"),
 		fetchJson<BoatExHistoricalRaceAnalysisIndexFile>("data/boatrace-ex/derived/race-analysis/history-index.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/index.generated.json"),
@@ -141,6 +152,7 @@ export async function loadBoatPredictionGptCopyExContext(date: string): Promise<
 		fetchJson<JsonRecord>("data/boatrace-ex/derived/rough-index/latest.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/derived/today-flow/latest.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/identity/registered-racers.generated.json"),
+		fetchJson<JsonRecord>("data/boatrace-ex/derived/racer-features/latest.json"),
 		fetchJson<JsonRecord>(weatherWaterHistoryPath.replace(/^public\//, "")),
 		fetchJson<JsonRecord>("data/boatrace-ex/derived/venue-race-band-history/latest.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/derived/decision-method-history/latest.json"),
@@ -167,6 +179,7 @@ export async function loadBoatPredictionGptCopyExContext(date: string): Promise<
 		auditPath,
 		raceAnalysis: analysisFile?.races ?? [],
 		registeredIdentities: asArray<BoatPredictionGptCopyExContext["registeredIdentities"][number]>(identityRegistry?.identities),
+		racerFeatures: asArray<BoatPredictionGptCopyExContext["racerFeatures"][number]>(racerFeaturesFile?.racers),
 		venueBias,
 		roughIndex,
 		todayFlow,
@@ -805,6 +818,35 @@ const formatRoster = (racers: BoatRacerItem[], sourceName: string, sourceAcquire
 	].join(" / "));
 };
 
+function formatRacerFeatureLines(params: {
+	venue: BoatTodayVenueItem;
+	race: BoatRaceItem;
+	exContext: BoatPredictionGptCopyExContext | null;
+}): string[] {
+	const { venue, race, exContext } = params;
+	const featuresByRegistrationNo = new Map((exContext?.racerFeatures ?? []).map((feature) => [feature.registrationNo, feature]));
+
+	return (race.racers ?? []).map((racer) => {
+		const registrationNo = asText(racer.registrationNo, "");
+		const feature = featuresByRegistrationNo.get(registrationNo);
+		if (!feature) {
+			return `- ${asText(racer.frameNo)}号艇 / ${asText(racer.name)} / 登録番号完全一致のEX履歴特徴は未取得`;
+		}
+
+		const venueHistory = feature.venues.find((item) => item.venueCode === venue.venueCode);
+		const frameHistory = feature.frames.find((item) => item.frameNo === Number(racer.frameNo));
+		const leadingMethod = Object.entries(feature.winMethodCounts)
+			.sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], "ja"))[0];
+		const startTiming = feature.startTiming.sampleCount > 0 && feature.startTiming.average !== null
+			? `平均ST ${feature.startTiming.average.toFixed(3)} (${feature.startTiming.sampleCount}走)`
+			: "平均ST 未取得";
+		const localHistory = venueHistory ? `当地 ${venueHistory.starts}走 (${venueHistory.sampleLevel})` : "当地履歴 未取得";
+		const frame = frameHistory ? `${asText(racer.frameNo)}枠 ${frameHistory.starts}走 (${frameHistory.sampleLevel})` : `${asText(racer.frameNo)}枠履歴 未取得`;
+		const method = leadingMethod ? `決まり手 ${leadingMethod[0]} ${leadingMethod[1]}件` : "決まり手 未取得";
+		return `- ${asText(racer.frameNo)}号艇 / ${asText(racer.name)} / 登録番号 ${feature.registrationNo} / EX履歴 ${feature.historyStarts}走 (${feature.sampleLevel}) / ${localHistory} / ${frame} / ${startTiming} / 直近5走 ${feature.recent.last5.starts}走 / ${method}`;
+	});
+}
+
 export function buildBoatPredictionGptCopyRaceContext(params: {
 	feed: BoatTodayFeed;
 	venue: BoatTodayVenueItem;
@@ -824,6 +866,7 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 	const normalExhibition = getBoatPredictionExhibitionAvailability({ race, raceExtra });
 	const exhibition = exReference.exhibitionSummary;
 	const notes = exRace?.analysisNotes.filter(Boolean).slice(0, 3) ?? [];
+	const racerFeatureLines = formatRacerFeatureLines({ venue, race, exContext });
 	const racerLines = exRace?.racers.length
 		? exRace.racers.map((racer) => {
 			const registrationNo = racer.officialRegistrationNo ?? racer.resolvedRegistrationNo ?? unavailable;
@@ -863,6 +906,9 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 		`EX audit path: ${asText(exContext?.auditPath)}`,
 		"【EX選手情報】",
 		...racerLines,
+		"【KURARI BOAT EX 選手特徴】",
+		...racerFeatureLines,
+		"- 登録番号の完全一致と履歴ソースに基づく記述統計です。判断結果や買い目ではありません。",
 		"【source-backed / cautions】",
 		"- オッズ情報は含まれていますが、予想ではオッズを優先せず、展開・展示・機力・会場傾向・EX天候・水面を重視してください。",
 		normalExhibition.status === "complete"

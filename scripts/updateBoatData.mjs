@@ -128,6 +128,14 @@ function buildBoatExHistoricalSourceIndexCheckArgs() {
 	return ["scripts/checkBoatExHistoricalSourceIndex.mjs"];
 }
 
+function buildBoatExRacerFeaturesArgs() {
+	return ["scripts/generateBoatExRacerFeatures.mjs"];
+}
+
+function buildBoatExRacerFeaturesCheckArgs() {
+	return ["scripts/checkBoatExRacerIdentityCompleteness.mjs"];
+}
+
 function runNodeScript(args) {
 	return new Promise((resolve, reject) => {
 		const child = spawn(process.execPath, args, {
@@ -192,6 +200,9 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 	console.log("[update-boat-data] BOATRACE EX historical source index enabled");
 	await runNodeScript(buildBoatExHistoricalSourceIndexArgs());
 	await runNodeScript(buildBoatExHistoricalSourceIndexCheckArgs());
+	console.log("[update-boat-data] BOATRACE EX racer features enabled");
+	await runNodeScript(buildBoatExRacerFeaturesArgs());
+	await runNodeScript(buildBoatExRacerFeaturesCheckArgs());
 
 	if (venueExtrasArgs) {
 		console.log("[update-boat-data] exhibition gap check enabled");
