@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-tab-completeness-audit",
   "auditDate": "2026-08-02",
-  "generatedAt": "2026-08-13T04:21:17.099Z",
+  "generatedAt": "2026-08-14T22:45:18.176Z",
   "policy": "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. Strict source-text ticket extraction and exact-order evaluation are limited to the documented prediction-structure contract; no fake score, rank, recommendation, inferred result, or inferred payout is used.",
   "summary": {
     "tabCount": 13,
@@ -15,10 +15,11 @@
     {
       "key": "overview",
       "status": "ready",
-      "reason": "Latest EX index and readiness matrix are available.",
+      "reason": "Historical EX and current-day coverage are separated. Current target date: 2026-08-15.",
       "sourcePaths": [
         "public/data/boatrace-ex/index.generated.json",
-        "public/data/boatrace-ex/derived/history-coverage/latest.json"
+        "public/data/boatrace-ex/derived/history-coverage/latest.json",
+        "public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json"
       ]
     },
     {
@@ -33,10 +34,11 @@
     {
       "key": "data-coverage",
       "status": "available",
-      "reason": "Date, history, and derived coverage files are available.",
+      "reason": "Date, historical EX, and current-day prediction coverage files are available.",
       "sourcePaths": [
         "public/data/boatrace-ex/index.generated.json",
         "public/data/boatrace-ex/derived/history-coverage/latest.json",
+        "public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json",
         "public/data/boatrace-ex/derived/venue-evidence/2026-08-02.json"
       ]
     },
@@ -124,12 +126,13 @@
     {
       "key": "ex-analysis",
       "status": "available",
-      "reason": "The hub joins source-backed venue, rough index, today flow, and prediction-structure availability without ranking them.",
+      "reason": "The hub separates historical result-based EX from current-day prediction coverage without ranking them.",
       "sourcePaths": [
         "public/data/boatrace-ex/derived/venue-bias/latest.json",
         "public/data/boatrace-ex/derived/rough-index/latest.json",
         "public/data/boatrace-ex/derived/today-flow/latest.json",
-        "public/data/boatrace-ex/derived/prediction-structure/latest.json"
+        "public/data/boatrace-ex/derived/prediction-structure/latest.json",
+        "public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json"
       ]
     }
   ]

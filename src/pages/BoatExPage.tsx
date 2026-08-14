@@ -11,6 +11,7 @@ import type {
 	BoatExRacerEvidenceItem,
 	BoatExRacerFeaturesFile,
 	BoatExRacerIdentityUnresolvedAuditFile,
+	BoatExCurrentDayPredictionCoverageFile,
 	BoatExRegisteredRacerIdentityRegistryFile,
 	BoatExRegisteredRegistrationQualityAuditFile,
 	BoatExRegistrationProvenanceAuditFile,
@@ -110,6 +111,7 @@ type LoadState = {
 	racerEvidence: BoatExRacerEvidenceFile | null;
 	racerFeatures: BoatExRacerFeaturesFile | null;
 	racerIdentityUnresolvedAudit: BoatExRacerIdentityUnresolvedAuditFile | null;
+	currentDayPredictionCoverage: BoatExCurrentDayPredictionCoverageFile | null;
 	venueBias: BoatExVenueBiasV1File | null;
 	roughIndex: BoatExRoughIndexV1File | null;
 	todayFlow: BoatExTodayFlowV1File | null;
@@ -723,6 +725,34 @@ function RacerFeaturesSection({
 				</article>
 			</section>
 			<p style={textStyle}>出典: <code>/data/boatrace-ex/derived/racer-features/latest.json</code> / <code>/data/boatrace-ex/audit/racer-identity-unresolved-audit-latest.generated.json</code></p>
+		</section>
+	);
+}
+
+function CurrentDayPredictionCoverageSection({ coverage }: { coverage: BoatExCurrentDayPredictionCoverageFile | null }) {
+	if (!coverage) return <p style={textStyle}>当日予想用coverageは未読込です。履歴EXとは別の通常素材を確認してください。</p>;
+	const weatherLabel = `${coverage.weatherAvailableRaceCount}/${coverage.raceCount}R`;
+	const windLabel = `${coverage.windAvailableRaceCount}/${coverage.raceCount}R`;
+	const waveLabel = `${coverage.waveAvailableRaceCount}/${coverage.raceCount}R`;
+
+	return (
+		<section style={{ ...cardStyle, gap: "14px" }}>
+			<div>
+				<p style={labelStyle}>当日予想用coverage</p>
+				<p style={valueStyle}>通常素材の当日完全性</p>
+				<p style={textStyle}>履歴EXの結果・払戻分析とは別に、出走表、登録番号、展示、気象、モーター、ボートの当日状態を表示します。</p>
+			</div>
+			<section style={metricGridStyle}>
+				<article style={cardStyle}><p style={labelStyle}>対象日</p><p style={metricValueStyle}>{coverage.targetDate}</p><p style={textStyle}>会場 {coverage.venueCount} / レース {coverage.raceCount}</p></article>
+				<article style={cardStyle}><p style={labelStyle}>出走表</p><p style={metricValueStyle}>{coverage.entriesCompleteRaceCount}/{coverage.raceCount}R</p><p style={textStyle}>6艇が揃ったレース数</p></article>
+				<article style={cardStyle}><p style={labelStyle}>登録番号</p><p style={metricValueStyle}>{coverage.registrationPresentCount}/{coverage.slotCount}</p><p style={textStyle}>exactリンク {coverage.exactRegistryLinkedCount}/{coverage.slotCount}</p></article>
+				<article style={cardStyle}><p style={labelStyle}>展示タイム</p><p style={metricValueStyle}>{coverage.exhibitionDisplayTimeCompleteRaceCount}/{coverage.raceCount}R</p><p style={textStyle}>一部 {coverage.exhibitionDisplayTimePartialRaceCount} / 未取得 {coverage.exhibitionDisplayTimeMissingRaceCount}</p></article>
+				<article style={cardStyle}><p style={labelStyle}>天候 / 風 / 波</p><p style={metricValueStyle}>{weatherLabel}</p><p style={textStyle}>風 {windLabel} / 波 {waveLabel}</p></article>
+				<article style={cardStyle}><p style={labelStyle}>モーター / ボート</p><p style={metricValueStyle}>{coverage.motorAvailableSlotCount}/{coverage.slotCount}</p><p style={textStyle}>ボート {coverage.boatAvailableSlotCount}/{coverage.slotCount}</p></article>
+				<article style={cardStyle}><p style={labelStyle}>結果 / 払戻</p><p style={metricValueStyle}>{coverage.resultStatus}</p><p style={textStyle}>結果 {coverage.resultAvailableRaceCount} / 払戻 {coverage.payoutAvailableRaceCount}</p></article>
+			</section>
+			<p style={textStyle}>当日EX race-analysis / today-flow は結果・払戻が確定後に生成します。レース前に未取得でも、このcoverageは利用可能です。</p>
+			<p style={textStyle}>出典: <code>/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json</code></p>
 		</section>
 	);
 }
@@ -1564,6 +1594,7 @@ export function BoatExPage() {
 		racerEvidence: null,
 		racerFeatures: null,
 		racerIdentityUnresolvedAudit: null,
+		currentDayPredictionCoverage: null,
 		venueBias: null,
 		roughIndex: null,
 		todayFlow: null,
@@ -1610,7 +1641,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, racerFeatures, racerIdentityUnresolvedAudit, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, racerFeatures, racerIdentityUnresolvedAudit, currentDayPredictionCoverage, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1631,6 +1662,7 @@ export function BoatExPage() {
 					fetch(withBasePath("data/boatrace-ex/derived/weather-water-history/latest.json"), { cache: "no-store" }),
 					fetchOptionalJson<BoatExRacerFeaturesFile>("data/boatrace-ex/derived/racer-features/latest.json"),
 					fetchOptionalJson<BoatExRacerIdentityUnresolvedAuditFile>("data/boatrace-ex/audit/racer-identity-unresolved-audit-latest.generated.json"),
+					fetchOptionalJson<BoatExCurrentDayPredictionCoverageFile>("data/boatrace-ex/derived/current-day-prediction-coverage/latest.json"),
 					fetchOptionalJson<BoatExRegisteredRacerIdentityRegistryFile>("data/boatrace-ex/identity/registered-racers.generated.json"),
 					fetchOptionalJson<BoatExRacerEvidenceRegistryLinkageAuditFile>(`data/boatrace-ex/audit/racer-evidence-registry-linkage-${targetDate}.generated.json`),
 					fetchOptionalJson<BoatExRegisteredRegistrationQualityAuditFile>(`data/boatrace-ex/audit/registered-registration-quality-${targetDate}.generated.json`),
@@ -1680,6 +1712,7 @@ export function BoatExPage() {
 					racerEvidence,
 					racerFeatures,
 					racerIdentityUnresolvedAudit,
+					currentDayPredictionCoverage,
 					venueBias,
 					roughIndex,
 					todayFlow,
@@ -1711,6 +1744,7 @@ export function BoatExPage() {
 					racerEvidence: null,
 					racerFeatures: null,
 					racerIdentityUnresolvedAudit: null,
+					currentDayPredictionCoverage: null,
 					venueBias: null,
 					roughIndex: null,
 					todayFlow: null,
@@ -1746,6 +1780,7 @@ export function BoatExPage() {
 	const racerEvidence = loadState.racerEvidence;
 	const racerFeatures = loadState.racerFeatures;
 	const racerIdentityUnresolvedAudit = loadState.racerIdentityUnresolvedAudit;
+	const currentDayPredictionCoverage = loadState.currentDayPredictionCoverage;
 	const venueBias = loadState.venueBias;
 	const roughIndex = loadState.roughIndex;
 	const todayFlow = loadState.todayFlow;
@@ -1885,6 +1920,20 @@ export function BoatExPage() {
 								<p style={textStyle}>派生manifestのエントリー数です。</p>
 							</article>
 						</section>
+						<section style={twoColumnGridStyle}>
+							<article style={cardStyle}>
+								<p style={labelStyle}>履歴EX</p>
+								<p style={valueStyle}>{venueBias?.dateRange.from ?? "未読込"} ～ {venueBias?.dateRange.to ?? "未読込"}</p>
+								<p style={textStyle}>履歴レース {venueBias?.summary.raceCount ?? "未読込"} / 結果 {roughIndex?.summary.resultAvailableRaceCount ?? "未読込"} / 払戻 {roughIndex?.summary.payoutAvailableRaceCount ?? "未読込"}</p>
+								<p style={textStyle}>会場傾向、荒れ指数、決まり手、履歴選手特徴に利用します。</p>
+							</article>
+							<article style={cardStyle}>
+								<p style={labelStyle}>当日EX race-analysis</p>
+								<p style={valueStyle}>{currentDayPredictionCoverage?.resultStatus === "pre-race" ? "未取得 / レース前" : "結果系を確認中"}</p>
+								<p style={textStyle}>結果・払戻の確定後に生成します。当日予想用coverageとは別の結果系データです。</p>
+							</article>
+						</section>
+						<CurrentDayPredictionCoverageSection coverage={currentDayPredictionCoverage} />
 						<ReadinessMatrixSection audit={tabCompletenessAudit} />
 						<section style={cardGridStyle}>
 							<article style={cardStyle}>

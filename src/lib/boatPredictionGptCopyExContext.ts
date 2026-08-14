@@ -39,6 +39,7 @@ export type BoatPredictionGptCopyExContext = {
 		winMethodCounts: Record<string, number>;
 		recent: { last5: { starts: number; averageST: number | null }; last10: { starts: number; averageST: number | null } };
 	}>;
+	currentDayPredictionCoverage: JsonRecord | null;
 	venueBias: JsonRecord | null;
 	roughIndex: JsonRecord | null;
 	todayFlow: JsonRecord | null;
@@ -74,6 +75,7 @@ export type BoatPredictionGptCopyExReference = {
 	weatherNeedsRefreshCaution: boolean;
 	weatherWaterAvailability: "available" | "partial" | "missing" | "unknown";
 	dailyWeatherAvailability: "available" | "target-date-mismatch" | "unknown";
+	historicalExDate: string;
 	exhibitionSummary: string;
 	cautions: string[];
 };
@@ -144,7 +146,7 @@ async function fetchJson<T>(path: string): Promise<T | null> {
 
 export async function loadBoatPredictionGptCopyExContext(date: string): Promise<BoatPredictionGptCopyExContext> {
 	const weatherWaterHistoryPath = "public/data/boatrace-ex/derived/weather-water-history/latest.json";
-	const [latest, historyIndex, dateIndex, venueBias, roughIndex, todayFlow, identityRegistry, racerFeaturesFile, weatherWaterHistory, venueRaceBandHistory, decisionMethodHistory, entryShiftHistory, motorBoatHistory] = await Promise.all([
+	const [latest, historyIndex, dateIndex, venueBias, roughIndex, todayFlow, identityRegistry, racerFeaturesFile, currentDayPredictionCoverage, weatherWaterHistory, venueRaceBandHistory, decisionMethodHistory, entryShiftHistory, motorBoatHistory] = await Promise.all([
 		fetchJson<BoatExRaceAnalysisFile>("data/boatrace-ex/derived/race-analysis/latest.json"),
 		fetchJson<BoatExHistoricalRaceAnalysisIndexFile>("data/boatrace-ex/derived/race-analysis/history-index.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/index.generated.json"),
@@ -153,6 +155,7 @@ export async function loadBoatPredictionGptCopyExContext(date: string): Promise<
 		fetchJson<JsonRecord>("data/boatrace-ex/derived/today-flow/latest.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/identity/registered-racers.generated.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/derived/racer-features/latest.json"),
+		fetchJson<JsonRecord>("data/boatrace-ex/derived/current-day-prediction-coverage/latest.json"),
 		fetchJson<JsonRecord>(weatherWaterHistoryPath.replace(/^public\//, "")),
 		fetchJson<JsonRecord>("data/boatrace-ex/derived/venue-race-band-history/latest.json"),
 		fetchJson<JsonRecord>("data/boatrace-ex/derived/decision-method-history/latest.json"),
@@ -180,6 +183,7 @@ export async function loadBoatPredictionGptCopyExContext(date: string): Promise<
 		raceAnalysis: analysisFile?.races ?? [],
 		registeredIdentities: asArray<BoatPredictionGptCopyExContext["registeredIdentities"][number]>(identityRegistry?.identities),
 		racerFeatures: asArray<BoatPredictionGptCopyExContext["racerFeatures"][number]>(racerFeaturesFile?.racers),
+		currentDayPredictionCoverage,
 		venueBias,
 		roughIndex,
 		todayFlow,
@@ -767,6 +771,7 @@ export function getBoatPredictionGptCopyExReference(params: {
 		weatherNeedsRefreshCaution,
 		weatherWaterAvailability: weatherWater.availability,
 		dailyWeatherAvailability: exContext ? exContext.venueEvidenceDate === venue.date ? "available" : "target-date-mismatch" : "unknown",
+		historicalExDate: asText(exContext?.venueEvidenceDate),
 		exhibitionSummary,
 		cautions,
 	};
@@ -791,7 +796,7 @@ export function buildBoatPredictionGptCopyExReferenceBlock(reference: BoatPredic
 		`EX参照 weather source: 通常素材[C]と共通 (${reference.weatherSource})`,
 		`EX参照 weather 表示時点: ${reference.weatherObservedAt}`,
 		`EX天候・水面履歴 availability: ${reference.weatherWaterAvailability}`,
-		`EX当日天候・水面 availability: ${reference.dailyWeatherAvailability}`,
+		`EX当日天候・水面 availability: ${reference.dailyWeatherAvailability}${reference.dailyWeatherAvailability === "target-date-mismatch" ? `（履歴EX latest=${reference.historicalExDate} / 予想対象日とは別）` : ""}`,
 		`展示情報: ${reference.exhibitionSummary}`,
 		...(reference.lowSampleCount > 0 ? [`LOW SAMPLE: ${reference.lowSampleCount}名`] : []),
 		"EX使用上の注意:",
@@ -817,6 +822,43 @@ const formatRoster = (racers: BoatRacerItem[], sourceName: string, sourceAcquire
 		`source status ${sourceStatus}`,
 	].join(" / "));
 };
+
+function buildBoatPredictionGptCopyCurrentDayCoverageBlock(params: {
+	venue: BoatTodayVenueItem;
+	race: BoatRaceItem;
+	exContext: BoatPredictionGptCopyExContext | null;
+}): string {
+	const { venue, race, exContext } = params;
+	const coverage = exContext?.currentDayPredictionCoverage;
+	const targetDate = asText(coverage?.targetDate, "");
+	const matchesTargetDate = Boolean(targetDate) && targetDate === asText(venue.date, "");
+	const venueCoverage = asArray<JsonRecord>(coverage?.venues).find((entry) => asText(entry.venueCode, "") === asText(venue.venueCode, ""));
+	const racers = race.racers ?? [];
+	const registrations = racers.filter((racer) => asText(racer.registrationNo, ""));
+	const registeredIdentityNumbers = new Set(exContext?.registeredIdentities.map((item) => item.registrationNo) ?? []);
+	const exactLinked = registrations.filter((racer) => registeredIdentityNumbers.has(asText(racer.registrationNo, ""))).length;
+	const weatherAvailable = Number(venueCoverage?.weatherAvailableRaceCount ?? 0) > 0;
+	const windAvailable = Number(venueCoverage?.windAvailableRaceCount ?? 0) > 0;
+	const waveAvailable = Number(venueCoverage?.waveAvailableRaceCount ?? 0) > 0;
+	const weatherLabel = weatherAvailable && windAvailable && waveAvailable
+		? "available（通常素材source-backed）"
+		: "未取得（通常素材source-backed、公式更新待ち）";
+	const resultStatus = asText(coverage?.resultStatus, "未読込");
+	const exhibition = getBoatPredictionExhibitionAvailability({ race });
+
+	return [
+		"【KURARI BOAT EX 当日予想coverage】",
+		`対象日: ${targetDate || "未読込"}`,
+		`出走表coverage: ${matchesTargetDate && racers.length === 6 ? "available" : "未取得"} (${racers.length}/6)`,
+		`登録番号coverage: ${registrations.length}/${racers.length || 6}`,
+		`選手特徴 exactリンク: ${exactLinked}/${racers.length || 6}`,
+		`天候・風・波: ${weatherLabel}`,
+		`展示タイム: ${exhibition.label}`,
+		`結果/払戻: ${resultStatus}`,
+		"race-analysis: 未取得（結果・払戻の確定後に生成）",
+		"履歴EXとは別に、当日通常素材の完全性を示すcoverageです。",
+	].join("\n");
+}
 
 function formatRacerFeatureLines(params: {
 	venue: BoatTodayVenueItem;
@@ -866,6 +908,7 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 	const normalExhibition = getBoatPredictionExhibitionAvailability({ race, raceExtra });
 	const exhibition = exReference.exhibitionSummary;
 	const notes = exRace?.analysisNotes.filter(Boolean).slice(0, 3) ?? [];
+	const currentDayCoverage = buildBoatPredictionGptCopyCurrentDayCoverageBlock({ venue, race, exContext });
 	const racerFeatureLines = formatRacerFeatureLines({ venue, race, exContext });
 	const racerLines = exRace?.racers.length
 		? exRace.racers.map((racer) => {
@@ -890,6 +933,7 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 		"【出走表】",
 		...formatRoster(race.racers ?? [], sourceName, sourceAcquiredAt, sourceStatus),
 		buildBoatPredictionGptCopyExReferenceBlock(exReference),
+		currentDayCoverage,
 		buildBoatPredictionGptCopyExWeatherWaterBlock(exWeatherWater),
 		buildBoatPredictionGptCopyExDailyCoverageBlock({ venue, exContext }),
 		buildBoatPredictionGptCopyExVenueSignalsBlock({ venue, exContext }),
@@ -897,7 +941,7 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 		"【展示情報】",
 		exhibition,
 		"【EXレース分析】",
-		`EX race-analysis shard: ${exRace ? "source-backed" : unavailable}`,
+		`EX race-analysis shard: ${exRace ? "source-backed" : `未取得（履歴EX latest=${asText(exContext?.venueEvidenceDate)} / 結果・払戻の確定後に生成）`}`,
 		`EXレースsource: ${asText(exRace?.sourceStatus)}`,
 		`EX shard由来 展示availability: ${asText(exRace?.exhibitionStatus)}`,
 		`通常素材 展示availability: ${normalExhibition.label}`,

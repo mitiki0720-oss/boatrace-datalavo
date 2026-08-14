@@ -136,6 +136,14 @@ function buildBoatExRacerFeaturesCheckArgs() {
 	return ["scripts/checkBoatExRacerIdentityCompleteness.mjs"];
 }
 
+function buildBoatExCurrentDayPredictionCoverageArgs() {
+	return ["scripts/generateBoatExCurrentDayPredictionCoverage.mjs"];
+}
+
+function buildBoatExCurrentDayPredictionCoverageCheckArgs() {
+	return ["scripts/checkBoatExCurrentDayPredictionCoverage.mjs"];
+}
+
 function runNodeScript(args) {
 	return new Promise((resolve, reject) => {
 		const child = spawn(process.execPath, args, {
@@ -203,6 +211,9 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 	console.log("[update-boat-data] BOATRACE EX racer features enabled");
 	await runNodeScript(buildBoatExRacerFeaturesArgs());
 	await runNodeScript(buildBoatExRacerFeaturesCheckArgs());
+	console.log("[update-boat-data] BOATRACE EX current-day prediction coverage enabled");
+	await runNodeScript(buildBoatExCurrentDayPredictionCoverageArgs());
+	await runNodeScript(buildBoatExCurrentDayPredictionCoverageCheckArgs());
 
 	if (venueExtrasArgs) {
 		console.log("[update-boat-data] exhibition gap check enabled");
