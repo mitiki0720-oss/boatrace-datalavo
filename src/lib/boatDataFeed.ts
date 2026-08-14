@@ -103,11 +103,26 @@ function createPlaceholderRace(venueId: string, raceNo: number): BoatRaceItem {
 	};
 }
 
+export function normalizeBoatRaceNo(value: unknown): number | null {
+	if (typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 12) {
+		return value;
+	}
+
+	const match = String(value ?? "").trim().match(/^0*([1-9]|1[0-2])\s*(?:R)?$/iu);
+	return match ? Number(match[1]) : null;
+}
+
 function normalizeBoatVenueRacesToTwelve(feed: BoatTodayFeed): BoatTodayFeed {
 	return {
 		...feed,
 		venues: feed.venues.map((venue) => {
-			const existingRaceMap = new Map((venue.races ?? []).map((race) => [race.raceNo, race]));
+			const existingRaceMap = new Map<number, BoatRaceItem>();
+			for (const race of venue.races ?? []) {
+				const raceNo = normalizeBoatRaceNo(race.raceNo);
+				if (raceNo !== null && !existingRaceMap.has(raceNo)) {
+					existingRaceMap.set(raceNo, { ...race, raceNo });
+				}
+			}
 			const normalizedRaces = Array.from({ length: 12 }, (_, index) => {
 				const raceNo = index + 1;
 				return existingRaceMap.get(raceNo) ?? createPlaceholderRace(venue.id, raceNo);

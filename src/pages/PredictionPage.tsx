@@ -12,6 +12,7 @@ import {
 	BOAT_TODAY_WAITING_MESSAGE_LINES,
 	createBoatTodayWaitingFeed,
 	loadBoatTodayRaceDetailsFeed,
+	normalizeBoatRaceNo,
 } from "../lib/boatDataFeed";
 import {
 	BOAT_BET_PARSER_VERSION,
@@ -25,6 +26,7 @@ import {
 import {
 	buildBoatPredictionMaterial,
 	buildBoatPredictionVenueContextMaterial,
+	getBoatPredictionExhibitionCardLabel,
 	getBoatPredictionExhibitionAvailability,
 } from "../lib/boatPredictionMaterial";
 import {
@@ -748,12 +750,14 @@ const buildExhibitionStatusLabel = (params: {
 		race: params.race as BoatRaceItem,
 		raceExtra: params.raceExtra as BoatVenueExtraRace | null,
 	});
+	const shortLabel = getBoatPredictionExhibitionCardLabel(availability);
 	const updatedAt = readLooseString(coverage.updatedAt) || params.extraUpdatedAt || params.feedUpdatedAt || "";
 
 	if (availability.status === "complete") {
 		return {
 			level: "ready" as const,
 			title: availability.label,
+			shortLabel,
 			detail: updatedAt ? `更新 ${formatJstDateTimeLabel(updatedAt)}` : "更新時刻未取得",
 		};
 	}
@@ -762,6 +766,7 @@ const buildExhibitionStatusLabel = (params: {
 		return {
 			level: "partial" as const,
 			title: availability.label,
+			shortLabel,
 			detail: updatedAt ? `更新 ${formatJstDateTimeLabel(updatedAt)}` : "一部取得済み",
 		};
 	}
@@ -770,6 +775,7 @@ const buildExhibitionStatusLabel = (params: {
 		return {
 			level: "waiting" as const,
 			title: "展示未取得 / 事前予想",
+			shortLabel,
 			detail: updatedAt ? `公式直前情報を確認 ${formatJstDateTimeLabel(updatedAt)}` : "公式直前情報を確認中",
 		};
 	}
@@ -777,6 +783,7 @@ const buildExhibitionStatusLabel = (params: {
 	return {
 		level: "waiting" as const,
 		title: "展示未取得 / 事前予想",
+		shortLabel,
 		detail: "公式直前情報を確認中。事前予想として扱います。",
 	};
 };
@@ -895,7 +902,7 @@ const raceExhibitionStatusMap = useMemo<Record<string, PredictionRaceExhibitionS
 
 	return selectedVenueRaces.reduce<Record<string, PredictionRaceExhibitionStatus>>((acc, race) => {
 		const raceKey = getRaceKey(selectedVenue?.id ?? "", race.raceId, race.raceNo);
-		const raceExtra = extraRaces.find((item) => Number(item.raceNo) === Number(race.raceNo));
+		const raceExtra = extraRaces.find((item) => normalizeBoatRaceNo(item.raceNo) === normalizeBoatRaceNo(race.raceNo));
 
 		const status = buildExhibitionStatusLabel({
 			race,
@@ -906,14 +913,6 @@ const raceExhibitionStatusMap = useMemo<Record<string, PredictionRaceExhibitionS
 
 		acc[raceKey] = {
 			...status,
-			shortLabel:
-				status.level === "ready"
-					? "展示タイムOK"
-					: status.level === "partial"
-						? "展示一部あり"
-						: status.title === "公式未掲載"
-							? "公式未掲載"
-							: "展示未取得",
 		};
 
 		return acc;
@@ -1305,8 +1304,9 @@ const buildPracticeFallbackRaceKey = (params: {
 
 		const racesByRaceNo = new Map<number, BoatPredictionRace>();
 		selectedVenueRaces.forEach((race) => {
-			if (expectedRaceNumbers.includes(Number(race.raceNo))) {
-				racesByRaceNo.set(Number(race.raceNo), race);
+			const raceNo = normalizeBoatRaceNo(race.raceNo);
+			if (raceNo !== null && expectedRaceNumbers.includes(raceNo)) {
+				racesByRaceNo.set(raceNo, race);
 			}
 		});
 
@@ -1430,8 +1430,11 @@ const buildPracticeFallbackRaceKey = (params: {
 		}
 
 		const selectedRaces = selectedVenueRaces
-			.filter((race) => expectedRaceNumbers.includes(Number(race.raceNo)))
-			.sort((left, right) => Number(left.raceNo) - Number(right.raceNo));
+			.filter((race) => {
+				const raceNo = normalizeBoatRaceNo(race.raceNo);
+				return raceNo !== null && expectedRaceNumbers.includes(raceNo);
+			})
+			.sort((left, right) => (normalizeBoatRaceNo(left.raceNo) ?? 99) - (normalizeBoatRaceNo(right.raceNo) ?? 99));
 		const venueTimeKind = getBoatPredictionVenueTimeKind(selectedVenue, selectedVenueRaces);
 		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
 		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, "1R〜6R");
@@ -1553,8 +1556,9 @@ const buildPracticeFallbackRaceKey = (params: {
 
 		const racesByRaceNo = new Map<number, BoatPredictionRace>();
 		selectedVenueRaces.forEach((race) => {
-			if (expectedRaceNumbers.includes(Number(race.raceNo))) {
-				racesByRaceNo.set(Number(race.raceNo), race);
+			const raceNo = normalizeBoatRaceNo(race.raceNo);
+			if (raceNo !== null && expectedRaceNumbers.includes(raceNo)) {
+				racesByRaceNo.set(raceNo, race);
 			}
 		});
 
@@ -1683,8 +1687,11 @@ const buildPracticeFallbackRaceKey = (params: {
 		}
 
 		const selectedRaces = selectedVenueRaces
-			.filter((race) => expectedRaceNumbers.includes(Number(race.raceNo)))
-			.sort((left, right) => Number(left.raceNo) - Number(right.raceNo));
+			.filter((race) => {
+				const raceNo = normalizeBoatRaceNo(race.raceNo);
+				return raceNo !== null && expectedRaceNumbers.includes(raceNo);
+			})
+			.sort((left, right) => (normalizeBoatRaceNo(left.raceNo) ?? 99) - (normalizeBoatRaceNo(right.raceNo) ?? 99));
 		const venueTimeKind = getBoatPredictionVenueTimeKind(selectedVenue, selectedVenueRaces);
 		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
 		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, "7R〜12R");

@@ -7,7 +7,7 @@ const panel = read("src/components/boatrace/BoatGptBulkMaterialPanel.tsx");
 
 const requiredPageFragments = [
 	'const expectedRaceNumbers = [7, 8, 9, 10, 11, 12];',
-	"filter((race) => expectedRaceNumbers.includes(Number(race.raceNo)))",
+	"normalizeBoatRaceNo(race.raceNo)",
 	"buildBoatPredictionGptCopyHeader({",
 	"buildBoatPredictionGptCopyVenueContext({",
 	"buildBoatPredictionGptCopyRaceContext({",

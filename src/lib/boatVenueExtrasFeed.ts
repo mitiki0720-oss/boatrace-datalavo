@@ -3,7 +3,7 @@ import { withBasePath } from "./assetPath";
 import { getBoatOperationDate } from "./boatOperationDate";
 
 export type BoatVenueExtraRace = {
-	raceNo?: number;
+	raceNo?: number | string;
 	[key: string]: unknown;
 };
 
@@ -128,10 +128,18 @@ export function findSelectedRaceExtra(
 		return null;
 	}
 
-	const raceNo = Number(selectedRace.raceNo);
-	if (!Number.isFinite(raceNo)) {
+	const normalizeRaceNo = (value: unknown): number | null => {
+		if (typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 12) {
+			return value;
+		}
+
+		const match = String(value ?? "").trim().match(/^0*([1-9]|1[0-2])\s*(?:R)?$/iu);
+		return match ? Number(match[1]) : null;
+	};
+	const raceNo = normalizeRaceNo(selectedRace.raceNo);
+	if (raceNo === null) {
 		return null;
 	}
 
-	return toRecordArray<BoatVenueExtraRace>(selectedVenueExtra.races).find((race) => Number(race.raceNo) === raceNo) ?? null;
+	return toRecordArray<BoatVenueExtraRace>(selectedVenueExtra.races).find((race) => normalizeRaceNo(race.raceNo) === raceNo) ?? null;
 }

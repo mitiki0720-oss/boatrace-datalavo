@@ -2699,9 +2699,18 @@ function hasValidRacerRows(racers) {
 }
 
 function countExhibitionTimes(rows) {
-	return (Array.isArray(rows) ? rows : []).filter((row) =>
-		Boolean(compactText(row?.exhibitionTime ?? row?.displayTime ?? row?.time)),
-	).length;
+	return (Array.isArray(rows) ? rows : []).filter((row) => {
+		const raw = compactText(row?.exhibitionTime ?? row?.displayTime ?? row?.time)
+			.normalize("NFKC")
+			.replace(/\s*秒$/u, "")
+			.trim();
+		if (!raw || ["-", "--", "-.-", "-.--", "未取得", "未公開", "確認中", "未設定", "0"].includes(raw)) {
+			return false;
+		}
+
+		const numeric = Number(raw);
+		return Number.isFinite(numeric) && numeric > 0;
+	}).length;
 }
 
 function buildExhibitionCoverage({ officialBeforeInfo, officialExhibitions, venueExtraExhibitions, fallbackRace, generatedAt }) {
@@ -2772,15 +2781,39 @@ function getVenueExtraExhibitions(venueExtraRace) {
 	return candidates.find((rows) => countExhibitionTimes(rows) > 0) ?? [];
 }
 
+function normalizeRaceNo(value) {
+	if (typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 12) {
+		return value;
+	}
+
+	const match = compactText(value).match(/^0*([1-9]|1[0-2])\s*(?:R)?$/iu);
+	return match ? Number(match[1]) : null;
+}
+
+function buildRaceNoMap(races) {
+	const map = new Map();
+	for (const race of races ?? []) {
+		const raceNo = normalizeRaceNo(race?.raceNo);
+		if (raceNo !== null && !map.has(raceNo)) {
+			map.set(raceNo, { ...race, raceNo });
+		}
+	}
+	return map;
+}
+
 function mergeVenueRaces(venue, fallbackVenue, venueExtrasVenue, raceTitles, resultListRaces, raceOddsMap, raceBeforeInfoMap, date, generatedAt, timestamps) {
-	const fallbackRaceMap = new Map((fallbackVenue?.races ?? []).map((race) => [race.raceNo, race]));
-	const venueExtraRaceMap = new Map((venueExtrasVenue?.races ?? []).map((race) => [race.raceNo, race]));
-	const raceTitleMap = new Map((raceTitles ?? []).map((race) => [race.raceNo, race]));
+	const fallbackRaceMap = buildRaceNoMap(fallbackVenue?.races);
+	const venueExtraRaceMap = buildRaceNoMap(venueExtrasVenue?.races);
+	const raceTitleMap = buildRaceNoMap(raceTitles);
 	const officialRaceMap = new Map();
 
 	for (const titleEntry of raceTitles ?? []) {
-		officialRaceMap.set(titleEntry.raceNo, {
-			raceNo: titleEntry.raceNo,
+		const raceNo = normalizeRaceNo(titleEntry?.raceNo);
+		if (raceNo === null) {
+			continue;
+		}
+		officialRaceMap.set(raceNo, {
+			raceNo,
 			title: titleEntry.title,
 			deadlineTime: titleEntry.deadlineTime,
 			racers: Array.isArray(titleEntry.racers) ? titleEntry.racers : [],
@@ -2788,8 +2821,12 @@ function mergeVenueRaces(venue, fallbackVenue, venueExtrasVenue, raceTitles, res
 	}
 
 	for (const race of resultListRaces ?? []) {
-		const existing = officialRaceMap.get(race.raceNo) ?? { raceNo: race.raceNo };
-		officialRaceMap.set(race.raceNo, { ...existing, ...race, result: mergeRaceResult(existing.result, race.result) });
+		const raceNo = normalizeRaceNo(race?.raceNo);
+		if (raceNo === null) {
+			continue;
+		}
+		const existing = officialRaceMap.get(raceNo) ?? { raceNo };
+		officialRaceMap.set(raceNo, { ...existing, ...race, raceNo, result: mergeRaceResult(existing.result, race.result) });
 	}
 
 	const raceNumbers = new Set([...fallbackRaceMap.keys(), ...officialRaceMap.keys()]);
