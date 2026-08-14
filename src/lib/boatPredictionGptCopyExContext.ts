@@ -74,7 +74,7 @@ export type BoatPredictionGptCopyExReference = {
 	weatherSourceAcquiredAt: string;
 	weatherNeedsRefreshCaution: boolean;
 	weatherWaterAvailability: "available" | "partial" | "missing" | "unknown";
-	dailyWeatherAvailability: "available" | "target-date-mismatch" | "unknown";
+	historicalLatestDayWeatherAvailability: "available" | "target-date-mismatch" | "unknown";
 	historicalExDate: string;
 	exhibitionSummary: string;
 	cautions: string[];
@@ -269,6 +269,9 @@ export function buildBoatPredictionGptCopyVenueContext(params: {
 	const roughIndexReadiness = asRecord(exContext?.roughIndex?.readiness);
 	const todayFlowReadiness = asRecord(exContext?.todayFlow?.readiness);
 	const todayFlowTargetDate = asText(exContext?.todayFlow?.targetDate, "");
+	const todayFlowLabel = todayFlowTargetDate && todayFlowTargetDate !== venue.date
+		? "EX履歴latest-day flow"
+		: "EX当日フロー";
 	const todayFlowStatus = todayFlowTargetDate && todayFlowTargetDate === venue.date
 		? asText(todayFlowReadiness?.status)
 		: exContext ? "対象日不一致" : "unknown";
@@ -278,7 +281,7 @@ export function buildBoatPredictionGptCopyVenueContext(params: {
 		`対象日EXレース分析: ${sourceState ? "利用可能" : unavailable}`,
 		`EX会場傾向: ${asText(venueBiasReadiness?.status)}`,
 		`EX荒れ指数素材: ${asText(roughIndexReadiness?.status)}`,
-		`EX当日フロー: ${todayFlowStatus}`,
+		`${todayFlowLabel}: ${todayFlowStatus}`,
 		`EX当日レース分析: ${sourceState ? "source-backed" : "未取得（当日race-analysis shard未取得）"}`,
 		`EX全履歴レース数: ${readSummaryValue(exContext?.venueBias ?? null, "raceCount")}`,
 		"EX選手情報: source-backed linkageのみを表示。",
@@ -475,24 +478,19 @@ export function buildBoatPredictionGptCopyExWeatherWaterBlock(reference: BoatPre
 	].join("\n");
 }
 
-export function buildBoatPredictionGptCopyExDailyCoverageBlock(params: {
+export function buildBoatPredictionGptCopyExHistoricalLatestDayVenueEvidenceBlock(params: {
 	venue: BoatTodayVenueItem;
 	exContext: BoatPredictionGptCopyExContext | null;
 }): string {
 	const { venue, exContext } = params;
-	const evidence = exContext?.venueEvidence ? findVenueWeatherEvidence(exContext.venueEvidence, venue) : null;
 	const evidenceDate = exContext?.venueEvidenceDate ?? unavailable;
 	const isTargetDate = evidenceDate === venue.date;
-	const weatherCount = readNumber(evidence?.weatherEvidence?.availableCount) ?? 0;
-	const raceCount = readNumber(evidence?.raceCount) ?? 0;
 	return [
-		"【KURARI BOAT EX 当日coverage】",
-		`データ期間: daily ${evidenceDate}`,
+		"【KURARI BOAT EX 履歴latest-day venue-evidence】",
+		`EX履歴latest日: ${evidenceDate}`,
 		`予想対象日: ${venue.date}`,
 		`対象日一致: ${isTargetDate ? "yes" : "no"}`,
-		isTargetDate
-			? `当日天候coverage: ${weatherCount}/${raceCount}R`
-			: "当日coverage: 対象日不一致のため予想当日データとしては使わない",
+		"用途: 履歴EXのlatest-day確認用。予想当日の通常素材coverageではありません。",
 		`source: ${exContext?.venueEvidencePath || "public/data/boatrace-ex/derived/venue-evidence/<date>.json"}`,
 	].join("\n");
 }
@@ -647,6 +645,8 @@ export function buildBoatPredictionGptCopyExVenueSignalsBlock(params: {
 	const roughRate = roughRaceCount > 0 ? `${((roughHighPayoutCount / roughRaceCount) * 100).toFixed(1)}%` : unavailable;
 	const flowTargetDate = asText(exContext?.todayFlow?.targetDate, "");
 	const isFlowForVenueDate = Boolean(todayFlow && flowTargetDate && flowTargetDate === venue.date);
+	const flowLabel = isFlowForVenueDate ? "EX当日フロー" : "EX履歴latest-day flow";
+	const flowSourceLabel = isFlowForVenueDate ? "EX当日フロー source" : "EX履歴latest-day flow source";
 	const flowSequence = readRecordArray(todayFlow?.firstPlaceBoatSequence);
 	const earlyFlow = flowSequence.filter((item) => (readNumber(item.raceNo) ?? 0) >= 1 && (readNumber(item.raceNo) ?? 0) <= 6);
 	const lateFlow = flowSequence.filter((item) => (readNumber(item.raceNo) ?? 0) >= 7 && (readNumber(item.raceNo) ?? 0) <= 12);
@@ -666,7 +666,7 @@ export function buildBoatPredictionGptCopyExVenueSignalsBlock(params: {
 		`荒れやすさ: 3連単 10,000円超 ${roughHighPayoutCount}/${roughRaceCount}R (${roughRate})`,
 		"荒れ指数の今日条件適用: 履歴全体の参考。風・波・展示条件の一致は別途確認する。",
 		"EX荒れ指数 source: public/data/boatrace-ex/derived/rough-index/latest.json",
-		`EX当日フロー: ${isFlowForVenueDate ? "available" : "対象日不一致"}`,
+		`${flowLabel}: ${isFlowForVenueDate ? "available" : "対象日不一致"}`,
 		`データ期間: latest-day ${flowTargetDate || unavailable}${isFlowForVenueDate ? "" : ` / 予想対象日 ${venue.date} と不一致`}`,
 		`EX flow targetDate: ${flowTargetDate || unavailable}`,
 		`予想対象日: ${venue.date}`,
@@ -677,7 +677,7 @@ export function buildBoatPredictionGptCopyExVenueSignalsBlock(params: {
 			: "当日イン/中外: 対象日不一致のため予想当日フローとしては使わない",
 		"当日風・波・イン変化: 未取得（today-flow v1には前半/後半の風・波時系列がありません）",
 		isFlowForVenueDate ? "注意: 当日フローは対象日一致時のみ補助に使う。" : "注意: このフローは予想対象日の当日フローではありません。履歴参考としても過信しない。",
-		"EX当日フロー source: public/data/boatrace-ex/derived/today-flow/latest.json",
+		`${flowSourceLabel}: public/data/boatrace-ex/derived/today-flow/latest.json`,
 		"注意: 会場傾向・荒れ指数はsource-backedな履歴集計。当日flowは対象日一致時のみ補助に使う。",
 	].join("\n");
 }
@@ -770,7 +770,7 @@ export function getBoatPredictionGptCopyExReference(params: {
 		weatherSourceAcquiredAt: asText(weatherSourceAcquiredAt),
 		weatherNeedsRefreshCaution,
 		weatherWaterAvailability: weatherWater.availability,
-		dailyWeatherAvailability: exContext ? exContext.venueEvidenceDate === venue.date ? "available" : "target-date-mismatch" : "unknown",
+		historicalLatestDayWeatherAvailability: exContext ? exContext.venueEvidenceDate === venue.date ? "available" : "target-date-mismatch" : "unknown",
 		historicalExDate: asText(exContext?.venueEvidenceDate),
 		exhibitionSummary,
 		cautions,
@@ -796,7 +796,7 @@ export function buildBoatPredictionGptCopyExReferenceBlock(reference: BoatPredic
 		`EX参照 weather source: 通常素材[C]と共通 (${reference.weatherSource})`,
 		`EX参照 weather 表示時点: ${reference.weatherObservedAt}`,
 		`EX天候・水面履歴 availability: ${reference.weatherWaterAvailability}`,
-		`EX当日天候・水面 availability: ${reference.dailyWeatherAvailability}${reference.dailyWeatherAvailability === "target-date-mismatch" ? `（履歴EX latest=${reference.historicalExDate} / 予想対象日とは別）` : ""}`,
+		`EX履歴latest-day天候・水面 availability: ${reference.historicalLatestDayWeatherAvailability}${reference.historicalLatestDayWeatherAvailability === "target-date-mismatch" ? `（履歴EX latest=${reference.historicalExDate} / 予想対象日とは別）` : ""}`,
 		`展示情報: ${reference.exhibitionSummary}`,
 		...(reference.lowSampleCount > 0 ? [`LOW SAMPLE: ${reference.lowSampleCount}名`] : []),
 		"EX使用上の注意:",
@@ -935,7 +935,7 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 		buildBoatPredictionGptCopyExReferenceBlock(exReference),
 		currentDayCoverage,
 		buildBoatPredictionGptCopyExWeatherWaterBlock(exWeatherWater),
-		buildBoatPredictionGptCopyExDailyCoverageBlock({ venue, exContext }),
+		buildBoatPredictionGptCopyExHistoricalLatestDayVenueEvidenceBlock({ venue, exContext }),
 		buildBoatPredictionGptCopyExVenueSignalsBlock({ venue, exContext }),
 		...buildBoatPredictionGptCopyExUsefulSignalsBlocks({ venue, race, weatherReference: exWeatherWater, exContext }),
 		"【展示情報】",

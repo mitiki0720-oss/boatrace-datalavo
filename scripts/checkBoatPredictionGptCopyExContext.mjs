@@ -42,9 +42,10 @@ const requiredContextFragments = [
 	"氏名推測リンク: 使用禁止",
 	"derived/weather-water-history/latest.json",
 	"【KURARI BOAT EX 天候・水面 履歴】",
-	"【KURARI BOAT EX 当日coverage】",
+	"【KURARI BOAT EX 履歴latest-day venue-evidence】",
+	"EX履歴latest日:",
 	"データ期間: 履歴",
-	"対象日不一致のため予想当日データとしては使わない",
+	"用途: 履歴EXのlatest-day確認用。予想当日の通常素材coverageではありません。",
 	"会場傾向 データ期間: 履歴",
 	"荒れ指数 データ期間: 履歴",
 	"racerFeatures",
@@ -55,7 +56,7 @@ const requiredContextFragments = [
 	"KURARI BOAT EX 当日予想coverage",
 	"race-analysis: 未取得（結果・払戻の確定後に生成）",
 ];
-const forbiddenContextFragments = ["fake", "score", "rank", "generatedPrediction", "generatedTicket"];
+const forbiddenContextFragments = ["fake", "score", "rank", "generatedPrediction", "generatedTicket", "【KURARI BOAT EX 当日coverage】", "当日coverage: 対象日不一致のため予想当日データとしては使わない"];
 
 const missing = [
 	...requiredPageFragments.filter((fragment) => !page.includes(fragment)).map((fragment) => `PredictionPage: ${fragment}`),

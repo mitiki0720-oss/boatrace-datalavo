@@ -6,6 +6,8 @@ Historical EX covers 2026-05-24 through 2026-08-02. It is the source-backed resu
 
 Current-day prediction coverage is a separate source-backed completeness layer built from `public/data/boatrace/today-race-details.generated.json`. It does not promote result-dependent EX outputs before results and payouts are confirmed.
 
+The separately displayed latest historical venue evidence uses the explicit `【KURARI BOAT EX 履歴latest-day venue-evidence】` label. See [the wording audit](current-day-prediction-coverage-wording-audit-2026-08-15.md) for the distinction from prediction-day coverage.
+
 ## Current coverage
 
 - target date: 2026-08-15
