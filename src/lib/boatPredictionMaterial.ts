@@ -1034,8 +1034,21 @@ const buildExhibitionBlock = (item: BoatExhibitionItem) => [
 
 const hasPredictionExhibitionValue = (value: unknown): boolean => {
 	const text = readMaterialString(value).normalize("NFKC");
-	return Boolean(text && !["-", "--", "未取得", "確認中", "未設定"].includes(text));
+	return Boolean(text && !["-", "--", "-.-", "-.--", "未取得", "未公開", "確認中", "未設定"].includes(text));
 };
+
+export function isBoatPredictionExhibitionTime(value: unknown): boolean {
+	const text = readMaterialString(value)
+		.normalize("NFKC")
+		.replace(/\s*秒$/u, "")
+		.trim();
+	if (!text || ["-", "--", "-.-", "-.--", "未取得", "未公開", "確認中", "未設定", "0"].includes(text)) {
+		return false;
+	}
+
+	const numeric = Number(text);
+	return Number.isFinite(numeric) && numeric > 0;
+}
 
 const hasResolvedPredictionExhibition = (item: BoatExhibitionItem): boolean => {
 	const memo = readMaterialString(item.memo);
@@ -1045,7 +1058,7 @@ const hasResolvedPredictionExhibition = (item: BoatExhibitionItem): boolean => {
 		memo.includes("直線 ");
 
 	return Boolean(
-		hasPredictionExhibitionValue(item.exhibitionTime) ||
+		isBoatPredictionExhibitionTime(item.exhibitionTime) ||
 			hasPredictionExhibitionValue(item.tilt) ||
 			hasPredictionExhibitionValue(item.startTiming) ||
 			hasPredictionExhibitionValue(item.course) ||
@@ -1120,6 +1133,7 @@ const resolvePredictionExhibitions = (
 export type BoatPredictionExhibitionAvailability = {
 	status: "complete" | "partial" | "missing";
 	availableFrameCount: number;
+	exhibitionTimeFrameCount: number;
 	hasExhibitionTime: boolean;
 	hasStartTiming: boolean;
 	hasCourse: boolean;
@@ -1133,27 +1147,33 @@ export function getBoatPredictionExhibitionAvailability(params: {
 }): BoatPredictionExhibitionAvailability {
 	const exhibitions = resolvePredictionExhibitions(params.race, params.raceExtra);
 	const availableFrames = new Set<number>();
+	const exhibitionTimeFrames = new Set<number>();
 	let hasExhibitionTime = false;
 	let hasStartTiming = false;
 	let hasCourse = false;
 	let hasTilt = false;
 
 	for (const item of exhibitions) {
-		const hasAny = [item.exhibitionTime, item.startTiming, item.course, item.tilt]
+		const hasAny = [item.startTiming, item.course, item.tilt]
 			.some(hasPredictionExhibitionValue);
-		if (hasAny && Number.isInteger(item.frameNo) && item.frameNo >= 1 && item.frameNo <= 6) {
+		const isValidFrame = Number.isInteger(item.frameNo) && item.frameNo >= 1 && item.frameNo <= 6;
+		if (isValidFrame && (hasAny || isBoatPredictionExhibitionTime(item.exhibitionTime))) {
 			availableFrames.add(item.frameNo);
 		}
-		hasExhibitionTime ||= hasPredictionExhibitionValue(item.exhibitionTime);
+		if (isValidFrame && isBoatPredictionExhibitionTime(item.exhibitionTime)) {
+			exhibitionTimeFrames.add(item.frameNo);
+		}
+		hasExhibitionTime ||= isBoatPredictionExhibitionTime(item.exhibitionTime);
 		hasStartTiming ||= hasPredictionExhibitionValue(item.startTiming);
 		hasCourse ||= hasPredictionExhibitionValue(item.course);
 		hasTilt ||= hasPredictionExhibitionValue(item.tilt);
 	}
 
 	const availableFrameCount = availableFrames.size;
-	const status = availableFrameCount >= 6
+	const exhibitionTimeFrameCount = exhibitionTimeFrames.size;
+	const status = exhibitionTimeFrameCount >= 6
 		? "complete"
-		: availableFrameCount > 0
+		: exhibitionTimeFrameCount > 0 || availableFrameCount > 0
 			? "partial"
 			: "missing";
 	const detailNames = [
@@ -1163,12 +1183,38 @@ export function getBoatPredictionExhibitionAvailability(params: {
 		hasTilt ? "チルト" : "",
 	].filter(Boolean);
 	const label = status === "complete"
-		? `展示取得済み (${availableFrameCount}/6艇: ${detailNames.join("・")})`
+		? `展示取得済み (${exhibitionTimeFrameCount}/6艇: ${detailNames.join("・")})`
 		: status === "partial"
-			? `展示一部取得 (${availableFrameCount}/6艇: ${detailNames.join("・")})`
+			? exhibitionTimeFrameCount > 0
+				? `展示タイム一部取得 (${exhibitionTimeFrameCount}/6艇: ${detailNames.join("・")})`
+				: `展示情報一部取得（タイム未取得: ${detailNames.join("・")}）`
 			: "展示未取得 / 事前予想";
 
-	return { status, availableFrameCount, hasExhibitionTime, hasStartTiming, hasCourse, hasTilt, label };
+	return {
+		status,
+		availableFrameCount,
+		exhibitionTimeFrameCount,
+		hasExhibitionTime,
+		hasStartTiming,
+		hasCourse,
+		hasTilt,
+		label,
+	};
+}
+
+export function getBoatPredictionExhibitionCardLabel(
+	availability: BoatPredictionExhibitionAvailability,
+): string {
+	if (availability.status === "complete") {
+		return "展示タイムOK";
+	}
+	if (availability.exhibitionTimeFrameCount > 0) {
+		return `展示タイム一部取得 ${availability.exhibitionTimeFrameCount}/6`;
+	}
+	if (availability.availableFrameCount > 0) {
+		return "展示情報一部取得（タイム未取得）";
+	}
+	return "展示タイム未取得";
 }
 
 const readFirstRecord = (...values: unknown[]): MaterialRecord | null => {

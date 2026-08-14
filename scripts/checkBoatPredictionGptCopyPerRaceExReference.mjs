@@ -251,7 +251,7 @@ const checks = {
 	linkageAndAvailability: buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("登録番号exactリンク: 6/6") && buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("未リンク: 0名") && buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("氏名推測リンク: 使用禁止") && !buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("完全一致リンク:") && buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("会場EX: ready") && buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("当日フロー: available"),
 	targetDateAndHistoricalSourceLabels: mismatchVenueContext.includes("EX当日フロー: 対象日不一致") && !mismatchVenueContext.includes("EX当日フロー: available") && header.includes("対象日EX race-analysis source: 未取得") && header.includes("EX履歴source: available") && header.includes("EX履歴データ期間: 2026-05-24 ～ 2026-08-02") && header.includes("EX履歴source種別: source-backed derived") && !header.includes("- EX source: 未取得"),
 	lowSampleCaution: buildBoatPredictionGptCopyExReferenceBlock(references.C).includes("LOW SAMPLE: 1名") && buildBoatPredictionGptCopyExReferenceBlock(references.C).includes("未リンク: 5名"),
-	exhibitionAvailability: completeExhibition.status === "complete" && completeExhibition.label.includes("展示取得済み") && partialExhibition.status === "partial" && partialExhibition.hasStartTiming && partialExhibition.hasCourse && partialReferenceBlock.includes("展示一部取得") && !partialReferenceBlock.includes("展示未取得 / 事前予想") && missingExhibition.status === "missing" && missingExhibition.label === "展示未取得 / 事前予想",
+	exhibitionAvailability: completeExhibition.status === "complete" && completeExhibition.label.includes("展示取得済み") && partialExhibition.status === "partial" && partialExhibition.label.includes("展示情報一部取得（タイム未取得") && partialExhibition.hasStartTiming && partialExhibition.hasCourse && partialReferenceBlock.includes("展示情報は一部取得") && !partialReferenceBlock.includes("展示未取得 / 事前予想") && missingExhibition.status === "missing" && missingExhibition.label === "展示未取得 / 事前予想",
 	weatherMatchesNormalMaterial: [
 		`天候: ${weatherReference.weather}`,
 		`風向: ${weatherReference.windDirection}`,
@@ -285,6 +285,12 @@ console.log(JSON.stringify({
 	ok,
 	date: today.date,
 	activeVenueCount: today.venues?.length ?? 0,
+	exhibition: {
+		complete: completeExhibition,
+		partial: partialExhibition,
+		missing: missingExhibition,
+		partialReferenceHasPartialLabel: partialReferenceBlock.includes("展示情報は一部取得"),
+	},
 	checks,
 }, null, 2));
 
