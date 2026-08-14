@@ -9,6 +9,8 @@ import type {
 	BoatExRacerEvidenceRegistryLinkageAuditFile,
 	BoatExRacerEvidenceFile,
 	BoatExRacerEvidenceItem,
+	BoatExRacerFeaturesFile,
+	BoatExRacerIdentityUnresolvedAuditFile,
 	BoatExRegisteredRacerIdentityRegistryFile,
 	BoatExRegisteredRegistrationQualityAuditFile,
 	BoatExRegistrationProvenanceAuditFile,
@@ -106,6 +108,8 @@ type LoadState = {
 	venueEvidence: BoatExVenueEvidenceFile | null;
 	weatherWaterHistory: BoatExWeatherWaterHistoryFile | null;
 	racerEvidence: BoatExRacerEvidenceFile | null;
+	racerFeatures: BoatExRacerFeaturesFile | null;
+	racerIdentityUnresolvedAudit: BoatExRacerIdentityUnresolvedAuditFile | null;
 	venueBias: BoatExVenueBiasV1File | null;
 	roughIndex: BoatExRoughIndexV1File | null;
 	todayFlow: BoatExTodayFlowV1File | null;
@@ -665,6 +669,61 @@ function RacerEvidenceSection({ racerEvidence }: { racerEvidence: BoatExRacerEvi
 				))}
 			</section>
 		</>
+	);
+}
+
+function RacerFeaturesSection({
+	features,
+	audit,
+}: {
+	features: BoatExRacerFeaturesFile | null;
+	audit: BoatExRacerIdentityUnresolvedAuditFile | null;
+}) {
+	const summary = features?.summary;
+	const currentDay = audit?.currentDay;
+	const unresolved = audit?.unresolved;
+
+	return (
+		<section style={{ ...cardStyle, gap: "14px" }}>
+			<div>
+				<p style={labelStyle}>選手特徴量</p>
+				<p style={valueStyle}>登録番号完全一致の履歴参照</p>
+				<p style={textStyle}>履歴、当地、枠番、ST、決まり手、条件別、直近出走を表示します。名前だけでは接続せず、推測補完もしません。</p>
+			</div>
+			<section style={metricGridStyle}>
+				<article style={cardStyle}>
+					<p style={labelStyle}>特徴量選手数</p>
+					<p style={metricValueStyle}>{summary?.racerCount ?? "未読込"}</p>
+					<p style={textStyle}>登録番号完全一致の安全な対象</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>履歴出走</p>
+					<p style={metricValueStyle}>{summary?.historyStartCount ?? "未読込"}</p>
+					<p style={textStyle}>特徴量に利用したsource-backed出走</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>少標本</p>
+					<p style={metricValueStyle}>{summary?.lowSampleRacerCount ?? "未読込"}</p>
+					<p style={textStyle}>標本量が小さい選手は低標本として明示</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>当日完全一致リンク</p>
+					<p style={metricValueStyle}>{currentDay?.exactRegistryLinkedCount ?? "未読込"}</p>
+					<p style={textStyle}>当日枠 {currentDay?.slotCount ?? "未読込"} / 登録番号欠損 {currentDay?.registrationMissingCount ?? "未読込"}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>履歴の未解決出走</p>
+					<p style={metricValueStyle}>{unresolved?.appearanceCount ?? "未読込"}</p>
+					<p style={textStyle}>安全な特徴量には含めず、監査だけに保持</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>履歴期間</p>
+					<p style={metricValueStyle}>{summary?.dateRange.dateCount ?? "未読込"}日</p>
+					<p style={textStyle}>{summary?.dateRange.first ?? "未読込"} ～ {summary?.dateRange.last ?? "未読込"}</p>
+				</article>
+			</section>
+			<p style={textStyle}>出典: <code>/data/boatrace-ex/derived/racer-features/latest.json</code> / <code>/data/boatrace-ex/audit/racer-identity-unresolved-audit-latest.generated.json</code></p>
+		</section>
 	);
 }
 
@@ -1503,6 +1562,8 @@ export function BoatExPage() {
 		venueEvidence: null,
 		weatherWaterHistory: null,
 		racerEvidence: null,
+		racerFeatures: null,
+		racerIdentityUnresolvedAudit: null,
 		venueBias: null,
 		roughIndex: null,
 		todayFlow: null,
@@ -1549,7 +1610,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, racerFeatures, racerIdentityUnresolvedAudit, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1568,6 +1629,8 @@ export function BoatExPage() {
 					fetch(withBasePath("data/boatrace-ex/derived/race-analysis/history-index.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/history-coverage/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/weather-water-history/latest.json"), { cache: "no-store" }),
+					fetchOptionalJson<BoatExRacerFeaturesFile>("data/boatrace-ex/derived/racer-features/latest.json"),
+					fetchOptionalJson<BoatExRacerIdentityUnresolvedAuditFile>("data/boatrace-ex/audit/racer-identity-unresolved-audit-latest.generated.json"),
 					fetchOptionalJson<BoatExRegisteredRacerIdentityRegistryFile>("data/boatrace-ex/identity/registered-racers.generated.json"),
 					fetchOptionalJson<BoatExRacerEvidenceRegistryLinkageAuditFile>(`data/boatrace-ex/audit/racer-evidence-registry-linkage-${targetDate}.generated.json`),
 					fetchOptionalJson<BoatExRegisteredRegistrationQualityAuditFile>(`data/boatrace-ex/audit/registered-registration-quality-${targetDate}.generated.json`),
@@ -1615,6 +1678,8 @@ export function BoatExPage() {
 					venueEvidence,
 					weatherWaterHistory,
 					racerEvidence,
+					racerFeatures,
+					racerIdentityUnresolvedAudit,
 					venueBias,
 					roughIndex,
 					todayFlow,
@@ -1644,6 +1709,8 @@ export function BoatExPage() {
 					venueEvidence: null,
 					weatherWaterHistory: null,
 					racerEvidence: null,
+					racerFeatures: null,
+					racerIdentityUnresolvedAudit: null,
 					venueBias: null,
 					roughIndex: null,
 					todayFlow: null,
@@ -1677,6 +1744,8 @@ export function BoatExPage() {
 	const venueEvidence = loadState.venueEvidence;
 	const weatherWaterHistory = loadState.weatherWaterHistory;
 	const racerEvidence = loadState.racerEvidence;
+	const racerFeatures = loadState.racerFeatures;
+	const racerIdentityUnresolvedAudit = loadState.racerIdentityUnresolvedAudit;
 	const venueBias = loadState.venueBias;
 	const roughIndex = loadState.roughIndex;
 	const todayFlow = loadState.todayFlow;
@@ -1880,6 +1949,7 @@ export function BoatExPage() {
 							provenanceAudit={registrationProvenanceAudit}
 							nameIdentityBridgeAudit={nameIdentityBridgeAudit}
 						/>
+						<RacerFeaturesSection features={racerFeatures} audit={racerIdentityUnresolvedAudit} />
 						<RacerEvidenceSection racerEvidence={racerEvidence} />
 					</SectionShell>
 				);

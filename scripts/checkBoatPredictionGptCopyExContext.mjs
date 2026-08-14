@@ -47,6 +47,10 @@ const requiredContextFragments = [
 	"対象日不一致のため予想当日データとしては使わない",
 	"会場傾向 データ期間: 履歴",
 	"荒れ指数 データ期間: 履歴",
+	"racerFeatures",
+	"formatRacerFeatureLines",
+	"KURARI BOAT EX 選手特徴",
+	"登録番号の完全一致と履歴ソースに基づく記述統計",
 ];
 const forbiddenContextFragments = ["fake", "score", "rank", "generatedPrediction", "generatedTicket"];
 

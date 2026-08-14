@@ -239,7 +239,7 @@ const fullRaceContext = buildBoatPredictionGptCopyRaceContext({ feed, venue, rac
 const mismatchContext = { ...contextFor([]), todayFlow: { ...contextFor([]).todayFlow, targetDate: "2026-08-02" } };
 const mismatchVenueContext = buildBoatPredictionGptCopyVenueContext({ venue, exContext: mismatchContext });
 const header = buildBoatPredictionGptCopyHeader({ feed, venue, races: [race], raceRangeLabel: "7R-12R", rangePurposeLabel: "fixture", venueTimeKind: "day", rangeTimeKind: "day", exContext: contextFor([]) });
-const activeBlockOrder = ["時間帯:", "【出走表】", "【KURARI BOAT EX 参照情報】", "【KURARI BOAT EX 天候・水面 履歴】", "【KURARI BOAT EX 当日coverage】", "【KURARI BOAT EX レース帯履歴】", "【展示情報】", "【EXレース分析】", "【EX選手情報】", "【source-backed / cautions】"];
+const activeBlockOrder = ["時間帯:", "【出走表】", "【KURARI BOAT EX 参照情報】", "【KURARI BOAT EX 天候・水面 履歴】", "【KURARI BOAT EX 当日coverage】", "【KURARI BOAT EX レース帯履歴】", "【展示情報】", "【EXレース分析】", "【EX選手情報】", "【KURARI BOAT EX 選手特徴】", "【source-backed / cautions】"];
 const forbidden = ["fake", "score", "rank", "generatedPrediction", "generatedTicket"];
 const requiredSourceFragments = [
 	"getBoatPredictionGptCopyExReference",
@@ -249,6 +249,9 @@ const requiredSourceFragments = [
 	"登録番号/選手EXリンク:",
 	"当日天候・風・波:",
 	"EX使用上の注意:",
+	"racerFeatures",
+	"formatRacerFeatureLines",
+	"KURARI BOAT EX 選手特徴",
 ];
 const checks = {
 	levels: level(contextFor([exRace({ official: 5, exact: 1 })])) === "A" && level(contextFor([exRace({ official: 3, unresolved: 3, weatherStatus: "missing" })])) === "B" && level(contextFor([exRace({ official: 1, unresolved: 5 })], weatherWaterFixture({ coverage: "partial", weatherCount: 4, wave: null }))) === "C" && level(contextFor([exRace({ sourceStatus: "partial" })], weatherWaterFixture({ coverage: "missing", weatherCount: 0, wind: null, wave: null }))) === "D" && level(contextFor([])) === "D" && level(null) === "unknown",

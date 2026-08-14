@@ -674,6 +674,43 @@ export interface BoatExRegisteredRacerIdentityRegistryFile {
 	summary: BoatExRegisteredRacerIdentitySummary;
 }
 
+export interface BoatExRacerFeaturesFile {
+	schemaVersion: number;
+	kind: "boatrace-ex-racer-features";
+	generatedAt: string;
+	identityPolicy: string;
+	summary: {
+		racerCount: number;
+		exactLinkedRacerCount: number;
+		lowSampleRacerCount: number;
+		historyStartCount: number;
+		dateRange: { first: BoatExDateKey | null; last: BoatExDateKey | null; dateCount: number };
+	};
+}
+
+export interface BoatExRacerIdentityUnresolvedAuditFile {
+	schemaVersion: number;
+	kind: "boatrace-ex-racer-identity-unresolved-audit";
+	auditDate: BoatExDateKey;
+	generatedAt: string;
+	policy: string;
+	unresolved: {
+		appearanceCount: number;
+		uniqueRacerCount: number;
+		parserDroppedRegistrationNo: number;
+		historicalSourceNameOnly: number;
+	};
+	currentDay: {
+		date: BoatExDateKey;
+		venueCount: number;
+		raceCount: number;
+		slotCount: number;
+		registrationPresentCount: number;
+		registrationMissingCount: number;
+		exactRegistryLinkedCount: number;
+	};
+}
+
 export interface BoatExRacerEvidenceRegistryLinkageAuditFile {
 	schemaVersion: number;
 	kind: "boatrace-ex-racer-evidence-registry-linkage-audit";
