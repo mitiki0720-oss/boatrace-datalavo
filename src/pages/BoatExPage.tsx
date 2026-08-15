@@ -750,6 +750,9 @@ function CurrentDayPredictionCoverageSection({ coverage }: { coverage: BoatExCur
 				<article style={cardStyle}><p style={labelStyle}>天候 / 風 / 波</p><p style={metricValueStyle}>{weatherLabel}</p><p style={textStyle}>風 {windLabel} / 波 {waveLabel}</p></article>
 				<article style={cardStyle}><p style={labelStyle}>モーター / ボート</p><p style={metricValueStyle}>{coverage.motorAvailableSlotCount}/{coverage.slotCount}</p><p style={textStyle}>ボート {coverage.boatAvailableSlotCount}/{coverage.slotCount}</p></article>
 				<article style={cardStyle}><p style={labelStyle}>結果 / 払戻</p><p style={metricValueStyle}>{coverage.resultStatus}</p><p style={textStyle}>結果 {coverage.resultAvailableRaceCount} / 払戻 {coverage.payoutAvailableRaceCount}</p></article>
+				<article style={cardStyle}><p style={labelStyle}>当日lifecycle</p><p style={metricValueStyle}>レース前 {coverage.preRaceCount}</p><p style={textStyle}>展示済み {coverage.exhibitionReadyCount} / 一部 {coverage.exhibitionPartialCount}</p></article>
+				<article style={cardStyle}><p style={labelStyle}>結果系lifecycle</p><p style={metricValueStyle}>結果+払戻 {coverage.resultAndPayoutCount}</p><p style={textStyle}>結果のみ {coverage.resultOnlyCount} / 部分 {coverage.partialResultCount}</p></article>
+				<article style={cardStyle}><p style={labelStyle}>race-analysis</p><p style={metricValueStyle}>{coverage.raceAnalysisAvailableRaceCount}/{coverage.raceCount}R</p><p style={textStyle}>未生成 {coverage.raceAnalysisMissingRaceCount} / 不整合 {coverage.inconsistentStatusCount}</p></article>
 			</section>
 			<p style={textStyle}>当日EX race-analysis / today-flow は結果・払戻が確定後に生成します。レース前に未取得でも、このcoverageは利用可能です。</p>
 			<p style={textStyle}>出典: <code>/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json</code></p>

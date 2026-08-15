@@ -54,7 +54,8 @@ const requiredContextFragments = [
 	"登録番号の完全一致と履歴ソースに基づく記述統計",
 	"currentDayPredictionCoverage",
 	"KURARI BOAT EX 当日予想coverage",
-	"race-analysis: 未取得（結果・払戻の確定後に生成）",
+	"当日status:",
+	"race-analysis:",
 ];
 const forbiddenContextFragments = ["fake", "score", "rank", "generatedPrediction", "generatedTicket", "【KURARI BOAT EX 当日coverage】", "当日coverage: 対象日不一致のため予想当日データとしては使わない"];
 

@@ -111,6 +111,9 @@ for (const key of expectedKeys) {
 	if (!pageSource.includes(`case \"${key}\"`)) errors.push(`BoatExPage is missing tab case: ${key}`);
 }
 if (!pageSource.includes("CurrentDayPredictionCoverageSection")) errors.push("BoatExPage is missing current-day prediction coverage display");
+if (!pageSource.includes("coverage.preRaceCount") || !pageSource.includes("coverage.raceAnalysisAvailableRaceCount") || !pageSource.includes("coverage.inconsistentStatusCount")) {
+	errors.push("BoatExPage is missing current-day lifecycle summary display");
+}
 if (errors.length > 0) {
 	console.error(errors.join("\n"));
 	process.exitCode = 1;
