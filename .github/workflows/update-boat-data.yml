@@ -23,6 +23,11 @@ on:
           - morning
           - day
           - night
+      target_date:
+        description: "Target date in JST YYYY-MM-DD. Empty = JST today"
+        required: false
+        default: ""
+        type: string
       run_boatrace_ex:
         description: "Run BOATRACE EX daily pipeline, true or false"
         required: false
@@ -73,7 +78,18 @@ jobs:
         run: npm ci
 
       - name: Update BOATRACE generated data
-        run: node scripts/updateBoatData.mjs --mode "${{ inputs.mode || 'initial' }}" --target-session "${{ inputs.targetSession || 'auto' }}"
+        shell: bash
+        env:
+          TARGET_DATE: ${{ inputs.target_date || '' }}
+        run: |
+          set -euo pipefail
+
+          ARGS=(--mode "${{ inputs.mode || 'initial' }}" --target-session "${{ inputs.targetSession || 'auto' }}")
+          if [ -n "$TARGET_DATE" ]; then
+            ARGS+=(--target-date "$TARGET_DATE")
+          fi
+
+          node scripts/updateBoatData.mjs "${ARGS[@]}"
 
       - name: Notify boat results
         env:

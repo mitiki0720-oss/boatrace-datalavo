@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { getTodayIsoJst, normalizeTargetDate } from "./boatRaceDate.mjs";
+import { resolveJstTargetDate } from "./boatRaceDate.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -178,11 +178,10 @@ function runNodeScript(args) {
 
 export function parseUpdateBoatDataOptions(argv = process.argv.slice(2), env = process.env) {
 	const cliArgs = parseCliArgs(argv);
-	const fallbackTargetDate = getTodayIsoJst();
 	return {
 		mode: normalizeMode(cliArgs.mode ?? env.BOAT_RACE_MODE),
 		targetSession: normalizeTargetSession(cliArgs.targetSession ?? env.BOAT_RACE_TARGET_SESSION),
-		targetDate: normalizeTargetDate(cliArgs.targetDate ?? env.BOAT_RACE_TARGET_DATE, fallbackTargetDate),
+		targetDate: resolveJstTargetDate(cliArgs.targetDate ?? env.BOAT_RACE_TARGET_DATE),
 		outputDir: cliArgs.outputDir ?? env.BOAT_RACE_OUTPUT_DIR,
 	};
 }
@@ -191,7 +190,7 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 	const options = {
 		mode: normalizeMode(rawOptions.mode),
 		targetSession: normalizeTargetSession(rawOptions.targetSession),
-		targetDate: normalizeTargetDate(rawOptions.targetDate, getTodayIsoJst()),
+		targetDate: resolveJstTargetDate(rawOptions.targetDate),
 	};
 
 	console.log(`[update-boat-data] mode=${options.mode} targetSession=${options.targetSession} targetDate=${options.targetDate}`);

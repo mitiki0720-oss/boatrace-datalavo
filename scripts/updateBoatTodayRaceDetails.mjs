@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { load } from "cheerio";
 import { preserveTodayRaceDetailsFeed } from "./boatExhibitionSnapshotPreservation.mjs";
-import { getJstTimestampParts, normalizeTargetDate } from "./boatRaceDate.mjs";
+import { getJstTimestampParts, normalizeTargetDate, resolveJstTargetDate } from "./boatRaceDate.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -170,7 +170,7 @@ function normalizeUpdateOptions(rawOptions = {}) {
 		mode: normalizeMode(rawOptions.mode),
 		targetSession: normalizeTargetSession(rawOptions.targetSession),
 		effectiveTargetSession: normalizeTargetSession(rawOptions.effectiveTargetSession ?? rawOptions.targetSession),
-		targetDate: normalizeTargetDate(rawOptions.targetDate),
+		targetDate: resolveJstTargetDate(rawOptions.targetDate),
 		targetVenues: Array.from(new Set(parseCsvList(rawOptions.targetVenues).map((item) => item.toLowerCase()))),
 		targetRaceNumbers: normalizeTargetRaceNumbers(Array.isArray(rawOptions.targetRaceNumbers) ? rawOptions.targetRaceNumbers : parseCsvList(rawOptions.targetRaceNumbers)),
 		fetchSections,
