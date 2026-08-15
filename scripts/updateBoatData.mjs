@@ -128,6 +128,18 @@ function buildBoatExHistoricalSourceIndexCheckArgs() {
 	return ["scripts/checkBoatExHistoricalSourceIndex.mjs"];
 }
 
+function buildBoatExRegisteredRacerIdentityRegistryArgs() {
+	return ["scripts/generateBoatExRegisteredRacerIdentityRegistry.mjs", "--write"];
+}
+
+function buildBoatExRegistryLinkageGapWriteArgs() {
+	return ["scripts/checkBoatExRegistryLinkageGap.mjs", "--write"];
+}
+
+function buildBoatExRegistryLinkageGapCheckArgs() {
+	return ["scripts/checkBoatExRegistryLinkageGap.mjs"];
+}
+
 function buildBoatExRacerFeaturesArgs() {
 	return ["scripts/generateBoatExRacerFeatures.mjs"];
 }
@@ -208,9 +220,13 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 	console.log("[update-boat-data] BOATRACE EX historical source index enabled");
 	await runNodeScript(buildBoatExHistoricalSourceIndexArgs());
 	await runNodeScript(buildBoatExHistoricalSourceIndexCheckArgs());
+	console.log("[update-boat-data] BOATRACE EX current-day official registry supplement enabled");
+	await runNodeScript(buildBoatExRegisteredRacerIdentityRegistryArgs());
 	console.log("[update-boat-data] BOATRACE EX racer features enabled");
 	await runNodeScript(buildBoatExRacerFeaturesArgs());
 	await runNodeScript(buildBoatExRacerFeaturesCheckArgs());
+	await runNodeScript(buildBoatExRegistryLinkageGapWriteArgs());
+	await runNodeScript(buildBoatExRegistryLinkageGapCheckArgs());
 	console.log("[update-boat-data] BOATRACE EX current-day prediction coverage enabled");
 	await runNodeScript(buildBoatExCurrentDayPredictionCoverageArgs());
 	await runNodeScript(buildBoatExCurrentDayPredictionCoverageCheckArgs());

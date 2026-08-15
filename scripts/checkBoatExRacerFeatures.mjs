@@ -8,11 +8,13 @@ const features = read("public/data/boatrace-ex/derived/racer-features/latest.jso
 const summary = read("public/data/boatrace-ex/derived/racer-features/history-summary.json");
 const audit = read("public/data/boatrace-ex/audit/racer-identity-unresolved-audit-latest.generated.json");
 const racerList = features.racers ?? [];
-const allowedSampleLevels = new Set(["low-sample", "limited", "sufficient"]);
+const allowedSampleLevels = new Set(["no-history", "low-sample", "limited", "sufficient"]);
 const invalid = racerList.filter((racer) => (
 	!/^\d{4,6}$/.test(String(racer.registrationNo ?? ""))
 	|| !racer.name
-	|| racer.historyStarts <= 0
+	|| racer.historyStarts < 0
+	|| (racer.historyStarts === 0 && racer.sampleLevel !== "no-history")
+	|| (racer.historyStarts > 0 && racer.sampleLevel === "no-history")
 	|| !allowedSampleLevels.has(racer.sampleLevel)
 	|| !Array.isArray(racer.venues)
 	|| !Array.isArray(racer.frames)

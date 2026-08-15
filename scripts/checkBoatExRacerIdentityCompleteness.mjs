@@ -15,7 +15,7 @@ const currentSlots = (current.venues ?? []).flatMap((venue) => (venue.races ?? [
 const currentNumbers = currentSlots.map((racer) => String(racer.registrationNo ?? "").trim()).filter(registration);
 const exactLinked = currentNumbers.filter((number) => registryNumbers.has(number)).length;
 const invalidFeatures = (features.racers ?? []).filter((feature) => !registration(feature.registrationNo) || !registryNumbers.has(feature.registrationNo));
-const missingFeatureIdentity = (features.racers ?? []).filter((feature) => !feature.name || feature.historyStarts <= 0);
+const missingFeatureIdentity = (features.racers ?? []).filter((feature) => !feature.name || feature.historyStarts < 0 || (feature.historyStarts === 0 && feature.sampleLevel !== "no-history"));
 const forbiddenKeys = JSON.stringify(features).match(/(?:fake|guessed|inferred|score|rank|prediction)/gi) ?? [];
 
 const checks = {
