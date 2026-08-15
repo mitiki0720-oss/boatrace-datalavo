@@ -843,7 +843,26 @@ function buildBoatPredictionGptCopyCurrentDayCoverageBlock(params: {
 	const weatherLabel = weatherAvailable && windAvailable && waveAvailable
 		? "available（通常素材source-backed）"
 		: "未取得（通常素材source-backed、公式更新待ち）";
-	const resultStatus = asText(coverage?.resultStatus, "未読込");
+	const lifecycleRace = asArray<JsonRecord>(coverage?.races).find((entry) =>
+		asText(entry.venueCode, "") === asText(venue.venueCode, "") && Number(entry.raceNo) === Number(race.raceNo),
+	);
+	const lifecycleStatus = matchesTargetDate
+		? asText(lifecycleRace?.status, asText(coverage?.resultStatus, "未読込"))
+		: "対象日不一致";
+	const hasResult = Boolean(lifecycleRace?.hasResult);
+	const hasPayout = Boolean(lifecycleRace?.hasPayout);
+	const hasRaceAnalysis = Boolean(lifecycleRace?.hasRaceAnalysis);
+	const resultPayoutLabel = !matchesTargetDate
+		? "未読込"
+		: hasResult && hasPayout
+			? "available"
+			: hasResult
+				? lifecycleStatus === "partial-result" ? "partial-result" : "result available / payout missing"
+				: "pre-race";
+	const raceAnalysisLabel = hasRaceAnalysis
+		? "available"
+		: "未取得（結果・払戻の確定後に生成）";
+	const lifecycleWarnings = asArray<string>(lifecycleRace?.warnings);
 	const exhibition = getBoatPredictionExhibitionAvailability({ race });
 
 	return [
@@ -852,10 +871,12 @@ function buildBoatPredictionGptCopyCurrentDayCoverageBlock(params: {
 		`出走表coverage: ${matchesTargetDate && racers.length === 6 ? "available" : "未取得"} (${racers.length}/6)`,
 		`登録番号coverage: ${registrations.length}/${racers.length || 6}`,
 		`選手特徴 exactリンク: ${exactLinked}/${racers.length || 6}`,
+		`当日status: ${lifecycleStatus}`,
 		`天候・風・波: ${weatherLabel}`,
 		`展示タイム: ${exhibition.label}`,
-		`結果/払戻: ${resultStatus}`,
-		"race-analysis: 未取得（結果・払戻の確定後に生成）",
+		`結果/払戻: ${resultPayoutLabel}`,
+		`race-analysis: ${raceAnalysisLabel}`,
+		...(lifecycleWarnings.length > 0 ? [`lifecycle warning: ${lifecycleWarnings.join(", ")}`] : []),
 		"履歴EXとは別に、当日通常素材の完全性を示すcoverageです。",
 	].join("\n");
 }

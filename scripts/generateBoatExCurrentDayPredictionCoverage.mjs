@@ -14,15 +14,61 @@ const isAvailable = (value) => !new Set(["", "-", "未取得", "確認中", "nul
 const registration = (value) => /^\d{4,6}$/.test(text(value));
 const raceWeather = (venue, race, key) => race.weatherActual?.[key] ?? race.weather?.[key] ?? venue.weatherActual?.[key] ?? venue.weather?.[key];
 const displayTimeCount = (race) => (race.exhibitions ?? []).filter((entry) => isAvailable(entry.exhibitionTime ?? entry.displayTime)).length;
-const resultAvailable = (race) => (race.result?.finishOrder ?? []).length > 0;
-const payoutAvailable = (race) => isAvailable(race.result?.payout3tan ?? race.payout?.trifecta);
+const hasCompleteResult = (race) => (race.result?.finishOrder ?? []).length >= 3;
+const hasPartialResult = (race) => {
+	const count = (race.result?.finishOrder ?? []).length;
+	return count > 0 && count < 3;
+};
+const hasRawPayout = (race) => isAvailable(race.result?.payout3tan?.payout ?? race.payout?.trifecta?.payout);
 
 const current = read("public/data/boatrace/today-race-details.generated.json");
 const registry = read("public/data/boatrace-ex/identity/registered-racers.generated.json");
+const latestRaceAnalysis = read("public/data/boatrace-ex/derived/race-analysis/latest.json");
 const knownRegistrationNos = new Set((registry.identities ?? []).map((identity) => text(identity.registrationNo)));
 const sourceKinds = new Set([text(current.source)]);
+const raceAnalysisByKey = latestRaceAnalysis.targetDate === current.date
+	? new Map((latestRaceAnalysis.races ?? []).map((race) => [`${text(race.venueCode)}:${Number(race.raceNo)}`, race]))
+	: new Map();
+const lifecycleForRace = (venue, race) => {
+	const timeCount = displayTimeCount(race);
+	const hasResult = hasCompleteResult(race);
+	const rawPayout = hasRawPayout(race);
+	const hasPayout = hasResult && rawPayout;
+	const analysis = raceAnalysisByKey.get(`${text(venue.venueCode)}:${Number(race.raceNo)}`);
+	const hasRaceAnalysis = Boolean(analysis && analysis.resultStatus === "available" && analysis.payoutStatus === "available" && hasResult && hasPayout);
+	const warnings = [];
+	if (rawPayout && !hasResult) warnings.push("raw-payout-without-complete-result-suppressed");
+	if (analysis && !hasRaceAnalysis) warnings.push("race-analysis-not-ready-for-current-result-state");
+	const status = hasPartialResult(race)
+		? "partial-result"
+		: hasRaceAnalysis
+			? "race-analysis-ready"
+			: hasResult && hasPayout
+				? "result-and-payout"
+				: hasResult
+					? "result-only"
+					: timeCount === 6
+						? "exhibition-ready"
+						: timeCount > 0
+							? "exhibition-partial"
+							: "pre-race";
+	return {
+		venueCode: text(venue.venueCode),
+		venueName: text(venue.venueName),
+		raceNo: Number(race.raceNo),
+		status,
+		displayTimeCount: timeCount,
+		hasResult,
+		hasPayout,
+		hasRaceAnalysis,
+		sourceName: text(race.exhibitionCoverage?.source ?? race.result?.weatherActual?.source ?? venue.source ?? current.source),
+		sourceAcquiredAt: text(race.exhibitionCoverage?.updatedAt ?? race.result?.finalizedAt ?? venue.generatedAt ?? current.generatedAt),
+		warnings,
+	};
+};
 const summarizeVenue = (venue) => {
 	const races = venue.races ?? [];
+	const lifecycle = races.map((race) => lifecycleForRace(venue, race));
 	const slots = races.flatMap((race) => race.racers ?? []);
 	const count = (predicate) => races.filter(predicate).length;
 	const registrations = slots.filter((racer) => registration(racer.registrationNo));
@@ -49,8 +95,18 @@ const summarizeVenue = (venue) => {
 		exhibitionDisplayTimeMissingRaceCount: count((race) => displayTimeCount(race) === 0),
 		motorAvailableSlotCount: slots.filter((racer) => isAvailable(racer.motorNo ?? racer.motorNumber)).length,
 		boatAvailableSlotCount: slots.filter((racer) => isAvailable(racer.boatNo ?? racer.boatMotorNo)).length,
-		resultAvailableRaceCount: count(resultAvailable),
-		payoutAvailableRaceCount: count(payoutAvailable),
+		resultAvailableRaceCount: lifecycle.filter((race) => race.hasResult).length,
+		payoutAvailableRaceCount: lifecycle.filter((race) => race.hasPayout).length,
+		raceAnalysisAvailableRaceCount: lifecycle.filter((race) => race.hasRaceAnalysis).length,
+		preRaceCount: lifecycle.filter((race) => race.status === "pre-race").length,
+		exhibitionReadyCount: lifecycle.filter((race) => race.status === "exhibition-ready").length,
+		exhibitionPartialCount: lifecycle.filter((race) => race.status === "exhibition-partial").length,
+		partialResultCount: lifecycle.filter((race) => race.status === "partial-result").length,
+		resultOnlyCount: lifecycle.filter((race) => race.status === "result-only").length,
+		resultAndPayoutCount: lifecycle.filter((race) => race.status === "result-and-payout").length,
+		inconsistentStatusCount: lifecycle.filter((race) => (race.hasPayout && !race.hasResult) || (race.hasRaceAnalysis && (!race.hasResult || !race.hasPayout))).length,
+		rawPayoutWithoutCompleteResultCount: lifecycle.filter((race) => race.warnings.includes("raw-payout-without-complete-result-suppressed")).length,
+		lifecycle,
 	};
 };
 const venues = (current.venues ?? []).map(summarizeVenue);
@@ -58,6 +114,7 @@ const sum = (key) => venues.reduce((total, venue) => total + Number(venue[key] ?
 const raceCount = sum("raceCount");
 const resultAvailableRaceCount = sum("resultAvailableRaceCount");
 const payoutAvailableRaceCount = sum("payoutAvailableRaceCount");
+const races = venues.flatMap((venue) => venue.lifecycle);
 const resultStatus = resultAvailableRaceCount === 0
 	? "pre-race"
 	: resultAvailableRaceCount === raceCount && payoutAvailableRaceCount === raceCount
@@ -89,9 +146,20 @@ const coverage = {
 	boatAvailableSlotCount: sum("boatAvailableSlotCount"),
 	resultAvailableRaceCount,
 	payoutAvailableRaceCount,
+	raceAnalysisAvailableRaceCount: sum("raceAnalysisAvailableRaceCount"),
+	raceAnalysisMissingRaceCount: raceCount - sum("raceAnalysisAvailableRaceCount"),
+	preRaceCount: sum("preRaceCount"),
+	exhibitionReadyCount: sum("exhibitionReadyCount"),
+	exhibitionPartialCount: sum("exhibitionPartialCount"),
+	partialResultCount: sum("partialResultCount"),
+	resultOnlyCount: sum("resultOnlyCount"),
+	resultAndPayoutCount: sum("resultAndPayoutCount"),
+	inconsistentStatusCount: sum("inconsistentStatusCount"),
+	rawPayoutWithoutCompleteResultCount: sum("rawPayoutWithoutCompleteResultCount"),
 	resultStatus,
 	sourceKinds: [...sourceKinds].filter(Boolean).sort(),
 	venues,
+	races,
 };
 const summary = {
 	schemaVersion: 1,
@@ -102,9 +170,37 @@ const summary = {
 	venueCount: coverage.venueCount,
 	raceCount: coverage.raceCount,
 	slotCount: coverage.slotCount,
+	exactRegistryLinkedCount: coverage.exactRegistryLinkedCount,
+	exhibitionDisplayTimeCompleteRaceCount: coverage.exhibitionDisplayTimeCompleteRaceCount,
+	exhibitionDisplayTimePartialRaceCount: coverage.exhibitionDisplayTimePartialRaceCount,
+	exhibitionDisplayTimeMissingRaceCount: coverage.exhibitionDisplayTimeMissingRaceCount,
+	weatherAvailableRaceCount: coverage.weatherAvailableRaceCount,
+	windAvailableRaceCount: coverage.windAvailableRaceCount,
+	waveAvailableRaceCount: coverage.waveAvailableRaceCount,
+	resultAvailableRaceCount: coverage.resultAvailableRaceCount,
+	payoutAvailableRaceCount: coverage.payoutAvailableRaceCount,
+	lifecycle: {
+		preRaceCount: coverage.preRaceCount,
+		exhibitionReadyCount: coverage.exhibitionReadyCount,
+		exhibitionPartialCount: coverage.exhibitionPartialCount,
+		partialResultCount: coverage.partialResultCount,
+		resultOnlyCount: coverage.resultOnlyCount,
+		resultAndPayoutCount: coverage.resultAndPayoutCount,
+		raceAnalysisAvailableRaceCount: coverage.raceAnalysisAvailableRaceCount,
+		raceAnalysisMissingRaceCount: coverage.raceAnalysisMissingRaceCount,
+		inconsistentStatusCount: coverage.inconsistentStatusCount,
+	},
+	rawPayoutWithoutCompleteResultCount: coverage.rawPayoutWithoutCompleteResultCount,
 	resultStatus: coverage.resultStatus,
 	sourcePath,
 };
 write("public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json", coverage);
 write("public/data/boatrace-ex/derived/current-day-prediction-coverage/history-summary.json", summary);
-console.log(JSON.stringify({ ok: true, ...coverage }, null, 2));
+console.log(JSON.stringify({
+	ok: true,
+	targetDate: coverage.targetDate,
+	raceCount: coverage.raceCount,
+	exactRegistryLinkedCount: coverage.exactRegistryLinkedCount,
+	lifecycle: summary.lifecycle,
+	rawPayoutWithoutCompleteResultCount: coverage.rawPayoutWithoutCompleteResultCount,
+}, null, 2));

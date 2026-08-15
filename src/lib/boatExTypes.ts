@@ -734,8 +734,31 @@ export interface BoatExCurrentDayPredictionCoverageFile {
 	boatAvailableSlotCount: number;
 	resultAvailableRaceCount: number;
 	payoutAvailableRaceCount: number;
+	raceAnalysisAvailableRaceCount: number;
+	raceAnalysisMissingRaceCount: number;
+	preRaceCount: number;
+	exhibitionReadyCount: number;
+	exhibitionPartialCount: number;
+	partialResultCount: number;
+	resultOnlyCount: number;
+	resultAndPayoutCount: number;
+	inconsistentStatusCount: number;
+	rawPayoutWithoutCompleteResultCount: number;
 	resultStatus: "pre-race" | "partial-result" | "completed";
 	sourceKinds: string[];
+	races: Array<{
+		venueCode: string;
+		venueName: string;
+		raceNo: number;
+		status: "pre-race" | "exhibition-ready" | "exhibition-partial" | "partial-result" | "result-only" | "result-and-payout" | "race-analysis-ready";
+		displayTimeCount: number;
+		hasResult: boolean;
+		hasPayout: boolean;
+		hasRaceAnalysis: boolean;
+		sourceName: string;
+		sourceAcquiredAt: string;
+		warnings: string[];
+	}>;
 }
 
 export interface BoatExRacerEvidenceRegistryLinkageAuditFile {
