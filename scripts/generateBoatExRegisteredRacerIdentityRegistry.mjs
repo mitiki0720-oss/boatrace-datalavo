@@ -75,6 +75,41 @@ function registryIdentity(entry) {
 	};
 }
 
+function currentDayRegistryIdentity(entry) {
+	const appearances = [...entry.appearances].sort((left, right) => `${left.venueCode}:${left.raceNo}:${left.boatNo}`.localeCompare(`${right.venueCode}:${right.raceNo}:${right.boatNo}`));
+	const first = appearances[0];
+	const venues = new Map();
+	for (const appearance of appearances) {
+		const key = `${appearance.venueCode}\u0000${appearance.venueName}`;
+		const venue = venues.get(key) ?? { venueCode: appearance.venueCode, venueName: appearance.venueName, appearanceCount: 0 };
+		venue.appearanceCount += 1;
+		venues.set(key, venue);
+	}
+	return {
+		registrationNo: entry.registrationNo,
+		canonicalRacerName: first.racerName,
+		normalizedRacerName: first.normalizedRacerName,
+		nameVariants: [...entry.nameVariants].sort(),
+		appearanceCount: appearances.length,
+		firstSeenDate: entry.date,
+		lastSeenDate: entry.date,
+		venues: [...venues.values()].sort((left, right) => left.venueCode.localeCompare(right.venueCode)),
+		sourceTypes: ["official-current-day"],
+		provenanceCount: appearances.length,
+		evidenceDates: [entry.date],
+		raceContexts: appearances.map((appearance) => ({ date: appearance.date, venueCode: appearance.venueCode, venueName: appearance.venueName, raceNo: appearance.raceNo, boatNo: appearance.boatNo })),
+		currentDayProvenance: {
+			sourcePath: "public/data/boatrace/today-race-details.generated.json",
+			sourceName: entry.sourceName,
+			sourceType: "official-current-day",
+			sourceFetchedAt: entry.sourceFetchedAt,
+			branch: first.branch,
+			age: first.age,
+			className: first.className,
+		},
+	};
+}
+
 function main() {
 	const args = parseArgs(process.argv.slice(2));
 	const index = readJson("public/data/boatrace-ex/index.generated.json");
@@ -118,10 +153,46 @@ function main() {
 		}
 	}
 
+	const current = readJson("public/data/boatrace/today-race-details.generated.json");
+	const currentCandidates = new Map();
+	const currentDayInvalidRegistration = [];
+	const currentDayIncompleteSource = [];
+	for (const venue of Array.isArray(current.venues) ? current.venues : []) {
+		const venueSource = asText(venue?.source ?? current.source);
+		const sourceFetchedAt = asText(venue?.generatedAt ?? current.generatedAt);
+		for (const race of Array.isArray(venue?.races) ? venue.races : []) {
+			for (const racer of Array.isArray(race?.racers) ? race.racers : []) {
+				const registrationNo = asText(racer?.registrationNo);
+				if (!isRegistrationNumber(registrationNo)) { pushSample(currentDayInvalidRegistration, { venueName: asText(venue?.venueName), raceNo: Number(race?.raceNo), racerName: asText(racer?.name), registrationNo }); continue; }
+				if (entries.has(registrationNo)) continue;
+				const racerName = asText(racer?.name);
+				const branch = asText(racer?.branch);
+				const age = asText(racer?.age);
+				const className = asText(racer?.className ?? racer?.class);
+				if (!venueSource.startsWith("official:") || !sourceFetchedAt || !racerName || !branch || !age || !className) {
+					pushSample(currentDayIncompleteSource, { venueName: asText(venue?.venueName), raceNo: Number(race?.raceNo), racerName, registrationNo, venueSource, sourceFetchedAt, branch, age, className });
+					continue;
+				}
+				const candidate = currentCandidates.get(registrationNo) ?? { registrationNo, date: asText(current.date), appearances: [], nameVariants: new Set(), normalizedNames: new Set(), sourceName: venueSource, sourceFetchedAt };
+				const appearance = { date: asText(current.date), venueCode: asText(venue?.venueCode), venueName: asText(venue?.venueName), raceNo: Number(race?.raceNo), boatNo: Number(racer?.frameNo ?? racer?.lane), racerName, normalizedRacerName: normalizeName(racerName), branch, age, className };
+				candidate.appearances.push(appearance);
+				candidate.nameVariants.add(racerName);
+				candidate.normalizedNames.add(appearance.normalizedRacerName);
+				currentCandidates.set(registrationNo, candidate);
+			}
+		}
+	}
+
 	const collisions = [...entries.values()].filter((entry) => entry.normalizedNames.size !== 1 || ![...entry.normalizedNames][0]);
 	const safeEntries = [...entries.values()].filter((entry) => entry.normalizedNames.size === 1 && Boolean([...entry.normalizedNames][0]));
 	const aliasCandidates = [...normalizedNames.values()].filter((entry) => entry.registrationNos.size > 1);
-	const identities = safeEntries.map(registryIdentity).sort((left, right) => left.registrationNo.localeCompare(right.registrationNo));
+	const historicalIdentities = safeEntries.map(registryIdentity);
+	const historicalNames = new Set(historicalIdentities.map((identity) => identity.normalizedRacerName));
+	const currentDayConflicts = [...currentCandidates.values()].filter((entry) => entry.normalizedNames.size !== 1 || historicalNames.has([...entry.normalizedNames][0]));
+	const currentDayIdentities = [...currentCandidates.values()]
+		.filter((entry) => entry.normalizedNames.size === 1 && !historicalNames.has([...entry.normalizedNames][0]))
+		.map(currentDayRegistryIdentity);
+	const identities = [...historicalIdentities, ...currentDayIdentities].sort((left, right) => left.registrationNo.localeCompare(right.registrationNo));
 	const identityDates = identities.flatMap((identity) => [identity.firstSeenDate, identity.lastSeenDate]).filter(Boolean).sort();
 	const auditDate = index.latestDate;
 	const registryRelativePath = "public/data/boatrace-ex/identity/registered-racers.generated.json";
@@ -132,6 +203,7 @@ function main() {
 		"public/data/boatrace-ex/manifest.generated.json",
 		`public/data/boatrace-ex/audit/registered-registration-quality-${auditDate}.generated.json`,
 		`public/data/boatrace-ex/audit/registration-provenance-${auditDate}.generated.json`,
+		"public/data/boatrace/today-race-details.generated.json",
 		...dates.flatMap((date) => [`public/data/boatrace-ex/history/races/${date}.json`, `public/data/boatrace-ex/derived/racer-evidence/${date}.json`]),
 	];
 	const registry = {
@@ -140,7 +212,7 @@ function main() {
 		generatedAt: new Date().toISOString(),
 		identityPolicy: "registrationNo-primary-key; provenance-complete-only; no name-based merge",
 		sourceFiles,
-		summary: { identityCount: identities.length, sourceAppearanceCount, firstSeenDate: identityDates[0] ?? null, lastSeenDate: identityDates.at(-1) ?? null, collisionCount: collisions.length, aliasCandidateCount: aliasCandidates.length, unresolvedExcludedCount, provenanceIncompleteRegisteredCount },
+		summary: { identityCount: identities.length, sourceAppearanceCount, firstSeenDate: identityDates[0] ?? null, lastSeenDate: identityDates.at(-1) ?? null, collisionCount: collisions.length, aliasCandidateCount: aliasCandidates.length, unresolvedExcludedCount, provenanceIncompleteRegisteredCount, currentDaySupplementIdentityCount: currentDayIdentities.length, currentDaySupplementSlotCount: currentDayIdentities.reduce((total, identity) => total + identity.appearanceCount, 0), currentDayConflictCount: currentDayConflicts.length, currentDayInvalidRegistrationCount: currentDayInvalidRegistration.length, currentDayIncompleteSourceCount: currentDayIncompleteSource.length },
 		identities,
 	};
 	const serializeCollision = (entry) => ({ registrationNo: entry.registrationNo, normalizedRacerNames: [...entry.normalizedNames].sort(), nameVariants: [...entry.nameVariants].sort(), appearanceCount: entry.appearances.length });
@@ -159,6 +231,9 @@ function main() {
 			collision: { count: collisions.length, examples: collisions.slice(0, SAMPLE_LIMIT).map(serializeCollision) },
 			aliasCandidate: { count: aliasCandidates.length, examples: aliasCandidates.slice(0, SAMPLE_LIMIT).map(serializeAlias) },
 			safeRegisteredIdentity: { count: identities.length },
+			currentDaySupplement: { count: currentDayIdentities.length, slotCount: currentDayIdentities.reduce((total, identity) => total + identity.appearanceCount, 0), rule: "Current-day official registrationNo plus explicit source, timestamp, name, branch, age, and className; no name-based merge." },
+			currentDayConflict: { count: currentDayConflicts.length, examples: currentDayConflicts.slice(0, SAMPLE_LIMIT).map((entry) => ({ registrationNo: entry.registrationNo, nameVariants: [...entry.nameVariants].sort() })) },
+			currentDayIncompleteSource: { count: currentDayIncompleteSource.length, examples: currentDayIncompleteSource },
 		},
 		nextSteps: [
 			"Racer evidence can resolve an identity by registrationNo against public/data/boatrace-ex/identity/registered-racers.generated.json.",

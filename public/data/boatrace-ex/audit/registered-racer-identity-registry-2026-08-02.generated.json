@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-registered-racer-identity-registry-audit",
   "auditDate": "2026-08-02",
-  "generatedAt": "2026-08-03T02:15:32.251Z",
+  "generatedAt": "2026-08-15T01:02:15.893Z",
   "mode": "write",
   "policy": "registrationNo-primary-key; provenance-complete-only; no name-based merge",
   "sourceFiles": [
@@ -10,6 +10,7 @@
     "public/data/boatrace-ex/manifest.generated.json",
     "public/data/boatrace-ex/audit/registered-registration-quality-2026-08-02.generated.json",
     "public/data/boatrace-ex/audit/registration-provenance-2026-08-02.generated.json",
+    "public/data/boatrace/today-race-details.generated.json",
     "public/data/boatrace-ex/history/races/2026-05-24.json",
     "public/data/boatrace-ex/derived/racer-evidence/2026-05-24.json",
     "public/data/boatrace-ex/history/races/2026-05-25.json",
@@ -224,14 +225,19 @@
     "historyModified": false
   },
   "summary": {
-    "identityCount": 1287,
+    "identityCount": 1414,
     "sourceAppearanceCount": 2952,
     "firstSeenDate": "2026-07-13",
-    "lastSeenDate": "2026-08-02",
+    "lastSeenDate": "2026-08-15",
     "collisionCount": 0,
     "aliasCandidateCount": 0,
     "unresolvedExcludedCount": 49752,
-    "provenanceIncompleteRegisteredCount": 0
+    "provenanceIncompleteRegisteredCount": 0,
+    "currentDaySupplementIdentityCount": 127,
+    "currentDaySupplementSlotCount": 198,
+    "currentDayConflictCount": 0,
+    "currentDayInvalidRegistrationCount": 0,
+    "currentDayIncompleteSourceCount": 0
   },
   "classification": {
     "collision": {
@@ -243,7 +249,20 @@
       "examples": []
     },
     "safeRegisteredIdentity": {
-      "count": 1287
+      "count": 1414
+    },
+    "currentDaySupplement": {
+      "count": 127,
+      "slotCount": 198,
+      "rule": "Current-day official registrationNo plus explicit source, timestamp, name, branch, age, and className; no name-based merge."
+    },
+    "currentDayConflict": {
+      "count": 0,
+      "examples": []
+    },
+    "currentDayIncompleteSource": {
+      "count": 0,
+      "examples": []
     }
   },
   "nextSteps": [

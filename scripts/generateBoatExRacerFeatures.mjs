@@ -24,7 +24,7 @@ const median = (values) => {
 	return Number((sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2).toFixed(3));
 };
 const average = (values) => values.length ? Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(3)) : null;
-const sampleLevel = (count) => count >= 10 ? "sufficient" : count >= 5 ? "limited" : "low-sample";
+const sampleLevel = (count) => count === 0 ? "no-history" : count >= 10 ? "sufficient" : count >= 5 ? "limited" : "low-sample";
 const band = (value, unit) => {
 	const numeric = number(value);
 	if (numeric === null) return "未取得";
@@ -80,6 +80,19 @@ for (const date of index.availableDates ?? []) {
 	}
 }
 
+for (const identity of registry.identities ?? []) {
+	const registrationNo = registration(identity.registrationNo);
+	if (!registrationNo || features.has(registrationNo)) continue;
+	features.set(registrationNo, {
+		registrationNo,
+		name: text(identity.canonicalRacerName),
+		nameVariants: Array.isArray(identity.nameVariants) ? identity.nameVariants : [],
+		branch: text(identity.currentDayProvenance?.branch) || null,
+		className: text(identity.currentDayProvenance?.className) || null,
+		events: [],
+	});
+}
+
 const buildFeature = (entry) => {
 	const events = [...entry.events].sort((left, right) => left.date.localeCompare(right.date));
 	const starts = events.length;
@@ -105,7 +118,7 @@ const buildFeature = (entry) => {
 		winMethodCounts: methods,
 		conditionSamples: Object.entries(conditions).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([condition, count]) => ({ condition, count, sampleLevel: sampleLevel(count) })),
 		recent: { last5: summarize(top(5)), last10: summarize(top(10)), last30Days: summarize(events.filter((event) => event.date >= (events.at(-1)?.date ?? "").replace(/-\d\d$/u, "-01"))) },
-		policy: "registrationNo exact registry identity only; source-backed historical descriptive statistics only",
+	policy: "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history",
 	};
 };
 

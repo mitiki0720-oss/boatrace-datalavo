@@ -872,7 +872,10 @@ function formatRacerFeatureLines(params: {
 		const registrationNo = asText(racer.registrationNo, "");
 		const feature = featuresByRegistrationNo.get(registrationNo);
 		if (!feature) {
-			return `- ${asText(racer.frameNo)}号艇 / ${asText(racer.name)} / 登録番号完全一致のEX履歴特徴は未取得`;
+			return `- ${asText(racer.frameNo)}号艇 / ${asText(racer.name)} / 登録番号exact registry: 未リンク / 理由: safe registry未登録`;
+		}
+		if (feature.historyStarts === 0 || feature.sampleLevel === "no-history") {
+			return `- ${asText(racer.frameNo)}号艇 / ${asText(racer.name)} / 登録番号 ${feature.registrationNo} / 登録番号exact registry: available / EX履歴特徴: 履歴不足 / no-history`;
 		}
 
 		const venueHistory = feature.venues.find((item) => item.venueCode === venue.venueCode);
