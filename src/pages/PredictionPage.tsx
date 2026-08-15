@@ -72,7 +72,7 @@ import {
 import type { BoatPracticeResultRecord } from "../lib/boatPracticeResultStorage";
 import { withBasePath } from "../lib/assetPath";
 import { pruneBoatLocalRecordsByDate } from "../lib/boatLocalStorageMaintenance";
-import { getBoatOperationDate, resolveActiveBoatOperationDate, shiftBoatOperationDate } from "../lib/boatOperationDate";
+import { getBoatOperationDate, shiftBoatOperationDate } from "../lib/boatOperationDate";
 import {
 	compactBoatPracticeResultRecords,
 	calculateBoatPracticeProfitLoss,
@@ -835,22 +835,24 @@ export function PredictionPage() {
 	const autoSettleRunKeyRef = useRef("");
 	const autoSettledFingerprintRef = useRef<Set<string>>(new Set());
 
+	const currentJstDate = useMemo(() => getBoatOperationDate(), []);
+	const publishedFeedDate = String(todayFeed.date ?? "").trim();
+	const isTodayFeedStale = Boolean(dataUpdatedAt && publishedFeedDate && publishedFeedDate !== currentJstDate);
 	const venues = useMemo<BoatPredictionVenue[]>(
 		() =>
-			toArray<BoatPredictionVenue>((todayFeed as { venues?: unknown }).venues).map((venue) => ({
-				...venue,
-				races: getVenueRaces(venue),
-			})),
-		[todayFeed],
+			isTodayFeedStale
+				? []
+				: toArray<BoatPredictionVenue>((todayFeed as { venues?: unknown }).venues).map((venue) => ({
+					...venue,
+					races: getVenueRaces(venue),
+				})),
+		[todayFeed, isTodayFeedStale],
 	);
 
 	const races = useMemo<BoatPredictionRace[]>(() => venues.flatMap((venue) => getVenueRaces(venue)), [venues]);
 	const initialVenue = venues[0];
 	const selectedVenue = venues.find((venue) => venue.id === selectedVenueId) ?? initialVenue;
-	const activePredictionDate = useMemo(
-		() => (dataUpdatedAt ? resolveActiveBoatOperationDate(todayFeed.date) : getBoatOperationDate()),
-		[dataUpdatedAt, todayFeed.date],
-	);
+	const activePredictionDate = currentJstDate;
 	useEffect(() => {
 		let active = true;
 
@@ -1800,7 +1802,7 @@ const buildPracticeFallbackRaceKey = (params: {
 		...(bulkGptMaterialRangeKey === "7r12r" ? bulkGptMaterialSummary7R12RWithEx : bulkGptMaterialSummary1R6RWithTimeLabels),
 	};
 	const venueCount = venues.length;
-	const isWaitingForTodayFeed = venueCount === 0;
+	const isWaitingForTodayFeed = venueCount === 0 && !isTodayFeedStale;
 	const raceCount = races.length;
 	const confirmedRaceCount = races.filter((race) => isRaceResultReadyForPractice(race)).length;
 	const materialReadyRaceCount = races.filter((race) => {
@@ -3511,6 +3513,12 @@ body:has(.prediction-page-root) {
 							{dataUpdatedAt ? (
 								<p className="prediction-update-meta">
 									基本データ更新：{formatJstDateTimeLabel(dataUpdatedAt)}
+								</p>
+							) : null}
+
+							{isTodayFeedStale ? (
+								<p className="prediction-text" role="status">
+									本日のレースデータが未更新です。公開データ日付: {publishedFeedDate} / 現在日付: {currentJstDate}。自動更新を再実行してください。
 								</p>
 							) : null}
 
