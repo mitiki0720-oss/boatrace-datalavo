@@ -37,17 +37,46 @@ for (const historyDate of audit.coverage?.dates ?? []) {
 	}
 }
 const safe = [...expected.entries()].filter(([, entry]) => entry.names.size === 1 && [...entry.names][0]);
+const historicalNames = new Set(safe.map(([, entry]) => [...entry.names][0]));
+const current = readJson("public/data/boatrace/today-race-details.generated.json");
+const currentCandidates = new Map();
+for (const venue of current.venues ?? []) {
+	const sourceName = asText(venue?.source ?? current.source);
+	const sourceFetchedAt = asText(venue?.generatedAt ?? current.generatedAt);
+	for (const race of venue.races ?? []) for (const racer of race.racers ?? []) {
+		const registrationNo = asText(racer?.registrationNo);
+		if (!validRegistration(registrationNo) || expected.has(registrationNo)) continue;
+		const racerName = asText(racer?.name);
+		const branch = asText(racer?.branch);
+		const age = asText(racer?.age);
+		const className = asText(racer?.className ?? racer?.class);
+		if (!sourceName.startsWith("official:") || !sourceFetchedAt || !racerName || !branch || !age || !className) continue;
+		const entry = currentCandidates.get(registrationNo) ?? { names: new Set(), appearances: 0, sourceName, sourceFetchedAt };
+		entry.names.add(normalizeName(racerName));
+		entry.appearances += 1;
+		currentCandidates.set(registrationNo, entry);
+	}
+}
+const currentDaySafe = [...currentCandidates.entries()].filter(([, entry]) => entry.names.size === 1 && [...entry.names][0] && !historicalNames.has([...entry.names][0]));
+const currentDaySlotCount = currentDaySafe.reduce((total, [, entry]) => total + entry.appearances, 0);
 assert(registry.schemaVersion === 1, "registry schemaVersion must be 1");
 assert(registry.kind === "boatrace-ex-registered-racer-identity-registry", "registry kind mismatch");
 assert(registry.identityPolicy === "registrationNo-primary-key; provenance-complete-only; no name-based merge", "identity policy mismatch");
 assert(Array.isArray(registry.sourceFiles) && registry.sourceFiles.every((item) => !item.startsWith("public/data/reviews/") && !item.startsWith("public/dog/")), "registry must not use protected review/dog sources");
 assert(registry.summary?.sourceAppearanceCount === sourceAppearanceCount, "source appearance count does not match history");
 assert(registry.summary?.unresolvedExcludedCount === unresolvedExcludedCount, "unresolved excluded count does not match history");
-assert(registry.summary?.identityCount === safe.length, "safe identity count does not match history");
-assert(registry.identities?.length === safe.length, "identity array length does not match safe identity count");
+assert(registry.summary?.identityCount === safe.length + currentDaySafe.length, "safe identity count does not match history and current official supplement");
+assert(registry.identities?.length === safe.length + currentDaySafe.length, "identity array length does not match safe identity sources");
+assert(registry.summary?.currentDaySupplementIdentityCount === currentDaySafe.length, "current-day supplement identity count does not match official source");
+assert(registry.summary?.currentDaySupplementSlotCount === currentDaySlotCount, "current-day supplement slot count does not match official source");
 assert(audit.summary?.identityCount === registry.summary?.identityCount, "audit identity count does not match registry");
 assert(audit.coverage?.historyModified === false, "registry generation must not modify history");
 assert(fs.existsSync(path.join(root, markdownPath)), "registry runbook must exist");
+for (const [registrationNo, entry] of currentDaySafe) {
+	const identity = registry.identities?.find((item) => item.registrationNo === registrationNo);
+	assert(identity?.currentDayProvenance?.sourcePath === "public/data/boatrace/today-race-details.generated.json", `current-day provenance path mismatch: ${registrationNo}`);
+	assert(identity?.currentDayProvenance?.sourceName === entry.sourceName && asText(identity?.currentDayProvenance?.sourceFetchedAt), `current-day provenance mismatch: ${registrationNo}`);
+}
 const seen = new Set();
 for (const identity of registry.identities ?? []) {
 	assert(validRegistration(identity.registrationNo), `invalid registrationNo in registry: ${identity.registrationNo}`);
