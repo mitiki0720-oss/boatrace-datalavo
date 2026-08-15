@@ -125,7 +125,19 @@ jobs:
           echo "=== restore non-generated lockfile changes ==="
           git restore package-lock.json || true
 
-          git add public/data
+          git add -- \
+            public/data/boatrace/today-race-details.generated.json \
+            public/data/boatrace/today.generated.json \
+            public/data/boatrace/upcoming-schedule.generated.json \
+            public/data/boatrace/venue-extras.generated.json \
+            public/data/boatrace-ex \
+            docs/boat-ex/registered-racer-identity-registry-2026-08-02.md
+
+          if git diff --cached --name-only | grep -Eq '^(public/data/reviews/|public/data/boatrace/johnson-predictions\.generated\.json$|public/data/boatrace/reviews/index\.json$|public/dog/)'; then
+            echo "::error::Protected files were staged by the generated data commit step"
+            git diff --cached --name-only
+            exit 1
+          fi
 
           echo "=== git status before commit ==="
           git status --short --untracked-files=no
