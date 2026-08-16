@@ -34,9 +34,27 @@ assert.match(workflow, /TARGET_DATE: \$\{\{ inputs\.target_date \|\| '' \}\}/);
 assert.match(workflow, /ARGS\+=\(--target-date "\$TARGET_DATE"\)/);
 assert.match(workflow, /git add -- \\\s*\n\s+public\/data\/boatrace\/today-race-details\.generated\.json/);
 assert.doesNotMatch(workflow, /git add public\/data(?:\s|$)/);
+assert.doesNotMatch(workflow, /git add public\/data\/boatrace(?:\s|$)/);
+assert.doesNotMatch(workflow, /^\s*git add \.\s*$/m);
+assert.doesNotMatch(workflow, /git add -A(?:\s|$)/);
+
+const generatedCommitStart = workflow.indexOf("echo \"=== restore non-generated / protected workflow side-effect changes ===\"");
+const generatedCommitStage = workflow.indexOf("git add --", generatedCommitStart);
+const generatedCommitGuard = workflow.indexOf("if git diff --cached", generatedCommitStage);
+assert.ok(generatedCommitStart >= 0, "generated commit restore section is missing");
+assert.ok(generatedCommitStage > generatedCommitStart, "generated commit allowlist is missing");
+assert.ok(generatedCommitGuard > generatedCommitStage, "generated commit protected-stage guard is missing");
+
+const restoreBlock = workflow.slice(generatedCommitStart, generatedCommitStage);
+const allowlistBlock = workflow.slice(generatedCommitStage, generatedCommitGuard);
+assert.match(restoreBlock, /git restore package-lock\.json \|\| true/);
+assert.match(restoreBlock, /git restore public\/data\/boatrace\/johnson-predictions\.generated\.json \|\| true/);
+assert.doesNotMatch(allowlistBlock, /johnson-predictions\.generated\.json/);
 assert.match(workflow, /Protected files were staged by the generated data commit step/);
 assert.ok(workflow.includes("public/data/boatrace/johnson-predictions\\.generated\\.json"));
 assert.ok(workflow.includes("public/data/boatrace/reviews/index\\.json"));
+assert.ok(workflow.includes("public/data/reviews/"));
+assert.ok(workflow.includes("public/dog/"));
 assert.match(updateBoatData, /resolveJstTargetDate\(cliArgs\.targetDate \?\? env\.BOAT_RACE_TARGET_DATE\)/);
 assert.match(updateTodayDetails, /targetDate: resolveJstTargetDate\(rawOptions\.targetDate\)/);
 
@@ -45,4 +63,6 @@ console.log(JSON.stringify({
 	fixtures: fixtures.map(({ now, expected }) => ({ now, targetDate: expected })),
 	workflowTargetDate: "JST input with script-side default",
 	workflowStageGuard: true,
+	johnsonJsonRestoredBeforeGeneratedCommit: true,
+	johnsonJsonExcludedFromGeneratedAllowlist: true,
 }, null, 2));
