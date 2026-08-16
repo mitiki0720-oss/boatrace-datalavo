@@ -138,8 +138,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          echo "=== restore non-generated lockfile changes ==="
+          echo "=== restore non-generated / protected workflow side-effect changes ==="
           git restore package-lock.json || true
+          git restore public/data/boatrace/johnson-predictions.generated.json || true
 
           git add -- \
             public/data/boatrace/today-race-details.generated.json \
