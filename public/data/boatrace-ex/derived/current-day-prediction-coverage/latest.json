@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-current-day-prediction-coverage",
   "targetDate": "2026-08-17",
-  "generatedAt": "2026-08-17T02:31:11.472Z",
+  "generatedAt": "2026-08-17T03:01:15.434Z",
   "sourcePath": "public/data/boatrace/today-race-details.generated.json",
   "identityPolicy": "registrationNo exact registry lookup only; no name-only linkage",
   "venueCount": 14,
@@ -20,18 +20,18 @@
   "exhibitionDisplayTimeMissingRaceCount": 142,
   "motorAvailableSlotCount": 1008,
   "boatAvailableSlotCount": 1008,
-  "resultAvailableRaceCount": 28,
-  "payoutAvailableRaceCount": 28,
+  "resultAvailableRaceCount": 36,
+  "payoutAvailableRaceCount": 36,
   "raceAnalysisAvailableRaceCount": 0,
   "raceAnalysisMissingRaceCount": 168,
-  "preRaceCount": 138,
-  "exhibitionReadyCount": 2,
+  "preRaceCount": 132,
+  "exhibitionReadyCount": 0,
   "exhibitionPartialCount": 0,
   "partialResultCount": 0,
   "resultOnlyCount": 0,
-  "resultAndPayoutCount": 28,
+  "resultAndPayoutCount": 36,
   "inconsistentStatusCount": 0,
-  "rawPayoutWithoutCompleteResultCount": 2,
+  "rawPayoutWithoutCompleteResultCount": 3,
   "resultStatus": "partial-result",
   "sourceKinds": [
     "official-beforeinfo-fetch-unavailable",
@@ -70,7 +70,7 @@
       "resultOnlyCount": 0,
       "resultAndPayoutCount": 2,
       "inconsistentStatusCount": 0,
-      "rawPayoutWithoutCompleteResultCount": 0,
+      "rawPayoutWithoutCompleteResultCount": 1,
       "lifecycle": [
         {
           "venueCode": "02",
@@ -82,7 +82,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -95,7 +95,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -109,7 +109,9 @@
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
-          "warnings": []
+          "warnings": [
+            "raw-payout-without-complete-result-suppressed"
+          ]
         },
         {
           "venueCode": "02",
@@ -247,15 +249,15 @@
       "exhibitionDisplayTimeMissingRaceCount": 12,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 0,
-      "payoutAvailableRaceCount": 0,
+      "resultAvailableRaceCount": 1,
+      "payoutAvailableRaceCount": 1,
       "raceAnalysisAvailableRaceCount": 0,
-      "preRaceCount": 12,
+      "preRaceCount": 11,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 0,
+      "resultAndPayoutCount": 1,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -263,10 +265,10 @@
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 1,
-          "status": "pre-race",
+          "status": "result-and-payout",
           "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
@@ -434,15 +436,15 @@
       "exhibitionDisplayTimeMissingRaceCount": 10,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 2,
-      "payoutAvailableRaceCount": 2,
+      "resultAvailableRaceCount": 3,
+      "payoutAvailableRaceCount": 3,
       "raceAnalysisAvailableRaceCount": 0,
-      "preRaceCount": 10,
+      "preRaceCount": 9,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 2,
+      "resultAndPayoutCount": 3,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 1,
       "lifecycle": [
@@ -456,7 +458,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -469,23 +471,21 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 3,
-          "status": "pre-race",
+          "status": "result-and-payout",
           "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
-          "warnings": [
-            "raw-payout-without-complete-result-suppressed"
-          ]
+          "warnings": []
         },
         {
           "venueCode": "09",
@@ -498,7 +498,9 @@
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
-          "warnings": []
+          "warnings": [
+            "raw-payout-without-complete-result-suppressed"
+          ]
         },
         {
           "venueCode": "09",
@@ -623,15 +625,15 @@
       "exhibitionDisplayTimeMissingRaceCount": 5,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 6,
-      "payoutAvailableRaceCount": 6,
+      "resultAvailableRaceCount": 7,
+      "payoutAvailableRaceCount": 7,
       "raceAnalysisAvailableRaceCount": 0,
       "preRaceCount": 5,
-      "exhibitionReadyCount": 1,
+      "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 6,
+      "resultAndPayoutCount": 7,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 1,
       "lifecycle": [
@@ -645,7 +647,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -658,7 +660,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -671,7 +673,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -684,7 +686,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -697,7 +699,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -710,23 +712,21 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
           "venueCode": "10",
           "venueName": "三国",
           "raceNo": 7,
-          "status": "exhibition-ready",
+          "status": "result-and-payout",
           "displayTimeCount": 6,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
-          "warnings": [
-            "raw-payout-without-complete-result-suppressed"
-          ]
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
+          "warnings": []
         },
         {
           "venueCode": "10",
@@ -739,7 +739,9 @@
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
-          "warnings": []
+          "warnings": [
+            "raw-payout-without-complete-result-suppressed"
+          ]
         },
         {
           "venueCode": "10",
@@ -812,15 +814,15 @@
       "exhibitionDisplayTimeMissingRaceCount": 10,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 2,
-      "payoutAvailableRaceCount": 2,
+      "resultAvailableRaceCount": 3,
+      "payoutAvailableRaceCount": 3,
       "raceAnalysisAvailableRaceCount": 0,
-      "preRaceCount": 10,
+      "preRaceCount": 9,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 2,
+      "resultAndPayoutCount": 3,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -834,7 +836,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -847,17 +849,17 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 3,
-          "status": "pre-race",
+          "status": "result-and-payout",
           "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
@@ -1186,15 +1188,15 @@
       "exhibitionDisplayTimeMissingRaceCount": 12,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 2,
-      "payoutAvailableRaceCount": 2,
+      "resultAvailableRaceCount": 3,
+      "payoutAvailableRaceCount": 3,
       "raceAnalysisAvailableRaceCount": 0,
-      "preRaceCount": 10,
+      "preRaceCount": 9,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 2,
+      "resultAndPayoutCount": 3,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -1228,10 +1230,10 @@
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 3,
-          "status": "pre-race",
+          "status": "result-and-payout",
           "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
@@ -1373,15 +1375,15 @@
       "exhibitionDisplayTimeMissingRaceCount": 5,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 6,
-      "payoutAvailableRaceCount": 6,
+      "resultAvailableRaceCount": 7,
+      "payoutAvailableRaceCount": 7,
       "raceAnalysisAvailableRaceCount": 0,
       "preRaceCount": 5,
-      "exhibitionReadyCount": 1,
+      "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 6,
+      "resultAndPayoutCount": 7,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -1395,7 +1397,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -1408,7 +1410,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -1421,7 +1423,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -1434,7 +1436,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -1447,7 +1449,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -1460,20 +1462,20 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "raceNo": 7,
-          "status": "exhibition-ready",
+          "status": "result-and-payout",
           "displayTimeCount": 6,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -1747,15 +1749,15 @@
       "exhibitionDisplayTimeMissingRaceCount": 12,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 2,
-      "payoutAvailableRaceCount": 2,
+      "resultAvailableRaceCount": 3,
+      "payoutAvailableRaceCount": 3,
       "raceAnalysisAvailableRaceCount": 0,
-      "preRaceCount": 10,
+      "preRaceCount": 9,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 2,
+      "resultAndPayoutCount": 3,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -1789,10 +1791,10 @@
           "venueCode": "17",
           "venueName": "宮島",
           "raceNo": 3,
-          "status": "pre-race",
+          "status": "result-and-payout",
           "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
@@ -1934,15 +1936,15 @@
       "exhibitionDisplayTimeMissingRaceCount": 6,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 6,
-      "payoutAvailableRaceCount": 6,
+      "resultAvailableRaceCount": 7,
+      "payoutAvailableRaceCount": 7,
       "raceAnalysisAvailableRaceCount": 0,
-      "preRaceCount": 6,
+      "preRaceCount": 5,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 6,
+      "resultAndPayoutCount": 7,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -1956,7 +1958,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -1969,7 +1971,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -1982,7 +1984,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -1995,7 +1997,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -2008,7 +2010,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
@@ -2021,17 +2023,17 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+          "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
           "warnings": []
         },
         {
           "venueCode": "18",
           "venueName": "徳山",
           "raceNo": 7,
-          "status": "pre-race",
+          "status": "result-and-payout",
           "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
@@ -2677,7 +2679,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -2690,7 +2692,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -2704,7 +2706,9 @@
       "hasRaceAnalysis": false,
       "sourceName": "official-beforeinfo-fetch-unavailable",
       "sourceAcquiredAt": "",
-      "warnings": []
+      "warnings": [
+        "raw-payout-without-complete-result-suppressed"
+      ]
     },
     {
       "venueCode": "02",
@@ -2827,10 +2831,10 @@
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 1,
-      "status": "pre-race",
+      "status": "result-and-payout",
       "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official-beforeinfo-fetch-unavailable",
       "sourceAcquiredAt": "",
@@ -2989,7 +2993,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3002,13 +3006,26 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 3,
+      "status": "result-and-payout",
+      "displayTimeCount": 0,
+      "hasResult": true,
+      "hasPayout": true,
+      "hasRaceAnalysis": false,
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
+      "warnings": []
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 4,
       "status": "pre-race",
       "displayTimeCount": 0,
       "hasResult": false,
@@ -3023,19 +3040,6 @@
     {
       "venueCode": "09",
       "venueName": "津",
-      "raceNo": 4,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
-      "hasRaceAnalysis": false,
-      "sourceName": "official-beforeinfo-fetch-unavailable",
-      "sourceAcquiredAt": "",
-      "warnings": []
-    },
-    {
-      "venueCode": "09",
-      "venueName": "津",
       "raceNo": 5,
       "status": "pre-race",
       "displayTimeCount": 0,
@@ -3147,7 +3151,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3160,7 +3164,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3173,7 +3177,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3186,7 +3190,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3199,7 +3203,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3212,20 +3216,33 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
       "venueCode": "10",
       "venueName": "三国",
       "raceNo": 7,
-      "status": "exhibition-ready",
+      "status": "result-and-payout",
       "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
+      "hasRaceAnalysis": false,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
+      "warnings": []
+    },
+    {
+      "venueCode": "10",
+      "venueName": "三国",
+      "raceNo": 8,
+      "status": "pre-race",
+      "displayTimeCount": 0,
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": [
         "raw-payout-without-complete-result-suppressed"
       ]
@@ -3233,19 +3250,6 @@
     {
       "venueCode": "10",
       "venueName": "三国",
-      "raceNo": 8,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
-      "hasRaceAnalysis": false,
-      "sourceName": "official-beforeinfo-fetch-unavailable",
-      "sourceAcquiredAt": "",
-      "warnings": []
-    },
-    {
-      "venueCode": "10",
-      "venueName": "三国",
       "raceNo": 9,
       "status": "pre-race",
       "displayTimeCount": 0,
@@ -3305,7 +3309,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3318,17 +3322,17 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 3,
-      "status": "pre-race",
+      "status": "result-and-payout",
       "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official-beforeinfo-fetch-unavailable",
       "sourceAcquiredAt": "",
@@ -3637,10 +3641,10 @@
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 3,
-      "status": "pre-race",
+      "status": "result-and-payout",
       "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official-beforeinfo-fetch-unavailable",
       "sourceAcquiredAt": "",
@@ -3773,7 +3777,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3786,7 +3790,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3799,7 +3803,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3812,7 +3816,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3825,7 +3829,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -3838,20 +3842,20 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceNo": 7,
-      "status": "exhibition-ready",
+      "status": "result-and-payout",
       "displayTimeCount": 6,
-      "hasResult": false,
-      "hasPayout": false,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -4105,10 +4109,10 @@
       "venueCode": "17",
       "venueName": "宮島",
       "raceNo": 3,
-      "status": "pre-race",
+      "status": "result-and-payout",
       "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official-beforeinfo-fetch-unavailable",
       "sourceAcquiredAt": "",
@@ -4241,7 +4245,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -4254,7 +4258,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -4267,7 +4271,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -4280,7 +4284,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -4293,7 +4297,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
@@ -4306,17 +4310,17 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-17T11:30:34+09:00",
+      "sourceAcquiredAt": "2026-08-17T12:00:41+09:00",
       "warnings": []
     },
     {
       "venueCode": "18",
       "venueName": "徳山",
       "raceNo": 7,
-      "status": "pre-race",
+      "status": "result-and-payout",
       "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official-beforeinfo-fetch-unavailable",
       "sourceAcquiredAt": "",
