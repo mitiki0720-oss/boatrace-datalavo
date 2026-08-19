@@ -1,0 +1,1117 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-current-day-registry-linkage-gap-audit",
+  "generatedAt": "2026-08-19T15:46:57.551Z",
+  "targetDate": "2026-08-20",
+  "policy": "registrationNo exact only; current-day supplement requires official source metadata and does not use name-only or fuzzy linkage",
+  "sourceFiles": [
+    "public/data/boatrace/today-race-details.generated.json",
+    "public/data/boatrace-ex/identity/registered-racers.generated.json",
+    "public/data/boatrace-ex/derived/racer-features/latest.json"
+  ],
+  "summary": {
+    "targetDate": "2026-08-20",
+    "venueCount": 12,
+    "raceCount": 144,
+    "slotCount": 624,
+    "registrationPresentCount": 624,
+    "beforeExactRegistryLinkedCount": 483,
+    "exactRegistryLinkedCount": 624,
+    "supplementedIdentityCount": 95,
+    "supplementedSlotCount": 141,
+    "unmatchedSlotCount": 0,
+    "unmatchedRegistrationNumberCount": 0,
+    "duplicateUnmatchedRegistrationNumbers": [],
+    "duplicateBaselineUnmatchedRegistrationNumbers": [
+      {
+        "registrationNo": "4863",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3467",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4626",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4644",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3863",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4081",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4083",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3792",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4181",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4244",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3842",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4962",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3392",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "2878",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3582",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3432",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4664",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4368",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4103",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4695",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4043",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4483",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4571",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "5387",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4694",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4825",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4974",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3726",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "5000",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4359",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3741",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4128",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4973",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3107",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "5457",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "5054",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4607",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3871",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4241",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "5091",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "5353",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3574",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4289",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4713",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "4099",
+        "slotCount": 2
+      },
+      {
+        "registrationNo": "3161",
+        "slotCount": 2
+      }
+    ],
+    "reasonCounts": {},
+    "baselineReasonCounts": {
+      "notInRegisteredIdentityRegistry": 141
+    }
+  },
+  "baselineUnmatchedExamples": [
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 1,
+      "frameNo": 1,
+      "racerName": "塚田 修二",
+      "registrationNo": "3377",
+      "branch": "東京",
+      "age": "58",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 1,
+      "frameNo": 3,
+      "racerName": "久保原 秀人",
+      "registrationNo": "5006",
+      "branch": "群馬",
+      "age": "29",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 1,
+      "frameNo": 4,
+      "racerName": "三浦 裕貴",
+      "registrationNo": "4863",
+      "branch": "東京",
+      "age": "37",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 1,
+      "frameNo": 6,
+      "racerName": "森 弘行",
+      "registrationNo": "3467",
+      "branch": "東京",
+      "age": "57",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 2,
+      "frameNo": 1,
+      "racerName": "伊藤 紘章",
+      "registrationNo": "4626",
+      "branch": "愛知",
+      "age": "40",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 3,
+      "frameNo": 1,
+      "racerName": "山田 亮太",
+      "registrationNo": "4644",
+      "branch": "東京",
+      "age": "47",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 3,
+      "frameNo": 3,
+      "racerName": "海老澤 泰行",
+      "registrationNo": "3863",
+      "branch": "東京",
+      "age": "52",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 5,
+      "frameNo": 4,
+      "racerName": "樋口 範政",
+      "registrationNo": "4081",
+      "branch": "愛知",
+      "age": "47",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 6,
+      "frameNo": 4,
+      "racerName": "熊倉 幹太",
+      "registrationNo": "5424",
+      "branch": "東京",
+      "age": "24",
+      "className": "B2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 6,
+      "frameNo": 5,
+      "racerName": "福島 勇樹",
+      "registrationNo": "4083",
+      "branch": "東京",
+      "age": "46",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 6,
+      "frameNo": 6,
+      "racerName": "田中 豪",
+      "registrationNo": "3792",
+      "branch": "東京",
+      "age": "53",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 7,
+      "frameNo": 4,
+      "racerName": "森 弘行",
+      "registrationNo": "3467",
+      "branch": "東京",
+      "age": "57",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 7,
+      "frameNo": 5,
+      "racerName": "三浦 裕貴",
+      "registrationNo": "4863",
+      "branch": "東京",
+      "age": "37",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 9,
+      "frameNo": 4,
+      "racerName": "海老澤 泰行",
+      "registrationNo": "3863",
+      "branch": "東京",
+      "age": "52",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 9,
+      "frameNo": 6,
+      "racerName": "伊藤 紘章",
+      "registrationNo": "4626",
+      "branch": "愛知",
+      "age": "40",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 11,
+      "frameNo": 1,
+      "racerName": "田中 豪",
+      "registrationNo": "3792",
+      "branch": "東京",
+      "age": "53",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 11,
+      "frameNo": 2,
+      "racerName": "福島 勇樹",
+      "registrationNo": "4083",
+      "branch": "東京",
+      "age": "46",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 11,
+      "frameNo": 3,
+      "racerName": "樋口 範政",
+      "registrationNo": "4081",
+      "branch": "愛知",
+      "age": "47",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 11,
+      "frameNo": 4,
+      "racerName": "山田 亮太",
+      "registrationNo": "4644",
+      "branch": "東京",
+      "age": "47",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 12,
+      "frameNo": 1,
+      "racerName": "宮之原 輝紀",
+      "registrationNo": "4939",
+      "branch": "東京",
+      "age": "28",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 12,
+      "frameNo": 2,
+      "racerName": "濱野谷 憲吾",
+      "registrationNo": "3590",
+      "branch": "東京",
+      "age": "52",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 12,
+      "frameNo": 4,
+      "racerName": "大池 佑来",
+      "registrationNo": "4468",
+      "branch": "東京",
+      "age": "39",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceNo": 12,
+      "frameNo": 5,
+      "racerName": "黒井 達矢",
+      "registrationNo": "4528",
+      "branch": "埼玉",
+      "age": "38",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 1,
+      "frameNo": 2,
+      "racerName": "花本 夏樹",
+      "registrationNo": "4181",
+      "branch": "三重",
+      "age": "43",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 1,
+      "frameNo": 4,
+      "racerName": "鈴木 成美",
+      "registrationNo": "4244",
+      "branch": "静岡",
+      "age": "39",
+      "className": "B2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 2,
+      "frameNo": 1,
+      "racerName": "星野 太郎",
+      "registrationNo": "3842",
+      "branch": "三重",
+      "age": "50",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 3,
+      "frameNo": 1,
+      "racerName": "畑 竜生",
+      "registrationNo": "4962",
+      "branch": "三重",
+      "age": "30",
+      "className": "A2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 3,
+      "frameNo": 2,
+      "racerName": "小森 信雄",
+      "registrationNo": "3392",
+      "branch": "三重",
+      "age": "60",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 3,
+      "frameNo": 3,
+      "racerName": "富山 弘幸",
+      "registrationNo": "2878",
+      "branch": "大阪",
+      "age": "68",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 3,
+      "frameNo": 4,
+      "racerName": "吉川 昭男",
+      "registrationNo": "3582",
+      "branch": "滋賀",
+      "age": "53",
+      "className": "A2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 4,
+      "frameNo": 2,
+      "racerName": "深井 利寿",
+      "registrationNo": "3918",
+      "branch": "滋賀",
+      "age": "52",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 5,
+      "frameNo": 3,
+      "racerName": "松本 庸平",
+      "registrationNo": "4358",
+      "branch": "三重",
+      "age": "41",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 5,
+      "frameNo": 5,
+      "racerName": "鈴木 成美",
+      "registrationNo": "4244",
+      "branch": "静岡",
+      "age": "39",
+      "className": "B2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 7,
+      "frameNo": 1,
+      "racerName": "吉川 昭男",
+      "registrationNo": "3582",
+      "branch": "滋賀",
+      "age": "53",
+      "className": "A2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 7,
+      "frameNo": 4,
+      "racerName": "畑 竜生",
+      "registrationNo": "4962",
+      "branch": "三重",
+      "age": "30",
+      "className": "A2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 7,
+      "frameNo": 6,
+      "racerName": "花本 夏樹",
+      "registrationNo": "4181",
+      "branch": "三重",
+      "age": "43",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 8,
+      "frameNo": 4,
+      "racerName": "富山 弘幸",
+      "registrationNo": "2878",
+      "branch": "大阪",
+      "age": "68",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 10,
+      "frameNo": 5,
+      "racerName": "小森 信雄",
+      "registrationNo": "3392",
+      "branch": "三重",
+      "age": "60",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 11,
+      "frameNo": 3,
+      "racerName": "星野 太郎",
+      "registrationNo": "3842",
+      "branch": "三重",
+      "age": "50",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceNo": 12,
+      "frameNo": 2,
+      "racerName": "河合 佑樹",
+      "registrationNo": "4494",
+      "branch": "静岡",
+      "age": "39",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "11",
+      "venueName": "びわこ",
+      "raceNo": 1,
+      "frameNo": 4,
+      "racerName": "宮迫 暢彦",
+      "registrationNo": "3432",
+      "branch": "大阪",
+      "age": "58",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "11",
+      "venueName": "びわこ",
+      "raceNo": 2,
+      "frameNo": 1,
+      "racerName": "川北 浩貴",
+      "registrationNo": "3606",
+      "branch": "滋賀",
+      "age": "54",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "11",
+      "venueName": "びわこ",
+      "raceNo": 5,
+      "frameNo": 5,
+      "racerName": "東口 晃",
+      "registrationNo": "4664",
+      "branch": "福井",
+      "age": "43",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "11",
+      "venueName": "びわこ",
+      "raceNo": 7,
+      "frameNo": 2,
+      "racerName": "宮迫 暢彦",
+      "registrationNo": "3432",
+      "branch": "大阪",
+      "age": "58",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "11",
+      "venueName": "びわこ",
+      "raceNo": 9,
+      "frameNo": 2,
+      "racerName": "東口 晃",
+      "registrationNo": "4664",
+      "branch": "福井",
+      "age": "43",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "raceNo": 1,
+      "frameNo": 2,
+      "racerName": "宮地 博士",
+      "registrationNo": "3964",
+      "branch": "長崎",
+      "age": "47",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "raceNo": 2,
+      "frameNo": 3,
+      "racerName": "山口 隆史",
+      "registrationNo": "4368",
+      "branch": "福岡",
+      "age": "40",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "raceNo": 2,
+      "frameNo": 4,
+      "racerName": "山崎 善庸",
+      "registrationNo": "4103",
+      "branch": "埼玉",
+      "age": "47",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "raceNo": 3,
+      "frameNo": 4,
+      "racerName": "尾崎 雄二",
+      "registrationNo": "4695",
+      "branch": "長崎",
+      "age": "40",
+      "className": "A2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "raceNo": 4,
+      "frameNo": 4,
+      "racerName": "桐本 康臣",
+      "registrationNo": "4043",
+      "branch": "三重",
+      "age": "46",
+      "className": "A2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-08-20T00:40:58+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    }
+  ],
+  "unmatchedExamples": [],
+  "venueSummary": [
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "10",
+      "venueName": "三国",
+      "slotCount": 0,
+      "exactLinkedCount": 0,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "11",
+      "venueName": "びわこ",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "14",
+      "venueName": "鳴門",
+      "slotCount": 0,
+      "exactLinkedCount": 0,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "15",
+      "venueName": "丸亀",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "16",
+      "venueName": "児島",
+      "slotCount": 48,
+      "exactLinkedCount": 48,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "17",
+      "venueName": "宮島",
+      "slotCount": 0,
+      "exactLinkedCount": 0,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "18",
+      "venueName": "徳山",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "19",
+      "venueName": "下関",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "20",
+      "venueName": "若松",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    }
+  ]
+}
