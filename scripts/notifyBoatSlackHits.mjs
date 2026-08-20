@@ -8,6 +8,7 @@ const ROOT_DIR = path.resolve(__dirname, "..");
 
 const PREDICTIONS_FILE = path.join(ROOT_DIR, "public", "data", "boatrace", "johnson-predictions.generated.json");
 const TODAY_DETAILS_FILE = path.join(ROOT_DIR, "public", "data", "boatrace", "today-race-details.generated.json");
+const NOTIFIED_KEYS_FILE = path.join(ROOT_DIR, "public", "data", "boatrace", "slack-hit-notified-keys.generated.json");
 const SLACK_WEBHOOK_URL = process.env.BOATRACE_SLACK_WEBHOOK_URL?.trim() ?? "";
 
 const args = new Set(process.argv.slice(2));
@@ -40,77 +41,35 @@ const normalizeCombination = (value) =>
     .replace(/^-|-$/g, "");
 
 const readNumber = (value) => {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value;
-  }
-
+  if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string") {
     const parsed = Number(value.replace(/[^\d.-]/g, ""));
     return Number.isFinite(parsed) ? parsed : 0;
   }
-
   return 0;
 };
 
 const asRecord = (value) => (value && typeof value === "object" && !Array.isArray(value) ? value : {});
 const asArray = (value) => (Array.isArray(value) ? value : value && typeof value === "object" ? Object.values(value) : []);
 
-const createEmptyPayload = () => ({
-  generatedAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
+const createEmptyNotificationState = () => ({
   version: 1,
-  source: "kurari-boat-prediction-page",
-  records: [],
-  notifiedSlackResultKeys: [],
-  notifiedSlackHitKeys: [],
+  generatedAt: new Date().toISOString(),
+  source: "notifyBoatSlackHits",
+  keys: {},
 });
 
 async function loadJson(filePath, fallback) {
   try {
-    const raw = await fs.readFile(filePath, "utf-8");
-    return JSON.parse(raw);
+    return JSON.parse(await fs.readFile(filePath, "utf8"));
   } catch {
     return fallback;
   }
 }
 
 function normalizeRecordList(payload) {
-  const root = asRecord(payload);
-  const records = root.records;
-
-  if (Array.isArray(records)) {
-    return records;
-  }
-
-  if (records && typeof records === "object") {
-    return Object.values(records);
-  }
-
-  return [];
-}
-
-function buildRecordMap(payload) {
-  return normalizeRecordList(payload).reduce((map, record) => {
-    if (record && typeof record === "object" && record.raceKey) {
-      map.set(record.raceKey, { ...record });
-    }
-    return map;
-  }, new Map());
-}
-
-function buildRecordsArray(recordMap) {
-  return [...recordMap.values()].sort((left, right) => {
-    if (left.date !== right.date) {
-      return String(right.date ?? "").localeCompare(String(left.date ?? ""));
-    }
-
-    const updatedCompare = String(right.updatedAt ?? right.savedAt ?? "").localeCompare(String(left.updatedAt ?? left.savedAt ?? ""));
-    if (updatedCompare !== 0) {
-      return updatedCompare;
-    }
-
-    return readNumber(left.raceNo) - readNumber(right.raceNo);
-  });
+  const records = asRecord(payload).records;
+  return Array.isArray(records) ? records : records && typeof records === "object" ? Object.values(records) : [];
 }
 
 function readActiveDate(todayFeed) {
@@ -118,24 +77,12 @@ function readActiveDate(todayFeed) {
   return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : "";
 }
 
-function filterNotificationKeysByActiveDate(keys, activeDate) {
-  const datePrefix = `:${activeDate}:`;
-  return Array.from(new Set(
-    asArray(keys)
-      .map((item) => String(item))
-      .filter((key) => key.includes(datePrefix)),
-  ));
-}
-
 function getResultOrder(race) {
   const result = asRecord(race?.result);
   const finishOrder = result.finishOrder ?? race?.finishOrder;
-
   if (Array.isArray(finishOrder)) {
-    const values = finishOrder.slice(0, 3).map((item) => normalizeText(item)).filter(Boolean);
-    return values.join("-");
+    return finishOrder.slice(0, 3).map((item) => normalizeText(item)).filter(Boolean).join("-");
   }
-
   return normalizeCombination(finishOrder);
 }
 
@@ -148,14 +95,9 @@ function isRaceConfirmed(race) {
 function readPayouts(race) {
   const result = asRecord(race?.result);
   return [
-    ...asArray(result.payoutsFull),
-    ...asArray(result.payouts),
-    ...asArray(race?.payoutsFull),
-    ...asArray(race?.payouts),
-    result.payout3tan,
-    result.payout2tan,
-    race?.payout3tan,
-    race?.payout2tan,
+    ...asArray(result.payoutsFull), ...asArray(result.payouts),
+    ...asArray(race?.payoutsFull), ...asArray(race?.payouts),
+    result.payout3tan, result.payout2tan, race?.payout3tan, race?.payout2tan,
   ].filter(Boolean);
 }
 
@@ -167,19 +109,11 @@ function payoutTypeMatches(type, payout) {
 }
 
 function findPayoutForBet(bet, race, finishOrder) {
-  const payouts = readPayouts(race);
-  const expectedCombination = bet.type === "exacta" ? finishOrder.split("-").slice(0, 2).join("-") : finishOrder;
-  const normalizedExpected = normalizeCombination(expectedCombination);
-
-  const matched = payouts.find((payout) => {
-    if (!payoutTypeMatches(bet.type, payout)) {
-      return false;
-    }
-
-    return normalizeCombination(payout.combination ?? payout.numbers ?? payout.result) === normalizedExpected;
-  });
-
-  return readNumber(matched?.payout ?? matched?.amount ?? matched?.value);
+  const expected = bet.type === "exacta" ? finishOrder.split("-").slice(0, 2).join("-") : finishOrder;
+  const payout = readPayouts(race).find((candidate) =>
+    payoutTypeMatches(bet.type, candidate) && normalizeCombination(candidate.combination ?? candidate.numbers ?? candidate.result) === normalizeCombination(expected),
+  );
+  return readNumber(payout?.payout ?? payout?.amount ?? payout?.value);
 }
 
 function findRaceForRecord(todayFeed, record) {
@@ -189,25 +123,16 @@ function findRaceForRecord(todayFeed, record) {
   const targetDate = normalizeText(record.date || todayFeed?.date);
 
   for (const venue of asArray(todayFeed?.venues)) {
-    const venueDate = normalizeText(venue.date || todayFeed?.date);
-    if (targetDate && venueDate && targetDate !== venueDate) {
-      continue;
-    }
-
+    if (targetDate && normalizeText(venue.date || todayFeed?.date) && targetDate !== normalizeText(venue.date || todayFeed?.date)) continue;
     const venueMatches =
       (targetVenueCode && normalizeText(venue.venueCode) === targetVenueCode) ||
       (targetVenueName && normalizeVenueName(venue.venueName) === targetVenueName);
-
-    if (!venueMatches) {
-      continue;
-    }
-
-    const race = asArray(venue.races).find((item) => readNumber(item.raceNo) === targetRaceNo || normalizeText(item.raceId) === normalizeText(record.raceId));
-    if (race) {
-      return { venue, race };
-    }
+    if (!venueMatches) continue;
+    const race = asArray(venue.races).find((item) =>
+      readNumber(item.raceNo) === targetRaceNo || normalizeText(item.raceId) === normalizeText(record.raceId),
+    );
+    if (race) return { venue, race };
   }
-
   return null;
 }
 
@@ -216,139 +141,120 @@ function getPredictionEntries(record) {
     .filter((bet) => bet && typeof bet === "object")
     .map((bet) => ({
       type: bet.type,
-      label: bet.label,
+      bucket: String(bet.bucket ?? bet.label ?? "").trim(),
       combination: normalizeCombination(bet.normalized ?? bet.combination),
-      amountYen: readNumber(bet.amountYen) || 100,
+      stake: readNumber(bet.amountYen) || null,
     }))
-    .filter((bet) => bet.combination);
-
-  if (parsedBets.length > 0) {
-    return parsedBets;
-  }
+    .filter((bet) => bet.combination && (bet.type === "trifecta" || bet.type === "exacta"));
+  if (parsedBets.length) return parsedBets;
 
   return asArray(record.tickets)
     .filter((ticket) => ticket && typeof ticket === "object")
     .map((ticket) => ({
       type: String(ticket.betType ?? "").includes("2連単") ? "exacta" : "trifecta",
-      label: ticket.betType,
+      bucket: String(ticket.bucket ?? ticket.label ?? ticket.betType ?? "").trim(),
       combination: normalizeCombination(ticket.combination),
-      amountYen: 100,
+      stake: readNumber(ticket.amountYen) || null,
     }))
     .filter((ticket) => ticket.combination);
 }
 
-function buildPredictionSummary(entries) {
-  return entries.slice(0, 4).map((entry) => `${entry.label ?? (entry.type === "exacta" ? "2連単" : "3連単")} ${entry.combination}`).join(" / ");
+export function buildRaceNotificationKey(item) {
+  const date = String(item.date ?? "").trim();
+  const venueCode = String(item.venueCode ?? "").trim();
+  const raceNo = readNumber(item.raceNo);
+  return date && venueCode && raceNo > 0 ? `${date}|${venueCode}|${raceNo}` : "";
 }
 
-function resolveResult(record, raceInfo) {
+export function resolveHitNotification(record, raceInfo, activeDate) {
   const finishOrder = getResultOrder(raceInfo.race);
-  if (!finishOrder || !isRaceConfirmed(raceInfo.race)) {
-    return null;
-  }
+  if (!finishOrder || !isRaceConfirmed(raceInfo.race)) return null;
 
-  const predictionEntries = getPredictionEntries(record);
-  const totalStakeYen = readNumber(record.totalStakeYen) || predictionEntries.reduce((sum, entry) => sum + (readNumber(entry.amountYen) || 100), 0);
-  let matchedEntry = null;
-  let hitEntry = null;
-  let payoutYen = 0;
+  const hitTickets = getPredictionEntries(record)
+    .filter((entry) => {
+      const expected = entry.type === "exacta" ? finishOrder.split("-").slice(0, 2).join("-") : finishOrder;
+      return entry.combination === normalizeCombination(expected);
+    })
+    .map((entry) => ({
+      ticket: entry.combination,
+      bucket: entry.bucket || null,
+      stake: entry.stake,
+      betType: entry.type === "exacta" ? "2連単" : "3連単",
+      payout: findPayoutForBet(entry, raceInfo.race, finishOrder),
+    }));
 
-  for (const entry of predictionEntries) {
-    const expected = entry.type === "exacta" ? finishOrder.split("-").slice(0, 2).join("-") : finishOrder;
-    if (entry.combination !== normalizeCombination(expected)) {
+  const notification = {
+    date: String(record.date || activeDate).trim(),
+    venueCode: String(record.venueCode || raceInfo.venue.venueCode || "").trim(),
+    venueName: String(record.venueName || raceInfo.venue.venueName || "").trim(),
+    raceNo: readNumber(record.raceNo || raceInfo.race.raceNo),
+    finishOrder,
+    hitTickets,
+  };
+  notification.notificationKey = buildRaceNotificationKey(notification);
+  if (!notification.notificationKey) return null;
+  if (!hitTickets.length) return { status: "miss", notification };
+
+  notification.payoutYen = hitTickets.reduce((total, ticket) => total + readNumber(ticket.payout), 0);
+  notification.totalStakeYen = hitTickets.reduce((total, ticket) => total + readNumber(ticket.stake), 0);
+  notification.profitYen = notification.payoutYen - notification.totalStakeYen;
+  return { status: "hit", notification };
+}
+
+function mergeHitNotification(existing, next) {
+  const ticketMap = new Map(existing.hitTickets.map((ticket) => [`${ticket.betType}|${ticket.ticket}|${ticket.bucket ?? ""}|${ticket.stake ?? ""}`, ticket]));
+  for (const ticket of next.hitTickets) ticketMap.set(`${ticket.betType}|${ticket.ticket}|${ticket.bucket ?? ""}|${ticket.stake ?? ""}`, ticket);
+  const hitTickets = [...ticketMap.values()];
+  const payoutYen = hitTickets.reduce((total, ticket) => total + readNumber(ticket.payout), 0);
+  const totalStakeYen = hitTickets.reduce((total, ticket) => total + readNumber(ticket.stake), 0);
+  return { ...existing, hitTickets, payoutYen, totalStakeYen, profitYen: payoutYen - totalStakeYen };
+}
+
+export function collectHitNotifications({ predictionsPayload, todayFeed, notifiedKeys = new Set() }) {
+  const activeDate = readActiveDate(todayFeed);
+  const byRace = new Map();
+  let evaluatedCount = 0;
+  let missCount = 0;
+  let alreadyNotifiedCount = 0;
+
+  for (const record of normalizeRecordList(predictionsPayload)) {
+    if (!record || record.date !== activeDate) continue;
+    const raceInfo = findRaceForRecord(todayFeed, record);
+    if (!raceInfo) continue;
+    const resolved = resolveHitNotification(record, raceInfo, activeDate);
+    if (!resolved) continue;
+    evaluatedCount += 1;
+    if (resolved.status !== "hit") {
+      missCount += 1;
       continue;
     }
-
-    matchedEntry = entry;
-
-    payoutYen = findPayoutForBet(entry, raceInfo.race, finishOrder);
-    if (payoutYen > 0) {
-      hitEntry = entry;
-      break;
+    if (notifiedKeys.has(resolved.notification.notificationKey)) {
+      alreadyNotifiedCount += 1;
+      continue;
     }
+    const existing = byRace.get(resolved.notification.notificationKey);
+    byRace.set(resolved.notification.notificationKey, existing ? mergeHitNotification(existing, resolved.notification) : resolved.notification);
   }
 
-  const hitBetNumbers = (hitEntry ?? matchedEntry) ? normalizeCombination((hitEntry ?? matchedEntry).combination) : "";
-  const profitYen = payoutYen - totalStakeYen;
-  const roi = totalStakeYen > 0 ? (payoutYen / totalStakeYen) * 100 : 0;
-  const status = matchedEntry || readNumber(record.payoutYen) > 0 || Boolean(normalizeText(record.hitBetNumbers)) ? "hit" : "miss";
-
-  return {
-    status,
-    updatedRecord: {
-      ...record,
-      resultStatus: "confirmed",
-      finishOrder,
-      payoutYen,
-      profitYen,
-      roi,
-      hitBetType: (hitEntry ?? matchedEntry) ? ((hitEntry ?? matchedEntry).type === "exacta" ? "2連単" : "3連単") : "",
-      hitBetNumbers,
-      updatedAt: new Date().toISOString(),
-    },
-    notification: {
-      date: record.date,
-      venueCode: record.venueCode,
-      venueName: record.venueName,
-      raceNo: readNumber(record.raceNo),
-      finishOrder,
-      payoutYen,
-      totalStakeYen,
-      profitYen,
-      hitBetType: (hitEntry ?? matchedEntry) ? ((hitEntry ?? matchedEntry).type === "exacta" ? "2連単" : "3連単") : "",
-      hitBetNumbers,
-      predictionSummary: buildPredictionSummary(predictionEntries),
-      status,
-    },
-  };
-}
-
-function buildResultDedupeKey(item) {
-  return `boat-slack-result:${item.date}:${item.venueCode || item.venueName}:${item.raceNo}:${item.finishOrder}:${item.payoutYen}:${item.hitBetNumbers || "miss"}`;
+  return { activeDate, notifications: [...byRace.values()], evaluatedCount, missCount, alreadyNotifiedCount };
 }
 
 function formatYen(value) {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "—";
-  }
-
-  return `${value.toLocaleString("ja-JP")}円`;
+  return typeof value === "number" && Number.isFinite(value) ? `${value.toLocaleString("ja-JP")}円` : "—";
 }
 
-function formatSignedYen(value) {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "—";
-  }
-
-  return `${value > 0 ? "+" : value < 0 ? "-" : ""}${Math.abs(value).toLocaleString("ja-JP")}円`;
+function formatHitTickets(hitTickets) {
+  return hitTickets.map((ticket) => `${ticket.betType} ${ticket.ticket}${ticket.bucket ? ` (${ticket.bucket})` : ""}`).join(" / ");
 }
 
-function formatNotificationKind(item) {
-  return item.status === "hit" ? "HIT" : "MISS";
-}
-
-function buildSlackText(item) {
-  if (item.status === "hit") {
-    return [
-      "🚤🎯 ボート的中",
-      `${item.venueName} ${item.raceNo}R`,
-      "",
-      `結果：${item.finishOrder}`,
-      `的中：${item.hitBetNumbers}`,
-      `払戻：${formatYen(item.payoutYen)}`,
-      `投資：${formatYen(item.totalStakeYen)}`,
-      `収支：${formatSignedYen(item.profitYen)}`,
-    ].join("\n");
-  }
-
+export function buildSlackText(item) {
   return [
-    "🚤☔ ボート外れ",
-    `${item.venueName} ${item.raceNo}R`,
-    "",
-    `結果：${item.finishOrder}`,
-    `投資：${formatYen(item.totalStakeYen)}`,
-    `払戻：${formatYen(item.payoutYen)}`,
-    `収支：${formatSignedYen(item.profitYen)}`,
+    `🎯 的中 ${item.venueName} ${item.raceNo}R`,
+    `結果: ${item.finishOrder}`,
+    `的中買い目: ${formatHitTickets(item.hitTickets)}`,
+    `払戻: ${formatYen(item.payoutYen)}`,
+    `日付: ${item.date}`,
+    `通知キー: ${item.notificationKey}`,
   ].join("\n");
 }
 
@@ -356,170 +262,95 @@ async function postToSlack(item) {
   const text = buildSlackText(item);
   const response = await fetch(SLACK_WEBHOOK_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-    },
+    headers: { "Content-Type": "application/json; charset=utf-8" },
     body: JSON.stringify({ text }),
   });
-
   if (!response.ok) {
     const responseText = await response.text();
     const error = new Error(`Slack webhook failed: ${response.status} ${responseText}`);
     error.status = response.status;
     error.responseText = responseText;
-    error.textLength = text.length;
     throw error;
   }
-
-  return { delivered: true, textLength: text.length };
 }
 
-async function postNotificationsToSlack(notifications) {
-  const deliveredKeys = [];
-  const deliveredHitKeys = [];
+async function postHitNotifications(notifications) {
+  const delivered = [];
   let failureCount = 0;
-
-  if (!SHOULD_SEND || notifications.length === 0) {
-    return {
-      deliveredKeys,
-      deliveredHitKeys,
-      failureCount,
-      reason: SHOULD_SEND ? "no-results" : "send-disabled",
-    };
-  }
-
+  if (!SHOULD_SEND || !notifications.length) return { delivered, failureCount, reason: SHOULD_SEND ? "no-hits" : "send-disabled" };
   if (!SLACK_WEBHOOK_URL) {
-    console.log("[notify-boat-slack-hits] BOATRACE_SLACK_WEBHOOK_URL is not set. Slack notifications were skipped.");
-    return { deliveredKeys, deliveredHitKeys, failureCount: notifications.length, reason: "webhook-missing" };
+    console.log("[notify-boat-slack-hits] BOATRACE_SLACK_WEBHOOK_URL is not set. Hit notifications were skipped.");
+    return { delivered, failureCount: notifications.length, reason: "webhook-missing" };
   }
 
   for (const item of notifications) {
-    const kind = formatNotificationKind(item);
-    const textLength = buildSlackText(item).length;
-
     try {
       await postToSlack(item);
-      deliveredKeys.push(item.dedupeKey);
-      if (item.status === "hit") {
-        deliveredHitKeys.push(item.dedupeKey);
-      }
-      console.log(`[notify-boat-slack-hits] Slack sent: ${kind} ${item.venueName} ${item.raceNo}R`);
+      delivered.push(item);
+      console.log(`[notify-boat-slack-hits] Slack sent: HIT ${item.venueName} ${item.raceNo}R key=${item.notificationKey}`);
     } catch (error) {
       failureCount += 1;
-      const status = error?.status ?? "unknown";
-      const responseText = error?.responseText != null ? String(error.responseText) : `${error?.name ?? "Error"}: ${error?.code ?? "request failed"}`;
-      console.error(
-        `[notify-boat-slack-hits] Slack failed: ${kind} ${item.venueName} ${item.raceNo}R status=${status} response=${responseText} textLength=${error?.textLength ?? textLength}`,
-      );
+      console.error(`[notify-boat-slack-hits] Slack failed: HIT ${item.venueName} ${item.raceNo}R key=${item.notificationKey} status=${error?.status ?? "unknown"} response=${error?.responseText ?? error?.message ?? "request failed"}`);
     }
   }
-
-  return { deliveredKeys, deliveredHitKeys, failureCount, reason: failureCount > 0 ? "partial-or-failed" : "sent" };
+  return { delivered, failureCount, reason: failureCount ? "partial-or-failed" : "sent" };
 }
 
-async function main() {
-  const predictionsPayload = await loadJson(PREDICTIONS_FILE, createEmptyPayload());
-  const todayFeed = await loadJson(TODAY_DETAILS_FILE, null);
-  const activeDate = readActiveDate(todayFeed);
-  if (!activeDate) {
-    console.warn("[notify-boat-slack-hits] No active date in today-race-details; preserving Johnson predictions JSON.");
+export function applyDeliveredHitNotifications(statePayload, delivered, sentAt = new Date().toISOString()) {
+  const keys = { ...asRecord(statePayload).keys };
+  for (const item of delivered) {
+    keys[item.notificationKey] = {
+      date: item.date,
+      venueCode: item.venueCode,
+      venueName: item.venueName,
+      raceNo: item.raceNo,
+      result: item.finishOrder,
+      payout: item.payoutYen,
+      sentAt,
+      hitTickets: item.hitTickets.map(({ ticket, bucket, stake }) => ({ ticket, bucket, stake })),
+    };
+  }
+  return { ...createEmptyNotificationState(), ...asRecord(statePayload), generatedAt: sentAt, keys };
+}
+
+export async function main() {
+  const [predictionsPayload, todayFeed, notifiedState] = await Promise.all([
+    loadJson(PREDICTIONS_FILE, { records: [] }),
+    loadJson(TODAY_DETAILS_FILE, null),
+    loadJson(NOTIFIED_KEYS_FILE, createEmptyNotificationState()),
+  ]);
+  const notifiedKeys = new Set(Object.keys(asRecord(notifiedState).keys));
+  const collected = collectHitNotifications({ predictionsPayload, todayFeed, notifiedKeys });
+  if (!collected.activeDate) {
+    console.warn("[notify-boat-slack-hits] No active date in today-race-details; no notifications sent.");
     return;
   }
 
-  const allRecordMap = buildRecordMap(predictionsPayload);
-  const recordMap = new Map(
-    [...allRecordMap.entries()].filter(([, record]) => record.date === activeDate),
-  );
-  const storedResultKeys = asArray(predictionsPayload.notifiedSlackResultKeys).map((item) => String(item));
-  const storedHitKeys = asArray(predictionsPayload.notifiedSlackHitKeys).map((item) => String(item));
-  const activeResultKeys = filterNotificationKeysByActiveDate(storedResultKeys, activeDate);
-  const activeHitKeys = filterNotificationKeysByActiveDate(storedHitKeys, activeDate);
-  const notifiedResultKeys = new Set(activeResultKeys);
-
-  console.log("[notify-boat-slack-hits] loaded", {
-    recordCount: recordMap.size,
-    activeDate,
-    venueCount: asArray(todayFeed?.venues).length,
+  console.log("[notify-boat-slack-hits] evaluated", {
+    activeDate: collected.activeDate,
+    hitNotificationCount: collected.notifications.length,
+    missCount: collected.missCount,
+    alreadyNotifiedCount: collected.alreadyNotifiedCount,
     dryRun: DRY_RUN,
     shouldWrite: SHOULD_WRITE,
     shouldSend: SHOULD_SEND,
-    hasWebhook: Boolean(SLACK_WEBHOOK_URL),
   });
-
-  const notifications = [];
-  let recordsChanged = recordMap.size !== allRecordMap.size;
-
-  for (const [raceKey, record] of recordMap.entries()) {
-    const raceInfo = findRaceForRecord(todayFeed, record);
-    if (!raceInfo) {
-      continue;
-    }
-
-    const resolved = resolveResult(record, raceInfo);
-    if (!resolved) {
-      continue;
-    }
-
-    const previousSnapshot = JSON.stringify(record);
-    const nextSnapshot = JSON.stringify(resolved.updatedRecord);
-    if (previousSnapshot !== nextSnapshot) {
-      recordMap.set(raceKey, resolved.updatedRecord);
-      recordsChanged = true;
-    }
-
-    const dedupeKey = buildResultDedupeKey(resolved.notification);
-    if (notifiedResultKeys.has(dedupeKey)) {
-      continue;
-    }
-
-    notifications.push({ ...resolved.notification, dedupeKey });
-  }
-
-  if (notifications.length === 0) {
-    console.log("[notify-boat-slack-hits] No new result notifications.");
-  } else if (DRY_RUN) {
-    console.log("[notify-boat-slack-hits] dry-run notifications");
-    for (const item of notifications) {
-      console.log(`- ${item.status === "hit" ? "HIT" : "MISS"} ${item.date} ${item.venueName} ${item.raceNo}R result=${item.finishOrder} payout=${item.payoutYen} hit=${item.hitBetNumbers || "miss"}`);
-    }
-  }
-
-  const sendResult = await postNotificationsToSlack(notifications);
-  const canPersistNotificationKeys = SHOULD_WRITE && sendResult.deliveredKeys.length > 0;
-  const nextResultKeys = canPersistNotificationKeys
-    ? Array.from(new Set([...activeResultKeys, ...sendResult.deliveredKeys]))
-    : activeResultKeys;
-  const nextHitKeys = canPersistNotificationKeys
-    ? Array.from(new Set([...activeHitKeys, ...sendResult.deliveredHitKeys]))
-    : activeHitKeys;
-  const notificationKeysChanged = JSON.stringify(storedResultKeys) !== JSON.stringify(nextResultKeys)
-    || JSON.stringify(storedHitKeys) !== JSON.stringify(nextHitKeys);
-
-  const nextPayload = {
-    ...createEmptyPayload(),
-    ...predictionsPayload,
-    generatedAt: predictionsPayload.generatedAt ?? new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    records: buildRecordsArray(recordMap),
-    notifiedSlackResultKeys: nextResultKeys,
-    notifiedSlackHitKeys: nextHitKeys,
-    slackNotifiedAt: canPersistNotificationKeys ? new Date().toISOString() : predictionsPayload.slackNotifiedAt,
-  };
-
-  if (!SHOULD_WRITE) {
+  if (DRY_RUN) {
+    for (const item of collected.notifications) console.log(`- HIT ${item.date} ${item.venueName} ${item.raceNo}R key=${item.notificationKey}`);
     return;
   }
 
-  if (!recordsChanged && !notificationKeysChanged && !canPersistNotificationKeys) {
-    console.log("[notify-boat-slack-hits] No JSON updates to write.");
-    return;
-  }
-
-  await fs.writeFile(PREDICTIONS_FILE, `${JSON.stringify(nextPayload, null, 2)}\n`, "utf-8");
-  console.log(`[notify-boat-slack-hits] Updated johnson predictions JSON. notifications=${notifications.length}`);
+  const sendResult = await postHitNotifications(collected.notifications);
+  if (!SHOULD_WRITE || !sendResult.delivered.length) return;
+  const nextState = applyDeliveredHitNotifications(notifiedState, sendResult.delivered);
+  await fs.writeFile(NOTIFIED_KEYS_FILE, `${JSON.stringify(nextState, null, 2)}\n`, "utf8");
+  console.log(`[notify-boat-slack-hits] Updated hit notification state. delivered=${sendResult.delivered.length}`);
 }
 
-main().catch((error) => {
-  console.error("[notify-boat-slack-hits] failed", error);
-  process.exit(1);
-});
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
+if (isDirectRun) {
+  main().catch((error) => {
+    console.error("[notify-boat-slack-hits] failed", error);
+    process.exitCode = 1;
+  });
+}
