@@ -150,6 +150,10 @@ jobs:
             public/data/boatrace-ex \
             docs/boat-ex/registered-racer-identity-registry-2026-08-02.md
 
+          if [ -f public/data/boatrace/slack-hit-notified-keys.generated.json ]; then
+            git add -- public/data/boatrace/slack-hit-notified-keys.generated.json
+          fi
+
           if git diff --cached --name-only | grep -Eq '^(public/data/reviews/|public/data/boatrace/johnson-predictions\.generated\.json$|public/data/boatrace/reviews/index\.json$|public/dog/)'; then
             echo "::error::Protected files were staged by the generated data commit step"
             git diff --cached --name-only
