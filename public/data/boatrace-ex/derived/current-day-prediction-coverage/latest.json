@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-current-day-prediction-coverage",
   "targetDate": "2026-08-21",
-  "generatedAt": "2026-08-21T00:31:13.603Z",
+  "generatedAt": "2026-08-21T01:01:11.275Z",
   "sourcePath": "public/data/boatrace/today-race-details.generated.json",
   "identityPolicy": "registrationNo exact registry lookup only; no name-only linkage",
   "venueCount": 12,
@@ -20,16 +20,16 @@
   "exhibitionDisplayTimeMissingRaceCount": 140,
   "motorAvailableSlotCount": 864,
   "boatAvailableSlotCount": 864,
-  "resultAvailableRaceCount": 4,
-  "payoutAvailableRaceCount": 4,
+  "resultAvailableRaceCount": 6,
+  "payoutAvailableRaceCount": 6,
   "raceAnalysisAvailableRaceCount": 0,
   "raceAnalysisMissingRaceCount": 144,
-  "preRaceCount": 140,
+  "preRaceCount": 138,
   "exhibitionReadyCount": 0,
   "exhibitionPartialCount": 0,
   "partialResultCount": 0,
   "resultOnlyCount": 0,
-  "resultAndPayoutCount": 4,
+  "resultAndPayoutCount": 6,
   "inconsistentStatusCount": 0,
   "rawPayoutWithoutCompleteResultCount": 1,
   "resultStatus": "partial-result",
@@ -1743,15 +1743,15 @@
       "exhibitionDisplayTimeMissingRaceCount": 10,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 2,
-      "payoutAvailableRaceCount": 2,
+      "resultAvailableRaceCount": 3,
+      "payoutAvailableRaceCount": 3,
       "raceAnalysisAvailableRaceCount": 0,
-      "preRaceCount": 10,
+      "preRaceCount": 9,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 2,
+      "resultAndPayoutCount": 3,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 1,
       "lifecycle": [
@@ -1765,7 +1765,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-21T09:30:41+09:00",
+          "sourceAcquiredAt": "2026-08-21T10:00:40+09:00",
           "warnings": []
         },
         {
@@ -1778,23 +1778,21 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-21T09:30:41+09:00",
+          "sourceAcquiredAt": "2026-08-21T10:00:40+09:00",
           "warnings": []
         },
         {
           "venueCode": "21",
           "venueName": "芦屋",
           "raceNo": 3,
-          "status": "pre-race",
+          "status": "result-and-payout",
           "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
-          "warnings": [
-            "raw-payout-without-complete-result-suppressed"
-          ]
+          "warnings": []
         },
         {
           "venueCode": "21",
@@ -1807,7 +1805,9 @@
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
-          "warnings": []
+          "warnings": [
+            "raw-payout-without-complete-result-suppressed"
+          ]
         },
         {
           "venueCode": "21",
@@ -1932,15 +1932,15 @@
       "exhibitionDisplayTimeMissingRaceCount": 10,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 2,
-      "payoutAvailableRaceCount": 2,
+      "resultAvailableRaceCount": 3,
+      "payoutAvailableRaceCount": 3,
       "raceAnalysisAvailableRaceCount": 0,
-      "preRaceCount": 10,
+      "preRaceCount": 9,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 2,
+      "resultAndPayoutCount": 3,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -1954,7 +1954,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-21T09:30:41+09:00",
+          "sourceAcquiredAt": "2026-08-21T10:00:40+09:00",
           "warnings": []
         },
         {
@@ -1967,17 +1967,17 @@
           "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "venue-extras:official-beforeinfo",
-          "sourceAcquiredAt": "2026-08-21T09:30:41+09:00",
+          "sourceAcquiredAt": "2026-08-21T10:00:40+09:00",
           "warnings": []
         },
         {
           "venueCode": "23",
           "venueName": "唐津",
           "raceNo": 3,
-          "status": "pre-race",
+          "status": "result-and-payout",
           "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official-beforeinfo-fetch-unavailable",
           "sourceAcquiredAt": "",
@@ -3705,7 +3705,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-21T09:30:41+09:00",
+      "sourceAcquiredAt": "2026-08-21T10:00:40+09:00",
       "warnings": []
     },
     {
@@ -3718,23 +3718,21 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-21T09:30:41+09:00",
+      "sourceAcquiredAt": "2026-08-21T10:00:40+09:00",
       "warnings": []
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceNo": 3,
-      "status": "pre-race",
+      "status": "result-and-payout",
       "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official-beforeinfo-fetch-unavailable",
       "sourceAcquiredAt": "",
-      "warnings": [
-        "raw-payout-without-complete-result-suppressed"
-      ]
+      "warnings": []
     },
     {
       "venueCode": "21",
@@ -3747,7 +3745,9 @@
       "hasRaceAnalysis": false,
       "sourceName": "official-beforeinfo-fetch-unavailable",
       "sourceAcquiredAt": "",
-      "warnings": []
+      "warnings": [
+        "raw-payout-without-complete-result-suppressed"
+      ]
     },
     {
       "venueCode": "21",
@@ -3863,7 +3863,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-21T09:30:41+09:00",
+      "sourceAcquiredAt": "2026-08-21T10:00:40+09:00",
       "warnings": []
     },
     {
@@ -3876,17 +3876,17 @@
       "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "venue-extras:official-beforeinfo",
-      "sourceAcquiredAt": "2026-08-21T09:30:41+09:00",
+      "sourceAcquiredAt": "2026-08-21T10:00:40+09:00",
       "warnings": []
     },
     {
       "venueCode": "23",
       "venueName": "唐津",
       "raceNo": 3,
-      "status": "pre-race",
+      "status": "result-and-payout",
       "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official-beforeinfo-fetch-unavailable",
       "sourceAcquiredAt": "",
