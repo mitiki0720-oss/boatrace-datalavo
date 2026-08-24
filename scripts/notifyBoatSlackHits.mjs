@@ -247,9 +247,9 @@ function formatHitTickets(hitTickets) {
   return hitTickets.map((ticket) => `${ticket.betType} ${ticket.ticket}${ticket.bucket ? ` (${ticket.bucket})` : ""}`).join(" / ");
 }
 
-export function buildSlackText(item) {
+function buildSlackNotificationSection(item) {
   return [
-    `🎯 的中 ${item.venueName} ${item.raceNo}R`,
+    `【${item.venueName} ${item.raceNo}R】`,
     `結果: ${item.finishOrder}`,
     `的中買い目: ${formatHitTickets(item.hitTickets)}`,
     `払戻: ${formatYen(item.payoutYen)}`,
@@ -258,42 +258,105 @@ export function buildSlackText(item) {
   ].join("\n");
 }
 
-async function postToSlack(item) {
-  const text = buildSlackText(item);
-  const response = await fetch(SLACK_WEBHOOK_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json; charset=utf-8" },
-    body: JSON.stringify({ text }),
-  });
-  if (!response.ok) {
-    const responseText = await response.text();
-    const error = new Error(`Slack webhook failed: ${response.status} ${responseText}`);
-    error.status = response.status;
-    error.responseText = responseText;
-    throw error;
-  }
+export function buildSlackText(item) {
+  return [`🎯 的中 ${item.venueName} ${item.raceNo}R`, buildSlackNotificationSection(item)].join("\n");
 }
 
-async function postHitNotifications(notifications) {
-  const delivered = [];
-  let failureCount = 0;
-  if (!SHOULD_SEND || !notifications.length) return { delivered, failureCount, reason: SHOULD_SEND ? "no-hits" : "send-disabled" };
-  if (!SLACK_WEBHOOK_URL) {
-    console.log("[notify-boat-slack-hits] BOATRACE_SLACK_WEBHOOK_URL is not set. Hit notifications were skipped.");
-    return { delivered, failureCount: notifications.length, reason: "webhook-missing" };
+export function buildSlackBatchText(notifications) {
+  return [
+    `🎯 BOATRACE 的中速報 ${notifications.length}件`,
+    "",
+    ...notifications.map(buildSlackNotificationSection),
+  ].join("\n\n");
+}
+
+export function chunkHitNotifications(notifications, maxTextLength = 3500) {
+  const batches = [];
+  let batch = [];
+
+  for (const notification of notifications) {
+    const candidate = [...batch, notification];
+    if (batch.length > 0 && buildSlackBatchText(candidate).length > maxTextLength) {
+      batches.push(batch);
+      batch = [notification];
+      continue;
+    }
+    batch = candidate;
   }
 
-  for (const item of notifications) {
+  if (batch.length > 0) batches.push(batch);
+  return batches;
+}
+
+function getRetryAfterSeconds(response) {
+  const raw = response.headers?.get?.("retry-after");
+  const seconds = Number(raw);
+  return Number.isFinite(seconds) && seconds > 0 ? Math.ceil(seconds) : 60;
+}
+
+const sleep = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+async function postSlackBatch(text, { webhookUrl, fetchImpl, sleepImpl }) {
+  for (let attempt = 0; attempt <= 1; attempt += 1) {
     try {
-      await postToSlack(item);
-      delivered.push(item);
-      console.log(`[notify-boat-slack-hits] Slack sent: HIT ${item.venueName} ${item.raceNo}R key=${item.notificationKey}`);
+      const response = await fetchImpl(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({ text }),
+      });
+      const responseText = await response.text();
+
+      if (response.ok) return { delivered: true, attempts: attempt + 1 };
+
+      const rateLimited = response.status === 429;
+      const limitDetail = responseText.includes("message_limit_exceeded") ? " message_limit_exceeded" : "";
+      if (rateLimited && attempt === 0) {
+        const retryAfterSeconds = getRetryAfterSeconds(response);
+        console.warn(`[notify-boat-slack-hits] Slack batch 429${limitDetail}; retrying once in ${retryAfterSeconds}s.`);
+        await sleepImpl(retryAfterSeconds * 1000);
+        continue;
+      }
+
+      console.error(`[notify-boat-slack-hits] Slack batch failed: status=${response.status} response=${responseText}`);
+      return { delivered: false, attempts: attempt + 1, status: response.status, responseText };
     } catch (error) {
-      failureCount += 1;
-      console.error(`[notify-boat-slack-hits] Slack failed: HIT ${item.venueName} ${item.raceNo}R key=${item.notificationKey} status=${error?.status ?? "unknown"} response=${error?.responseText ?? error?.message ?? "request failed"}`);
+      console.error(`[notify-boat-slack-hits] Slack batch failed: status=network response=${error?.message ?? "request failed"}`);
+      return { delivered: false, attempts: attempt + 1, status: "network", responseText: error?.message ?? "request failed" };
     }
   }
-  return { delivered, failureCount, reason: failureCount ? "partial-or-failed" : "sent" };
+
+  return { delivered: false, attempts: 2, status: 429, responseText: "message_limit_exceeded" };
+}
+
+export async function deliverHitNotificationBatches({
+  notifications,
+  webhookUrl = SLACK_WEBHOOK_URL,
+  fetchImpl = fetch,
+  sleepImpl = sleep,
+  maxTextLength = 3500,
+}) {
+  const delivered = [];
+  let failureCount = 0;
+  let postCount = 0;
+  let retryCount = 0;
+  if (!notifications.length) return { delivered, failureCount, postCount, retryCount, reason: "no-hits" };
+  if (!webhookUrl) {
+    console.log("[notify-boat-slack-hits] BOATRACE_SLACK_WEBHOOK_URL is not set. Hit notifications were skipped.");
+    return { delivered, failureCount: notifications.length, postCount, retryCount, reason: "webhook-missing" };
+  }
+
+  for (const batch of chunkHitNotifications(notifications, maxTextLength)) {
+    const result = await postSlackBatch(buildSlackBatchText(batch), { webhookUrl, fetchImpl, sleepImpl });
+    postCount += result.attempts;
+    retryCount += Math.max(0, result.attempts - 1);
+    if (result.delivered) {
+      delivered.push(...batch);
+      console.log(`[notify-boat-slack-hits] Slack batch sent: hits=${batch.length} posts=${result.attempts}`);
+    } else {
+      failureCount += 1;
+    }
+  }
+  return { delivered, failureCount, postCount, retryCount, reason: failureCount ? "partial-or-failed" : "sent" };
 }
 
 export function applyDeliveredHitNotifications(statePayload, delivered, sentAt = new Date().toISOString()) {
@@ -340,7 +403,10 @@ export async function main() {
     return;
   }
 
-  const sendResult = await postHitNotifications(collected.notifications);
+  const sendResult = SHOULD_SEND
+    ? await deliverHitNotificationBatches({ notifications: collected.notifications })
+    : { delivered: [], failureCount: 0, postCount: 0, retryCount: 0, reason: "send-disabled" };
+  console.log(`[notify-boat-slack-hits] delivery: delivered=${sendResult.delivered.length} failedBatches=${sendResult.failureCount} posts=${sendResult.postCount} retries=${sendResult.retryCount}`);
   if (!SHOULD_WRITE || !sendResult.delivered.length) return;
   const nextState = applyDeliveredHitNotifications(notifiedState, sendResult.delivered);
   await fs.writeFile(NOTIFIED_KEYS_FILE, `${JSON.stringify(nextState, null, 2)}\n`, "utf8");
