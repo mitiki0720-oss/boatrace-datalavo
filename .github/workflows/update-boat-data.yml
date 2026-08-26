@@ -49,13 +49,16 @@ on:
 
 concurrency:
   group: update-boat-data-main
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: write
 
 jobs:
   update-boat-data:
+    concurrency:
+      group: boatrace-slack-hit-state
+      cancel-in-progress: false
     runs-on: ubuntu-24.04
     timeout-minutes: 15
 

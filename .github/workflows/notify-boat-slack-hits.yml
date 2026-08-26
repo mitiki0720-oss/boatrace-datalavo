@@ -21,11 +21,20 @@ on:
 
 jobs:
   notify:
+    concurrency:
+      group: boatrace-slack-hit-state
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - name: Sync latest main before notification
+        run: git pull --ff-only origin main
 
       - uses: actions/setup-node@v4
         with:
@@ -54,4 +63,15 @@ jobs:
           git config user.email github-actions@github.com
           git add -- public/data/boatrace/slack-hit-notified-keys.generated.json
           git commit -m "Update boat slack notified keys"
-          git push
+          for i in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+
+            if [ "$i" -eq 3 ]; then
+              echo "::error::Failed to push notified keys after 3 attempts"
+              exit 1
+            fi
+
+            git pull --rebase origin main
+          done
