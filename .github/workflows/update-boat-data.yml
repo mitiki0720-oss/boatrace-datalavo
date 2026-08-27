@@ -153,8 +153,19 @@ jobs:
             public/data/boatrace/today.generated.json \
             public/data/boatrace/upcoming-schedule.generated.json \
             public/data/boatrace/venue-extras.generated.json \
-            public/data/boatrace-ex \
-            docs/boat-ex/registered-racer-identity-registry-2026-08-02.md
+            public/data/boatrace-ex
+
+          shopt -s nullglob
+          generated_boat_ex_docs=(
+            docs/boat-ex/registered-racer-identity-registry-*.md
+            docs/boat-ex/racer-evidence-registry-linkage-*.md
+            docs/boat-ex/registration-coverage-audit-*.md
+            docs/boat-ex/reviews-dog-history-backfill-*.md
+          )
+          shopt -u nullglob
+          if (( ${#generated_boat_ex_docs[@]} > 0 )); then
+            git add -- "${generated_boat_ex_docs[@]}"
+          fi
 
           if [ -f public/data/boatrace/slack-hit-notified-keys.generated.json ]; then
             git add -- public/data/boatrace/slack-hit-notified-keys.generated.json
