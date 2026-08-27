@@ -33,8 +33,8 @@ assert.match(workflow, /target_date:\s*\n\s+description: "Target date in JST YYY
 assert.match(workflow, /TARGET_DATE: \$\{\{ inputs\.target_date \|\| '' \}\}/);
 assert.match(workflow, /ARGS\+=\(--target-date "\$TARGET_DATE"\)/);
 assert.match(workflow, /git add -- \\\s*\n\s+public\/data\/boatrace\/today-race-details\.generated\.json/);
-assert.doesNotMatch(workflow, /git add public\/data(?:\s|$)/);
-assert.doesNotMatch(workflow, /git add public\/data\/boatrace(?:\s|$)/);
+assert.doesNotMatch(workflow, /git add(?:\s+--)?\s+public\/data(?:\s|$)/);
+assert.doesNotMatch(workflow, /git add(?:\s+--)?\s+public\/data\/boatrace(?:\s|$)/);
 assert.doesNotMatch(workflow, /^\s*git add \.\s*$/m);
 assert.doesNotMatch(workflow, /git add -A(?:\s|$)/);
 
@@ -50,6 +50,13 @@ const allowlistBlock = workflow.slice(generatedCommitStage, generatedCommitGuard
 assert.match(restoreBlock, /git restore package-lock\.json \|\| true/);
 assert.match(restoreBlock, /git restore public\/data\/boatrace\/johnson-predictions\.generated\.json \|\| true/);
 assert.doesNotMatch(allowlistBlock, /johnson-predictions\.generated\.json/);
+assert.doesNotMatch(allowlistBlock, /registered-racer-identity-registry-\d{4}-\d{2}-\d{2}\.md/);
+assert.match(allowlistBlock, /shopt -s nullglob/);
+assert.match(allowlistBlock, /docs\/boat-ex\/registered-racer-identity-registry-\*\.md/);
+assert.match(allowlistBlock, /docs\/boat-ex\/racer-evidence-registry-linkage-\*\.md/);
+assert.match(allowlistBlock, /docs\/boat-ex\/registration-coverage-audit-\*\.md/);
+assert.match(allowlistBlock, /docs\/boat-ex\/reviews-dog-history-backfill-\*\.md/);
+assert.match(allowlistBlock, /git add -- "\$\{generated_boat_ex_docs\[@\]\}"/);
 assert.match(workflow, /Protected files were staged by the generated data commit step/);
 assert.ok(workflow.includes("public/data/boatrace/johnson-predictions\\.generated\\.json"));
 assert.ok(workflow.includes("public/data/boatrace/reviews/index\\.json"));
@@ -63,6 +70,13 @@ console.log(JSON.stringify({
 	fixtures: fixtures.map(({ now, expected }) => ({ now, targetDate: expected })),
 	workflowTargetDate: "JST input with script-side default",
 	workflowStageGuard: true,
+	generatedBoatExDocsAllowlist: [
+		"registered-racer-identity-registry-*.md",
+		"racer-evidence-registry-linkage-*.md",
+		"registration-coverage-audit-*.md",
+		"reviews-dog-history-backfill-*.md",
+	],
+	hardcodedRegistryDocDate: false,
 	johnsonJsonRestoredBeforeGeneratedCommit: true,
 	johnsonJsonExcludedFromGeneratedAllowlist: true,
 }, null, 2));
