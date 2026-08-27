@@ -291,11 +291,12 @@ if (!dryRun) {
 	runNode("scripts/generateBoatExVenueBias.mjs", []);
 	runNode("scripts/generateBoatExRoughIndex.mjs", []);
 	runNode("scripts/generateBoatExTodayFlow.mjs", []);
+	runNode("scripts/generateBoatExStructuredTickets.mjs", []);
 	runNode("scripts/generateBoatExPredictionStructure.mjs", []);
 	runNode("scripts/auditBoatExRegistrationCoverage.mjs", []);
-	writeJson("public/data/boatrace-ex/audit/reviews-dog-history-backfill-2026-08-02.generated.json", report);
+	writeJson(`public/data/boatrace-ex/audit/reviews-dog-history-backfill-${toDate}.generated.json`, report);
 	const markdown = `# Boat EX Reviews and Dog History Backfill\n\n## Source Rules\n\nThe review and dog roots are read-only local inputs. The collector records a portable local-readonly source locator, the source file mtime as sourceFetchedAt, and source provenance. It never writes to, stages, or commits either source root.\n\nA date is historyReady only when a same-venue prediction file and result file have identical non-empty race-number sets, every race has a parsed entry table and confirmed result, and the prediction includes its official-extras provenance marker. Dog summaries are supplemental audit inputs only; they never override review race facts.\n\n## Current Result\n\n- read-only review files: ${report.summary.reviewFileCount}\n- read-only dog summaries: ${report.summary.dogSummaryFileCount}\n- historyReady dates created: ${report.summary.historyReadyDateCount}\n- missing registration appearances: ${report.summary.missingRegistrationNoCount}\n- unresolved source conditions: ${report.summary.unresolvedCount}\n\n## Re-run\n\n\`\`\`powershell\nnode scripts/backfillBoatExHistoryFromReviewsDog.mjs --review-source-root \"<reviews root>\" --dog-source-root \"<dog root>\" --from 2026-05-24 --to 2026-08-02 --dry-run\nnode scripts/backfillBoatExHistoryFromReviewsDog.mjs --review-source-root \"<reviews root>\" --dog-source-root \"<dog root>\" --from 2026-05-24 --to 2026-08-02 --write\nnode scripts/checkBoatExReviewsDogBackfill.mjs\n\`\`\`\n\nNo registration number is inferred or fuzzy matched. Records without an explicit registration number remain unverified and are not bridge candidates.\n`;
-	fs.writeFileSync(path.join(rootDir, "docs/boat-ex/reviews-dog-history-backfill-2026-08-02.md"), markdown, "utf8");
+	fs.writeFileSync(path.join(rootDir, `docs/boat-ex/reviews-dog-history-backfill-${toDate}.md`), markdown, "utf8");
 }
 
 console.log(JSON.stringify({ ok: true, dryRun, fromDate, toDate, createdDates: report.createdDates, summary: report.summary, skippedExistingDates: report.skippedExistingDates }, null, 2));

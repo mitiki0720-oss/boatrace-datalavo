@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-current-day-registry-linkage-gap-audit",
+  "generatedAt": "2026-08-27T13:37:46.450Z",
+  "targetDate": "2026-08-04",
+  "policy": "registrationNo exact only; current-day supplement requires official source metadata and does not use name-only or fuzzy linkage",
+  "sourceFiles": [
+    "public/data/boatrace/today-race-details.generated.json",
+    "public/data/boatrace-ex/identity/registered-racers.generated.json",
+    "public/data/boatrace-ex/derived/racer-features/latest.json"
+  ],
+  "summary": {
+    "targetDate": "2026-08-04",
+    "venueCount": 0,
+    "raceCount": 0,
+    "slotCount": 0,
+    "registrationPresentCount": 0,
+    "beforeExactRegistryLinkedCount": 0,
+    "exactRegistryLinkedCount": 0,
+    "supplementedIdentityCount": 0,
+    "supplementedSlotCount": 0,
+    "unmatchedSlotCount": 0,
+    "unmatchedRegistrationNumberCount": 0,
+    "duplicateUnmatchedRegistrationNumbers": [],
+    "duplicateBaselineUnmatchedRegistrationNumbers": [],
+    "reasonCounts": {},
+    "baselineReasonCounts": {
+      "notInRegisteredIdentityRegistry": 0
+    }
+  },
+  "baselineUnmatchedExamples": [],
+  "unmatchedExamples": [],
+  "venueSummary": []
+}

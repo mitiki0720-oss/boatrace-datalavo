@@ -237,10 +237,9 @@ function resolveNameLinkedIdentity(racer, identityNameIndex) {
 	};
 }
 
-function racerKeyFor(racer, record, nameLink) {
+function racerKeyFor(racer, record) {
 	const registrationNumber = racer?.registrationNumber;
 	if (isRegistrationNumber(registrationNumber)) return `registrationNumber:${registrationNumber}`;
-	if (nameLink?.identity?.registrationNo) return `nameLinkedRegistrationNumber:${nameLink.identity.registrationNo}`;
 	return [
 		"unverified",
 		String(racer?.racerName ?? "unknown").trim() || "unknown",
@@ -495,14 +494,13 @@ function createRacerEvidence(date, records, identityRegistry, identityNameIndex)
 		for (const racer of racers) {
 			if (!racer?.racerName || !Number.isFinite(Number(racer.lane))) continue;
 			const officialRacer = findByLane(record.officialRace?.racers, racer.lane);
-			const nameLink = resolveNameLinkedIdentity(racer, identityNameIndex);
-			const racerKey = racerKeyFor(racer, record, nameLink);
+			const racerKey = racerKeyFor(racer, record);
 			const appearance = {
 				...createAppearance(record, racer, officialRacer),
 				registrationNumber: isRegistrationNumber(racer.registrationNumber) ? String(racer.registrationNumber) : null,
-				resolvedRegistrationNo: nameLink.identity?.registrationNo ?? null,
-				identityLinkMethod: nameLink.identity ? "exact-normalized-name-unique" : nameLink.status === "ambiguous" ? "ambiguous" : null,
-				registrationNoSourceStatus: nameLink.identity ? "name-linked-from-registry" : null,
+				resolvedRegistrationNo: null,
+				identityLinkMethod: null,
+				registrationNoSourceStatus: null,
 				racerName: racer.racerName,
 				branch: racer.branch ?? null,
 				className: racer.className ?? null,

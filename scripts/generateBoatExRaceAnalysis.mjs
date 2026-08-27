@@ -72,8 +72,6 @@ function sourcePathsFor(targetDate) {
 		todayFlow: "public/data/boatrace-ex/derived/today-flow/latest.json",
 		roughIndex: "public/data/boatrace-ex/derived/rough-index/latest.json",
 		predictionStructure: "public/data/boatrace-ex/derived/prediction-structure/latest.json",
-		nameIdentityAudit: `public/data/boatrace-ex/audit/name-identity-bridge-${targetDate}.generated.json`,
-		registryLinkageAudit: `public/data/boatrace-ex/audit/racer-evidence-registry-linkage-${targetDate}.generated.json`,
 	};
 }
 
@@ -92,16 +90,9 @@ function buildRacerRows(record, racerLookup) {
 	const rows = [];
 	for (const racer of record.racer ?? record.officialRace?.racers ?? []) {
 		const lane = Number(racer.lane);
-		const evidence = racerLookup.get(`${record.raceKey}:${lane}`) ?? null;
 		const officialRegistrationNo = racer.registrationNumber ?? null;
-		const resolvedRegistrationNo = !officialRegistrationNo && evidence?.identityLinkMethod === "exact-normalized-name-unique"
-			? evidence.resolvedRegistrationNo ?? null
-			: null;
-		const linkageStatus = officialRegistrationNo
-			? "official-registration"
-			: resolvedRegistrationNo
-				? "exact-name-linked"
-				: "unresolved";
+		const resolvedRegistrationNo = null;
+		const linkageStatus = officialRegistrationNo ? "official-registration" : "unresolved";
 		rows.push({
 			lane: Number.isInteger(lane) ? lane : null,
 			racerName: racer.racerName ?? "",
@@ -126,7 +117,7 @@ function createAnalysisNotes({ resultStatus, payoutStatus, exhibitionStatus, wea
 	if (weatherStatus === "available") notes.push("天候・風・波の情報は取得済み。");
 	if (waterStatus === "available") notes.push("水面情報は取得済み。");
 	if (linkage.unresolvedCount > 0) notes.push(`選手${linkage.racerCount}名中${linkage.unresolvedCount}名は未解決のまま保持。`);
-	else notes.push(`選手${linkage.racerCount}名の登録番号または完全一致リンクを確認。`);
+	else notes.push(`選手${linkage.racerCount}名の公式登録番号を確認。`);
 	return notes;
 }
 

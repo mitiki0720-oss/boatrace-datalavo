@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-race-analysis-coverage-audit",
+  "auditDate": "2026-08-27",
+  "generatedAt": "2026-08-27T13:50:11.309Z",
+  "summary": {
+    "generatedAt": "2026-08-27T13:50:11.309Z",
+    "targetDate": "2026-08-27",
+    "latestDate": "2026-08-27",
+    "dateCount": 93,
+    "historyRaceCount": 12792,
+    "latestRaceCount": 156,
+    "venueCount": 13,
+    "resultAvailableRaceCount": 156,
+    "payoutAvailableRaceCount": 156,
+    "exhibitionAvailableRaceCount": 0,
+    "weatherAvailableRaceCount": 156,
+    "waterConditionAvailableRaceCount": 0,
+    "racerEvidenceAvailableRaceCount": 156,
+    "officialRegistrationLinkedCount": 0,
+    "nameLinkedCount": 0,
+    "unresolvedRacerCount": 936,
+    "readiness": {
+      "status": "ready",
+      "reason": "Every latest-date history record is represented with source-backed status and paths."
+    }
+  },
+  "expectedRaceCount": 156,
+  "actualRaceCount": 156,
+  "venueEvidenceRaceCount": 156,
+  "todayFlowRaceCount": 156,
+  "todayFlowResultAvailableRaceCount": 156,
+  "duplicateRaceKeys": [],
+  "policy": "All records expose source-backed availability only. No prediction, inferred result, fake exhibition, fake payout, score, rank, fuzzy match, or partial name match is generated.",
+  "sourcePaths": {
+    "history": "public/data/boatrace-ex/history/races/2026-08-27.json",
+    "coverage": "public/data/boatrace-ex/coverage/2026-08-27.json",
+    "racerEvidence": "public/data/boatrace-ex/derived/racer-evidence/2026-08-27.json",
+    "venueEvidence": "public/data/boatrace-ex/derived/venue-evidence/2026-08-27.json",
+    "todayFlow": "public/data/boatrace-ex/derived/today-flow/latest.json",
+    "roughIndex": "public/data/boatrace-ex/derived/rough-index/latest.json",
+    "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
+  }
+}
