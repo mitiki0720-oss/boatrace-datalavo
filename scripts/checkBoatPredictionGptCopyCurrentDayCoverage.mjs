@@ -97,22 +97,27 @@ addSample(candidateSamples.find((sample) => sample.raceRange === "7R-12R" && !se
 	?? candidateSamples.find((sample) => sample.raceRange === "7R-12R"));
 addSample(candidateSamples.find((sample) => hasExBlocks(sample) && !selectedSamples.some((item) => item.venueCode === sample.venueCode)));
 for (const sample of candidateSamples) addSample(sample);
-const hasTicketContract = (material) => /3連単\s*10点/u.test(material)
-	&& /厚め\s*2点/u.test(material)
-	&& /本線\s*3点/u.test(material)
-	&& /中穴\s*3点/u.test(material)
-	&& /大穴\s*2点/u.test(material)
-	&& material.includes("2連単は使わない")
-	&& !material.includes("2連単は穴狙い2点");
 const sampleChecks = selectedSamples.map((sample) => ({
 	currentDayCoverage: sample.material.includes("【KURARI BOAT EX 当日予想coverage】"),
 	historicalLatestDayEvidence: sample.material.includes("【KURARI BOAT EX 履歴latest-day venue-evidence】"),
 	noLegacyHeader: !sample.material.includes("【KURARI BOAT EX 当日coverage】"),
-	ticketContract: hasTicketContract(sample.material),
 	targetDate: sample.material.includes(`対象日: ${currentDayPredictionCoverage.targetDate}`),
 	latestHistoryDate: sample.material.includes(`EX履歴latest日: ${sampleEvidenceDate}`),
 	lifecycle: sample.lifecycle ? sample.material.includes(`当日status: ${sample.lifecycle.status}`) : true,
 }));
+const bettingInstruction = copyModule.exports.buildBoatPredictionGptBettingInstruction();
+const exactaInstructionLines = bettingInstruction.split(/\r?\n/u).filter((line) => line.includes("2連単"));
+const noExactaRequired = exactaInstructionLines.length > 0
+	&& exactaInstructionLines.every((line) => /2連単(?:は|を)?(?:使わない|なし|不要)/u.test(line))
+	&& !exactaInstructionLines.some((line) => /2連単.*(?:点|穴狙い|本線|厚め|買い目)/u.test(line));
+const aggregateTicketContract = /3連単\s*(?:\/\s*)?10点/u.test(bettingInstruction)
+	&& /厚め\s*2(?:点)?/u.test(bettingInstruction)
+	&& /本線\s*3(?:点)?/u.test(bettingInstruction)
+	&& /中穴\s*3(?:点)?/u.test(bettingInstruction)
+	&& /大穴\s*2(?:点)?/u.test(bettingInstruction)
+	&& noExactaRequired;
+const predictionPageSource = read("src/pages/PredictionPage.tsx");
+const bettingInstructionCallCount = (predictionPageSource.match(/buildBoatPredictionGptBettingInstruction\(\)/gu) ?? []).length;
 const checks = {
 	currentCoverageBlock: output.includes("【KURARI BOAT EX 当日予想coverage】"),
 	targetDate: output.includes("対象日: 2026-08-15"),
@@ -125,6 +130,9 @@ const checks = {
 	currentDayTargetDate: today.date === currentDayPredictionCoverage.targetDate,
 	historicalLatestDate: sampleEvidenceDate === dateIndex.latestDate,
 	dynamicVenueSamples: selectedSamples.length > 0 && sampleChecks.every((sample) => Object.values(sample).every(Boolean)),
+	aggregateTicketContract,
+	noExactaRequired,
+	ticketContractWiredToBothRanges: bettingInstructionCallCount >= 2,
 	notWholeExMissing: output.includes("履歴EXとは別に、当日通常素材の完全性を示すcoverageです。"),
 	noForbiddenOutput: !/(?:fake|score|rank|generatedPrediction|generatedTicket)/i.test(output),
 };
@@ -135,6 +143,7 @@ console.log(JSON.stringify({
 	targetDate: currentDayPredictionCoverage.targetDate,
 	latestHistoryDate: sampleEvidenceDate,
 	checkedMaterialCount: selectedSamples.length,
+	bettingInstructionCallCount,
 	selectedVenues: selectedSamples.map((sample) => sample.venueName),
 	selectedRaceRanges: selectedSamples.map((sample) => ({ venueName: sample.venueName, raceNo: sample.raceNo, raceRange: sample.raceRange })),
 	dynamicVenueSamples: selectedSamples.map((sample, index) => ({
