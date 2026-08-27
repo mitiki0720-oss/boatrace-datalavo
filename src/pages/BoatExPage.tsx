@@ -52,6 +52,7 @@ type BoatExManifestFile = {
 	path?: string;
 	kind?: string;
 	date?: string;
+	generatedAt?: string;
 	sourceStatus?: string;
 	coverageStatus?: string;
 	recordCount?: number;
@@ -319,6 +320,44 @@ function countLabel(value: number | undefined, total: number): string {
 function numberLabel(value: number | null | undefined, digits = 2): string {
 	if (typeof value !== "number") return "なし";
 	return value.toFixed(digits).replace(/\.?0+$/u, "");
+}
+
+function jstDateString(now = new Date()): string {
+	return new Intl.DateTimeFormat("en-CA", {
+		timeZone: "Asia/Tokyo",
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	}).format(now);
+}
+
+type BoatExMaterialStatus = {
+	label: string;
+	latestDate: string;
+	dateCount: number | string;
+	count: number | string;
+	status: string;
+	sourceType: string;
+	updatedAt: string;
+};
+
+function materialStatusFromManifest(
+	manifest: BoatExManifest | null,
+	label: string,
+	pathFragment: string,
+): BoatExMaterialStatus {
+	const files = (manifest?.files ?? []).filter((file) => file.path?.includes(pathFragment));
+	const dates = [...new Set(files.map((file) => file.date).filter((date): date is string => Boolean(date)))].sort();
+	const latest = [...files].sort((left, right) => String(right.date ?? "").localeCompare(String(left.date ?? "")))[0];
+	return {
+		label,
+		latestDate: latest?.date ?? "未取得",
+		dateCount: dates.length || "未取得",
+		count: latest?.recordCount ?? latest?.racerCount ?? "未取得",
+		status: latest?.coverageStatus ?? latest?.sourceStatus ?? "未取得",
+		sourceType: latest?.sourceStatus ?? "source-backed",
+		updatedAt: latest?.generatedAt ?? manifest?.generatedAt ?? "未取得",
+	};
 }
 
 function yenLabel(value: number | null | undefined): string {
@@ -1807,7 +1846,22 @@ export function BoatExPage() {
 	const latestDate = loadState.dateIndex?.latestDate ?? venueEvidence?.date ?? racerEvidence?.date ?? latestHistory?.date ?? "なし";
 	const dateIndexEntry = findDateIndexEntry(loadState.dateIndex, latestDate);
 	const availableDateCount = loadState.dateIndex?.summary.dateCount ?? "日付indexなし";
-	const availableDates = loadState.dateIndex?.availableDates.join(", ") || "日付indexなし";
+	const availableDates = loadState.dateIndex?.availableDates ?? [];
+	const earliestDate = availableDates[0] ?? "なし";
+	const latestDateIsStale = typeof latestDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(latestDate) && latestDate < jstDateString();
+	const materialStatuses: BoatExMaterialStatus[] = [
+		{ label: "history/races", latestDate, dateCount: availableDateCount, count: loadState.dateIndex?.summary.historyDateCount ?? "未取得", status: "ready", sourceType: "source-backed", updatedAt: loadState.dateIndex?.generatedAt ?? "未取得" },
+		{ label: "coverage", latestDate, dateCount: loadState.dateIndex?.summary.coverageDateCount ?? "未取得", count: venueEvidence?.summary.recordCount ?? "未取得", status: dateIndexEntry?.coverage.status ?? "未取得", sourceType: "source-backed", updatedAt: loadState.dateIndex?.generatedAt ?? "未取得" },
+		materialStatusFromManifest(loadState.derivedManifest, "venue-evidence", "/venue-evidence/"),
+		materialStatusFromManifest(loadState.derivedManifest, "racer-evidence", "/racer-evidence/"),
+		materialStatusFromManifest(loadState.derivedManifest, "venue-bias", "/venue-bias/"),
+		materialStatusFromManifest(loadState.derivedManifest, "rough-index", "/rough-index/"),
+		materialStatusFromManifest(loadState.derivedManifest, "racer-features", "/racer-features/"),
+		{ label: "registered-racer identity", latestDate: registeredIdentityRegistry?.summary.lastSeenDate ?? "未取得", dateCount: registeredIdentityRegistry?.summary.identityCount ?? "未取得", count: registeredIdentityRegistry?.summary.identityCount ?? "未取得", status: registeredIdentityRegistry ? "ready" : "未取得", sourceType: "official registrationNo", updatedAt: registeredIdentityRegistry?.generatedAt ?? "未取得" },
+		{ label: "current-day prediction coverage", latestDate: currentDayPredictionCoverage?.targetDate ?? "未取得", dateCount: "当日", count: currentDayPredictionCoverage?.raceCount ?? "未取得", status: currentDayPredictionCoverage ? "available" : "未取得", sourceType: "official current-day", updatedAt: currentDayPredictionCoverage?.generatedAt ?? "未取得" },
+		{ label: "weather/wind/wave", latestDate: weatherWaterHistory?.dateRange.to ?? "未取得", dateCount: weatherWaterHistory?.dateRange.dateCount ?? "未取得", count: weatherWaterHistory?.summary.weatherAvailableRaceCount ?? "未取得", status: weatherWaterHistory ? "ready" : "未取得", sourceType: "source-backed", updatedAt: loadState.derivedManifest?.generatedAt ?? "未取得" },
+		{ label: "race-analysis", latestDate: raceAnalysis?.targetDate ?? "未取得", dateCount: historicalRaceAnalysisSummary?.dateRange.dateCount ?? "未取得", count: historicalRaceAnalysisSummary?.summary.raceCount ?? "未取得", status: raceAnalysis?.summary.readiness?.status ?? "未取得", sourceType: "source-backed availability", updatedAt: raceAnalysis?.generatedAt ?? "未取得" },
+	];
 	const records = venueEvidence?.summary.recordCount ?? "なし";
 	const venues = venueEvidence?.summary.venueCount ?? "なし";
 	const historyDays = venueEvidence?.summary.historyDays ?? racerEvidence?.summary.historyDays ?? "なし";
@@ -1835,7 +1889,12 @@ export function BoatExPage() {
 							<article style={cardStyle}>
 								<p style={labelStyle}>EX分析済み日数</p>
 								<p style={metricValueStyle}>{availableDateCount}</p>
-								<p style={textStyle}>派生分析に利用できる日付: {availableDates}</p>
+								<p style={textStyle}>期間: {earliestDate} 〜 {latestDate}</p>
+								<p style={textStyle}>最新: {latestDate}</p>
+								<details>
+									<summary>日付一覧を表示</summary>
+									<p style={{ ...textStyle, maxHeight: "120px", overflowY: "auto", marginTop: "8px" }}>{availableDates.join(", ") || "日付indexなし"}</p>
+								</details>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>登録identity数</p>
@@ -1922,6 +1981,20 @@ export function BoatExPage() {
 								<p style={metricValueStyle}>{derivedManifestFiles}</p>
 								<p style={textStyle}>派生manifestのエントリー数です。</p>
 							</article>
+						</section>
+						{latestDateIsStale ? <section style={{ ...cardStyle, borderColor: "#c97123", background: "#fff8e8" }}>
+							<p style={labelStyle}>EX履歴更新の確認が必要です</p>
+							<p style={valueStyle}>BOAT EX履歴データが古い可能性があります。</p>
+							<p style={textStyle}>EX latestDate: {latestDate} / 現在日付: {jstDateString()}。履歴再生成を確認してください。</p>
+						</section> : null}
+						<section style={cardStyle}>
+							<p style={labelStyle}>素材更新状況</p>
+							<div style={tableWrapStyle}>
+								<table style={{ ...tableStyle, minWidth: "1060px" }}>
+									<thead><tr><th style={thStyle}>素材</th><th style={thStyle}>latestDate</th><th style={thStyle}>日数</th><th style={thStyle}>件数</th><th style={thStyle}>状態</th><th style={thStyle}>sourceType</th><th style={thStyle}>updatedAt</th></tr></thead>
+									<tbody>{materialStatuses.map((item) => <tr key={item.label}><td style={tdStyle}>{item.label}</td><td style={tdStyle}>{item.latestDate}</td><td style={tdStyle}>{item.dateCount}</td><td style={tdStyle}>{item.count}</td><td style={tdStyle}>{statusLabel(item.status)}</td><td style={tdStyle}>{item.sourceType}</td><td style={tdStyle}>{item.updatedAt}</td></tr>)}</tbody>
+								</table>
+							</div>
 						</section>
 						<section style={twoColumnGridStyle}>
 							<article style={cardStyle}>

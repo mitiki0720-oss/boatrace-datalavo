@@ -74,21 +74,45 @@ const sampleContext = {
 	entryShiftHistory: null,
 	motorBoatHistory: null,
 };
-const sampleOutput = (venueName, raceNo) => {
-	const sampleVenue = today.venues.find((item) => item.venueName === venueName);
-	const sampleRace = sampleVenue?.races?.find((item) => Number(item.raceNo) === raceNo);
-	return sampleVenue && sampleRace
-		? contextModule.exports.buildBoatPredictionGptCopyRaceContext({ feed: today, venue: sampleVenue, race: sampleRace, venueTimeKind: "day", exContext: sampleContext })
-		: "";
+const candidateSamples = (today.venues ?? []).flatMap((sampleVenue) => (sampleVenue.races ?? []).map((sampleRace) => {
+	const raceNo = Number(sampleRace.raceNo);
+	const material = contextModule.exports.buildBoatPredictionGptCopyRaceContext({ feed: today, venue: sampleVenue, race: sampleRace, venueTimeKind: "day", exContext: sampleContext });
+	return {
+		venueCode: sampleVenue.venueCode,
+		venueName: sampleVenue.venueName,
+		raceNo,
+		raceRange: raceNo >= 1 && raceNo <= 6 ? "1R-6R" : raceNo >= 7 && raceNo <= 12 ? "7R-12R" : "outside-1R-12R",
+		material,
+		lifecycle: currentDayPredictionCoverage.races?.find((item) => item.venueCode === sampleVenue.venueCode && Number(item.raceNo) === raceNo) ?? null,
+	};
+}));
+const hasExBlocks = (sample) => sample.material.includes("【KURARI BOAT EX 当日予想coverage】") && sample.material.includes("【KURARI BOAT EX 履歴latest-day venue-evidence】");
+const selectedSamples = [];
+const addSample = (sample) => {
+	if (!sample || selectedSamples.length >= 3 || selectedSamples.some((item) => item.venueCode === sample.venueCode)) return;
+	selectedSamples.push(sample);
 };
-const mikuni1R = sampleOutput("三国", 1);
-const tamagawa7R = sampleOutput("多摩川", 7);
-const suminoe1R = sampleOutput("住之江", 1);
-const lifecycleFor = (venueName, raceNo) => {
-	const venueItem = today.venues.find((item) => item.venueName === venueName);
-	return currentDayPredictionCoverage.races?.find((item) => item.venueCode === venueItem?.venueCode && Number(item.raceNo) === raceNo);
-};
-const suminoeLifecycle = lifecycleFor("住之江", 1);
+addSample(candidateSamples.find((sample) => sample.raceRange === "1R-6R"));
+addSample(candidateSamples.find((sample) => sample.raceRange === "7R-12R" && !selectedSamples.some((item) => item.venueCode === sample.venueCode))
+	?? candidateSamples.find((sample) => sample.raceRange === "7R-12R"));
+addSample(candidateSamples.find((sample) => hasExBlocks(sample) && !selectedSamples.some((item) => item.venueCode === sample.venueCode)));
+for (const sample of candidateSamples) addSample(sample);
+const hasTicketContract = (material) => /3連単\s*10点/u.test(material)
+	&& /厚め\s*2点/u.test(material)
+	&& /本線\s*3点/u.test(material)
+	&& /中穴\s*3点/u.test(material)
+	&& /大穴\s*2点/u.test(material)
+	&& material.includes("2連単は使わない")
+	&& !material.includes("2連単は穴狙い2点");
+const sampleChecks = selectedSamples.map((sample) => ({
+	currentDayCoverage: sample.material.includes("【KURARI BOAT EX 当日予想coverage】"),
+	historicalLatestDayEvidence: sample.material.includes("【KURARI BOAT EX 履歴latest-day venue-evidence】"),
+	noLegacyHeader: !sample.material.includes("【KURARI BOAT EX 当日coverage】"),
+	ticketContract: hasTicketContract(sample.material),
+	targetDate: sample.material.includes(`対象日: ${currentDayPredictionCoverage.targetDate}`),
+	latestHistoryDate: sample.material.includes(`EX履歴latest日: ${sampleEvidenceDate}`),
+	lifecycle: sample.lifecycle ? sample.material.includes(`当日status: ${sample.lifecycle.status}`) : true,
+}));
 const checks = {
 	currentCoverageBlock: output.includes("【KURARI BOAT EX 当日予想coverage】"),
 	targetDate: output.includes("対象日: 2026-08-15"),
@@ -97,7 +121,10 @@ const checks = {
 	lifecycleFixtures: preRaceFixture.includes("当日status: pre-race") && preRaceFixture.includes("展示タイム: 展示タイム未取得 / 事前予想") && preRaceFixture.includes("結果/払戻: pre-race") && exhibitionPartialFixture.includes("当日status: exhibition-partial") && exhibitionPartialFixture.includes("展示タイム: 展示タイム一部取得 2/6") && exhibitionReadyFixture.includes("当日status: exhibition-ready") && exhibitionReadyFixture.includes("展示タイム: 展示取得済み") && exhibitionReadyFixture.includes("結果/払戻: pre-race") && resultFixture.includes("当日status: race-analysis-ready") && resultFixture.includes("結果/払戻: available") && resultFixture.includes("race-analysis: available"),
 	historicalLatestDayVenueEvidence: output.includes("【KURARI BOAT EX 履歴latest-day venue-evidence】") && output.includes("EX履歴latest日: 2026-08-02") && output.includes("予想対象日: 2026-08-15") && output.includes("対象日一致: no") && output.includes("用途: 履歴EXのlatest-day確認用。予想当日の通常素材coverageではありません。") && output.includes("source: public/data/boatrace-ex/derived/venue-evidence/2026-08-02.json") && output.includes("EX履歴latest-day天候・水面 availability: target-date-mismatch"),
 	noLegacyDailyCoverage: !output.includes("【KURARI BOAT EX 当日coverage】") && !output.includes("当日coverage: 対象日不一致のため予想当日データとしては使わない") && !output.includes("データ期間: daily 2026-08-02") && !output.includes("EX当日フロー: 対象日不一致"),
-	venueSamples: mikuni1R.includes("【KURARI BOAT EX 当日予想coverage】") && mikuni1R.includes("【KURARI BOAT EX 履歴latest-day venue-evidence】") && mikuni1R.includes("選手特徴 exactリンク: 6/6") && !mikuni1R.includes("【KURARI BOAT EX 当日coverage】") && tamagawa7R.includes("【KURARI BOAT EX 当日予想coverage】") && tamagawa7R.includes("選手特徴 exactリンク: 6/6") && !tamagawa7R.includes("【KURARI BOAT EX 当日coverage】") && suminoe1R.includes("【KURARI BOAT EX 当日予想coverage】") && suminoe1R.includes(`当日status: ${suminoeLifecycle?.status}`) && !suminoe1R.includes("【KURARI BOAT EX 当日coverage】"),
+	currentDayVenueCount: (today.venues?.length ?? 0) > 0,
+	currentDayTargetDate: today.date === currentDayPredictionCoverage.targetDate,
+	historicalLatestDate: sampleEvidenceDate === dateIndex.latestDate,
+	dynamicVenueSamples: selectedSamples.length > 0 && sampleChecks.every((sample) => Object.values(sample).every(Boolean)),
 	notWholeExMissing: output.includes("履歴EXとは別に、当日通常素材の完全性を示すcoverageです。"),
 	noForbiddenOutput: !/(?:fake|score|rank|generatedPrediction|generatedTicket)/i.test(output),
 };
@@ -105,10 +132,17 @@ const ok = Object.values(checks).every(Boolean);
 console.log(JSON.stringify({
 	ok,
 	checks,
-	samples: {
-		mikuni1R: { currentDayCoverage: mikuni1R.includes("【KURARI BOAT EX 当日予想coverage】"), historicalLatestDayEvidence: mikuni1R.includes("【KURARI BOAT EX 履歴latest-day venue-evidence】"), exactLink: mikuni1R.match(/選手特徴 exactリンク: \d+\/\d+/)?.[0] ?? "" },
-		tamagawa7R: { currentDayCoverage: tamagawa7R.includes("【KURARI BOAT EX 当日予想coverage】"), exactLink: tamagawa7R.match(/選手特徴 exactリンク: \d+\/\d+/)?.[0] ?? "" },
-		suminoe1R: { currentDayCoverage: suminoe1R.includes("【KURARI BOAT EX 当日予想coverage】"), resultStatus: suminoe1R.match(/結果\/払戻: \S+/)?.[0] ?? "" },
-	},
+	targetDate: currentDayPredictionCoverage.targetDate,
+	latestHistoryDate: sampleEvidenceDate,
+	checkedMaterialCount: selectedSamples.length,
+	selectedVenues: selectedSamples.map((sample) => sample.venueName),
+	selectedRaceRanges: selectedSamples.map((sample) => ({ venueName: sample.venueName, raceNo: sample.raceNo, raceRange: sample.raceRange })),
+	dynamicVenueSamples: selectedSamples.map((sample, index) => ({
+		venueCode: sample.venueCode,
+		venueName: sample.venueName,
+		raceNo: sample.raceNo,
+		raceRange: sample.raceRange,
+		checks: sampleChecks[index],
+	})),
 }, null, 2));
 if (!ok) process.exitCode = 1;

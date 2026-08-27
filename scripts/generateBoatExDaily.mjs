@@ -321,10 +321,14 @@ function main() {
                 "scripts/generateBoatExTodayFlow.mjs",
                 [...(args.dryRun ? ["--dry-run"] : [])],
         );
-        const todayFlowChecked = runNode(
-                "scripts/checkBoatExTodayFlow.mjs",
-                [],
-        );
+	const todayFlowChecked = runNode(
+		"scripts/checkBoatExTodayFlow.mjs",
+		[],
+	);
+	const structuredTicketsGenerated = runNode(
+		"scripts/generateBoatExStructuredTickets.mjs",
+		[...(args.dryRun ? ["--dry-run"] : [])],
+	);
 	const predictionStructureGenerated = runNode(
 		"scripts/generateBoatExPredictionStructure.mjs",
 		[...(args.dryRun ? ["--dry-run"] : [])],
@@ -394,6 +398,12 @@ function main() {
 			resultAvailableRaceCount: todayFlowChecked.resultAvailableRaceCount ?? todayFlowGenerated?.resultAvailableRaceCount ?? null,
 			payoutAvailableRaceCount: todayFlowChecked.payoutAvailableRaceCount ?? todayFlowGenerated?.payoutAvailableRaceCount ?? null,
 			readiness: todayFlowChecked.readiness ?? todayFlowGenerated?.readiness ?? null,
+		},
+		structuredTickets: {
+			status: "generated",
+			dateCount: structuredTicketsGenerated?.dateCount ?? null,
+			races: structuredTicketsGenerated?.historyRaceCount ?? null,
+			readiness: structuredTicketsGenerated?.readiness ?? null,
 		},
 		predictionStructure: {
 			status: "checked",

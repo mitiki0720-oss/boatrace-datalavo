@@ -111,7 +111,7 @@ jobs:
           head -n 20 public/data/boatrace/venue-extras.generated.json
 
       - name: Run BOATRACE EX daily pipeline
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_boatrace_ex == 'true' }}
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_boatrace_ex == 'true') }}
         shell: bash
         run: |
           set -euo pipefail
@@ -131,8 +131,11 @@ jobs:
           node scripts/generateBoatExDaily.mjs "${ARGS[@]}"
           node scripts/checkBoatExDaily.mjs --date "$EX_DATE"
           node scripts/checkBoatExDateIndex.mjs
+          EX_LATEST_DATE="$(node -p "require('./public/data/boatrace-ex/index.generated.json').latestDate")"
+          node scripts/checkBoatExHistoryFreshness.mjs --expected-latest-date "$EX_LATEST_DATE"
 
           echo "- status: completed" >> "$GITHUB_STEP_SUMMARY"
+          echo "- EX latest date: $EX_LATEST_DATE" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit generated data
         shell: bash
