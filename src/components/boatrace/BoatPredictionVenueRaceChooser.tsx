@@ -541,15 +541,19 @@ const getVenueWeather = (venue: BoatTodayVenueItem | undefined) => {
 	};
 };
 
-const getRaceTimeLabel = (race: BoatRaceItem | undefined) => {
-	if (!race) return "--:--";
+export const getRaceTimeLabel = (race: BoatRaceItem | undefined): string => {
+	if (!race) return "締切未取得";
 
-	return String(
-		(race as { deadlineTime?: unknown }).deadlineTime ??
-			(race as { startTime?: unknown }).startTime ??
-			(race as { time?: unknown }).time ??
-			"--:--",
-	);
+	const raceRecord = toLooseRecord(race);
+	const unavailableLabels = new Set(["", "--", "--:--", "未取得", "確認中"]);
+	for (const fieldName of ["deadlineTime", "deadline", "closeTime", "startTime", "time"]) {
+		const candidate = normalizeLooseText(raceRecord[fieldName]);
+		if (unavailableLabels.has(candidate)) continue;
+		if (!/^\d{2}:\d{2}$/u.test(candidate)) continue;
+		if (parseBoatRaceTimeToMinutes(candidate) !== null) return candidate;
+	}
+
+	return "締切未取得";
 };
 
 const hasRaceOddsPreview = (race: BoatRaceItem | undefined) => {
