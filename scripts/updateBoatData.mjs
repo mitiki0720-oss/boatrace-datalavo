@@ -83,7 +83,7 @@ function buildTodayDetailsArgs({ mode, targetSession, targetDate }) {
 	}
 
 	if (mode === "results") {
-		args.push("--fetch-sections", "raceTitles,resultList,detailedResults,odds");
+		args.push("--fetch-sections", "raceTitles,resultList,detailedResults,odds,beforeInfo,venueWeather");
 	}
 
 	if (mode === "final") {
@@ -196,7 +196,7 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 	console.log(`[update-boat-data] mode=${options.mode} targetSession=${options.targetSession} targetDate=${options.targetDate}`);
 
 	if (options.mode === "results") {
-		console.log("[update-boat-data] results mode is scaffolded. This pass only narrows fetch sections for today race details.");
+		console.log("[update-boat-data] results mode refreshes results, odds, beforeinfo, and venue weather for today race details.");
 	}
 
 	if (options.mode === "final") {

@@ -63,6 +63,10 @@ assert.ok(workflow.includes("public/data/boatrace/reviews/index\\.json"));
 assert.ok(workflow.includes("public/data/reviews/"));
 assert.ok(workflow.includes("public/dog/"));
 assert.match(updateBoatData, /resolveJstTargetDate\(cliArgs\.targetDate \?\? env\.BOAT_RACE_TARGET_DATE\)/);
+assert.match(
+	updateBoatData,
+	/if \(mode === "results"\) \{\s*args\.push\("--fetch-sections", "raceTitles,resultList,detailedResults,odds,beforeInfo,venueWeather"\);\s*\}/u,
+);
 assert.match(updateTodayDetails, /targetDate: resolveJstTargetDate\(rawOptions\.targetDate\)/);
 
 console.log(JSON.stringify({
@@ -70,6 +74,8 @@ console.log(JSON.stringify({
 	fixtures: fixtures.map(({ now, expected }) => ({ now, targetDate: expected })),
 	workflowTargetDate: "JST input with script-side default",
 	workflowStageGuard: true,
+	resultsModeBeforeInfoRefresh: true,
+	resultsModeVenueWeatherRefresh: true,
 	generatedBoatExDocsAllowlist: [
 		"registered-racer-identity-registry-*.md",
 		"racer-evidence-registry-linkage-*.md",
