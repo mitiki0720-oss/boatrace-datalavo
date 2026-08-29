@@ -26,16 +26,22 @@ const registry = read("public/data/boatrace-ex/identity/registered-racers.genera
 const latestRaceAnalysis = read("public/data/boatrace-ex/derived/race-analysis/latest.json");
 const knownRegistrationNos = new Set((registry.identities ?? []).map((identity) => text(identity.registrationNo)));
 const sourceKinds = new Set([text(current.source)]);
-const raceAnalysisByKey = latestRaceAnalysis.targetDate === current.date
-	? new Map((latestRaceAnalysis.races ?? []).map((race) => [`${text(race.venueCode)}:${Number(race.raceNo)}`, race]))
-	: new Map();
+const raceAnalysisByKey = new Map();
+if (latestRaceAnalysis.targetDate === current.date) {
+	for (const race of latestRaceAnalysis.races ?? []) {
+		const key = `${text(race.venueCode)}:${Number(race.raceNo)}`;
+		const existing = raceAnalysisByKey.get(key);
+		if (!existing || existing.status !== "ready") raceAnalysisByKey.set(key, race);
+	}
+}
 const lifecycleForRace = (venue, race) => {
 	const timeCount = displayTimeCount(race);
 	const hasResult = hasCompleteResult(race);
 	const rawPayout = hasRawPayout(race);
 	const hasPayout = hasResult && rawPayout;
 	const analysis = raceAnalysisByKey.get(`${text(venue.venueCode)}:${Number(race.raceNo)}`);
-	const hasRaceAnalysis = Boolean(analysis && analysis.resultStatus === "available" && analysis.payoutStatus === "available" && hasResult && hasPayout);
+	const analysisReady = analysis?.status ? analysis.status === "ready" : analysis?.resultStatus === "available" && analysis?.payoutStatus === "available";
+	const hasRaceAnalysis = Boolean(analysis && analysisReady && analysis.resultStatus === "available" && analysis.payoutStatus === "available" && hasResult && hasPayout);
 	const warnings = [];
 	if (rawPayout && !hasResult) warnings.push("raw-payout-without-complete-result-suppressed");
 	if (analysis && !hasRaceAnalysis) warnings.push("race-analysis-not-ready-for-current-result-state");

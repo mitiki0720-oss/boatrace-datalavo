@@ -838,6 +838,12 @@ export interface BoatExRaceAnalysisItem {
 	venueName: string;
 	raceNo: number;
 	raceKey: BoatExRaceKey;
+	analysisKey?: string;
+	status?: "ready" | "not-ready";
+	reason?: string | null;
+	notReadyReasons?: string[];
+	source?: string | null;
+	sourceAcquiredAt?: string | null;
 	raceTitle: string | null;
 	closingTime: string | null;
 	dayPart: string | null;
@@ -849,6 +855,34 @@ export interface BoatExRaceAnalysisItem {
 	waterStatus: BoatExRaceAnalysisStatus;
 	predictionStructureStatus?: string;
 	racerEvidenceStatus: BoatExRaceAnalysisStatus;
+	inputs?: Record<string, string>;
+	resultFacts?: {
+		top3: number[];
+		winningMethod: string | null;
+		trifecta: { combination: string | null; payoutYen: number; popularity: number | null };
+	} | null;
+	raceFlowFacts?: {
+		winnerFrame: number | null;
+		inWin: boolean;
+		inWinFailed: boolean;
+		sashiObserved: boolean;
+		centerAttackObserved: boolean;
+		outsideAttackObserved: boolean;
+		makuriObserved: boolean;
+		makuriSashiObserved: boolean;
+		outsidePodium: boolean;
+		outsidePodiumFrames: number[];
+	} | null;
+	startFacts?: Record<string, unknown> | null;
+	exhibitionFacts?: Record<string, unknown> | null;
+	weatherFacts?: Record<string, unknown> | null;
+	payoutProfile?: {
+		trifectaPayoutYen: number;
+		trifectaOver10000: boolean;
+		roughnessLabel: "standard" | "high";
+		thresholdYen: number;
+	} | null;
+	preRaceReviewHints?: string[];
 	officialResult: { finishOrder: number[]; trifecta: string | null; trifectaPayoutYen: number | null; winningTechnique: string | null };
 	exhibition: Array<{ lane: number | null; exhibitionTime: string | null; startTiming: string | null; course: string | null }>;
 	weather: { weather: string | null; windDirection: string | null; windSpeed: string | null; waveHeight: string | null; waterTemperature: string | null } | null;
@@ -857,6 +891,7 @@ export interface BoatExRaceAnalysisItem {
 	racerLinkageSummary: { racerCount: number; officialRegistrationLinkedCount: number; nameLinkedCount: number; unresolvedCount: number; ambiguousCount: number; collisionCount: number };
 	sourcePaths: Record<string, string>;
 	analysisNotes: string[];
+	cautions?: string[];
 }
 
 export interface BoatExRaceAnalysisFile {
@@ -871,6 +906,10 @@ export interface BoatExRaceAnalysisFile {
 		dateCount: number;
 		historyRaceCount: number;
 		latestRaceCount: number;
+		raceCount?: number;
+		analyzedRaceCount?: number;
+		notReadyRaceCount?: number;
+		notReadyReasonCounts?: Record<string, number>;
 		venueCount: number;
 		resultAvailableRaceCount: number;
 		payoutAvailableRaceCount: number;
