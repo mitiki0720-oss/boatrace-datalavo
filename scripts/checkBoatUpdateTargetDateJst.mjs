@@ -32,6 +32,9 @@ const [workflow, updateBoatData, updateTodayDetails] = await Promise.all([
 assert.match(workflow, /target_date:\s*\n\s+description: "Target date in JST YYYY-MM-DD\. Empty = JST today"/);
 assert.match(workflow, /TARGET_DATE: \$\{\{ inputs\.target_date \|\| '' \}\}/);
 assert.match(workflow, /ARGS\+=\(--target-date "\$TARGET_DATE"\)/);
+assert.match(workflow, /EX_DATE="\$\{\{ inputs\.boatrace_ex_date \}\}"/);
+assert.match(workflow, /EX_DATE="\$\{EX_DATE:-auto\}"/);
+assert.match(workflow, /\[\[ -z "\$\{EX_DATE\/\/\[\[:space:\]\]\/\}" \]\]/);
 assert.match(workflow, /git add -- \\\s*\n\s+public\/data\/boatrace\/today-race-details\.generated\.json/);
 assert.doesNotMatch(workflow, /git add(?:\s+--)?\s+public\/data(?:\s|$)/);
 assert.doesNotMatch(workflow, /git add(?:\s+--)?\s+public\/data\/boatrace(?:\s|$)/);
@@ -69,10 +72,24 @@ assert.match(
 );
 assert.match(updateTodayDetails, /targetDate: resolveJstTargetDate\(rawOptions\.targetDate\)/);
 
+const dateArgScripts = await Promise.all([
+	"generateBoatExDaily.mjs",
+	"checkBoatExDaily.mjs",
+	"generateBoatExRaceAnalysis.mjs",
+	"checkBoatExRaceAnalysis.mjs",
+].map(async (file) => ({ file, source: await readFile(path.join(projectRoot, "scripts", file), "utf8") })));
+for (const { file, source } of dateArgScripts) {
+	assert.match(source, /if \(!normalized\) return "auto";/, `${file} must treat blank dates as auto`);
+	assert.match(source, /\["auto", "latest"\]/, `${file} must accept auto and latest`);
+	assert.match(source, /--date requires YYYY-MM-DD, latest, or auto/, `${file} must reject invalid date text`);
+}
+
 console.log(JSON.stringify({
 	ok: true,
 	fixtures: fixtures.map(({ now, expected }) => ({ now, targetDate: expected })),
 	workflowTargetDate: "JST input with script-side default",
+	workflowBoatExDate: "blank or whitespace input falls back to auto",
+	boatExDateArgScripts: dateArgScripts.map(({ file }) => file),
 	workflowStageGuard: true,
 	resultsModeBeforeInfoRefresh: true,
 	resultsModeVenueWeatherRefresh: true,

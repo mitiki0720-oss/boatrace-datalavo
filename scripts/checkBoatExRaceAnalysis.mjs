@@ -7,22 +7,27 @@ const readText = (relativePath) => fs.readFileSync(path.join(root, relativePath)
 const readJson = (relativePath) => JSON.parse(readText(relativePath));
 const exists = (relativePath) => fs.existsSync(path.join(root, relativePath));
 
+function normalizeDateArg(value) {
+	const normalized = String(value ?? "").trim();
+	if (!normalized) return "auto";
+	if (["auto", "latest"].includes(normalized) || /^\d{4}-\d{2}-\d{2}$/.test(normalized)) return normalized;
+	throw new Error("--date requires YYYY-MM-DD, latest, or auto");
+}
+
 function parseArgs(argv) {
-	const args = { date: undefined };
+	const args = { date: "auto" };
 	for (let index = 0; index < argv.length; index += 1) {
 		if (argv[index] !== "--date") throw new Error(`Unknown argument: ${argv[index]}`);
 		const next = argv[index + 1];
-		if (!next || next.startsWith("--")) throw new Error("--date requires YYYY-MM-DD or latest");
-		args.date = next;
-		index += 1;
+		args.date = normalizeDateArg(next?.startsWith("--") ? undefined : next);
+		if (next !== undefined && !next.startsWith("--")) index += 1;
 	}
-	if (args.date && args.date !== "latest" && !/^\d{4}-\d{2}-\d{2}$/.test(args.date)) throw new Error(`Invalid --date value: ${args.date}`);
 	return args;
 }
 
 const args = parseArgs(process.argv.slice(2));
 const index = readJson("public/data/boatrace-ex/index.generated.json");
-const targetDate = !args.date || args.date === "latest" ? index.latestDate : args.date;
+const targetDate = ["auto", "latest"].includes(args.date) ? index.latestDate : args.date;
 const latest = readJson("public/data/boatrace-ex/derived/race-analysis/latest.json");
 const shardPath = `public/data/boatrace-ex/derived/race-analysis/dates/${targetDate}.json`;
 const analysis = latest.targetDate === targetDate
@@ -46,7 +51,10 @@ assert.equal(new Set(readyRaceKeys).size, readyRaceKeys.length, "a source race m
 assert.equal(analysis.summary.raceCount ?? analysis.summary.latestRaceCount, races.length, "race count summary must match races");
 assert.equal(analysis.summary.analyzedRaceCount, readyRaces.length, "analyzedRaceCount must count ready races");
 assert.equal(analysis.summary.notReadyRaceCount, notReadyRaces.length, "notReadyRaceCount must count not-ready races");
-assert.ok(readyRaces.length > 0, "analyzedRaceCount must be greater than zero");
+if (readyRaces.length === 0) {
+	assert.equal(notReadyRaces.length, races.length, "a zero-ready analysis must mark every race not-ready");
+	assert.equal(analysis.summary.readiness?.status, "not-ready", "a zero-ready analysis must expose not-ready summary readiness");
+}
 
 const trifectaFor = (record) => (record.officialResult?.payout ?? []).find((item) => /3連単|三連単|trifecta/iu.test(String(item?.betType ?? item?.type ?? item?.name ?? "")));
 for (const race of races) {

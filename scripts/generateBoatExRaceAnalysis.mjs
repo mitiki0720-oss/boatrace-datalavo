@@ -7,8 +7,15 @@ const LATEST_OUTPUT_PATH = "public/data/boatrace-ex/derived/race-analysis/latest
 const MANIFEST_PATH = "public/data/boatrace-ex/derived/manifest.generated.json";
 const INDEX_PATH = "public/data/boatrace-ex/index.generated.json";
 
+function normalizeDateArg(value) {
+	const normalized = String(value ?? "").trim();
+	if (!normalized) return "auto";
+	if (["auto", "latest"].includes(normalized) || /^\d{4}-\d{2}-\d{2}$/.test(normalized)) return normalized;
+	throw new Error("--date requires YYYY-MM-DD, latest, or auto");
+}
+
 function parseArgs(argv) {
-	const args = { date: undefined, dryRun: false };
+	const args = { date: "auto", dryRun: false };
 	for (let index = 0; index < argv.length; index += 1) {
 		const arg = argv[index];
 		if (arg === "--dry-run") {
@@ -17,15 +24,11 @@ function parseArgs(argv) {
 		}
 		if (arg === "--date") {
 			const next = argv[index + 1];
-			if (!next || next.startsWith("--")) throw new Error("--date requires YYYY-MM-DD or latest");
-			args.date = next;
-			index += 1;
+			args.date = normalizeDateArg(next?.startsWith("--") ? undefined : next);
+			if (next !== undefined && !next.startsWith("--")) index += 1;
 			continue;
 		}
 		throw new Error(`Unknown argument: ${arg}`);
-	}
-	if (args.date && args.date !== "latest" && !/^\d{4}-\d{2}-\d{2}$/.test(args.date)) {
-		throw new Error(`Invalid --date value: ${args.date}`);
 	}
 	return args;
 }
@@ -356,7 +359,7 @@ function mergeManifest(entries, generatedAt) {
 function main() {
 	const args = parseArgs(process.argv.slice(2));
 	const index = readJson(INDEX_PATH);
-	const targetDate = !args.date || args.date === "latest" ? index.latestDate : args.date;
+	const targetDate = ["auto", "latest"].includes(args.date) ? index.latestDate : args.date;
 	if (!index.availableDates?.includes(targetDate)) throw new Error(`${targetDate} must be included in index availableDates before race-analysis generation`);
 	const paths = sourcePathsFor(targetDate);
 	for (const sourcePath of Object.values(paths)) {

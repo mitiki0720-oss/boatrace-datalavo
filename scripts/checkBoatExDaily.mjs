@@ -7,22 +7,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
 
+function normalizeDateArg(value) {
+	const normalized = String(value ?? "").trim();
+	if (!normalized) return "auto";
+	if (["auto", "latest"].includes(normalized) || /^\d{4}-\d{2}-\d{2}$/.test(normalized)) return normalized;
+	throw new Error("--date requires YYYY-MM-DD, latest, or auto");
+}
+
 function parseArgs(argv) {
-	const args = { date: undefined };
+	const args = { date: "auto" };
 	for (let index = 0; index < argv.length; index += 1) {
 		const arg = argv[index];
 		if (arg === "--date") {
 			const next = argv[index + 1];
-			if (!next || next.startsWith("--")) throw new Error("--date requires YYYY-MM-DD, latest, or auto");
-			args.date = next;
-			index += 1;
+			args.date = normalizeDateArg(next?.startsWith("--") ? undefined : next);
+			if (next !== undefined && !next.startsWith("--")) index += 1;
 			continue;
 		}
 		throw new Error(`Unknown argument: ${arg}`);
-	}
-	if (!args.date) throw new Error("--date is required");
-	if (!["latest", "auto"].includes(args.date) && !/^\d{4}-\d{2}-\d{2}$/.test(args.date)) {
-		throw new Error(`Invalid --date value: ${args.date}`);
 	}
 	return args;
 }

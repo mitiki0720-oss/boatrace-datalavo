@@ -117,6 +117,10 @@ jobs:
           set -euo pipefail
 
           EX_DATE="${{ inputs.boatrace_ex_date }}"
+          EX_DATE="${EX_DATE:-auto}"
+          if [[ -z "${EX_DATE//[[:space:]]/}" ]]; then
+            EX_DATE="auto"
+          fi
           REFRESH_HISTORY="${{ inputs.boatrace_ex_refresh_history }}"
 
           ARGS=(--date "$EX_DATE")
