@@ -234,6 +234,11 @@ function main() {
         );
 	const todayFlow = runNode("scripts/checkBoatExTodayFlow.mjs", []);
 	const predictionStructure = runNode("scripts/checkBoatExPredictionStructure.mjs", []);
+	const raceAnalysis = runNode("scripts/checkBoatExRaceAnalysis.mjs", ["--date", date]);
+	const currentDayPredictionCoverage = readJsonIfExists("public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json");
+	if (currentDayPredictionCoverage?.targetDate === date) {
+		runNode("scripts/checkBoatExCurrentDayPredictionCoverage.mjs", []);
+	}
 
 	const derivedManifest = readJson("public/data/boatrace-ex/derived/manifest.generated.json");
 	if (!Array.isArray(derivedManifest.files) || derivedManifest.files.length < 6) {
@@ -320,6 +325,13 @@ function main() {
 			raceCount: predictionStructure.raceCount,
 			resultAvailableRaceCount: predictionStructure.resultAvailableRaceCount,
 			readiness: predictionStructure.readiness,
+		},
+		raceAnalysis: {
+			targetDate: raceAnalysis.targetDate,
+			raceCount: raceAnalysis.raceCount,
+			analyzedRaceCount: raceAnalysis.analyzedRaceCount,
+			notReadyRaceCount: raceAnalysis.notReadyRaceCount,
+			notReadyReasonCounts: raceAnalysis.notReadyReasonCounts,
 		},
 	}, null, 2));
 }

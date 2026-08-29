@@ -263,7 +263,7 @@ export function buildBoatPredictionGptCopyVenueContext(params: {
 }): string {
 	const { venue, exContext } = params;
 	const sourceState = exContext?.raceAnalysis.some((race) =>
-		(race.venueCode && venue.venueCode && race.venueCode === venue.venueCode) || race.venueName === venue.venueName,
+		isReadyRaceAnalysis(race) && ((race.venueCode && venue.venueCode && race.venueCode === venue.venueCode) || race.venueName === venue.venueName),
 	);
 	const venueBiasReadiness = asRecord(exContext?.venueBias?.readiness);
 	const roughIndexReadiness = asRecord(exContext?.roughIndex?.readiness);
@@ -289,7 +289,10 @@ export function buildBoatPredictionGptCopyVenueContext(params: {
 	].join("\n");
 }
 
-function findExRace(exContext: BoatPredictionGptCopyExContext | null, venue: BoatTodayVenueItem, race: BoatRaceItem): BoatExRaceAnalysisItem | null {
+const isReadyRaceAnalysis = (race: BoatExRaceAnalysisItem): boolean =>
+	race.status ? race.status === "ready" : race.resultStatus === "available" && race.payoutStatus === "available";
+
+function findExRaceRecord(exContext: BoatPredictionGptCopyExContext | null, venue: BoatTodayVenueItem, race: BoatRaceItem): BoatExRaceAnalysisItem | null {
 	if (!exContext) {
 		return null;
 	}
@@ -301,6 +304,11 @@ function findExRace(exContext: BoatPredictionGptCopyExContext | null, venue: Boa
 			(venue.venueCode && item.venueCode === venue.venueCode) || item.venueName === venue.venueName
 		),
 	) ?? null;
+}
+
+function findExRace(exContext: BoatPredictionGptCopyExContext | null, venue: BoatTodayVenueItem, race: BoatRaceItem): BoatExRaceAnalysisItem | null {
+	const matched = findExRaceRecord(exContext, venue, race);
+	return matched && isReadyRaceAnalysis(matched) ? matched : null;
 }
 
 const findVenueWeatherEvidence = (
@@ -861,7 +869,9 @@ function buildBoatPredictionGptCopyCurrentDayCoverageBlock(params: {
 				: "pre-race";
 	const raceAnalysisLabel = hasRaceAnalysis
 		? "available"
-		: "未取得（結果・払戻の確定後に生成）";
+		: hasResult && hasPayout
+			? "未取得（結果・払戻はavailableだがrace-analysis未生成）"
+			: "未取得（結果・払戻の確定後に生成）";
 	const lifecycleWarnings = asArray<string>(lifecycleRace?.warnings);
 	const exhibition = getBoatPredictionExhibitionAvailability({ race });
 
@@ -926,6 +936,7 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 	const sourceName = asText(venue.source ?? feed.source);
 	const sourceAcquiredAt = asText(venue.generatedAt ?? feed.generatedAt);
 	const sourceStatus = readSourceStatus(venue.source ?? feed.source);
+	const exRaceRecord = findExRaceRecord(exContext, venue, race);
 	const exRace = findExRace(exContext, venue, race);
 	const exReference = getBoatPredictionGptCopyExReference({ venue, race, venueExtra, raceExtra, exContext });
 	const exWeatherWater = getBoatPredictionGptCopyExWeatherWaterReference({ venue, race, venueExtra, raceExtra, exContext });
@@ -950,6 +961,13 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 				? `- ${asText(racer.frameNo)}号艇 / ${asText(racer.name)} / 登録番号完全一致 ${registrationNo} / 履歴出走 ${identity.appearanceCount}件 / 初回 ${identity.firstSeenDate} / 最終 ${identity.lastSeenDate}`
 				: `- ${asText(racer.frameNo)}号艇 / ${asText(racer.name)} / 登録番号完全一致 未リンク`;
 		});
+	const resultFacts = exRace?.resultFacts;
+	const flowFacts = exRace?.raceFlowFacts;
+	const trifecta = resultFacts?.trifecta;
+	const raceAnalysisSourcePath = exRace
+		? `public/data/boatrace-ex/derived/race-analysis/${exContext?.requestedDate === exContext?.venueEvidenceDate ? "latest.json" : `dates/${exContext?.requestedDate}.json`}`
+		: unavailable;
+	const yesNo = (value: boolean | undefined): string => value === undefined ? unavailable : value ? "あり" : "なし";
 
 	return [
 		`[日付 ${venue.date ?? feed.date} ${venue.venueName} ${race.raceNo}R]`,
@@ -965,13 +983,24 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 		"【展示情報】",
 		exhibition,
 		"【EXレース分析】",
-		`EX race-analysis shard: ${exRace ? "source-backed" : `未取得（履歴EX latest=${asText(exContext?.venueEvidenceDate)} / 結果・払戻の確定後に生成）`}`,
-		`EXレースsource: ${asText(exRace?.sourceStatus)}`,
+		`EX race-analysis shard: ${exRace ? "source-backed / available" : `未取得（履歴EX latest=${asText(exContext?.venueEvidenceDate)} / ${exRaceRecord?.reason ? `not-ready: ${exRaceRecord.reason}` : "結果・払戻の確定後に生成"}）`}`,
+		`EXレースsource path: ${raceAnalysisSourcePath}`,
+		`EXレースsource: ${asText(exRace?.source)}`,
+		`EXレースsource acquired at: ${asText(exRace?.sourceAcquiredAt)}`,
+		`結果分析: ${exRace ? "available" : unavailable}`,
+		`決まり手: ${asText(resultFacts?.winningMethod)}`,
+		`3連単払戻: ${trifecta ? `${asText(trifecta.combination)} / ${trifecta.payoutYen.toLocaleString("ja-JP")}円 / 人気 ${asText(trifecta.popularity)}` : unavailable}`,
+		`イン逃げ: ${flowFacts ? flowFacts.inWin ? "成功" : "不成立" : unavailable}`,
+		`センター攻め: ${yesNo(flowFacts?.centerAttackObserved)}`,
+		`外枠3着内浮上: ${flowFacts ? flowFacts.outsidePodium ? `あり (${flowFacts.outsidePodiumFrames.join("・")}号艇)` : "なし" : unavailable}`,
+		`ST分析: ${asText((exRace?.startFacts as JsonRecord | null | undefined)?.availability)}`,
+		`展示分析: ${asText((exRace?.exhibitionFacts as JsonRecord | null | undefined)?.availability)}`,
 		`EX shard由来 展示availability: ${asText(exRace?.exhibitionStatus)}`,
 		`通常素材 展示availability: ${normalExhibition.label}`,
 		`EX shard由来 気象availability: ${asText(exRace?.weatherStatus)}`,
 		`EX選手evidence availability: ${asText(exRace?.racerEvidenceStatus)}`,
 		`EX audit path: ${asText(exContext?.auditPath)}`,
+		"注意: EXレース分析は結果確定後のsource-backed事実分析。予想・買い目ではありません。",
 		"【EX選手情報】",
 		...racerLines,
 		"【KURARI BOAT EX 選手特徴】",

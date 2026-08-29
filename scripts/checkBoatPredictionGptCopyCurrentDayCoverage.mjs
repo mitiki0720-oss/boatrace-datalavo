@@ -46,7 +46,45 @@ const lifecycleFixtureOutput = ({ status, displayTimeCount, hasResult, hasPayout
 const preRaceFixture = lifecycleFixtureOutput({ status: "pre-race", displayTimeCount: 0, hasResult: false, hasPayout: false, hasRaceAnalysis: false });
 const exhibitionPartialFixture = lifecycleFixtureOutput({ status: "exhibition-partial", displayTimeCount: 2, hasResult: false, hasPayout: false, hasRaceAnalysis: false });
 const exhibitionReadyFixture = lifecycleFixtureOutput({ status: "exhibition-ready", displayTimeCount: 6, hasResult: false, hasPayout: false, hasRaceAnalysis: false });
+const resultAndPayoutWithoutAnalysisFixture = lifecycleFixtureOutput({ status: "result-and-payout", displayTimeCount: 6, hasResult: true, hasPayout: true, hasRaceAnalysis: false });
 const resultFixture = lifecycleFixtureOutput({ status: "race-analysis-ready", displayTimeCount: 6, hasResult: true, hasPayout: true, hasRaceAnalysis: true });
+const readyRaceAnalysisContext = {
+	...context,
+	generatedAt: "2026-08-15T12:30:00.000Z",
+	auditPath: "public/data/boatrace-ex/audit/race-analysis-coverage-2026-08-15.generated.json",
+	venueEvidenceDate: "2026-08-15",
+	raceAnalysis: [{
+		date: "2026-08-15",
+		venueCode: "01",
+		venueName: "桐生",
+		raceNo: 1,
+		raceKey: "2026-08-15:01:01",
+		status: "ready",
+		reason: null,
+		source: "today-race-details.generated.json",
+		sourceAcquiredAt: "2026-08-15T12:20:00+09:00",
+		sourceStatus: "complete",
+		resultStatus: "available",
+		payoutStatus: "available",
+		exhibitionStatus: "available",
+		weatherStatus: "available",
+		waterStatus: "missing",
+		racerEvidenceStatus: "available",
+		resultFacts: { top3: [1, 3, 5], winningMethod: "逃げ", trifecta: { combination: "1-3-5", payoutYen: 8420, popularity: 12 } },
+		raceFlowFacts: { winnerFrame: 1, inWin: true, inWinFailed: false, sashiObserved: false, centerAttackObserved: false, outsideAttackObserved: false, makuriObserved: false, makuriSashiObserved: false, outsidePodium: true, outsidePodiumFrames: [5] },
+		startFacts: { availability: "available" },
+		exhibitionFacts: { availability: "available" },
+		racers: [],
+		racerLinkageSummary: { racerCount: 2, officialRegistrationLinkedCount: 1, nameLinkedCount: 0, unresolvedCount: 1, ambiguousCount: 0, collisionCount: 0 },
+		analysisNotes: ["結果確定後の事実分析。"],
+	}],
+	currentDayPredictionCoverage: {
+		...context.currentDayPredictionCoverage,
+		resultStatus: "completed",
+		races: [{ venueCode: "01", raceNo: 1, status: "race-analysis-ready", displayTimeCount: 6, hasResult: true, hasPayout: true, hasRaceAnalysis: true, warnings: [] }],
+	},
+};
+const readyRaceAnalysisOutput = contextModule.exports.buildBoatPredictionGptCopyRaceContext({ feed: { date: "2026-08-15", source: "official:owpc-html", venues: [] }, venue, race, venueTimeKind: "day", exContext: readyRaceAnalysisContext });
 const today = JSON.parse(read("public/data/boatrace/today.generated.json"));
 const currentDayPredictionCoverage = JSON.parse(read("public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json"));
 const registeredRacers = JSON.parse(read("public/data/boatrace-ex/identity/registered-racers.generated.json"));
@@ -124,6 +162,15 @@ const checks = {
 	entryAndRegistrationCoverage: output.includes("出走表coverage: 未取得 (2/6)") && output.includes("登録番号coverage: 2/2") && output.includes("選手特徴 exactリンク: 1/2"),
 	preRaceResult: output.includes("当日status: pre-race") && output.includes("結果/払戻: pre-race") && output.includes("race-analysis: 未取得（結果・払戻の確定後に生成）"),
 	lifecycleFixtures: preRaceFixture.includes("当日status: pre-race") && preRaceFixture.includes("展示タイム: 展示タイム未取得 / 事前予想") && preRaceFixture.includes("結果/払戻: pre-race") && exhibitionPartialFixture.includes("当日status: exhibition-partial") && exhibitionPartialFixture.includes("展示タイム: 展示タイム一部取得 2/6") && exhibitionReadyFixture.includes("当日status: exhibition-ready") && exhibitionReadyFixture.includes("展示タイム: 展示取得済み") && exhibitionReadyFixture.includes("結果/払戻: pre-race") && resultFixture.includes("当日status: race-analysis-ready") && resultFixture.includes("結果/払戻: available") && resultFixture.includes("race-analysis: available"),
+	resultAndPayoutWithoutAnalysis: resultAndPayoutWithoutAnalysisFixture.includes("当日status: result-and-payout") && resultAndPayoutWithoutAnalysisFixture.includes("race-analysis: 未取得（結果・払戻はavailableだがrace-analysis未生成）"),
+	readyRaceAnalysisFacts: readyRaceAnalysisOutput.includes("EX race-analysis shard: source-backed / available")
+		&& readyRaceAnalysisOutput.includes("EXレースsource path: public/data/boatrace-ex/derived/race-analysis/latest.json")
+		&& readyRaceAnalysisOutput.includes("結果分析: available")
+		&& readyRaceAnalysisOutput.includes("決まり手: 逃げ")
+		&& readyRaceAnalysisOutput.includes("3連単払戻: 1-3-5 / 8,420円 / 人気 12")
+		&& readyRaceAnalysisOutput.includes("イン逃げ: 成功")
+		&& readyRaceAnalysisOutput.includes("外枠3着内浮上: あり (5号艇)")
+		&& readyRaceAnalysisOutput.includes("注意: EXレース分析は結果確定後のsource-backed事実分析。予想・買い目ではありません。"),
 	historicalLatestDayVenueEvidence: output.includes("【KURARI BOAT EX 履歴latest-day venue-evidence】") && output.includes("EX履歴latest日: 2026-08-02") && output.includes("予想対象日: 2026-08-15") && output.includes("対象日一致: no") && output.includes("用途: 履歴EXのlatest-day確認用。予想当日の通常素材coverageではありません。") && output.includes("source: public/data/boatrace-ex/derived/venue-evidence/2026-08-02.json") && output.includes("EX履歴latest-day天候・水面 availability: target-date-mismatch"),
 	noLegacyDailyCoverage: !output.includes("【KURARI BOAT EX 当日coverage】") && !output.includes("当日coverage: 対象日不一致のため予想当日データとしては使わない") && !output.includes("データ期間: daily 2026-08-02") && !output.includes("EX当日フロー: 対象日不一致"),
 	currentDayVenueCount: (today.venues?.length ?? 0) > 0,
@@ -135,6 +182,9 @@ const checks = {
 	ticketContractWiredToBothRanges: bettingInstructionCallCount >= 2,
 	notWholeExMissing: output.includes("履歴EXとは別に、当日通常素材の完全性を示すcoverageです。"),
 	noForbiddenOutput: !/(?:fake|score|rank|generatedPrediction|generatedTicket)/i.test(output),
+	existingMaterialPreserved: predictionPageSource.includes("buildBoatPreRacePredictionSupportBlock")
+		&& predictionPageSource.includes("buildBoatPredictionMaterial")
+		&& predictionPageSource.includes("buildBoatPredictionGptCopyRaceContext"),
 };
 const ok = Object.values(checks).every(Boolean);
 console.log(JSON.stringify({

@@ -337,6 +337,23 @@ function main() {
 		"scripts/checkBoatExPredictionStructure.mjs",
 		[],
 	);
+	const raceAnalysisGenerated = runNode(
+		"scripts/generateBoatExRaceAnalysis.mjs",
+		["--date", date, ...(args.dryRun ? ["--dry-run"] : [])],
+	);
+	const raceAnalysisChecked = args.dryRun
+		? { status: "dry-run", ...raceAnalysisGenerated }
+		: runNode("scripts/checkBoatExRaceAnalysis.mjs", ["--date", date]);
+	const currentDaySource = readJsonIfExists("public/data/boatrace/today-race-details.generated.json");
+	let currentDayPredictionCoverage = {
+		status: "skipped",
+		reason: "target date does not match current-day source",
+	};
+	if (!args.dryRun && currentDaySource?.date === date) {
+		const generated = runNode("scripts/generateBoatExCurrentDayPredictionCoverage.mjs", []);
+		const checked = runNode("scripts/checkBoatExCurrentDayPredictionCoverage.mjs", []);
+		currentDayPredictionCoverage = { status: "checked", ...generated, ...checked };
+	}
 
 	console.log(JSON.stringify({
 		ok: true,
@@ -413,6 +430,15 @@ function main() {
 			resultAvailableRaceCount: predictionStructureChecked.resultAvailableRaceCount ?? predictionStructureGenerated?.resultAvailableRaceCount ?? null,
 			readiness: predictionStructureChecked.readiness ?? predictionStructureGenerated?.readiness ?? null,
 		},
+		raceAnalysis: {
+			status: args.dryRun ? "dry-run" : "checked",
+			targetDate: raceAnalysisChecked.targetDate ?? raceAnalysisGenerated?.targetDate ?? null,
+			raceCount: raceAnalysisChecked.raceCount ?? raceAnalysisGenerated?.raceCount ?? null,
+			analyzedRaceCount: raceAnalysisChecked.analyzedRaceCount ?? raceAnalysisGenerated?.analyzedRaceCount ?? null,
+			notReadyRaceCount: raceAnalysisChecked.notReadyRaceCount ?? raceAnalysisGenerated?.notReadyRaceCount ?? null,
+			notReadyReasonCounts: raceAnalysisChecked.notReadyReasonCounts ?? raceAnalysisGenerated?.notReadyReasonCounts ?? {},
+		},
+		currentDayPredictionCoverage,
 		warnings,
 	}, null, 2));
 }
