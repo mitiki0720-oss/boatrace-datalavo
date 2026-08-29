@@ -29,6 +29,7 @@ import {
 	getBoatPredictionExhibitionCardLabel,
 	getBoatPredictionExhibitionAvailability,
 } from "../lib/boatPredictionMaterial";
+import { buildBoatPreRacePredictionSupportBlock } from "../lib/boatPreRacePredictionSupport";
 import {
 	buildBoatPredictionGptCopyHeader,
 	buildBoatPredictionGptCopyRaceContext,
@@ -1268,14 +1269,18 @@ const buildPracticeFallbackRaceKey = (params: {
 	};
 
 	const materialText = selectedVenue && selectedRace
-		? buildBoatPredictionMaterial({
+		? [
+			buildBoatPreRacePredictionSupportBlock({ race: selectedRace, raceExtra: selectedRaceExtra }),
+			"【通常素材】",
+			buildBoatPredictionMaterial({
 				venue: selectedVenue,
 				race: selectedRace,
 				venueExtra: selectedVenueExtra,
 				raceExtra: selectedRaceExtra,
 				venueFeatureNote: selectedVenueFeatureNote,
 				venueFeatureInsights,
-			})
+			}),
+		].join("\n")
 		: "レース情報が選択されていません。";
 	const raceLabel = `${selectedVenue?.venueName ?? "-"} ${selectedRace ? `${selectedRace.raceNo}R` : "-"}`;
 	const bulkGptMaterialSummary1R6R = useMemo(() => {
@@ -1370,6 +1375,8 @@ const buildPracticeFallbackRaceKey = (params: {
 				`展示タイム取得状況: ${exhibitionSummary}`,
 				`展示詳細: ${exhibitionStatus.title} / ${exhibitionStatus.detail}`,
 				"注記: 取得できない値は推測で埋めない。source-backed data only。",
+				"",
+				buildBoatPreRacePredictionSupportBlock({ race, raceExtra }),
 				"",
 				raceMaterial,
 			].join("\n");
@@ -1470,6 +1477,7 @@ const buildPracticeFallbackRaceKey = (params: {
 					venueTimeKind,
 					exContext: gptCopyExContext,
 				}),
+				buildBoatPreRacePredictionSupportBlock({ race, raceExtra }),
 				"【通常素材】",
 				applyBoatPredictionGptCopyTimeLabel(buildBoatPredictionMaterial({
 					venue: selectedVenue,
@@ -1623,6 +1631,8 @@ const buildPracticeFallbackRaceKey = (params: {
 				`展示詳細: ${exhibitionStatus.title} / ${exhibitionStatus.detail}`,
 				"注記: 取得できない値は推測で埋めない。source-backed data only。",
 				"",
+				buildBoatPreRacePredictionSupportBlock({ race, raceExtra }),
+				"",
 				raceMaterial,
 			].join("\n");
 		});
@@ -1737,6 +1747,7 @@ const buildPracticeFallbackRaceKey = (params: {
 					venueTimeKind,
 					exContext: gptCopyExContext,
 				}),
+				buildBoatPreRacePredictionSupportBlock({ race, raceExtra }),
 				"【通常素材】",
 				currentMaterial,
 			].join("\n");
