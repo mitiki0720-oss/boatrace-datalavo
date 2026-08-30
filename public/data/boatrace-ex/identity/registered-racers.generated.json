@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "kind": "boatrace-ex-registered-racer-identity-registry",
-  "generatedAt": "2026-08-30T18:38:00.941Z",
+  "generatedAt": "2026-08-30T23:09:19.362Z",
   "identityPolicy": "registrationNo-primary-key; provenance-complete-only; no name-based merge",
   "sourceFiles": [
     "public/data/boatrace-ex/index.generated.json",
     "public/data/boatrace-ex/manifest.generated.json",
-    "public/data/boatrace-ex/audit/registered-registration-quality-2026-08-27.generated.json",
-    "public/data/boatrace-ex/audit/registration-provenance-2026-08-27.generated.json",
+    "public/data/boatrace-ex/audit/registered-registration-quality-2026-08-31.generated.json",
+    "public/data/boatrace-ex/audit/registration-provenance-2026-08-31.generated.json",
     "public/data/boatrace/today-race-details.generated.json",
     "public/data/boatrace-ex/history/races/2026-05-24.json",
     "public/data/boatrace-ex/derived/racer-evidence/2026-05-24.json",
@@ -194,19 +194,21 @@
     "public/data/boatrace-ex/history/races/2026-08-26.json",
     "public/data/boatrace-ex/derived/racer-evidence/2026-08-26.json",
     "public/data/boatrace-ex/history/races/2026-08-27.json",
-    "public/data/boatrace-ex/derived/racer-evidence/2026-08-27.json"
+    "public/data/boatrace-ex/derived/racer-evidence/2026-08-27.json",
+    "public/data/boatrace-ex/history/races/2026-08-31.json",
+    "public/data/boatrace-ex/derived/racer-evidence/2026-08-31.json"
   ],
   "summary": {
-    "identityCount": 1377,
+    "identityCount": 1398,
     "sourceAppearanceCount": 2952,
     "firstSeenDate": "2026-07-13",
     "lastSeenDate": "2026-08-31",
     "collisionCount": 0,
     "aliasCandidateCount": 0,
     "unresolvedExcludedCount": 72792,
-    "provenanceIncompleteRegisteredCount": 474,
-    "currentDaySupplementIdentityCount": 90,
-    "currentDaySupplementSlotCount": 146,
+    "provenanceIncompleteRegisteredCount": 1194,
+    "currentDaySupplementIdentityCount": 111,
+    "currentDaySupplementSlotCount": 176,
     "currentDayConflictCount": 0,
     "currentDayInvalidRegistrationCount": 0,
     "currentDayIncompleteSourceCount": 0
@@ -315,9 +317,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "大阪",
         "age": "68",
         "className": "B1"
@@ -643,9 +645,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "大阪",
         "age": "66",
         "className": "B1"
@@ -944,9 +946,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "香川",
         "age": "59",
         "className": "A2"
@@ -1067,6 +1069,56 @@
           "boatNo": 4
         }
       ]
+    },
+    {
+      "registrationNo": "3257",
+      "canonicalRacerName": "田頭 実",
+      "normalizedRacerName": "田頭 実",
+      "nameVariants": [
+        "田頭 実"
+      ],
+      "appearanceCount": 2,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 2
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 2,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 12,
+          "boatNo": 1
+        },
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 5,
+          "boatNo": 2
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "福岡",
+        "age": "59",
+        "className": "A1"
+      }
     },
     {
       "registrationNo": "3265",
@@ -1334,6 +1386,49 @@
       ]
     },
     {
+      "registrationNo": "3294",
+      "canonicalRacerName": "野中 義生",
+      "normalizedRacerName": "野中 義生",
+      "nameVariants": [
+        "野中 義生"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 7,
+          "boatNo": 1
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "静岡",
+        "age": "61",
+        "className": "B1"
+      }
+    },
+    {
       "registrationNo": "3297",
       "canonicalRacerName": "藤丸 光一",
       "normalizedRacerName": "藤丸 光一",
@@ -1429,9 +1524,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "岡山",
         "age": "59",
         "className": "A2"
@@ -2498,9 +2593,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "東京",
         "age": "58",
         "className": "B1"
@@ -2643,9 +2738,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福井",
         "age": "56",
         "className": "A1"
@@ -2686,9 +2781,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "三重",
         "age": "61",
         "className": "B1"
@@ -3232,9 +3327,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "群馬",
         "age": "57",
         "className": "B1"
@@ -3363,9 +3458,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "群馬",
         "age": "56",
         "className": "B1"
@@ -4336,9 +4431,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "埼玉",
         "age": "56",
         "className": "B1"
@@ -4629,9 +4724,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "広島",
         "age": "58",
         "className": "B1"
@@ -4751,6 +4846,56 @@
           "boatNo": 2
         }
       ]
+    },
+    {
+      "registrationNo": "3527",
+      "canonicalRacerName": "中嶋 誠一郎",
+      "normalizedRacerName": "中嶋 誠一郎",
+      "nameVariants": [
+        "中嶋 誠一郎"
+      ],
+      "appearanceCount": 2,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 2
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 2,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 2,
+          "boatNo": 2
+        },
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 7,
+          "boatNo": 6
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "長崎",
+        "age": "55",
+        "className": "B1"
+      }
     },
     {
       "registrationNo": "3528",
@@ -4988,6 +5133,56 @@
           "boatNo": 4
         }
       ]
+    },
+    {
+      "registrationNo": "3544",
+      "canonicalRacerName": "豊田 訓靖",
+      "normalizedRacerName": "豊田 訓靖",
+      "nameVariants": [
+        "豊田 訓靖"
+      ],
+      "appearanceCount": 2,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 2
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 2,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 1,
+          "boatNo": 5
+        },
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 8,
+          "boatNo": 4
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "静岡",
+        "age": "57",
+        "className": "B1"
+      }
     },
     {
       "registrationNo": "3546",
@@ -5628,11 +5823,104 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "山口",
         "age": "56",
+        "className": "B1"
+      }
+    },
+    {
+      "registrationNo": "3568",
+      "canonicalRacerName": "木村 光宏",
+      "normalizedRacerName": "木村 光宏",
+      "nameVariants": [
+        "木村 光宏"
+      ],
+      "appearanceCount": 2,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 2
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 2,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 4,
+          "boatNo": 2
+        },
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 8,
+          "boatNo": 6
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "香川",
+        "age": "55",
+        "className": "B1"
+      }
+    },
+    {
+      "registrationNo": "3569",
+      "canonicalRacerName": "増田 進",
+      "normalizedRacerName": "増田 進",
+      "nameVariants": [
+        "増田 進"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 2,
+          "boatNo": 3
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "東京",
+        "age": "55",
         "className": "B1"
       }
     },
@@ -5671,9 +5959,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "兵庫",
         "age": "54",
         "className": "B1"
@@ -5789,9 +6077,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "埼玉",
         "age": "53",
         "className": "B1"
@@ -5900,9 +6188,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "滋賀",
         "age": "53",
         "className": "A2"
@@ -6025,9 +6313,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "埼玉",
         "age": "52",
         "className": "B1"
@@ -6285,9 +6573,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "滋賀",
         "age": "54",
         "className": "B1"
@@ -6538,9 +6826,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "広島",
         "age": "53",
         "className": "B1"
@@ -6756,6 +7044,49 @@
           "boatNo": 1
         }
       ]
+    },
+    {
+      "registrationNo": "3629",
+      "canonicalRacerName": "浅見 昌克",
+      "normalizedRacerName": "浅見 昌克",
+      "nameVariants": [
+        "浅見 昌克"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 4,
+          "boatNo": 6
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "埼玉",
+        "age": "56",
+        "className": "A2"
+      }
     },
     {
       "registrationNo": "3630",
@@ -7173,9 +7504,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福井",
         "age": "52",
         "className": "A2"
@@ -7223,9 +7554,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "東京",
         "age": "52",
         "className": "B1"
@@ -7646,6 +7977,49 @@
       ]
     },
     {
+      "registrationNo": "3687",
+      "canonicalRacerName": "花田 和明",
+      "normalizedRacerName": "花田 和明",
+      "nameVariants": [
+        "花田 和明"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "18",
+          "venueName": "徳山",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 6,
+          "boatNo": 3
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "愛知",
+        "age": "56",
+        "className": "B1"
+      }
+    },
+    {
       "registrationNo": "3690",
       "canonicalRacerName": "河合 三弘",
       "normalizedRacerName": "河合 三弘",
@@ -7748,9 +8122,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "埼玉",
         "age": "54",
         "className": "B1"
@@ -7798,9 +8172,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "埼玉",
         "age": "53",
         "className": "B1"
@@ -8431,6 +8805,49 @@
       ]
     },
     {
+      "registrationNo": "3726",
+      "canonicalRacerName": "桂林 寛",
+      "normalizedRacerName": "桂林 寛",
+      "nameVariants": [
+        "桂林 寛"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 5,
+          "boatNo": 5
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "福岡",
+        "age": "55",
+        "className": "B1"
+      }
+    },
+    {
       "registrationNo": "3730",
       "canonicalRacerName": "塩崎 優司",
       "normalizedRacerName": "塩崎 優司",
@@ -8662,9 +9079,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福岡",
         "age": "52",
         "className": "B1"
@@ -9325,9 +9742,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "長崎",
         "age": "51",
         "className": "A2"
@@ -10789,9 +11206,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "三重",
         "age": "50",
         "className": "B1"
@@ -11565,6 +11982,56 @@
       ]
     },
     {
+      "registrationNo": "3878",
+      "canonicalRacerName": "胡本 悟志",
+      "normalizedRacerName": "胡本 悟志",
+      "nameVariants": [
+        "胡本 悟志"
+      ],
+      "appearanceCount": 2,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 2
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 2,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 11,
+          "boatNo": 6
+        },
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 4,
+          "boatNo": 4
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "山口",
+        "age": "49",
+        "className": "B1"
+      }
+    },
+    {
       "registrationNo": "3880",
       "canonicalRacerName": "浅見 宗孝",
       "normalizedRacerName": "浅見 宗孝",
@@ -11966,9 +12433,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "愛知",
         "age": "50",
         "className": "B2"
@@ -12362,9 +12829,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "長崎",
         "age": "48",
         "className": "B1"
@@ -12405,9 +12872,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "香川",
         "age": "48",
         "className": "B1"
@@ -12704,6 +13171,49 @@
           "boatNo": 6
         }
       ]
+    },
+    {
+      "registrationNo": "3918",
+      "canonicalRacerName": "深井 利寿",
+      "normalizedRacerName": "深井 利寿",
+      "nameVariants": [
+        "深井 利寿"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 8,
+          "boatNo": 2
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "滋賀",
+        "age": "52",
+        "className": "A1"
+      }
     },
     {
       "registrationNo": "3922",
@@ -13923,6 +14433,49 @@
       ]
     },
     {
+      "registrationNo": "3964",
+      "canonicalRacerName": "宮地 博士",
+      "normalizedRacerName": "宮地 博士",
+      "nameVariants": [
+        "宮地 博士"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 1,
+          "boatNo": 2
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "長崎",
+        "age": "47",
+        "className": "B1"
+      }
+    },
+    {
       "registrationNo": "3965",
       "canonicalRacerName": "北中 元樹",
       "normalizedRacerName": "北中 元樹",
@@ -14052,9 +14605,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "愛知",
         "age": "46",
         "className": "B1"
@@ -15316,9 +15869,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "山口",
         "age": "47",
         "className": "A2"
@@ -15427,9 +15980,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "岡山",
         "age": "46",
         "className": "A2"
@@ -17807,9 +18360,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "愛知",
         "age": "47",
         "className": "B1"
@@ -17850,9 +18403,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "大阪",
         "age": "47",
         "className": "B1"
@@ -18076,9 +18629,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "埼玉",
         "age": "45",
         "className": "B2"
@@ -18364,9 +18917,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "大阪",
         "age": "47",
         "className": "A2"
@@ -19472,6 +20025,56 @@
           "boatNo": 1
         }
       ]
+    },
+    {
+      "registrationNo": "4136",
+      "canonicalRacerName": "江夏 満",
+      "normalizedRacerName": "江夏 満",
+      "nameVariants": [
+        "江夏 満"
+      ],
+      "appearanceCount": 2,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "appearanceCount": 2
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 2,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 12,
+          "boatNo": 4
+        },
+        {
+          "date": "2026-08-31",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 4,
+          "boatNo": 3
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "福岡",
+        "age": "46",
+        "className": "A1"
+      }
     },
     {
       "registrationNo": "4137",
@@ -22514,9 +23117,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "長崎",
         "age": "41",
         "className": "A2"
@@ -23000,9 +23603,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "長崎",
         "age": "42",
         "className": "A2"
@@ -24707,9 +25310,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "大阪",
         "age": "42",
         "className": "A1"
@@ -26091,9 +26694,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "三重",
         "age": "42",
         "className": "B1"
@@ -26264,9 +26867,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福岡",
         "age": "41",
         "className": "A2"
@@ -26348,6 +26951,56 @@
       ]
     },
     {
+      "registrationNo": "4367",
+      "canonicalRacerName": "山口 修路",
+      "normalizedRacerName": "山口 修路",
+      "nameVariants": [
+        "山口 修路"
+      ],
+      "appearanceCount": 2,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "18",
+          "venueName": "徳山",
+          "appearanceCount": 2
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 2,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 1,
+          "boatNo": 3
+        },
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 10,
+          "boatNo": 5
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "福岡",
+        "age": "40",
+        "className": "B1"
+      }
+    },
+    {
       "registrationNo": "4369",
       "canonicalRacerName": "丹下 将",
       "normalizedRacerName": "丹下 将",
@@ -26389,9 +27042,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "愛知",
         "age": "40",
         "className": "A2"
@@ -26907,9 +27560,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "徳島",
         "age": "41",
         "className": "A2"
@@ -27507,9 +28160,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "東京",
         "age": "41",
         "className": "A2"
@@ -28230,9 +28883,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "東京",
         "age": "38",
         "className": "B1"
@@ -28877,9 +29530,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "大阪",
         "age": "40",
         "className": "A1"
@@ -29526,9 +30179,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福岡",
         "age": "38",
         "className": "A2"
@@ -30385,9 +31038,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "岡山",
         "age": "37",
         "className": "A1"
@@ -30428,9 +31081,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "愛知",
         "age": "37",
         "className": "A1"
@@ -31172,9 +31825,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福岡",
         "age": "37",
         "className": "B2"
@@ -31671,9 +32324,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "静岡",
         "age": "38",
         "className": "A1"
@@ -32013,9 +32666,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "埼玉",
         "age": "37",
         "className": "A1"
@@ -32443,9 +33096,59 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "福岡",
+        "age": "38",
+        "className": "A1"
+      }
+    },
+    {
+      "registrationNo": "4545",
+      "canonicalRacerName": "岡村 慶太",
+      "normalizedRacerName": "岡村 慶太",
+      "nameVariants": [
+        "岡村 慶太"
+      ],
+      "appearanceCount": 2,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "18",
+          "venueName": "徳山",
+          "appearanceCount": 2
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 2,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 2,
+          "boatNo": 4
+        },
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 8,
+          "boatNo": 2
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福岡",
         "age": "38",
         "className": "A1"
@@ -33471,9 +34174,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "大阪",
         "age": "38",
         "className": "B1"
@@ -34409,9 +35112,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "広島",
         "age": "41",
         "className": "A1"
@@ -34459,9 +35162,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "山口",
         "age": "41",
         "className": "A1"
@@ -34597,9 +35300,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福岡",
         "age": "37",
         "className": "A2"
@@ -34645,6 +35348,49 @@
           "boatNo": 5
         }
       ]
+    },
+    {
+      "registrationNo": "4610",
+      "canonicalRacerName": "佐藤 大佑",
+      "normalizedRacerName": "佐藤 大佑",
+      "nameVariants": [
+        "佐藤 大佑"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "18",
+          "venueName": "徳山",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 2,
+          "boatNo": 1
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "東京",
+        "age": "36",
+        "className": "A1"
+      }
     },
     {
       "registrationNo": "4611",
@@ -35075,9 +35821,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "愛知",
         "age": "40",
         "className": "B1"
@@ -35655,9 +36401,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "東京",
         "age": "47",
         "className": "A1"
@@ -37022,9 +37768,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "長崎",
         "age": "40",
         "className": "A2"
@@ -38290,9 +39036,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "長崎",
         "age": "41",
         "className": "B1"
@@ -38801,9 +39547,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "群馬",
         "age": "35",
         "className": "B1"
@@ -39517,6 +40263,49 @@
       ]
     },
     {
+      "registrationNo": "4794",
+      "canonicalRacerName": "和田 拓也",
+      "normalizedRacerName": "和田 拓也",
+      "nameVariants": [
+        "和田 拓也"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "18",
+          "venueName": "徳山",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 10,
+          "boatNo": 3
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "兵庫",
+        "age": "36",
+        "className": "A1"
+      }
+    },
+    {
       "registrationNo": "4796",
       "canonicalRacerName": "春園 功太",
       "normalizedRacerName": "春園 功太",
@@ -39599,9 +40388,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "三重",
         "age": "34",
         "className": "A1"
@@ -39894,9 +40683,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "徳島",
         "age": "36",
         "className": "A1"
@@ -40059,9 +40848,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "東京",
         "age": "35",
         "className": "B2"
@@ -40107,6 +40896,49 @@
           "boatNo": 5
         }
       ]
+    },
+    {
+      "registrationNo": "4821",
+      "canonicalRacerName": "妻鳥 晋也",
+      "normalizedRacerName": "妻鳥 晋也",
+      "nameVariants": [
+        "妻鳥 晋也"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "18",
+          "venueName": "徳山",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 11,
+          "boatNo": 1
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "香川",
+        "age": "34",
+        "className": "B1"
+      }
     },
     {
       "registrationNo": "4822",
@@ -40252,9 +41084,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "三重",
         "age": "33",
         "className": "A2"
@@ -40302,9 +41134,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "東京",
         "age": "32",
         "className": "A1"
@@ -41487,6 +42319,49 @@
       ]
     },
     {
+      "registrationNo": "4863",
+      "canonicalRacerName": "三浦 裕貴",
+      "normalizedRacerName": "三浦 裕貴",
+      "nameVariants": [
+        "三浦 裕貴"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "18",
+          "venueName": "徳山",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 10,
+          "boatNo": 1
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "東京",
+        "age": "37",
+        "className": "B1"
+      }
+    },
+    {
       "registrationNo": "4864",
       "canonicalRacerName": "小川 日紀太",
       "normalizedRacerName": "小川 日紀太",
@@ -41555,9 +42430,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福岡",
         "age": "36",
         "className": "B1"
@@ -42963,9 +43838,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "大阪",
         "age": "31",
         "className": "A1"
@@ -44142,6 +45017,56 @@
       ]
     },
     {
+      "registrationNo": "4951",
+      "canonicalRacerName": "新田 洋一",
+      "normalizedRacerName": "新田 洋一",
+      "nameVariants": [
+        "新田 洋一"
+      ],
+      "appearanceCount": 2,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "18",
+          "venueName": "徳山",
+          "appearanceCount": 2
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 2,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 10,
+          "boatNo": 4
+        },
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 5,
+          "boatNo": 6
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "広島",
+        "age": "32",
+        "className": "B1"
+      }
+    },
+    {
       "registrationNo": "4952",
       "canonicalRacerName": "吉武 真也",
       "normalizedRacerName": "吉武 真也",
@@ -44305,9 +45230,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福岡",
         "age": "31",
         "className": "B1"
@@ -44579,9 +45504,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "三重",
         "age": "30",
         "className": "A2"
@@ -44880,9 +45805,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "埼玉",
         "age": "34",
         "className": "B1"
@@ -44930,9 +45855,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "岡山",
         "age": "33",
         "className": "A2"
@@ -45873,9 +46798,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "山口",
         "age": "32",
         "className": "B1"
@@ -47103,9 +48028,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "大阪",
         "age": "28",
         "className": "B1"
@@ -47581,9 +48506,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "大阪",
         "age": "31",
         "className": "B1"
@@ -48613,9 +49538,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "静岡",
         "age": "28",
         "className": "B1"
@@ -48737,9 +49662,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "山口",
         "age": "27",
         "className": "B1"
@@ -49098,9 +50023,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福井",
         "age": "25",
         "className": "B1"
@@ -49431,6 +50356,49 @@
           "boatNo": 2
         }
       ]
+    },
+    {
+      "registrationNo": "5104",
+      "canonicalRacerName": "山田 丈",
+      "normalizedRacerName": "山田 丈",
+      "nameVariants": [
+        "山田 丈"
+      ],
+      "appearanceCount": 1,
+      "firstSeenDate": "2026-08-31",
+      "lastSeenDate": "2026-08-31",
+      "venues": [
+        {
+          "venueCode": "18",
+          "venueName": "徳山",
+          "appearanceCount": 1
+        }
+      ],
+      "sourceTypes": [
+        "official-current-day"
+      ],
+      "provenanceCount": 1,
+      "evidenceDates": [
+        "2026-08-31"
+      ],
+      "raceContexts": [
+        {
+          "date": "2026-08-31",
+          "venueCode": "18",
+          "venueName": "徳山",
+          "raceNo": 8,
+          "boatNo": 5
+        }
+      ],
+      "currentDayProvenance": {
+        "sourcePath": "public/data/boatrace/today-race-details.generated.json",
+        "sourceName": "official:owpc-html+odds",
+        "sourceType": "official-current-day",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
+        "branch": "福岡",
+        "age": "27",
+        "className": "A2"
+      }
     },
     {
       "registrationNo": "5105",
@@ -53313,9 +54281,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "岡山",
         "age": "29",
         "className": "B1"
@@ -53356,9 +54324,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福岡",
         "age": "29",
         "className": "B1"
@@ -56827,9 +57795,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "愛知",
         "age": "24",
         "className": "B1"
@@ -57345,9 +58313,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "山口",
         "age": "28",
         "className": "B1"
@@ -58958,9 +59926,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "滋賀",
         "age": "22",
         "className": "B1"
@@ -60628,9 +61596,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "山口",
         "age": "24",
         "className": "B2"
@@ -61322,9 +62290,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "佐賀",
         "age": "20",
         "className": "B1"
@@ -61800,9 +62768,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "東京",
         "age": "21",
         "className": "B2"
@@ -62557,9 +63525,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds+venue-weather",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福岡",
         "age": "20",
         "className": "B2"
@@ -62600,9 +63568,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "山口",
         "age": "20",
         "className": "B2"
@@ -62827,9 +63795,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "福井",
         "age": "19",
         "className": "B2"
@@ -62870,9 +63838,9 @@
       ],
       "currentDayProvenance": {
         "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-        "sourceName": "official:owpc-html",
+        "sourceName": "official:owpc-html+odds",
         "sourceType": "official-current-day",
-        "sourceFetchedAt": "2026-08-31T03:34:45+09:00",
+        "sourceFetchedAt": "2026-08-31T08:00:42+09:00",
         "branch": "大阪",
         "age": "19",
         "className": "B2"
