@@ -6,8 +6,10 @@ import {
   buildBoatMobileAutoResultRecords,
   buildBoatMobileHitLog,
   buildBoatMobileTodaySummary,
+  getBoatMobileFirstRaceTime,
   isSameBoatMobileRace,
   mergeBoatMobilePredictionSources,
+  resolveBoatMobileVenueSession,
   sortBoatMobileVenues,
   type BoatMobileAutoResultRecord,
 } from "../lib/boatMobileResultAggregation";
@@ -20,6 +22,8 @@ type AnyRecord = Record<string, unknown>;
 type MobileVenue = {
   venueName: string;
   venueCode: string;
+  session?: string;
+  timeBand?: string;
   races: AnyRecord[];
 };
 
@@ -70,6 +74,7 @@ type MobileEntry = {
 };
 
 type MobileTab = "entry" | "prediction" | "result" | "info";
+type MobileNavTarget = "summary" | "hit" | "venues" | "race";
 
 const TODAY_DETAILS_URL = withBasePath("data/boatrace/today-race-details.generated.json");
 const TODAY_FALLBACK_URL = withBasePath("data/boatrace/today.generated.json");
@@ -221,6 +226,8 @@ const parseFeed = (payload: unknown): MobileFeed | null => {
   const venues = asArray<AnyRecord>(root.venues).map((venue) => ({
     venueName: readString(venue.venueName) || readString(venue.venue) || readString(venue.name) || "会場未取得",
     venueCode: readString(venue.venueCode) || readString(venue.code),
+    session: readString(venue.session),
+    timeBand: readString(venue.timeBand),
     races: asArray<AnyRecord>(venue.races),
   }));
 
@@ -520,20 +527,20 @@ function FrameBadge({ frame }: { frame: number }) {
   );
 }
 
-function MobileBottomNav({ activeTab, onTab }: { activeTab: MobileTab; onTab: (tab: MobileTab) => void }) {
-  const tabs: Array<{ key: MobileTab; label: string }> = [
-    { key: "entry", label: "出走" },
-    { key: "prediction", label: "予想" },
-    { key: "result", label: "結果" },
-    { key: "info", label: "情報" },
+function MobileBottomNav({ activeTarget, onNavigate }: { activeTarget: MobileNavTarget; onNavigate: (target: MobileNavTarget) => void }) {
+  const tabs: Array<{ key: MobileNavTarget; label: string }> = [
+    { key: "summary", label: "Summary" },
+    { key: "hit", label: "Hit" },
+    { key: "venues", label: "Venues" },
+    { key: "race", label: "Race" },
   ];
 
   return (
     <nav style={{ position: "fixed", left: "50%", bottom: "calc(10px + env(safe-area-inset-bottom))", transform: "translateX(-50%)", width: "min(calc(100% - 20px), 410px)", borderRadius: "999px", border: "1px solid rgba(125, 211, 252, 0.58)", background: "rgba(255,255,255,0.92)", boxShadow: "0 18px 46px rgba(8,47,73,0.20)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: "7px", display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: "6px", boxSizing: "border-box", zIndex: 50 }}>
       {tabs.map((tab) => {
-        const active = tab.key === activeTab;
+        const active = tab.key === activeTarget;
         return (
-          <button key={tab.key} type="button" onClick={() => onTab(tab.key)} style={{ border: active ? "1px solid rgba(255,255,255,0.56)" : "1px solid rgba(203,213,225,0.64)", background: active ? "linear-gradient(135deg, #082f49, #0e7490)" : "rgba(255,255,255,0.78)", color: active ? "#ffffff" : "#0f2743", minHeight: "42px", borderRadius: "999px", fontSize: "11px", fontWeight: 950, cursor: "pointer", fontFamily: "inherit" }}>
+          <button key={tab.key} type="button" onClick={() => onNavigate(tab.key)} style={{ border: active ? "1px solid rgba(255,255,255,0.56)" : "1px solid rgba(203,213,225,0.64)", background: active ? "linear-gradient(135deg, #082f49, #0e7490)" : "rgba(255,255,255,0.78)", color: active ? "#ffffff" : "#0f2743", minHeight: "42px", borderRadius: "999px", fontSize: "11px", fontWeight: 950, cursor: "pointer", fontFamily: "inherit" }}>
             {tab.label}
           </button>
         );
@@ -541,6 +548,19 @@ function MobileBottomNav({ activeTab, onTab }: { activeTab: MobileTab; onTab: (t
     </nav>
   );
 }
+
+const formatVenueSessionLabel = (venue: MobileVenue): string => {
+  const session = resolveBoatMobileVenueSession(venue);
+  if (session === "morning") return "モーニング";
+  if (session === "day") return "デイ";
+  if (session === "night") return "ナイター";
+  return "時間帯未取得";
+};
+
+const formatVenueFirstRaceTime = (venue: MobileVenue): string => {
+  const firstRaceTime = getBoatMobileFirstRaceTime(venue);
+  return firstRaceTime ? `${firstRaceTime}開始` : "初回発走未取得";
+};
 
 const getVenueSelectionKey = (venue: MobileVenue): string =>
   venue.venueCode ? `code:${venue.venueCode}` : `name:${normalizeVenue(venue.venueName)}`;
@@ -563,6 +583,7 @@ export function MobilePage() {
   const [selectedVenueKey, setSelectedVenueKey] = useState<string | null>(null);
   const [selectedRaceNo, setSelectedRaceNo] = useState(1);
   const [activeTab, setActiveTab] = useState<MobileTab>("entry");
+  const [activeMobileSection, setActiveMobileSection] = useState<MobileNavTarget>("summary");
 
   useEffect(() => {
     let mounted = true;
@@ -615,6 +636,20 @@ export function MobilePage() {
     () => mergeBoatMobilePredictionSources(publicJohnsonRecords, johnsonRecords, predictionRecords, practiceRecords),
     [publicJohnsonRecords, johnsonRecords, predictionRecords, practiceRecords],
   );
+  const aggregationPredictionRecords = useMemo(
+    () => prioritizedPredictionRecords.map((record) => {
+      const structuredTickets = asArray(record.parsedBets ?? record.tickets);
+      if (structuredTickets.length > 0) return record;
+      const parsed = parseBoatBets(readString(record.predictionText ?? record.johnsonText));
+      if (parsed.bets.length === 0) return record;
+      return {
+        ...record,
+        parsedBets: parsed.bets,
+        totalStakeYen: record.totalStakeYen ?? parsed.totalStakeYen,
+      };
+    }),
+    [prioritizedPredictionRecords],
+  );
   const extraVenue = useMemo(() => findExtraVenue(extraVenues, selectedVenue), [extraVenues, selectedVenue]);
   const extraRace = useMemo(() => findExtraRace(extraVenue, selectedRaceNumber), [extraVenue, selectedRaceNumber]);
   const currentDate = feed?.date ?? getBoatOperationDate();
@@ -640,10 +675,10 @@ export function MobilePage() {
   const autoResultRecords = useMemo(
     () => buildBoatMobileAutoResultRecords(
       { date: currentDate, venues },
-      prioritizedPredictionRecords,
+      aggregationPredictionRecords,
       practiceRecords,
     ),
-    [currentDate, venues, prioritizedPredictionRecords, practiceRecords],
+    [currentDate, venues, aggregationPredictionRecords, practiceRecords],
   );
 
   const daySummary = useMemo(
@@ -703,9 +738,17 @@ export function MobilePage() {
     [autoResultRecords, currentDate],
   );
 
-  const scrollToCurrentTab = (tab: MobileTab) => {
-    setActiveTab(tab);
-    window.setTimeout(() => document.getElementById("mobile-race-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }), 40);
+  const navigateMobileSection = (target: MobileNavTarget) => {
+    setActiveMobileSection(target);
+    if (target === "venues") setSelectedVenueKey(null);
+    const targetId = target === "summary"
+      ? "mobile-summary"
+      : target === "hit"
+        ? "mobile-hit-log"
+        : target === "venues" || !selectedVenue
+          ? "mobile-today-races"
+          : "mobile-race-panel";
+    window.setTimeout(() => document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" }), 40);
   };
 
   return (
@@ -719,29 +762,26 @@ export function MobilePage() {
           <span style={{ borderRadius: "999px", padding: "7px 10px", background: "#083344", color: "#ffffff", fontSize: "11px", fontWeight: 950 }}>{currentDate}</span>
         </header>
 
-        <section style={{ ...cardStyle, background: "linear-gradient(135deg, #052e46 0%, #075985 46%, #10b981 100%)", border: "1px solid rgba(255,255,255,0.32)", padding: "18px", color: "#ffffff" }}>
+        <section id="mobile-summary" style={{ ...cardStyle, background: "linear-gradient(135deg, #052e46 0%, #075985 46%, #10b981 100%)", border: "1px solid rgba(255,255,255,0.32)", padding: "18px", color: "#ffffff", scrollMarginTop: "74px" }}>
           <p style={{ ...miniLabelStyle, color: "#a7f3d0" }}>TODAY BALANCE</p>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: "12px", marginTop: "8px" }}>
-            <div>
-              <div style={{ fontSize: "15px", fontWeight: 800, opacity: 0.9 }}>今日の収支</div>
-              <div style={{ marginTop: "5px", fontSize: "34px", lineHeight: 1, fontWeight: 950, letterSpacing: "-0.05em" }}>{formatYen(daySummary.profit, true)}</div>
-            </div>
-            <div style={{ textAlign: "right", fontSize: "11px", fontWeight: 900, lineHeight: 1.7, opacity: 0.92 }}>
-              <div>的中 {daySummary.hitCount}/{daySummary.settledPredictionRaceCount}</div>
-              <div>ROI {formatPercent(daySummary.roi)}</div>
-            </div>
-          </div>
-          <div style={{ marginTop: "14px", display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: "8px" }}>
-            <StatBox label="実績投資" value={formatYen(daySummary.investment)} />
-            <StatBox label="実績払戻" value={formatYen(daySummary.payout)} tone="hit" />
-            <StatBox label="保存予想" value={`${daySummary.savedRaceCount}R`} />
-            <StatBox label="公式結果" value={`${daySummary.officialResultCount}R`} />
-            <StatBox label="照合済み" value={`${daySummary.settledPredictionRaceCount}R`} />
+          <h2 style={{ margin: "4px 0 0", fontSize: "19px", fontWeight: 950 }}>本日サマリー</h2>
+          <div style={{ marginTop: "14px", display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: "8px" }}>
             <StatBox label="開催" value={`${venues.length}場`} />
+            <StatBox label="総レース" value={`${daySummary.officialRaceCount}R`} />
+            <StatBox label="結果" value={`${daySummary.officialResultCount}R`} />
+            <StatBox label="保存予想" value={`${daySummary.savedRaceCount}R`} />
+            <StatBox label="的中" value={`${daySummary.hitCount}R`} tone="hit" />
+            <StatBox label="収支" value={formatYen(daySummary.profit, true)} tone={(daySummary.profit ?? 0) > 0 ? "plus" : (daySummary.profit ?? 0) < 0 ? "minus" : "default"} />
+            <StatBox label="的中率" value={formatPercent(daySummary.hitRate)} />
+            <StatBox label="回収率" value={formatPercent(daySummary.roi)} />
+          </div>
+          <div style={{ marginTop: "10px", display: "flex", justifyContent: "space-between", gap: "12px", color: "rgba(255,255,255,0.88)", fontSize: "10px", fontWeight: 850 }}>
+            <span>実績投資 {formatYen(daySummary.investment)}</span>
+            <span>実績払戻 {formatYen(daySummary.payout)}</span>
           </div>
         </section>
 
-        <section style={{ ...cardStyle, padding: "14px" }}>
+        <section id="mobile-hit-log" style={{ ...cardStyle, padding: "14px", scrollMarginTop: "74px" }}>
           <p style={miniLabelStyle}>HIT LOG</p>
           <h2 style={{ ...titleStyle, fontSize: "18px", marginTop: "4px" }}>的中ログ</h2>
           <div style={{ marginTop: "12px", borderRadius: "18px", background: "linear-gradient(90deg, #083344, #0f766e)", color: "#ffffff", overflow: "hidden", padding: "12px 0" }}>
@@ -753,20 +793,28 @@ export function MobilePage() {
           </div>
         </section>
 
-        <section style={{ ...cardStyle, padding: "14px" }}>
+        <section id="mobile-today-races" style={{ ...cardStyle, padding: "14px", scrollMarginTop: "74px" }}>
           <p style={miniLabelStyle}>TODAY VENUES</p>
           <h2 style={{ ...titleStyle, fontSize: "18px", marginTop: "4px" }}>本日開催</h2>
           <div style={{ marginTop: "12px", display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: "9px" }}>
             {selectedVenue ? (
-              <button type="button" onClick={() => setSelectedVenueKey(null)} style={{ gridColumn: "1 / -1", minHeight: "46px", borderRadius: "16px", border: "1px solid rgba(125,211,252,0.58)", background: "#ffffff", color: "#075985", fontSize: "12px", fontWeight: 950, cursor: "pointer", fontFamily: "inherit" }}>
-                会場一覧へ戻る
-              </button>
+              <div style={{ gridColumn: "1 / -1", display: "grid", gap: "10px" }}>
+                <button type="button" onClick={() => setSelectedVenueKey(null)} style={{ minHeight: "46px", borderRadius: "16px", border: "1px solid rgba(125,211,252,0.58)", background: "#ffffff", color: "#075985", fontSize: "12px", fontWeight: 950, cursor: "pointer", fontFamily: "inherit" }}>
+                  ← 会場一覧
+                </button>
+                <div style={{ borderRadius: "18px", border: "1px solid rgba(125,211,252,0.48)", background: "linear-gradient(135deg, #f0faff, #ffffff)", padding: "12px" }}>
+                  <strong style={{ display: "block", color: "#0f2743", fontSize: "17px", fontWeight: 950 }}>{selectedVenue.venueName}</strong>
+                  <span style={{ display: "block", marginTop: "4px", color: "#075985", fontSize: "11px", fontWeight: 900 }}>{formatVenueSessionLabel(selectedVenue)} / {formatVenueFirstRaceTime(selectedVenue)}</span>
+                  <span style={{ display: "block", marginTop: "6px", color: "#64748b", fontSize: "10px", fontWeight: 850 }}>{selectedVenue.races.length}R / 予想{venueSummaries[venues.indexOf(selectedVenue)]?.savedRaceCount ?? 0}R / 結果{venueSummaries[venues.indexOf(selectedVenue)]?.officialResultCount ?? 0}R</span>
+                </div>
+              </div>
             ) : venues.length > 0 ? venues.map((venue, index) => {
               const summary = venueSummaries[index];
               return (
                 <button key={getVenueSelectionKey(venue)} type="button" onClick={() => { setSelectedVenueKey(getVenueSelectionKey(venue)); setSelectedRaceNo(getRaceNo(venue.races[0] ?? { raceNo: 1 }) || 1); setActiveTab("entry"); }} style={{ minHeight: "76px", borderRadius: "20px", border: "1px solid rgba(125,211,252,0.58)", background: "linear-gradient(180deg, #ffffff, #f0faff)", color: "#0f2743", boxShadow: "0 8px 18px rgba(14,116,144,0.08)", padding: "10px", display: "grid", gap: "5px", textAlign: "left", cursor: "pointer", fontFamily: "inherit" }}>
                   <strong style={{ fontSize: "14px", fontWeight: 950 }}>{venue.venueName}</strong>
-                  <span style={{ fontSize: "10px", fontWeight: 850, opacity: 0.86 }}>{venue.races.length}R / 予想{summary?.savedRaceCount ?? 0} / 結果{summary?.officialResultCount ?? 0}</span>
+                  <span style={{ color: "#075985", fontSize: "10px", fontWeight: 900 }}>{formatVenueSessionLabel(venue)} / {formatVenueFirstRaceTime(venue)}</span>
+                  <span style={{ fontSize: "10px", fontWeight: 850, opacity: 0.86 }}>{venue.races.length}R / 予想{summary?.savedRaceCount ?? 0}R / 結果{summary?.officialResultCount ?? 0}R</span>
                 </button>
               );
             }) : <p style={{ ...mutedStyle, gridColumn: "1 / -1" }}>今日の開催データを取得中です。</p>}
@@ -794,7 +842,7 @@ export function MobilePage() {
           </div>
         </section>
 
-        <section id="mobile-race-panel" style={cardStyle}>
+        <section id="mobile-race-panel" style={{ ...cardStyle, scrollMarginTop: "74px" }}>
           <div style={{ padding: "15px", display: "grid", gap: "10px", background: "linear-gradient(180deg, #ffffff, #f5fcff)" }}>
             <p style={miniLabelStyle}>RACE DETAIL</p>
             <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", gap: "10px" }}>
@@ -909,7 +957,7 @@ export function MobilePage() {
           </>
         )}
       </div>
-      <MobileBottomNav activeTab={activeTab} onTab={scrollToCurrentTab} />
+      <MobileBottomNav activeTarget={activeMobileSection} onNavigate={navigateMobileSection} />
     </main>
   );
 }

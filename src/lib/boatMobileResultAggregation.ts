@@ -13,6 +13,8 @@ export type BoatMobileVenue = {
   venueName: string;
   venueCode?: string;
   date?: string;
+  session?: string;
+  timeBand?: string;
   races: Array<Record<string, unknown>>;
 };
 
@@ -36,6 +38,8 @@ export type BoatMobileAutoResultRecord = {
   finishOrder: string;
   hitBetType?: string;
   hitBetNumbers?: string;
+  resultTimestamp?: string;
+  raceTime?: string;
   investment?: number;
   payout?: number;
   profit?: number;
@@ -43,6 +47,7 @@ export type BoatMobileAutoResultRecord = {
 };
 
 export type BoatMobileTodaySummary = {
+  officialRaceCount: number;
   savedRaceCount: number;
   officialResultCount: number;
   settledPredictionRaceCount: number;
@@ -80,10 +85,46 @@ const normalizeVenueCode = (value: unknown): string => {
   return /^\d+$/.test(text) ? text.padStart(2, "0") : text;
 };
 
+export type BoatMobileVenueSession = "morning" | "day" | "night" | "unknown";
+
+const normalizeVenueSession = (value: unknown): BoatMobileVenueSession => {
+  const text = readText(value).normalize("NFKC").toLowerCase();
+  if (text === "morning" || text.includes("モーニング")) return "morning";
+  if (text === "day" || text === "デイ" || text.includes("デイ開催")) return "day";
+  if (text === "night" || text.includes("ナイター") || text.includes("ミッドナイト")) return "night";
+  return "unknown";
+};
+
 const normalizeRaceNo = (value: unknown): number => {
   const match = readText(value).match(/\d+/);
   return match ? Number(match[0]) : 0;
 };
+
+const getFirstRace = (venue: BoatMobileVenue): Record<string, unknown> | undefined =>
+  [...venue.races].sort((left, right) =>
+    normalizeRaceNo(left.raceNo ?? left.raceNumber ?? left.number) -
+    normalizeRaceNo(right.raceNo ?? right.raceNumber ?? right.number)
+  )[0];
+
+export const resolveBoatMobileVenueSession = (venue: BoatMobileVenue): BoatMobileVenueSession => {
+  const firstRace = getFirstRace(venue);
+  for (const value of [venue.session, venue.timeBand, firstRace?.session, firstRace?.timeBand]) {
+    const session = normalizeVenueSession(value);
+    if (session !== "unknown") return session;
+  }
+  return "unknown";
+};
+
+const readRaceTime = (race: Record<string, unknown> | undefined): string => {
+  if (!race) return "";
+  for (const value of [race.deadlineTime, race.deadline, race.closeTime, race.startTime, race.time]) {
+    const text = readText(value);
+    if (/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(text)) return text;
+  }
+  return "";
+};
+
+export const getBoatMobileFirstRaceTime = (venue: BoatMobileVenue): string => readRaceTime(getFirstRace(venue));
 
 const normalizeCombination = (value: unknown): string =>
   readText(value)
@@ -216,14 +257,7 @@ const readPredictionTickets = (prediction: BoatMobileRecord | undefined): Parsed
       return { type, combination, amount: readOptionalNumber(ticket.amountYen ?? ticket.amount ?? ticket.stake) ?? 100 };
     })
     .filter((ticket): ticket is ParsedTicket => ticket !== null);
-  if (structured.length > 0) return structured;
-
-  const text = readText(prediction.predictionText ?? prediction.johnsonText);
-  return Array.from(text.matchAll(/(?:^|\s)([1-6])\s*[-=]\s*([1-6])\s*[-=]\s*([1-6])(?:\s|$)/gm)).map((match) => ({
-    type: "trifecta" as const,
-    combination: `${match[1]}-${match[2]}-${match[3]}`,
-    amount: 100,
-  }));
+  return structured;
 };
 
 const hasPracticeHit = (practice: BoatMobileRecord | undefined): boolean => Boolean(
@@ -243,6 +277,14 @@ const buildRaceRecord = (
 ): BoatMobileAutoResultRecord => {
   const confirmed = race ? isRaceConfirmed(race) : false;
   const finishOrder = race ? readFinishOrder(race) : "";
+  const officialResult = asRecord(race?.result);
+  const resultTimestamp = readText(
+    officialResult.finalizedAt ??
+    officialResult.updatedAt ??
+    race?.resultFinalizedAt ??
+    race?.updatedAt,
+  );
+  const raceTime = readRaceTime(race);
   const tickets = readPredictionTickets(prediction);
   const plannedInvestment = readOptionalNumber(prediction?.totalStakeYen) ??
     (tickets.length > 0 ? tickets.reduce((sum, ticket) => sum + ticket.amount, 0) : undefined);
@@ -286,6 +328,8 @@ const buildRaceRecord = (
     finishOrder,
     hitBetType: hitTicket?.type === "exacta" ? "2連単" : hitTicket ? "3連単" : readText(practice?.hitBetType) || undefined,
     hitBetNumbers: hitTicket?.combination || readText(practice?.hitBetNumbers) || undefined,
+    resultTimestamp: resultTimestamp || undefined,
+    raceTime: raceTime || undefined,
     investment,
     payout,
     profit,
@@ -334,6 +378,7 @@ export const buildBoatMobileTodaySummary = (
   date: string,
 ): BoatMobileTodaySummary => {
   const dayRecords = records.filter((record) => record.date === date);
+  const officialRaces = dayRecords.filter((record) => record.hasOfficialRace);
   const saved = dayRecords.filter((record) => record.hasPrediction);
   const officialResults = dayRecords.filter((record) => record.hasOfficialRace && record.isRaceConfirmed);
   const settled = dayRecords.filter((record) => record.isSettledPrediction);
@@ -349,6 +394,7 @@ export const buildBoatMobileTodaySummary = (
   const profit = investment !== undefined && payout !== undefined ? payout - investment : undefined;
 
   return {
+    officialRaceCount: officialRaces.length,
     savedRaceCount: saved.length,
     officialResultCount: officialResults.length,
     settledPredictionRaceCount: settled.length,
@@ -362,19 +408,74 @@ export const buildBoatMobileTodaySummary = (
 };
 
 export const buildBoatMobileHitLog = (records: BoatMobileAutoResultRecord[], date: string) => {
-  const unique = new Map<string, BoatMobileAutoResultRecord>();
-  for (const record of records) {
-    if (record.date === date && record.isSettledPrediction && record.isHit && !unique.has(record.key)) {
-      unique.set(record.key, record);
+  const getSortTime = (record: BoatMobileAutoResultRecord): number | undefined => {
+    if (record.resultTimestamp) {
+      const timestamp = Date.parse(record.resultTimestamp);
+      if (Number.isFinite(timestamp)) return timestamp;
     }
+    if (record.raceTime) {
+      const timestamp = Date.parse(`${record.date}T${record.raceTime}:00+09:00`);
+      if (Number.isFinite(timestamp)) return timestamp;
+    }
+    return undefined;
+  };
+  const hits = records
+    .filter((record) => record.date === date && record.isSettledPrediction && record.isHit)
+    .sort((left, right) => {
+      const leftTime = getSortTime(left);
+      const rightTime = getSortTime(right);
+      if (leftTime !== undefined || rightTime !== undefined) {
+        if (leftTime === undefined) return 1;
+        if (rightTime === undefined) return -1;
+        if (leftTime !== rightTime) return rightTime - leftTime;
+      }
+      if (left.raceNo !== right.raceNo) return right.raceNo - left.raceNo;
+      return normalizeVenueCode(left.venueCode).localeCompare(normalizeVenueCode(right.venueCode), "ja", { numeric: true });
+    });
+  const unique = new Map<string, BoatMobileAutoResultRecord>();
+  for (const record of hits) {
+    if (!unique.has(record.key)) unique.set(record.key, record);
   }
-  return Array.from(unique.values()).sort((a, b) => a.raceNo - b.raceNo);
+  return Array.from(unique.values());
+};
+
+const sessionOrder: Record<BoatMobileVenueSession, number> = {
+  morning: 0,
+  day: 1,
+  night: 2,
+  unknown: 3,
+};
+
+const timeToMinutes = (value: string): number | undefined => {
+  const match = value.match(/^(\d{2}):(\d{2})$/);
+  return match ? Number(match[1]) * 60 + Number(match[2]) : undefined;
+};
+
+const resolveVenueSortSession = (venue: BoatMobileVenue): BoatMobileVenueSession => {
+  const sourceSession = resolveBoatMobileVenueSession(venue);
+  if (sourceSession !== "unknown") return sourceSession;
+  const minutes = timeToMinutes(getBoatMobileFirstRaceTime(venue));
+  if (minutes === undefined) return "unknown";
+  if (minutes < 10 * 60) return "morning";
+  if (minutes >= 14 * 60) return "night";
+  return "day";
 };
 
 export const sortBoatMobileVenues = <T extends BoatMobileVenue>(venues: T[]): T[] =>
-  [...venues].sort((left, right) => {
-    const leftCode = normalizeVenueCode(left.venueCode);
-    const rightCode = normalizeVenueCode(right.venueCode);
-    if (leftCode && rightCode && leftCode !== rightCode) return leftCode.localeCompare(rightCode, "ja", { numeric: true });
-    return left.venueName.localeCompare(right.venueName, "ja");
-  });
+  venues
+    .map((venue, index) => ({ venue, index }))
+    .sort((leftItem, rightItem) => {
+      const left = leftItem.venue;
+      const right = rightItem.venue;
+      const sessionDiff = sessionOrder[resolveVenueSortSession(left)] - sessionOrder[resolveVenueSortSession(right)];
+      if (sessionDiff !== 0) return sessionDiff;
+      const leftMinutes = timeToMinutes(getBoatMobileFirstRaceTime(left)) ?? Number.POSITIVE_INFINITY;
+      const rightMinutes = timeToMinutes(getBoatMobileFirstRaceTime(right)) ?? Number.POSITIVE_INFINITY;
+      if (leftMinutes !== rightMinutes) return leftMinutes - rightMinutes;
+      const leftCode = normalizeVenueCode(left.venueCode);
+      const rightCode = normalizeVenueCode(right.venueCode);
+      if (leftCode && rightCode && leftCode !== rightCode) return leftCode.localeCompare(rightCode, "ja", { numeric: true });
+      const nameDiff = left.venueName.localeCompare(right.venueName, "ja");
+      return nameDiff !== 0 ? nameDiff : leftItem.index - rightItem.index;
+    })
+    .map(({ venue }) => venue);
