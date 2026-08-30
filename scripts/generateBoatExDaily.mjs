@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { evaluateBoatExCurrentDayHistoryRefresh } from "./boatExCurrentDayHistoryLifecycle.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -245,13 +246,22 @@ function main() {
 	const warnings = [...resolved.warnings];
 	const date = resolved.date;
 	const historyPath = `public/data/boatrace-ex/history/races/${date}.json`;
+	const existingHistory = readJsonIfExists(historyPath);
+	const hadExistingHistory = Boolean(existingHistory);
+	const currentOfficialSource = readJsonIfExists("public/data/boatrace/today-race-details.generated.json");
+	const lifecycleRefresh = evaluateBoatExCurrentDayHistoryRefresh({
+		targetDate: date,
+		existingHistory,
+		currentOfficialSource,
+	});
+	const shouldRefreshHistory = args.refreshHistory || lifecycleRefresh.shouldRefresh;
 
 	if (args.allowEmpty) {
 		warnings.push("--allow-empty is for explicit empty-output testing and is not recommended for normal daily EX runs.");
 	}
 
 	let history;
-	if (historyExists(date) && !args.refreshHistory) {
+	if (historyExists(date) && !shouldRefreshHistory) {
 		runNode("scripts/checkBoatExHistory.mjs", ["--date", date, ...(args.allowEmpty ? ["--allow-empty"] : [])]);
 		history = summarizeHistory(date, "existing");
 	} else {
@@ -290,8 +300,14 @@ function main() {
 		}
 		runGenerationStep("scripts/generateBoatExHistory.mjs", date, args);
 		if (!args.dryRun) runNode("scripts/checkBoatExHistory.mjs", ["--date", date, ...(args.allowEmpty ? ["--allow-empty"] : [])]);
-		history = args.dryRun && !historyExists(date) ? { status: "dry-run-missing", records: null, venues: null } : summarizeHistory(date, args.refreshHistory ? "refreshed" : "generated");
+		const status = hadExistingHistory
+			? args.refreshHistory
+				? "refreshed-explicit"
+				: "refreshed-lifecycle"
+			: "generated";
+		history = args.dryRun && !hadExistingHistory ? { status: "dry-run-missing", records: null, venues: null } : summarizeHistory(date, status);
 	}
+	history.lifecycleRefresh = lifecycleRefresh;
 
 	const venueGenerated = runGenerationStep("scripts/generateBoatExVenueEvidence.mjs", date, args);
 	const venueChecked = args.dryRun
