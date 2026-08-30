@@ -2,6 +2,15 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { parseBoatBets, type ParsedBoatBet } from "../lib/boatBetParser";
 import { withBasePath } from "../lib/assetPath";
 import { BOAT_JOHNSON_PREDICTION_STORAGE_KEY } from "../lib/boatJohnsonPredictionStorage";
+import {
+  buildBoatMobileAutoResultRecords,
+  buildBoatMobileHitLog,
+  buildBoatMobileTodaySummary,
+  isSameBoatMobileRace,
+  mergeBoatMobilePredictionSources,
+  sortBoatMobileVenues,
+  type BoatMobileAutoResultRecord,
+} from "../lib/boatMobileResultAggregation";
 import { getBoatOperationDate } from "../lib/boatOperationDate";
 
 const MOBILE_PAGE_BACKGROUND_URL = withBasePath("mobile-page/backgrounds/mobile-page-bg-water-sky.png");
@@ -24,7 +33,7 @@ type MobilePredictionRecord = AnyRecord & {
   date?: string;
   venueName?: string;
   venueCode?: string;
-  raceNo?: number;
+  raceNo?: number | string;
   predictionText?: string;
   sourceType?: "public-johnson" | "johnson" | "prediction" | "practice";
 };
@@ -33,7 +42,7 @@ type MobilePracticeRecord = AnyRecord & {
   date?: string;
   venueName?: string;
   venueCode?: string;
-  raceNo?: number;
+  raceNo?: number | string;
   payoutYen?: number | string;
   totalStakeYen?: number | string;
   profitYen?: number | string;
@@ -66,6 +75,7 @@ const TODAY_DETAILS_URL = withBasePath("data/boatrace/today-race-details.generat
 const TODAY_FALLBACK_URL = withBasePath("data/boatrace/today.generated.json");
 const VENUE_EXTRAS_URL = withBasePath("data/boatrace/venue-extras.generated.json");
 const PUBLIC_JOHNSON_PREDICTIONS_URL = withBasePath("data/boatrace/johnson-predictions.generated.json");
+const MOBILE_REMOTE_REFRESH_INTERVAL_MS = 60_000;
 const JOHNSON_STORAGE_KEY = BOAT_JOHNSON_PREDICTION_STORAGE_KEY;
 const PREDICTION_STORAGE_KEY = "kurari-boat-data-labo-prediction-records";
 const PRACTICE_STORAGE_KEY = "kurari-boat-data-labo-practice-results";
@@ -154,6 +164,13 @@ const readNumber = (value: unknown): number => {
   return 0;
 };
 
+const readOptionalNumber = (value: unknown): number | undefined => {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value !== "string" || !value.trim()) return undefined;
+  const parsed = Number(value.replace(/[,+円%\s]/g, ""));
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
 const asRecord = (value: unknown): AnyRecord => (value && typeof value === "object" ? (value as AnyRecord) : {});
 
 const asArray = <T,>(value: unknown): T[] => {
@@ -169,14 +186,16 @@ const normalizeVenue = (value: unknown): string =>
     .replace(/[\s　]/g, "");
 
 const formatYen = (value: unknown, signed = false): string => {
-  const amount = readNumber(value);
+  const amount = readOptionalNumber(value);
+  if (amount === undefined) return "—";
   if (!signed) return `${amount.toLocaleString("ja-JP")}円`;
   if (amount === 0) return "0円";
   return `${amount > 0 ? "+" : "-"}${Math.abs(amount).toLocaleString("ja-JP")}円`;
 };
 
 const formatPercent = (value: unknown): string => {
-  const amount = readNumber(value);
+  const amount = readOptionalNumber(value);
+  if (amount === undefined) return "—";
   return `${amount.toFixed(1)}%`;
 };
 
@@ -265,64 +284,6 @@ const loadPracticeRecords = (): MobilePracticeRecord[] => {
   } catch {
     return [];
   }
-};
-
-const buildPredictionSourceKey = (record: { date?: string; venueName?: string; venueCode?: string; raceNo?: number }): string =>
-  [
-    readString(record.date),
-    readString(record.venueCode) || normalizeVenue(record.venueName),
-    String(readNumber(record.raceNo)),
-  ].join(":");
-
-const buildPracticePredictionFallbacks = (records: MobilePracticeRecord[]): MobilePredictionRecord[] =>
-  records.map((record) => {
-    const hitBetType = readString(record.hitBetType) || "保存済み実践";
-    const hitBetNumbers = normalizeCombo(record.hitBetNumbers);
-    const finishOrder = normalizeCombo(record.finishOrder ?? record.actualOrder);
-    const lines = [
-      hitBetNumbers ? `${hitBetType} ${hitBetNumbers}` : hitBetType,
-      finishOrder ? `結果 ${finishOrder}` : "",
-      readString(record.practiceMemo ?? record.memo),
-    ].filter(Boolean);
-
-    return {
-      ...record,
-      predictionText: lines.join("\n"),
-      sourceType: "practice",
-    };
-  });
-
-const mergePredictionSources = (
-  publicJohnsonRecords: MobilePredictionRecord[],
-  johnsonRecords: MobilePredictionRecord[],
-  predictionRecords: MobilePredictionRecord[],
-  practiceRecords: MobilePracticeRecord[],
-): MobilePredictionRecord[] => {
-  const merged = new Map<string, MobilePredictionRecord>();
-
-  for (const record of publicJohnsonRecords) {
-    merged.set(buildPredictionSourceKey(record), record);
-  }
-
-  for (const record of johnsonRecords) {
-    merged.set(buildPredictionSourceKey(record), record);
-  }
-
-  for (const record of predictionRecords) {
-    const key = buildPredictionSourceKey(record);
-    if (!merged.has(key)) {
-      merged.set(key, record);
-    }
-  }
-
-  for (const record of buildPracticePredictionFallbacks(practiceRecords)) {
-    const key = buildPredictionSourceKey(record);
-    if (!merged.has(key)) {
-      merged.set(key, record);
-    }
-  }
-
-  return Array.from(merged.values());
 };
 
 const getRaceNo = (race: AnyRecord): number => readNumber(race.raceNo ?? race.raceNumber ?? race.number);
@@ -437,33 +398,14 @@ const isRaceConfirmed = (race: AnyRecord): boolean => {
 
 const findPrediction = (records: MobilePredictionRecord[], date: string, venue: MobileVenue | undefined, raceNo: number): MobilePredictionRecord | null => {
   if (!venue) return null;
-  return (
-    records.find((record) =>
-      readString(record.date) === date &&
-      Number(record.raceNo) === raceNo &&
-      (readString(record.venueCode) === venue.venueCode || normalizeVenue(record.venueName) === normalizeVenue(venue.venueName))
-    ) ?? null
-  );
+  const identity = { date, venueCode: venue.venueCode, venueName: venue.venueName, raceNo };
+  return records.find((record) => isSameBoatMobileRace(record, identity)) ?? null;
 };
 
 const findPractice = (records: MobilePracticeRecord[], date: string, venue: MobileVenue | undefined, raceNo: number): MobilePracticeRecord | null => {
   if (!venue) return null;
-  return (
-    records.find((record) =>
-      readString(record.date) === date &&
-      Number(record.raceNo) === raceNo &&
-      (readString(record.venueCode) === venue.venueCode || normalizeVenue(record.venueName) === normalizeVenue(venue.venueName))
-    ) ?? null
-  );
-};
-
-const isHitPractice = (record: MobilePracticeRecord): boolean => {
-  return (
-    readNumber(record.payoutYen) > 0 ||
-    readNumber(record.profitYen) > 0 ||
-    Boolean(record.hitBetNumbers) ||
-    asArray<unknown>(record.hitBets).length > 0
-  );
+  const identity = { date, venueCode: venue.venueCode, venueName: venue.venueName, raceNo };
+  return records.find((record) => isSameBoatMobileRace(record, identity)) ?? null;
 };
 
 const mergeEntryByFrame = (baseEntries: MobileEntry[], addonEntries: Partial<MobileEntry>[]): MobileEntry[] => {
@@ -600,6 +542,17 @@ function MobileBottomNav({ activeTab, onTab }: { activeTab: MobileTab; onTab: (t
   );
 }
 
+const getVenueSelectionKey = (venue: MobileVenue): string =>
+  venue.venueCode ? `code:${venue.venueCode}` : `name:${normalizeVenue(venue.venueName)}`;
+
+const resultBelongsToVenue = (record: BoatMobileAutoResultRecord, venue: MobileVenue, date: string): boolean =>
+  isSameBoatMobileRace(record, {
+    date,
+    venueCode: venue.venueCode,
+    venueName: venue.venueName,
+    raceNo: record.raceNo,
+  });
+
 export function MobilePage() {
   const [feed, setFeed] = useState<MobileFeed | null>(null);
   const [extraVenues, setExtraVenues] = useState<AnyRecord[]>([]);
@@ -607,46 +560,59 @@ export function MobilePage() {
   const [johnsonRecords, setJohnsonRecords] = useState<MobilePredictionRecord[]>(() => loadJohnsonPredictionRecords());
   const [predictionRecords, setPredictionRecords] = useState<MobilePredictionRecord[]>(() => loadPredictionRecords());
   const [practiceRecords, setPracticeRecords] = useState<MobilePracticeRecord[]>(() => loadPracticeRecords());
-  const [selectedVenueIndex, setSelectedVenueIndex] = useState(0);
+  const [selectedVenueKey, setSelectedVenueKey] = useState<string | null>(null);
   const [selectedRaceNo, setSelectedRaceNo] = useState(1);
   const [activeTab, setActiveTab] = useState<MobileTab>("entry");
 
   useEffect(() => {
     let mounted = true;
-    void Promise.all([loadTodayFeed(), loadVenueExtras(), loadPublicJohnsonPredictionRecords()]).then(([nextFeed, nextExtras, nextPublicJohnson]) => {
+    const refreshRemoteMobileData = async () => {
+      const [nextFeed, nextExtras, nextPublicJohnson] = await Promise.all([
+        loadTodayFeed(),
+        loadVenueExtras(),
+        loadPublicJohnsonPredictionRecords(),
+      ]);
       if (!mounted) return;
       setFeed(nextFeed);
       setExtraVenues(nextExtras);
       setPublicJohnsonRecords(nextPublicJohnson);
-    });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    const refreshStorage = () => {
-      void loadPublicJohnsonPredictionRecords().then((records) => setPublicJohnsonRecords(records));
       setJohnsonRecords(loadJohnsonPredictionRecords());
       setPredictionRecords(loadPredictionRecords());
       setPracticeRecords(loadPracticeRecords());
     };
-    window.addEventListener("storage", refreshStorage);
-    window.addEventListener("focus", refreshStorage);
-    document.addEventListener("visibilitychange", refreshStorage);
+
+    const handleStorage = () => {
+      setJohnsonRecords(loadJohnsonPredictionRecords());
+      setPredictionRecords(loadPredictionRecords());
+      setPracticeRecords(loadPracticeRecords());
+    };
+    const handleFocus = () => void refreshRemoteMobileData();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") void refreshRemoteMobileData();
+    };
+
+    void refreshRemoteMobileData();
+    const intervalId = window.setInterval(refreshRemoteMobileData, MOBILE_REMOTE_REFRESH_INTERVAL_MS);
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
-      window.removeEventListener("storage", refreshStorage);
-      window.removeEventListener("focus", refreshStorage);
-      document.removeEventListener("visibilitychange", refreshStorage);
+      mounted = false;
+      window.clearInterval(intervalId);
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
-  const venues = feed?.venues ?? [];
-  const selectedVenue = venues[selectedVenueIndex] ?? venues[0];
+  const venues = useMemo(() => sortBoatMobileVenues(feed?.venues ?? []), [feed]);
+  const selectedVenue = selectedVenueKey
+    ? venues.find((venue) => getVenueSelectionKey(venue) === selectedVenueKey)
+    : undefined;
   const selectedRace = selectedVenue?.races.find((race) => getRaceNo(race) === selectedRaceNo) ?? selectedVenue?.races[0];
   const selectedRaceNumber = selectedRace ? getRaceNo(selectedRace) : selectedRaceNo;
   const prioritizedPredictionRecords = useMemo(
-    () => mergePredictionSources(publicJohnsonRecords, johnsonRecords, predictionRecords, practiceRecords),
+    () => mergeBoatMobilePredictionSources(publicJohnsonRecords, johnsonRecords, predictionRecords, practiceRecords),
     [publicJohnsonRecords, johnsonRecords, predictionRecords, practiceRecords],
   );
   const extraVenue = useMemo(() => findExtraVenue(extraVenues, selectedVenue), [extraVenues, selectedVenue]);
@@ -660,35 +626,37 @@ export function MobilePage() {
   }, [currentDate]);
 
   useEffect(() => {
+    if (selectedVenueKey && !venues.some((venue) => getVenueSelectionKey(venue) === selectedVenueKey)) {
+      setSelectedVenueKey(null);
+    }
+  }, [selectedVenueKey, venues]);
+
+  useEffect(() => {
     if (!selectedVenue) return;
     const exists = selectedVenue.races.some((race) => getRaceNo(race) === selectedRaceNo);
     if (!exists) setSelectedRaceNo(getRaceNo(selectedVenue.races[0] ?? { raceNo: 1 }) || 1);
   }, [selectedVenue, selectedRaceNo]);
 
-  const dayPracticeRecords = useMemo(
-    () => practiceRecords.filter((record) => readString(record.date) === currentDate),
-    [practiceRecords, currentDate],
+  const autoResultRecords = useMemo(
+    () => buildBoatMobileAutoResultRecords(
+      { date: currentDate, venues },
+      prioritizedPredictionRecords,
+      practiceRecords,
+    ),
+    [currentDate, venues, prioritizedPredictionRecords, practiceRecords],
   );
 
-  const daySummary = useMemo(() => {
-    const totalStake = dayPracticeRecords.reduce((sum, record) => sum + readNumber(record.totalStakeYen), 0);
-    const totalPayout = dayPracticeRecords.reduce((sum, record) => sum + readNumber(record.payoutYen), 0);
-    const hitCount = dayPracticeRecords.filter(isHitPractice).length;
-    const resultCount = dayPracticeRecords.length;
-    const profit = totalPayout - totalStake;
-    const roi = totalStake > 0 ? (totalPayout / totalStake) * 100 : 0;
-    return { totalStake, totalPayout, hitCount, resultCount, profit, roi };
-  }, [dayPracticeRecords]);
+  const daySummary = useMemo(
+    () => buildBoatMobileTodaySummary(autoResultRecords, currentDate),
+    [autoResultRecords, currentDate],
+  );
 
   const venueSummaries = useMemo(() => {
     return venues.map((venue) => {
-      const normalized = normalizeVenue(venue.venueName);
-      const predictions = prioritizedPredictionRecords.filter((record) => readString(record.date) === currentDate && normalizeVenue(record.venueName) === normalized);
-      const results = venue.races.filter(isRaceConfirmed);
-      const practice = dayPracticeRecords.filter((record) => normalizeVenue(record.venueName) === normalized || readString(record.venueCode) === venue.venueCode);
-      return { predictions: predictions.length, results: results.length, practice: practice.length, hits: practice.filter(isHitPractice).length };
+      const venueRecords = autoResultRecords.filter((record) => resultBelongsToVenue(record, venue, currentDate));
+      return buildBoatMobileTodaySummary(venueRecords, currentDate);
     });
-  }, [venues, prioritizedPredictionRecords, currentDate, dayPracticeRecords]);
+  }, [venues, autoResultRecords, currentDate]);
 
   const selectedPrediction = findPrediction(prioritizedPredictionRecords, currentDate, selectedVenue, selectedRaceNumber);
   const selectedPractice = findPractice(practiceRecords, currentDate, selectedVenue, selectedRaceNumber);
@@ -714,14 +682,26 @@ export function MobilePage() {
     if (ticket.type === "exacta") return combo === finishOrder.split("-").slice(0, 2).join("-");
     return false;
   });
-  const payoutYen = readNumber(selectedPractice?.payoutYen) || (hitTicket?.type === "exacta" ? exactaPayout.payoutYen : hitTicket ? trifectaPayout.payoutYen : 0);
-  const totalStakeYen = readNumber(selectedPractice?.totalStakeYen) || betSummary.totalStakeYen;
-  const profitYen = readNumber(selectedPractice?.profitYen) || (payoutYen > 0 || totalStakeYen > 0 ? payoutYen - totalStakeYen : 0);
-  const roi = readNumber(selectedPractice?.roi) || (totalStakeYen > 0 ? (payoutYen / totalStakeYen) * 100 : 0);
-  const selectedResultStatus = isRaceConfirmed(selectedRace ?? {}) ? "結果確定" : "結果待ち";
-  const isSelectedHit = payoutYen > 0 || Boolean(hitTicket) || Boolean(selectedPractice && isHitPractice(selectedPractice));
+  const selectedRaceConfirmed = isRaceConfirmed(selectedRace ?? {});
+  const selectedAutoResult = autoResultRecords.find((record) =>
+    selectedVenue && isSameBoatMobileRace(record, {
+      date: currentDate,
+      venueCode: selectedVenue.venueCode,
+      venueName: selectedVenue.venueName,
+      raceNo: selectedRaceNumber,
+    })
+  );
+  const totalStakeYen = selectedRaceConfirmed ? selectedAutoResult?.investment : undefined;
+  const payoutYen = selectedRaceConfirmed ? selectedAutoResult?.payout : undefined;
+  const profitYen = selectedRaceConfirmed ? selectedAutoResult?.profit : undefined;
+  const roi = selectedRaceConfirmed ? selectedAutoResult?.roi : undefined;
+  const selectedResultStatus = selectedRaceConfirmed ? "結果確定" : "結果待ち";
+  const isSelectedHit = selectedRaceConfirmed && selectedAutoResult?.isHit === true;
 
-  const hitLogs = dayPracticeRecords.filter(isHitPractice).slice(0, 12);
+  const hitLogs = useMemo(
+    () => buildBoatMobileHitLog(autoResultRecords, currentDate).slice(0, 12),
+    [autoResultRecords, currentDate],
+  );
 
   const scrollToCurrentTab = (tab: MobileTab) => {
     setActiveTab(tab);
@@ -747,13 +727,16 @@ export function MobilePage() {
               <div style={{ marginTop: "5px", fontSize: "34px", lineHeight: 1, fontWeight: 950, letterSpacing: "-0.05em" }}>{formatYen(daySummary.profit, true)}</div>
             </div>
             <div style={{ textAlign: "right", fontSize: "11px", fontWeight: 900, lineHeight: 1.7, opacity: 0.92 }}>
-              <div>的中 {daySummary.hitCount}/{daySummary.resultCount}</div>
+              <div>的中 {daySummary.hitCount}/{daySummary.settledPredictionRaceCount}</div>
               <div>ROI {formatPercent(daySummary.roi)}</div>
             </div>
           </div>
           <div style={{ marginTop: "14px", display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: "8px" }}>
-            <StatBox label="投資" value={formatYen(daySummary.totalStake)} />
-            <StatBox label="払戻" value={formatYen(daySummary.totalPayout)} tone="hit" />
+            <StatBox label="実績投資" value={formatYen(daySummary.investment)} />
+            <StatBox label="実績払戻" value={formatYen(daySummary.payout)} tone="hit" />
+            <StatBox label="保存予想" value={`${daySummary.savedRaceCount}R`} />
+            <StatBox label="公式結果" value={`${daySummary.officialResultCount}R`} />
+            <StatBox label="照合済み" value={`${daySummary.settledPredictionRaceCount}R`} />
             <StatBox label="開催" value={`${venues.length}場`} />
           </div>
         </section>
@@ -764,7 +747,7 @@ export function MobilePage() {
           <div style={{ marginTop: "12px", borderRadius: "18px", background: "linear-gradient(90deg, #083344, #0f766e)", color: "#ffffff", overflow: "hidden", padding: "12px 0" }}>
             <div style={{ whiteSpace: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", padding: "0 12px", fontSize: "12px", fontWeight: 900 }}>
               {hitLogs.length > 0
-                ? hitLogs.map((hit) => `🎯 ${hit.venueName ?? "会場"} ${hit.raceNo}R ${hit.hitBetType ?? "的中"} ${hit.hitBetNumbers ?? hit.finishOrder ?? hit.actualOrder ?? ""} ${formatYen(hit.profitYen, true)}`).join("　　")
+                ? hitLogs.map((hit) => `🎯 ${hit.venueName || "会場"} ${hit.raceNo}R ${hit.hitBetType ?? "的中"} ${hit.hitBetNumbers ?? hit.finishOrder} ${formatYen(hit.profit, true)}`).join("　　")
                 : "的中ログはまだありません。結果照合後にここへ流れます。"}
             </div>
           </div>
@@ -773,20 +756,25 @@ export function MobilePage() {
         <section style={{ ...cardStyle, padding: "14px" }}>
           <p style={miniLabelStyle}>TODAY VENUES</p>
           <h2 style={{ ...titleStyle, fontSize: "18px", marginTop: "4px" }}>本日開催</h2>
-          <div style={{ marginTop: "12px", display: "flex", gap: "9px", overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: "2px" }}>
-            {venues.length > 0 ? venues.map((venue, index) => {
+          <div style={{ marginTop: "12px", display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: "9px" }}>
+            {selectedVenue ? (
+              <button type="button" onClick={() => setSelectedVenueKey(null)} style={{ gridColumn: "1 / -1", minHeight: "46px", borderRadius: "16px", border: "1px solid rgba(125,211,252,0.58)", background: "#ffffff", color: "#075985", fontSize: "12px", fontWeight: 950, cursor: "pointer", fontFamily: "inherit" }}>
+                会場一覧へ戻る
+              </button>
+            ) : venues.length > 0 ? venues.map((venue, index) => {
               const summary = venueSummaries[index];
-              const active = index === selectedVenueIndex;
               return (
-                <button key={`${venue.venueName}-${venue.venueCode || index}`} type="button" onClick={() => { setSelectedVenueIndex(index); setSelectedRaceNo(getRaceNo(venue.races[0] ?? { raceNo: 1 }) || 1); }} style={{ flex: "0 0 104px", minHeight: "68px", borderRadius: "20px", border: active ? "1px solid rgba(255,255,255,0.64)" : "1px solid rgba(125,211,252,0.58)", background: active ? "linear-gradient(135deg, #082f49, #0e7490)" : "linear-gradient(180deg, #ffffff, #f0faff)", color: active ? "#ffffff" : "#0f2743", boxShadow: active ? "0 14px 30px rgba(8,47,73,0.24)" : "0 8px 18px rgba(14,116,144,0.08)", padding: "10px", display: "grid", gap: "5px", textAlign: "left", cursor: "pointer", fontFamily: "inherit" }}>
+                <button key={getVenueSelectionKey(venue)} type="button" onClick={() => { setSelectedVenueKey(getVenueSelectionKey(venue)); setSelectedRaceNo(getRaceNo(venue.races[0] ?? { raceNo: 1 }) || 1); setActiveTab("entry"); }} style={{ minHeight: "76px", borderRadius: "20px", border: "1px solid rgba(125,211,252,0.58)", background: "linear-gradient(180deg, #ffffff, #f0faff)", color: "#0f2743", boxShadow: "0 8px 18px rgba(14,116,144,0.08)", padding: "10px", display: "grid", gap: "5px", textAlign: "left", cursor: "pointer", fontFamily: "inherit" }}>
                   <strong style={{ fontSize: "14px", fontWeight: 950 }}>{venue.venueName}</strong>
-                  <span style={{ fontSize: "10px", fontWeight: 850, opacity: 0.86 }}>{venue.races.length}R / 予想{summary?.predictions ?? 0} / 結果{summary?.results ?? 0}</span>
+                  <span style={{ fontSize: "10px", fontWeight: 850, opacity: 0.86 }}>{venue.races.length}R / 予想{summary?.savedRaceCount ?? 0} / 結果{summary?.officialResultCount ?? 0}</span>
                 </button>
               );
-            }) : <p style={mutedStyle}>今日の開催データを取得中です。</p>}
+            }) : <p style={{ ...mutedStyle, gridColumn: "1 / -1" }}>今日の開催データを取得中です。</p>}
           </div>
         </section>
 
+        {selectedVenue && (
+          <>
         <section style={{ ...cardStyle, padding: "14px" }}>
           <p style={miniLabelStyle}>RACE SELECTOR</p>
           <h2 style={{ ...titleStyle, fontSize: "18px", marginTop: "4px" }}>{selectedVenue?.venueName ?? "会場選択中"}</h2>
@@ -897,13 +885,13 @@ export function MobilePage() {
                   <StatBox label="決まり手" value={readString(asRecord(selectedRace?.result).kimarite ?? selectedPractice?.kimarite) || "--"} />
                   <StatBox label="3連単" value={trifectaPayout.payoutYen ? `${trifectaPayout.combination || finishOrder} / ${formatYen(trifectaPayout.payoutYen)}` : "未取得"} />
                   <StatBox label="2連単" value={exactaPayout.payoutYen ? `${exactaPayout.combination || finishOrder.split("-").slice(0,2).join("-")} / ${formatYen(exactaPayout.payoutYen)}` : "未取得"} />
-                  <StatBox label="投資" value={formatYen(totalStakeYen)} />
-                  <StatBox label="払戻" value={formatYen(payoutYen)} tone={payoutYen > 0 ? "hit" : "default"} />
-                  <StatBox label="収支" value={formatYen(profitYen, true)} tone={profitYen > 0 ? "plus" : profitYen < 0 ? "minus" : "default"} />
-                  <StatBox label="回収率" value={formatPercent(roi)} />
+                  <StatBox label="実績投資" value={formatYen(totalStakeYen)} />
+                  <StatBox label="実績払戻" value={formatYen(payoutYen)} tone={(payoutYen ?? 0) > 0 ? "hit" : "default"} />
+                  <StatBox label="実績収支" value={formatYen(profitYen, true)} tone={(profitYen ?? 0) > 0 ? "plus" : (profitYen ?? 0) < 0 ? "minus" : "default"} />
+                  <StatBox label="実績回収率" value={formatPercent(roi)} />
                 </div>
                 <div style={{ borderRadius: "18px", padding: "13px", background: isSelectedHit ? "linear-gradient(135deg, #dcfce7, #ffffff)" : "linear-gradient(135deg, #f8fafc, #ffffff)", border: isSelectedHit ? "1px solid #86efac" : "1px solid #e2e8f0", color: isSelectedHit ? "#047857" : "#475569", fontSize: "13px", fontWeight: 950 }}>
-                  {isSelectedHit ? `🎯 的中 ${hitTicket?.label ?? selectedPractice?.hitBetType ?? ""} ${hitTicket?.normalized ?? selectedPractice?.hitBetNumbers ?? ""}` : isRaceConfirmed(selectedRace ?? {}) ? "結果確定：保存買い目との一致は未確認です。" : "結果待ちです。"}
+                  {isSelectedHit ? `🎯 的中 ${selectedAutoResult?.hitBetType ?? selectedPractice?.hitBetType ?? ""} ${selectedAutoResult?.hitBetNumbers ?? selectedPractice?.hitBetNumbers ?? ""}` : selectedRaceConfirmed ? "結果確定：保存買い目との一致は未確認です。" : "結果待ちです。実績投資・払戻・収支・回収率は確定後に表示します。"}
                 </div>
               </div>
             )}
@@ -918,6 +906,8 @@ export function MobilePage() {
             )}
           </div>
         </section>
+          </>
+        )}
       </div>
       <MobileBottomNav activeTab={activeTab} onTab={scrollToCurrentTab} />
     </main>
