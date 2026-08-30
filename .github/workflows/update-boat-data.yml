@@ -42,10 +42,12 @@ on:
         required: false
         default: "false"
   schedule:
-    # 00:05 JST and 06:05 JST. GitHub Actions schedules are UTC.
+    # 00:05 JST, 06:05 JST, and 23:30 JST. GitHub Actions schedules are UTC.
     # 06:05 JST refreshes all official pre-race material once after morning publication.
+    # 23:30 JST runs final mode so result-backed BOATRACE EX analysis can settle the current day.
     - cron: "5 15 * * *"
     - cron: "5 21 * * *"
+    - cron: "30 14 * * *"
 
 concurrency:
   group: update-boat-data-main
@@ -84,10 +86,17 @@ jobs:
         shell: bash
         env:
           TARGET_DATE: ${{ inputs.target_date || '' }}
+          REQUESTED_MODE: ${{ inputs.mode || 'initial' }}
+          EVENT_SCHEDULE: ${{ github.event.schedule || '' }}
         run: |
           set -euo pipefail
 
-          ARGS=(--mode "${{ inputs.mode || 'initial' }}" --target-session "${{ inputs.targetSession || 'auto' }}")
+          MODE="$REQUESTED_MODE"
+          if [ "$EVENT_SCHEDULE" = "30 14 * * *" ]; then
+            MODE="final"
+          fi
+
+          ARGS=(--mode "$MODE" --target-session "${{ inputs.targetSession || 'auto' }}")
           if [ -n "$TARGET_DATE" ]; then
             ARGS+=(--target-date "$TARGET_DATE")
           fi
