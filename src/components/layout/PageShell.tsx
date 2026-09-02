@@ -43,6 +43,7 @@ function buildShellStyle(contentMaxWidth: string, contentPaddingInline: string) 
 		left: "50%",
 		transform: "translateX(-50%)",
 		display: "grid",
+		gridTemplateColumns: "minmax(0, 1fr)",
 		gap: "22px",
 		minWidth: 0,
 		padding: "4px 0 0",

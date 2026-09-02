@@ -64,7 +64,7 @@ const navItems = [
 	{ label: "Prediction", hash: "#prediction-page" },
 	{ label: "Review", hash: "#review-page" },
 	{ label: "EX", hash: "#boat-ex-page" },
-	{ label: "Venues", hash: "#venue-features-page" },
+	{ label: "Monthly", hash: "#monthly-review-page" },
 	{ label: "Mobile", hash: "#mobile-page" },
 ];
 

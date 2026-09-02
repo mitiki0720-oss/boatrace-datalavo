@@ -3,12 +3,12 @@ import { SiteHeader } from "./components/layout/SiteHeader";
 import { useBoatOperationalStorageRollover } from "./hooks/useBoatOperationalStorageRollover";
 import { boatTheme } from "./lib/theme";
 import { BoatExPage } from "./pages/BoatExPage";
+import { BoatMonthlyReviewPage } from "./pages/BoatMonthlyReviewPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { MobilePage } from "./pages/MobilePage";
 import { PredictionPage } from "./pages/PredictionPage";
 import { RacesPage } from "./pages/RacesPage";
 import { ReviewPage } from "./pages/ReviewPage";
-import { VenueFeaturesPage } from "./pages/VenueFeaturesPage";
 
 const DEFAULT_HASH = "#dashboard-page";
 
@@ -18,13 +18,17 @@ const pageMap = {
   "#prediction-page": PredictionPage,
   "#review-page": ReviewPage,
   "#boat-ex-page": BoatExPage,
-  "#venue-features-page": VenueFeaturesPage,
+  "#monthly-review-page": BoatMonthlyReviewPage,
   "#mobile-page": MobilePage,
 } as const;
 
 type PageHash = keyof typeof pageMap;
 
 function normalizeHash(hash: string): PageHash {
+  if (hash === "#venue-features-page") {
+    return "#boat-ex-page";
+  }
+
   if (hash in pageMap) {
     return hash as PageHash;
   }
@@ -36,6 +40,7 @@ const appStyle = {
   minHeight: "100vh",
   background: boatTheme.background.canvas,
   color: boatTheme.colors.ink,
+  overflowX: "hidden" as const,
 };
 
 const bodyStyle = {
