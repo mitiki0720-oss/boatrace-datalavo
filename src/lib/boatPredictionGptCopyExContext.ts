@@ -872,7 +872,10 @@ function buildBoatPredictionGptCopyCurrentDayCoverageBlock(params: {
 		: hasResult && hasPayout
 			? "未取得（結果・払戻はavailableだがrace-analysis未生成）"
 			: "未取得（結果・払戻の確定後に生成）";
-	const lifecycleWarnings = asArray<string>(lifecycleRace?.warnings);
+	const lifecycleWarnings = asArray<string>(lifecycleRace?.warnings).filter((warning) =>
+		warning !== "race-analysis-not-ready-for-current-result-state"
+		|| (hasResult && hasPayout && !hasRaceAnalysis),
+	);
 	const exhibition = getBoatPredictionExhibitionAvailability({ race });
 
 	return [

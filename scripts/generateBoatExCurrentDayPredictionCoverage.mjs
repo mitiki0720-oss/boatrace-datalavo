@@ -44,7 +44,7 @@ const lifecycleForRace = (venue, race) => {
 	const hasRaceAnalysis = Boolean(analysis && analysisReady && analysis.resultStatus === "available" && analysis.payoutStatus === "available" && hasResult && hasPayout);
 	const warnings = [];
 	if (rawPayout && !hasResult) warnings.push("raw-payout-without-complete-result-suppressed");
-	if (analysis && !hasRaceAnalysis) warnings.push("race-analysis-not-ready-for-current-result-state");
+	if (analysis && hasResult && hasPayout && !hasRaceAnalysis) warnings.push("race-analysis-not-ready-for-current-result-state");
 	const status = hasPartialResult(race)
 		? "partial-result"
 		: hasRaceAnalysis
