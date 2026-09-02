@@ -28,8 +28,16 @@ import {
 	buildBoatPredictionVenueContextMaterial,
 	getBoatPredictionExhibitionCardLabel,
 	getBoatPredictionExhibitionAvailability,
+	resolveBoatPredictionWeatherReference,
 } from "../lib/boatPredictionMaterial";
 import { buildBoatPreRacePredictionSupportBlock } from "../lib/boatPreRacePredictionSupport";
+import { loadBoatMonthlyReviewData } from "../lib/boatMonthlyReview";
+import {
+	buildBoatPredictionMonthlyReviewContext,
+	resolveBoatPredictionMonthlyReferenceMonth,
+	type BoatPredictionMonthlyLoadState,
+} from "../lib/boatPredictionMonthlyReviewContext";
+import type { BoatMonthlyReviewData } from "../types/boatMonthlyReview";
 import {
 	buildBoatPredictionGptCopyHeader,
 	buildBoatPredictionGptCopyRaceContext,
@@ -61,6 +69,7 @@ import {
 	loadBoatVenueExtrasFeed,
 	type BoatVenueExtrasFeed,
 	type BoatVenueExtraRace,
+	type BoatVenueExtraVenue,
 } from "../lib/boatVenueExtrasFeed";
 import {
 	loadBoatVenueFeatureIndex,
@@ -203,6 +212,41 @@ const PREDICTION_SELECTION_STORAGE_KEY = "kurari-boat-data-labo-prediction-selec
 type BoatPredictionTodayFeed = typeof sampleBoatTodayFeed;
 type BoatPredictionVenue = BoatPredictionTodayFeed["venues"][number];
 type BoatPredictionRace = BoatPredictionVenue["races"][number];
+
+const buildPredictionMonthlyReviewMaterial = (params: {
+	monthlyData: BoatMonthlyReviewData | null;
+	loadState: BoatPredictionMonthlyLoadState;
+	predictionDate: string;
+	venue: BoatPredictionVenue;
+	venueExtra: BoatVenueExtraVenue | null;
+	race?: BoatPredictionRace;
+}): string => {
+	const raceExtra = findSelectedRaceExtra(params.venueExtra, params.race);
+	const exhibition = params.race
+		? getBoatPredictionExhibitionAvailability({ race: params.race, raceExtra })
+		: null;
+
+	return buildBoatPredictionMonthlyReviewContext({
+		monthlyData: params.monthlyData,
+		loadState: params.loadState,
+		predictionDate: params.predictionDate,
+		venueName: params.venue.venueName,
+		windSpeed: params.race
+			? resolveBoatPredictionWeatherReference({
+				race: params.race,
+				venue: params.venue,
+				venueExtra: params.venueExtra,
+				raceExtra,
+			}).windSpeed
+			: null,
+		predictionMode: exhibition?.status === "missing"
+			? "pre-race"
+			: exhibition?.status === "partial"
+				? "exhibition-partial"
+				: exhibition?.status === "complete" ? "exhibition-complete" : null,
+	});
+};
+
 type PredictionRaceExhibitionStatus = {
 	level: "ready" | "partial" | "waiting";
 	title: string;
@@ -825,6 +869,8 @@ export function PredictionPage() {
 	const [predictionRecordsVersion, setPredictionRecordsVersion] = useState(0);
 	const [bulkGptMaterialRangeKey, setBulkGptMaterialRangeKey] = useState<"1r6r" | "7r12r">("1r6r");
 	const [gptCopyExContext, setGptCopyExContext] = useState<BoatPredictionGptCopyExContext | null>(null);
+	const [monthlyReviewData, setMonthlyReviewData] = useState<BoatMonthlyReviewData | null>(null);
+	const [monthlyReviewLoadState, setMonthlyReviewLoadState] = useState<BoatPredictionMonthlyLoadState>("loading");
 	const [autoSettleState, setAutoSettleState] = useState({
 		enabled: true,
 		autoSettledCount: 0,
@@ -867,6 +913,26 @@ export function PredictionPage() {
 			active = false;
 		};
 	}, [activePredictionDate]);
+	useEffect(() => {
+		let active = true;
+		setMonthlyReviewLoadState("loading");
+
+		void loadBoatMonthlyReviewData()
+			.then((data) => {
+				if (!active) return;
+				setMonthlyReviewData(data);
+				setMonthlyReviewLoadState("ready");
+			})
+			.catch(() => {
+				if (!active) return;
+				setMonthlyReviewData(null);
+				setMonthlyReviewLoadState("unavailable");
+			});
+
+		return () => {
+			active = false;
+		};
+	}, []);
 	const johnsonCoverageSummary = useMemo(() => {
 		const savedPredictionRecords = Object.values(loadBoatPredictionRecords())
 			.filter((record) => record.date === activePredictionDate && Boolean(record.predictionText?.trim()));
@@ -897,6 +963,28 @@ const selectedRaceExtra = useMemo(
 	() => findSelectedRaceExtra(selectedVenueExtra, selectedRace),
 	[selectedVenueExtra, selectedRace],
 );
+
+const monthlyReference = useMemo(() => {
+	if (!monthlyReviewData || monthlyReviewLoadState !== "ready") return null;
+	try {
+		return resolveBoatPredictionMonthlyReferenceMonth({
+			predictionDate: activePredictionDate,
+			monthlyData: monthlyReviewData,
+		});
+	} catch {
+		return null;
+	}
+}, [activePredictionDate, monthlyReviewData, monthlyReviewLoadState]);
+
+const monthlyReferenceStatusText = monthlyReviewLoadState === "loading"
+	? "読込中"
+	: monthlyReference?.referenceMonth
+		? `Reference ${monthlyReference.referenceMonth} COMPLETE`
+		: "Reference 未取得";
+
+const monthlyLatestStatusText = monthlyReference?.latestAvailableMonth
+	? `Latest ${monthlyReference.latestAvailableMonth} ${monthlyReference.latestAvailableStatus ?? ""}`.trim()
+	: monthlyReviewLoadState === "unavailable" ? "Latest 未取得" : "";
 
 const raceExhibitionStatusMap = useMemo<Record<string, PredictionRaceExhibitionStatus>>(() => {
 	const extraRaces = toArray<Record<string, unknown>>(
@@ -1270,6 +1358,15 @@ const buildPracticeFallbackRaceKey = (params: {
 
 	const materialText = selectedVenue && selectedRace
 		? [
+			buildPredictionMonthlyReviewMaterial({
+				monthlyData: monthlyReviewData,
+				loadState: monthlyReviewLoadState,
+				predictionDate: activePredictionDate,
+				venue: selectedVenue,
+				venueExtra: selectedVenueExtra,
+				race: selectedRace,
+			}),
+			"",
 			buildBoatPreRacePredictionSupportBlock({ race: selectedRace, raceExtra: selectedRaceExtra }),
 			"【通常素材】",
 			buildBoatPredictionMaterial({
@@ -1444,6 +1541,15 @@ const buildPracticeFallbackRaceKey = (params: {
 				return raceNo !== null && expectedRaceNumbers.includes(raceNo);
 			})
 			.sort((left, right) => (normalizeBoatRaceNo(left.raceNo) ?? 99) - (normalizeBoatRaceNo(right.raceNo) ?? 99));
+		const monthlyReferenceRace = selectedRaces[0];
+		const monthlyMaterial = buildPredictionMonthlyReviewMaterial({
+			monthlyData: monthlyReviewData,
+			loadState: monthlyReviewLoadState,
+			predictionDate: activePredictionDate,
+			venue: selectedVenue,
+			venueExtra: selectedVenueExtra,
+			race: monthlyReferenceRace,
+		});
 		const venueTimeKind = getBoatPredictionVenueTimeKind(selectedVenue, selectedVenueRaces);
 		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
 		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, "1R〜6R");
@@ -1504,6 +1610,8 @@ const buildPracticeFallbackRaceKey = (params: {
 			"",
 			buildBoatPredictionGptBettingInstruction(),
 			"",
+			monthlyMaterial,
+			"",
 			buildBoatPredictionGptCopyVenueContext({ venue: selectedVenue, exContext: gptCopyExContext }),
 			"",
 			"【通常会場素材】",
@@ -1529,7 +1637,10 @@ const buildPracticeFallbackRaceKey = (params: {
 			missingRaceLabels: [],
 		};
 	}, [
+		activePredictionDate,
 		gptCopyExContext,
+		monthlyReviewData,
+		monthlyReviewLoadState,
 		selectedVenue,
 		selectedVenueRaces,
 		selectedVenueExtra,
@@ -1704,6 +1815,15 @@ const buildPracticeFallbackRaceKey = (params: {
 				return raceNo !== null && expectedRaceNumbers.includes(raceNo);
 			})
 			.sort((left, right) => (normalizeBoatRaceNo(left.raceNo) ?? 99) - (normalizeBoatRaceNo(right.raceNo) ?? 99));
+		const monthlyReferenceRace = selectedRaces[0];
+		const monthlyMaterial = buildPredictionMonthlyReviewMaterial({
+			monthlyData: monthlyReviewData,
+			loadState: monthlyReviewLoadState,
+			predictionDate: activePredictionDate,
+			venue: selectedVenue,
+			venueExtra: selectedVenueExtra,
+			race: monthlyReferenceRace,
+		});
 		const venueTimeKind = getBoatPredictionVenueTimeKind(selectedVenue, selectedVenueRaces);
 		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
 		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, "7R〜12R");
@@ -1771,6 +1891,8 @@ const buildPracticeFallbackRaceKey = (params: {
 			"",
 			buildBoatPredictionGptBettingInstruction(),
 			"",
+			monthlyMaterial,
+			"",
 			buildBoatPredictionGptCopyVenueContext({ venue: selectedVenue, exContext: gptCopyExContext }),
 			"",
 			"【通常会場素材】",
@@ -1795,6 +1917,8 @@ const buildPracticeFallbackRaceKey = (params: {
 	}, [
 		activePredictionDate,
 		gptCopyExContext,
+		monthlyReviewData,
+		monthlyReviewLoadState,
 		selectedVenue,
 		selectedVenueRaces,
 		selectedVenueExtra,
@@ -3658,7 +3782,17 @@ body:has(.prediction-page-root) {
 </section>
 
 				<div className={panelGridClassName}>
-					<BoatGptMaterialPanel materialText={materialText} raceLabel={raceLabel} />
+					<div style={{ display: "grid", gap: "8px", minWidth: 0 }}>
+						<div
+							data-boat-monthly-status="true"
+							style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center", minWidth: 0 }}
+						>
+							<span style={johnsonSummaryChipStyle}>MONTHLY</span>
+							<span style={johnsonSummaryChipStyle}>{monthlyReferenceStatusText}</span>
+							{monthlyLatestStatusText ? <span style={johnsonSummaryChipStyle}>{monthlyLatestStatusText}</span> : null}
+						</div>
+						<BoatGptMaterialPanel materialText={materialText} raceLabel={raceLabel} />
+					</div>
 					<div style={{ display: "grid", gap: "10px" }}>
 						{savedMessage ? <p style={savedMessageStyle}>{savedMessage}</p> : null}
 						<BoatPredictionPastePanel
