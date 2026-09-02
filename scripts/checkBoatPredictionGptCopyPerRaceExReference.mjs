@@ -90,11 +90,14 @@ const raceExtra = {
 		displayTime: "2026-08-13T12:00:00+09:00",
 	},
 };
-const exRace = ({ official = 0, exact = 0, unresolved = 0, sourceStatus = "complete", racerEvidenceStatus = "available", exhibitionStatus = "available", weatherStatus = "available" } = {}) => ({
+const exRace = ({ official = 0, exact = 0, unresolved = 0, status = "ready", resultStatus = "available", payoutStatus = "available", sourceStatus = "complete", racerEvidenceStatus = "available", exhibitionStatus = "available", weatherStatus = "available" } = {}) => ({
 	date: "2026-08-13",
 	venueCode: "01",
 	venueName: "桐生",
 	raceNo: 7,
+	status,
+	resultStatus,
+	payoutStatus,
 	sourceStatus,
 	racerEvidenceStatus,
 	exhibitionStatus,
@@ -255,10 +258,28 @@ const requiredSourceFragments = [
 	"currentDayPredictionCoverage",
 	"KURARI BOAT EX 当日予想coverage",
 ];
+const levelDiagnostics = {
+	A: level(contextFor([exRace({ official: 5 })])),
+	B: level(contextFor([exRace({ official: 3, unresolved: 3, weatherStatus: "missing" })])),
+	C: level(contextFor([exRace({ official: 1, unresolved: 5 })], weatherWaterFixture({ coverage: "partial", weatherCount: 4, wave: null }))),
+	D: level(contextFor([exRace({ sourceStatus: "partial" })], weatherWaterFixture({ coverage: "missing", weatherCount: 0, wind: null, wave: null }))),
+	pendingRace: level(contextFor([exRace({ official: 6, status: "pending", resultStatus: "missing", payoutStatus: "missing" })])),
+	noRace: level(contextFor([])),
+	noContext: level(null),
+};
+const nameOnlyReference = getReference(contextFor([exRace({ exact: 6, unresolved: 6 })]));
+const referenceDiagnostics = Object.fromEntries(Object.entries(references).map(([name, reference]) => [name, {
+	level: reference.level,
+	linkedCount: reference.linkedCount,
+	racerCount: reference.racerCount,
+	unresolvedCount: reference.unresolvedCount,
+	lowSampleCount: reference.lowSampleCount,
+}]));
 const checks = {
-	levels: level(contextFor([exRace({ official: 5, exact: 1 })])) === "A" && level(contextFor([exRace({ official: 3, unresolved: 3, weatherStatus: "missing" })])) === "B" && level(contextFor([exRace({ official: 1, unresolved: 5 })], weatherWaterFixture({ coverage: "partial", weatherCount: 4, wave: null }))) === "C" && level(contextFor([exRace({ sourceStatus: "partial" })], weatherWaterFixture({ coverage: "missing", weatherCount: 0, wind: null, wave: null }))) === "D" && level(contextFor([])) === "D" && level(null) === "unknown",
+	levels: levelDiagnostics.A === "A" && levelDiagnostics.B === "B" && levelDiagnostics.C === "C" && levelDiagnostics.D === "D" && levelDiagnostics.pendingRace === "D" && levelDiagnostics.noRace === "D" && levelDiagnostics.noContext === "unknown",
 	levelBlocks: Object.entries(references).every(([expected, reference]) => buildBoatPredictionGptCopyExReferenceBlock(reference).includes(`EX参照レベル: ${expected}`)),
 	linkageAndAvailability: buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("登録番号exactリンク: 6/6") && buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("未リンク: 0名") && buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("氏名推測リンク: 使用禁止") && !buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("完全一致リンク:") && buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("会場EX: ready") && buildBoatPredictionGptCopyExReferenceBlock(references.A).includes("当日フロー: available"),
+	registrationExactOnly: nameOnlyReference.level === "D" && nameOnlyReference.linkedCount === 0 && nameOnlyReference.exactNameLinkedCount === 0 && nameOnlyReference.unresolvedCount === 6,
 	targetDateAndHistoricalSourceLabels: mismatchVenueContext.includes("EX履歴latest-day flow: 対象日不一致") && !mismatchVenueContext.includes("EX当日フロー: available") && header.includes("対象日EX race-analysis source: 未取得") && header.includes("EX履歴source: available") && header.includes("EX履歴データ期間: 2026-05-24 ～ 2026-08-02") && header.includes("EX履歴source種別: source-backed derived") && !header.includes("- EX source: 未取得"),
 	lowSampleCaution: buildBoatPredictionGptCopyExReferenceBlock(references.C).includes("LOW SAMPLE: 1名") && buildBoatPredictionGptCopyExReferenceBlock(references.C).includes("未リンク: 5名"),
 	exhibitionAvailability: completeExhibition.status === "complete" && completeExhibition.label.includes("展示取得済み") && partialExhibition.status === "partial" && partialExhibition.label === "展示タイム一部取得 2/6" && partialReferenceBlock.includes("展示タイム一部取得です") && !partialReferenceBlock.includes("展示タイム未取得") && missingExhibition.status === "missing" && missingExhibition.label === "展示タイム未取得 / 事前予想" && nonTimeExhibition.status === "missing" && nonTimeExhibition.label === "展示タイム未取得 / 事前予想" && nonTimeReferenceBlock.includes("展示タイム未取得です") && !["展示情報一部取得（タイム未取得", "展示一部取得です", "展示情報は一部取得です"].some((fragment) => nonTimeReferenceBlock.includes(fragment)),
@@ -302,6 +323,8 @@ console.log(JSON.stringify({
 		nonTime: nonTimeExhibition,
 		partialReferenceHasPartialLabel: partialReferenceBlock.includes("展示タイム一部取得です"),
 	},
+	levelDiagnostics,
+	referenceDiagnostics,
 	checks,
 }, null, 2));
 

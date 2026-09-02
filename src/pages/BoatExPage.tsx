@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { BoatExVenueFeatureNotes } from "../components/boatrace/ex/BoatExVenueFeatureNotes";
 import { PageShell } from "../components/layout/PageShell";
 import { withBasePath } from "../lib/assetPath";
 import type {
@@ -183,7 +184,7 @@ const twoColumnGridStyle = {
 
 const dashboardRowStyle = {
 	display: "grid",
-	gridTemplateColumns: "minmax(430px, 1.6fr) repeat(4, minmax(150px, 0.65fr))",
+	gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
 	gap: "12px",
 	alignItems: "stretch",
 };
@@ -2193,12 +2194,16 @@ export function BoatExPage() {
 			case "venue-bias":
 				return (
 					<SectionShell title="会場傾向" subtitle="会場傾向 v1">
-						<PendingPanel
-							status={venueBias?.readiness.status ?? "insufficient-history"}
-							reason={venueBias?.readiness.reason ?? "会場傾向エビデンスがありません。"}
-							source="件数と比率は履歴に基づく事実です。スコア、ランキング、推奨は生成しません。"
-						/>
-						<VenueBiasSection venueBias={venueBias} />
+						<div style={{ display: "grid", gap: "12px" }}>
+							<p style={labelStyle}>EX会場統計</p>
+							<PendingPanel
+								status={venueBias?.readiness.status ?? "insufficient-history"}
+								reason={venueBias?.readiness.reason ?? "会場傾向エビデンスがありません。"}
+								source="件数と比率は履歴に基づく事実です。スコア、ランキング、推奨は生成しません。"
+							/>
+							<VenueBiasSection venueBias={venueBias} />
+						</div>
+						<BoatExVenueFeatureNotes />
 					</SectionShell>
 				);
 			case "today-flow":
