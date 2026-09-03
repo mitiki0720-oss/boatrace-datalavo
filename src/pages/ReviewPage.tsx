@@ -7,6 +7,10 @@ import { getBoatOperationDate, resolveActiveBoatOperationDate, shiftBoatOperatio
 import { loadBoatPredictionRecords } from "../lib/boatPredictionStorage";
 import { loadBoatPracticeResultRecords } from "../lib/boatPracticeResultStorage";
 import {
+	buildBoatPredictionMonthlyFeedback,
+	summarizeBoatPredictionMonthlyFeedback,
+} from "../lib/boatPredictionMonthlyFeedback";
+import {
 	BOAT_REVIEW_DRAFT_STORAGE_KEY,
 	cleanupBoatVenueLocalStorage,
 	getBoatLocalStorageUsageBytes,
@@ -403,6 +407,22 @@ const emptyStyle: CSSProperties = {
 	background: "rgba(247,253,255,0.9)",
 	color: boatTheme.colors.muted,
 	lineHeight: 1.8,
+};
+
+const monthlyFeedbackGridStyle: CSSProperties = {
+	display: "grid",
+	gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+	gap: "10px",
+};
+
+const monthlyFeedbackCardStyle: CSSProperties = {
+	display: "grid",
+	gap: "6px",
+	padding: "12px",
+	borderRadius: "8px",
+	border: "1px solid rgba(93, 199, 232, 0.24)",
+	background: "rgba(250,254,255,0.94)",
+	minWidth: 0,
 };
 
 function formatMonthLabel(month: string): string {
@@ -902,6 +922,28 @@ export function ReviewPage() {
 		() => mode === "live" && selectedLiveGroup ? getBoatReviewResultCoverage(selectedLiveGroup, selectedVenueExtra) : null,
 		[mode, selectedLiveGroup, selectedVenueExtra],
 	);
+	const monthlyFeedback = useMemo(() => groups.flatMap((group) => group.races.flatMap((entry) =>
+		entry.prediction ? [buildBoatPredictionMonthlyFeedback({
+			prediction: entry.prediction,
+			practiceResult: entry.practiceResult,
+		})] : [],
+	)), [groups]);
+	const monthlyFeedbackSummary = useMemo(
+		() => summarizeBoatPredictionMonthlyFeedback(monthlyFeedback),
+		[monthlyFeedback],
+	);
+	const selectedMonthlyFeedback = useMemo(() => selectedGroup?.races.flatMap((entry) =>
+		entry.prediction ? [{
+			raceNo: entry.raceNo,
+			feedback: buildBoatPredictionMonthlyFeedback({
+				prediction: entry.prediction,
+				practiceResult: entry.practiceResult,
+			}),
+		}] : [],
+	) ?? [], [selectedGroup]);
+	const monthlyReferenceMonths = useMemo(() => Array.from(new Set(monthlyFeedback
+		.map((item) => item.monthlyReviewContext?.referenceMonth)
+		.filter((month): month is string => Boolean(month)))), [monthlyFeedback]);
 	const predictionText = useMemo(() => {
 		if (!selectedGroup) {
 			return "会場を選択してください";
@@ -1277,6 +1319,54 @@ export function ReviewPage() {
 					) : (
 						<p style={emptyStyle}>この日付の会場データは未登録です。今日・昨日は localStorage を優先し、過去日は public/data/reviews/index.json から txt を読み込みます。</p>
 					)}
+				</section>
+
+				<section style={panelStyle} aria-label="Monthly feedback tracking">
+					<div style={sectionHeaderStyle}>
+						<div>
+							<p style={eyebrowStyle}>MONTHLY FEEDBACK</p>
+							<h2 style={sectionTitleStyle}>Monthly focus別の観測結果</h2>
+							<p style={{ ...textStyle, fontSize: "0.8rem" }}>予想時点snapshotと確定結果の観測値です。因果分析ではありません。</p>
+						</div>
+						<span style={chipStyle}>Reference {monthlyReferenceMonths.length ? monthlyReferenceMonths.join(" / ") : "記録なし"}</span>
+					</div>
+					<div style={overviewGridStyle}>
+						{[
+							["対象予想", `${monthlyFeedbackSummary.trackedCount}R`],
+							["TICKET_HIT", `${monthlyFeedbackSummary.outcomes.TICKET_HIT}R`],
+							["STRUCTURE_MISS", `${monthlyFeedbackSummary.outcomes.STRUCTURE_MISS}R`],
+							["READ_MISS", `${monthlyFeedbackSummary.outcomes.READ_MISS}R`],
+							["DATA_HOLD", `${monthlyFeedbackSummary.outcomes.DATA_HOLD}R`],
+							["UNCLASSIFIED", `${monthlyFeedbackSummary.outcomes.UNCLASSIFIED}R`],
+						].map(([label, value]) => (
+							<article key={label} style={summaryCardStyle}><p style={summaryLabelStyle}>{label}</p><p style={summaryValueStyle}>{value}</p></article>
+						))}
+					</div>
+					<div style={chipRowStyle}>
+						<span style={chipStyle}>Focus=READ {monthlyFeedbackSummary.byFocus.read.count}R / HIT {monthlyFeedbackSummary.byFocus.read.outcomes.TICKET_HIT} / READ_MISS {monthlyFeedbackSummary.byFocus.read.outcomes.READ_MISS}</span>
+						<span style={chipStyle}>Focus=STRUCTURE {monthlyFeedbackSummary.byFocus.structure.count}R / HIT {monthlyFeedbackSummary.byFocus.structure.outcomes.TICKET_HIT} / STRUCTURE_MISS {monthlyFeedbackSummary.byFocus.structure.outcomes.STRUCTURE_MISS}</span>
+					</div>
+					{selectedMonthlyFeedback.length ? (
+						<div style={monthlyFeedbackGridStyle}>
+							{selectedMonthlyFeedback.map(({ raceNo, feedback }) => {
+								const snapshot = feedback.monthlyReviewContext;
+								const outcomeLabel = feedback.settlementOutcome === "pending" ? "結果待ち" : feedback.observedOutcome;
+								return (
+									<article key={feedback.raceKey} style={monthlyFeedbackCardStyle}>
+										<strong style={{ color: boatTheme.colors.navy }}>{raceNo}R / MONTHLY</strong>
+										{feedback.snapshotStatus === "legacy" ? <span style={textStyle}>記録なし</span> : feedback.snapshotStatus === "unavailable" ? <span style={textStyle}>参照未取得</span> : (
+											<>
+												<span style={textStyle}>Ref: {snapshot?.referenceMonth}</span>
+												<span style={textStyle}>Focus: {snapshot?.focusLabel ?? "未取得"}</span>
+												<span style={textStyle}>Venue sample: {snapshot?.venueSampleRaces ?? "未取得"}R</span>
+												<span style={textStyle}>Outcome: {outcomeLabel}</span>
+											</>
+										)}
+									</article>
+								);
+							})}
+						</div>
+					) : <p style={emptyStyle}>選択会場に保存済み予想はありません。</p>}
 				</section>
 
 				<section className="boat-review-copy-grid" style={workbenchGridStyle}>

@@ -33,7 +33,9 @@ import {
 import { buildBoatPreRacePredictionSupportBlock } from "../lib/boatPreRacePredictionSupport";
 import { loadBoatMonthlyReviewData } from "../lib/boatMonthlyReview";
 import {
+	buildBoatPredictionMonthlyReviewSnapshot,
 	buildBoatPredictionMonthlyReviewContext,
+	preserveBoatPredictionMonthlyReviewSnapshot,
 	resolveBoatPredictionMonthlyReferenceMonth,
 	type BoatPredictionMonthlyLoadState,
 } from "../lib/boatPredictionMonthlyReviewContext";
@@ -985,6 +987,13 @@ const monthlyReferenceStatusText = monthlyReviewLoadState === "loading"
 const monthlyLatestStatusText = monthlyReference?.latestAvailableMonth
 	? `Latest ${monthlyReference.latestAvailableMonth} ${monthlyReference.latestAvailableStatus ?? ""}`.trim()
 	: monthlyReviewLoadState === "unavailable" ? "Latest 未取得" : "";
+
+const monthlyReviewSnapshot = useMemo(() => buildBoatPredictionMonthlyReviewSnapshot({
+	monthlyData: monthlyReviewData,
+	loadState: monthlyReviewLoadState,
+	predictionDate: activePredictionDate,
+	venueName: selectedVenue?.venueName ?? "",
+}), [activePredictionDate, monthlyReviewData, monthlyReviewLoadState, selectedVenue?.venueName]);
 
 const raceExhibitionStatusMap = useMemo<Record<string, PredictionRaceExhibitionStatus>>(() => {
 	const extraRaces = toArray<Record<string, unknown>>(
@@ -2731,6 +2740,10 @@ const handleSelectRace = (raceId: string) => {
 			invalidBetRows: synced.invalidBetRows,
 			duplicateBetRows: synced.duplicateBetRows,
 			totalStakeYen: synced.betSummary.totalStakeYen,
+			monthlyReviewContext: preserveBoatPredictionMonthlyReviewSnapshot(
+				savedPredictionRecord?.monthlyReviewContext,
+				monthlyReviewSnapshot,
+			),
 			updatedAt: savedAt,
 			savedAt,
 		};
@@ -2792,6 +2805,10 @@ const handleSelectRace = (raceId: string) => {
 				invalidBetRows: synced.invalidBetRows,
 				duplicateBetRows: synced.duplicateBetRows,
 				totalStakeYen: synced.betSummary.totalStakeYen,
+				monthlyReviewContext: preserveBoatPredictionMonthlyReviewSnapshot(
+					predictionRecords[selectedRaceKey]?.monthlyReviewContext,
+					monthlyReviewSnapshot,
+				),
 				updatedAt: savedAt,
 				savedAt,
 			};

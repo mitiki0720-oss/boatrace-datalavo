@@ -7,6 +7,7 @@ import {
 	type ParsedBoatBetSummary,
 } from "./boatBetParser";
 import { parseBoatPredictionTickets } from "./boatPredictionParser";
+import { normalizeBoatPredictionMonthlyReviewSnapshot } from "./boatPredictionMonthlyReviewContext";
 import type { BoatPredictionRecord, BoatPredictionTicket } from "./boatraceTypes";
 
 export const BOAT_PREDICTION_STORAGE_KEY = "kurari-boat-data-labo-prediction-records";
@@ -236,6 +237,7 @@ export function hydrateBoatPredictionRecord(record: BoatPredictionRecord): BoatP
 		invalidBetRows: repairedRecord.invalidBetRows ?? betSummary.invalidRows ?? [],
 		duplicateBetRows: repairedRecord.duplicateBetRows ?? betSummary.duplicateRows ?? [],
 		totalStakeYen,
+		monthlyReviewContext: normalizeBoatPredictionMonthlyReviewSnapshot(repairedRecord.monthlyReviewContext),
 		updatedAt,
 	};
 }
