@@ -279,6 +279,35 @@ export type BoatPredictionTicket = {
 	note?: string;
 };
 
+export type BoatPredictionMonthlyReviewSnapshot = {
+	referenceMonth: string | null;
+	referenceStatus: "COMPLETE" | "UNAVAILABLE";
+	latestAvailableMonth?: string | null;
+	latestAvailableStatus?: "COMPLETE" | "PARTIAL" | null;
+	generatedAt?: string | null;
+	periodStart?: string | null;
+	periodEnd?: string | null;
+	focus?: "structure" | "read" | "balanced" | null;
+	focusLabel?: string | null;
+	monthlyRaces?: number | null;
+	monthlyHitRatePct?: number | null;
+	monthlyRoiPct?: number | null;
+	monthlyStructureMissRatePct?: number | null;
+	monthlyReadMissRatePct?: number | null;
+	monthlyDataHold?: number | null;
+	monthlyOneBoatWinRatePct?: number | null;
+	venue?: string | null;
+	venueSampleRaces?: number | null;
+	venueHitRatePct?: number | null;
+	venueRoiPct?: number | null;
+	venueStructureMiss?: number | null;
+	venueReadMiss?: number | null;
+	venueDataHold?: number | null;
+	venueOneBoatWinRatePct?: number | null;
+	classificationMethod?: string | null;
+	autoProxyIncluded?: boolean;
+};
+
 export type BoatPredictionRecord = {
 	raceKey: string;
 	raceId?: string;
@@ -299,6 +328,7 @@ export type BoatPredictionRecord = {
 	invalidBetRows?: string[];
 	duplicateBetRows?: string[];
 	totalStakeYen?: number;
+	monthlyReviewContext?: BoatPredictionMonthlyReviewSnapshot;
 	updatedAt?: string;
 	savedAt: string;
 };

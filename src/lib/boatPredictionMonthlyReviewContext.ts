@@ -9,6 +9,7 @@ import type {
 	BoatMonthlyReviewData,
 	BoatMonthlyVenuePerformance,
 } from "../types/boatMonthlyReview";
+import type { BoatPredictionMonthlyReviewSnapshot } from "./boatraceTypes";
 
 export type BoatPredictionMonthlyLoadState = "loading" | "ready" | "unavailable";
 
@@ -98,6 +99,106 @@ export function findBoatPredictionMonthlyVenue(params: {
 		item.month === params.referenceMonth && item.venue === params.venueName) ?? null;
 }
 
+const resolveSnapshotFocus = (focusLabel: BoatPredictionMonthlyFocus): BoatPredictionMonthlyReviewSnapshot["focus"] => {
+	if (focusLabel === "10点構成監査を優先") return "structure";
+	if (focusLabel === "展開読み監査を優先") return "read";
+	if (focusLabel === "構成・展開の両方を監査") return "balanced";
+	return null;
+};
+
+export function normalizeBoatPredictionMonthlyReviewSnapshot(
+	value: BoatPredictionMonthlyReviewSnapshot | undefined,
+): BoatPredictionMonthlyReviewSnapshot | undefined {
+	if (!value || (value.referenceStatus !== "COMPLETE" && value.referenceStatus !== "UNAVAILABLE")) return undefined;
+	return {
+		...value,
+		referenceMonth: value.referenceMonth && isMonth(value.referenceMonth) ? value.referenceMonth : null,
+	};
+}
+
+export function preserveBoatPredictionMonthlyReviewSnapshot(
+	existing: BoatPredictionMonthlyReviewSnapshot | undefined,
+	current: BoatPredictionMonthlyReviewSnapshot,
+): BoatPredictionMonthlyReviewSnapshot {
+	return normalizeBoatPredictionMonthlyReviewSnapshot(existing) ?? current;
+}
+
+export function buildBoatPredictionMonthlyReviewSnapshot(params: {
+	monthlyData: BoatMonthlyReviewData | null;
+	loadState: BoatPredictionMonthlyLoadState;
+	predictionDate: string;
+	venueName: string;
+}): BoatPredictionMonthlyReviewSnapshot {
+	const { monthlyData, loadState, predictionDate, venueName } = params;
+	if (!monthlyData || loadState !== "ready") {
+		return { referenceMonth: null, referenceStatus: "UNAVAILABLE" };
+	}
+
+	let reference: BoatPredictionMonthlyReference;
+	try {
+		reference = resolveBoatPredictionMonthlyReferenceMonth({ predictionDate, monthlyData });
+	} catch {
+		return {
+			referenceMonth: null,
+			referenceStatus: "UNAVAILABLE",
+			generatedAt: monthlyData.generated_at ?? null,
+			periodStart: monthlyData.period?.start ?? null,
+			periodEnd: monthlyData.period?.end ?? null,
+		};
+	}
+
+	const overview = reference.referenceOverview;
+	if (!reference.referenceMonth || !overview) {
+		return {
+			referenceMonth: null,
+			referenceStatus: "UNAVAILABLE",
+			latestAvailableMonth: reference.latestAvailableMonth,
+			latestAvailableStatus: reference.latestAvailableStatus,
+			generatedAt: monthlyData.generated_at ?? null,
+			periodStart: monthlyData.period?.start ?? null,
+			periodEnd: monthlyData.period?.end ?? null,
+			classificationMethod: monthlyData.method?.classification ?? null,
+			autoProxyIncluded: (getBoatMonthlyQualityCount(monthlyData, "classification_auto_proxy") ?? 0) > 0,
+		};
+	}
+
+	const venue = findBoatPredictionMonthlyVenue({
+		monthlyData,
+		referenceMonth: reference.referenceMonth,
+		venueName,
+	});
+	const focusLabel = resolveBoatPredictionMonthlyFocus(overview.structure_miss_rate_pct, overview.read_miss_rate_pct);
+
+	return {
+		referenceMonth: reference.referenceMonth,
+		referenceStatus: "COMPLETE",
+		latestAvailableMonth: reference.latestAvailableMonth,
+		latestAvailableStatus: reference.latestAvailableStatus,
+		generatedAt: monthlyData.generated_at ?? null,
+		periodStart: monthlyData.period?.start ?? null,
+		periodEnd: monthlyData.period?.end ?? null,
+		focus: resolveSnapshotFocus(focusLabel),
+		focusLabel,
+		monthlyRaces: overview.races ?? null,
+		monthlyHitRatePct: overview.hit_rate_pct ?? null,
+		monthlyRoiPct: overview.roi_pct ?? null,
+		monthlyStructureMissRatePct: overview.structure_miss_rate_pct ?? null,
+		monthlyReadMissRatePct: overview.read_miss_rate_pct ?? null,
+		monthlyDataHold: overview.DATA_HOLD ?? null,
+		monthlyOneBoatWinRatePct: overview.actual_1boat_win_rate_pct ?? null,
+		venue: venue ? venueName : null,
+		venueSampleRaces: venue?.races ?? null,
+		venueHitRatePct: venue?.hit_rate_pct ?? null,
+		venueRoiPct: venue?.roi_pct ?? null,
+		venueStructureMiss: venue?.STRUCTURE_MISS ?? null,
+		venueReadMiss: venue?.READ_MISS ?? null,
+		venueDataHold: venue?.DATA_HOLD ?? null,
+		venueOneBoatWinRatePct: venue?.actual_1boat_win_rate_pct ?? null,
+		classificationMethod: monthlyData.method?.classification ?? null,
+		autoProxyIncluded: (getBoatMonthlyQualityCount(monthlyData, "classification_auto_proxy") ?? 0) > 0,
+	};
+}
+
 const readWindSpeed = (value: unknown): number | null => {
 	if (typeof value === "number" && Number.isFinite(value) && value >= 0) return value;
 	if (typeof value !== "string") return null;
@@ -137,53 +238,43 @@ export function buildBoatPredictionMonthlyReviewContext(params: {
 }): string {
 	const { monthlyData, loadState, predictionDate, venueName } = params;
 	if (!monthlyData || loadState !== "ready") return buildUnavailableBlock(loadState);
-
-	let reference: BoatPredictionMonthlyReference;
-	try {
-		reference = resolveBoatPredictionMonthlyReferenceMonth({ predictionDate, monthlyData });
-	} catch {
-		return buildUnavailableBlock("unavailable");
-	}
-
-	const overview = reference.referenceOverview;
-	if (!reference.referenceMonth || !overview) {
+	const snapshot = buildBoatPredictionMonthlyReviewSnapshot({ monthlyData, loadState, predictionDate, venueName });
+	const overview = snapshot.referenceMonth
+		? monthlyData.monthlyOverview.find((item) => item.month === snapshot.referenceMonth) ?? null
+		: null;
+	if (!snapshot.referenceMonth || !overview) {
 		return [
 			"【月次振り返り反映】",
 			"月次振り返り: 利用可能な直前完了月なし",
 			`prediction date: ${predictionDate}`,
-			`latest available: ${reference.latestAvailableMonth ?? "未取得"}${reference.latestAvailableStatus ? ` ${reference.latestAvailableStatus}` : ""}`,
+			`latest available: ${snapshot.latestAvailableMonth ?? "未取得"}${snapshot.latestAvailableStatus ? ` ${snapshot.latestAvailableStatus}` : ""}`,
 			"未来月・予想対象月・PARTIAL月は参照しません。",
 		].join("\n");
 	}
 
-	const venue = findBoatPredictionMonthlyVenue({
-		monthlyData,
-		referenceMonth: reference.referenceMonth,
-		venueName,
-	});
-	const oneBoatRows = monthlyData.oneBoatAnalysis.filter((item) => item.month === reference.referenceMonth);
+	const oneBoatRows = monthlyData.oneBoatAnalysis.filter((item) => item.month === snapshot.referenceMonth);
 	const windSpeed = readWindSpeed(params.windSpeed);
 	const windBand = windSpeed === null
 		? null
-		: monthlyData.windBands.find((item) => item.month === reference.referenceMonth && matchesWindBand(item.wind_band, windSpeed)) ?? null;
+		: monthlyData.windBands.find((item) => item.month === snapshot.referenceMonth && matchesWindBand(item.wind_band, windSpeed)) ?? null;
 	const predictionModeLabel = resolvePredictionModeLabel(params.predictionMode);
 	const predictionMode = predictionModeLabel
-		? monthlyData.predictionModes.find((item) => item.month === reference.referenceMonth && item.prediction_mode === predictionModeLabel) ?? null
+		? monthlyData.predictionModes.find((item) => item.month === snapshot.referenceMonth && item.prediction_mode === predictionModeLabel) ?? null
 		: null;
-	const displayAudit = monthlyData.displayAudit.find((item) => item.month === reference.referenceMonth) ?? null;
-	const focus = resolveBoatPredictionMonthlyFocus(overview.structure_miss_rate_pct, overview.read_miss_rate_pct);
+	const displayAudit = monthlyData.displayAudit.find((item) => item.month === snapshot.referenceMonth) ?? null;
+	const focus = snapshot.focusLabel ?? "外れ分類率未取得";
 	const summaryClassified = getBoatMonthlyQualityCount(monthlyData, "summary_classified_races");
 	const autoProxy = getBoatMonthlyQualityCount(monthlyData, "classification_auto_proxy");
 	const classificationCollision = getBoatMonthlyQualityCount(monthlyData, "summary_class_collision");
 
 	return [
-		`【月次振り返り反映 / ${reference.referenceMonth}】`,
+		`【月次振り返り反映 / ${snapshot.referenceMonth}】`,
 		"source: KURARI BOAT Monthly Review",
 		`data: ${BOAT_MONTHLY_REVIEW_DATA_PATH}`,
 		`generated_at: ${monthlyData.generated_at}`,
 		"reference status: COMPLETE",
-		`対象: ${reference.referenceMonth}`,
-		`latest available: ${reference.latestAvailableMonth ?? "未取得"}${reference.latestAvailableStatus ? ` ${reference.latestAvailableStatus}` : ""}`,
+		`対象: ${snapshot.referenceMonth}`,
+		`latest available: ${snapshot.latestAvailableMonth ?? "未取得"}${snapshot.latestAvailableStatus ? ` ${snapshot.latestAvailableStatus}` : ""}`,
 		"PARTIAL月は主referenceに使用しません。未来月・予想対象月の集計も使用しません。",
 		"",
 		"【月全体】",
@@ -201,14 +292,14 @@ export function buildBoatPredictionMonthlyReviewContext(params: {
 		"",
 		"【今回会場】",
 		`会場: ${venueName || "未取得"}`,
-		...(venue ? [
-			`sample: R=${formatCount(venue.races)}`,
-			`的中率: ${formatPercent(venue.hit_rate_pct)}`,
-			`ROI: ${formatPercent(venue.roi_pct)}`,
-			`STRUCTURE_MISS: ${formatCount(venue.STRUCTURE_MISS)}`,
-			`READ_MISS: ${formatCount(venue.READ_MISS)}`,
-			`DATA_HOLD: ${formatCount(venue.DATA_HOLD)}`,
-			`1号艇1着率: ${formatPercent(venue.actual_1boat_win_rate_pct)}`,
+		...(snapshot.venue ? [
+			`sample: R=${formatCount(snapshot.venueSampleRaces)}`,
+			`的中率: ${formatPercent(snapshot.venueHitRatePct)}`,
+			`ROI: ${formatPercent(snapshot.venueRoiPct)}`,
+			`STRUCTURE_MISS: ${formatCount(snapshot.venueStructureMiss)}`,
+			`READ_MISS: ${formatCount(snapshot.venueReadMiss)}`,
+			`DATA_HOLD: ${formatCount(snapshot.venueDataHold)}`,
+			`1号艇1着率: ${formatPercent(snapshot.venueOneBoatWinRatePct)}`,
 		] : ["会場別月次: 未取得（別会場のデータは代用しません）"]),
 		"",
 		"【1号艇・風・予想時点の月次参考】",
