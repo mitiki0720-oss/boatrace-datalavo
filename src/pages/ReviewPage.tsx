@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { PageShell } from "../components/layout/PageShell";
 import { withBasePath } from "../lib/assetPath";
@@ -36,17 +35,18 @@ import {
 	buildBoatResultSummaryText,
 	buildLiveBoatReviewVenueGroups,
 	createArchiveBoatReviewVenueGroup,
-	getBoatReviewPredictionCoverage,
-	getBoatReviewResultCoverage,
-	getBoatReviewVenueMetrics,
 	getBoatReviewVenueNameFromSlug,
 	normalizeBoatPracticeResultList,
 	normalizeBoatPredictionRecordList,
 	type BoatReviewVenueGroup,
 } from "../lib/boatReviewSummaryBuilder";
+import {
+	buildBoatReviewPagePerformance,
+	buildBoatReviewVenuePerformance,
+	type BoatReviewRacePerformance,
+} from "../lib/boatReviewPerformanceMetrics";
 import { resolveBoatVenueDayLabel } from "../lib/boatVenueDayLabel";
 import type { BoatRaceItem, BoatTodayFeed } from "../lib/boatraceTypes";
-import { boatTheme } from "../lib/theme";
 
 type ReviewDataMode = "live" | "archive";
 
@@ -55,375 +55,6 @@ const HERO_IMAGE_PATH = "review-page/hero/review-hero-boat-summary-kurari-funako
 const ARCHIVE_SUMMARY_MISSING_TEXT = "summary未作成\n予想・結果の保存は完了しています。";
 const REVIEW_PAGE_BACKGROUND_URL = withBasePath("review-page/backgrounds/review-page-bg-water-archive.png");
 const WEEKDAY_LABELS = ["月", "火", "水", "木", "金", "土", "日"];
-
-const reviewRootStyle: CSSProperties = {
-	position: "relative",
-	minHeight: "100%",
-	overflow: "hidden",
-	paddingBottom: "40px",
-};
-
-const reviewBackgroundStyle: CSSProperties = {
-	display: "none",
-};
-
-const reviewGlowStyle: CSSProperties = {
-	position: "absolute",
-	inset: 0,
-	background: "radial-gradient(circle at 12% 0%, rgba(191, 239, 255, 0.28), transparent 28%), radial-gradient(circle at 88% 12%, rgba(226, 232, 255, 0.26), transparent 30%)",
-	pointerEvents: "none",
-	zIndex: 1,
-};
-
-const pageStyle: CSSProperties = {
-	display: "grid",
-	gap: "24px",
-	width: "100%",
-	padding: "18px 24px 96px",
-	boxSizing: "border-box",
-	position: "relative",
-	zIndex: 2,
-};
-
-const topGridStyle: CSSProperties = {
-	display: "grid",
-	gridTemplateColumns: "minmax(0, 1.45fr) minmax(330px, 0.55fr)",
-	gap: "22px",
-	alignItems: "stretch",
-};
-
-const heroStyle: CSSProperties = {
-	display: "grid",
-	gridTemplateColumns: "minmax(0, 1.06fr) minmax(320px, 0.94fr)",
-	gap: "28px",
-	alignItems: "center",
-	padding: "34px",
-	borderRadius: "34px",
-	border: "1px solid rgba(93, 199, 232, 0.24)",
-	background:
-		"radial-gradient(circle at 12% 0%, rgba(222, 245, 255, 0.9), transparent 34%), radial-gradient(circle at 88% 12%, rgba(235, 226, 255, 0.84), transparent 34%), linear-gradient(135deg, rgba(255,255,255,0.98), rgba(244,252,255,0.96) 54%, rgba(239,246,255,0.95))",
-	boxShadow: "0 26px 64px rgba(17, 64, 92, 0.1)",
-	overflow: "hidden",
-};
-
-const heroImageWrapStyle: CSSProperties = {
-	minHeight: "270px",
-	borderRadius: "28px",
-	border: "1px solid rgba(93, 199, 232, 0.22)",
-	background:
-		"linear-gradient(135deg, rgba(255,255,255,0.86), rgba(224,247,255,0.76)), radial-gradient(circle at 60% 30%, rgba(197, 241, 255, 0.9), transparent 34%)",
-	boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 42px rgba(17, 64, 92, 0.08)",
-	overflow: "hidden",
-	position: "relative",
-	display: "grid",
-	placeItems: "center",
-};
-
-const heroImageStyle: CSSProperties = {
-	width: "100%",
-	height: "100%",
-	objectFit: "cover",
-	display: "block",
-};
-
-const heroFallbackStyle: CSSProperties = {
-	display: "grid",
-	gap: "10px",
-	placeItems: "center",
-	textAlign: "center",
-	color: boatTheme.colors.aquaDeep,
-	fontWeight: 900,
-	padding: "28px",
-};
-
-const titleStyle: CSSProperties = {
-	margin: 0,
-	color: boatTheme.colors.navy,
-	fontSize: "clamp(2rem, 3.2vw, 3.8rem)",
-	lineHeight: 1.14,
-	fontWeight: 950,
-};
-
-const textStyle: CSSProperties = {
-	margin: 0,
-	color: boatTheme.colors.muted,
-	fontSize: "0.96rem",
-	lineHeight: 1.82,
-};
-
-const eyebrowStyle: CSSProperties = {
-	margin: 0,
-	color: boatTheme.colors.aquaDeep,
-	fontSize: "0.74rem",
-	fontWeight: 950,
-	letterSpacing: "0.14em",
-	textTransform: "uppercase",
-};
-
-const chipRowStyle: CSSProperties = {
-	display: "flex",
-	flexWrap: "wrap",
-	gap: "9px",
-	alignItems: "center",
-};
-
-const chipStyle: CSSProperties = {
-	display: "inline-flex",
-	alignItems: "center",
-	justifyContent: "center",
-	width: "fit-content",
-	padding: "8px 12px",
-	borderRadius: "999px",
-	border: "1px solid rgba(93, 199, 232, 0.22)",
-	background: "rgba(255,255,255,0.86)",
-	color: boatTheme.colors.aquaDeep,
-	fontSize: "0.76rem",
-	fontWeight: 900,
-	whiteSpace: "nowrap",
-};
-
-const panelStyle: CSSProperties = {
-	padding: "24px",
-	borderRadius: "28px",
-	border: `1px solid ${boatTheme.colors.line}`,
-	background: "rgba(255,255,255,0.88)",
-	backdropFilter: "blur(16px)",
-	boxShadow: boatTheme.shadow.soft,
-	display: "grid",
-	gap: "16px",
-	minWidth: 0,
-};
-
-const calendarPanelStyle: CSSProperties = {
-	...panelStyle,
-	background:
-		"radial-gradient(circle at 100% 0%, rgba(233, 226, 255, 0.58), transparent 34%), linear-gradient(180deg, rgba(255,255,255,0.97), rgba(240,251,253,0.93))",
-	alignContent: "start",
-};
-
-const sectionHeaderStyle: CSSProperties = {
-	display: "flex",
-	justifyContent: "space-between",
-	alignItems: "flex-start",
-	gap: "18px",
-	flexWrap: "wrap",
-};
-
-const sectionTitleStyle: CSSProperties = {
-	margin: 0,
-	color: boatTheme.colors.navy,
-	fontSize: "1.2rem",
-	fontWeight: 950,
-};
-
-const dateGridStyle: CSSProperties = {
-	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-	gap: "10px",
-};
-
-const calendarGridStyle: CSSProperties = {
-	display: "grid",
-	gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-	gap: "7px",
-};
-
-const calendarDayStyle: CSSProperties = {
-	minHeight: "42px",
-	borderRadius: "14px",
-	border: "1px solid rgba(93, 199, 232, 0.16)",
-	background: "rgba(255,255,255,0.9)",
-	color: boatTheme.colors.navy,
-	fontWeight: 900,
-	cursor: "pointer",
-	position: "relative",
-};
-
-const dateButtonStyle: CSSProperties = {
-	border: "1px solid rgba(93, 199, 232, 0.2)",
-	background: "rgba(255,255,255,0.92)",
-	color: boatTheme.colors.navy,
-	borderRadius: "16px",
-	padding: "12px 10px",
-	fontWeight: 900,
-	cursor: "pointer",
-};
-
-const overviewGridStyle: CSSProperties = {
-	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-	gap: "12px",
-};
-
-const summaryCardStyle: CSSProperties = {
-	padding: "16px 17px",
-	borderRadius: "22px",
-	background: "rgba(255, 255, 255, 0.86)",
-	border: "1px solid rgba(93, 199, 232, 0.2)",
-	display: "grid",
-	gap: "5px",
-	boxShadow: "0 12px 26px rgba(17, 64, 92, 0.04)",
-};
-
-const summaryLabelStyle: CSSProperties = {
-	margin: 0,
-	color: boatTheme.colors.aquaDeep,
-	fontSize: "0.68rem",
-	fontWeight: 900,
-	letterSpacing: "0.08em",
-};
-
-const summaryValueStyle: CSSProperties = {
-	margin: 0,
-	color: boatTheme.colors.navy,
-	fontSize: "1.08rem",
-	fontWeight: 950,
-	lineHeight: 1.2,
-};
-
-const venueGridStyle: CSSProperties = {
-	display: "grid",
-	gridTemplateColumns: "repeat(auto-fill, minmax(260px, 280px))",
-	gap: "18px",
-	alignItems: "stretch",
-	justifyContent: "start",
-};
-
-const venueCardStyle: CSSProperties = {
-	width: "100%",
-	minHeight: "198px",
-	aspectRatio: "1.18 / 1",
-	textAlign: "left",
-	padding: "16px",
-	borderRadius: "24px",
-	border: "1px solid rgba(179, 155, 255, 0.42)",
-	background:
-		"radial-gradient(circle at 8% 0%, rgba(221, 214, 254, 0.72), transparent 42%), radial-gradient(circle at 100% 8%, rgba(224, 242, 254, 0.54), transparent 38%), linear-gradient(145deg, rgba(255,255,255,0.98), rgba(249,246,255,0.95) 56%, rgba(240,250,255,0.92))",
-	boxShadow: "0 18px 38px rgba(93, 76, 143, 0.09)",
-	cursor: "pointer",
-	display: "grid",
-	gridTemplateRows: "auto 1fr",
-	gap: "14px",
-	position: "relative",
-	overflow: "hidden",
-};
-
-const metricGridStyle: CSSProperties = {
-	display: "grid",
-	gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-	gap: "8px",
-	alignSelf: "end",
-};
-
-const metricStyle: CSSProperties = {
-	padding: "10px 9px",
-	borderRadius: "15px",
-	background: "linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,244,255,0.86))",
-	border: "1px solid rgba(179, 155, 255, 0.3)",
-	display: "grid",
-	gap: "3px",
-	minHeight: "56px",
-};
-
-const metricLabelStyle: CSSProperties = {
-	margin: 0,
-	color: boatTheme.colors.muted,
-	fontSize: "0.6rem",
-	fontWeight: 850,
-};
-
-const metricValueStyle: CSSProperties = {
-	margin: 0,
-	color: boatTheme.colors.navy,
-	fontSize: "0.98rem",
-	fontWeight: 950,
-	lineHeight: 1.15,
-};
-
-const workbenchGridStyle: CSSProperties = {
-	display: "grid",
-	gridTemplateColumns: "minmax(0, 1.18fr) minmax(360px, 0.82fr)",
-	gap: "22px",
-	alignItems: "start",
-};
-
-const textareaStyle: CSSProperties = {
-	width: "100%",
-	minHeight: "300px",
-	boxSizing: "border-box",
-	padding: "16px",
-	borderRadius: "18px",
-	border: `1px solid ${boatTheme.colors.line}`,
-	background: "rgba(250,254,255,0.96)",
-	color: boatTheme.colors.navy,
-	lineHeight: 1.7,
-	fontSize: "0.84rem",
-	fontFamily: "ui-monospace, SFMono-Regular, Consolas, monospace",
-	resize: "vertical",
-};
-
-const summaryTextareaStyle: CSSProperties = {
-	...textareaStyle,
-	minHeight: "520px",
-	fontFamily: "inherit",
-};
-
-const buttonRowStyle: CSSProperties = {
-	display: "flex",
-	flexWrap: "wrap",
-	gap: "8px",
-	alignItems: "center",
-};
-
-const primaryButtonStyle: CSSProperties = {
-	padding: "10px 13px",
-	borderRadius: "14px",
-	border: "none",
-	background: boatTheme.colors.navy,
-	color: "#fff",
-	fontWeight: 900,
-	cursor: "pointer",
-};
-
-const secondaryButtonStyle: CSSProperties = {
-	...primaryButtonStyle,
-	border: `1px solid ${boatTheme.colors.line}`,
-	background: "rgba(255,255,255,0.95)",
-	color: boatTheme.colors.navy,
-};
-
-const dangerButtonStyle: CSSProperties = {
-	...secondaryButtonStyle,
-	border: "1px solid rgba(190, 57, 72, 0.34)",
-	background: "rgba(255, 246, 247, 0.98)",
-	color: "#a42336",
-};
-
-const emptyStyle: CSSProperties = {
-	margin: 0,
-	padding: "24px",
-	borderRadius: "22px",
-	border: "1px dashed rgba(93, 199, 232, 0.38)",
-	background: "rgba(247,253,255,0.9)",
-	color: boatTheme.colors.muted,
-	lineHeight: 1.8,
-};
-
-const monthlyFeedbackGridStyle: CSSProperties = {
-	display: "grid",
-	gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
-	gap: "10px",
-};
-
-const monthlyFeedbackCardStyle: CSSProperties = {
-	display: "grid",
-	gap: "6px",
-	padding: "12px",
-	borderRadius: "8px",
-	border: "1px solid rgba(93, 199, 232, 0.24)",
-	background: "rgba(250,254,255,0.94)",
-	minWidth: 0,
-};
 
 function formatMonthLabel(month: string): string {
 	const [year, monthNumber] = month.split("-").map(Number);
@@ -620,12 +251,49 @@ function sortLiveReviewGroups(groups: BoatReviewVenueGroup[]) {
 		.map(({ group }) => group);
 }
 
-function getVenueHitLine(metrics: ReturnType<typeof getBoatReviewVenueMetrics>): string {
-	if (metrics.practiceCount <= 0) {
-		return "--";
-	}
+function formatOptionalYen(value: number, available: boolean): string {
+	return available ? formatYen(value) : "--";
+}
 
-	return `${metrics.hitCount}-${metrics.practiceCount}`;
+function formatOptionalSignedYen(value: number, available: boolean): string {
+	return available ? formatSignedYen(value) : "--";
+}
+
+function formatOptionalPercent(value: number | null): string {
+	return value === null ? "--" : formatPercent(value);
+}
+
+function getRaceStatusPresentation(race: BoatReviewRacePerformance) {
+	const presentations = {
+		hit: { label: "🎯 的中", color: "#137a63", background: "#e8f8f2" },
+		miss: { label: "× 不的中", color: "#a53e5a", background: "#fff0f4" },
+		pending: { label: "⏳ 結果待ち", color: "#687080", background: "#f3f4f6" },
+		refund: { label: "↩ 返還", color: "#286f91", background: "#eaf7fc" },
+		cancelled: { label: "⛔ 中止", color: "#6b7280", background: "#f1f3f6" },
+		"parse-warning": { label: "⚠ 予想解析注意", color: "#a45b16", background: "#fff3e6" },
+		unpredicted: { label: "予想なし", color: "#6b7280", background: "#f3f4f6" },
+	} as const;
+	return presentations[race.status];
+}
+
+function ReviewStatCard({ label, value, sub }: { label: string; value: string; sub: string }) {
+	return (
+		<article className="boat-review-stat-card">
+			<span>{label}</span>
+			<strong>{value}</strong>
+			<small>{sub}</small>
+		</article>
+	);
+}
+
+function ReviewMetric({ label, value, sub }: { label: string; value: string; sub: string }) {
+	return (
+		<div className="boat-review-metric">
+			<span>{label}</span>
+			<strong>{value}</strong>
+			<small>{sub}</small>
+		</div>
+	);
 }
 
 function readDrafts(): Record<string, string> {
@@ -638,12 +306,6 @@ function readDrafts(): Record<string, string> {
 	} catch {
 		return {};
 	}
-}
-
-function saveDraft(key: string, value: string): void {
-	if (typeof window === "undefined") return;
-	const drafts = readDrafts();
-	window.localStorage.setItem(REVIEW_DRAFT_STORAGE_KEY, JSON.stringify({ ...drafts, [key]: value }));
 }
 
 async function copyText(text: string): Promise<boolean> {
@@ -665,10 +327,6 @@ function downloadText(filename: string, text: string): void {
 	link.click();
 	link.remove();
 	URL.revokeObjectURL(url);
-}
-
-function normalizeLocalStorageValues<T>(map: Record<string, T> | T[]): T[] {
-	return Array.isArray(map) ? map : Object.values(map || {});
 }
 
 function getReviewFileName(date: string, venueSlug: string, suffix: "predictions" | "results" | "summary"): string {
@@ -733,7 +391,7 @@ export function ReviewPage() {
 	const [practicePayload, setPracticePayload] = useState(() => loadBoatPracticeResultRecords());
 	const [archiveGroups, setArchiveGroups] = useState<BoatReviewVenueGroup[]>([]);
 	const [selectedVenueKey, setSelectedVenueKey] = useState("");
-	const [summaryDraft, setSummaryDraft] = useState("");
+	const [summaryText, setSummaryText] = useState("");
 	const [statusMessage, setStatusMessage] = useState("");
 	const [heroImageAvailable, setHeroImageAvailable] = useState(true);
 	const [storageUsageBytes, setStorageUsageBytes] = useState(() => getBoatLocalStorageUsageBytes());
@@ -814,23 +472,24 @@ export function ReviewPage() {
 	);
 
 	const groups = useMemo(() => {
-	if (mode === "archive") {
-		return archiveGroups;
-	}
-
-	const hasArchivePrediction = (group: BoatReviewVenueGroup) =>
-		Boolean(archiveItemMap.get(group.key)?.predictionFile);
-
-	const mergedGroups = [...liveGroups];
-
-	for (const archiveGroup of archiveGroups) {
-		if (hasArchivePrediction(archiveGroup) && !mergedGroups.some((group) => group.key === archiveGroup.key)) {
-			mergedGroups.push(archiveGroup);
+		const uniqueArchiveGroups = Array.from(new Map(archiveGroups.map((group) => [group.key, group])).values());
+		if (mode === "archive") {
+			return uniqueArchiveGroups;
 		}
-	}
 
-	return sortLiveReviewGroups(mergedGroups);
-}, [archiveGroups, archiveItemMap, liveGroups, mode]);
+		const hasArchivePrediction = (group: BoatReviewVenueGroup) =>
+			Boolean(archiveItemMap.get(group.key)?.predictionFile);
+
+		const mergedGroups = [...liveGroups];
+
+		for (const archiveGroup of uniqueArchiveGroups) {
+			if (hasArchivePrediction(archiveGroup) && !mergedGroups.some((group) => group.key === archiveGroup.key)) {
+				mergedGroups.push(archiveGroup);
+			}
+		}
+
+		return sortLiveReviewGroups(mergedGroups);
+	}, [archiveGroups, archiveItemMap, liveGroups, mode]);
 	const selectedGroup = useMemo(() => {
 		if (groups.length === 0) return undefined;
 		return groups.find((group) => group.key === selectedVenueKey) ?? groups[0];
@@ -875,52 +534,25 @@ export function ReviewPage() {
 
 	useEffect(() => {
 		if (!selectedGroup) {
-			setSummaryDraft("");
+			setSummaryText("");
 			return;
 		}
 		if (mode === "archive") {
-			setSummaryDraft(selectedArchiveGroup?.summaryFileText || selectedGroup.summaryFileText || ARCHIVE_SUMMARY_MISSING_TEXT);
+			setSummaryText(selectedArchiveGroup?.summaryFileText || selectedGroup.summaryFileText || ARCHIVE_SUMMARY_MISSING_TEXT);
 			return;
 		}
 		const draftKey = `${selectedGroup.date}:${selectedGroup.venueSlug}`;
-		setSummaryDraft(readDrafts()[draftKey] ?? selectedArchiveGroup?.summaryFileText ?? ARCHIVE_SUMMARY_MISSING_TEXT);
+		setSummaryText(readDrafts()[draftKey] ?? selectedArchiveGroup?.summaryFileText ?? ARCHIVE_SUMMARY_MISSING_TEXT);
 	}, [mode, selectedArchiveGroup, selectedGroup]);
 
-	const metrics = useMemo(() => {
-		const venueMetrics = groups.map(getBoatReviewVenueMetrics);
-		const predictionCount = venueMetrics.reduce((sum, item) => sum + item.predictionCount, 0);
-		const resultCount = venueMetrics.reduce((sum, item) => sum + item.resultCount, 0);
-		const practiceCount = venueMetrics.reduce((sum, item) => sum + item.practiceCount, 0);
-		const hitCount = venueMetrics.reduce((sum, item) => sum + item.hitCount, 0);
-		const investment = venueMetrics.reduce((sum, item) => sum + item.investment, 0);
-		const payout = venueMetrics.reduce((sum, item) => sum + item.payout, 0);
-		const summaryCount = venueMetrics.filter((item) => item.hasSummary).length;
-		return {
-			venueCount: groups.length,
-			predictionCount,
-			resultCount,
-			practiceCount,
-			hitCount,
-			investment,
-			payout,
-			profit: payout - investment,
-			roi: investment > 0 ? payout / investment * 100 : 0,
-			summaryCount,
-		};
-	}, [groups]);
-
-	const selectedMetrics = selectedGroup ? getBoatReviewVenueMetrics(selectedGroup) : null;
+	const metrics = useMemo(() => buildBoatReviewPagePerformance(groups), [groups]);
+	const selectedMetrics = useMemo(
+		() => selectedGroup ? buildBoatReviewVenuePerformance(selectedGroup) : null,
+		[selectedGroup],
+	);
 	const selectedVenueExtra = useMemo(
 		() => findReviewVenueExtra(venueExtrasFeed, selectedLiveGroup),
 		[selectedLiveGroup, venueExtrasFeed],
-	);
-	const selectedPredictionCoverage = useMemo(
-		() => selectedGroup ? getBoatReviewPredictionCoverage(mode === "live" && selectedLiveGroup ? selectedLiveGroup : selectedGroup) : null,
-		[mode, selectedGroup, selectedLiveGroup],
-	);
-	const selectedResultCoverage = useMemo(
-		() => mode === "live" && selectedLiveGroup ? getBoatReviewResultCoverage(selectedLiveGroup, selectedVenueExtra) : null,
-		[mode, selectedLiveGroup, selectedVenueExtra],
 	);
 	const monthlyFeedback = useMemo(() => groups.flatMap((group) => group.races.flatMap((entry) =>
 		entry.prediction ? [buildBoatPredictionMonthlyFeedback({
@@ -1009,15 +641,6 @@ export function ReviewPage() {
 		setStatusMessage(ok ? `${label}をコピーしました` : `${label}のコピーに失敗しました`);
 	};
 
-	const handleSummaryChange = (value: string) => {
-		setSummaryDraft(value);
-		if (selectedGroup && mode === "live") {
-			saveDraft(`${selectedGroup.date}:${selectedGroup.venueSlug}`, value);
-			setStorageUsageBytes(getBoatLocalStorageUsageBytes());
-			setMaintenanceRevision((revision) => revision + 1);
-		}
-	};
-
 	const handleVenueStorageCleanup = (scope: BoatVenueStorageCleanupScope) => {
 		if (!selectedStorageTarget || !selectedGroup) return;
 
@@ -1067,7 +690,7 @@ export function ReviewPage() {
 		setStorageUsageBytes(result.usageBytesAfter);
 		setMaintenanceRevision((revision) => revision + 1);
 		if (scope === "summary-draft" || scope === "all") {
-			setSummaryDraft(selectedArchiveGroup?.summaryFileText ?? ARCHIVE_SUMMARY_MISSING_TEXT);
+			setSummaryText(selectedArchiveGroup?.summaryFileText ?? ARCHIVE_SUMMARY_MISSING_TEXT);
 		}
 		setStatusMessage(result.ok
 			? `${selectedGroup.venueName}を${result.removedCount}件整理しました（${formatStorageBytes(result.usageBytesBefore)} → ${formatStorageBytes(result.usageBytesAfter)}）`
@@ -1075,501 +698,173 @@ export function ReviewPage() {
 	};
 
 	return (
-		<PageShell
-			eyebrow="BOAT REVIEW"
-			title="BOAT REVIEW WORKBENCH"
-			description="GPT予想・公式結果・実践収支・レビューsummaryを会場ごとにまとめます。"
-			contentMaxWidth="2040px"
-			contentPaddingInline="24px"
-			heroMaxWidth="2040px"
-			hideHero
-		>
-			<div className="review-page-root" style={reviewRootStyle}>
-				<div aria-hidden="true" style={reviewBackgroundStyle} />
-				<div aria-hidden="true" style={reviewGlowStyle} />
-				<div className="boat-review-workbench" style={pageStyle}>
-				<section className="boat-review-top" style={topGridStyle}>
-					<div className="boat-review-hero" style={heroStyle}>
-						<div style={{ display: "grid", gap: "22px", alignContent: "center" }}>
-							<p style={eyebrowStyle}>REVIEW ARCHIVE LOUNGE</p>
-							<h1 style={titleStyle}>今日の予想と結果を、次の一手につなげる</h1>
-							<p style={textStyle}>会場ごとに 1R〜12R の予想・結果・summary をまとめ、今日と昨日は localStorage、過去日は保存済み txt から自然に振り返るラウンジです。</p>
-							<div style={chipRowStyle}>
-								<span style={chipStyle}>{modeLabel}</span>
-								<span style={chipStyle}>選択日 {selectedDate}</span>
-								<span style={chipStyle}>今日 / 昨日 / Archive</span>
-								<span style={chipStyle}>Summary {metrics.summaryCount > 0 ? `${metrics.summaryCount}件` : "未登録"}</span>
-							</div>
-						</div>
-						<div style={heroImageWrapStyle}>
-							{heroImageAvailable ? (
-								<img
-									src={withBasePath(HERO_IMAGE_PATH)}
-									alt="競艇レビュー用ヒーロー"
-									style={heroImageStyle}
-									onError={() => setHeroImageAvailable(false)}
-								/>
-							) : (
-								<div style={heroFallbackStyle}>
-									<span style={{ fontSize: "0.72rem", letterSpacing: "0.18em" }}>BOAT REVIEW</span>
-									<span>public/review-page/hero に画像を配置してください</span>
+		<PageShell eyebrow="BOAT REVIEW" title="BOAT REVIEW WORKBENCH" description="予想と公式結果を会場・レース単位で照合します。" contentMaxWidth="2040px" contentPaddingInline="24px" heroMaxWidth="2040px" hideHero>
+			<div className="review-page-root">
+				<main className="boat-review-workbench">
+					<section className="boat-review-top-grid">
+						<article className="boat-review-hero-panel">
+							<div className="boat-review-hero-copy">
+								<p className="boat-review-eyebrow">REVIEW ARCHIVE LOUNGE</p>
+								<h1>今日の予想と結果を、次の一手につなげる</h1>
+								<p>予想・公式結果・保存済みarchiveを同じレース単位で照合し、結果待ちを実績から分離して振り返ります。</p>
+								<div className="boat-review-chip-row">
+									<span>{modeLabel}</span>
+									<span>選択日 {selectedDate}</span>
+									<span>{sourceLabel}</span>
 								</div>
-							)}
-						</div>
-					</div>
-
-					<aside style={calendarPanelStyle}>
-						<div style={sectionHeaderStyle}>
-							<div>
-								<p style={eyebrowStyle}>Review Calendar</p>
-								<h2 style={sectionTitleStyle}>{formatMonthLabel(calendarMonth)}</h2>
-							</div>
-							<div style={buttonRowStyle}>
-								<button type="button" style={secondaryButtonStyle} onClick={() => setCalendarMonth(shiftMonth(calendarMonth, -1))}>←</button>
-								<button type="button" style={secondaryButtonStyle} onClick={() => setCalendarMonth(shiftMonth(calendarMonth, 1))}>→</button>
-							</div>
-						</div>
-						<div style={dateGridStyle}>
-							<button type="button" style={{ ...dateButtonStyle, background: selectedDate === operationalToday ? boatTheme.colors.navy : dateButtonStyle.background, color: selectedDate === operationalToday ? "#fff" : dateButtonStyle.color }} onClick={() => selectDate(operationalToday)}>今日<br />{operationalToday}</button>
-							<button type="button" style={{ ...dateButtonStyle, background: selectedDate === operationalYesterday ? boatTheme.colors.navy : dateButtonStyle.background, color: selectedDate === operationalYesterday ? "#fff" : dateButtonStyle.color }} onClick={() => selectDate(operationalYesterday)}>昨日<br />{operationalYesterday}</button>
-						</div>
-						<div style={overviewGridStyle}>
-							{[
-								["Archive件数", `${archiveIndex.items.length}件`],
-								["Summary件数", `${archiveIndex.items.filter((item) => item.summaryFile).length}件`],
-								["データ源", sourceLabel],
-							].map(([label, value]) => (
-								<article key={label} style={summaryCardStyle}>
-									<p style={summaryLabelStyle}>{label}</p>
-									<p style={{ ...summaryValueStyle, fontSize: "0.92rem" }}>{value}</p>
-								</article>
-							))}
-						</div>
-						<div style={calendarGridStyle}>
-							{WEEKDAY_LABELS.map((label) => <div key={label} style={{ textAlign: "center", color: boatTheme.colors.muted, fontWeight: 900, fontSize: "0.72rem" }}>{label}</div>)}
-							{calendarCells.map((date) => {
-								const isSelected = date === selectedDate;
-								const isMonth = date.slice(0, 7) === calendarMonth;
-								const hasData = selectableDateSet.has(date);
-								return (
-									<button
-										key={date}
-										type="button"
-										disabled={date > operationalToday}
-										onClick={() => selectDate(date)}
-										style={{
-											...calendarDayStyle,
-											opacity: isMonth ? 1 : 0.36,
-											background: isSelected ? boatTheme.colors.navy : hasData ? "rgba(235, 250, 255, 0.95)" : calendarDayStyle.background,
-											color: isSelected ? "#fff" : calendarDayStyle.color,
-											cursor: date > operationalToday ? "not-allowed" : "pointer",
-										}}
-									>
-										{Number(date.slice(-2))}
-										{hasData ? <span style={{ position: "absolute", left: "50%", bottom: 5, width: 5, height: 5, borderRadius: 999, background: isSelected ? "#fff" : boatTheme.colors.aquaDeep, transform: "translateX(-50%)" }} /> : null}
-									</button>
-								);
-							})}
-						</div>
-						<p style={{ ...textStyle, fontSize: "0.78rem" }}>登録日: {monthRegisteredDates.length > 0 ? monthRegisteredDates.join(" / ") : "この月の保存ファイルは未登録"}</p>
-					</aside>
-				</section>
-
-				<section style={panelStyle}>
-					<div style={sectionHeaderStyle}>
-						<div>
-							<p style={eyebrowStyle}>Status Strip</p>
-							<h2 style={sectionTitleStyle}>対象日とレビューソース</h2>
-						</div>
-						<div style={buttonRowStyle}>
-							<button type="button" style={secondaryButtonStyle} onClick={refreshLiveData}>localStorage / generated JSON 再読み込み</button>
-							{statusMessage ? <span style={chipStyle}>{statusMessage}</span> : null}
-						</div>
-					</div>
-					<div style={overviewGridStyle}>
-						{[
-	["対象会場", `${metrics.venueCount}会場`],
-	["投資", formatYen(metrics.investment)],
-	["払戻", formatYen(metrics.payout)],
-	["回収率", formatPercent(metrics.roi)],
-].map(([label, value]) => (
-							<article key={label} style={summaryCardStyle}>
-								<p style={summaryLabelStyle}>{label}</p>
-								<p style={summaryValueStyle}>{value}</p>
-							</article>
-						))}
-					</div>
-				</section>
-
-				<section style={panelStyle}>
-					<div style={sectionHeaderStyle}>
-						<div>
-							<p style={eyebrowStyle}>Venue Cards</p>
-							<h2 style={sectionTitleStyle}>{mode === "archive" ? "保存した txt を会場ごとに開く" : "会場ごとの予想保存状況を確認する"}</h2>
-						</div>
-						<p style={{ ...textStyle, fontSize: "0.82rem", textAlign: "right" }}>会場カードを押すと、予想全文・結果全文・summary全文が下の欄で切り替わります。</p>
-					</div>
-					{groups.length > 0 ? (
-						<div className="review-venue-grid" style={venueGridStyle}>
-							{groups.map((group) => {
-								const isSelected = selectedGroup?.key === group.key;
-								const itemMetrics = getBoatReviewVenueMetrics(group);
-								const sessionLabel = getVenueSessionLabel(group);
-								return (
-									<button
-										key={group.key}
-										type="button"
-										className="boat-review-venue-card"
-										onClick={() => setSelectedVenueKey(group.key)}
-										style={{
-											...venueCardStyle,
-											border: isSelected ? "1px solid rgba(124, 92, 255, 0.58)" : venueCardStyle.border,
-											background: isSelected
-												? "radial-gradient(circle at 8% 0%, rgba(221, 214, 254, 0.82), transparent 42%), radial-gradient(circle at 100% 8%, rgba(186, 230, 253, 0.58), transparent 38%), linear-gradient(145deg, rgba(255,255,255,0.99), rgba(247,244,255,0.96))"
-												: venueCardStyle.background,
-											boxShadow: isSelected ? "0 18px 42px rgba(124, 92, 255, 0.16)" : venueCardStyle.boxShadow,
-										}}
-									>
-										<div style={{ display: "grid", gap: "12px", alignContent: "start" }}>
-											<div style={{ display: "grid", gap: "4px", minWidth: 0 }}>
-												<p
-													style={{
-														margin: 0,
-														color: "#7c5cff",
-														fontSize: "0.72rem",
-														fontWeight: 950,
-														letterSpacing: "0.08em",
-													}}
-												>
-													{formatVenueCardDate(group.date)}
-												</p>
-												<strong
-													style={{
-														color: boatTheme.colors.navy,
-														fontSize: "1.4rem",
-														lineHeight: 1.05,
-														letterSpacing: "-0.04em",
-													}}
-												>
-													{group.venueName}
-												</strong>
-												<p
-													style={{
-														margin: 0,
-														color: boatTheme.colors.muted,
-														fontSize: "0.78rem",
-														fontWeight: 700,
-														lineHeight: 1.45,
-													}}
-												>
-													{group.title || `${group.venueName} 出走表一覧`}
-												</p>
-											</div>
-
-											<div style={{ display: "grid", gap: "4px" }}>
-												<p style={{ margin: 0, color: boatTheme.colors.navy, fontSize: "0.82rem", fontWeight: 900 }}>
-													{getVenueStageLabel(group)}
-												</p>
-												{sessionLabel ? (
-													<p style={{ margin: 0, color: "#9a6a1a", fontSize: "0.76rem", fontWeight: 850 }}>
-														{sessionLabel}
-													</p>
-												) : null}
-											</div>
-										</div>
-
-										<div style={metricGridStyle}>
-											{[
-												["払戻", formatYen(itemMetrics.payout), "払い戻し合計"],
-												["収支", formatSignedYen(itemMetrics.profit), itemMetrics.profit >= 0 ? "プラス収支" : "マイナス収支"],
-												["的中率", formatPercent(itemMetrics.practiceCount > 0 ? itemMetrics.hitCount / itemMetrics.practiceCount * 100 : 0), getVenueHitLine(itemMetrics)],
-											].map(([label, value, caption]) => (
-												<div key={label} style={metricStyle}>
-													<p style={metricLabelStyle}>{label}</p>
-													<p
-														style={{
-															...metricValueStyle,
-															color:
-																label === "収支"
-																	? itemMetrics.profit >= 0
-																		? "#0f75a8"
-																		: "#7f3150"
-																	: boatTheme.colors.navy,
-														}}
-													>
-														{value}
-													</p>
-													<p
-														style={{
-															margin: 0,
-															color: boatTheme.colors.muted,
-															fontSize: "0.58rem",
-															fontWeight: 750,
-														}}
-													>
-														{caption}
-													</p>
-												</div>
-											))}
-										</div>
-									</button>
-								);
-							})}
-						</div>
-					) : (
-						<p style={emptyStyle}>この日付の会場データは未登録です。今日・昨日は localStorage を優先し、過去日は public/data/reviews/index.json から txt を読み込みます。</p>
-					)}
-				</section>
-
-				<section style={panelStyle} aria-label="Monthly feedback tracking">
-					<div style={sectionHeaderStyle}>
-						<div>
-							<p style={eyebrowStyle}>MONTHLY FEEDBACK</p>
-							<h2 style={sectionTitleStyle}>Monthly focus別の観測結果</h2>
-							<p style={{ ...textStyle, fontSize: "0.8rem" }}>予想時点snapshotと確定結果の観測値です。因果分析ではありません。</p>
-						</div>
-						<span style={chipStyle}>Reference {monthlyReferenceMonths.length ? monthlyReferenceMonths.join(" / ") : "記録なし"}</span>
-					</div>
-					<div style={overviewGridStyle}>
-						{[
-							["対象予想", `${monthlyFeedbackSummary.trackedCount}R`],
-							["TICKET_HIT", `${monthlyFeedbackSummary.outcomes.TICKET_HIT}R`],
-							["STRUCTURE_MISS", `${monthlyFeedbackSummary.outcomes.STRUCTURE_MISS}R`],
-							["READ_MISS", `${monthlyFeedbackSummary.outcomes.READ_MISS}R`],
-							["DATA_HOLD", `${monthlyFeedbackSummary.outcomes.DATA_HOLD}R`],
-							["UNCLASSIFIED", `${monthlyFeedbackSummary.outcomes.UNCLASSIFIED}R`],
-						].map(([label, value]) => (
-							<article key={label} style={summaryCardStyle}><p style={summaryLabelStyle}>{label}</p><p style={summaryValueStyle}>{value}</p></article>
-						))}
-					</div>
-					<div style={chipRowStyle}>
-						<span style={chipStyle}>Focus=READ {monthlyFeedbackSummary.byFocus.read.count}R / HIT {monthlyFeedbackSummary.byFocus.read.outcomes.TICKET_HIT} / READ_MISS {monthlyFeedbackSummary.byFocus.read.outcomes.READ_MISS}</span>
-						<span style={chipStyle}>Focus=STRUCTURE {monthlyFeedbackSummary.byFocus.structure.count}R / HIT {monthlyFeedbackSummary.byFocus.structure.outcomes.TICKET_HIT} / STRUCTURE_MISS {monthlyFeedbackSummary.byFocus.structure.outcomes.STRUCTURE_MISS}</span>
-					</div>
-					{selectedMonthlyFeedback.length ? (
-						<div style={monthlyFeedbackGridStyle}>
-							{selectedMonthlyFeedback.map(({ raceNo, feedback }) => {
-								const snapshot = feedback.monthlyReviewContext;
-								const outcomeLabel = feedback.settlementOutcome === "pending" ? "結果待ち" : feedback.observedOutcome;
-								return (
-									<article key={feedback.raceKey} style={monthlyFeedbackCardStyle}>
-										<strong style={{ color: boatTheme.colors.navy }}>{raceNo}R / MONTHLY</strong>
-										{feedback.snapshotStatus === "legacy" ? <span style={textStyle}>記録なし</span> : feedback.snapshotStatus === "unavailable" ? <span style={textStyle}>参照未取得</span> : (
-											<>
-												<span style={textStyle}>Ref: {snapshot?.referenceMonth}</span>
-												<span style={textStyle}>Focus: {snapshot?.focusLabel ?? "未取得"}</span>
-												<span style={textStyle}>Venue sample: {snapshot?.venueSampleRaces ?? "未取得"}R</span>
-												<span style={textStyle}>Outcome: {outcomeLabel}</span>
-											</>
-										)}
-									</article>
-								);
-							})}
-						</div>
-					) : <p style={emptyStyle}>選択会場に保存済み予想はありません。</p>}
-				</section>
-
-				<section className="boat-review-copy-grid" style={workbenchGridStyle}>
-					<div style={{ display: "grid", gap: "18px", minWidth: 0 }}>
-						<section style={panelStyle}>
-							<div style={sectionHeaderStyle}>
-								<div>
-									<p style={eyebrowStyle}>Prediction Copy</p>
-									<h2 style={sectionTitleStyle}>予想まとめコピー</h2>
-								</div>
-								{selectedGroup && selectedPredictionCoverage ? (
-									<span
-										style={{
-											...chipStyle,
-											...(selectedPredictionCoverage.status === "known" && selectedPredictionCoverage.savedCount === selectedPredictionCoverage.totalCount
-												? {}
-												: { background: "rgba(255, 245, 214, 0.96)", borderColor: "rgba(210, 151, 31, 0.34)", color: "#8a5a00" }),
-										}}
-									>
-										{selectedGroup.venueName} / {selectedPredictionCoverage.status === "known"
-											? `予想保存 ${selectedPredictionCoverage.savedCount}/${selectedPredictionCoverage.totalCount}${selectedPredictionCoverage.missingRaceNos.length > 0 ? ` / 未保存 ${formatMissingRaceNos(selectedPredictionCoverage.missingRaceNos)}` : ""}`
-											: "予想保存数 未判定"}
-									</span>
-								) : null}
-							</div>
-							<textarea style={textareaStyle} value={predictionText} readOnly />
-							<div style={buttonRowStyle}>
-								<button type="button" style={primaryButtonStyle} onClick={() => void handleCopy(predictionText, "予想まとめ")}>予想まとめをコピー</button>
-								<button type="button" style={secondaryButtonStyle} onClick={() => selectedGroup && downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "predictions"), predictionText)}>予想まとめを .txt ダウンロード</button>
-							</div>
-						</section>
-
-						<section style={panelStyle}>
-							<div style={sectionHeaderStyle}>
-								<div>
-									<p style={eyebrowStyle}>Result Copy</p>
-									<h2 style={sectionTitleStyle}>結果まとめコピー</h2>
-								</div>
-								<div style={chipRowStyle}>
-									{selectedResultCoverage ? (
-										<span style={chipStyle}>
-											結果確定 {selectedResultCoverage.confirmedCount}/{selectedResultCoverage.totalCount} / 展示詳細 {selectedResultCoverage.exhibitionCompleteCount}/{selectedResultCoverage.totalCount}
-										</span>
-									) : selectedGroup ? <span style={chipStyle}>Archive取得件数 未判定</span> : null}
-									{selectedMetrics ? <span style={chipStyle}>収支 {formatSignedYen(selectedMetrics.profit)} / 回収率 {formatPercent(selectedMetrics.roi)}</span> : null}
+								<div className="boat-review-hero-stats">
+									<ReviewStatCard label="OPERATION DAY" value={selectedDate.replace(/-/g, "/")} sub="JST運用日" />
+									<ReviewStatCard label="TARGETS" value={`${metrics.venueCount}会場 / ${metrics.targetRaceCount}R`} sub="実在するレース番号で集計" />
+									<ReviewStatCard label="PERFORMANCE" value={metrics.financialRaceCount > 0 ? formatOptionalSignedYen(metrics.profit, true) : "--"} sub={`${metrics.hitCount}的中 / ${metrics.settledPredictionRaceCount}照合`} />
+									<ReviewStatCard label="MODE" value={mode === "live" ? "MERGED SOURCES" : "FILE ARCHIVE"} sub="公式結果を優先" />
 								</div>
 							</div>
-							<textarea style={textareaStyle} value={resultText} readOnly />
-							<div style={buttonRowStyle}>
-								<button type="button" style={primaryButtonStyle} onClick={() => void handleCopy(resultText, "結果まとめ")}>結果まとめをコピー</button>
-								<button type="button" style={secondaryButtonStyle} onClick={() => selectedGroup && downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "results"), resultText)}>結果まとめを .txt ダウンロード</button>
+							<div className="boat-review-hero-image">
+								{heroImageAvailable ? <img src={withBasePath(HERO_IMAGE_PATH)} alt="競艇レビュー用ヒーロー" onError={() => setHeroImageAvailable(false)} /> : <strong>BOAT REVIEW</strong>}
 							</div>
-						</section>
-					</div>
+						</article>
 
-					<section style={panelStyle}>
-						<div style={sectionHeaderStyle}>
-							<div>
-								<p style={eyebrowStyle}>GPT Review Summary</p>
-								<h2 style={sectionTitleStyle}>GPTレビュー貼り付け欄</h2>
+						<aside className="boat-review-workbench-card">
+							<p className="boat-review-eyebrow">REVIEW WORKBENCH</p>
+							<h2>今日の結果整理</h2>
+							<p className="boat-review-muted">会場・R番号の差分を先に確認してから、コピー素材を使えます。</p>
+							<div className="boat-review-workbench-grid">
+								{[
+									["対象日", selectedDate], ["読込モード", mode === "live" ? "LIVE" : "ARCHIVE"],
+									["対象会場", `${metrics.venueCount}会場`], ["対象R", `${metrics.targetRaceCount}R`],
+									["予想R", `${metrics.predictionRaceCount}R`], ["結果R", `${metrics.officialResultCount}R`],
+									["結果待ち", `${metrics.pendingRaceCount}R`], ["R不一致", metrics.raceSetsMatch ? "なし" : `${metrics.missingPredictionRaceCount + metrics.missingResultRaceCount}件`],
+								].map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}
 							</div>
-							{mode === "archive" ? (
-								<span style={chipStyle}>
-									{selectedArchiveItem?.summaryStatus === "ready" || selectedArchiveGroup?.summaryFileText ? "summary ready" : "summary未作成"}
-								</span>
-							) : <span style={chipStyle}>localStorage下書き / archive fallback</span>}
-						</div>
-						<textarea
-							style={summaryTextareaStyle}
-							value={summaryDraft}
-							onChange={(event) => handleSummaryChange(event.target.value)}
-							readOnly={mode === "archive"}
-							placeholder="ここにGPTレビューsummaryを貼り付けます。保存ファイルがある過去日は summary.txt を表示します。"
-						/>
-						<div style={buttonRowStyle}>
-							<button type="button" style={primaryButtonStyle} onClick={() => void handleCopy(summaryDraft, "summary")}>summaryをコピー</button>
-							<button type="button" style={secondaryButtonStyle} onClick={() => selectedGroup && downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "summary"), summaryDraft)}>summaryを .txt ダウンロード</button>
-							{mode === "live" ? <span style={chipStyle}>入力内容は会場ごとに自動保存</span> : null}
-						</div>
+							<div className="boat-review-workbench-notes">
+								<article><strong>コピー素材</strong><span>予想・結果まとめコピー / TXT保存 / R対応確認</span></article>
+								<article><strong>保護ルール</strong><span>整理対象は選択会場のlocalStorageのみ。archiveとpublic dataは変更しません。</span></article>
+							</div>
+							<button type="button" className="boat-review-secondary" onClick={refreshLiveData}>データを再読み込み</button>
+							{statusMessage ? <p className="boat-review-status">{statusMessage}</p> : null}
+						</aside>
 					</section>
-				</section>
 
-				<section style={panelStyle}>
-					<div style={sectionHeaderStyle}>
-						<div>
-							<p style={eyebrowStyle}>Local Storage Maintenance</p>
-							<h2 style={sectionTitleStyle}>会場別ストレージ整理</h2>
+					<section className="boat-review-summary-grid">
+						<article className="boat-review-panel boat-review-performance">
+							<p className="boat-review-eyebrow">PERFORMANCE</p>
+							<div className="boat-review-section-heading"><h2>確定実績</h2><span>pendingは実績に含めません</span></div>
+							<div className="boat-review-performance-grid">
+								<ReviewMetric label="予想R" value={`${metrics.predictionRaceCount}R`} sub={`対象 ${metrics.targetRaceCount}R`} />
+								<ReviewMetric label="結果確定R" value={`${metrics.officialResultCount}R`} sub={`予想照合 ${metrics.settledPredictionRaceCount}R`} />
+								<ReviewMetric label="的中R" value={`${metrics.hitCount}R`} sub={`評価対象 ${metrics.evaluatedRaceCount}R`} />
+								<ReviewMetric label="投資" value={formatOptionalYen(metrics.investment, metrics.financialRaceCount > 0)} sub="確定した購入実績のみ" />
+								<ReviewMetric label="払戻" value={formatOptionalYen(metrics.payout, metrics.financialRaceCount > 0)} sub="確定払戻のみ" />
+								<ReviewMetric label="収支" value={formatOptionalSignedYen(metrics.profit, metrics.financialRaceCount > 0)} sub="払戻 - 投資" />
+								<ReviewMetric label="的中率" value={formatOptionalPercent(metrics.hitRate)} sub="返還・中止を除外" />
+								<ReviewMetric label="回収率" value={formatOptionalPercent(metrics.roi)} sub="確定実績のみ" />
+							</div>
+						</article>
+
+						<article className="boat-review-panel boat-review-data-check">
+							<p className="boat-review-eyebrow">DATA CHECK</p>
+							<h2>予想・結果データ確認</h2>
+							<div className="boat-review-data-grid">
+								<ReviewMetric label="TARGET R" value={`${metrics.targetRaceCount}R`} sub="actual race set" />
+								<ReviewMetric label="PREDICTION R" value={`${metrics.predictionRaceCount}R`} sub="保存済み予想" />
+								<ReviewMetric label="RESULT R" value={`${metrics.officialResultCount}R`} sub="公式結果あり" />
+								<ReviewMetric label="MISSING PREDICTION" value={`${metrics.missingPredictionRaceCount}R`} sub="予想不足R" />
+								<ReviewMetric label="MISSING RESULT" value={`${metrics.missingResultRaceCount}R`} sub="結果不足R" />
+								<ReviewMetric label="R MATCH" value={metrics.raceSetsMatch ? "一致" : "要確認"} sub={`${metrics.pendingRaceCount}R 結果待ち`} />
+							</div>
+							<p className={metrics.parseWarningCount > 0 ? "boat-review-alert" : "boat-review-ok"}>Parse warning: {metrics.parseWarningCount}R / 返還・中止は不的中に含めません</p>
+						</article>
+					</section>
+
+					<section className="boat-review-panel boat-review-venues-panel">
+						<div className="boat-review-section-heading">
+							<div><p className="boat-review-eyebrow">VENUE CARDS</p><h2>会場別レビュー</h2></div>
+							<span>モーニング → デイ → ナイター → ミッドナイト順</span>
 						</div>
-						<span style={chipStyle}>現在のlocalStorage使用量 {formatStorageBytes(storageUsageBytes)}</span>
-					</div>
-					{selectedGroup && selectedStorageInspection ? (
-						<>
-							<p style={textStyle}>
-								対象: {selectedDate} / {selectedGroup.venueName}。ブラウザのlocalStorageだけを変更します。
-								{" "}
-								<strong style={{ color: "#a42336" }}>
-									削除対象は選択中の1会場のみです。他会場、archive txt、GitHubファイルは変更しません。
-								</strong>
-							</p>
-							<div style={chipRowStyle}>
-								<span style={chipStyle}>summary下書き {selectedStorageInspection.counts.summaryDrafts}件</span>
-								<span style={chipStyle}>予想 {selectedStorageInspection.counts.predictions}件</span>
-								<span style={chipStyle}>実践結果 {selectedStorageInspection.counts.practiceResults}件</span>
-								<span style={chipStyle}>ジョンソン {selectedStorageInspection.counts.johnsonPredictions}件</span>
-								<span style={chipStyle}>対象推定 {formatStorageBytes(selectedStorageInspection.estimatedBytes)}</span>
-								{selectedDate === operationalToday ? <span style={{ ...chipStyle, color: "#a42336" }}>今日のデータ</span> : null}
-								{selectedDate === operationalYesterday ? <span style={{ ...chipStyle, color: "#a42336" }}>昨日のデータ</span> : null}
-								{selectedStorageInspection.hasPayoutPending ? <span style={{ ...chipStyle, color: "#a42336" }}>払戻待ちあり</span> : null}
-								{selectedStorageInspection.hasMemo ? <span style={{ ...chipStyle, color: "#a42336" }}>メモあり</span> : null}
+						<details className="boat-review-calendar">
+							<summary>日付を変更する / {formatMonthLabel(calendarMonth)}</summary>
+							<div className="boat-review-calendar-controls">
+								<button type="button" onClick={() => setCalendarMonth(shiftMonth(calendarMonth, -1))}>前月</button>
+								<button type="button" onClick={() => selectDate(operationalToday)}>今日</button>
+								<button type="button" onClick={() => selectDate(operationalYesterday)}>昨日</button>
+								<button type="button" onClick={() => setCalendarMonth(shiftMonth(calendarMonth, 1))}>翌月</button>
 							</div>
-							<div style={buttonRowStyle}>
-								<button
-									type="button"
-									style={dangerButtonStyle}
-									onClick={() => handleVenueStorageCleanup("summary-draft")}
-									disabled={selectedStorageInspection.counts.summaryDrafts <= 0}
-								>
-									{selectedGroup.venueName}のsummary下書きだけ整理（{selectedStorageInspection.counts.summaryDrafts}件）
-								</button>
-								<button
-									type="button"
-									style={dangerButtonStyle}
-									onClick={() => handleVenueStorageCleanup("race-records")}
-									disabled={
-										selectedStorageInspection.counts.predictions +
-										selectedStorageInspection.counts.practiceResults +
-										selectedStorageInspection.counts.johnsonPredictions <= 0
-									}
-								>
-									{selectedGroup.venueName}の予想＋実践結果＋ジョンソンだけ整理（{
-										selectedStorageInspection.counts.predictions +
-										selectedStorageInspection.counts.practiceResults +
-										selectedStorageInspection.counts.johnsonPredictions
-									}件）
-								</button>
-								<button
-									type="button"
-									style={{ ...dangerButtonStyle, background: "#a42336", color: "#fff" }}
-									onClick={() => handleVenueStorageCleanup("all")}
-									disabled={selectedStorageInspection.counts.total <= 0}
-								>
-									{selectedGroup.venueName}だけ全部整理（{selectedStorageInspection.counts.total}件）
-								</button>
+							<div className="boat-review-calendar-grid">
+								{WEEKDAY_LABELS.map((label) => <strong key={label}>{label}</strong>)}
+								{calendarCells.map((date) => {
+									const isSelected = date === selectedDate;
+									const hasData = selectableDateSet.has(date);
+									return <button key={date} type="button" disabled={date > operationalToday} data-selected={isSelected} data-has-data={hasData} onClick={() => selectDate(date)}>{Number(date.slice(-2))}</button>;
+								})}
 							</div>
-						</>
-					) : (
-						<p style={emptyStyle}>整理する日付と会場を選択してください。</p>
-					)}
-				</section>
+							<small>登録日: {monthRegisteredDates.length > 0 ? monthRegisteredDates.join(" / ") : "なし"} / Archive {archiveIndex.items.length}件</small>
+						</details>
+						{groups.length > 0 ? <div className="review-venue-grid">
+							{groups.map((group) => {
+								const itemMetrics = buildBoatReviewVenuePerformance(group);
+								const isSelected = selectedGroup?.key === group.key;
+								const sessionLabel = getVenueSessionLabel(group);
+								return <button key={group.key} type="button" className="boat-review-venue-card" data-selected={isSelected} onClick={() => setSelectedVenueKey(group.key)}>
+									<div className="boat-review-venue-head"><div><span>{formatVenueCardDate(group.date)}</span><strong>{group.venueName}</strong><small>{group.title || `${group.venueName} 出走表一覧`}</small></div><div><span>{getVenueStageLabel(group)}</span>{sessionLabel ? <small>{sessionLabel}</small> : null}</div></div>
+									<div className="boat-review-venue-metrics">
+										<ReviewMetric label="予想" value={`${itemMetrics.predictionRaceCount}/${itemMetrics.targetRaceCount}R`} sub="保存済み" />
+										<ReviewMetric label="結果" value={`${itemMetrics.officialResultCount}/${itemMetrics.targetRaceCount}R`} sub="公式確定" />
+										<ReviewMetric label="的中" value={`${itemMetrics.hitCount}R`} sub={`${itemMetrics.pendingRaceCount}R待ち`} />
+										<ReviewMetric label="回収率" value={formatOptionalPercent(itemMetrics.roi)} sub={itemMetrics.financialRaceCount > 0 ? "確定実績" : "結果待ち"} />
+									</div>
+								</button>;
+							})}
+						</div> : <p className="boat-review-empty">この日付の会場データは未登録です。</p>}
+					</section>
+
+					{selectedGroup && selectedMetrics ? <section className="boat-review-panel boat-review-detail">
+						<div className="boat-review-section-heading">
+							<div><p className="boat-review-eyebrow">SELECTED VENUE</p><h2>{selectedGroup.venueName} / {formatVenueCardDate(selectedGroup.date)}</h2></div>
+							<div className="boat-review-chip-row"><span>対象 {selectedMetrics.targetRaceCount}R</span><span>予想 {selectedMetrics.predictionRaceCount}R</span><span>結果 {selectedMetrics.officialResultCount}R</span></div>
+						</div>
+						<div className="boat-review-readiness">
+							<span>予想不足: {selectedMetrics.missingPredictionRaceNos.length ? formatMissingRaceNos(selectedMetrics.missingPredictionRaceNos) : "なし"}</span>
+							<span>結果待ち: {selectedMetrics.missingResultRaceNos.length ? formatMissingRaceNos(selectedMetrics.missingResultRaceNos) : "なし"}</span>
+							{selectedMetrics.parseWarningCount > 0 ? <strong>解析警告 {selectedMetrics.parseWarningCount}R</strong> : <strong>parse OK</strong>}
+						</div>
+						<div className="boat-review-race-grid">
+							{selectedMetrics.races.map((race) => {
+								const status = getRaceStatusPresentation(race);
+								const hasFinancial = race.investment !== null;
+								return <article key={race.raceNo} className="boat-review-race-card">
+									<div><strong>{race.raceNo}R</strong><span style={{ color: status.color, background: status.background }}>{status.label}</span></div>
+									<dl><div><dt>着順</dt><dd>{race.finishOrder ?? "--"}</dd></div><div><dt>決まり手</dt><dd>{race.kimarite ?? "--"}</dd></div><div><dt>投資</dt><dd>{hasFinancial ? formatYen(race.investment ?? 0) : "--"}</dd></div><div><dt>払戻</dt><dd>{hasFinancial ? formatYen(race.payout ?? 0) : "--"}</dd></div><div><dt>収支</dt><dd>{hasFinancial ? formatSignedYen(race.profit ?? 0) : "--"}</dd></div></dl>
+								</article>;
+							})}
+						</div>
+						<div className="boat-review-export-grid">
+							<article><span>PREDICTION DATA</span><strong>予想まとめ</strong><small>{selectedMetrics.predictionRaceCount}/{selectedMetrics.targetRaceCount}R / {selectedMetrics.missingPredictionRaceNos.length ? `不足 ${formatMissingRaceNos(selectedMetrics.missingPredictionRaceNos)}` : "一致"}</small><div><button type="button" onClick={() => void handleCopy(predictionText, "予想まとめ")}>コピー</button><button type="button" onClick={() => downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "predictions"), predictionText)}>TXT</button></div></article>
+							<article><span>RESULT DATA</span><strong>結果まとめ</strong><small>{selectedMetrics.officialResultCount}/{selectedMetrics.targetRaceCount}R / {selectedMetrics.missingResultRaceNos.length ? `不足 ${formatMissingRaceNos(selectedMetrics.missingResultRaceNos)}` : "一致"}</small><div><button type="button" onClick={() => void handleCopy(resultText, "結果まとめ")}>コピー</button><button type="button" onClick={() => downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "results"), resultText)}>TXT</button></div></article>
+							<article><span>GPT REVIEW SUMMARY</span><strong>{selectedArchiveItem?.summaryStatus === "ready" || selectedArchiveGroup?.summaryFileText ? "summary ready" : "summary未作成"}</strong><small>既存summary全文を保持</small><div><button type="button" onClick={() => void handleCopy(summaryText, "summary")}>コピー</button><button type="button" onClick={() => downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "summary"), summaryText)}>TXT</button></div></article>
+						</div>
+						<details className="boat-review-monthly-hint">
+							<summary>Monthly feedback / {monthlyReferenceMonths.length ? monthlyReferenceMonths.join(" / ") : "記録なし"} / 対象 {monthlyFeedbackSummary.trackedCount}R</summary>
+							<div>{selectedMonthlyFeedback.length ? selectedMonthlyFeedback.map(({ raceNo, feedback }) => <span key={feedback.raceKey}>{raceNo}R: {feedback.snapshotStatus === "legacy" ? "記録なし" : feedback.snapshotStatus === "unavailable" ? "参照未取得" : `${feedback.monthlyReviewContext?.focusLabel ?? "Focus未取得"} / ${feedback.settlementOutcome === "pending" ? "結果待ち" : feedback.observedOutcome}`}</span>) : <span>選択会場に保存済み予想はありません。</span>}</div>
+						</details>
+					</section> : null}
+
+					<details className="boat-review-panel boat-review-maintenance">
+						<summary>Local Storage Maintenance / {formatStorageBytes(storageUsageBytes)}</summary>
+						{selectedGroup && selectedStorageInspection ? <div className="boat-review-maintenance-body">
+							<p>対象: {selectedDate} / {selectedGroup.venueName}。削除対象は選択中の1会場だけです。他会場、archive txt、GitHubファイルは変更しません。</p>
+							<div className="boat-review-chip-row"><span>summary {selectedStorageInspection.counts.summaryDrafts}件</span><span>予想 {selectedStorageInspection.counts.predictions}件</span><span>実践結果 {selectedStorageInspection.counts.practiceResults}件</span><span>ジョンソン {selectedStorageInspection.counts.johnsonPredictions}件</span>{selectedStorageInspection.hasPayoutPending ? <span>払戻待ちあり</span> : null}{selectedStorageInspection.hasMemo ? <span>メモあり</span> : null}</div>
+							<div className="boat-review-maintenance-actions">
+								<button type="button" onClick={() => handleVenueStorageCleanup("summary-draft")} disabled={selectedStorageInspection.counts.summaryDrafts <= 0}>summary下書きを整理</button>
+								<button type="button" onClick={() => handleVenueStorageCleanup("race-records")} disabled={selectedStorageInspection.counts.predictions + selectedStorageInspection.counts.practiceResults + selectedStorageInspection.counts.johnsonPredictions <= 0}>予想・実践結果・ジョンソンを整理</button>
+								<button type="button" onClick={() => handleVenueStorageCleanup("all")} disabled={selectedStorageInspection.counts.total <= 0}>選択会場を全部整理</button>
+							</div>
+						</div> : <p>整理する日付と会場を選択してください。</p>}
+					</details>
+				</main>
 
 				<style>{`
-
-					body:has(.review-page-root) {
-						background: #eaf8ff;
-					}
-
-					#root:has(.review-page-root) {
-						position: relative;
-						isolation: isolate;
-					}
-
-					#root:has(.review-page-root)::before {
-						content: "";
-						position: fixed;
-						inset: 0;
-						width: 100vw;
-						height: 100vh;
-						background-image:
-							linear-gradient(180deg, rgba(241, 250, 255, 0.04), rgba(244, 250, 255, 0.16)),
-							url("${REVIEW_PAGE_BACKGROUND_URL}");
-						background-size: min(2900px, 150vw) auto;
-						background-position: center top;
-						background-repeat: no-repeat;
-						pointer-events: none;
-						z-index: 0;
-					}
-
-					.review-page-root {
-						position: relative;
-						z-index: 1;
-					}
-
-					@media (max-width: 1180px) {
-						.boat-review-top,
-						.boat-review-copy-grid {
-							grid-template-columns: 1fr !important;
-						}
-						.boat-review-hero {
-							grid-template-columns: 1fr !important;
-						}
-					}
-					@media (max-width: 720px) {
-						.review-venue-grid {
-							grid-template-columns: 1fr !important;
-						}
-					}
-					@media (max-width: 760px) {
-						.boat-review-workbench {
-							padding-inline: 4px !important;
-						}
-					}
+					body:has(.review-page-root){background:#f6f8fc}.review-page-root{min-height:100vh;background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(248,244,252,.9) 44%,rgba(241,248,252,.92)),url("${REVIEW_PAGE_BACKGROUND_URL}") center top/cover fixed;color:#111827}.boat-review-workbench{width:100%;max-width:2040px;margin:0 auto;padding:18px 24px 96px;box-sizing:border-box;display:grid;gap:22px}.boat-review-top-grid{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(360px,460px);gap:22px}.boat-review-hero-panel,.boat-review-panel,.boat-review-workbench-card{min-width:0;border:1px solid rgba(223,210,245,.96);background:rgba(255,255,255,.96);box-shadow:0 22px 48px rgba(35,30,68,.07)}.boat-review-hero-panel{min-height:510px;border-radius:36px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);overflow:hidden}.boat-review-hero-copy{min-width:0;padding:32px;display:flex;flex-direction:column;justify-content:center;gap:16px}.boat-review-eyebrow{margin:0;color:#8a6bc7;font-size:10px;font-weight:900;letter-spacing:.18em}.boat-review-hero-copy h1{margin:0;max-width:680px;font-size:clamp(32px,3vw,50px);line-height:1.12;font-weight:900;letter-spacing:0;overflow-wrap:anywhere}.boat-review-hero-copy>p:not(.boat-review-eyebrow){margin:0;max-width:650px;color:#626b79;line-height:1.9}.boat-review-hero-image{min-width:0;min-height:420px;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(150deg,#f5effd,#fff5f8 55%,#eef9fc);overflow:hidden}.boat-review-hero-image img{display:block;width:100%;max-width:100%;height:100%;max-height:500px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 22px 26px rgba(95,75,145,.14))}.boat-review-chip-row{display:flex;flex-wrap:wrap;gap:8px}.boat-review-chip-row>span,.boat-review-status{display:inline-flex;max-width:100%;width:fit-content;border:1px solid #e2d7f2;background:#faf7ff;color:#695396;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800;overflow-wrap:anywhere}.boat-review-hero-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.boat-review-stat-card,.boat-review-metric{min-width:0;border:1px solid #e4daf2;background:linear-gradient(180deg,#fff,#f8f4fc);border-radius:18px;padding:12px;display:grid;gap:5px}.boat-review-stat-card span,.boat-review-metric span{color:#8a72b8;font-size:9px;font-weight:900;letter-spacing:.12em;overflow-wrap:anywhere}.boat-review-stat-card strong{font-size:22px;overflow-wrap:anywhere}.boat-review-stat-card small,.boat-review-metric small{color:#707887;line-height:1.45;overflow-wrap:anywhere}.boat-review-workbench-card{border-radius:32px;padding:20px;display:grid;gap:14px;align-content:start;background:linear-gradient(180deg,#fff,#f8f4fc 60%,#fff7f9)}.boat-review-workbench-card h2,.boat-review-panel h2{margin:0;font-size:25px}.boat-review-muted{margin:0;color:#697180;line-height:1.7;font-size:13px}.boat-review-workbench-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.boat-review-workbench-grid>div{min-width:0;border:1px solid #e5dcef;background:#fff;border-radius:15px;padding:10px;display:grid;gap:4px}.boat-review-workbench-grid span{font-size:9px;color:#8b7b9e;font-weight:800}.boat-review-workbench-grid strong{font-size:14px;overflow-wrap:anywhere}.boat-review-workbench-notes{display:grid;gap:9px}.boat-review-workbench-notes article{min-width:0;border:1px solid #e1d5ef;background:linear-gradient(135deg,#faf7ff,#f7faff);border-radius:20px;padding:12px;display:grid;gap:5px}.boat-review-workbench-notes article:last-child{border-color:#ead8e0;background:#fff9fb}.boat-review-workbench-notes strong{font-size:11px;color:#6f52b2}.boat-review-workbench-notes article:last-child strong{color:#a44f76}.boat-review-workbench-notes span{font-size:11px;line-height:1.6;color:#626b79;overflow-wrap:anywhere}.boat-review-secondary,.boat-review-calendar button,.boat-review-export-grid button{border:1px solid #ddd1ed;background:#fff;color:#3f3657;border-radius:12px;padding:9px 11px;font-weight:800;cursor:pointer}.boat-review-status{margin:0}.boat-review-summary-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(360px,.65fr);gap:18px}.boat-review-panel{border-radius:30px;padding:22px;min-width:0}.boat-review-performance,.boat-review-data-check{display:grid;gap:14px}.boat-review-section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}.boat-review-section-heading span{color:#717887;font-size:12px}.boat-review-performance-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.boat-review-metric strong{font-size:18px;line-height:1.15;overflow-wrap:anywhere}.boat-review-data-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.boat-review-alert,.boat-review-ok{margin:0;padding:10px;border-radius:12px;font-size:11px;font-weight:800}.boat-review-alert{background:#fff3e6;color:#a45b16}.boat-review-ok{background:#edf8f4;color:#16705d}.boat-review-venues-panel{display:grid;gap:16px}.boat-review-calendar{border:1px solid #e7def1;border-radius:16px;background:#faf8fd;padding:11px 13px}.boat-review-calendar summary,.boat-review-maintenance summary,.boat-review-monthly-hint summary{cursor:pointer;font-weight:850;color:#5f4c82;overflow-wrap:anywhere}.boat-review-calendar-controls{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}.boat-review-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.boat-review-calendar-grid strong{text-align:center;font-size:10px;color:#8f839e}.boat-review-calendar-grid button{min-width:0;min-height:34px;padding:5px}.boat-review-calendar-grid button[data-selected=true]{background:#5f4c82;color:#fff}.boat-review-calendar-grid button[data-has-data=true]:not([data-selected=true]){background:#edf8fb}.boat-review-calendar small{display:block;margin-top:9px;color:#777;overflow-wrap:anywhere}.review-venue-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:14px}.boat-review-venue-card{width:100%;min-width:0;min-height:220px;text-align:left;border:1px solid #e2d6f1;background:linear-gradient(145deg,#fff,#f9f5fc 60%,#f1f9fb);border-radius:24px;padding:18px;display:grid;gap:14px;cursor:pointer;box-shadow:0 12px 28px rgba(17,24,39,.05)}.boat-review-venue-card[data-selected=true]{border-color:#9272d2;background:linear-gradient(180deg,#f3ecff,#fff);box-shadow:0 18px 34px rgba(91,65,145,.13)}.boat-review-venue-head{display:flex;justify-content:space-between;gap:14px;min-width:0}.boat-review-venue-head>div{min-width:0;display:grid;gap:4px}.boat-review-venue-head strong{font-size:22px;overflow-wrap:anywhere}.boat-review-venue-head span{font-size:11px;font-weight:850;color:#7656b2}.boat-review-venue-head small{color:#707887;overflow-wrap:anywhere}.boat-review-venue-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.boat-review-venue-metrics .boat-review-metric{padding:9px;min-height:70px}.boat-review-venue-metrics .boat-review-metric strong{font-size:15px}.boat-review-empty{padding:20px;border:1px dashed #d8caea;border-radius:16px;color:#6d7480}.boat-review-detail{display:grid;gap:16px}.boat-review-readiness{display:flex;flex-wrap:wrap;gap:8px}.boat-review-readiness>*{max-width:100%;border:1px solid #e3d9ef;background:#faf8fd;border-radius:999px;padding:7px 10px;font-size:11px;color:#695a7f;overflow-wrap:anywhere}.boat-review-race-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr));gap:10px}.boat-review-race-card{min-width:0;border:1px solid #e4dcec;background:#fff;border-radius:17px;padding:12px;display:grid;gap:10px}.boat-review-race-card>div{display:flex;justify-content:space-between;align-items:center;gap:8px}.boat-review-race-card>div>span{border-radius:999px;padding:5px 8px;font-size:10px;font-weight:850}.boat-review-race-card dl{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.boat-review-race-card dl>div{min-width:0;display:grid;gap:2px}.boat-review-race-card dt{font-size:9px;color:#8b8194}.boat-review-race-card dd{margin:0;font-size:12px;font-weight:800;overflow-wrap:anywhere}.boat-review-export-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.boat-review-export-grid article{min-width:0;border:1px solid #e1d5ef;background:linear-gradient(180deg,#fff,#f8f5fb);border-radius:18px;padding:14px;display:grid;gap:7px}.boat-review-export-grid article>span{font-size:9px;color:#876cb7;font-weight:900;letter-spacing:.12em;overflow-wrap:anywhere}.boat-review-export-grid article>strong{font-size:16px}.boat-review-export-grid article>small{color:#747b87;overflow-wrap:anywhere}.boat-review-export-grid article>div{display:flex;flex-wrap:wrap;gap:7px}.boat-review-monthly-hint{min-width:0;border:1px solid #e5dced;border-radius:15px;background:#faf8fd;padding:11px 13px}.boat-review-monthly-hint>div{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.boat-review-monthly-hint span{max-width:100%;font-size:11px;border:1px solid #e5dced;background:#fff;border-radius:10px;padding:7px;overflow-wrap:anywhere}.boat-review-maintenance{padding:14px 18px}.boat-review-maintenance-body{display:grid;gap:12px;margin-top:14px}.boat-review-maintenance-body p{margin:0;color:#6d7480;overflow-wrap:anywhere}.boat-review-maintenance-actions{display:flex;flex-wrap:wrap;gap:8px}.boat-review-maintenance-actions button{border:1px solid #d89aa6;background:#fff5f7;color:#a23248;border-radius:12px;padding:9px;font-weight:800}.boat-review-maintenance-actions button:disabled{opacity:.45}.boat-review-maintenance-actions button:last-child{background:#a23248;color:#fff}@media(max-width:1180px){.boat-review-top-grid,.boat-review-summary-grid{grid-template-columns:1fr}.boat-review-hero-panel{grid-template-columns:1fr}.boat-review-hero-image{min-height:330px}.boat-review-export-grid{grid-template-columns:1fr}}@media(max-width:760px){.boat-review-workbench{padding:10px 8px 72px}.boat-review-hero-copy,.boat-review-panel,.boat-review-workbench-card{padding:16px}.boat-review-hero-stats,.boat-review-performance-grid,.boat-review-data-grid,.boat-review-venue-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.review-venue-grid{grid-template-columns:1fr}.boat-review-hero-copy h1{font-size:30px}.boat-review-hero-image{min-height:270px}.boat-review-race-grid{grid-template-columns:1fr}.boat-review-venue-card{min-height:0}.boat-review-section-heading{align-items:flex-start}}
 				`}</style>
-				</div>
 			</div>
 		</PageShell>
 	);
