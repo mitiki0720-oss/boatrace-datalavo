@@ -127,20 +127,39 @@ assert.equal(archiveMissMetrics.races[0]?.status, "miss");
 assert.equal(archiveMissMetrics.hitCount, 0);
 assert.equal(archiveMissMetrics.evaluatedRaceCount, 1);
 
+const sectionOrder = [
+  pageSource.indexOf('className="boat-review-top-grid"'),
+  pageSource.indexOf('className="boat-review-panel boat-review-performance"'),
+  pageSource.indexOf('className="boat-review-panel boat-review-venues-panel"'),
+  pageSource.indexOf('className="boat-review-panel boat-review-detail"'),
+  pageSource.indexOf('className="boat-review-panel boat-review-copy-material"'),
+  pageSource.indexOf('className="boat-review-panel boat-review-monthly-hint"'),
+  pageSource.indexOf('className="boat-review-panel boat-review-maintenance"'),
+];
+
 const sourceChecks = {
   exactBoatHero: pageSource.includes("review-page/hero/review-hero-boat-summary-kurari-funako.png"),
-  keirinParitySections: ["REVIEW WORKBENCH", "PERFORMANCE", "DATA CHECK", "VENUE CARDS"].every((label) => pageSource.includes(label)),
+  keirinParitySections: ["REVIEW WORKBENCH", "PERFORMANCE", "VENUE CARDS", "COPY MATERIAL"].every((label) => pageSource.includes(label)),
   eightPerformanceMetrics: ["予想R", "結果確定R", "的中R", "投資", "払戻", "収支", "的中率", "回収率"].every((label) => pageSource.includes(`label=\"${label}\"`)),
-  compactCopyWorkflow: ["PREDICTION DATA", "RESULT DATA", "GPT REVIEW SUMMARY"].every((label) => pageSource.includes(label)),
+  compactCopyWorkflow: ["PREDICTION COPY", "RESULT COPY", "予想まとめをコピー", "結果まとめをコピー"].every((label) => pageSource.includes(label)),
   workbenchParityNotes: ["コピー素材", "保護ルール", "R不一致"].every((label) => pageSource.includes(label)),
-  exactRaceReadiness: ["TARGET R", "PREDICTION R", "RESULT R", "MISSING PREDICTION", "MISSING RESULT", "R MATCH"].every((label) => pageSource.includes(label)),
+  exactRaceReadiness: ["対象会場", "対象R数", "R対応", "予想不足:", "結果不足:"].every((label) => pageSource.includes(label)),
   raceStatusBadges: ["🎯 的中", "× 不的中", "⏳ 結果待ち", "↩ 返還", "⛔ 中止", "⚠ 予想解析注意"].every((label) => pageSource.includes(label)),
+  reviewCalendarVisibleFalse: !/<(?:details|section)[^>]+className=\"[^\"]*boat-review-calendar/.test(pageSource),
+  statusStripVisibleFalse: !pageSource.includes("STATUS STRIP"),
+  gptReviewSummaryVisibleFalse: !pageSource.includes("GPT REVIEW SUMMARY"),
   visibleTextareaRenderZero: !/<textarea\b/i.test(pageSource),
+  compactDateSelector: pageSource.includes('className="boat-review-date-selector"') && pageSource.includes("selectableDates.map"),
   maintenanceCollapsed: pageSource.includes('<details className="boat-review-panel boat-review-maintenance">'),
-  monthlyCompact: pageSource.includes('<details className="boat-review-monthly-hint">'),
+  monthlyCompact: pageSource.includes('<details className="boat-review-panel boat-review-monthly-hint">'),
+  monthlyBeforeMaintenance: pageSource.indexOf('className="boat-review-panel boat-review-monthly-hint"') < pageSource.indexOf('className="boat-review-panel boat-review-maintenance"'),
+  requiredSectionOrder: sectionOrder.every((index) => index >= 0) && sectionOrder.every((index, position) => position === 0 || sectionOrder[position - 1] < index),
+  shadowUiAbsent: !pageSource.includes("SHADOW ANALYSIS"),
   noStaleTextareaStyle: !/textareaStyle|summaryTextareaStyle|boat-review-summary-editor/.test(pageSource),
+  noSummaryEditorState: !pageSource.includes("const [summaryText") && !pageSource.includes("const [summaryDraft") && !pageSource.includes("setSummaryText(") && !pageSource.includes("setSummaryDraft("),
   sessionOrderPreserved: ["case \"morning\"", "case \"day\"", "case \"night\"", "case \"midnight\""].every((label) => pageSource.includes(label)),
   existingCopyBuildersPreserved: pageSource.includes("buildBoatPredictionSummaryText") && pageSource.includes("buildBoatResultSummaryText"),
+  archiveSummaryReadPreserved: pageSource.includes("summaryFileText: files.summaryText"),
   existingCleanupGuardPreserved: pageSource.includes("cleanupBoatVenueLocalStorage") && pageSource.includes("window.confirm"),
   officialOutcomeResolver: helperSource.includes('resolveBoatPredictionOutcome') && helperSource.includes('source: "boat-review"'),
 };

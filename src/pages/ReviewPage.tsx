@@ -10,7 +10,6 @@ import {
 	summarizeBoatPredictionMonthlyFeedback,
 } from "../lib/boatPredictionMonthlyFeedback";
 import {
-	BOAT_REVIEW_DRAFT_STORAGE_KEY,
 	cleanupBoatVenueLocalStorage,
 	getBoatLocalStorageUsageBytes,
 	inspectBoatVenueLocalStorage,
@@ -50,35 +49,8 @@ import type { BoatRaceItem, BoatTodayFeed } from "../lib/boatraceTypes";
 
 type ReviewDataMode = "live" | "archive";
 
-const REVIEW_DRAFT_STORAGE_KEY = BOAT_REVIEW_DRAFT_STORAGE_KEY;
 const HERO_IMAGE_PATH = "review-page/hero/review-hero-boat-summary-kurari-funako.png";
-const ARCHIVE_SUMMARY_MISSING_TEXT = "summary未作成\n予想・結果の保存は完了しています。";
 const REVIEW_PAGE_BACKGROUND_URL = withBasePath("review-page/backgrounds/review-page-bg-water-archive.png");
-const WEEKDAY_LABELS = ["月", "火", "水", "木", "金", "土", "日"];
-
-function formatMonthLabel(month: string): string {
-	const [year, monthNumber] = month.split("-").map(Number);
-	return `${year}年${monthNumber}月`;
-}
-
-function shiftMonth(month: string, delta: number): string {
-	const [year, monthNumber] = month.split("-").map(Number);
-	const date = new Date(Date.UTC(year, monthNumber - 1 + delta, 1));
-	return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
-}
-
-function buildCalendarCells(month: string): string[] {
-	const [year, monthNumber] = month.split("-").map(Number);
-	const first = new Date(Date.UTC(year, monthNumber - 1, 1));
-	const offset = (first.getUTCDay() + 6) % 7;
-	const start = new Date(first);
-	start.setUTCDate(first.getUTCDate() - offset);
-	return Array.from({ length: 42 }, (_, index) => {
-		const date = new Date(start);
-		date.setUTCDate(start.getUTCDate() + index);
-		return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
-	});
-}
 
 function formatYen(value: number): string {
 	return `${value.toLocaleString("ja-JP")}円`;
@@ -296,18 +268,6 @@ function ReviewMetric({ label, value, sub }: { label: string; value: string; sub
 	);
 }
 
-function readDrafts(): Record<string, string> {
-	if (typeof window === "undefined") return {};
-	try {
-		const raw = window.localStorage.getItem(REVIEW_DRAFT_STORAGE_KEY);
-		if (!raw) return {};
-		const parsed = JSON.parse(raw) as unknown;
-		return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as Record<string, string> : {};
-	} catch {
-		return {};
-	}
-}
-
 async function copyText(text: string): Promise<boolean> {
 	try {
 		await navigator.clipboard.writeText(text);
@@ -337,6 +297,10 @@ function getReviewFileName(date: string, venueSlug: string, suffix: "predictions
 function formatMissingRaceNos(raceNos: number[]): string {
 	if (raceNos.length === 12 && raceNos.every((raceNo, index) => raceNo === index + 1)) return "1R〜12R";
 	return raceNos.map((raceNo) => `${raceNo}R`).join("・");
+}
+
+function formatRaceNos(raceNos: number[]): string {
+	return raceNos.length > 0 ? raceNos.map((raceNo) => `${raceNo}R`).join(", ") : "なし";
 }
 
 type ReviewExtraRecord = Record<string, unknown>;
@@ -373,17 +337,10 @@ function findReviewVenueExtra(feed: BoatVenueExtrasFeed | null, group: BoatRevie
 	return venues.find((venue) => normalizeReviewVenueName(venue.venueName || venue.venue || venue.name) === venueName) ?? null;
 }
 
-function getMonthDates(dateSet: Set<string>, selectedDate: string): string[] {
-	return Array.from(dateSet)
-		.filter((date) => date.slice(0, 7) === selectedDate.slice(0, 7))
-		.sort((a, b) => a.localeCompare(b));
-}
-
 export function ReviewPage() {
 	const operationalToday = useMemo(() => getBoatOperationDate(), []);
 	const operationalYesterday = useMemo(() => shiftBoatOperationDate(operationalToday, -1), [operationalToday]);
 	const [selectedDate, setSelectedDate] = useState(operationalToday);
-	const [calendarMonth, setCalendarMonth] = useState(operationalToday.slice(0, 7));
 	const [archiveIndex, setArchiveIndex] = useState<BoatReviewArchiveIndex>({ items: [] });
 	const [todayFeed, setTodayFeed] = useState<BoatTodayFeed | null>(null);
 	const [venueExtrasFeed, setVenueExtrasFeed] = useState<BoatVenueExtrasFeed | null>(null);
@@ -391,7 +348,6 @@ export function ReviewPage() {
 	const [practicePayload, setPracticePayload] = useState(() => loadBoatPracticeResultRecords());
 	const [archiveGroups, setArchiveGroups] = useState<BoatReviewVenueGroup[]>([]);
 	const [selectedVenueKey, setSelectedVenueKey] = useState("");
-	const [summaryText, setSummaryText] = useState("");
 	const [statusMessage, setStatusMessage] = useState("");
 	const [heroImageAvailable, setHeroImageAvailable] = useState(true);
 	const [storageUsageBytes, setStorageUsageBytes] = useState(() => getBoatLocalStorageUsageBytes());
@@ -420,10 +376,14 @@ export function ReviewPage() {
 		() => new Map<string, BoatReviewArchiveItem>(archiveIndex.items.map((item) => [`${item.date}:${item.venueSlug}`, item])),
 		[archiveIndex],
 	);
-	const archiveDateSet = useMemo(() => new Set(archiveDates), [archiveDates]);
 	const activeLiveDate = useMemo(() => resolveActiveBoatOperationDate(todayFeed?.date), [todayFeed?.date]);
 	const liveDateSet = useMemo(() => new Set([activeLiveDate].filter(Boolean) as string[]), [activeLiveDate]);
-	const selectableDateSet = useMemo(() => new Set([...liveDateSet, ...archiveDateSet]), [archiveDateSet, liveDateSet]);
+	const selectableDates = useMemo(() => Array.from(new Set([
+		operationalToday,
+		operationalYesterday,
+		activeLiveDate,
+		...archiveDates,
+	].filter((date): date is string => Boolean(date) && date <= operationalToday))).sort((left, right) => right.localeCompare(left)), [activeLiveDate, archiveDates, operationalToday, operationalYesterday]);
 	const mode: ReviewDataMode = selectedDate < operationalToday ? "archive" : liveDateSet.has(selectedDate) ? "live" : "archive";
 	const predictionRecords = useMemo(() => normalizeBoatPredictionRecordList(predictionPayload), [predictionPayload]);
 	const practiceRecords = useMemo(() => normalizeBoatPracticeResultList(practicePayload), [practicePayload]);
@@ -502,10 +462,6 @@ export function ReviewPage() {
 		() => selectedGroup ? archiveGroupMap.get(selectedGroup.key) : undefined,
 		[archiveGroupMap, selectedGroup],
 	);
-	const selectedArchiveItem = useMemo(
-		() => selectedGroup ? archiveItemMap.get(selectedGroup.key) : undefined,
-		[archiveItemMap, selectedGroup],
-	);
 	const selectedStorageTarget = useMemo<BoatVenueStorageTarget | null>(() => selectedGroup ? ({
 		date: selectedDate,
 		venueSlug: selectedGroup.venueSlug,
@@ -531,19 +487,6 @@ export function ReviewPage() {
 			setSelectedVenueKey(selectedGroup.key);
 		}
 	}, [groups, mode, selectedGroup, selectedVenueKey, todayFeed]);
-
-	useEffect(() => {
-		if (!selectedGroup) {
-			setSummaryText("");
-			return;
-		}
-		if (mode === "archive") {
-			setSummaryText(selectedArchiveGroup?.summaryFileText || selectedGroup.summaryFileText || ARCHIVE_SUMMARY_MISSING_TEXT);
-			return;
-		}
-		const draftKey = `${selectedGroup.date}:${selectedGroup.venueSlug}`;
-		setSummaryText(readDrafts()[draftKey] ?? selectedArchiveGroup?.summaryFileText ?? ARCHIVE_SUMMARY_MISSING_TEXT);
-	}, [mode, selectedArchiveGroup, selectedGroup]);
 
 	const metrics = useMemo(() => buildBoatReviewPagePerformance(groups), [groups]);
 	const selectedMetrics = useMemo(
@@ -612,8 +555,6 @@ export function ReviewPage() {
 
 		return selectedArchiveGroup ? buildBoatResultSummaryText(selectedArchiveGroup) : "結果ファイル未登録";
 	}, [mode, selectedArchiveGroup, selectedGroup, selectedLiveGroup, selectedVenueExtra]);
-	const calendarCells = useMemo(() => buildCalendarCells(calendarMonth), [calendarMonth]);
-	const monthRegisteredDates = useMemo(() => getMonthDates(selectableDateSet, `${calendarMonth}-01`), [calendarMonth, selectableDateSet]);
 	const modeLabel = mode === "archive" ? "ARCHIVE FILE" : selectedDate === operationalToday ? "TODAY LIVE" : "LIVE";
 	const sourceLabel = mode === "archive"
 		? "archive txt"
@@ -622,7 +563,6 @@ export function ReviewPage() {
 	const selectDate = (date: string) => {
 		if (date > operationalToday) return;
 		setSelectedDate(date);
-		setCalendarMonth(date.slice(0, 7));
 		setStatusMessage("");
 	};
 
@@ -689,9 +629,6 @@ export function ReviewPage() {
 		setPracticePayload(loadBoatPracticeResultRecords());
 		setStorageUsageBytes(result.usageBytesAfter);
 		setMaintenanceRevision((revision) => revision + 1);
-		if (scope === "summary-draft" || scope === "all") {
-			setSummaryText(selectedArchiveGroup?.summaryFileText ?? ARCHIVE_SUMMARY_MISSING_TEXT);
-		}
 		setStatusMessage(result.ok
 			? `${selectedGroup.venueName}を${result.removedCount}件整理しました（${formatStorageBytes(result.usageBytesBefore)} → ${formatStorageBytes(result.usageBytesAfter)}）`
 			: `${selectedGroup.venueName}の整理中に保存エラーが発生しました`);
@@ -738,17 +675,20 @@ export function ReviewPage() {
 							</div>
 							<div className="boat-review-workbench-notes">
 								<article><strong>コピー素材</strong><span>予想・結果まとめコピー / TXT保存 / R対応確認</span></article>
-								<article><strong>保護ルール</strong><span>整理対象は選択会場のlocalStorageのみ。archiveとpublic dataは変更しません。</span></article>
+								<article><strong>保護ルール</strong><span>archive非変更 / production data非変更 / fake補完禁止</span></article>
+							</div>
+							<div className="boat-review-date-selector">
+								<div><button type="button" onClick={() => selectDate(operationalToday)}>今日</button><button type="button" onClick={() => selectDate(operationalYesterday)}>昨日</button></div>
+								<label><span>保存日</span><select value={selectedDate} onChange={(event) => selectDate(event.target.value)}>{selectableDates.map((date) => <option key={date} value={date}>{date}</option>)}</select></label>
 							</div>
 							<button type="button" className="boat-review-secondary" onClick={refreshLiveData}>データを再読み込み</button>
 							{statusMessage ? <p className="boat-review-status">{statusMessage}</p> : null}
 						</aside>
 					</section>
 
-					<section className="boat-review-summary-grid">
-						<article className="boat-review-panel boat-review-performance">
+					<section className="boat-review-panel boat-review-performance">
 							<p className="boat-review-eyebrow">PERFORMANCE</p>
-							<div className="boat-review-section-heading"><h2>確定実績</h2><span>pendingは実績に含めません</span></div>
+							<div className="boat-review-section-heading"><h2>実予想成績</h2><span>pendingは実績に含めません</span></div>
 							<div className="boat-review-performance-grid">
 								<ReviewMetric label="予想R" value={`${metrics.predictionRaceCount}R`} sub={`対象 ${metrics.targetRaceCount}R`} />
 								<ReviewMetric label="結果確定R" value={`${metrics.officialResultCount}R`} sub={`予想照合 ${metrics.settledPredictionRaceCount}R`} />
@@ -759,21 +699,6 @@ export function ReviewPage() {
 								<ReviewMetric label="的中率" value={formatOptionalPercent(metrics.hitRate)} sub="返還・中止を除外" />
 								<ReviewMetric label="回収率" value={formatOptionalPercent(metrics.roi)} sub="確定実績のみ" />
 							</div>
-						</article>
-
-						<article className="boat-review-panel boat-review-data-check">
-							<p className="boat-review-eyebrow">DATA CHECK</p>
-							<h2>予想・結果データ確認</h2>
-							<div className="boat-review-data-grid">
-								<ReviewMetric label="TARGET R" value={`${metrics.targetRaceCount}R`} sub="actual race set" />
-								<ReviewMetric label="PREDICTION R" value={`${metrics.predictionRaceCount}R`} sub="保存済み予想" />
-								<ReviewMetric label="RESULT R" value={`${metrics.officialResultCount}R`} sub="公式結果あり" />
-								<ReviewMetric label="MISSING PREDICTION" value={`${metrics.missingPredictionRaceCount}R`} sub="予想不足R" />
-								<ReviewMetric label="MISSING RESULT" value={`${metrics.missingResultRaceCount}R`} sub="結果不足R" />
-								<ReviewMetric label="R MATCH" value={metrics.raceSetsMatch ? "一致" : "要確認"} sub={`${metrics.pendingRaceCount}R 結果待ち`} />
-							</div>
-							<p className={metrics.parseWarningCount > 0 ? "boat-review-alert" : "boat-review-ok"}>Parse warning: {metrics.parseWarningCount}R / 返還・中止は不的中に含めません</p>
-						</article>
 					</section>
 
 					<section className="boat-review-panel boat-review-venues-panel">
@@ -781,24 +706,6 @@ export function ReviewPage() {
 							<div><p className="boat-review-eyebrow">VENUE CARDS</p><h2>会場別レビュー</h2></div>
 							<span>モーニング → デイ → ナイター → ミッドナイト順</span>
 						</div>
-						<details className="boat-review-calendar">
-							<summary>日付を変更する / {formatMonthLabel(calendarMonth)}</summary>
-							<div className="boat-review-calendar-controls">
-								<button type="button" onClick={() => setCalendarMonth(shiftMonth(calendarMonth, -1))}>前月</button>
-								<button type="button" onClick={() => selectDate(operationalToday)}>今日</button>
-								<button type="button" onClick={() => selectDate(operationalYesterday)}>昨日</button>
-								<button type="button" onClick={() => setCalendarMonth(shiftMonth(calendarMonth, 1))}>翌月</button>
-							</div>
-							<div className="boat-review-calendar-grid">
-								{WEEKDAY_LABELS.map((label) => <strong key={label}>{label}</strong>)}
-								{calendarCells.map((date) => {
-									const isSelected = date === selectedDate;
-									const hasData = selectableDateSet.has(date);
-									return <button key={date} type="button" disabled={date > operationalToday} data-selected={isSelected} data-has-data={hasData} onClick={() => selectDate(date)}>{Number(date.slice(-2))}</button>;
-								})}
-							</div>
-							<small>登録日: {monthRegisteredDates.length > 0 ? monthRegisteredDates.join(" / ") : "なし"} / Archive {archiveIndex.items.length}件</small>
-						</details>
 						{groups.length > 0 ? <div className="review-venue-grid">
 							{groups.map((group) => {
 								const itemMetrics = buildBoatReviewVenuePerformance(group);
@@ -806,47 +713,65 @@ export function ReviewPage() {
 								const sessionLabel = getVenueSessionLabel(group);
 								return <button key={group.key} type="button" className="boat-review-venue-card" data-selected={isSelected} onClick={() => setSelectedVenueKey(group.key)}>
 									<div className="boat-review-venue-head"><div><span>{formatVenueCardDate(group.date)}</span><strong>{group.venueName}</strong><small>{group.title || `${group.venueName} 出走表一覧`}</small></div><div><span>{getVenueStageLabel(group)}</span>{sessionLabel ? <small>{sessionLabel}</small> : null}</div></div>
+									<div className="boat-review-venue-statuses"><span>{itemMetrics.predictionRaceCount > 0 ? "予想あり" : "予想未登録"}</span><span>{itemMetrics.officialResultCount > 0 ? "結果あり" : "結果待ち"}</span>{itemMetrics.missingPredictionRaceNos.length || itemMetrics.missingResultRaceNos.length ? <span data-warning="true">R不一致</span> : <span data-ready="true">R一致</span>}{itemMetrics.parseWarningCount > 0 ? <span data-warning="true">解析注意 {itemMetrics.parseWarningCount}R</span> : null}</div>
 									<div className="boat-review-venue-metrics">
-										<ReviewMetric label="予想" value={`${itemMetrics.predictionRaceCount}/${itemMetrics.targetRaceCount}R`} sub="保存済み" />
-										<ReviewMetric label="結果" value={`${itemMetrics.officialResultCount}/${itemMetrics.targetRaceCount}R`} sub="公式確定" />
-										<ReviewMetric label="的中" value={`${itemMetrics.hitCount}R`} sub={`${itemMetrics.pendingRaceCount}R待ち`} />
-										<ReviewMetric label="回収率" value={formatOptionalPercent(itemMetrics.roi)} sub={itemMetrics.financialRaceCount > 0 ? "確定実績" : "結果待ち"} />
+										<ReviewMetric label="的中" value={`${itemMetrics.hitCount}/${itemMetrics.evaluatedRaceCount}R`} sub="評価対象" />
+										<ReviewMetric label="実収支" value={formatOptionalSignedYen(itemMetrics.profit, itemMetrics.financialRaceCount > 0)} sub="確定実績" />
+										<ReviewMetric label="実回収率" value={formatOptionalPercent(itemMetrics.roi)} sub="確定実績" />
+										<ReviewMetric label="結果確定" value={`${itemMetrics.officialResultCount}/${itemMetrics.targetRaceCount}R`} sub={`${itemMetrics.pendingRaceCount}R待ち`} />
 									</div>
 								</button>;
 							})}
 						</div> : <p className="boat-review-empty">この日付の会場データは未登録です。</p>}
 					</section>
 
-					{selectedGroup && selectedMetrics ? <section className="boat-review-panel boat-review-detail">
-						<div className="boat-review-section-heading">
-							<div><p className="boat-review-eyebrow">SELECTED VENUE</p><h2>{selectedGroup.venueName} / {formatVenueCardDate(selectedGroup.date)}</h2></div>
-							<div className="boat-review-chip-row"><span>対象 {selectedMetrics.targetRaceCount}R</span><span>予想 {selectedMetrics.predictionRaceCount}R</span><span>結果 {selectedMetrics.officialResultCount}R</span></div>
-						</div>
-						<div className="boat-review-readiness">
-							<span>予想不足: {selectedMetrics.missingPredictionRaceNos.length ? formatMissingRaceNos(selectedMetrics.missingPredictionRaceNos) : "なし"}</span>
-							<span>結果待ち: {selectedMetrics.missingResultRaceNos.length ? formatMissingRaceNos(selectedMetrics.missingResultRaceNos) : "なし"}</span>
-							{selectedMetrics.parseWarningCount > 0 ? <strong>解析警告 {selectedMetrics.parseWarningCount}R</strong> : <strong>parse OK</strong>}
-						</div>
-						<div className="boat-review-race-grid">
-							{selectedMetrics.races.map((race) => {
-								const status = getRaceStatusPresentation(race);
-								const hasFinancial = race.investment !== null;
-								return <article key={race.raceNo} className="boat-review-race-card">
-									<div><strong>{race.raceNo}R</strong><span style={{ color: status.color, background: status.background }}>{status.label}</span></div>
-									<dl><div><dt>着順</dt><dd>{race.finishOrder ?? "--"}</dd></div><div><dt>決まり手</dt><dd>{race.kimarite ?? "--"}</dd></div><div><dt>投資</dt><dd>{hasFinancial ? formatYen(race.investment ?? 0) : "--"}</dd></div><div><dt>払戻</dt><dd>{hasFinancial ? formatYen(race.payout ?? 0) : "--"}</dd></div><div><dt>収支</dt><dd>{hasFinancial ? formatSignedYen(race.profit ?? 0) : "--"}</dd></div></dl>
-								</article>;
-							})}
-						</div>
-						<div className="boat-review-export-grid">
-							<article><span>PREDICTION DATA</span><strong>予想まとめ</strong><small>{selectedMetrics.predictionRaceCount}/{selectedMetrics.targetRaceCount}R / {selectedMetrics.missingPredictionRaceNos.length ? `不足 ${formatMissingRaceNos(selectedMetrics.missingPredictionRaceNos)}` : "一致"}</small><div><button type="button" onClick={() => void handleCopy(predictionText, "予想まとめ")}>コピー</button><button type="button" onClick={() => downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "predictions"), predictionText)}>TXT</button></div></article>
-							<article><span>RESULT DATA</span><strong>結果まとめ</strong><small>{selectedMetrics.officialResultCount}/{selectedMetrics.targetRaceCount}R / {selectedMetrics.missingResultRaceNos.length ? `不足 ${formatMissingRaceNos(selectedMetrics.missingResultRaceNos)}` : "一致"}</small><div><button type="button" onClick={() => void handleCopy(resultText, "結果まとめ")}>コピー</button><button type="button" onClick={() => downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "results"), resultText)}>TXT</button></div></article>
-							<article><span>GPT REVIEW SUMMARY</span><strong>{selectedArchiveItem?.summaryStatus === "ready" || selectedArchiveGroup?.summaryFileText ? "summary ready" : "summary未作成"}</strong><small>既存summary全文を保持</small><div><button type="button" onClick={() => void handleCopy(summaryText, "summary")}>コピー</button><button type="button" onClick={() => downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "summary"), summaryText)}>TXT</button></div></article>
-						</div>
-						<details className="boat-review-monthly-hint">
-							<summary>Monthly feedback / {monthlyReferenceMonths.length ? monthlyReferenceMonths.join(" / ") : "記録なし"} / 対象 {monthlyFeedbackSummary.trackedCount}R</summary>
+					{selectedGroup && selectedMetrics ? <>
+						<section className="boat-review-panel boat-review-detail">
+							<div className="boat-review-section-heading">
+								<div><p className="boat-review-eyebrow">SELECTED VENUE</p><h2>{selectedGroup.venueName} / {formatVenueCardDate(selectedGroup.date)}</h2></div>
+								<div className="boat-review-chip-row"><span>対象 {selectedMetrics.targetRaceCount}R</span><span>予想 {selectedMetrics.predictionRaceCount}R</span><span>結果 {selectedMetrics.officialResultCount}R</span></div>
+							</div>
+							<div className="boat-review-readiness">
+								<span>予想不足: {selectedMetrics.missingPredictionRaceNos.length ? formatMissingRaceNos(selectedMetrics.missingPredictionRaceNos) : "なし"}</span>
+								<span>結果待ち: {selectedMetrics.missingResultRaceNos.length ? formatMissingRaceNos(selectedMetrics.missingResultRaceNos) : "なし"}</span>
+								{selectedMetrics.parseWarningCount > 0 ? <strong>解析警告 {selectedMetrics.parseWarningCount}R</strong> : <strong>parse OK</strong>}
+							</div>
+							<div className="boat-review-race-grid">
+								{selectedMetrics.races.map((race) => {
+									const status = getRaceStatusPresentation(race);
+									const hasFinancial = race.investment !== null;
+									return <article key={race.raceNo} className="boat-review-race-card">
+										<div><strong>{race.raceNo}R</strong><span style={{ color: status.color, background: status.background }}>{status.label}</span></div>
+										<dl><div><dt>着順</dt><dd>{race.finishOrder ?? "--"}</dd></div><div><dt>決まり手</dt><dd>{race.kimarite ?? "--"}</dd></div><div><dt>投資</dt><dd>{hasFinancial ? formatYen(race.investment ?? 0) : "--"}</dd></div><div><dt>払戻</dt><dd>{hasFinancial ? formatYen(race.payout ?? 0) : "--"}</dd></div><div><dt>収支</dt><dd>{hasFinancial ? formatSignedYen(race.profit ?? 0) : "--"}</dd></div></dl>
+									</article>;
+								})}
+							</div>
+						</section>
+
+						<section className="boat-review-panel boat-review-copy-material">
+							<div className="boat-review-section-heading"><div><p className="boat-review-eyebrow">COPY MATERIAL</p><h2>会場ごとのエクスポート素材</h2></div><span>本文は内部生成し、コピー / TXTで出力します</span></div>
+							<div className="boat-review-copy-summary-grid">
+								<ReviewMetric label="対象会場" value={`${selectedGroup.venueName} / ${formatVenueCardDate(selectedGroup.date)}`} sub="選択中" />
+								<ReviewMetric label="対象R数" value={`${selectedMetrics.targetRaceCount}R`} sub="actual race set" />
+								<ReviewMetric label="R対応" value={selectedMetrics.missingPredictionRaceNos.length === 0 && selectedMetrics.missingResultRaceNos.length === 0 ? "予想・結果一致" : "要確認"} sub="R番号で照合" />
+							</div>
+							<div className="boat-review-copy-statuses">{selectedMetrics.races.map((race) => { const status = getRaceStatusPresentation(race); return <span key={race.raceNo} style={{ color: status.color, background: status.background }}>{race.raceNo}R・{status.label}</span>; })}</div>
+							<div className="boat-review-copy-list">
+								<article className="boat-review-copy-card"><div><span>PREDICTION COPY</span><strong>予想まとめをコピー <em>({selectedMetrics.predictionRaceCount}/{selectedMetrics.targetRaceCount})</em></strong><small>{selectedMetrics.missingPredictionRaceNos.length ? `未入力: ${formatMissingRaceNos(selectedMetrics.missingPredictionRaceNos)}` : "全Rあり"}</small></div><div><button type="button" onClick={() => void handleCopy(predictionText, "予想まとめ")}>コピー</button><button type="button" onClick={() => downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "predictions"), predictionText)}>TXT</button></div></article>
+								<article className="boat-review-copy-card"><div><span>RESULT COPY</span><strong>結果まとめをコピー <em>({selectedMetrics.officialResultCount}/{selectedMetrics.targetRaceCount})</em></strong><small>{selectedMetrics.missingResultRaceNos.length ? `未取得: ${formatMissingRaceNos(selectedMetrics.missingResultRaceNos)}` : "全Rあり"}</small></div><div><button type="button" onClick={() => void handleCopy(resultText, "結果まとめ")}>コピー</button><button type="button" onClick={() => downloadText(getReviewFileName(selectedGroup.date, selectedGroup.venueSlug, "results"), resultText)}>TXT</button></div></article>
+							</div>
+							<div className={selectedMetrics.missingPredictionRaceNos.length === 0 && selectedMetrics.missingResultRaceNos.length === 0 ? "boat-review-r-match" : "boat-review-r-match boat-review-r-match-warning"}>
+								<strong>{selectedMetrics.missingPredictionRaceNos.length === 0 && selectedMetrics.missingResultRaceNos.length === 0 ? "予想と結果のRが一致" : "予想と結果のRを確認"}</strong>
+								<span>予想R: {formatRaceNos(selectedMetrics.predictionRaceNos)}</span><span>結果R: {formatRaceNos(selectedMetrics.resultRaceNos)}</span>
+								{selectedMetrics.missingPredictionRaceNos.length ? <span>予想不足: {formatMissingRaceNos(selectedMetrics.missingPredictionRaceNos)}</span> : null}{selectedMetrics.missingResultRaceNos.length ? <span>結果不足: {formatMissingRaceNos(selectedMetrics.missingResultRaceNos)}</span> : null}
+							</div>
+						</section>
+
+						<details className="boat-review-panel boat-review-monthly-hint">
+							<summary>MONTHLY FEEDBACK / {monthlyReferenceMonths.length ? monthlyReferenceMonths.join(" / ") : "記録なし"} / 対象 {monthlyFeedbackSummary.trackedCount}R</summary>
 							<div>{selectedMonthlyFeedback.length ? selectedMonthlyFeedback.map(({ raceNo, feedback }) => <span key={feedback.raceKey}>{raceNo}R: {feedback.snapshotStatus === "legacy" ? "記録なし" : feedback.snapshotStatus === "unavailable" ? "参照未取得" : `${feedback.monthlyReviewContext?.focusLabel ?? "Focus未取得"} / ${feedback.settlementOutcome === "pending" ? "結果待ち" : feedback.observedOutcome}`}</span>) : <span>選択会場に保存済み予想はありません。</span>}</div>
 						</details>
-					</section> : null}
+					</> : null}
 
 					<details className="boat-review-panel boat-review-maintenance">
 						<summary>Local Storage Maintenance / {formatStorageBytes(storageUsageBytes)}</summary>
@@ -864,6 +789,7 @@ export function ReviewPage() {
 
 				<style>{`
 					body:has(.review-page-root){background:#f6f8fc}.review-page-root{min-height:100vh;background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(248,244,252,.9) 44%,rgba(241,248,252,.92)),url("${REVIEW_PAGE_BACKGROUND_URL}") center top/cover fixed;color:#111827}.boat-review-workbench{width:100%;max-width:2040px;margin:0 auto;padding:18px 24px 96px;box-sizing:border-box;display:grid;gap:22px}.boat-review-top-grid{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(360px,460px);gap:22px}.boat-review-hero-panel,.boat-review-panel,.boat-review-workbench-card{min-width:0;border:1px solid rgba(223,210,245,.96);background:rgba(255,255,255,.96);box-shadow:0 22px 48px rgba(35,30,68,.07)}.boat-review-hero-panel{min-height:510px;border-radius:36px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);overflow:hidden}.boat-review-hero-copy{min-width:0;padding:32px;display:flex;flex-direction:column;justify-content:center;gap:16px}.boat-review-eyebrow{margin:0;color:#8a6bc7;font-size:10px;font-weight:900;letter-spacing:.18em}.boat-review-hero-copy h1{margin:0;max-width:680px;font-size:clamp(32px,3vw,50px);line-height:1.12;font-weight:900;letter-spacing:0;overflow-wrap:anywhere}.boat-review-hero-copy>p:not(.boat-review-eyebrow){margin:0;max-width:650px;color:#626b79;line-height:1.9}.boat-review-hero-image{min-width:0;min-height:420px;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(150deg,#f5effd,#fff5f8 55%,#eef9fc);overflow:hidden}.boat-review-hero-image img{display:block;width:100%;max-width:100%;height:100%;max-height:500px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 22px 26px rgba(95,75,145,.14))}.boat-review-chip-row{display:flex;flex-wrap:wrap;gap:8px}.boat-review-chip-row>span,.boat-review-status{display:inline-flex;max-width:100%;width:fit-content;border:1px solid #e2d7f2;background:#faf7ff;color:#695396;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800;overflow-wrap:anywhere}.boat-review-hero-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.boat-review-stat-card,.boat-review-metric{min-width:0;border:1px solid #e4daf2;background:linear-gradient(180deg,#fff,#f8f4fc);border-radius:18px;padding:12px;display:grid;gap:5px}.boat-review-stat-card span,.boat-review-metric span{color:#8a72b8;font-size:9px;font-weight:900;letter-spacing:.12em;overflow-wrap:anywhere}.boat-review-stat-card strong{font-size:22px;overflow-wrap:anywhere}.boat-review-stat-card small,.boat-review-metric small{color:#707887;line-height:1.45;overflow-wrap:anywhere}.boat-review-workbench-card{border-radius:32px;padding:20px;display:grid;gap:14px;align-content:start;background:linear-gradient(180deg,#fff,#f8f4fc 60%,#fff7f9)}.boat-review-workbench-card h2,.boat-review-panel h2{margin:0;font-size:25px}.boat-review-muted{margin:0;color:#697180;line-height:1.7;font-size:13px}.boat-review-workbench-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.boat-review-workbench-grid>div{min-width:0;border:1px solid #e5dcef;background:#fff;border-radius:15px;padding:10px;display:grid;gap:4px}.boat-review-workbench-grid span{font-size:9px;color:#8b7b9e;font-weight:800}.boat-review-workbench-grid strong{font-size:14px;overflow-wrap:anywhere}.boat-review-workbench-notes{display:grid;gap:9px}.boat-review-workbench-notes article{min-width:0;border:1px solid #e1d5ef;background:linear-gradient(135deg,#faf7ff,#f7faff);border-radius:20px;padding:12px;display:grid;gap:5px}.boat-review-workbench-notes article:last-child{border-color:#ead8e0;background:#fff9fb}.boat-review-workbench-notes strong{font-size:11px;color:#6f52b2}.boat-review-workbench-notes article:last-child strong{color:#a44f76}.boat-review-workbench-notes span{font-size:11px;line-height:1.6;color:#626b79;overflow-wrap:anywhere}.boat-review-secondary,.boat-review-calendar button,.boat-review-export-grid button{border:1px solid #ddd1ed;background:#fff;color:#3f3657;border-radius:12px;padding:9px 11px;font-weight:800;cursor:pointer}.boat-review-status{margin:0}.boat-review-summary-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(360px,.65fr);gap:18px}.boat-review-panel{border-radius:30px;padding:22px;min-width:0}.boat-review-performance,.boat-review-data-check{display:grid;gap:14px}.boat-review-section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}.boat-review-section-heading span{color:#717887;font-size:12px}.boat-review-performance-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.boat-review-metric strong{font-size:18px;line-height:1.15;overflow-wrap:anywhere}.boat-review-data-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.boat-review-alert,.boat-review-ok{margin:0;padding:10px;border-radius:12px;font-size:11px;font-weight:800}.boat-review-alert{background:#fff3e6;color:#a45b16}.boat-review-ok{background:#edf8f4;color:#16705d}.boat-review-venues-panel{display:grid;gap:16px}.boat-review-calendar{border:1px solid #e7def1;border-radius:16px;background:#faf8fd;padding:11px 13px}.boat-review-calendar summary,.boat-review-maintenance summary,.boat-review-monthly-hint summary{cursor:pointer;font-weight:850;color:#5f4c82;overflow-wrap:anywhere}.boat-review-calendar-controls{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}.boat-review-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.boat-review-calendar-grid strong{text-align:center;font-size:10px;color:#8f839e}.boat-review-calendar-grid button{min-width:0;min-height:34px;padding:5px}.boat-review-calendar-grid button[data-selected=true]{background:#5f4c82;color:#fff}.boat-review-calendar-grid button[data-has-data=true]:not([data-selected=true]){background:#edf8fb}.boat-review-calendar small{display:block;margin-top:9px;color:#777;overflow-wrap:anywhere}.review-venue-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:14px}.boat-review-venue-card{width:100%;min-width:0;min-height:220px;text-align:left;border:1px solid #e2d6f1;background:linear-gradient(145deg,#fff,#f9f5fc 60%,#f1f9fb);border-radius:24px;padding:18px;display:grid;gap:14px;cursor:pointer;box-shadow:0 12px 28px rgba(17,24,39,.05)}.boat-review-venue-card[data-selected=true]{border-color:#9272d2;background:linear-gradient(180deg,#f3ecff,#fff);box-shadow:0 18px 34px rgba(91,65,145,.13)}.boat-review-venue-head{display:flex;justify-content:space-between;gap:14px;min-width:0}.boat-review-venue-head>div{min-width:0;display:grid;gap:4px}.boat-review-venue-head strong{font-size:22px;overflow-wrap:anywhere}.boat-review-venue-head span{font-size:11px;font-weight:850;color:#7656b2}.boat-review-venue-head small{color:#707887;overflow-wrap:anywhere}.boat-review-venue-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.boat-review-venue-metrics .boat-review-metric{padding:9px;min-height:70px}.boat-review-venue-metrics .boat-review-metric strong{font-size:15px}.boat-review-empty{padding:20px;border:1px dashed #d8caea;border-radius:16px;color:#6d7480}.boat-review-detail{display:grid;gap:16px}.boat-review-readiness{display:flex;flex-wrap:wrap;gap:8px}.boat-review-readiness>*{max-width:100%;border:1px solid #e3d9ef;background:#faf8fd;border-radius:999px;padding:7px 10px;font-size:11px;color:#695a7f;overflow-wrap:anywhere}.boat-review-race-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr));gap:10px}.boat-review-race-card{min-width:0;border:1px solid #e4dcec;background:#fff;border-radius:17px;padding:12px;display:grid;gap:10px}.boat-review-race-card>div{display:flex;justify-content:space-between;align-items:center;gap:8px}.boat-review-race-card>div>span{border-radius:999px;padding:5px 8px;font-size:10px;font-weight:850}.boat-review-race-card dl{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.boat-review-race-card dl>div{min-width:0;display:grid;gap:2px}.boat-review-race-card dt{font-size:9px;color:#8b8194}.boat-review-race-card dd{margin:0;font-size:12px;font-weight:800;overflow-wrap:anywhere}.boat-review-export-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.boat-review-export-grid article{min-width:0;border:1px solid #e1d5ef;background:linear-gradient(180deg,#fff,#f8f5fb);border-radius:18px;padding:14px;display:grid;gap:7px}.boat-review-export-grid article>span{font-size:9px;color:#876cb7;font-weight:900;letter-spacing:.12em;overflow-wrap:anywhere}.boat-review-export-grid article>strong{font-size:16px}.boat-review-export-grid article>small{color:#747b87;overflow-wrap:anywhere}.boat-review-export-grid article>div{display:flex;flex-wrap:wrap;gap:7px}.boat-review-monthly-hint{min-width:0;border:1px solid #e5dced;border-radius:15px;background:#faf8fd;padding:11px 13px}.boat-review-monthly-hint>div{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.boat-review-monthly-hint span{max-width:100%;font-size:11px;border:1px solid #e5dced;background:#fff;border-radius:10px;padding:7px;overflow-wrap:anywhere}.boat-review-maintenance{padding:14px 18px}.boat-review-maintenance-body{display:grid;gap:12px;margin-top:14px}.boat-review-maintenance-body p{margin:0;color:#6d7480;overflow-wrap:anywhere}.boat-review-maintenance-actions{display:flex;flex-wrap:wrap;gap:8px}.boat-review-maintenance-actions button{border:1px solid #d89aa6;background:#fff5f7;color:#a23248;border-radius:12px;padding:9px;font-weight:800}.boat-review-maintenance-actions button:disabled{opacity:.45}.boat-review-maintenance-actions button:last-child{background:#a23248;color:#fff}@media(max-width:1180px){.boat-review-top-grid,.boat-review-summary-grid{grid-template-columns:1fr}.boat-review-hero-panel{grid-template-columns:1fr}.boat-review-hero-image{min-height:330px}.boat-review-export-grid{grid-template-columns:1fr}}@media(max-width:760px){.boat-review-workbench{padding:10px 8px 72px}.boat-review-hero-copy,.boat-review-panel,.boat-review-workbench-card{padding:16px}.boat-review-hero-stats,.boat-review-performance-grid,.boat-review-data-grid,.boat-review-venue-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.review-venue-grid{grid-template-columns:1fr}.boat-review-hero-copy h1{font-size:30px}.boat-review-hero-image{min-height:270px}.boat-review-race-grid{grid-template-columns:1fr}.boat-review-venue-card{min-height:0}.boat-review-section-heading{align-items:flex-start}}
+					.boat-review-date-selector{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:end;gap:9px}.boat-review-date-selector>div{display:flex;gap:7px}.boat-review-date-selector label{min-width:0;display:grid;gap:4px}.boat-review-date-selector label>span{font-size:9px;font-weight:900;color:#8b7b9e}.boat-review-date-selector button,.boat-review-date-selector select,.boat-review-copy-card button{min-width:0;border:1px solid #ddd1ed;background:#fff;color:#3f3657;border-radius:12px;padding:9px 11px;font-weight:800}.boat-review-date-selector select{width:100%;box-sizing:border-box}.boat-review-venue-statuses,.boat-review-copy-statuses{display:flex;flex-wrap:wrap;gap:6px}.boat-review-venue-statuses span,.boat-review-copy-statuses span{max-width:100%;border:1px solid #e2d7f2;background:#faf7ff;color:#695396;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900;overflow-wrap:anywhere}.boat-review-venue-statuses span[data-ready=true]{border-color:#bfe6da;background:#edf8f4;color:#16705d}.boat-review-venue-statuses span[data-warning=true]{border-color:#f0cf9e;background:#fff3e6;color:#a45b16}.boat-review-copy-material{display:grid;gap:18px}.boat-review-copy-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.boat-review-copy-list{display:grid;gap:16px}.boat-review-copy-card{min-width:0;border:1px solid #e5dced;background:rgba(255,255,255,.94);border-radius:24px;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:18px}.boat-review-copy-card>div:first-child{min-width:0;display:grid;gap:7px}.boat-review-copy-card>div:last-child{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}.boat-review-copy-card span{font-size:10px;font-weight:900;letter-spacing:.16em;color:#9a7ad9}.boat-review-copy-card strong{font-size:22px;line-height:1.25;overflow-wrap:anywhere}.boat-review-copy-card em{font-style:normal;color:#16835b}.boat-review-copy-card small{color:#707887;overflow-wrap:anywhere}.boat-review-r-match{border:1px solid #bfe6da;background:#edf8f4;color:#16705d;border-radius:18px;padding:14px;display:grid;gap:6px}.boat-review-r-match-warning{border-color:#f0cf9e;background:#fff3e6;color:#a45b16}.boat-review-r-match span{font-size:11px;line-height:1.55;overflow-wrap:anywhere}@media(max-width:760px){.boat-review-date-selector{grid-template-columns:1fr}.boat-review-copy-summary-grid{grid-template-columns:1fr}.boat-review-copy-card{align-items:flex-start;flex-direction:column}.boat-review-copy-card>div:last-child{justify-content:flex-start}}
 				`}</style>
 			</div>
 		</PageShell>
