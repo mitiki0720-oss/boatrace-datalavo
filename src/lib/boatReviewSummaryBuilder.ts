@@ -303,7 +303,7 @@ function getRaceKeyCandidates(params: {
 	return Array.from(new Set(keys));
 }
 
-function findPrediction(params: {
+export function findBoatReviewPrediction(params: {
 	predictions: BoatPredictionRecord[];
 	date: string;
 	venueName: string;
@@ -313,14 +313,25 @@ function findPrediction(params: {
 }): BoatPredictionRecord | undefined {
 	const normalizedVenue = normalizeBoatReviewVenueName(params.venueName);
 	const keyCandidates = getRaceKeyCandidates(params);
-	return params.predictions.find((record) => {
+	const candidates = params.predictions.filter((record) => {
 		if (record.date !== params.date) return false;
 		if (Number(record.raceNo) !== params.raceNo) return false;
+		if (params.venueCode && record.venueCode && record.venueCode !== params.venueCode) return false;
 		if (record.raceId && params.raceId && record.raceId === params.raceId) return true;
 		if (record.raceKey && keyCandidates.includes(record.raceKey)) return true;
-		if (params.venueCode && record.venueCode === params.venueCode) return true;
+		if (params.venueCode && record.venueCode) return record.venueCode === params.venueCode;
 		return normalizeBoatReviewVenueName(record.venueName) === normalizedVenue;
 	});
+
+	return candidates.sort((left, right) => {
+		const leftHasText = Boolean(left.predictionText?.trim());
+		const rightHasText = Boolean(right.predictionText?.trim());
+		if (leftHasText !== rightHasText) return rightHasText ? 1 : -1;
+		const leftExactCode = Boolean(params.venueCode && left.venueCode === params.venueCode);
+		const rightExactCode = Boolean(params.venueCode && right.venueCode === params.venueCode);
+		if (leftExactCode !== rightExactCode) return rightExactCode ? 1 : -1;
+		return String(right.updatedAt ?? right.savedAt ?? "").localeCompare(String(left.updatedAt ?? left.savedAt ?? ""));
+	})[0];
 }
 
 function findPractice(params: {
@@ -370,7 +381,7 @@ export function buildLiveBoatReviewVenueGroups(params: {
 			return {
 				raceNo,
 				race,
-				prediction: findPrediction({
+				prediction: findBoatReviewPrediction({
 					predictions: params.predictions,
 					date: params.date,
 					venueName,
@@ -414,7 +425,7 @@ export function buildLiveBoatReviewVenueGroups(params: {
 					raceNo,
 					prediction: raceNo === Number(prediction.raceNo)
 						? prediction
-						: findPrediction({
+						: findBoatReviewPrediction({
 							predictions: params.predictions,
 							date: params.date,
 							venueName,
@@ -464,7 +475,7 @@ export function buildLiveBoatReviewVenueGroups(params: {
 						venueCode: practiceResult.venueCode,
 						raceNo,
 					}),
-					prediction: findPrediction({
+					prediction: findBoatReviewPrediction({
 						predictions: params.predictions,
 						date: params.date,
 						venueName,

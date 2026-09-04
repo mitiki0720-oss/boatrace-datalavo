@@ -40,6 +40,9 @@ const resolveBoatPredictionOutcome = ({ race, bets, investmentAmount, parseStatu
 const module = { exports: {} };
 new Function("exports", "module", "require", compiled)(module.exports, module, (specifier) => {
   if (specifier === "./boatResultSettlement") return { resolveBoatPredictionOutcome };
+  if (specifier === "./boatBetParser") return {
+    parseBoatBets: () => ({ bets: [], totalStakeYen: 0, parseStatus: "missing-section", warnings: [] }),
+  };
   throw new Error(`Unexpected checker dependency: ${specifier}`);
 });
 const { buildBoatReviewPagePerformance, buildBoatReviewVenuePerformance } = module.exports;
@@ -162,6 +165,10 @@ const sourceChecks = {
   archiveSummaryReadPreserved: pageSource.includes("summaryFileText: files.summaryText"),
   existingCleanupGuardPreserved: pageSource.includes("cleanupBoatVenueLocalStorage") && pageSource.includes("window.confirm"),
   officialOutcomeResolver: helperSource.includes('resolveBoatPredictionOutcome') && helperSource.includes('source: "boat-review"'),
+  selectedVenueFeedback: pageSource.includes("handleVenueSelect(group.key)") && pageSource.includes("boat-review-selected-badge") && pageSource.includes("scrollIntoView"),
+  exportFeedback: ["prediction-copy", "prediction-txt", "result-copy", "result-txt"].every((key) => pageSource.includes(key)) && pageSource.includes("✓ コピー済み") && pageSource.includes("✓ 保存しました"),
+  exportFeedbackCleanup: pageSource.includes("exportFeedbackTimers") && pageSource.includes("window.clearTimeout"),
+  publicAndLocalPredictionMerge: pageSource.includes("loadPublicJohnsonPredictionRecords") && pageSource.includes("loadBoatJohnsonPredictionRecords") && pageSource.includes("...publicJohnsonRecords"),
 };
 assert.ok(Object.values(sourceChecks).every(Boolean), JSON.stringify(sourceChecks, null, 2));
 

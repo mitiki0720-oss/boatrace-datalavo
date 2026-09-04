@@ -517,16 +517,45 @@ const hasRefundInfo = (race: BoatRaceItem | null | undefined): boolean => {
 		return false;
 	}
 
-	return Boolean(
-		result.refundText ||
-		result.refunds ||
+	const hasMeaningfulRefundValue = (value: unknown): boolean => {
+		if (value === null || value === undefined || value === false) return false;
+		if (typeof value === "number") return Number.isFinite(value) && value > 0;
+		if (typeof value === "string") {
+			const text = value.normalize("NFKC").trim();
+			if (!text || /^(?:0(?:\.0+)?(?:円)?|なし|該当なし|未取得|未確定|--|—)$/i.test(text)) return false;
+			return true;
+		}
+		if (Array.isArray(value)) return value.some(hasMeaningfulRefundValue);
+		if (typeof value !== "object") return false;
+
+		const record = value as Record<string, unknown>;
+		if (/refund|返還/i.test(String(record.status ?? record.type ?? record.label ?? ""))) return true;
+		for (const key of ["amount", "refundAmount", "refundYen", "payout", "payoutYen", "yen", "value"]) {
+			const amount = readPayoutYen(record[key] as string | number | undefined);
+			if (amount > 0) return true;
+		}
+
+		return Object.values(record).some(hasMeaningfulRefundValue);
+	};
+
+	const resultStatus = String(result.status ?? "");
+	return (
+		/refund|返還/i.test(resultStatus) ||
+		hasMeaningfulRefundValue(result.refundText) ||
+		hasMeaningfulRefundValue(result.refunds) ||
+		hasMeaningfulRefundValue(result.refundList) ||
 		(Array.isArray(result.payoutsFull) && result.payoutsFull.some((row) => /返還|refund/i.test(String(row.betType ?? row.payout ?? "")))) ||
-		(Array.isArray(result.payouts) && result.payouts.some((row) => /返還|refund/i.test(String(row.betType ?? row.payout ?? "")))),
+		(Array.isArray(result.payouts) && result.payouts.some((row) => /返還|refund/i.test(String(row.betType ?? row.payout ?? ""))))
 	);
 };
 
-const isCancelledRace = (race: BoatRaceItem | null | undefined): boolean =>
-	race?.status === "canceled" || race?.result?.status === "unavailable";
+const isCancelledRace = (race: BoatRaceItem | null | undefined): boolean => {
+	if (race?.status === "canceled") return true;
+	const result = race?.result as (BoatRaceResult & Record<string, unknown>) | undefined;
+	if (!result) return false;
+	if (/^(?:cancelled|canceled|cancel|中止|不成立)$/i.test(String(result.status ?? "").normalize("NFKC").trim())) return true;
+	return /(?:中止|不成立|cancelled|canceled)/i.test(String(result.remarks ?? result.notes ?? "").normalize("NFKC"));
+};
 
 export function resolveBoatPredictionOutcome(params: {
 	race: BoatRaceItem | null | undefined;
@@ -544,7 +573,7 @@ export function resolveBoatPredictionOutcome(params: {
 	});
 
 	if (isCancelledRace(params.race)) {
-		return { status: "cancelled", settlement, reason: "race cancelled or unavailable" };
+		return { status: "cancelled", settlement, reason: "explicit race cancellation found" };
 	}
 
 	if (hasRefundInfo(params.race)) {

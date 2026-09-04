@@ -1,4 +1,5 @@
 import { resolveBoatPredictionOutcome, type BoatPredictionOutcomeStatus } from "./boatResultSettlement";
+import { parseBoatBets, type ParsedBoatBet } from "./boatBetParser";
 import type { BoatReviewRaceEntry, BoatReviewVenueGroup } from "./boatReviewSummaryBuilder";
 
 export type BoatReviewRaceStatus = BoatPredictionOutcomeStatus | "unpredicted";
@@ -80,8 +81,27 @@ const normalizeArchiveStatus = (section: string, hasPrediction: boolean): BoatRe
 	return "pending";
 };
 
-const getLiveInvestment = (entry: BoatReviewRaceEntry): number =>
-	readFiniteNumber(entry.prediction?.totalStakeYen ?? entry.prediction?.betSummary?.totalStakeYen) ?? 0;
+const getLivePredictionParse = (entry: BoatReviewRaceEntry): {
+	bets: ParsedBoatBet[];
+	parseStatus: ReturnType<typeof parseBoatBets>["parseStatus"];
+	parseWarnings: string[];
+	investment: number | null;
+} => {
+	const prediction = entry.prediction;
+	const predictionText = prediction?.rawPredictionText ?? prediction?.predictionText ?? "";
+	const parsed = parseBoatBets(predictionText);
+	const parsedIsReady = parsed.parseStatus === "ready" && parsed.bets.length > 0;
+	const storedBets = Array.isArray(prediction?.parsedBets) ? prediction.parsedBets : [];
+	const explicitStake = readFiniteNumber(prediction?.totalStakeYen);
+	const summaryStake = readFiniteNumber(prediction?.betSummary?.totalStakeYen);
+
+	return {
+		bets: parsedIsReady ? parsed.bets : storedBets,
+		parseStatus: parsedIsReady ? parsed.parseStatus : prediction?.parseStatus ?? parsed.parseStatus,
+		parseWarnings: parsedIsReady ? parsed.warnings ?? [] : prediction?.parseWarnings ?? parsed.warnings ?? [],
+		investment: explicitStake ?? summaryStake ?? (parsedIsReady ? parsed.totalStakeYen : null),
+	};
+};
 
 const getLiveFinishOrder = (entry: BoatReviewRaceEntry): string | null => {
 	const result = entry.race?.result;
@@ -101,8 +121,19 @@ const getLiveRacePerformance = (entry: BoatReviewRaceEntry): BoatReviewRacePerfo
 	const prediction = entry.prediction;
 	const race = entry.race;
 	const hasPrediction = Boolean(prediction?.predictionText?.trim());
-	const hasOfficialResult = race?.result?.status === "confirmed" || race?.result?.status === "unavailable";
 	const finishOrder = getLiveFinishOrder(entry);
+	const resultProbe = resolveBoatPredictionOutcome({
+		race,
+		bets: [],
+		investmentAmount: 0,
+		parseStatus: "missing-section",
+		source: "boat-review-result-probe",
+	});
+	const hasOfficialResult = (
+		(race?.result?.status === "confirmed" && Boolean(finishOrder)) ||
+		resultProbe.status === "refund" ||
+		resultProbe.status === "cancelled"
+	);
 	const kimarite = race?.result?.kimarite ?? race?.result?.winningMethod ?? race?.result?.winningMove ?? null;
 
 	if (!prediction || !hasPrediction) {
@@ -120,16 +151,17 @@ const getLiveRacePerformance = (entry: BoatReviewRaceEntry): BoatReviewRacePerfo
 		};
 	}
 
-	const investment = getLiveInvestment(entry);
+	const parsedPrediction = getLivePredictionParse(entry);
+	const investment = parsedPrediction.investment;
 	const outcome = resolveBoatPredictionOutcome({
 		race,
-		bets: prediction.parsedBets ?? [],
-		investmentAmount: investment,
-		parseStatus: prediction.parseStatus,
-		parseWarnings: prediction.parseWarnings,
+		bets: parsedPrediction.bets,
+		investmentAmount: investment ?? 0,
+		parseStatus: parsedPrediction.parseStatus,
+		parseWarnings: parsedPrediction.parseWarnings,
 		source: "boat-review",
 	});
-	const financial = outcome.status === "hit" || outcome.status === "miss";
+	const financial = (outcome.status === "hit" || outcome.status === "miss") && investment !== null;
 	const settledPrediction = ["hit", "miss", "refund", "cancelled"].includes(outcome.status);
 
 	return {
