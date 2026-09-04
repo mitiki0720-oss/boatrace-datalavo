@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-coverage-date",
   "date": "2026-09-05",
-  "generatedAt": "2026-09-04T17:44:45.065Z",
+  "generatedAt": "2026-09-04T23:02:49.104Z",
   "sourceFiles": [
     {
       "sourceName": "today-race-details.generated.json",
       "sourceType": "official",
       "sourcePath": "public/data/boatrace/today-race-details.generated.json",
-      "generatedAt": "2026-09-05T02:42:12+09:00",
+      "generatedAt": "2026-09-05T07:58:51+09:00",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -16,7 +16,7 @@
       "sourceName": "today.generated.json",
       "sourceType": "official",
       "sourcePath": "public/data/boatrace/today.generated.json",
-      "generatedAt": "2026-09-05T02:42:12+09:00",
+      "generatedAt": "2026-09-05T07:58:51+09:00",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -24,20 +24,20 @@
       "sourceName": "venue-extras.generated.json",
       "sourceType": "official",
       "sourcePath": "public/data/boatrace/venue-extras.generated.json",
-      "generatedAt": "2026-09-05T02:42:36+09:00",
+      "generatedAt": "2026-09-05T08:00:18+09:00",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     }
   ],
   "totals": {
-    "venues": 13,
-    "races": 156
+    "venues": 14,
+    "races": 168
   },
   "fieldTotals": {
     "officialRace": {
-      "complete": 132,
+      "complete": 168,
       "partial": 0,
-      "missing": 24,
+      "missing": 0,
       "pending": 0,
       "notSupported": 0,
       "unknown": 0
@@ -45,21 +45,21 @@
     "officialResult": {
       "complete": 0,
       "partial": 0,
-      "missing": 156,
-      "pending": 0,
+      "missing": 132,
+      "pending": 36,
       "notSupported": 0,
       "unknown": 0
     },
     "officialExhibition": {
-      "complete": 12,
+      "complete": 36,
       "partial": 0,
       "missing": 0,
-      "pending": 144,
+      "pending": 132,
       "notSupported": 0,
       "unknown": 0
     },
     "weather": {
-      "complete": 156,
+      "complete": 168,
       "partial": 0,
       "missing": 0,
       "pending": 0,
@@ -71,29 +71,29 @@
       "partial": 0,
       "missing": 0,
       "pending": 0,
-      "notSupported": 156,
+      "notSupported": 168,
       "unknown": 0
     },
     "motor": {
-      "complete": 132,
+      "complete": 168,
       "partial": 0,
-      "missing": 24,
+      "missing": 0,
       "pending": 0,
       "notSupported": 0,
       "unknown": 0
     },
     "boat": {
-      "complete": 132,
+      "complete": 168,
       "partial": 0,
-      "missing": 24,
+      "missing": 0,
       "pending": 0,
       "notSupported": 0,
       "unknown": 0
     },
     "racer": {
-      "complete": 132,
+      "complete": 168,
       "partial": 0,
-      "missing": 24,
+      "missing": 0,
       "pending": 0,
       "notSupported": 0,
       "unknown": 0
@@ -103,7 +103,7 @@
       "partial": 0,
       "missing": 0,
       "pending": 0,
-      "notSupported": 156,
+      "notSupported": 168,
       "unknown": 0
     },
     "summary": {
@@ -111,7 +111,7 @@
       "partial": 0,
       "missing": 0,
       "pending": 0,
-      "notSupported": 156,
+      "notSupported": 168,
       "unknown": 0
     },
     "review": {
@@ -119,7 +119,7 @@
       "partial": 0,
       "missing": 0,
       "pending": 0,
-      "notSupported": 156,
+      "notSupported": 168,
       "unknown": 0
     },
     "derivedSignals": {
@@ -127,11 +127,22 @@
       "partial": 0,
       "missing": 0,
       "pending": 0,
-      "notSupported": 156,
+      "notSupported": 168,
       "unknown": 0
     }
   },
   "venues": [
+    {
+      "venueCode": "01",
+      "venueName": "桐生",
+      "raceCount": 12,
+      "completeOfficialRaceCount": 12,
+      "completeResultCount": 0,
+      "completeExhibitionCount": 12,
+      "warnings": [
+        "officialResult is not complete for all races"
+      ]
+    },
     {
       "venueCode": "02",
       "venueName": "戸田",
@@ -145,10 +156,22 @@
       ]
     },
     {
-      "venueCode": "06",
-      "venueName": "浜名湖",
+      "venueCode": "03",
+      "venueName": "江戸川",
       "raceCount": 12,
-      "completeOfficialRaceCount": 0,
+      "completeOfficialRaceCount": 12,
+      "completeResultCount": 0,
+      "completeExhibitionCount": 0,
+      "warnings": [
+        "officialExhibition is not complete for all races",
+        "officialResult is not complete for all races"
+      ]
+    },
+    {
+      "venueCode": "04",
+      "venueName": "平和島",
+      "raceCount": 12,
+      "completeOfficialRaceCount": 12,
       "completeResultCount": 0,
       "completeExhibitionCount": 0,
       "warnings": [
@@ -174,9 +197,8 @@
       "raceCount": 12,
       "completeOfficialRaceCount": 12,
       "completeResultCount": 0,
-      "completeExhibitionCount": 0,
+      "completeExhibitionCount": 12,
       "warnings": [
-        "officialExhibition is not complete for all races",
         "officialResult is not complete for all races"
       ]
     },
@@ -198,9 +220,8 @@
       "raceCount": 12,
       "completeOfficialRaceCount": 12,
       "completeResultCount": 0,
-      "completeExhibitionCount": 0,
+      "completeExhibitionCount": 12,
       "warnings": [
-        "officialExhibition is not complete for all races",
         "officialResult is not complete for all races"
       ]
     },
@@ -273,17 +294,6 @@
       "completeExhibitionCount": 0,
       "warnings": [
         "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
-    },
-    {
-      "venueCode": "24",
-      "venueName": "大村",
-      "raceCount": 12,
-      "completeOfficialRaceCount": 0,
-      "completeResultCount": 0,
-      "completeExhibitionCount": 12,
-      "warnings": [
         "officialResult is not complete for all races"
       ]
     }
