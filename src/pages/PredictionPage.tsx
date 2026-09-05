@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { BoatPredictionRecord, BoatPredictionTicket, BoatRaceItem } from "../lib/boatraceTypes";
-import { BoatGptMaterialPanel } from "../components/boatrace/BoatGptMaterialPanel";
 import { BoatGptBulkMaterialPanel } from "../components/boatrace/BoatGptBulkMaterialPanel";
-import { BoatPracticeResultPanel } from "../components/boatrace/BoatPracticeResultPanel";
 import { BoatPredictionPastePanel } from "../components/boatrace/BoatPredictionPastePanel";
 import { BoatPredictionVenueRaceChooser } from "../components/boatrace/BoatPredictionVenueRaceChooser";
 import { PageShell } from "../components/layout/PageShell";
@@ -1936,14 +1934,42 @@ const buildPracticeFallbackRaceKey = (params: {
 		todayFeed,
 		venueExtrasFeed?.generatedAt,
 	]);
+	const actualRaceNumbers = selectedVenueRaces
+		.map((race) => normalizeBoatRaceNo(race.raceNo))
+		.filter((raceNo): raceNo is number => raceNo !== null)
+		.sort((left, right) => left - right);
+	const formatAvailableRangeLabel = (raceNumbers: number[]) => {
+		if (raceNumbers.length === 0) return "対象なし";
+		if (raceNumbers.length === 1) return `${raceNumbers[0]}R`;
+		return `${raceNumbers[0]}R〜${raceNumbers[raceNumbers.length - 1]}R`;
+	};
+	const frontRaceNumbers = actualRaceNumbers.filter((raceNo) => raceNo <= 6);
+	const lateRaceNumbers = actualRaceNumbers.filter((raceNo) => raceNo >= 7);
 	const bulkGptMaterialRangePresets = [
-		{ key: "1r6r", label: "1R〜6R" },
-		{ key: "7r12r", label: "7R〜12R" },
-	];
+		{
+			key: "1r6r",
+			label: formatAvailableRangeLabel(frontRaceNumbers),
+			materialText: bulkGptMaterialSummary1R6RWithTimeLabels.materialText,
+			generatedRaceCount: bulkGptMaterialSummary1R6RWithTimeLabels.generatedRaceCount,
+			includesExContext: true,
+		},
+		{
+			key: "7r12r",
+			label: formatAvailableRangeLabel(lateRaceNumbers),
+			materialText: bulkGptMaterialSummary7R12RWithEx.materialText,
+			generatedRaceCount: bulkGptMaterialSummary7R12RWithEx.generatedRaceCount,
+			includesExContext: true,
+		},
+	].filter((preset) => preset.generatedRaceCount > 0);
+	const effectiveBulkGptMaterialRangeKey = bulkGptMaterialRangePresets.some(
+		(preset) => preset.key === bulkGptMaterialRangeKey,
+	)
+		? bulkGptMaterialRangeKey
+		: bulkGptMaterialRangePresets[0]?.key ?? "1r6r";
 	const activeBulkGptMaterialSummary = {
 		rangeTimeKind: undefined,
 		exReferenceLevelCounts: undefined,
-		...(bulkGptMaterialRangeKey === "7r12r" ? bulkGptMaterialSummary7R12RWithEx : bulkGptMaterialSummary1R6RWithTimeLabels),
+		...(effectiveBulkGptMaterialRangeKey === "7r12r" ? bulkGptMaterialSummary7R12RWithEx : bulkGptMaterialSummary1R6RWithTimeLabels),
 	};
 	const venueCount = venues.length;
 	const isWaitingForTodayFeed = venueCount === 0 && !isTodayFeedStale;
@@ -3253,7 +3279,7 @@ body:has(.prediction-page-root) {
 
 					.prediction-page-main-panels {
 						display: grid;
-						grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+						grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1.18fr);
 						gap: 18px;
 						align-items: start;
 						width: 100%;
@@ -3262,16 +3288,18 @@ body:has(.prediction-page-root) {
 						box-sizing: border-box;
 					}
 
-					.prediction-hero-card,
+					.prediction-page-header,
 					.prediction-section-card {
 						border: 1px solid rgba(176, 137, 216, 0.22);
 						background: rgba(255, 255, 255, 0.94);
 						box-shadow: 0 24px 54px rgba(80, 64, 120, 0.08);
 					}
 
-					.prediction-hero-card {
-						padding: 28px;
-						border-radius: 34px;
+					.prediction-page-header {
+						padding: 28px 30px;
+						border-radius: 28px;
+						display: grid;
+						gap: 10px;
 					}
 
 					.prediction-hero-grid {
@@ -3317,7 +3345,7 @@ body:has(.prediction-page-root) {
 
 					.prediction-hero-title {
 						margin: 0;
-						font-size: clamp(2.4rem, 4vw, 4.2rem);
+						font-size: 2.4rem;
 						line-height: 1.05;
 						font-weight: 900;
 						color: #132f45;
@@ -3390,7 +3418,7 @@ body:has(.prediction-page-root) {
 
 					.prediction-section-title {
 						margin: 0;
-						font-size: 2rem;
+						font-size: 1.35rem;
 						line-height: 1.15;
 						font-weight: 900;
 						color: #132f45;
@@ -3638,144 +3666,48 @@ body:has(.prediction-page-root) {
 							grid-template-columns: 1fr;
 						}
 
-						.prediction-hero-card,
+						.prediction-page-header,
 						.prediction-section-card {
 							padding: 18px;
-							border-radius: 24px;
+							border-radius: 20px;
 						}
 
-						.prediction-hero-image,
-						.prediction-hero-img {
-							min-height: 220px;
+						.prediction-hero-title {
+							font-size: 1.9rem;
+						}
+
+						.boat-gpt-material-summary {
+							grid-template-columns: 1fr !important;
 						}
 					}
 				`}
 			</style>
 
 			<div className="prediction-page-root">
-				<section className="prediction-hero-card">
-					<div className="prediction-hero-grid">
-						<div className="prediction-hero-copy">
-							<p className="prediction-eyebrow">PREDICTION</p>
-							<h1 className="prediction-hero-title">今日の予想を考える</h1>
-							<p className="prediction-text">
-								会場特徴・天気・出走表・展示・オッズをまとめ、GPTへそのまま渡せる予想素材を整えるページです。
-							</p>
-
-							{dataUpdatedAt ? (
-								<p className="prediction-update-meta">
-									基本データ更新：{formatJstDateTimeLabel(dataUpdatedAt)}
-								</p>
-							) : null}
-
-							{isTodayFeedStale ? (
-								<p className="prediction-text" role="status">
-									本日のレースデータが未更新です。公開データ日付: {publishedFeedDate} / 現在日付: {currentJstDate}。自動更新を再実行してください。
-								</p>
-							) : null}
-
-							{isRefreshingFeed || refreshMessage ? (
-								<p className="prediction-text">
-									{isRefreshingFeed ? "最新データを確認中です。" : refreshMessage}
-								</p>
-							) : null}
-						</div>
-
-						<div className="prediction-hero-image">
-							<img src={predictionHeroImageSrc} alt={predictionHeroImageAlt} className="prediction-hero-img" />
-						</div>
-					</div>
-				</section>
-
-				<div className="prediction-stats-grid">
-					{heroStats.map((item) => (
-						<article key={item.eyebrow} className="prediction-stat-card">
-							<p className="prediction-eyebrow">{item.eyebrow}</p>
-							<p className="prediction-stat-value">{item.value}</p>
-							<p className="prediction-stat-description">{item.description}</p>
-						</article>
-					))}
-				</div>
-
-				<div style={autoSettleChipRowStyle}>
-					<span style={autoSettleChipStyle}>{autoSettleState.enabled ? "自動照合ON" : "自動照合停止中"}</span>
-					<span style={autoSettleChipStyle}>自動照合済み {autoSettleState.autoSettledCount}R</span>
-					<span style={autoSettleChipStyle}>結果待ち {autoSettleState.pendingCount}R</span>
-					<span style={autoSettleChipStyle}>最終照合 {formatJstDateTimeLabel(autoSettleState.lastRunAt)}</span>
-					<button type="button" style={autoSettleButtonStyle} onClick={handleCompactPracticeResults}>古い実践結果を整理</button>
-					<button type="button" style={autoSettleButtonStyle} onClick={handlePruneBoatLocalStorage}>運用日以外の競艇予想を整理</button>
-				</div>
-					{localStorageWarningText ? <p style={practiceMessageStyle}>{localStorageWarningText}</p> : null}
-					{autoSettleState.warning ? <p style={practiceMessageStyle}>{autoSettleState.warning}</p> : null}
-					{isWaitingForTodayFeed ? (
-						<section className="prediction-section-card" style={{ display: "grid", gap: "8px" }}>
-							<h2 className="prediction-section-title" style={{ margin: 0 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[0]}</h2>
-							<p className="prediction-text" style={{ margin: 0 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[1]}</p>
-							<p className="prediction-text" style={{ margin: 0 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[2]}</p>
-						</section>
+				<header className="prediction-page-header">
+					<p className="prediction-eyebrow">PREDICTION</p>
+					<h1 className="prediction-hero-title">今日の{selectedRace?.raceNo ?? 1}R素材を整える</h1>
+					<p className="prediction-text">
+						会場特徴・天気・出走表・展示・オッズをまとめ、GPTへそのまま渡せる予想素材を整えるページです。
+					</p>
+					{dataUpdatedAt ? <p className="prediction-update-meta">基本データ更新：{formatJstDateTimeLabel(dataUpdatedAt)}</p> : null}
+					{isTodayFeedStale ? (
+						<p className="prediction-text" role="status">
+							本日のレースデータが未更新です。公開データ日付: {publishedFeedDate} / 現在日付: {currentJstDate}。自動更新を再実行してください。
+						</p>
 					) : null}
+					{isRefreshingFeed || refreshMessage ? (
+						<p className="prediction-text">{isRefreshingFeed ? "最新データを確認中です。" : refreshMessage}</p>
+					) : null}
+				</header>
 
-				<section className="prediction-section-card">
-					<div className="prediction-section-header">
-						<div>
-							<p className="prediction-eyebrow">HIT NOTIFICATIONS</p>
-							<h2 className="prediction-section-title">的中通知ログ</h2>
-							<p className="prediction-text">
-								保存済みの実践結果から、的中したレースだけを自動で表示します。
-							</p>
-						</div>
-
-						<span className="prediction-count-pill">{hitNotificationItems.length}件</span>
-					</div>
-
-					<div className="prediction-notification-grid">
-						{hitNotificationItems.length > 0 ? (
-							<div
-								className="prediction-notification-marquee"
-								style={{ "--hit-log-duration": `${hitTickerDurationSec}s` } as CSSProperties}
-							>
-								<div
-									className={`prediction-notification-track ${isHitTickerAnimated ? "is-animated" : "is-static"}`}
-								>
-									{[0, ...(isHitTickerAnimated ? [1] : [])].map((groupIndex) => (
-										<div
-											key={`hit-notification-group-${groupIndex}`}
-											className="prediction-notification-group"
-											aria-hidden={groupIndex > 0 ? "true" : undefined}
-										>
-											{hitTickerLoopItems.map((item) => (
-												<article
-													key={`${item.key}-${item.tickerRepeatIndex}-${groupIndex}`}
-													className="prediction-notification-card"
-												>
-													<span className="prediction-notification-icon" aria-hidden="true">🎯</span>
-													<div className="prediction-notification-body">
-														<p className="prediction-notification-title">{item.venueRaceLabel} 的中</p>
-														<p className="prediction-notification-time">{item.dateLabel} / {item.timeLabel}</p>
-														<p className="prediction-notification-bet-type">{item.betTypeLabel}</p>
-														<p className="prediction-notification-line">{item.hitBetNumbers}</p>
-														<p className="prediction-notification-payout">払戻 {item.payoutLabel}</p>
-														<p
-															className="prediction-notification-profit"
-															style={{ color: item.profitLabel === "算出待ち" ? "#9a3412" : item.profitLabel.startsWith("+") ? "#0284c7" : "#b91c1c" }}
-														>
-															収支 {item.profitLabel}
-														</p>
-													</div>
-												</article>
-											))}
-										</div>
-									))}
-								</div>
-							</div>
-						) : (
-							<div className="prediction-notification-empty">
-								<span className="prediction-badge">保存済み実践結果から自動表示</span>
-								<p className="prediction-text" style={{ margin: 0 }}>的中ログはまだありません</p>
-							</div>
-						)}
-					</div>
-				</section>
+				{isWaitingForTodayFeed ? (
+					<section className="prediction-section-card" style={{ display: "grid", gap: "8px" }}>
+						<h2 className="prediction-section-title" style={{ margin: 0 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[0]}</h2>
+						<p className="prediction-text" style={{ margin: 0 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[1]}</p>
+						<p className="prediction-text" style={{ margin: 0 }}>{BOAT_TODAY_WAITING_MESSAGE_LINES[2]}</p>
+					</section>
+				) : null}
 
 				<section className="prediction-section-card">
 	<div className="prediction-quick-head">
@@ -3798,7 +3730,9 @@ body:has(.prediction-page-root) {
 	/>
 </section>
 
-				<div className={panelGridClassName}>
+				{savedMessage ? <p style={savedMessageStyle}>{savedMessage}</p> : null}
+
+				<div className={panelGridClassName} data-prediction-workspace="compact-two-column">
 					<div style={{ display: "grid", gap: "8px", minWidth: 0 }}>
 						<div
 							data-boat-monthly-status="true"
@@ -3808,10 +3742,36 @@ body:has(.prediction-page-root) {
 							<span style={johnsonSummaryChipStyle}>{monthlyReferenceStatusText}</span>
 							{monthlyLatestStatusText ? <span style={johnsonSummaryChipStyle}>{monthlyLatestStatusText}</span> : null}
 						</div>
-						<BoatGptMaterialPanel materialText={materialText} raceLabel={raceLabel} />
+						<BoatGptBulkMaterialPanel
+							materialText={activeBulkGptMaterialSummary.materialText}
+							singleRaceMaterialText={materialText}
+							selectedRaceLabel={raceLabel}
+							venueName={selectedVenue?.venueName ?? "-"}
+							dateLabel={activePredictionDate}
+							rawRaceCount={selectedVenueRaces.length}
+							raceRangeLabel={activeBulkGptMaterialSummary.raceRangeLabel}
+							rangeTimeKind={activeBulkGptMaterialSummary.rangeTimeKind}
+							exReferenceLevelCounts={activeBulkGptMaterialSummary.exReferenceLevelCounts}
+							generatedRaceCount={activeBulkGptMaterialSummary.generatedRaceCount}
+							expectedRaceCount={activeBulkGptMaterialSummary.expectedRaceCount}
+							readyRaceCount={activeBulkGptMaterialSummary.readyRaceCount}
+							partialRaceCount={activeBulkGptMaterialSummary.partialRaceCount}
+							waitingRaceCount={activeBulkGptMaterialSummary.waitingRaceCount}
+							missingRaceLabels={activeBulkGptMaterialSummary.missingRaceLabels}
+							activeRangeKey={effectiveBulkGptMaterialRangeKey}
+							includesExContext={Boolean(activeBulkGptMaterialSummary.exReferenceLevelCounts)}
+							rangePresets={bulkGptMaterialRangePresets}
+							onSelectRange={(key) => {
+								if (key === "1r6r" || key === "7r12r") setBulkGptMaterialRangeKey(key);
+							}}
+							onExportJson={handleExportJohnsonPrediction}
+							onCopyJson={handleCopyJohnsonJson}
+							savedPredictionCount={johnsonCoverageSummary.savedCount}
+							johnsonizedCount={johnsonCoverageSummary.johnsonizedCount}
+							pendingJohnsonCount={johnsonCoverageSummary.pendingCount}
+						/>
 					</div>
-					<div style={{ display: "grid", gap: "10px" }}>
-						{savedMessage ? <p style={savedMessageStyle}>{savedMessage}</p> : null}
+					<div style={{ display: "grid", gap: "10px", minWidth: 0 }}>
 						<BoatPredictionPastePanel
 							value={predictionText}
 							raceLabel={raceLabel}
@@ -3826,112 +3786,11 @@ body:has(.prediction-page-root) {
 							onChange={handleChangePredictionText}
 							onClear={handleClearPrediction}
 						/>
-						<div style={johnsonSummaryStyle}>
-							<span style={johnsonSummaryChipStyle}>保存済み予想 {johnsonCoverageSummary.savedCount}件</span>
-							<span style={johnsonSummaryChipStyle}>ジョンソン化済み {johnsonCoverageSummary.johnsonizedCount}件</span>
-							<span style={johnsonSummaryChipStyle}>未ジョンソン化 {johnsonCoverageSummary.pendingCount}件</span>
-						</div>
 						<div style={johnsonActionRowStyle}>
 							<button type="button" style={johnsonPrimaryButtonStyle} onClick={handleSaveJohnsonPrediction}>ジョンソン化して保存</button>
-							<button type="button" style={johnsonSecondaryButtonStyle} onClick={handleExportJohnsonPrediction}>今日の保存済み予想を全部ジョンソン化</button>
-							<button type="button" style={johnsonSecondaryButtonStyle} onClick={handleCopyJohnsonJson}>JSONコピー</button>
 						</div>
 					</div>
 				</div>
-
-				<BoatGptBulkMaterialPanel
-					materialText={activeBulkGptMaterialSummary.materialText}
-					venueName={selectedVenue?.venueName ?? "-"}
-					dateLabel={activePredictionDate}
-					raceRangeLabel={activeBulkGptMaterialSummary.raceRangeLabel}
-					rangeTimeKind={activeBulkGptMaterialSummary.rangeTimeKind}
-					exReferenceLevelCounts={activeBulkGptMaterialSummary.exReferenceLevelCounts}
-					generatedRaceCount={activeBulkGptMaterialSummary.generatedRaceCount}
-					expectedRaceCount={activeBulkGptMaterialSummary.expectedRaceCount}
-					readyRaceCount={activeBulkGptMaterialSummary.readyRaceCount}
-					partialRaceCount={activeBulkGptMaterialSummary.partialRaceCount}
-					waitingRaceCount={activeBulkGptMaterialSummary.waitingRaceCount}
-					missingRaceLabels={activeBulkGptMaterialSummary.missingRaceLabels}
-					activeRangeKey={bulkGptMaterialRangeKey}
-					includesExContext={bulkGptMaterialRangeKey === "7r12r"}
-					rangePresets={bulkGptMaterialRangePresets}
-					onSelectRange={(key) => {
-						if (key === "1r6r" || key === "7r12r") {
-							setBulkGptMaterialRangeKey(key);
-						}
-					}}
-				/>
-
-				{practiceMessage ? <p style={practiceMessageStyle}>{practiceMessage}</p> : null}
-				{parsedBetSummary.warnings?.length ? (
-					<div
-						style={{
-							display: "grid",
-							gap: "6px",
-							padding: "10px 12px",
-							borderRadius: "14px",
-							background: "rgba(255, 247, 237, 0.96)",
-							border: "1px solid rgba(245, 158, 11, 0.28)",
-							color: "#92400e",
-							fontSize: "0.78rem",
-							fontWeight: 800,
-							lineHeight: 1.55,
-						}}
-					>
-						{parsedBetSummary.warnings.map((warning) => (
-							<p key={warning} style={{ margin: 0 }}>
-								{warning}
-							</p>
-						))}
-					</div>
-				) : null}
-                {isSelectedRaceResultReadyForPractice ? (
-                    <BoatPracticeResultPanel
-                        venueName={selectedVenue?.venueName ?? "-"}
-                        raceNo={selectedRace?.raceNo ?? 0}
-                        raceTitle={selectedRace?.title}
-                        tickets={predictionTickets}
-                        savedAt={savedPracticeResultRecord?.savedAt}
-                        isSaved={Boolean(savedPracticeResultRecord)}
-                        onSave={handleSavePracticeResult}
-                        onClear={handleClearPracticeResult}
-                        onLoadBets={handleLoadBetsToPractice}
-                        onSettleResult={handleSettlePracticeResult}
-                        actualFinishOrderText={actualFinishOrderText}
-                        investmentAmount={investmentAmount}
-                        payoutAmount={payoutAmount}
-                        practiceMemo={practiceMemo}
-                        betSummary={parsedBetSummary}
-                        resultStatus={practiceResultStatus}
-                        resultLookupStatus={practiceResultLookupStatus}
-                        resultLookupDebugText={practiceResultLookupDebugText}
-                        kimarite={practiceKimarite}
-                        startInfoText={practiceStartInfoText}
-                        hitBetLabel={practiceHitBetLabel}
-                        settlementMessage={practiceSettlementMessage}
-                        isBetAutoApplied={isBetAutoApplied}
-                        isResultAutoApplied={isResultAutoApplied}
-                        onChangeFinishOrder={setActualFinishOrderText}
-                        onChangeInvestmentAmount={handleChangeInvestmentAmount}
-                        onChangePayoutAmount={handleChangePayoutAmount}
-                        onChangePracticeMemo={setPracticeMemo}
-                    />
-                ) : (
-                    <div
-                        style={{
-                            padding: "18px 20px",
-                            borderRadius: "20px",
-                            background: "rgba(248, 250, 252, 0.96)",
-                            border: "1px solid rgba(148, 163, 184, 0.28)",
-                            color: "#475569",
-                            fontSize: "0.92rem",
-                            fontWeight: 800,
-                            lineHeight: 1.7,
-                        }}
-                    >
-                        公式結果の確定待ちです。締切後でも、払戻詳細が揃うまでは表示しません。
-                    </div>
-                )}
 			</div>
 		</PageShell>
 	);

@@ -13,7 +13,8 @@ const requiredPageFragments = [
 	"buildBoatPredictionGptCopyRaceContext({",
 	"getBoatPredictionGptCopyExReference({",
 	"exReferenceLevelCounts",
-	'includesExContext={bulkGptMaterialRangeKey === "7r12r"}',
+	'includesExContext={Boolean(activeBulkGptMaterialSummary.exReferenceLevelCounts)}',
+	"rangePresets={bulkGptMaterialRangePresets}",
 ];
 const requiredContextFragments = [
 	"GPTへの素材",
@@ -65,7 +66,8 @@ const missing = [
 	...forbiddenContextFragments.filter((fragment) => context.includes(fragment)).map((fragment) => `forbidden context fragment: ${fragment}`),
 ];
 
-const ok = missing.length === 0 && panel.includes("EX分析入り") && panel.includes("まとめコピー");
+const panelDirectCopy = panel.includes("preset.materialText") && panel.includes("選択中Rをコピー");
+const ok = missing.length === 0 && panel.includes("EX分析入り") && panelDirectCopy;
 console.log(JSON.stringify({
 	ok,
 	checks: {
@@ -73,6 +75,7 @@ console.log(JSON.stringify({
 		headerAndExSections: requiredContextFragments.length,
 		forbiddenContextFragments: forbiddenContextFragments.length,
 		panelExLabel: panel.includes("EX分析入り"),
+		panelDirectCopy,
 	},
 	missing,
 }, null, 2));

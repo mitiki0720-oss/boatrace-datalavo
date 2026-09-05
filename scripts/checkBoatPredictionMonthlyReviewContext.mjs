@@ -147,7 +147,8 @@ const checks = {
 	bulkMonthlyBlockOnlyOnce: countCalls(frontRangeSource) === 1 && countCalls(lateRangeSource) === 1,
 	monthlyLoadFailureSafe: unavailableMaterial.includes("月次振り返り: 未取得")
 		&& unavailableMaterial.includes("通常素材")
-		&& pageSource.includes("<BoatGptMaterialPanel materialText={materialText}"),
+		&& pageSource.includes("<BoatGptBulkMaterialPanel")
+		&& pageSource.includes("singleRaceMaterialText={materialText}"),
 	existingMaterialPreserved: pageSource.includes("buildBoatPreRacePredictionSupportBlock")
 		&& pageSource.includes("【通常会場素材】")
 		&& pageSource.includes("buildBoatPredictionGptCopyRaceContext")

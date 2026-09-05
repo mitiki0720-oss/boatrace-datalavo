@@ -37,13 +37,13 @@ type BoatVenueCancelSummary = {
 };
 
 const wrapStyle: CSSProperties = {
-	padding: "20px",
-	borderRadius: "28px",
+	padding: "16px",
+	borderRadius: "22px",
 	background: "rgba(255, 255, 255, 0.98)",
 	border: `1px solid ${boatTheme.colors.line}`,
 	boxShadow: boatTheme.shadow.soft,
 	display: "grid",
-	gap: "16px",
+	gap: "14px",
 	width: "100%",
 	maxWidth: "100%",
 	minWidth: 0,
@@ -62,7 +62,7 @@ const sectionLabelStyle: CSSProperties = {
 
 const venueRowStyle: CSSProperties = {
 	display: "grid",
-	gap: "12px",
+	gap: "9px",
 	width: "100%",
 	maxWidth: "100%",
 	minWidth: 0,
@@ -72,10 +72,10 @@ const venueRowStyle: CSSProperties = {
 const venueCardBaseStyle: CSSProperties = {
 	position: "relative",
 	overflow: "hidden",
-	padding: "15px",
-	borderRadius: "22px",
+	padding: "12px",
+	borderRadius: "18px",
 	display: "grid",
-	gap: "9px",
+	gap: "7px",
 	textAlign: "left",
 	cursor: "pointer",
 	appearance: "none",
@@ -83,7 +83,7 @@ const venueCardBaseStyle: CSSProperties = {
 	width: "100%",
 	boxSizing: "border-box",
 	minWidth: 0,
-	minHeight: "132px",
+	minHeight: "112px",
 	transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
 };
 
@@ -106,7 +106,7 @@ const venueMetaStyle: CSSProperties = {
 	display: "flex",
 	flexWrap: "wrap",
 	alignItems: "center",
-	gap: "8px",
+	gap: "6px",
 	color: boatTheme.colors.muted,
 	fontSize: "0.85rem",
 };
@@ -115,7 +115,7 @@ const chipStyle: CSSProperties = {
 	display: "inline-flex",
 	alignItems: "center",
 	justifyContent: "center",
-	padding: "5px 10px",
+	padding: "4px 8px",
 	borderRadius: "999px",
 	background: "rgba(236, 246, 251, 0.96)",
 	color: boatTheme.colors.aquaDeep,
@@ -165,7 +165,7 @@ const raceWrapStyle: CSSProperties = {
 const raceGridStyle: CSSProperties = {
 	display: "grid",
 	gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
-	gap: "10px",
+	gap: "8px",
 	width: "100%",
 	maxWidth: "100%",
 	minWidth: 0,
@@ -175,13 +175,13 @@ const raceGridStyle: CSSProperties = {
 const raceCardBaseStyle: CSSProperties = {
 	position: "relative",
 	overflow: "hidden",
-	padding: "12px 8px 11px",
-	borderRadius: "18px",
+	padding: "10px 7px",
+	borderRadius: "14px",
 	border: `1px solid rgba(176, 198, 214, 0.42)`,
 	background: "linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 252, 255, 0.94) 100%)",
 	display: "grid",
 	gap: "6px",
-	minHeight: "88px",
+	minHeight: "76px",
 	textAlign: "center",
 	cursor: "pointer",
 	appearance: "none",
@@ -695,10 +695,6 @@ export function BoatPredictionVenueRaceChooser({
 					}
 
 					@media (max-width: 460px) {
-						.boat-prediction-venue-grid {
-							grid-template-columns: 1fr;
-						}
-
 						.boat-prediction-race-grid {
 							grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 						}

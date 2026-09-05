@@ -32,23 +32,11 @@ const wrapStyle: CSSProperties = {
 	boxShadow: "0 22px 54px rgba(17, 64, 92, 0.1)",
 };
 
-const glowStyle: CSSProperties = {
-	position: "absolute",
-	top: "-90px",
-	right: "-70px",
-	width: "260px",
-	height: "260px",
-	borderRadius: "999px",
-	background: "radial-gradient(circle, rgba(93, 199, 232, 0.22) 0%, rgba(93, 199, 232, 0) 70%)",
-	pointerEvents: "none",
-};
-
 const headerStyle: CSSProperties = {
 	position: "relative",
 	zIndex: 1,
 	display: "grid",
-	gridTemplateColumns: "minmax(0, 1fr) auto",
-	gap: "18px",
+	gap: "8px",
 	alignItems: "start",
 };
 
@@ -127,7 +115,7 @@ const statusGridStyle: CSSProperties = {
 	position: "relative",
 	zIndex: 1,
 	display: "grid",
-	gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+	gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
 	gap: "10px",
 };
 
@@ -209,7 +197,7 @@ const editorMetaStyle: CSSProperties = {
 
 const textareaStyle: CSSProperties = {
 	width: "100%",
-	minHeight: "420px",
+	minHeight: "360px",
 	padding: "18px 20px 20px",
 	border: "none",
 	background:
@@ -222,23 +210,6 @@ const textareaStyle: CSSProperties = {
 	outline: "none",
 	fontFamily:
 		"ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-};
-
-const footerGridStyle: CSSProperties = {
-	position: "relative",
-	zIndex: 1,
-	display: "grid",
-	gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-	gap: "10px",
-};
-
-const footerCardStyle: CSSProperties = {
-	padding: "13px 14px",
-	borderRadius: "18px",
-	background: "rgba(255, 255, 255, 0.78)",
-	border: `1px solid ${boatTheme.colors.line}`,
-	display: "grid",
-	gap: "5px",
 };
 
 const parseWarningStyle: CSSProperties = {
@@ -369,35 +340,20 @@ export function BoatPredictionPastePanel({
 				`}
 			</style>
 
-			<span style={glowStyle} />
-
 			<div className="boat-prediction-paste-header" style={headerStyle}>
 				<div style={headerTextStyle}>
-					<p style={eyebrowStyle}>AI Prediction Note</p>
+					<p style={eyebrowStyle}>GPT Prediction</p>
 					<h3 style={titleStyle}>GPT予想貼り付け欄</h3>
 					<p style={descriptionStyle}>
 						GPTから返ってきた競艇10点フォーマットの買い目と展開メモを保存します。保存後は同じ日付・会場・レースで再表示します。
 					</p>
-				</div>
-
-				<div className="boat-prediction-paste-actions" style={actionRowStyle}>
-					<button className="boat-prediction-paste-button" type="button" style={primaryButtonStyle}>
-						整える
-					</button>
-					<button className="boat-prediction-paste-button" type="button" style={secondaryButtonStyle} onClick={onSave}>
-						保存
-					</button>
-					<button className="boat-prediction-paste-button" type="button" style={secondaryButtonStyle} onClick={handleClear}>
-						クリア
-					</button>
 				</div>
 			</div>
 
 			<div className="boat-prediction-paste-status" style={statusGridStyle}>
 				{[
 					{ label: "Target Race", value: raceLabel, sub: "選択中の会場・レース" },
-					{ label: "Paste Volume", value: `${textCount.characters.toLocaleString()}字`, sub: `${textCount.lines.toLocaleString()}行` },
-					{ label: "Save Status", value: isSaved ? "保存済み" : "保存前", sub: isSaved && savedAt ? savedAt : "保存すると結果確認へ連携" },
+					{ label: "Save Status", value: isSaved ? "保存済み" : "未保存", sub: isSaved && savedAt ? savedAt : `${textCount.characters.toLocaleString()}字 / ${textCount.lines.toLocaleString()}行` },
 				].map((item) => (
 					<article key={item.label} style={statusCardStyle}>
 						<p style={infoLabelStyle}>{item.label}</p>
@@ -405,6 +361,15 @@ export function BoatPredictionPastePanel({
 						<p style={savedAtStyle}>{item.sub}</p>
 					</article>
 				))}
+			</div>
+
+			<div className="boat-prediction-paste-actions" style={actionRowStyle}>
+				<button className="boat-prediction-paste-button" type="button" style={primaryButtonStyle} onClick={onSave}>
+					保存
+				</button>
+				<button className="boat-prediction-paste-button" type="button" style={secondaryButtonStyle} onClick={handleClear}>
+					クリア
+				</button>
 			</div>
 
 			<div style={editorShellStyle}>
@@ -434,19 +399,6 @@ export function BoatPredictionPastePanel({
 			) : null}
 
 			<BoatPredictionTicketPreview tickets={tickets} />
-
-			<div className="boat-prediction-paste-footer" style={footerGridStyle}>
-				{[
-					{ label: "Flow Memo", value: "進入・ST・展示気配を短く整理" },
-					{ label: "Main / Cover / Hole", value: "本命、相手、穴候補を分けて保存" },
-					{ label: "Review Ready", value: "保存後に結果確認と的中ログへ接続" },
-				].map((item) => (
-					<article key={item.label} style={footerCardStyle}>
-						<p style={infoLabelStyle}>{item.label}</p>
-						<p style={{ ...infoValueStyle, fontSize: "0.86rem", fontWeight: 800 }}>{item.value}</p>
-					</article>
-				))}
-			</div>
 		</section>
 	);
 }
