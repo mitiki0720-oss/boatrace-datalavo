@@ -2,10 +2,11 @@ import type {
 	BoatRaceSession,
 	BoatRaceStatus,
 	BoatResultStatus,
+	BoatPredictionRaceSession,
 } from "../../lib/boatraceTypes";
 import { boatTheme } from "../../lib/theme";
 
-type BoatDisplayValue = BoatRaceSession | BoatRaceStatus | BoatResultStatus;
+type BoatDisplayValue = BoatPredictionRaceSession | BoatRaceSession | BoatRaceStatus | BoatResultStatus;
 
 type BoatStatusChipProps = {
 	value?: BoatDisplayValue;
@@ -25,8 +26,10 @@ const labelMap: Record<BoatDisplayValue, string> = {
 	day: "デイ",
 	night: "ナイター",
 	morning: "モーニング",
+	summer: "サマータイム",
+	midnight: "ミッドナイト",
 	relay: "ルーキー/シリーズ",
-	unknown: "未設定",
+	unknown: "開催区分未取得",
 	scheduled: "予定",
 	exhibition: "展示中",
 	selling: "発売中",

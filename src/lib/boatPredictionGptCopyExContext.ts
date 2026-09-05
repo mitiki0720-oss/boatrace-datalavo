@@ -8,7 +8,11 @@ import type {
 	BoatExVenueEvidenceItem,
 } from "./boatExTypes";
 import { withBasePath } from "./assetPath";
-import { getBoatPredictionRaceTimeLabel, type BoatPredictionVenueTimeKind } from "./boatPredictionGptCopy";
+import {
+	formatBoatPredictionSessionLabel,
+	getBoatPredictionRaceTimeLabel,
+	type BoatPredictionVenueTimeKind,
+} from "./boatPredictionGptCopy";
 import {
 	getBoatPredictionExhibitionAvailability,
 	resolveBoatPredictionWeatherReference,
@@ -232,8 +236,8 @@ export function buildBoatPredictionGptCopyHeader(params: {
 		`開催・節: ${asText(venue.title)}`,
 		`運用日: ${asText(feed.date)}`,
 		`対象レース範囲: ${raceRangeLabel}（実在: ${raceLabels}）`,
-		`会場時間帯: ${venueTimeKind}`,
-		`コピー範囲時間帯: ${rangeTimeKind}`,
+		`会場時間帯: ${formatBoatPredictionSessionLabel(venueTimeKind)}`,
+		`コピー範囲時間帯: ${formatBoatPredictionSessionLabel(rangeTimeKind)}`,
 		`用途: ${rangePurposeLabel}`,
 		"============================================================",
 		"このコピー素材のsource:",
@@ -974,7 +978,7 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 
 	return [
 		`[日付 ${venue.date ?? feed.date} ${venue.venueName} ${race.raceNo}R]`,
-		`時間帯: ${getBoatPredictionRaceTimeLabel(venueTimeKind, race)}`,
+		`時間帯: ${formatBoatPredictionSessionLabel(getBoatPredictionRaceTimeLabel(venueTimeKind, race))}`,
 		"【出走表】",
 		...formatRoster(race.racers ?? [], sourceName, sourceAcquiredAt, sourceStatus),
 		buildBoatPredictionGptCopyExReferenceBlock(exReference),

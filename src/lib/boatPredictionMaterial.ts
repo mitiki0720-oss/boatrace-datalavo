@@ -5,6 +5,7 @@ import type {
 	BoatTodayVenueItem,
 } from "./boatraceTypes";
 import type { BoatVenueExtraRace, BoatVenueExtraVenue } from "./boatVenueExtrasFeed";
+import { formatBoatPredictionSessionLabel, getBoatPredictionVenueTimeKind } from "./boatPredictionGptCopy";
 import {
 	formatBoatExhibitionParticipationAlertLabel,
 	resolveBoatExhibitionParticipationSummary,
@@ -1490,7 +1491,7 @@ export function buildBoatPredictionMaterial(params: {
 			`締切予定: ${toDisplay(race.deadlineTime)}`,
 			`発走予定: ${toDisplay(race.startTime)}`,
 			`レースタイトル: ${toDisplay(race.title)}`,
-			`時間帯: ${toDisplay(venue.session, "未設定")}`,
+			`時間帯: ${formatBoatPredictionSessionLabel(getBoatPredictionVenueTimeKind(venue, venue.races))}`,
 			`race_id: ${toDisplay(race.raceId)}`,
 		].join("\n"),
 		[

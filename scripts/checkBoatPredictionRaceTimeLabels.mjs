@@ -12,9 +12,14 @@ const compiled = ts.transpileModule(source, {
 	},
 }).outputText;
 const module = { exports: {} };
+const copyModule = { exports: {} };
+new Function("exports", "module", ts.transpileModule(fs.readFileSync("src/lib/boatPredictionGptCopy.ts", "utf8"), {
+	compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+}).outputText)(copyModule.exports, copyModule);
 const styleValues = new Proxy({}, { get: () => "" });
 new Function("exports", "module", "require", compiled)(module.exports, module, (id) => {
 	if (id === "react/jsx-runtime") return { jsx: () => null, jsxs: () => null };
+	if (id === "../../lib/boatPredictionGptCopy") return copyModule.exports;
 	if (id === "../../lib/boatVenueDayLabel") return { resolveBoatVenueDayLabel: () => "" };
 	if (id === "../../lib/theme") return { boatTheme: { colors: styleValues, shadow: styleValues } };
 	throw new Error(`Unexpected dependency: ${id}`);

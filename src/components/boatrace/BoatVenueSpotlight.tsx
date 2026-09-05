@@ -1,4 +1,5 @@
 import type { BoatTodayVenueItem } from "../../lib/boatraceTypes";
+import { formatBoatPredictionSessionLabel } from "../../lib/boatPredictionGptCopy";
 import { boatTheme } from "../../lib/theme";
 
 type BoatVenueSpotlightProps = {
@@ -18,28 +19,6 @@ function getFirstTimedRace(venue: BoatTodayVenueItem) {
 
 function getLastTimedRace(venue: BoatTodayVenueItem) {
 	return [...venue.races].reverse().find((race) => Boolean(race.deadlineTime?.trim() || race.startTime?.trim()));
-}
-
-function getSessionLabel(session?: string): string {
-	const normalized = session?.toLowerCase();
-
-	if (normalized === "morning") {
-		return "Morning";
-	}
-
-	if (normalized === "day") {
-		return "Day";
-	}
-
-	if (normalized === "night") {
-		return "Night";
-	}
-
-	if (normalized === "midnight") {
-		return "Midnight";
-	}
-
-	return "Schedule";
 }
 
 function getGradeLabel(title?: string): string | null {
@@ -207,7 +186,7 @@ export function BoatVenueSpotlight({ venue, summaryText, imageSrc, imageAlt }: B
 				</div>
 				<div style={spotlightMetaRowStyle}>
 					<span style={spotlightSessionChipStyle}>
-						{getSessionLabel(venue.session)}
+						{formatBoatPredictionSessionLabel(venue.session)}
 					</span>
 					{gradeLabel ? (
 						<span style={spotlightGradeChipStyle}>

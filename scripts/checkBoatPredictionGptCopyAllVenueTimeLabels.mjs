@@ -13,15 +13,17 @@ const {
 	getBoatPredictionRangeTimeKind,
 	getBoatPredictionVenueTimeKind,
 	buildBoatPredictionGptBettingInstruction,
+	formatBoatPredictionSessionLabel,
+	normalizeBoatPredictionSession,
 } = copyModule.exports;
 
 const allVenueNames = [
 	"桐生", "戸田", "江戸川", "平和島", "多摩川", "浜名湖", "蒲郡", "常滑", "津", "三国", "びわこ", "住之江",
 	"尼崎", "鳴門", "丸亀", "児島", "宮島", "徳山", "下関", "若松", "芦屋", "福岡", "唐津", "大村",
 ];
-const morningVenues = new Set(["芦屋", "唐津"]);
-const midnightVenues = new Set(["下関"]);
-const nightVenues = new Set(["桐生", "蒲郡", "住之江", "丸亀", "若松", "大村"]);
+const morningVenues = new Set(["三国", "鳴門", "徳山", "芦屋", "唐津"]);
+const midnightVenues = new Set();
+const nightVenues = new Set(["桐生", "蒲郡", "住之江", "丸亀", "下関", "若松", "大村"]);
 const rangeNumbers = {
 	"1R〜6R": [1, 2, 3, 4, 5, 6],
 	"7R〜12R": [7, 8, 9, 10, 11, 12],
@@ -33,24 +35,8 @@ const readMinutes = (value) => {
 	return Number(match[1]) * 60 + Number(match[2]);
 };
 const raceMinutes = (race) => readMinutes(race.deadlineTime) ?? readMinutes(race.startTime);
-const expectedRangeKind = (venueTimeKind, races) => {
-	if (venueTimeKind === "midnight") return "midnight";
-	const values = races.map(raceMinutes).filter((value) => value !== null).sort((left, right) => left - right);
-	if (values.length === 0) return venueTimeKind;
-	if (values.at(-1) >= 21 * 60) return "midnight";
-	if (values[0] >= 17 * 60) return "night";
-	if (values[0] < 10 * 60 + 30) return "morning";
-	return "day";
-};
-const expectedRaceKind = (venueTimeKind, race) => {
-	if (venueTimeKind === "midnight") return "midnight";
-	const minutes = raceMinutes(race);
-	if (minutes === null) return venueTimeKind;
-	if (minutes < 10 * 60 + 30) return "morning";
-	if (minutes < 17 * 60) return "day";
-	if (minutes < 21 * 60) return "night";
-	return "midnight";
-};
+const expectedRangeKind = (venueTimeKind) => venueTimeKind;
+const expectedRaceKind = (venueTimeKind) => venueTimeKind;
 const fixtureRacesFor = (kind) => {
 	const times = kind === "midnight"
 		? ["18:00", "18:20", "18:40", "19:00", "19:20", "20:00", "20:20", "20:40", "21:00", "21:20", "21:40", "22:00"]
@@ -73,6 +59,7 @@ const canonicalFixtureResults = allVenueNames.map((venueName) => {
 	const fixture = {
 		venueName,
 		title: expectedVenueKind === "midnight" ? "ミッドナイト" : "",
+		session: expectedVenueKind,
 		races,
 	};
 	const actualVenueKind = getBoatPredictionVenueTimeKind(fixture, races);
@@ -91,21 +78,23 @@ const canonicalFixtureResults = allVenueNames.map((venueName) => {
 const activeVenueResults = (today.venues ?? []).map((venue) => {
 	const races = Array.isArray(venue.races) ? venue.races : [];
 	const venueTimeKind = getBoatPredictionVenueTimeKind(venue, races);
+	const canonicalSession = normalizeBoatPredictionSession(venue.session);
 	const rangeResults = Object.entries(rangeNumbers).map(([label, numbers]) => {
 		const selectedRaces = races.filter((race) => numbers.includes(Number(race.raceNo)));
 		const actual = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
-		const expected = expectedRangeKind(venueTimeKind, selectedRaces);
+		const expected = canonicalSession;
 		return { label, raceCount: selectedRaces.length, actual, expected, ok: actual === expected };
 	});
 	const raceFailures = races
-		.filter((race) => getBoatPredictionRaceTimeLabel(venueTimeKind, race) !== expectedRaceKind(venueTimeKind, race))
+		.filter((race) => getBoatPredictionRaceTimeLabel(venueTimeKind, race) !== canonicalSession)
 		.map((race) => `${race.raceNo}R`);
 	return {
 		venueName: venue.venueName,
+		canonicalSession,
 		venueTimeKind,
 		rangeResults,
 		raceFailures,
-		ok: rangeResults.every((result) => result.ok) && raceFailures.length === 0,
+		ok: canonicalSession !== null && venueTimeKind === canonicalSession && rangeResults.every((result) => result.ok) && raceFailures.length === 0,
 	};
 });
 
@@ -113,12 +102,17 @@ const failedCanonicalFixtures = canonicalFixtureResults.filter((result) => !resu
 const failedActiveVenues = activeVenueResults.filter((result) => !result.ok);
 const forbiddenCopyFragments = ["fake", "score", "rank", "generatedPrediction", "generatedTicket"];
 const presentForbiddenCopyFragments = forbiddenCopyFragments.filter((fragment) => buildBoatPredictionGptBettingInstruction().includes(fragment));
+const displayLabels = ["morning", "summer", "day", "night", "midnight", "unknown"].map((session) => ({
+	session,
+	label: formatBoatPredictionSessionLabel(session),
+}));
 const ok =
 	allVenueNames.length === 24 &&
 	new Set(allVenueNames).size === 24 &&
 	activeVenueResults.length > 0 &&
 	failedCanonicalFixtures.length === 0 &&
 	failedActiveVenues.length === 0 &&
+	displayLabels.every(({ label }) => !["morning", "summer", "day", "night", "midnight", "unknown"].includes(label)) &&
 	presentForbiddenCopyFragments.length === 0;
 
 console.log(JSON.stringify({
@@ -128,6 +122,7 @@ console.log(JSON.stringify({
 	canonicalFixtureCount: canonicalFixtureResults.length,
 	failedCanonicalFixtures,
 	failedActiveVenues,
+	displayLabels,
 	presentForbiddenCopyFragments,
 }, null, 2));
 

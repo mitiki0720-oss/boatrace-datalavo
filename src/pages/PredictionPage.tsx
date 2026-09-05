@@ -1374,7 +1374,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				race: selectedRace,
 			}),
 			"",
-			buildBoatPreRacePredictionSupportBlock({ race: selectedRace, raceExtra: selectedRaceExtra }),
+			buildBoatPreRacePredictionSupportBlock({ race: selectedRace, raceExtra: selectedRaceExtra, venueExtra: selectedVenueExtra }),
 			"【通常素材】",
 			buildBoatPredictionMaterial({
 				venue: selectedVenue,
@@ -1480,7 +1480,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				`展示詳細: ${exhibitionStatus.title} / ${exhibitionStatus.detail}`,
 				"注記: 取得できない値は推測で埋めない。source-backed data only。",
 				"",
-				buildBoatPreRacePredictionSupportBlock({ race, raceExtra }),
+				buildBoatPreRacePredictionSupportBlock({ race, raceExtra, venueExtra: selectedVenueExtra }),
 				"",
 				raceMaterial,
 			].join("\n");
@@ -1590,7 +1590,7 @@ const buildPracticeFallbackRaceKey = (params: {
 					venueTimeKind,
 					exContext: gptCopyExContext,
 				}),
-				buildBoatPreRacePredictionSupportBlock({ race, raceExtra }),
+				buildBoatPreRacePredictionSupportBlock({ race, raceExtra, venueExtra: selectedVenueExtra }),
 				"【通常素材】",
 				applyBoatPredictionGptCopyTimeLabel(buildBoatPredictionMaterial({
 					venue: selectedVenue,
@@ -1749,7 +1749,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				`展示詳細: ${exhibitionStatus.title} / ${exhibitionStatus.detail}`,
 				"注記: 取得できない値は推測で埋めない。source-backed data only。",
 				"",
-				buildBoatPreRacePredictionSupportBlock({ race, raceExtra }),
+				buildBoatPreRacePredictionSupportBlock({ race, raceExtra, venueExtra: selectedVenueExtra }),
 				"",
 				raceMaterial,
 			].join("\n");
@@ -1874,7 +1874,7 @@ const buildPracticeFallbackRaceKey = (params: {
 					venueTimeKind,
 					exContext: gptCopyExContext,
 				}),
-				buildBoatPreRacePredictionSupportBlock({ race, raceExtra }),
+				buildBoatPreRacePredictionSupportBlock({ race, raceExtra, venueExtra: selectedVenueExtra }),
 				"【通常素材】",
 				currentMaterial,
 			].join("\n");

@@ -1,97 +1,78 @@
 import type { BoatRaceItem, BoatTodayVenueItem } from "./boatraceTypes";
 
-export type BoatPredictionVenueTimeKind = "morning" | "day" | "night" | "midnight";
+export type BoatPredictionVenueTimeKind = "morning" | "summer" | "day" | "night" | "midnight" | "unknown";
 
-const CLOCK_PATTERN = /(?:^|\s)(\d{1,2}):(\d{2})(?:\s|$)/;
-
-export const readBoatPredictionCopyTimeMinutes = (value: string | undefined): number | null => {
-	const match = value?.match(CLOCK_PATTERN);
-	if (!match) {
-		return null;
-	}
-
-	const hour = Number(match[1]);
-	const minute = Number(match[2]);
-	return hour >= 0 && hour < 24 && minute >= 0 && minute < 60 ? hour * 60 + minute : null;
+type SessionSourceRecord = {
+	session?: unknown;
+	sessionType?: unknown;
+	sessionLabel?: unknown;
 };
 
-const raceMinutes = (race: BoatRaceItem): number | null =>
-	readBoatPredictionCopyTimeMinutes(race.deadlineTime) ?? readBoatPredictionCopyTimeMinutes(race.startTime);
+const normalizeSessionText = (value: unknown): string =>
+	String(value ?? "").normalize("NFKC").replace(/[\s_-]+/g, "").toLowerCase();
+
+export const normalizeBoatPredictionSession = (value: unknown): BoatPredictionVenueTimeKind | null => {
+	const normalized = normalizeSessionText(value);
+	if (!normalized) return null;
+	if (normalized.includes("midnight") || normalized.includes("ミッドナイト")) return "midnight";
+	if (normalized.includes("summer") || normalized.includes("サマータイム")) return "summer";
+	if (normalized.includes("morning") || normalized.includes("モーニング")) return "morning";
+	if (normalized.includes("night") || normalized.includes("ナイター")) return "night";
+	if (normalized === "day" || normalized.includes("デイ")) return "day";
+	return null;
+};
+
+const readExplicitSession = (value: SessionSourceRecord): BoatPredictionVenueTimeKind | null =>
+	normalizeBoatPredictionSession(value.session) ??
+	normalizeBoatPredictionSession(value.sessionType) ??
+	normalizeBoatPredictionSession(value.sessionLabel);
+
+export const formatBoatPredictionSessionLabel = (session: BoatPredictionVenueTimeKind | string | undefined): string => {
+	const normalized = normalizeBoatPredictionSession(session) ?? "unknown";
+	return {
+		morning: "モーニング",
+		summer: "サマータイム",
+		day: "デイ",
+		night: "ナイター",
+		midnight: "ミッドナイト",
+		unknown: "開催区分未取得",
+	}[normalized];
+};
 
 export const getBoatPredictionVenueTimeKind = (venue: BoatTodayVenueItem, races: BoatRaceItem[]): BoatPredictionVenueTimeKind => {
-	const title = `${venue.title ?? ""} ${venue.venueName}`;
-	const minutes = races.map(raceMinutes).filter((value): value is number => value !== null).sort((left, right) => left - right);
-	const firstClosingTime = minutes[0] ?? null;
-	const latestClosingTime = minutes.length > 0 ? minutes[minutes.length - 1] : null;
+	const venueSession = readExplicitSession(venue as SessionSourceRecord);
+	if (venueSession) return venueSession;
 
-	if (title.includes("ミッドナイト") || (latestClosingTime !== null && latestClosingTime >= 21 * 60) || (
-		firstClosingTime !== null && firstClosingTime >= 17 * 60 && latestClosingTime !== null && latestClosingTime >= 21 * 60
-	)) {
-		return "midnight";
-	}
-	if (firstClosingTime !== null && firstClosingTime < 10 * 60 + 30) {
-		return "morning";
-	}
-	if (firstClosingTime !== null && firstClosingTime >= 17 * 60) {
-		return "night";
-	}
+	const titleSession = normalizeBoatPredictionSession(venue.title);
+	if (titleSession) return titleSession;
 
-	return "day";
+	const raceSessions = new Set(
+		races
+			.map((race) => readExplicitSession(race as SessionSourceRecord))
+			.filter((session): session is BoatPredictionVenueTimeKind => session !== null),
+	);
+	return raceSessions.size === 1 ? [...raceSessions][0] : "unknown";
 };
 
 export const getBoatPredictionRangeTimeKind = (
 	venueTimeKind: BoatPredictionVenueTimeKind,
 	races: BoatRaceItem[],
 ): BoatPredictionVenueTimeKind => {
-	if (venueTimeKind === "midnight") {
-		return "midnight";
-	}
-
-	const minutes = races
-		.map(raceMinutes)
-		.filter((value): value is number => value !== null)
-		.sort((left, right) => left - right);
-	const rangeFirst = minutes[0] ?? null;
-	const rangeLatest = minutes.length > 0 ? minutes[minutes.length - 1] : null;
-
-	if (rangeFirst === null || rangeLatest === null) {
-		return venueTimeKind;
-	}
-	if (rangeLatest >= 21 * 60) {
-		return "midnight";
-	}
-	if (rangeFirst >= 17 * 60) {
-		return "night";
-	}
-	if (rangeFirst < 10 * 60 + 30) {
-		return "morning";
-	}
-	return "day";
+	const raceSessions = new Set(
+		races
+			.map((race) => readExplicitSession(race as SessionSourceRecord))
+			.filter((session): session is BoatPredictionVenueTimeKind => session !== null),
+	);
+	if (raceSessions.size === 1) return [...raceSessions][0];
+	if (raceSessions.size > 1) return "unknown";
+	return venueTimeKind;
 };
 
 export const getBoatPredictionRaceTimeLabel = (
 	venueTimeKind: BoatPredictionVenueTimeKind,
 	race: BoatRaceItem,
 ): BoatPredictionVenueTimeKind => {
-	if (venueTimeKind === "midnight") {
-		return "midnight";
-	}
-
-	const closingTime = raceMinutes(race);
-	if (closingTime === null) {
-		return venueTimeKind;
-	}
-	if (closingTime < 10 * 60 + 30) {
-		return "morning";
-	}
-	if (closingTime < 17 * 60) {
-		return "day";
-	}
-	if (closingTime < 21 * 60) {
-		return "night";
-	}
-
-	return "midnight";
+	return readExplicitSession(race as SessionSourceRecord) ?? venueTimeKind;
 };
 
 export const getBoatPredictionRangePurposeLabel = (
@@ -101,9 +82,11 @@ export const getBoatPredictionRangePurposeLabel = (
 	const rangeLabel = raceRange === "1R〜6R" ? "前半予想" : "後半予想";
 	const prefix = {
 		morning: "モーニング",
+		summer: "サマータイム",
 		day: "デイ",
 		night: "ナイター",
 		midnight: "ミッドナイト",
+		unknown: "開催区分未取得",
 	}[rangeTimeKind];
 
 	return `${prefix}/${rangeLabel}`;
@@ -120,4 +103,4 @@ export const buildBoatPredictionGptBettingInstruction = (): string => [
 ].join("\n");
 
 export const applyBoatPredictionGptCopyTimeLabel = (material: string, timeLabel: BoatPredictionVenueTimeKind): string =>
-	material.replace(/^時間帯:.*$/m, `時間帯: ${timeLabel}`);
+	material.replace(/^時間帯:.*$/m, `時間帯: ${formatBoatPredictionSessionLabel(timeLabel)}`);

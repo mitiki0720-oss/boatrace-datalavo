@@ -14,6 +14,7 @@ const copyModule = { exports: {} };
 new Function("exports", "module", compiledCopy)(copyModule.exports, copyModule);
 const {
 	buildBoatPredictionGptBettingInstruction,
+	formatBoatPredictionSessionLabel,
 	getBoatPredictionRaceTimeLabel,
 	getBoatPredictionRangePurposeLabel,
 	getBoatPredictionRangeTimeKind,
@@ -21,32 +22,32 @@ const {
 } = copyModule.exports;
 
 const fixtureRace = (raceNo, deadlineTime) => ({ raceNo, deadlineTime });
-const fixtureVenue = (venueName, title, races) => ({ venueName, title, races });
-const shimonoseki = fixtureVenue("下関", "ミッドナイトボートレース", [
+const fixtureVenue = (venueName, title, session, races) => ({ venueName, title, session, races });
+const shimonoseki = fixtureVenue("下関", "ミッドナイトボートレース", "midnight", [
 	fixtureRace(1, "17:41"),
 	fixtureRace(6, "20:25"),
 	fixtureRace(7, "20:55"),
 	fixtureRace(12, "22:30"),
 ]);
-const karatsu = fixtureVenue("唐津", "モーニング", [
+const karatsu = fixtureVenue("唐津", "モーニング", "morning", [
 	fixtureRace(1, "08:45"),
 	fixtureRace(6, "10:20"),
 	fixtureRace(7, "11:10"),
 	fixtureRace(12, "14:00"),
 ]);
-const toda = fixtureVenue("戸田", "デイ", [
+const toda = fixtureVenue("戸田", "デイ", "day", [
 	fixtureRace(1, "10:45"),
 	fixtureRace(6, "13:20"),
 	fixtureRace(7, "13:50"),
 	fixtureRace(12, "16:30"),
 ]);
-const gamagori = fixtureVenue("蒲郡", "通常開催", [
+const gamagori = fixtureVenue("蒲郡", "通常開催", "night", [
 	fixtureRace(1, "12:00"),
 	fixtureRace(6, "16:30"),
 	fixtureRace(7, "18:03"),
 	fixtureRace(12, "20:50"),
 ]);
-const omura = fixtureVenue("大村", "ナイター", [
+const omura = fixtureVenue("大村", "ナイター", "night", [
 	fixtureRace(1, "17:25"),
 	fixtureRace(6, "19:55"),
 	fixtureRace(7, "20:25"),
@@ -68,6 +69,7 @@ const requiredFragments = [
 	'getBoatPredictionRangePurposeLabel(rangeTimeKind, "7R〜12R")',
 	"コピー範囲時間帯:",
 	"rangeTimeKind: BoatPredictionVenueTimeKind",
+	"formatBoatPredictionSessionLabel",
 ];
 const requiredBettingInstructions = [
 	"買い目は3連単10点。",
@@ -100,7 +102,8 @@ const behaviorChecks = {
 	karatsuMorning:
 		venueKind(karatsu) === "morning" &&
 		rangeKind(karatsu, firstHalf) === "morning" &&
-		rangeKind(karatsu, latterHalf) === "day" &&
+		rangeKind(karatsu, latterHalf) === "morning" &&
+		karatsu.races.every((race) => getBoatPredictionRaceTimeLabel(venueKind(karatsu), race) === "morning") &&
 		getBoatPredictionRangePurposeLabel(rangeKind(karatsu, firstHalf), "1R〜6R") === "モーニング/前半予想",
 	todaDay:
 		venueKind(toda) === "day" &&
@@ -108,16 +111,22 @@ const behaviorChecks = {
 		rangeKind(toda, latterHalf) === "day" &&
 		getBoatPredictionRangePurposeLabel(rangeKind(toda, latterHalf), "7R〜12R") === "デイ/後半予想",
 	gamagoriLateNight:
-		venueKind(gamagori) === "day" &&
-		rangeKind(gamagori, firstHalf) === "day" &&
+		venueKind(gamagori) === "night" &&
+		rangeKind(gamagori, firstHalf) === "night" &&
 		rangeKind(gamagori, latterHalf) === "night" &&
-		getBoatPredictionRaceTimeLabel(venueKind(gamagori), gamagori.races.at(-1)) === "night",
+		gamagori.races.every((race) => getBoatPredictionRaceTimeLabel(venueKind(gamagori), race) === "night"),
 	omuraNight:
 		venueKind(omura) === "night" &&
 		rangeKind(omura, firstHalf) === "night" &&
 		rangeKind(omura, latterHalf) === "night" &&
 		getBoatPredictionRaceTimeLabel(venueKind(omura), omura.races.at(-1)) === "night",
 	copyPerRaceLabel: page.includes("getBoatPredictionRaceTimeLabel(venueTimeKind, race)"),
+	japaneseLabels:
+		formatBoatPredictionSessionLabel("morning") === "モーニング" &&
+		formatBoatPredictionSessionLabel("summer-time") === "サマータイム" &&
+		formatBoatPredictionSessionLabel("night") === "ナイター" &&
+		formatBoatPredictionSessionLabel("midnight") === "ミッドナイト" &&
+		formatBoatPredictionSessionLabel("day") === "デイ",
 };
 
 const ok = missing.length === 0 && Object.values(behaviorChecks).every(Boolean);

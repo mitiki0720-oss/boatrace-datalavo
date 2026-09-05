@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { BoatRaceItem, BoatTodayVenueItem } from "../../lib/boatraceTypes";
+import { formatBoatPredictionSessionLabel, getBoatPredictionVenueTimeKind } from "../../lib/boatPredictionGptCopy";
 import { resolveBoatVenueDayLabel } from "../../lib/boatVenueDayLabel";
 import { boatTheme } from "../../lib/theme";
 
@@ -303,42 +304,6 @@ const getBoatVenueCancelStatus = (venue: BoatTodayVenueItem, races: BoatRaceItem
 	};
 };
 
-const getSessionLabel = (session?: string) => {
-	if (session === "night") return "ナイター";
-	if (session === "midnight") return "ミッドナイト";
-	if (session === "day") return "デイ";
-	if (session === "morning") return "モーニング";
-	if (session === "relay") return "シリーズ";
-	return "時間帯未取得";
-};
-
-const sessionTextFieldNames = [
-	"sessionLabel",
-	"sessionType",
-	"timeZoneLabel",
-	"category",
-	"session",
-	"title",
-	"seriesName",
-	"eventName",
-	"name",
-];
-
-const normalizeBoatVenueSessionText = (value: unknown): string => normalizeLooseText(value).replace(/\s+/g, "").toLowerCase();
-
-const readExplicitSession = (value: unknown): string => {
-	const normalized = normalizeBoatVenueSessionText(value);
-	if (!normalized) return "";
-
-	if (normalized.includes("midnight") || normalized.includes("ミッドナイト") || normalized.includes("mnb")) return "midnight";
-	if (normalized.includes("morning") || normalized.includes("モーニング")) return "morning";
-	if (normalized.includes("night") || normalized.includes("ナイター")) return "night";
-	if (normalized.includes("day") || normalized.includes("デイ")) return "day";
-	if (normalized === "midnight" || normalized === "morning" || normalized === "night" || normalized === "day") return normalized;
-
-	return "";
-};
-
 const parseBoatRaceTimeToMinutes = (value: unknown): number | null => {
 	const rawValue = readLooseString(value).normalize("NFKC");
 	const match = rawValue.match(/(\d{1,2}):(\d{2})/);
@@ -363,64 +328,8 @@ const getRaceDisplayTimeMinutes = (race: BoatRaceItem): number | null => {
 	return null;
 };
 
-const resolveBoatVenueSession = (venue: BoatTodayVenueItem): string => {
-	const venueRecord = toLooseRecord(venue);
-	const races = getVenueRaces(venue);
-	let hasExplicitDay = false;
-
-	for (const fieldName of sessionTextFieldNames) {
-		const session = readExplicitSession(venueRecord[fieldName]);
-		if (session && session !== "day") return session;
-		if (session === "day") hasExplicitDay = true;
-	}
-
-	for (const race of races) {
-		const raceRecord = toLooseRecord(race);
-		for (const fieldName of sessionTextFieldNames) {
-			const session = readExplicitSession(raceRecord[fieldName]);
-			if (session && session !== "day") return session;
-			if (session === "day") hasExplicitDay = true;
-		}
-	}
-
-	const raceTimes = races
-		.map((race, index) => ({
-			raceNo: Number((race as { raceNo?: unknown }).raceNo) || index + 1,
-			minutes: getRaceDisplayTimeMinutes(race),
-		}))
-		.filter((entry): entry is { raceNo: number; minutes: number } => entry.minutes !== null);
-	const finalRaceTime = raceTimes.reduce<{ raceNo: number; minutes: number } | null>((latest, entry) => {
-		if (!latest || entry.raceNo > latest.raceNo) return entry;
-		return latest;
-	}, null);
-	const firstRaceTime = raceTimes.reduce<{ raceNo: number; minutes: number } | null>((earliest, entry) => {
-		if (!earliest || entry.raceNo < earliest.raceNo) return entry;
-		return earliest;
-	}, null);
-
-	if (finalRaceTime) {
-		if (finalRaceTime.minutes >= 22 * 60) return "midnight";
-		if (hasExplicitDay) return "day";
-		if (finalRaceTime.minutes >= 17 * 60) return "night";
-		if (firstRaceTime && firstRaceTime.minutes < 10 * 60 && finalRaceTime.minutes <= 15 * 60) return "morning";
-		return "day";
-	}
-
-	for (const fieldName of sessionTextFieldNames) {
-		const session = readExplicitSession(venueRecord[fieldName]);
-		if (session) return session;
-	}
-
-	for (const race of races) {
-		const raceRecord = toLooseRecord(race);
-		for (const fieldName of sessionTextFieldNames) {
-			const session = readExplicitSession(raceRecord[fieldName]);
-			if (session) return session;
-		}
-	}
-
-	return "unknown";
-};
+const resolveBoatVenueSession = (venue: BoatTodayVenueItem): string =>
+	getBoatPredictionVenueTimeKind(venue, getVenueRaces(venue));
 
 const getSessionTone = (session?: string): SessionTone => {
 	if (session === "morning") {
@@ -444,6 +353,18 @@ const getSessionTone = (session?: string): SessionTone => {
 			badgeColor: "#047857",
 			badgeBorder: "rgba(20, 184, 166, 0.3)",
 			topLine: "linear-gradient(90deg, #20c997 0%, #a7f3d0 100%)",
+		};
+	}
+
+	if (session === "summer") {
+		return {
+			background: "linear-gradient(180deg, rgba(255, 249, 230, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%)",
+			border: "rgba(234, 179, 8, 0.38)",
+			shadow: "0 12px 26px rgba(202, 138, 4, 0.08)",
+			badgeBackground: "rgba(254, 249, 195, 0.96)",
+			badgeColor: "#854d0e",
+			badgeBorder: "rgba(234, 179, 8, 0.3)",
+			topLine: "linear-gradient(90deg, #eab308 0%, #fde68a 100%)",
 		};
 	}
 
@@ -488,9 +409,10 @@ const getSessionSortOrder = (session?: string) => {
 	const normalizedSession = normalizeSession(session);
 
 	if (normalizedSession === "morning" || normalizedSession === "モーニング") return 0;
-	if (normalizedSession === "day" || normalizedSession === "デイ") return 1;
-	if (normalizedSession === "night" || normalizedSession === "ナイター") return 2;
-	if (normalizedSession === "midnight" || normalizedSession === "ミッドナイト") return 3;
+	if (normalizedSession === "summer" || normalizedSession === "サマータイム") return 1;
+	if (normalizedSession === "day" || normalizedSession === "デイ") return 2;
+	if (normalizedSession === "night" || normalizedSession === "ナイター") return 3;
+	if (normalizedSession === "midnight" || normalizedSession === "ミッドナイト") return 4;
 	return 9;
 };
 
@@ -783,7 +705,7 @@ export function BoatPredictionVenueRaceChooser({
 
 								<div style={venueMetaStyle}>
 									<span>{racesForVenue.length}R</span>
-									<span style={sessionChipStyle}>{getSessionLabel(displaySession)}</span>
+									<span style={sessionChipStyle}>{formatBoatPredictionSessionLabel(displaySession)}</span>
 									<span style={dayChipStyle}>{dayLabel}</span>
 								</div>
 

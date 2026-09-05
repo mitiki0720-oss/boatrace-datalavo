@@ -3,7 +3,7 @@ import {
 	getBoatPredictionExhibitionAvailability,
 	type BoatPredictionExhibitionAvailability,
 } from "./boatPredictionMaterial";
-import type { BoatVenueExtraRace } from "./boatVenueExtrasFeed";
+import type { BoatVenueExtraRace, BoatVenueExtraVenue } from "./boatVenueExtrasFeed";
 
 export type BoatPreRacePredictionMode =
 	| "pre-race"
@@ -39,6 +39,40 @@ const readRegistrationPeriod = (racer: RacerMaterialRecord): string =>
 	readValue(racer.term) ||
 	readValue(racer.period);
 
+const normalizeRegistrationNo = (value: unknown): string => {
+	const registrationNo = readValue(value);
+	return /^\d{4}$/u.test(registrationNo) ? registrationNo : "";
+};
+
+const formatRegistrationPeriod = (value: unknown): string => {
+	const period = readValue(value);
+	return /^\d{1,3}$/u.test(period) ? `${period}期` : period;
+};
+
+const buildExactRegistrationPeriodMap = (venueExtra?: BoatVenueExtraVenue | null): Map<string, string> => {
+	const candidates = new Map<string, Set<string>>();
+	for (const raceExtra of Array.isArray(venueExtra?.races) ? venueExtra.races : []) {
+		const entryTable = Array.isArray(raceExtra.entryTable) ? raceExtra.entryTable : [];
+		for (const rawEntry of entryTable) {
+			if (!rawEntry || typeof rawEntry !== "object" || Array.isArray(rawEntry)) continue;
+			const entry = rawEntry as Record<string, unknown>;
+			const source = readValue(entry.source);
+			const registrationNo = normalizeRegistrationNo(entry.registrationNo ?? entry.registerNo);
+			const period = formatRegistrationPeriod(entry.term ?? entry.registrationPeriod ?? entry.registrationTerm);
+			if (!registrationNo || !period || !/(?:official|boatrace)/iu.test(source)) continue;
+			const values = candidates.get(registrationNo) ?? new Set<string>();
+			values.add(period);
+			candidates.set(registrationNo, values);
+		}
+	}
+
+	return new Map(
+		[...candidates]
+			.filter(([, periods]) => periods.size === 1)
+			.map(([registrationNo, periods]) => [registrationNo, [...periods][0]]),
+	);
+};
+
 const buildFramePurposeLabel = (frameNo: number): string => {
 	switch (frameNo) {
 		case 1:
@@ -58,13 +92,15 @@ const buildFramePurposeLabel = (frameNo: number): string => {
 	}
 };
 
-const buildRacerMaterialLine = (racer: BoatRacerItem): string => {
+const buildRacerMaterialLine = (racer: BoatRacerItem, registrationPeriods: Map<string, string>): string => {
 	const source = racer as RacerMaterialRecord;
+	const registrationNo = normalizeRegistrationNo(racer.registrationNo);
+	const registrationPeriod = formatRegistrationPeriod(readRegistrationPeriod(source)) || registrationPeriods.get(registrationNo) || "";
 	const profile = [
 		`登録番号 ${displayValue(racer.registrationNo)}`,
 		`支部 ${displayValue(racer.branch)}`,
 		`年齢 ${displayValue(racer.age)}`,
-		`登録期 ${readRegistrationPeriod(source) || missingValue}`,
+		`登録期 ${registrationPeriod || missingValue}`,
 		`級別 ${displayValue(racer.class)}`,
 	].join(" / ");
 	const performance = [
@@ -146,12 +182,14 @@ export function resolveBoatPredictionMode(params: {
 export function buildBoatPreRacePredictionSupportBlock(params: {
 	race: BoatRaceItem;
 	raceExtra?: BoatVenueExtraRace | null;
+	venueExtra?: BoatVenueExtraVenue | null;
 }): string {
 	const mode = resolveBoatPredictionMode(params);
+	const registrationPeriods = buildExactRegistrationPeriodMap(params.venueExtra);
 	const racerByFrame = (frameNo: number) => getRacerByFrame(params.race, frameNo);
 	const racerLines = [1, 2, 3, 4, 5, 6].map((frameNo) => {
 		const racer = racerByFrame(frameNo);
-		return racer ? buildRacerMaterialLine(racer) : buildMissingRacerMaterialLine(frameNo);
+		return racer ? buildRacerMaterialLine(racer, registrationPeriods) : buildMissingRacerMaterialLine(frameNo);
 	});
 
 	return [

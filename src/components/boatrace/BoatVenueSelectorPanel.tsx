@@ -1,4 +1,5 @@
 import type { BoatTodayVenueItem } from "../../lib/boatraceTypes";
+import { formatBoatPredictionSessionLabel } from "../../lib/boatPredictionGptCopy";
 import { resolveBoatVenueDayLabel } from "../../lib/boatVenueDayLabel";
 import { boatTheme } from "../../lib/theme";
 
@@ -142,32 +143,6 @@ const venueDayBadgeMissingStyle = {
 	border: "1px solid rgba(148, 163, 184, 0.32)",
 	color: "#64748b",
 };
-
-function getSessionLabel(session?: string): string {
-	const normalized = session?.toLowerCase();
-
-	if (normalized === "morning") {
-		return "Morning";
-	}
-
-	if (normalized === "day") {
-		return "Day";
-	}
-
-	if (normalized === "night") {
-		return "Night";
-	}
-
-	if (normalized === "midnight") {
-		return "Midnight";
-	}
-
-	if (normalized === "relay") {
-		return "Relay";
-	}
-
-	return "Schedule";
-}
 
 function getSessionStyle(session?: string) {
 	const normalized = session?.toLowerCase();
@@ -367,7 +342,7 @@ export function BoatVenueSelectorPanel({ venues, selectedVenueId, onSelectVenue 
 												...getSessionStyle(venue.session),
 											}}
 										>
-											{getSessionLabel(venue.session)}
+											{formatBoatPredictionSessionLabel(venue.session)}
 										</span>
 
 										<span style={{ ...venueDayBadgeStyle, ...(isDayBadgeMissing ? venueDayBadgeMissingStyle : null) }}>{dayBadge}</span>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { BoatPredictionGptCopyExReferenceLevel } from "../../lib/boatPredictionGptCopyExContext";
-import type { BoatPredictionVenueTimeKind } from "../../lib/boatPredictionGptCopy";
+import { formatBoatPredictionSessionLabel, type BoatPredictionVenueTimeKind } from "../../lib/boatPredictionGptCopy";
 import { boatTheme } from "../../lib/theme";
 
 type BoatGptMaterialRangePreset = {
@@ -285,7 +285,7 @@ export function BoatGptBulkMaterialPanel({
 				<span style={chipStyle}>展示OK {readyRaceCount}R</span>
 				<span style={chipStyle}>展示一部 {partialRaceCount}R</span>
 				<span style={chipStyle}>事前予想 {waitingRaceCount + missingRaceLabels.length}R</span>
-				{rangeTimeKind ? <span style={chipStyle}>時間帯 {rangeTimeKind}</span> : null}
+				{rangeTimeKind ? <span style={chipStyle}>時間帯 {formatBoatPredictionSessionLabel(rangeTimeKind)}</span> : null}
 				{includesExContext ? <span style={chipStyle}>EX分析入り</span> : null}
 				{exReferenceRaceCount > 0 ? <span style={chipStyle}>EX参照 {exReferenceRaceCount}R</span> : null}
 			</div>

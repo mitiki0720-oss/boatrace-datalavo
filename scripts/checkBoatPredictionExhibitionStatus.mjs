@@ -6,11 +6,14 @@ const compile = (source) => ts.transpileModule(source, {
 	compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
 }).outputText;
 const source = fs.readFileSync("src/lib/boatPredictionMaterial.ts", "utf8");
+const copyModule = { exports: {} };
+new Function("exports", "module", compile(fs.readFileSync("src/lib/boatPredictionGptCopy.ts", "utf8")))(copyModule.exports, copyModule);
 const materialModule = { exports: {} };
 new Function("exports", "module", "require", compile(source))(
 	materialModule.exports,
 	materialModule,
 	(id) => {
+		if (id === "./boatPredictionGptCopy") return copyModule.exports;
 		if (id === "./boatExhibitionParticipation") return { formatBoatExhibitionParticipationAlertLabel: () => "", resolveBoatExhibitionParticipationSummary: () => ({ alerts: [] }) };
 		if (id === "./boatVenueFeatures") return { buildBoatVenueFeatureFullMaterial: () => "", buildBoatVenueUserInsightMaterial: () => "" };
 		throw new Error(`Unexpected material dependency: ${id}`);

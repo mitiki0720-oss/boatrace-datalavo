@@ -15,7 +15,9 @@ const loadModule = (filePath, dependencies = {}) => {
 	return loaded.exports;
 };
 
+const copyModule = loadModule("src/lib/boatPredictionGptCopy.ts");
 const materialModule = loadModule("src/lib/boatPredictionMaterial.ts", {
+	"./boatPredictionGptCopy": copyModule,
 	"./boatExhibitionParticipation": {
 		formatBoatExhibitionParticipationAlertLabel: () => "",
 		resolveBoatExhibitionParticipationSummary: () => ({ alerts: [] }),
@@ -28,7 +30,6 @@ const materialModule = loadModule("src/lib/boatPredictionMaterial.ts", {
 const supportModule = loadModule("src/lib/boatPreRacePredictionSupport.ts", {
 	"./boatPredictionMaterial": materialModule,
 });
-const copyModule = loadModule("src/lib/boatPredictionGptCopy.ts");
 
 const racers = Array.from({ length: 6 }, (_, index) => ({
 	frameNo: index + 1,
@@ -70,6 +71,22 @@ const buildRace = (exhibitionTimeCount) => ({
 const preRaceMaterial = supportModule.buildBoatPreRacePredictionSupportBlock({ race: buildRace(0) });
 const partialMaterial = supportModule.buildBoatPreRacePredictionSupportBlock({ race: buildRace(3) });
 const completeMaterial = supportModule.buildBoatPreRacePredictionSupportBlock({ race: buildRace(6) });
+const bridgedRace = buildRace(0);
+bridgedRace.racers[0] = { ...bridgedRace.racers[0], registrationPeriod: undefined };
+const exactBridgeMaterial = supportModule.buildBoatPreRacePredictionSupportBlock({
+	race: bridgedRace,
+	venueExtra: {
+		races: [{
+			entryTable: [{ registrationNo: "5010", racerName: "別名でも使用しない", term: "120", source: "official-fixture" }],
+		}],
+	},
+});
+const collisionBridgeMaterial = supportModule.buildBoatPreRacePredictionSupportBlock({
+	race: bridgedRace,
+	venueExtra: {
+		races: [{ entryTable: [{ registrationNo: "5010", term: "120", source: "official-fixture" }, { registrationNo: "5010", term: "121", source: "official-fixture" }] }],
+	},
+});
 const bettingInstruction = copyModule.buildBoatPredictionGptBettingInstruction();
 const pageSource = read("src/pages/PredictionPage.tsx");
 const supportCallCount = (pageSource.match(/buildBoatPreRacePredictionSupportBlock\(\{/gu) ?? []).length;
@@ -104,6 +121,10 @@ const checks = {
 		&& preRaceMaterial.includes("年齢 30")
 		&& preRaceMaterial.includes("登録期 120期")
 		&& preRaceMaterial.includes("級別 A1"),
+	exactRegistrationPeriodBridge: exactBridgeMaterial.includes("登録番号 5010")
+		&& exactBridgeMaterial.includes("登録期 120期"),
+	registrationPeriodCollisionRejected: collisionBridgeMaterial.includes("登録番号 5010")
+		&& collisionBridgeMaterial.includes("登録期 未取得"),
 	performanceMaterials: preRaceMaterial.includes("全国勝率 6.0")
 		&& preRaceMaterial.includes("全国2連率 40.0%")
 		&& preRaceMaterial.includes("当地勝率 5.0")
