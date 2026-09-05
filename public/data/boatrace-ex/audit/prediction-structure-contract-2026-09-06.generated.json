@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-prediction-structure-contract-audit",
+  "auditDate": "2026-09-06",
+  "generatedAt": "2026-09-05T16:56:55.462Z",
+  "mode": "strict-source-backed",
+  "contract": {
+    "predictionText": "prediction.textExcerpt with prediction.sourceStatus === available",
+    "parser": "strict-ticket-pattern after a buy-ticket marker and 3-trifecta group heading",
+    "resultPath": "officialResult.finishOrder",
+    "payoutPath": "officialResult.payout[]",
+    "evaluation": "exact ordered boat-number triple only"
+  },
+  "targetDate": {
+    "date": "2026-09-06",
+    "summary": {
+      "venueCount": 14,
+      "raceCount": 168,
+      "officialRaceCount": 168,
+      "resultAvailableRaceCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "exhibitionAvailableRaceCount": 0,
+      "weatherAvailableRaceCount": 168,
+      "motorAvailableRaceCount": 132,
+      "boatAvailableRaceCount": 132,
+      "racerAvailableRaceCount": 132,
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "structuredTicketCount": 0,
+      "classifiedTicketCount": 0,
+      "unclassifiedTicketCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "hitRaceCount": 0,
+      "missRaceCount": 0,
+      "payoutLinkedHitCount": 0,
+      "totalSourceBackedPayoutYen": 0
+    },
+    "readiness": {
+      "status": "insufficient-history",
+      "reason": "Strict structured ticket coverage is source-backed but remains below the 30-race readiness threshold.",
+      "missingRequirements": [
+        "strict-structured-ticket-coverage-below-30"
+      ]
+    }
+  },
+  "historyCoverage": {
+    "schemaVersion": "boat-ex-structured-tickets-v1",
+    "kind": "boatrace-ex-structured-tickets-history-summary",
+    "generatedAt": "2026-09-05T16:56:53.974Z",
+    "periodStart": "2026-05-24",
+    "periodEnd": "2026-09-06",
+    "dateCount": 100,
+    "historyRaceCount": 13932,
+    "raceCount": 13932,
+    "predictionTextAvailableRaceCount": 12132,
+    "structuredTicketAvailableRaceCount": 1,
+    "structuredTicketCount": 10,
+    "classifiedTicketCount": 10,
+    "unclassifiedTicketCount": 0,
+    "evaluatedPredictionRaceCount": 1,
+    "hitRaceCount": 1,
+    "missRaceCount": 0,
+    "resultUnavailableEvaluationCount": 0,
+    "payoutLinkedHitCount": 1,
+    "totalSourceBackedPayoutYen": 770,
+    "readiness": {
+      "status": "insufficient-history",
+      "reason": "Strict structured ticket coverage is source-backed but remains below the 30-race readiness threshold.",
+      "missingRequirements": [
+        "strict-structured-ticket-coverage-below-30"
+      ]
+    },
+    "parserVersion": "boat-ex-strict-ticket-parser-v1",
+    "parserRules": [
+      "Only source-backed prediction.textExcerpt values are read.",
+      "Only text after the first buy-ticket marker is eligible.",
+      "A ticket section must contain the 3-trifecta marker and an allowed group label.",
+      "Only a line-level ordered three-boat pattern using 1 through 6 is accepted.",
+      "Repeated boat numbers, formation expressions, entrance assumptions, prose, and non-ticket text are skipped.",
+      "A hit requires an exact ordered match against officialResult.finishOrder[0..2]."
+    ],
+    "skippedReasons": {
+      "buy-ticket-marker-unavailable": 12008,
+      "strict-ticket-pattern-unavailable": 123,
+      "prediction-text-unavailable": 1800
+    },
+    "sourcePaths": [
+      "public/data/boatrace-ex/index.generated.json"
+    ],
+    "auditPaths": [
+      "public/data/boatrace-ex/audit/structured-tickets-evaluation-2026-09-06.generated.json"
+    ]
+  },
+  "sourceFiles": [
+    "public/data/boatrace-ex/index.generated.json",
+    "public/data/boatrace-ex/history/races/2026-09-06.json",
+    "public/data/boatrace-ex/derived/prediction-structure/history-summary.json"
+  ]
+}
