@@ -148,7 +148,7 @@ const checks = {
 	monthlyLoadFailureSafe: unavailableMaterial.includes("月次振り返り: 未取得")
 		&& unavailableMaterial.includes("通常素材")
 		&& pageSource.includes("<BoatGptBulkMaterialPanel")
-		&& pageSource.includes("singleRaceMaterialText={materialText}"),
+		&& pageSource.includes("rangePresets={bulkGptMaterialRangePresets}"),
 	existingMaterialPreserved: pageSource.includes("buildBoatPreRacePredictionSupportBlock")
 		&& pageSource.includes("【通常会場素材】")
 		&& pageSource.includes("buildBoatPredictionGptCopyRaceContext")

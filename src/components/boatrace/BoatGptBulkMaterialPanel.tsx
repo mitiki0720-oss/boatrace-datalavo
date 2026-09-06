@@ -15,8 +15,6 @@ type BoatGptMaterialRangePreset = {
 
 type BoatGptBulkMaterialPanelProps = {
 	materialText: string;
-	singleRaceMaterialText: string;
-	selectedRaceLabel: string;
 	venueName: string;
 	dateLabel: string;
 	rawRaceCount: number;
@@ -179,8 +177,6 @@ const sanitizeDownloadName = (value: string): string =>
 
 export function BoatGptBulkMaterialPanel({
 	materialText,
-	singleRaceMaterialText,
-	selectedRaceLabel,
 	venueName,
 	dateLabel,
 	rawRaceCount,
@@ -231,20 +227,6 @@ export function BoatGptBulkMaterialPanel({
 		}, 1800);
 	};
 
-	const copyMaterial = async (text: string, label: string) => {
-		if (!text.trim()) {
-			showStatus("コピーできる素材がありません");
-			return;
-		}
-
-		try {
-			await navigator.clipboard.writeText(text);
-			showStatus(`${label}をコピーしました`);
-		} catch {
-			showStatus("コピーに失敗しました");
-		}
-	};
-
 	const writeClipboardText = async (text: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
@@ -269,7 +251,9 @@ export function BoatGptBulkMaterialPanel({
 			onSelectRange(preset.key);
 			showStatus(`${preset.label}をコピーしました (${raceNumbers.join(", ")}R)`);
 		} catch (error) {
-			showStatus(error instanceof Error ? error.message : "範囲素材のコピーに失敗しました");
+			showStatus(error instanceof Error
+				? `${preset.label}素材の検証に失敗しました。コピーしていません。 ${error.message}`
+				: `${preset.label}素材の検証に失敗しました。コピーしていません。`);
 		}
 	};
 
@@ -337,7 +321,10 @@ export function BoatGptBulkMaterialPanel({
 								type="button"
 								style={isActive ? activeRangeButtonStyle : rangeButtonStyle}
 								aria-pressed={isActive}
-								onClick={() => {
+								data-copy-kind="range"
+								data-range-key={preset.key}
+								onClick={(event) => {
+									event.stopPropagation();
 									void copyRangePreset(preset);
 								}}
 							>
@@ -346,10 +333,7 @@ export function BoatGptBulkMaterialPanel({
 						);
 					}) : <p style={descriptionStyle}>この会場にコピー対象のレースがありません。</p>}
 				</div>
-				<div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "8px" }}>
-					<button type="button" style={actionButtonStyle} onClick={() => void copyMaterial(singleRaceMaterialText, `${selectedRaceLabel}素材`)}>
-						選択中Rをコピー
-					</button>
+				<div style={{ display: "grid", gap: "8px" }}>
 					<button type="button" style={actionButtonStyle} onClick={downloadCurrentRange}>
 						選択範囲TXT
 					</button>

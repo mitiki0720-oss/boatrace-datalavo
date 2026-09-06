@@ -77,6 +77,10 @@ const checks = {
 	fullPayloadWritten: lateFromSelected1.clipboardText === lateMikuniPreset.materialText,
 	buttonUsesRuntimeGuard: panelSource.includes("copyRangePreset(preset)")
 		&& panelSource.includes("copyBoatPredictionRangePreset(preset, writeClipboardText)"),
+	rangeApiExcludesSingleRace: !panelSource.includes("singleRaceMaterialText")
+		&& !panelSource.includes("selectedRaceLabel")
+		&& panelSource.includes('data-copy-kind="range"')
+		&& panelSource.includes('data-range-key={preset.key}'),
 	clipboardFallback: panelSource.includes('document.execCommand("copy")'),
 };
 const ok = Object.values(checks).every(Boolean);

@@ -244,8 +244,10 @@ const checks = {
 		&& pageSource.includes("materialText: bulkGptMaterialSummary7R12RWithEx.materialText"),
 	sharedHeaderStructure: (pageSource.match(/"【GPT素材ヘッダー】"/gu) ?? []).length === 2
 		&& pageSource.includes("buildBoatPredictionGptCopyVenueContext"),
-	singleRaceCopySeparate: panelSource.includes("singleRaceMaterialText")
-		&& panelSource.includes("選択中Rをコピー"),
+	rangeCopyExcludesSingleRace: !panelSource.includes("singleRaceMaterialText")
+		&& !panelSource.includes("selectedRaceLabel")
+		&& !panelSource.includes("選択中Rをコピー")
+		&& panelSource.includes('data-copy-kind="range"'),
 	resultLeakGuard: read("src/lib/boatPredictionMaterial.ts").includes("この素材は予想用のため、着順・払戻・決まり手などの結果情報は含めません。"),
 };
 const ok = Object.values(checks).every(Boolean);

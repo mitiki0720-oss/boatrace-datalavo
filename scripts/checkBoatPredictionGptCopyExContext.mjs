@@ -68,7 +68,8 @@ const missing = [
 
 const panelDirectCopy = panel.includes("copyBoatPredictionRangePreset(preset, writeClipboardText)")
 	&& panel.includes("void copyRangePreset(preset)")
-	&& panel.includes("選択中Rをコピー");
+	&& panel.includes('data-copy-kind="range"')
+	&& !panel.includes("singleRaceMaterialText");
 const ok = missing.length === 0 && panel.includes("EX分析入り") && panelDirectCopy;
 console.log(JSON.stringify({
 	ok,

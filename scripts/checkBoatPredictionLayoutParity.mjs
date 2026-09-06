@@ -32,7 +32,7 @@ const checks = {
 	compactOrder: titleIndex >= 0 && quickSelectIndex > titleIndex && workspaceIndex > quickSelectIndex,
 	venueRaceChooser: renderedPageSource.includes("<BoatPredictionVenueRaceChooser"),
 	compactMaterialPanel: renderedPageSource.includes("<BoatGptBulkMaterialPanel")
-		&& renderedPageSource.includes("singleRaceMaterialText={materialText}"),
+		&& renderedPageSource.includes("rangePresets={bulkGptMaterialRangePresets}"),
 	pastePanel: renderedPageSource.includes("<BoatPredictionPastePanel"),
 	desktopTwoColumn: pageSource.includes("grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1.18fr)"),
 	mobileSingleColumn: pageSource.includes("@media (max-width: 900px)")
@@ -49,7 +49,8 @@ const checks = {
 		&& JSON.stringify(rangeFixtures.sparseRaces) === JSON.stringify([[1, 3, 6], [8, 10]]),
 	directRangeCopy: materialPanelSource.includes("void copyRangePreset(preset)")
 		&& materialPanelSource.includes("copyBoatPredictionRangePreset(preset, writeClipboardText)")
-		&& materialPanelSource.includes("選択中Rをコピー")
+		&& materialPanelSource.includes('data-copy-kind="range"')
+		&& !materialPanelSource.includes("singleRaceMaterialText")
 		&& materialPanelSource.includes("選択範囲TXT"),
 	predictionJsonExport: materialPanelSource.includes("当日予想JSONを書き出す")
 		&& renderedPageSource.includes("onExportJson={handleExportJohnsonPrediction}")

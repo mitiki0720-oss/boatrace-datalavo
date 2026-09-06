@@ -3762,8 +3762,6 @@ body:has(.prediction-page-root) {
 						</div>
 						<BoatGptBulkMaterialPanel
 							materialText={activeBulkGptMaterialSummary.materialText}
-							singleRaceMaterialText={materialText}
-							selectedRaceLabel={raceLabel}
 							venueName={selectedVenue?.venueName ?? "-"}
 							dateLabel={activePredictionDate}
 							rawRaceCount={selectedVenueRaces.length}

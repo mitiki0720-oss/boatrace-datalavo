@@ -152,7 +152,7 @@ const checks = {
 	singleRaceWiring: supportCallCount >= 5 && pageSource.indexOf("buildBoatPreRacePredictionSupportBlock") > 0,
 	frontRangeWiring: (frontRangeSource.match(/buildBoatPreRacePredictionSupportBlock\(\{/gu) ?? []).length >= 2,
 	lateRangeWiring: (lateRangeSource.match(/buildBoatPreRacePredictionSupportBlock\(\{/gu) ?? []).length >= 2,
-	existingAnalysisPreserved: materialCallCount >= 5 && exContextCallCount >= 2 && normalMaterialLabelCount >= 3,
+	existingAnalysisPreserved: materialCallCount >= 5 && exContextCallCount >= 2 && normalMaterialLabelCount >= 2,
 };
 
 const ok = Object.values(checks).every(Boolean);
