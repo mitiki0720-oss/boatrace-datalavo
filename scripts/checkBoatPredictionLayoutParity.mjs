@@ -47,7 +47,8 @@ const checks = {
 		&& JSON.stringify(rangeFixtures.sixRaces) === JSON.stringify([[1, 2, 3, 4, 5, 6]])
 		&& JSON.stringify(rangeFixtures.sevenRaces) === JSON.stringify([[1, 2, 3, 4, 5, 6], [7]])
 		&& JSON.stringify(rangeFixtures.sparseRaces) === JSON.stringify([[1, 3, 6], [8, 10]]),
-	directRangeCopy: materialPanelSource.includes("void copyMaterial(preset.materialText")
+	directRangeCopy: materialPanelSource.includes("void copyRangePreset(preset)")
+		&& materialPanelSource.includes("copyBoatPredictionRangePreset(preset, writeClipboardText)")
 		&& materialPanelSource.includes("選択中Rをコピー")
 		&& materialPanelSource.includes("選択範囲TXT"),
 	predictionJsonExport: materialPanelSource.includes("当日予想JSONを書き出す")

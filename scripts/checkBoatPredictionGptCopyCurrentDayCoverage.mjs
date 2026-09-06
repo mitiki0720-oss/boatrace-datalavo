@@ -166,11 +166,13 @@ const checks = {
 	resultAndPayoutWithoutAnalysis: resultAndPayoutWithoutAnalysisFixture.includes("当日status: result-and-payout") && resultAndPayoutWithoutAnalysisFixture.includes("race-analysis: 未取得（結果・払戻はavailableだがrace-analysis未生成）"),
 	readyRaceAnalysisFacts: readyRaceAnalysisOutput.includes("EX race-analysis shard: source-backed / available")
 		&& readyRaceAnalysisOutput.includes("EXレースsource path: public/data/boatrace-ex/derived/race-analysis/latest.json")
-		&& readyRaceAnalysisOutput.includes("結果分析: available")
-		&& readyRaceAnalysisOutput.includes("決まり手: 逃げ")
-		&& readyRaceAnalysisOutput.includes("3連単払戻: 1-3-5 / 8,420円 / 人気 12")
-		&& readyRaceAnalysisOutput.includes("イン逃げ: 成功")
-		&& readyRaceAnalysisOutput.includes("外枠3着内浮上: あり (5号艇)")
+		&& readyRaceAnalysisOutput.includes("結果分析: source-backed / 予想素材では当該Rの確定結果を非表示")
+		&& readyRaceAnalysisOutput.includes("決まり手: 予想素材のため非表示")
+		&& readyRaceAnalysisOutput.includes("3連単払戻: 予想素材のため非表示")
+		&& readyRaceAnalysisOutput.includes("イン逃げ: 予想素材のため非表示")
+		&& readyRaceAnalysisOutput.includes("外枠3着内浮上: 予想素材のため非表示")
+		&& !readyRaceAnalysisOutput.includes("決まり手: 逃げ")
+		&& !readyRaceAnalysisOutput.includes("3連単払戻: 1-3-5")
 		&& readyRaceAnalysisOutput.includes("注意: EXレース分析は結果確定後のsource-backed事実分析。予想・買い目ではありません。"),
 	historicalLatestDayVenueEvidence: output.includes("【KURARI BOAT EX 履歴latest-day venue-evidence】") && output.includes("EX履歴latest日: 2026-08-02") && output.includes("予想対象日: 2026-08-15") && output.includes("対象日一致: no") && output.includes("用途: 履歴EXのlatest-day確認用。予想当日の通常素材coverageではありません。") && output.includes("source: public/data/boatrace-ex/derived/venue-evidence/2026-08-02.json") && output.includes("EX履歴latest-day天候・水面 availability: target-date-mismatch"),
 	noLegacyDailyCoverage: !output.includes("【KURARI BOAT EX 当日coverage】") && !output.includes("当日coverage: 対象日不一致のため予想当日データとしては使わない") && !output.includes("データ期間: daily 2026-08-02") && !output.includes("EX当日フロー: 対象日不一致"),

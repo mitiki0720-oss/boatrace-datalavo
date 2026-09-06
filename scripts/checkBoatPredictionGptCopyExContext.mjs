@@ -66,7 +66,9 @@ const missing = [
 	...forbiddenContextFragments.filter((fragment) => context.includes(fragment)).map((fragment) => `forbidden context fragment: ${fragment}`),
 ];
 
-const panelDirectCopy = panel.includes("preset.materialText") && panel.includes("選択中Rをコピー");
+const panelDirectCopy = panel.includes("copyBoatPredictionRangePreset(preset, writeClipboardText)")
+	&& panel.includes("void copyRangePreset(preset)")
+	&& panel.includes("選択中Rをコピー");
 const ok = missing.length === 0 && panel.includes("EX分析入り") && panelDirectCopy;
 console.log(JSON.stringify({
 	ok,

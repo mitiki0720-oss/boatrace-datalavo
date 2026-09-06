@@ -231,8 +231,8 @@ const checks = {
 	selectedRaceIndependent,
 	placeholderContract,
 	all24Fixture,
-	directPresetCopy: panelSource.includes("void copyMaterial(preset.materialText")
-		&& panelSource.includes("onSelectRange(preset.key)"),
+	directPresetCopy: panelSource.includes("void copyRangePreset(preset)")
+		&& panelSource.includes("copyBoatPredictionRangePreset(preset, writeClipboardText)"),
 	partialMaterialStatusIsExplicit: panelSource.includes("一部取得")
 		&& panelSource.includes("取得待ち")
 		&& panelSource.includes("完全 ${generatedRaceCount}/${expectedRaceCount}R"),

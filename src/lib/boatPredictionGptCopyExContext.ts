@@ -968,14 +968,9 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 				? `- ${asText(racer.frameNo)}号艇 / ${asText(racer.name)} / 登録番号完全一致 ${registrationNo} / 履歴出走 ${identity.appearanceCount}件 / 初回 ${identity.firstSeenDate} / 最終 ${identity.lastSeenDate}`
 				: `- ${asText(racer.frameNo)}号艇 / ${asText(racer.name)} / 登録番号完全一致 未リンク`;
 		});
-	const resultFacts = exRace?.resultFacts;
-	const flowFacts = exRace?.raceFlowFacts;
-	const trifecta = resultFacts?.trifecta;
 	const raceAnalysisSourcePath = exRace
 		? `public/data/boatrace-ex/derived/race-analysis/${exContext?.requestedDate === exContext?.venueEvidenceDate ? "latest.json" : `dates/${exContext?.requestedDate}.json`}`
 		: unavailable;
-	const yesNo = (value: boolean | undefined): string => value === undefined ? unavailable : value ? "あり" : "なし";
-
 	return [
 		`[日付 ${venue.date ?? feed.date} ${venue.venueName} ${race.raceNo}R]`,
 		`時間帯: ${formatBoatPredictionSessionLabel(getBoatPredictionRaceTimeLabel(venueTimeKind, race))}`,
@@ -994,12 +989,12 @@ export function buildBoatPredictionGptCopyRaceContext(params: {
 		`EXレースsource path: ${raceAnalysisSourcePath}`,
 		`EXレースsource: ${asText(exRace?.source)}`,
 		`EXレースsource acquired at: ${asText(exRace?.sourceAcquiredAt)}`,
-		`結果分析: ${exRace ? "available" : unavailable}`,
-		`決まり手: ${asText(resultFacts?.winningMethod)}`,
-		`3連単払戻: ${trifecta ? `${asText(trifecta.combination)} / ${trifecta.payoutYen.toLocaleString("ja-JP")}円 / 人気 ${asText(trifecta.popularity)}` : unavailable}`,
-		`イン逃げ: ${flowFacts ? flowFacts.inWin ? "成功" : "不成立" : unavailable}`,
-		`センター攻め: ${yesNo(flowFacts?.centerAttackObserved)}`,
-		`外枠3着内浮上: ${flowFacts ? flowFacts.outsidePodium ? `あり (${flowFacts.outsidePodiumFrames.join("・")}号艇)` : "なし" : unavailable}`,
+		`結果分析: ${exRace ? "source-backed / 予想素材では当該Rの確定結果を非表示" : unavailable}`,
+		"決まり手: 予想素材のため非表示",
+		"3連単払戻: 予想素材のため非表示",
+		"イン逃げ: 予想素材のため非表示",
+		"センター攻め: 予想素材のため非表示",
+		"外枠3着内浮上: 予想素材のため非表示",
 		`ST分析: ${asText((exRace?.startFacts as JsonRecord | null | undefined)?.availability)}`,
 		`展示分析: ${asText((exRace?.exhibitionFacts as JsonRecord | null | undefined)?.availability)}`,
 		`EX shard由来 展示availability: ${asText(exRace?.exhibitionStatus)}`,
