@@ -38,10 +38,11 @@ const checks = {
 	mobileSingleColumn: pageSource.includes("@media (max-width: 900px)")
 		&& pageSource.includes(".prediction-page-main-panels")
 		&& pageSource.includes("grid-template-columns: 1fr"),
-	dynamicRaceRanges: pageSource.includes("const actualRaceNumbers = selectedVenueRaces")
-		&& pageSource.includes("const frontRaceNumbers = actualRaceNumbers.filter((raceNo) => raceNo <= 6)")
-		&& pageSource.includes("const lateRaceNumbers = actualRaceNumbers.filter((raceNo) => raceNo >= 7)")
-		&& pageSource.includes(".filter((preset) => preset.generatedRaceCount > 0)"),
+	fixedCompleteRaceRanges: pageSource.includes("BOAT_PREDICTION_EARLY_RACE_NUMBERS")
+		&& pageSource.includes("BOAT_PREDICTION_LATE_RACE_NUMBERS")
+		&& pageSource.includes("buildBoatPredictionRangeMaterial")
+		&& pageSource.includes('label: "1R〜6R"')
+		&& pageSource.includes('label: "7R〜12R"'),
 	rangeFixtures: JSON.stringify(rangeFixtures.twelveRaces) === JSON.stringify([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]])
 		&& JSON.stringify(rangeFixtures.sixRaces) === JSON.stringify([[1, 2, 3, 4, 5, 6]])
 		&& JSON.stringify(rangeFixtures.sevenRaces) === JSON.stringify([[1, 2, 3, 4, 5, 6], [7]])

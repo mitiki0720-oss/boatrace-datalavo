@@ -5,6 +5,8 @@ const readJson = (path) => JSON.parse(fs.readFileSync(path, "utf8"));
 const compile = (source) => ts.transpileModule(source, {
 	compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
 }).outputText;
+const copyModule = { exports: {} };
+new Function("exports", "module", compile(fs.readFileSync("src/lib/boatPredictionGptCopy.ts", "utf8")))(copyModule.exports, copyModule);
 
 const materialModule = { exports: {} };
 const materialSource = fs.readFileSync("src/lib/boatPredictionMaterial.ts", "utf8");
@@ -12,6 +14,7 @@ new Function("exports", "module", "require", compile(materialSource))(
 	materialModule.exports,
 	materialModule,
 	(id) => {
+		if (id === "./boatPredictionGptCopy") return copyModule.exports;
 		if (id === "./boatExhibitionParticipation") {
 			return {
 				formatBoatExhibitionParticipationAlertLabel: () => "",

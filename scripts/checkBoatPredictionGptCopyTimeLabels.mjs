@@ -65,8 +65,7 @@ const instructionBlock = material.match(/\[J\.[\s\S]*?(?=\[K\.)/)?.[0] ?? "";
 const requiredFragments = [
 	"getBoatPredictionRangeTimeKind",
 	'getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces)',
-	'getBoatPredictionRangePurposeLabel(rangeTimeKind, "1R〜6R")',
-	'getBoatPredictionRangePurposeLabel(rangeTimeKind, "7R〜12R")',
+	"getBoatPredictionRangePurposeLabel(rangeTimeKind, raceRangeLabel)",
 	"コピー範囲時間帯:",
 	"rangeTimeKind: BoatPredictionVenueTimeKind",
 	"formatBoatPredictionSessionLabel",

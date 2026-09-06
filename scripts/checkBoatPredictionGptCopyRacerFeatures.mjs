@@ -9,6 +9,7 @@ const copyModule = { exports: {} };
 new Function("exports", "module", compile(copySource))(copyModule.exports, copyModule);
 const materialModule = { exports: {} };
 new Function("exports", "module", "require", compile(materialSource))(materialModule.exports, materialModule, (id) => {
+	if (id === "./boatPredictionGptCopy") return copyModule.exports;
 	if (id === "./boatExhibitionParticipation") return { formatBoatExhibitionParticipationAlertLabel: () => "", resolveBoatExhibitionParticipationSummary: () => ({ alerts: [] }) };
 	if (id === "./boatVenueFeatures") return { buildBoatVenueFeatureFullMaterial: () => "", buildBoatVenueUserInsightMaterial: () => "" };
 	throw new Error(`Unexpected material dependency: ${id}`);

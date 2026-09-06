@@ -94,7 +94,10 @@ const checks = {
 	dataHoldSafe: holdFeedback.observedOutcome === "DATA_HOLD" && holdFeedback.classificationSource === "summary_v2",
 	structureReadSourceBacked: structureFeedback.observedOutcome === "STRUCTURE_MISS" && readFeedback.observedOutcome === "READ_MISS" && unclassifiedFeedback.classificationSource === null,
 	noFakeClassification: feedbackSource.includes("auto|proxy|guess|infer|推測|補完") && unclassifiedFeedback.observedOutcome === "UNCLASSIFIED",
-	reviewDisplay: reviewPageSource.includes("Monthly focus別の観測結果") && reviewPageSource.includes("Venue sample:") && reviewPageSource.includes("Outcome:"),
+	reviewDisplay: reviewPageSource.includes("selectedMonthlyFeedback")
+		&& reviewPageSource.includes("focusLabel")
+		&& reviewPageSource.includes("結果待ち")
+		&& reviewPageSource.includes("参照未取得"),
 	legacyReviewSafe: reviewPageSource.includes("記録なし") && reviewPageSource.includes("参照未取得"),
 	monthlyGptBlockUnchanged: contextSource.includes("【月次振り返り反映 /") && contextSource.includes("Monthlyは過去結果の振り返り補助です"),
 	trifectaContractUnchanged: bettingInstruction.includes("3連単10点") && bettingInstruction.includes("厚め2点") && bettingInstruction.includes("本線3点") && bettingInstruction.includes("中穴3点") && bettingInstruction.includes("大穴2点"),

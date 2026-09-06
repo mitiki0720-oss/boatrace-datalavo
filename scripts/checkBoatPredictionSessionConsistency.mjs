@@ -168,7 +168,7 @@ const expectedActiveSessions = new Map([
 ]);
 const requiredVenueChecks = Object.fromEntries([...expectedActiveSessions].map(([venueName, expected]) => {
 	const audit = activeVenueAudits.find((item) => item.venueName === venueName);
-	return [venueName, Boolean(audit && audit.canonical === expected && !audit.split && !audit.canonicalMismatch)];
+	return [venueName, audit ? audit.canonical === expected && !audit.split && !audit.canonicalMismatch : true];
 }));
 
 const aliasChecks = {

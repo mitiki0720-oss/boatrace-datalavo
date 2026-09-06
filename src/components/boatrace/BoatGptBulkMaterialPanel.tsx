@@ -209,6 +209,13 @@ export function BoatGptBulkMaterialPanel({
 		(total, count) => total + (count ?? 0),
 		0,
 	);
+	const materialStatusLabel = generatedRaceCount === expectedRaceCount && expectedRaceCount > 0
+		? `完全 ${generatedRaceCount}/${expectedRaceCount}R`
+		: generatedRaceCount > 0
+			? `一部取得 ${generatedRaceCount}/${expectedRaceCount}R`
+			: expectedRaceCount > 0
+				? `取得待ち 0/${expectedRaceCount}R`
+				: "対象なし";
 
 	useEffect(() => () => {
 		if (statusTimerRef.current !== null) window.clearTimeout(statusTimerRef.current);
@@ -264,7 +271,7 @@ export function BoatGptBulkMaterialPanel({
 			<div style={{ display: "grid", gap: "7px" }}>
 				<p style={eyebrowStyle}>GPT Material</p>
 				<h3 style={titleStyle}>GPT貼り付け用素材</h3>
-				<p style={descriptionStyle}>選択会場の完全なまとめ素材を、実在するレース範囲ごとにコピーします。</p>
+				<p style={descriptionStyle}>選択会場の1R〜6R・7R〜12Rを固定6枠でコピーします。未取得Rは取得待ちとして残します。</p>
 			</div>
 
 			<div className="boat-gpt-material-summary" style={summaryGridStyle}>
@@ -272,7 +279,7 @@ export function BoatGptBulkMaterialPanel({
 					["選択会場", venueName],
 					["日付", dateLabel],
 					["開催レース", `${rawRaceCount}R`],
-					["素材状態", generatedRaceCount > 0 ? `生成済み ${generatedRaceCount}/${expectedRaceCount}R` : "対象なし"],
+					["素材状態", materialStatusLabel],
 				].map(([label, value]) => (
 					<div key={label} style={summaryItemStyle}>
 						<span style={summaryLabelStyle}>{label}</span>

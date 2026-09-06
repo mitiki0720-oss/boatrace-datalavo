@@ -18,6 +18,7 @@ const copyModule = { exports: {} };
 new Function("exports", "module", compile(copySource))(copyModule.exports, copyModule);
 const materialModule = { exports: {} };
 const requireForMaterial = (id) => {
+	if (id === "./boatPredictionGptCopy") return copyModule.exports;
 	if (id === "./boatExhibitionParticipation") {
 		return {
 			formatBoatExhibitionParticipationAlertLabel: () => "",

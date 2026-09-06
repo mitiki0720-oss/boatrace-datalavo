@@ -37,7 +37,10 @@ const { resolveBoatPredictionOutcome } = await importTsModules([
 	path.join("src", "lib", "boatResultSettlement.ts"),
 ], path.join("src", "lib", "boatResultSettlement.ts"));
 const { repairBoatPredictionParseIfNeeded } = await importTsModules([
+	path.join("src", "lib", "assetPath.ts"),
 	path.join("src", "lib", "boatBetParser.ts"),
+	path.join("src", "lib", "boatMonthlyReview.ts"),
+	path.join("src", "lib", "boatPredictionMonthlyReviewContext.ts"),
 	path.join("src", "lib", "boatPredictionParser.ts"),
 	path.join("src", "lib", "boatPredictionStorage.ts"),
 ], path.join("src", "lib", "boatPredictionStorage.ts"));

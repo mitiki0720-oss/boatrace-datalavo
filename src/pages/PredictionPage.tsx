@@ -28,6 +28,11 @@ import {
 	getBoatPredictionExhibitionAvailability,
 	resolveBoatPredictionWeatherReference,
 } from "../lib/boatPredictionMaterial";
+import {
+	BOAT_PREDICTION_EARLY_RACE_NUMBERS,
+	BOAT_PREDICTION_LATE_RACE_NUMBERS,
+	buildBoatPredictionRangeMaterial,
+} from "../lib/boatPredictionRangeMaterial";
 import { buildBoatPreRacePredictionSupportBlock } from "../lib/boatPreRacePredictionSupport";
 import { loadBoatMonthlyReviewData } from "../lib/boatMonthlyReview";
 import {
@@ -1526,7 +1531,7 @@ const buildPracticeFallbackRaceKey = (params: {
 		venueExtrasFeed?.generatedAt,
 	]);
 	const bulkGptMaterialSummary1R6RWithTimeLabels = useMemo(() => {
-		const expectedRaceNumbers = [1, 2, 3, 4, 5, 6];
+		const expectedRaceNumbers = BOAT_PREDICTION_EARLY_RACE_NUMBERS;
 		const raceRangeLabel = "1R〜6R";
 
 		if (!selectedVenue) {
@@ -1534,35 +1539,32 @@ const buildPracticeFallbackRaceKey = (params: {
 				materialText: "GPTへの素材\n対象会場: 未選択",
 				raceRangeLabel,
 				generatedRaceCount: 0,
-				expectedRaceCount: 0,
+				expectedRaceCount: expectedRaceNumbers.length,
 				readyRaceCount: 0,
 				partialRaceCount: 0,
-				waitingRaceCount: 0,
-				missingRaceLabels: [],
+				waitingRaceCount: expectedRaceNumbers.length,
+				missingRaceLabels: expectedRaceNumbers.map((raceNo) => `${raceNo}R`),
 			};
 		}
 
-		const selectedRaces = selectedVenueRaces
-			.filter((race) => {
-				const raceNo = normalizeBoatRaceNo(race.raceNo);
-				return raceNo !== null && expectedRaceNumbers.includes(raceNo);
-			})
-			.sort((left, right) => (normalizeBoatRaceNo(left.raceNo) ?? 99) - (normalizeBoatRaceNo(right.raceNo) ?? 99));
-		const monthlyReferenceRace = selectedRaces[0];
-		const monthlyMaterial = buildPredictionMonthlyReviewMaterial({
-			monthlyData: monthlyReviewData,
-			loadState: monthlyReviewLoadState,
-			predictionDate: activePredictionDate,
-			venue: selectedVenue,
-			venueExtra: selectedVenueExtra,
-			race: monthlyReferenceRace,
-		});
 		const venueTimeKind = getBoatPredictionVenueTimeKind(selectedVenue, selectedVenueRaces);
-		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
-		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, "1R〜6R");
 		const statusCounts = { ready: 0, partial: 0, waiting: 0 };
 		const exReferenceLevelCounts: Partial<Record<BoatPredictionGptCopyExReferenceLevel, number>> = {};
-		const sections = selectedRaces.map((race) => {
+		const rangeMaterial = buildBoatPredictionRangeMaterial({
+			races: selectedVenueRaces,
+			expectedRaceNumbers,
+			buildMissingSection: (raceNo) => [
+				"============================================================",
+				`【${activePredictionDate} / ${selectedVenue.venueName} ${raceNo}R】`,
+				"[A. レース基本情報]",
+				`会場名: ${selectedVenue.venueName}`,
+				`日付: ${selectedVenue.date ?? activePredictionDate}`,
+				`レース番号: ${raceNo}R`,
+				"race_id: 未取得",
+				"ステータス: Rデータ取得待ち",
+				"注記: このRのsourceは未取得です。別Rへの置換やfake補完はしません。",
+			].join("\n"),
+			buildRaceSection: (race) => {
 			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
 			const exReference = getBoatPredictionGptCopyExReference({
 				venue: selectedVenue,
@@ -1579,7 +1581,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				extraUpdatedAt: venueExtrasFeed?.generatedAt,
 			});
 			statusCounts[exhibitionStatus.level] += 1;
-			return [
+				return [
 				"============================================================",
 				buildBoatPredictionGptCopyRaceContext({
 					feed: todayFeed,
@@ -1601,8 +1603,21 @@ const buildPracticeFallbackRaceKey = (params: {
 					venueFeatureInsights,
 					includeVenueContext: false,
 				}), getBoatPredictionRaceTimeLabel(venueTimeKind, race)),
-			].join("\n");
+				].join("\n");
+			},
 		});
+		const selectedRaces = rangeMaterial.availableRaces;
+		const monthlyReferenceRace = selectedRaces[0];
+		const monthlyMaterial = buildPredictionMonthlyReviewMaterial({
+			monthlyData: monthlyReviewData,
+			loadState: monthlyReviewLoadState,
+			predictionDate: activePredictionDate,
+			venue: selectedVenue,
+			venueExtra: selectedVenueExtra,
+			race: monthlyReferenceRace,
+		});
+		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
+		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, raceRangeLabel);
 		const materialText = [
 			buildBoatPredictionGptCopyHeader({
 				feed: todayFeed,
@@ -1628,7 +1643,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				venueFeatureInsights,
 			}),
 			"",
-			sections.length > 0 ? sections.join("\n\n") : "1R〜6Rに実在するレースがありません。",
+			rangeMaterial.materialText,
 		].join("\n");
 
 		return {
@@ -1636,12 +1651,12 @@ const buildPracticeFallbackRaceKey = (params: {
 			raceRangeLabel,
 			rangeTimeKind,
 			exReferenceLevelCounts,
-			generatedRaceCount: selectedRaces.length,
-			expectedRaceCount: selectedRaces.length,
+			generatedRaceCount: rangeMaterial.generatedRaceCount,
+			expectedRaceCount: rangeMaterial.expectedRaceCount,
 			readyRaceCount: statusCounts.ready,
 			partialRaceCount: statusCounts.partial,
 			waitingRaceCount: statusCounts.waiting,
-			missingRaceLabels: [],
+			missingRaceLabels: rangeMaterial.missingRaceNumbers.map((raceNo) => `${raceNo}R`),
 		};
 	}, [
 		activePredictionDate,
@@ -1795,7 +1810,7 @@ const buildPracticeFallbackRaceKey = (params: {
 		venueExtrasFeed?.generatedAt,
 	]);
 	const bulkGptMaterialSummary7R12RWithEx = useMemo(() => {
-		const expectedRaceNumbers = [7, 8, 9, 10, 11, 12];
+		const expectedRaceNumbers = BOAT_PREDICTION_LATE_RACE_NUMBERS;
 		const raceRangeLabel = "7R〜12R";
 
 		if (!selectedVenue) {
@@ -1808,35 +1823,32 @@ const buildPracticeFallbackRaceKey = (params: {
 				].join("\n"),
 				raceRangeLabel,
 				generatedRaceCount: 0,
-				expectedRaceCount: 0,
+				expectedRaceCount: expectedRaceNumbers.length,
 				readyRaceCount: 0,
 				partialRaceCount: 0,
-				waitingRaceCount: 0,
-				missingRaceLabels: [],
+				waitingRaceCount: expectedRaceNumbers.length,
+				missingRaceLabels: expectedRaceNumbers.map((raceNo) => `${raceNo}R`),
 			};
 		}
 
-		const selectedRaces = selectedVenueRaces
-			.filter((race) => {
-				const raceNo = normalizeBoatRaceNo(race.raceNo);
-				return raceNo !== null && expectedRaceNumbers.includes(raceNo);
-			})
-			.sort((left, right) => (normalizeBoatRaceNo(left.raceNo) ?? 99) - (normalizeBoatRaceNo(right.raceNo) ?? 99));
-		const monthlyReferenceRace = selectedRaces[0];
-		const monthlyMaterial = buildPredictionMonthlyReviewMaterial({
-			monthlyData: monthlyReviewData,
-			loadState: monthlyReviewLoadState,
-			predictionDate: activePredictionDate,
-			venue: selectedVenue,
-			venueExtra: selectedVenueExtra,
-			race: monthlyReferenceRace,
-		});
 		const venueTimeKind = getBoatPredictionVenueTimeKind(selectedVenue, selectedVenueRaces);
-		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
-		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, "7R〜12R");
 		const statusCounts = { ready: 0, partial: 0, waiting: 0 };
 		const exReferenceLevelCounts: Partial<Record<BoatPredictionGptCopyExReferenceLevel, number>> = {};
-		const sections = selectedRaces.map((race) => {
+		const rangeMaterial = buildBoatPredictionRangeMaterial({
+			races: selectedVenueRaces,
+			expectedRaceNumbers,
+			buildMissingSection: (raceNo) => [
+				"============================================================",
+				`【${activePredictionDate} / ${selectedVenue.venueName} ${raceNo}R】`,
+				"[A. レース基本情報]",
+				`会場名: ${selectedVenue.venueName}`,
+				`日付: ${selectedVenue.date ?? activePredictionDate}`,
+				`レース番号: ${raceNo}R`,
+				"race_id: 未取得",
+				"ステータス: Rデータ取得待ち",
+				"注記: このRのsourceは未取得です。別Rへの置換やfake補完はしません。",
+			].join("\n"),
+			buildRaceSection: (race) => {
 			const raceExtra = findSelectedRaceExtra(selectedVenueExtra, race);
 			const exReference = getBoatPredictionGptCopyExReference({
 				venue: selectedVenue,
@@ -1863,7 +1875,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				includeVenueContext: false,
 			}), getBoatPredictionRaceTimeLabel(venueTimeKind, race));
 
-			return [
+				return [
 				"============================================================",
 				buildBoatPredictionGptCopyRaceContext({
 					feed: todayFeed,
@@ -1877,8 +1889,21 @@ const buildPracticeFallbackRaceKey = (params: {
 				buildBoatPreRacePredictionSupportBlock({ race, raceExtra, venueExtra: selectedVenueExtra }),
 				"【通常素材】",
 				currentMaterial,
-			].join("\n");
+				].join("\n");
+			},
 		});
+		const selectedRaces = rangeMaterial.availableRaces;
+		const monthlyReferenceRace = selectedRaces[0];
+		const monthlyMaterial = buildPredictionMonthlyReviewMaterial({
+			monthlyData: monthlyReviewData,
+			loadState: monthlyReviewLoadState,
+			predictionDate: activePredictionDate,
+			venue: selectedVenue,
+			venueExtra: selectedVenueExtra,
+			race: monthlyReferenceRace,
+		});
+		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
+		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, raceRangeLabel);
 		const normalVenueContext = buildBoatPredictionVenueContextMaterial({
 			venue: selectedVenue,
 			venueFeatureNote: selectedVenueFeatureNote,
@@ -1906,7 +1931,7 @@ const buildPracticeFallbackRaceKey = (params: {
 			normalVenueContext,
 			"",
 			"【レース別素材】",
-			sections.length > 0 ? sections.join("\n\n") : "7R〜12Rに実在するレースがありません。",
+			rangeMaterial.materialText,
 		].join("\n");
 
 		return {
@@ -1914,12 +1939,12 @@ const buildPracticeFallbackRaceKey = (params: {
 			raceRangeLabel,
 			rangeTimeKind,
 			exReferenceLevelCounts,
-			generatedRaceCount: selectedRaces.length,
-			expectedRaceCount: selectedRaces.length,
+			generatedRaceCount: rangeMaterial.generatedRaceCount,
+			expectedRaceCount: rangeMaterial.expectedRaceCount,
 			readyRaceCount: statusCounts.ready,
 			partialRaceCount: statusCounts.partial,
 			waitingRaceCount: statusCounts.waiting,
-			missingRaceLabels: [],
+			missingRaceLabels: rangeMaterial.missingRaceNumbers.map((raceNo) => `${raceNo}R`),
 		};
 	}, [
 		activePredictionDate,
@@ -1934,33 +1959,22 @@ const buildPracticeFallbackRaceKey = (params: {
 		todayFeed,
 		venueExtrasFeed?.generatedAt,
 	]);
-	const actualRaceNumbers = selectedVenueRaces
-		.map((race) => normalizeBoatRaceNo(race.raceNo))
-		.filter((raceNo): raceNo is number => raceNo !== null)
-		.sort((left, right) => left - right);
-	const formatAvailableRangeLabel = (raceNumbers: number[]) => {
-		if (raceNumbers.length === 0) return "対象なし";
-		if (raceNumbers.length === 1) return `${raceNumbers[0]}R`;
-		return `${raceNumbers[0]}R〜${raceNumbers[raceNumbers.length - 1]}R`;
-	};
-	const frontRaceNumbers = actualRaceNumbers.filter((raceNo) => raceNo <= 6);
-	const lateRaceNumbers = actualRaceNumbers.filter((raceNo) => raceNo >= 7);
-	const bulkGptMaterialRangePresets = [
+	const bulkGptMaterialRangePresets = selectedVenue ? [
 		{
 			key: "1r6r",
-			label: formatAvailableRangeLabel(frontRaceNumbers),
+			label: "1R〜6R",
 			materialText: bulkGptMaterialSummary1R6RWithTimeLabels.materialText,
 			generatedRaceCount: bulkGptMaterialSummary1R6RWithTimeLabels.generatedRaceCount,
 			includesExContext: true,
 		},
 		{
 			key: "7r12r",
-			label: formatAvailableRangeLabel(lateRaceNumbers),
+			label: "7R〜12R",
 			materialText: bulkGptMaterialSummary7R12RWithEx.materialText,
 			generatedRaceCount: bulkGptMaterialSummary7R12RWithEx.generatedRaceCount,
 			includesExContext: true,
 		},
-	].filter((preset) => preset.generatedRaceCount > 0);
+	] : [];
 	const effectiveBulkGptMaterialRangeKey = bulkGptMaterialRangePresets.some(
 		(preset) => preset.key === bulkGptMaterialRangeKey,
 	)
