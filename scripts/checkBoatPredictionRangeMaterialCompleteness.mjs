@@ -37,6 +37,7 @@ const rangeModule = loadModule("src/lib/boatPredictionRangeMaterial.ts", {
 const {
 	BOAT_PREDICTION_EARLY_RACE_NUMBERS: earlyRaceNumbers,
 	BOAT_PREDICTION_LATE_RACE_NUMBERS: lateRaceNumbers,
+	buildBoatPredictionRaceMaterialSection,
 	buildBoatPredictionRangeMaterial,
 } = rangeModule;
 
@@ -57,11 +58,47 @@ const buildRange = (venue, expectedRaceNumbers, _selectedRaceNo = null) => build
 	races: venue.races ?? [],
 	expectedRaceNumbers,
 	buildMissingSection: (raceNo) => buildMissingSection(venue, raceNo),
-	buildRaceSection: (race) => materialModule.buildBoatPredictionMaterial({
-		venue,
-		race,
-		includeVenueContext: false,
+	buildRaceSection: (race) => buildBoatPredictionRaceMaterialSection({
+		raceNo: normalizeRaceNo(race.raceNo),
+		normalMaterial: materialModule.buildBoatPredictionMaterial({ venue, race, includeVenueContext: false }),
+		preRaceSupport: "【事前予想サポート】\nsource-backed",
+		exMaterial: [
+			"【KURARI BOAT EX 当日予想coverage】",
+			"【BOAT EX 天候・水面参照】",
+			"【KURARI BOAT EX 履歴latest-day venue-evidence】",
+			"【KURARI BOAT EX レース帯履歴】",
+			"【EXレース分析】",
+			"【EX選手情報】",
+			"【KURARI BOAT EX 選手特徴】",
+			"【source-backed / cautions】",
+		].join("\n"),
 	}),
+});
+
+const requiredPerRaceExLabels = [
+	"【KURARI BOAT EX 当日予想coverage】",
+	"【BOAT EX 天候・水面参照】",
+	"【KURARI BOAT EX 履歴latest-day venue-evidence】",
+	"【KURARI BOAT EX レース帯履歴】",
+	"【EXレース分析】",
+	"【EX選手情報】",
+	"【KURARI BOAT EX 選手特徴】",
+	"【source-backed / cautions】",
+];
+
+const hasPerRaceStructure = (materialText, expectedRaceNumbers) => expectedRaceNumbers.every((raceNo) => {
+	const start = materialText.indexOf(`====================\n${raceNo}R\n====================`);
+	const nextRaceNo = raceNo + 1;
+	const end = expectedRaceNumbers.includes(nextRaceNo)
+		? materialText.indexOf(`====================\n${nextRaceNo}R\n====================`, start + 1)
+		: materialText.length;
+	if (start < 0 || end < 0) return false;
+	const block = materialText.slice(start, end);
+	const normalIndex = block.indexOf("【通常のレース素材】");
+	const exIndex = block.indexOf("【EX参照情報】");
+	return normalIndex >= 0
+		&& exIndex > normalIndex
+		&& requiredPerRaceExLabels.every((label) => block.includes(label));
 });
 
 const extractRaceNumbers = (materialText) => [...materialText.matchAll(/^レース番号:\s*(\d+)R\s*$/gmu)].map((match) => Number(match[1]));
@@ -137,7 +174,9 @@ const activeVenueAudits = (feed.venues ?? []).map((venue) => {
 		totalRaceCount: venue.races?.length ?? 0,
 		early: { ...early, materialText: undefined },
 		late: { ...late, materialText: undefined },
-		ok: auditOk(early) && auditOk(late),
+		ok: auditOk(early) && auditOk(late)
+			&& hasPerRaceStructure(early.materialText, earlyRaceNumbers)
+			&& hasPerRaceStructure(late.materialText, lateRaceNumbers),
 	};
 });
 
@@ -203,6 +242,8 @@ const checks = {
 		&& pageSource.includes('key: "7r12r"')
 		&& pageSource.includes('label: "7R〜12R"')
 		&& pageSource.includes("materialText: bulkGptMaterialSummary7R12RWithEx.materialText"),
+	sharedHeaderStructure: (pageSource.match(/"【GPT素材ヘッダー】"/gu) ?? []).length === 2
+		&& pageSource.includes("buildBoatPredictionGptCopyVenueContext"),
 	singleRaceCopySeparate: panelSource.includes("singleRaceMaterialText")
 		&& panelSource.includes("選択中Rをコピー"),
 	resultLeakGuard: read("src/lib/boatPredictionMaterial.ts").includes("この素材は予想用のため、着順・払戻・決まり手などの結果情報は含めません。"),

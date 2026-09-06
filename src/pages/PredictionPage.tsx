@@ -31,6 +31,7 @@ import {
 import {
 	BOAT_PREDICTION_EARLY_RACE_NUMBERS,
 	BOAT_PREDICTION_LATE_RACE_NUMBERS,
+	buildBoatPredictionRaceMaterialSection,
 	buildBoatPredictionRangeMaterial,
 } from "../lib/boatPredictionRangeMaterial";
 import { buildBoatPreRacePredictionSupportBlock } from "../lib/boatPreRacePredictionSupport";
@@ -1581,20 +1582,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				extraUpdatedAt: venueExtrasFeed?.generatedAt,
 			});
 			statusCounts[exhibitionStatus.level] += 1;
-				return [
-				"============================================================",
-				buildBoatPredictionGptCopyRaceContext({
-					feed: todayFeed,
-					venue: selectedVenue,
-					race,
-					venueExtra: selectedVenueExtra,
-					raceExtra,
-					venueTimeKind,
-					exContext: gptCopyExContext,
-				}),
-				buildBoatPreRacePredictionSupportBlock({ race, raceExtra, venueExtra: selectedVenueExtra }),
-				"【通常素材】",
-				applyBoatPredictionGptCopyTimeLabel(buildBoatPredictionMaterial({
+				const normalMaterial = applyBoatPredictionGptCopyTimeLabel(buildBoatPredictionMaterial({
 					venue: selectedVenue,
 					race,
 					venueExtra: selectedVenueExtra,
@@ -1602,8 +1590,22 @@ const buildPracticeFallbackRaceKey = (params: {
 					venueFeatureNote: selectedVenueFeatureNote,
 					venueFeatureInsights,
 					includeVenueContext: false,
-				}), getBoatPredictionRaceTimeLabel(venueTimeKind, race)),
-				].join("\n");
+				}), getBoatPredictionRaceTimeLabel(venueTimeKind, race));
+				const exMaterial = buildBoatPredictionGptCopyRaceContext({
+					feed: todayFeed,
+					venue: selectedVenue,
+					race,
+					venueExtra: selectedVenueExtra,
+					raceExtra,
+					venueTimeKind,
+					exContext: gptCopyExContext,
+				});
+				return buildBoatPredictionRaceMaterialSection({
+					raceNo: Number(race.raceNo),
+					normalMaterial,
+					preRaceSupport: buildBoatPreRacePredictionSupportBlock({ race, raceExtra, venueExtra: selectedVenueExtra }),
+					exMaterial,
+				});
 			},
 		});
 		const selectedRaces = rangeMaterial.availableRaces;
@@ -1619,6 +1621,7 @@ const buildPracticeFallbackRaceKey = (params: {
 		const rangeTimeKind = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
 		const rangePurposeLabel = getBoatPredictionRangePurposeLabel(rangeTimeKind, raceRangeLabel);
 		const materialText = [
+			"【GPT素材ヘッダー】",
 			buildBoatPredictionGptCopyHeader({
 				feed: todayFeed,
 				venue: selectedVenue,
@@ -1875,9 +1878,7 @@ const buildPracticeFallbackRaceKey = (params: {
 				includeVenueContext: false,
 			}), getBoatPredictionRaceTimeLabel(venueTimeKind, race));
 
-				return [
-				"============================================================",
-				buildBoatPredictionGptCopyRaceContext({
+				const exMaterial = buildBoatPredictionGptCopyRaceContext({
 					feed: todayFeed,
 					venue: selectedVenue,
 					race,
@@ -1885,11 +1886,13 @@ const buildPracticeFallbackRaceKey = (params: {
 					raceExtra,
 					venueTimeKind,
 					exContext: gptCopyExContext,
-				}),
-				buildBoatPreRacePredictionSupportBlock({ race, raceExtra, venueExtra: selectedVenueExtra }),
-				"【通常素材】",
-				currentMaterial,
-				].join("\n");
+				});
+				return buildBoatPredictionRaceMaterialSection({
+					raceNo: Number(race.raceNo),
+					normalMaterial: currentMaterial,
+					preRaceSupport: buildBoatPreRacePredictionSupportBlock({ race, raceExtra, venueExtra: selectedVenueExtra }),
+					exMaterial,
+				});
 			},
 		});
 		const selectedRaces = rangeMaterial.availableRaces;
@@ -1910,6 +1913,7 @@ const buildPracticeFallbackRaceKey = (params: {
 			venueFeatureInsights,
 		});
 		const materialText = [
+			"【GPT素材ヘッダー】",
 			buildBoatPredictionGptCopyHeader({
 				feed: todayFeed,
 				venue: selectedVenue,

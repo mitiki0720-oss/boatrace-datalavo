@@ -11,6 +11,24 @@ export type BoatPredictionRangeMaterialResult<TRace> = {
 	missingRaceNumbers: number[];
 };
 
+export function buildBoatPredictionRaceMaterialSection(params: {
+	raceNo: number;
+	normalMaterial: string;
+	preRaceSupport?: string;
+	exMaterial: string;
+}): string {
+	return [
+		"====================",
+		`${params.raceNo}R`,
+		"====================",
+		"【通常のレース素材】",
+		params.normalMaterial,
+		params.preRaceSupport,
+		"【EX参照情報】",
+		params.exMaterial,
+	].filter((line): line is string => Boolean(line)).join("\n");
+}
+
 export function buildBoatPredictionRangeMaterial<TRace extends { raceNo?: unknown }>(params: {
 	races: TRace[];
 	expectedRaceNumbers: readonly number[];
