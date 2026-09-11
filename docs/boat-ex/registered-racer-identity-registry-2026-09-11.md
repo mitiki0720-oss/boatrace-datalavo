@@ -12,7 +12,7 @@
 - collision: 0
 - aliasCandidate: 0
 - unresolved appearances excluded: 72792
-- provenance-incomplete registered appearances excluded: 10500
+- provenance-incomplete registered appearances excluded: 10716
 
 The registry uses registrationNo as its only primary key. It does not modify history and does not merge identities by name.
 
