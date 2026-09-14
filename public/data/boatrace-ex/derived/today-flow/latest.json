@@ -1,10 +1,10 @@
 {
   "schemaVersion": "boat-ex-today-flow-v1",
-  "generatedAt": "2026-09-14T19:58:45.576Z",
+  "generatedAt": "2026-09-14T23:56:07.879Z",
   "status": "available",
   "readiness": {
     "status": "insufficient-history",
-    "reason": "No result-backed races are available."
+    "reason": "Result-backed race count is below minimum display threshold."
   },
   "targetDate": "2026-09-15",
   "dateRange": {
@@ -15,9 +15,9 @@
   "summary": {
     "venueCount": 13,
     "raceCount": 156,
-    "resultAvailableRaceCount": 0,
-    "trifectaAvailableRaceCount": 0,
-    "payoutAvailableRaceCount": 0
+    "resultAvailableRaceCount": 1,
+    "trifectaAvailableRaceCount": 2,
+    "payoutAvailableRaceCount": 1
   },
   "venues": [
     {
@@ -514,9 +514,9 @@
       "venueCode": "10",
       "venueName": "三国",
       "raceCount": 12,
-      "resultAvailableRaceCount": 0,
+      "resultAvailableRaceCount": 1,
       "firstPlaceBoatCounts": {
-        "1": 0,
+        "1": 1,
         "2": 0,
         "3": 0,
         "4": 0,
@@ -526,9 +526,9 @@
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
+          "firstPlaceBoat": "1",
+          "trifecta": "1-6-4",
+          "payoutYen": 17430
         },
         {
           "raceNo": 2,
@@ -598,15 +598,14 @@
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [],
-      "insideWinCount": 0,
+      "recentFirstPlaceBoats": [
+        "1"
+      ],
+      "insideWinCount": 1,
       "outsideWinCount": 0,
-      "payoutAvailableRaceCount": 0,
-      "highPayoutRaceCount": 0,
-      "notes": [
-        "No source-backed results are available for this venue.",
-        "No source-backed trifecta payout values are available for this venue."
-      ]
+      "payoutAvailableRaceCount": 1,
+      "highPayoutRaceCount": 1,
+      "notes": []
     },
     {
       "venueCode": "11",
@@ -821,7 +820,7 @@
         {
           "raceNo": 1,
           "firstPlaceBoat": null,
-          "trifecta": null,
+          "trifecta": "1-3-5",
           "payoutYen": null
         },
         {
@@ -1309,8 +1308,5 @@
       "coverageStatus": "partial"
     }
   ],
-  "warnings": [
-    "No source-backed same-day result facts are available.",
-    "Payout data is not available; payout-based flow facts are disabled."
-  ]
+  "warnings": []
 }
