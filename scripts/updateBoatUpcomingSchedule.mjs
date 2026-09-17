@@ -266,6 +266,26 @@ function normalizeSessionName(session, fallback = "Day") {
 	return fallback;
 }
 
+function readOfficialEventSession(value) {
+	const text = compactText(value).normalize("NFKC").toLowerCase();
+	if (!text) return null;
+	if (text.includes("midnight") || text.includes("ミッドナイト")) return "Midnight";
+	if (text.includes("summer") || text.includes("サマータイム")) return "Summer";
+	if (text.includes("morning") || text.includes("モーニング")) return "Morning";
+	if (text.includes("nighter") || text.includes("night") || text.includes("ナイター")) return "Night";
+	return null;
+}
+
+export function resolveOfficialScheduleSession({ seriesName, todaySession, venueSession } = {}) {
+	const session = readOfficialEventSession(seriesName)
+		?? normalizeSessionName(todaySession, null)
+		?? normalizeSessionName(venueSession, "Day");
+	return {
+		session,
+		sessionType: sessionTypeFromSession(session),
+	};
+}
+
 async function fetchMonthlySchedule(monthKey) {
 	const url = `${OFFICIAL_ORIGIN}/owsp/sp/race/monthlyschedule?ym=${monthKey}`;
 	const response = await fetch(url, {
@@ -309,8 +329,11 @@ function parseMonthlySchedule({ monthKey, url, html }, range, todaySessionByVenu
 			}
 
 			const todaySession = activeDate === range.startDate ? todaySessionByVenue.get(venue.code) : null;
-			const session = todaySession?.session || venue.session;
-			const sessionType = todaySession?.sessionType || venue.sessionType;
+			const { session, sessionType } = resolveOfficialScheduleSession({
+				seriesName,
+				todaySession: todaySession?.session,
+				venueSession: venue.session,
+			});
 			const href = link.attr("href") || "";
 			const sourceUrl = href.startsWith("http") ? href : `${OFFICIAL_ORIGIN}${href}`;
 			const grade = readGrade($, item);

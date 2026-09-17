@@ -18,6 +18,7 @@ import {
 	normalizeBoatBetCombination,
 	normalizeBoatBetType,
 	parseBoatBets,
+	validateBoatPredictionCanonicalSelection,
 	type ParsedBoatBet,
 	type ParsedBoatBetSummary,
 } from "../lib/boatBetParser";
@@ -56,6 +57,7 @@ import {
 import {
 	applyBoatPredictionGptCopyTimeLabel,
 	buildBoatPredictionGptBettingInstruction,
+	buildBoatPredictionGptOutputFormatContract,
 	getBoatPredictionRaceTimeLabel,
 	getBoatPredictionRangeTimeKind,
 	getBoatPredictionRangePurposeLabel,
@@ -1635,6 +1637,12 @@ const buildPracticeFallbackRaceKey = (params: {
 			"",
 			buildBoatPredictionGptBettingInstruction(),
 			"",
+			buildBoatPredictionGptOutputFormatContract({
+				date: activePredictionDate,
+				venueName: selectedVenue.venueName,
+				raceNumbers: expectedRaceNumbers,
+			}),
+			"",
 			monthlyMaterial,
 			"",
 			buildBoatPredictionGptCopyVenueContext({ venue: selectedVenue, exContext: gptCopyExContext }),
@@ -1926,6 +1934,12 @@ const buildPracticeFallbackRaceKey = (params: {
 			}),
 			"",
 			buildBoatPredictionGptBettingInstruction(),
+			"",
+			buildBoatPredictionGptOutputFormatContract({
+				date: activePredictionDate,
+				venueName: selectedVenue.venueName,
+				raceNumbers: expectedRaceNumbers,
+			}),
 			"",
 			monthlyMaterial,
 			"",
@@ -2749,6 +2763,42 @@ const handleSelectRace = (raceId: string) => {
 		setIsBetAutoApplied(true);
 	}, [parsedBetSummary.totalStakeYen, savedPracticeResultRecord, isInvestmentAmountManual]);
 
+	const getCanonicalPredictionValidationIssue = (
+		text: string,
+		synced: ReturnType<typeof syncPredictionTicketsFromText>,
+	): string | null => {
+		if (!selectedVenue || !selectedRace) return null;
+		const canonical = validateBoatPredictionCanonicalSelection(text, {
+			date: activePredictionDate,
+			venueName: selectedVenue.venueName,
+			raceNo: Number(selectedRace.raceNo),
+		});
+		if (!canonical.usesCanonicalFormat) return null;
+		if (!canonical.valid) return `canonical予想の対象情報が一致しません: ${canonical.issues.join(" / ")}`;
+		if (
+			synced.betSummary.parseStatus !== "ready" ||
+			synced.betSummary.totalBets !== 10 ||
+			synced.betSummary.trifectaCount !== 10 ||
+			synced.betSummary.exactaCount !== 0 ||
+			synced.betSummary.totalStakeYen !== 1000 ||
+			(synced.invalidBetRows?.length ?? 0) > 0 ||
+			(synced.duplicateBetRows?.length ?? 0) > 0
+		) {
+			return "canonical予想は重複のない3連単10点・投資1,000円で保存してください";
+		}
+		const labelCounts = synced.betSummary.bets.reduce<Record<string, number>>((counts, bet) => {
+			counts[bet.label] = (counts[bet.label] ?? 0) + 1;
+			return counts;
+		}, {});
+		if (labelCounts["厚め"] !== 2 || labelCounts["本線"] !== 3 || labelCounts["中穴"] !== 3 || labelCounts["大穴"] !== 2) {
+			return "canonical予想の分類は厚め2・本線3・中穴3・大穴2で保存してください";
+		}
+		if (canonical.block?.purchasePoints !== 10 || canonical.block?.investmentYen !== 1000) {
+			return "canonical予想のpurchasePointsは10、investmentYenは1000で保存してください";
+		}
+		return null;
+	};
+
 	const handleSavePrediction = () => {
 		if (!selectedVenue || !selectedRace || !selectedRaceKey) {
 			return;
@@ -2762,6 +2812,11 @@ const handleSelectRace = (raceId: string) => {
 		const synced = syncPredictionTicketsFromText(predictionText, {
 			applyInvestment: !savedPracticeResultRecord && !isInvestmentAmountManual,
 		});
+		const canonicalValidationIssue = getCanonicalPredictionValidationIssue(predictionText, synced);
+		if (canonicalValidationIssue) {
+			setSavedMessage(canonicalValidationIssue);
+			return;
+		}
 		const savedAt = new Date().toISOString();
 
 		const record: BoatPredictionRecord = {
@@ -2828,6 +2883,11 @@ const handleSelectRace = (raceId: string) => {
 			const synced = syncPredictionTicketsFromText(predictionText, {
 				applyInvestment: !savedPracticeResultRecord && !isInvestmentAmountManual,
 			});
+			const canonicalValidationIssue = getCanonicalPredictionValidationIssue(predictionText, synced);
+			if (canonicalValidationIssue) {
+				setSavedMessage(canonicalValidationIssue);
+				return;
+			}
 			const savedAt = new Date().toISOString();
 			const predictionRecord: BoatPredictionRecord = {
 				raceKey: selectedRaceKey,

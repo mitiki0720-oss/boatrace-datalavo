@@ -53,6 +53,12 @@ const omura = fixtureVenue("大村", "ナイター", "night", [
 	fixtureRace(7, "20:25"),
 	fixtureRace(12, "20:50"),
 ]);
+const omuraMidnight = fixtureVenue("大村", "ミッドナイトボートレースｉｎ大村 ９", "day", [
+	fixtureRace(1, "17:41"),
+	fixtureRace(6, "20:25"),
+	fixtureRace(7, "20:55"),
+	fixtureRace(12, "22:41"),
+]);
 
 const venueKind = (fixture) => getBoatPredictionVenueTimeKind(fixture, fixture.races);
 const rangeKind = (fixture, raceNumbers) =>
@@ -119,6 +125,11 @@ const behaviorChecks = {
 		rangeKind(omura, firstHalf) === "night" &&
 		rangeKind(omura, latterHalf) === "night" &&
 		getBoatPredictionRaceTimeLabel(venueKind(omura), omura.races.at(-1)) === "night",
+	omuraMidnightEvent:
+		venueKind(omuraMidnight) === "midnight" &&
+		rangeKind(omuraMidnight, firstHalf) === "midnight" &&
+		rangeKind(omuraMidnight, latterHalf) === "midnight" &&
+		omuraMidnight.races.every((race) => getBoatPredictionRaceTimeLabel(venueKind(omuraMidnight), race) === "midnight"),
 	copyPerRaceLabel: page.includes("getBoatPredictionRaceTimeLabel(venueTimeKind, race)"),
 	japaneseLabels:
 		formatBoatPredictionSessionLabel("morning") === "モーニング" &&

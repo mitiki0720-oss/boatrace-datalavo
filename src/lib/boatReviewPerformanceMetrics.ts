@@ -1,5 +1,5 @@
 import { resolveBoatPredictionOutcome, type BoatPredictionOutcomeStatus } from "./boatResultSettlement";
-import { parseBoatBets, type ParsedBoatBet } from "./boatBetParser";
+import { extractBoatPredictionArchiveSections, parseBoatBets, type ParsedBoatBet } from "./boatBetParser";
 import type { BoatReviewRaceEntry, BoatReviewVenueGroup } from "./boatReviewSummaryBuilder";
 
 export type BoatReviewRaceStatus = BoatPredictionOutcomeStatus | "unpredicted";
@@ -57,12 +57,7 @@ const readFiniteNumber = (value: unknown): number | null => {
 };
 
 const parseRaceSections = (text: string | null | undefined): ArchiveSection[] => {
-	if (!text?.trim()) return [];
-	const matches = Array.from(text.matchAll(/^■\s+.+?\s+([1-9]|1[0-2])R\s*$/gm));
-	return matches.map((match, index) => ({
-		raceNo: Number(match[1]),
-		text: text.slice(match.index ?? 0, matches[index + 1]?.index ?? text.length),
-	}));
+	return extractBoatPredictionArchiveSections(text).sections;
 };
 
 const readLine = (section: string, label: string): string | null => {

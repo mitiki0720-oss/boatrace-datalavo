@@ -29,7 +29,7 @@ async function importTsModules(relativePaths, entryPath) {
 	return import(`file://${transpileTsModule(entryPath).replace(/\\/g, "/")}`);
 }
 
-const { parseBoatBets } = await importTsModules([
+const { BOAT_BET_PARSER_VERSION, parseBoatBets } = await importTsModules([
 	path.join("src", "lib", "boatBetParser.ts"),
 ], path.join("src", "lib", "boatBetParser.ts"));
 const { resolveBoatPredictionOutcome } = await importTsModules([
@@ -231,7 +231,7 @@ const repaired = repairBoatPredictionParseIfNeeded({
 	savedAt: "2026-06-04T00:00:00.000Z",
 });
 assert.equal(repaired.parsedBets?.length, 1, "old saved data should repair parsed bets from raw text");
-assert.equal(repaired.parserVersion, "2026-06-05.bet-section-selection", "repair should stamp parser version");
+assert.equal(repaired.parserVersion, BOAT_BET_PARSER_VERSION, "repair should stamp parser version");
 assert.equal(repaired.rawPredictionText, repaired.predictionText, "repair should preserve raw prediction text");
 
 const buildJapaneseBetSection = (tickets, heading = "3\u9023\u5358") => [

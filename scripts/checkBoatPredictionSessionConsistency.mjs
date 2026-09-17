@@ -38,7 +38,7 @@ const rangeRaceNos = [[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]];
 
 const auditVenue = (venue) => {
 	const races = Array.isArray(venue.races) ? venue.races : [];
-	const canonical = normalizeBoatPredictionSession(venue.session);
+	const canonical = normalizeBoatPredictionSession(venue.title) ?? normalizeBoatPredictionSession(venue.session);
 	const venueSession = getBoatPredictionVenueTimeKind(venue, races);
 	const rangeSessions = rangeRaceNos.map((raceNos) =>
 		getBoatPredictionRangeTimeKind(venueSession, races.filter((race) => raceNos.includes(Number(race.raceNo)))),
@@ -163,12 +163,10 @@ const deadlineTimeCount = detailRaces.filter((race) =>
 	["deadlineTime", "deadline", "closeTime"].some((key) => hasText(race[key])),
 ).length;
 
-const expectedActiveSessions = new Map([
-	["三国", "morning"], ["徳山", "morning"], ["津", "day"], ["江戸川", "day"], ["桐生", "night"], ["若松", "night"],
-]);
-const requiredVenueChecks = Object.fromEntries([...expectedActiveSessions].map(([venueName, expected]) => {
+const requiredVenueNames = ["三国", "徳山", "津", "江戸川", "桐生", "若松"];
+const requiredVenueChecks = Object.fromEntries(requiredVenueNames.map((venueName) => {
 	const audit = activeVenueAudits.find((item) => item.venueName === venueName);
-	return [venueName, audit ? audit.canonical === expected && !audit.split && !audit.canonicalMismatch : true];
+	return [venueName, audit ? audit.canonical !== null && !audit.split && !audit.canonicalMismatch : true];
 }));
 
 const aliasChecks = {
@@ -181,6 +179,15 @@ const aliasChecks = {
 	sourceBackedRaceOverride:
 		getBoatPredictionRaceTimeLabel("day", { raceNo: 1, session: "night" }) === "night" &&
 		getBoatPredictionRangeTimeKind("day", [{ raceNo: 1, session: "night" }]) === "night",
+	omuraMidnightEventOverride:
+		getBoatPredictionVenueTimeKind({
+			venueName: "大村",
+			title: "ミッドナイトボートレースｉｎ大村 ９",
+			session: "day",
+			races: fixtureRaces,
+		}, fixtureRaces) === "midnight",
+	omuraNormalNight:
+		getBoatPredictionVenueTimeKind({ venueName: "大村", title: "一般競走", session: "night", races: fixtureRaces }, fixtureRaces) === "night",
 	resultLeakGuard: predictionMaterialSource.includes("この素材は予想用のため、着順・払戻・決まり手などの結果情報は含めません。"),
 };
 

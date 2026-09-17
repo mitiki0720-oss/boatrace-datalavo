@@ -78,7 +78,7 @@ const canonicalFixtureResults = allVenueNames.map((venueName) => {
 const activeVenueResults = (today.venues ?? []).map((venue) => {
 	const races = Array.isArray(venue.races) ? venue.races : [];
 	const venueTimeKind = getBoatPredictionVenueTimeKind(venue, races);
-	const canonicalSession = normalizeBoatPredictionSession(venue.session);
+	const canonicalSession = normalizeBoatPredictionSession(venue.title) ?? normalizeBoatPredictionSession(venue.session);
 	const rangeResults = Object.entries(rangeNumbers).map(([label, numbers]) => {
 		const selectedRaces = races.filter((race) => numbers.includes(Number(race.raceNo)));
 		const actual = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);

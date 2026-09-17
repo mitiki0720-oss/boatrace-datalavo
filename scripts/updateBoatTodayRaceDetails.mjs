@@ -48,7 +48,7 @@ const WIND_DIRECTION_LABELS = {
 
 const RACE_NUMBERS = Array.from({ length: 12 }, (_, index) => index + 1);
 const UPDATE_MODES = new Set(["initial", "active", "results", "final"]);
-const TARGET_SESSIONS = new Set(["auto", "morning", "day", "night"]);
+const TARGET_SESSIONS = new Set(["auto", "morning", "summer", "day", "night", "midnight"]);
 const FETCH_SECTION_KEYS = ["raceTitles", "resultList", "detailedResults", "odds", "beforeInfo", "venueWeather"];
 
 function createDefaultFetchSections() {
@@ -112,7 +112,7 @@ function normalizeMode(value) {
 	return UPDATE_MODES.has(value) ? value : "initial";
 }
 
-function normalizeTargetSession(value) {
+export function normalizeTargetSession(value) {
 	return TARGET_SESSIONS.has(value) ? value : "auto";
 }
 
@@ -822,6 +822,22 @@ function classifySession(className) {
 	return "day";
 }
 
+function readOfficialEventSession(value) {
+	const text = compactText(value).normalize("NFKC").toLowerCase();
+	if (!text) return null;
+	if (text.includes("midnight") || text.includes("ミッドナイト")) return "midnight";
+	if (text.includes("summer") || text.includes("サマータイム")) return "summer";
+	if (text.includes("morning") || text.includes("モーニング")) return "morning";
+	if (text.includes("nighter") || text.includes("night") || text.includes("ナイター")) return "night";
+	return null;
+}
+
+export function resolveOfficialVenueSession({ title, className, explicitSession } = {}) {
+	return readOfficialEventSession(title)
+		?? readOfficialEventSession(explicitSession)
+		?? (className !== undefined ? classifySession(className) : compactText(explicitSession).toLowerCase() || "unknown");
+}
+
 function classifyGrade(className) {
 	const classes = compactText(className);
 
@@ -1132,7 +1148,7 @@ function normalizeVenueData(rawVenue, generatedAt, source) {
 	venueName: rawVenue?.venueName ?? rawVenue?.name ?? "不明会場",
 	title: rawVenue?.title ?? "",
 	date: venueDate,
-	session: rawVenue?.session ?? "unknown",
+	session: resolveOfficialVenueSession({ title: rawVenue?.title, explicitSession: rawVenue?.session }),
 	status: rawVenue?.status ?? "scheduled",
 	dayText: rawVenue?.dayText ?? "",
 	statusText: rawVenue?.statusText ?? "",
@@ -1205,7 +1221,7 @@ function parseIndexVenueRows(html, { date, dateKey, fallbackVenueByCode }) {
 			venueName: venueName || fallbackVenue?.venueName || "不明会場",
 			title: title || fallbackVenue?.title || "",
 			date,
-			session: classifySession(sessionCell.attr("class")),
+			session: resolveOfficialVenueSession({ title, className: sessionCell.attr("class") }),
 			status: classifyVenueStatus(statusCell.text()),
 			source: "official:owpc-html",
 			grade: classifyGrade(gradeCell.attr("class")),
@@ -3050,7 +3066,10 @@ const detailedHtml = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.venueResult(venu
 		venueName: venue.venueName ?? fallbackVenue?.venueName ?? "不明会場",
 		title: venue.title ?? fallbackVenue?.title ?? "",
 		date: timestamps.date,
-		session: venue.session ?? fallbackVenue?.session ?? "unknown",
+		session: resolveOfficialVenueSession({
+			title: venue.title ?? fallbackVenue?.title,
+			explicitSession: venue.session ?? fallbackVenue?.session,
+		}),
 		status: venue.status ?? fallbackVenue?.status ?? "scheduled",
 		dayText: venue.dayText ?? fallbackVenue?.dayText ?? "",
 		statusText: venue.statusText ?? fallbackVenue?.statusText ?? "",

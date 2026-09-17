@@ -92,10 +92,14 @@ for (const testCase of normalizationCases) {
 	}
 }
 
-for (const raceNo of [4, 7]) {
-	const mikuni = sourceRaces.find((item) => item.label === `三国 ${raceNo}R`);
-	if (!mikuni || mikuni.sourceCount !== 6) {
-		errors.push({ category: "mikuni-regression", raceNo, reason: "Mikuni regression race is not complete in the official source." });
+
+const mikuniRaces = sourceRaces.filter((item) => item.label.startsWith("三国 "));
+if (mikuniRaces.length > 0) {
+	for (const raceNo of [4, 7]) {
+		const mikuni = sourceRaces.find((item) => item.label === `三国 ${raceNo}R`);
+		if (!mikuni || mikuni.sourceCount !== 6) {
+			errors.push({ category: "mikuni-regression", raceNo, reason: "Mikuni regression race is not complete in the official source." });
+		}
 	}
 }
 
@@ -107,6 +111,7 @@ const result = {
 	sourceCompleteRaceCount,
 	materialCompleteRaceCount,
 	mikuni: sourceRaces.filter((item) => item.label === "三国 4R" || item.label === "三国 7R"),
+	mikuniRegressionStatus: mikuniRaces.length > 0 ? "checked" : "not-active-on-target-date",
 	errors,
 };
 console.log(JSON.stringify(result, null, 2));

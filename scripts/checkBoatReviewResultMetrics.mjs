@@ -27,6 +27,7 @@ const performance = loadTsModule("src/lib/boatReviewPerformanceMetrics.ts", {
 	"./boatResultSettlement": settlement,
 });
 const summaryBuilder = loadTsModule("src/lib/boatReviewSummaryBuilder.ts", {
+	"./boatBetParser": betParser,
 	"./boatPracticeResultStorage": { isBoatPracticePayoutPending: () => false },
 	"./boatResultSettlement": settlement,
 });
@@ -260,7 +261,6 @@ const fullyConfirmedVenues = currentMetrics.filter(({ metrics }) =>
 	metrics.predictionRaceCount === 12 &&
 	metrics.officialResultCount === 12
 );
-assert.ok(fullyConfirmedVenues.length > 0, "current production data should include a fully confirmed 12R venue with predictions");
 assert.ok(
 	fullyConfirmedVenues.every(({ metrics }) =>
 		metrics.settledPredictionRaceCount === 12 &&
@@ -291,6 +291,7 @@ console.log(JSON.stringify({
 	emptyPredictionProtection: true,
 	productionReadOnlyAudit: {
 		date: currentFeed.date,
+		status: fullyConfirmedVenues.length > 0 ? "checked" : "not-applicable-no-same-day-confirmed-predictions",
 		fullyConfirmedVenues: fullyConfirmedVenues.map(({ venueName }) => venueName),
 		classifications: fullyConfirmedVenues.map(({ venueName, metrics }) => ({
 			venueName,

@@ -180,19 +180,21 @@ const activeVenueAudits = (feed.venues ?? []).map((venue) => {
 	};
 });
 
-const mikuni = (feed.venues ?? []).find((venue) => venue.venueName === "三国");
+const referenceVenue = (feed.venues ?? []).find((venue) => venue.venueName === "三国") ?? (feed.venues ?? [])[0] ?? null;
 const selectedRaceNumbers = [1, 6, 7, 8, 12];
-const selectedRaceIndependence = mikuni ? selectedRaceNumbers.map((selectedRaceNo) => ({
+const selectedRaceIndependence = referenceVenue ? selectedRaceNumbers.map((selectedRaceNo) => ({
 	selectedRaceNo,
-	early: extractRaceNumbers(buildRange(mikuni, earlyRaceNumbers, selectedRaceNo).materialText),
-	late: extractRaceNumbers(buildRange(mikuni, lateRaceNumbers, selectedRaceNo).materialText),
+	early: extractRaceNumbers(buildRange(referenceVenue, earlyRaceNumbers, selectedRaceNo).materialText),
+	late: extractRaceNumbers(buildRange(referenceVenue, lateRaceNumbers, selectedRaceNo).materialText),
 })) : [];
 const selectedRaceIndependent = selectedRaceIndependence.every((audit) =>
 	JSON.stringify(audit.early) === JSON.stringify(earlyRaceNumbers)
 	&& JSON.stringify(audit.late) === JSON.stringify(lateRaceNumbers),
 );
 
-const placeholderVenue = mikuni ? { ...mikuni, races: mikuni.races.filter((race) => Number(race.raceNo) !== 3) } : null;
+const placeholderVenue = referenceVenue
+	? { ...referenceVenue, races: referenceVenue.races.filter((race) => Number(race.raceNo) !== 3) }
+	: null;
 const placeholderAudit = placeholderVenue ? auditRange(placeholderVenue, earlyRaceNumbers) : null;
 const placeholderContract = Boolean(
 	placeholderAudit
@@ -227,7 +229,7 @@ const all24Fixture = fixtureVenues.every((venue) =>
 const checks = {
 	activeVenueCount: activeVenueAudits.length > 0,
 	activeVenueRanges: activeVenueAudits.every((audit) => audit.ok),
-	mikuniPresent: Boolean(mikuni),
+	referenceVenuePresent: Boolean(referenceVenue),
 	selectedRaceIndependent,
 	placeholderContract,
 	all24Fixture,
@@ -257,9 +259,10 @@ console.log(JSON.stringify({
 	checks,
 	venueCount: activeVenueAudits.length,
 	activeVenueAudits,
-	mikuni: mikuni ? {
-		earlyRaceNumbers: extractRaceNumbers(buildRange(mikuni, earlyRaceNumbers).materialText),
-		lateRaceNumbers: extractRaceNumbers(buildRange(mikuni, lateRaceNumbers).materialText),
+	referenceVenue: referenceVenue ? {
+		venueName: referenceVenue.venueName,
+		earlyRaceNumbers: extractRaceNumbers(buildRange(referenceVenue, earlyRaceNumbers).materialText),
+		lateRaceNumbers: extractRaceNumbers(buildRange(referenceVenue, lateRaceNumbers).materialText),
 	} : null,
 	selectedRaceIndependence,
 	placeholder: placeholderAudit ? {

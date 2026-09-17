@@ -42,6 +42,16 @@ new Function("exports", "module", "require", compiled)(module.exports, module, (
   if (specifier === "./boatResultSettlement") return { resolveBoatPredictionOutcome };
   if (specifier === "./boatBetParser") return {
     parseBoatBets: () => ({ bets: [], totalStakeYen: 0, parseStatus: "missing-section", warnings: [] }),
+    extractBoatPredictionArchiveSections: (text) => {
+      const matches = Array.from(String(text ?? "").matchAll(/^■\s+.+?\s+([1-9]|1[0-2])R\s*$/gm));
+      return {
+        sections: matches.map((match, index) => ({
+          raceNo: Number(match[1]),
+          text: String(text).slice(match.index ?? 0, matches[index + 1]?.index ?? String(text).length),
+        })),
+        warnings: [],
+      };
+    },
   };
   throw new Error(`Unexpected checker dependency: ${specifier}`);
 });

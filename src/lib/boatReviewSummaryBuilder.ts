@@ -1,4 +1,5 @@
 import { isBoatPracticePayoutPending, type BoatPracticeResultRecord } from "./boatPracticeResultStorage";
+import { extractBoatPredictionArchiveSections } from "./boatBetParser";
 import { resolveBoatPredictionOutcome, type BoatPredictionOutcomeStatus } from "./boatResultSettlement";
 import type { BoatVenueExtraRace, BoatVenueExtraVenue } from "./boatVenueExtrasFeed";
 import type {
@@ -864,16 +865,13 @@ export function getBoatReviewVenueMetrics(group: BoatReviewVenueGroup): BoatRevi
 }
 
 function parseArchivePredictionCoverage(text: string): BoatReviewPredictionCoverage {
-	const sectionMatches = Array.from(text.matchAll(/^■\s+.+?\s+([1-9]|1[0-2])R\s*$/gm));
-	if (sectionMatches.length === 0) {
+	const { sections } = extractBoatPredictionArchiveSections(text);
+	if (sections.length === 0) {
 		return { status: "unknown", savedCount: null, totalCount: 12, missingRaceNos: [] };
 	}
 	const saved = new Set<number>();
-	for (const [index, match] of sectionMatches.entries()) {
-		const start = match.index ?? 0;
-		const end = sectionMatches[index + 1]?.index ?? text.length;
-		const section = text.slice(start, end);
-		if (!/(?:^|\n)\s*予想未保存\s*(?:\n|$)/.test(section)) saved.add(Number(match[1]));
+	for (const section of sections) {
+		if (!/(?:^|\n)\s*予想未保存\s*(?:\n|$)/.test(section.text)) saved.add(section.raceNo);
 	}
 	return {
 		status: "known",
