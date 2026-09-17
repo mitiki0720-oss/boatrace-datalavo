@@ -4,7 +4,7 @@
 
 - period: 2026-05-24 to 2026-09-18
 - source appearances: 2952
-- registry identities: 1370
+- registry identities: 1413
 - first/last seen: 2026-05-24 / 2026-09-18
 
 ## Safety
@@ -12,7 +12,7 @@
 - collision: 0
 - aliasCandidate: 0
 - unresolved appearances excluded: 72792
-- provenance-incomplete registered appearances excluded: 17232
+- provenance-incomplete registered appearances excluded: 17274
 
 The registry uses registrationNo as its only primary key. It does not modify history and does not merge identities by name.
 
