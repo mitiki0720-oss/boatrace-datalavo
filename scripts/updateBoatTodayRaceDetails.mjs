@@ -810,6 +810,13 @@ function classifyVenueStatus(statusText) {
 
 function classifySession(className) {
 	const classes = compactText(className);
+	if (classes.includes("is-midnight")) {
+		return "midnight";
+	}
+
+	if (classes.includes("is-summer")) {
+		return "summer";
+	}
 
 	if (classes.includes("is-nighter")) {
 		return "night";
@@ -833,9 +840,12 @@ function readOfficialEventSession(value) {
 }
 
 export function resolveOfficialVenueSession({ title, className, explicitSession } = {}) {
+	const indexSession = className !== undefined ? classifySession(className) : null;
 	return readOfficialEventSession(title)
+		?? (indexSession !== "day" ? indexSession : null)
 		?? readOfficialEventSession(explicitSession)
-		?? (className !== undefined ? classifySession(className) : compactText(explicitSession).toLowerCase() || "unknown");
+		?? indexSession
+		?? (compactText(explicitSession).toLowerCase() || "unknown");
 }
 
 function classifyGrade(className) {

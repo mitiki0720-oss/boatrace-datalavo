@@ -6,6 +6,12 @@ type SessionSourceRecord = {
 	session?: unknown;
 	sessionType?: unknown;
 	sessionLabel?: unknown;
+	source?: unknown;
+};
+
+export type BoatPredictionVenueSessionResolution = {
+	session: BoatPredictionVenueTimeKind;
+	source: "event-title" | "venue-session" | "race-session" | "official-race-index:ordinary-day" | "conflicting-race-session" | "unresolved";
 };
 
 const normalizeSessionText = (value: unknown): string =>
@@ -27,6 +33,9 @@ const readExplicitSession = (value: SessionSourceRecord): BoatPredictionVenueTim
 	normalizeBoatPredictionSession(value.sessionType) ??
 	normalizeBoatPredictionSession(value.sessionLabel);
 
+const hasOfficialRaceIndexSource = (value: SessionSourceRecord): boolean =>
+	/official:owpc-html/iu.test(String(value.source ?? ""));
+
 export const formatBoatPredictionSessionLabel = (session: BoatPredictionVenueTimeKind | string | undefined): string => {
 	const normalized = normalizeBoatPredictionSession(session) ?? "unknown";
 	return {
@@ -39,20 +48,35 @@ export const formatBoatPredictionSessionLabel = (session: BoatPredictionVenueTim
 	}[normalized];
 };
 
-export const getBoatPredictionVenueTimeKind = (venue: BoatTodayVenueItem, races: BoatRaceItem[]): BoatPredictionVenueTimeKind => {
+export const resolveBoatPredictionVenueSession = (
+	venue: BoatTodayVenueItem,
+	races: BoatRaceItem[],
+): BoatPredictionVenueSessionResolution => {
 	const titleSession = normalizeBoatPredictionSession(venue.title);
-	if (titleSession) return titleSession;
+	if (titleSession) return { session: titleSession, source: "event-title" };
 
 	const venueSession = readExplicitSession(venue as SessionSourceRecord);
-	if (venueSession) return venueSession;
+	if (venueSession) return { session: venueSession, source: "venue-session" };
 
 	const raceSessions = new Set(
 		races
 			.map((race) => readExplicitSession(race as SessionSourceRecord))
 			.filter((session): session is BoatPredictionVenueTimeKind => session !== null),
 	);
-	return raceSessions.size === 1 ? [...raceSessions][0] : "unknown";
+	if (raceSessions.size === 1) return { session: [...raceSessions][0], source: "race-session" };
+	if (raceSessions.size > 1) return { session: "unknown", source: "conflicting-race-session" };
+
+	// The official race index only marks special time bands. A row sourced from
+	// that index without a special marker is the official ordinary daytime form.
+	if (hasOfficialRaceIndexSource(venue as SessionSourceRecord)) {
+		return { session: "day", source: "official-race-index:ordinary-day" };
+	}
+
+	return { session: "unknown", source: "unresolved" };
 };
+
+export const getBoatPredictionVenueTimeKind = (venue: BoatTodayVenueItem, races: BoatRaceItem[]): BoatPredictionVenueTimeKind =>
+	resolveBoatPredictionVenueSession(venue, races).session;
 
 export const getBoatPredictionRangeTimeKind = (
 	venueTimeKind: BoatPredictionVenueTimeKind,

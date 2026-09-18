@@ -14,7 +14,7 @@ const {
 	getBoatPredictionVenueTimeKind,
 	buildBoatPredictionGptBettingInstruction,
 	formatBoatPredictionSessionLabel,
-	normalizeBoatPredictionSession,
+	resolveBoatPredictionVenueSession,
 } = copyModule.exports;
 
 const allVenueNames = [
@@ -77,8 +77,9 @@ const canonicalFixtureResults = allVenueNames.map((venueName) => {
 
 const activeVenueResults = (today.venues ?? []).map((venue) => {
 	const races = Array.isArray(venue.races) ? venue.races : [];
-	const venueTimeKind = getBoatPredictionVenueTimeKind(venue, races);
-	const canonicalSession = normalizeBoatPredictionSession(venue.title) ?? normalizeBoatPredictionSession(venue.session);
+	const resolution = resolveBoatPredictionVenueSession(venue, races);
+	const venueTimeKind = resolution.session;
+	const canonicalSession = resolution.session === "unknown" ? null : resolution.session;
 	const rangeResults = Object.entries(rangeNumbers).map(([label, numbers]) => {
 		const selectedRaces = races.filter((race) => numbers.includes(Number(race.raceNo)));
 		const actual = getBoatPredictionRangeTimeKind(venueTimeKind, selectedRaces);
@@ -91,6 +92,7 @@ const activeVenueResults = (today.venues ?? []).map((venue) => {
 	return {
 		venueName: venue.venueName,
 		canonicalSession,
+		sessionSource: resolution.source,
 		venueTimeKind,
 		rangeResults,
 		raceFailures,

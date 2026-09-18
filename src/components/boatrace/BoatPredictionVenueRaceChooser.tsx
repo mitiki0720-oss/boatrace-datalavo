@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { BoatRaceItem, BoatTodayVenueItem } from "../../lib/boatraceTypes";
 import { formatBoatPredictionSessionLabel, getBoatPredictionVenueTimeKind } from "../../lib/boatPredictionGptCopy";
+import { compareBoatPredictionVenueCards, getBoatPredictionSessionTone } from "../../lib/boatPredictionVenueCardPresentation";
 import { resolveBoatVenueDayLabel } from "../../lib/boatVenueDayLabel";
 import { boatTheme } from "../../lib/theme";
 
@@ -18,16 +19,6 @@ type BoatPredictionVenueRaceChooserProps = {
 	raceExhibitionStatusMap?: Record<string, RaceExhibitionStatus>;
 	onSelectVenue: (venueId: string) => void;
 	onSelectRace: (raceId: string) => void;
-};
-
-type SessionTone = {
-	background: string;
-	border: string;
-	shadow: string;
-	badgeBackground: string;
-	badgeColor: string;
-	badgeBorder: string;
-	topLine: string;
 };
 
 type BoatVenueCancelSummary = {
@@ -331,91 +322,6 @@ const getRaceDisplayTimeMinutes = (race: BoatRaceItem): number | null => {
 const resolveBoatVenueSession = (venue: BoatTodayVenueItem): string =>
 	getBoatPredictionVenueTimeKind(venue, getVenueRaces(venue));
 
-const getSessionTone = (session?: string): SessionTone => {
-	if (session === "morning") {
-		return {
-			background: "linear-gradient(180deg, rgba(232, 249, 255, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%)",
-			border: "rgba(93, 199, 232, 0.42)",
-			shadow: "0 12px 26px rgba(93, 199, 232, 0.08)",
-			badgeBackground: "rgba(224, 247, 255, 0.96)",
-			badgeColor: "#147d9f",
-			badgeBorder: "rgba(93, 199, 232, 0.34)",
-			topLine: "linear-gradient(90deg, #5dc7e8 0%, #a7e9ff 100%)",
-		};
-	}
-
-	if (session === "day") {
-		return {
-			background: "linear-gradient(180deg, rgba(236, 253, 245, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%)",
-			border: "rgba(20, 184, 166, 0.36)",
-			shadow: "0 12px 26px rgba(20, 184, 166, 0.08)",
-			badgeBackground: "rgba(220, 252, 231, 0.96)",
-			badgeColor: "#047857",
-			badgeBorder: "rgba(20, 184, 166, 0.3)",
-			topLine: "linear-gradient(90deg, #20c997 0%, #a7f3d0 100%)",
-		};
-	}
-
-	if (session === "summer") {
-		return {
-			background: "linear-gradient(180deg, rgba(255, 249, 230, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%)",
-			border: "rgba(234, 179, 8, 0.38)",
-			shadow: "0 12px 26px rgba(202, 138, 4, 0.08)",
-			badgeBackground: "rgba(254, 249, 195, 0.96)",
-			badgeColor: "#854d0e",
-			badgeBorder: "rgba(234, 179, 8, 0.3)",
-			topLine: "linear-gradient(90deg, #eab308 0%, #fde68a 100%)",
-		};
-	}
-
-	if (session === "night") {
-		return {
-			background: "linear-gradient(180deg, rgba(233, 242, 255, 0.98) 0%, rgba(245, 249, 255, 0.98) 100%)",
-			border: "rgba(36, 74, 112, 0.42)",
-			shadow: "0 12px 26px rgba(36, 74, 112, 0.1)",
-			badgeBackground: "rgba(224, 234, 255, 0.96)",
-			badgeColor: "#213a67",
-			badgeBorder: "rgba(36, 74, 112, 0.3)",
-			topLine: "linear-gradient(90deg, #24365f 0%, #7aa7ff 100%)",
-		};
-	}
-
-	if (session === "midnight") {
-		return {
-			background: "linear-gradient(180deg, rgba(238, 242, 255, 0.98) 0%, rgba(248, 245, 255, 0.98) 100%)",
-			border: "rgba(67, 56, 202, 0.42)",
-			shadow: "0 12px 28px rgba(49, 46, 129, 0.12)",
-			badgeBackground: "rgba(49, 46, 129, 0.96)",
-			badgeColor: "#ffffff",
-			badgeBorder: "rgba(99, 102, 241, 0.38)",
-			topLine: "linear-gradient(90deg, #111827 0%, #4c1d95 54%, #8b5cf6 100%)",
-		};
-	}
-
-	return {
-		background: "rgba(255, 255, 255, 0.96)",
-		border: "rgba(176, 198, 214, 0.46)",
-		shadow: "0 12px 26px rgba(17, 64, 92, 0.055)",
-		badgeBackground: "rgba(236, 246, 251, 0.96)",
-		badgeColor: boatTheme.colors.aquaDeep,
-		badgeBorder: "rgba(176, 198, 214, 0.3)",
-		topLine: "linear-gradient(90deg, rgba(93, 199, 232, 0.8) 0%, rgba(20, 184, 166, 0.65) 100%)",
-	};
-};
-
-const normalizeSession = (session?: string) => String(session ?? "").trim().toLowerCase();
-
-const getSessionSortOrder = (session?: string) => {
-	const normalizedSession = normalizeSession(session);
-
-	if (normalizedSession === "morning" || normalizedSession === "モーニング") return 0;
-	if (normalizedSession === "summer" || normalizedSession === "サマータイム") return 1;
-	if (normalizedSession === "day" || normalizedSession === "デイ") return 2;
-	if (normalizedSession === "night" || normalizedSession === "ナイター") return 3;
-	if (normalizedSession === "midnight" || normalizedSession === "ミッドナイト") return 4;
-	return 9;
-};
-
 const getRaceKey = (venueId: string, race: BoatRaceItem) => race.raceId ?? `${venueId}-${race.raceNo}`;
 
 const toArray = <T,>(value: unknown): T[] => {
@@ -434,7 +340,12 @@ const getVenueRaces = (venue: BoatTodayVenueItem | undefined): BoatRaceItem[] =>
 	toArray<BoatRaceItem>((venue as { races?: unknown } | undefined)?.races);
 
 const getVenueFirstRaceDisplayTimeMinutes = (venue: BoatTodayVenueItem): number | null => {
-	const raceTimes = getVenueRaces(venue)
+	const races = getVenueRaces(venue);
+	const firstRace = races.find((race) => Number(race.raceNo) === 1);
+	const firstRaceMinutes = firstRace ? getRaceDisplayTimeMinutes(firstRace) : null;
+	if (firstRaceMinutes !== null) return firstRaceMinutes;
+
+	const raceTimes = races
 		.map(getRaceDisplayTimeMinutes)
 		.filter((minutes): minutes is number => minutes !== null);
 
@@ -548,22 +459,9 @@ export function BoatPredictionVenueRaceChooser({
 			index,
 			session: resolveBoatVenueSession(venue),
 			firstRaceMinutes: getVenueFirstRaceDisplayTimeMinutes(venue),
+			venueName: venue.venueName,
 		}))
-		.sort((a, b) => {
-			const sessionDiff = getSessionSortOrder(a.session) - getSessionSortOrder(b.session);
-			if (sessionDiff !== 0) return sessionDiff;
-
-			if (a.firstRaceMinutes !== null && b.firstRaceMinutes !== null) {
-				const timeDiff = a.firstRaceMinutes - b.firstRaceMinutes;
-				if (timeDiff !== 0) return timeDiff;
-			} else if (a.firstRaceMinutes !== null) {
-				return -1;
-			} else if (b.firstRaceMinutes !== null) {
-				return 1;
-			}
-
-			return a.index - b.index;
-		})
+		.sort(compareBoatPredictionVenueCards)
 		.map(({ venue }) => venue);
 	const races = getVenueRaces(selectedVenue);
 	const venueWeather = getVenueWeather(selectedVenue);
@@ -631,7 +529,7 @@ export function BoatPredictionVenueRaceChooser({
 					{sortedVenues.map((venue) => {
 						const isSelected = venue.id === selectedVenue.id;
 						const displaySession = resolveBoatVenueSession(venue);
-						const sessionTone = getSessionTone(displaySession);
+						const sessionTone = getBoatPredictionSessionTone(displaySession);
 						const racesForVenue = getVenueRaces(venue);
 						const weather = getVenueWeather(venue);
 						const statusLabels = getVenueStatusLabels(racesForVenue);

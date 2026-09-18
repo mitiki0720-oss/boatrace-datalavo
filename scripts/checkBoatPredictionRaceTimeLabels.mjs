@@ -13,13 +13,20 @@ const compiled = ts.transpileModule(source, {
 }).outputText;
 const module = { exports: {} };
 const copyModule = { exports: {} };
+const presentationModule = { exports: {} };
 new Function("exports", "module", ts.transpileModule(fs.readFileSync("src/lib/boatPredictionGptCopy.ts", "utf8"), {
 	compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
 }).outputText)(copyModule.exports, copyModule);
+new Function("exports", "module", "require", ts.transpileModule(fs.readFileSync("src/lib/boatPredictionVenueCardPresentation.ts", "utf8"), {
+	compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+}).outputText)(presentationModule.exports, presentationModule, () => {
+	throw new Error("presentation helper must not have runtime dependencies");
+});
 const styleValues = new Proxy({}, { get: () => "" });
 new Function("exports", "module", "require", compiled)(module.exports, module, (id) => {
 	if (id === "react/jsx-runtime") return { jsx: () => null, jsxs: () => null };
 	if (id === "../../lib/boatPredictionGptCopy") return copyModule.exports;
+	if (id === "../../lib/boatPredictionVenueCardPresentation") return presentationModule.exports;
 	if (id === "../../lib/boatVenueDayLabel") return { resolveBoatVenueDayLabel: () => "" };
 	if (id === "../../lib/theme") return { boatTheme: { colors: styleValues, shadow: styleValues } };
 	throw new Error(`Unexpected dependency: ${id}`);

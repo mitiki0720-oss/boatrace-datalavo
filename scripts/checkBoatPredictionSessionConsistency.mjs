@@ -17,7 +17,7 @@ const {
 	getBoatPredictionRaceTimeLabel,
 	getBoatPredictionRangeTimeKind,
 	getBoatPredictionVenueTimeKind,
-	normalizeBoatPredictionSession,
+	resolveBoatPredictionVenueSession,
 } = copyModule.exports;
 
 const venueFixtures = [
@@ -38,8 +38,9 @@ const rangeRaceNos = [[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]];
 
 const auditVenue = (venue) => {
 	const races = Array.isArray(venue.races) ? venue.races : [];
-	const canonical = normalizeBoatPredictionSession(venue.title) ?? normalizeBoatPredictionSession(venue.session);
-	const venueSession = getBoatPredictionVenueTimeKind(venue, races);
+	const resolution = resolveBoatPredictionVenueSession(venue, races);
+	const canonical = resolution.session === "unknown" ? null : resolution.session;
+	const venueSession = resolution.session;
 	const rangeSessions = rangeRaceNos.map((raceNos) =>
 		getBoatPredictionRangeTimeKind(venueSession, races.filter((race) => raceNos.includes(Number(race.raceNo)))),
 	);
@@ -50,6 +51,7 @@ const auditVenue = (venue) => {
 		venueCode: String(venue.venueCode ?? "").padStart(2, "0"),
 		venueName: venue.venueName,
 		canonical,
+		sessionSource: resolution.source,
 		canonicalLabel: formatBoatPredictionSessionLabel(canonical ?? "unknown"),
 		venueSession,
 		rangeSessions,
@@ -223,8 +225,8 @@ console.log(JSON.stringify({
 	},
 	requiredVenueChecks,
 	aliasChecks,
-	activeVenueSessions: activeVenueAudits.map(({ venueCode, venueName, canonical, canonicalLabel, rangeSessions, actualSessions }) => ({
-		venueCode, venueName, canonical, canonicalLabel, rangeSessions, actualSessions,
+	activeVenueSessions: activeVenueAudits.map(({ venueCode, venueName, canonical, canonicalLabel, sessionSource, rangeSessions, actualSessions }) => ({
+		venueCode, venueName, canonical, canonicalLabel, sessionSource, rangeSessions, actualSessions,
 	})),
 	all24VenueAudit: fixtureVenueAudits.map(({ venueCode, venueName, canonical, canonicalLabel, split }) => ({
 		venueCode, venueName, canonical, canonicalLabel, split,
