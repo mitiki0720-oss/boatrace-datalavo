@@ -29,15 +29,6 @@ export type BoatPredictionSeriesBadge = {
 	source: "official-series" | "official-event-title";
 };
 
-const SESSION_SORT_ORDER: Record<BoatPredictionVenueTimeKind, number> = {
-	morning: 0,
-	summer: 1,
-	day: 2,
-	night: 3,
-	midnight: 4,
-	unknown: 5,
-};
-
 const normalizeSeries = (value: unknown): BoatPredictionVenueSeries | null => {
 	const normalized = String(value ?? "").normalize("NFKC").replace(/[\s_-]+/g, "").toLowerCase();
 	if (!normalized) return null;
@@ -94,11 +85,6 @@ export const compareBoatPredictionVenueCards = <T,>(
 	left: BoatPredictionVenueSortValue<T>,
 	right: BoatPredictionVenueSortValue<T>,
 ): number => {
-	const leftSessionOrder = SESSION_SORT_ORDER[left.session as BoatPredictionVenueTimeKind] ?? SESSION_SORT_ORDER.unknown;
-	const rightSessionOrder = SESSION_SORT_ORDER[right.session as BoatPredictionVenueTimeKind] ?? SESSION_SORT_ORDER.unknown;
-	const sessionDiff = leftSessionOrder - rightSessionOrder;
-	if (sessionDiff !== 0) return sessionDiff;
-
 	if (left.firstRaceMinutes !== null && right.firstRaceMinutes !== null) {
 		const timeDiff = left.firstRaceMinutes - right.firstRaceMinutes;
 		if (timeDiff !== 0) return timeDiff;
