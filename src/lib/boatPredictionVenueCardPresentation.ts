@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { BoatPredictionVenueTimeKind } from "./boatPredictionGptCopy";
+import type { BoatPredictionVenueSeries } from "./boatraceTypes";
 
 export type BoatPredictionSessionTone = {
 	background: string;
@@ -19,10 +20,85 @@ export type BoatPredictionVenueSortValue<T> = {
 	venueName: string;
 };
 
+export type BoatPredictionSeriesBadge = {
+	series: BoatPredictionVenueSeries;
+	label: string;
+	background: string;
+	border: string;
+	color: string;
+	source: "official-series" | "official-event-title";
+};
+
+const SESSION_SORT_ORDER: Record<BoatPredictionVenueTimeKind, number> = {
+	morning: 0,
+	summer: 1,
+	day: 2,
+	night: 3,
+	midnight: 4,
+	unknown: 5,
+};
+
+const normalizeSeries = (value: unknown): BoatPredictionVenueSeries | null => {
+	const normalized = String(value ?? "").normalize("NFKC").replace(/[\s_-]+/g, "").toLowerCase();
+	if (!normalized) return null;
+	if (normalized === "rookie" || normalized.includes("rookieseries") || normalized.includes("ルーキーシリーズ")) return "rookie";
+	if (normalized === "allladies" || normalized.includes("オールレディース")) return "all-ladies";
+	if (normalized === "venus" || normalized.includes("venusseries") || normalized.includes("ヴィーナスシリーズ")) return "venus";
+	return null;
+};
+
+export const getBoatPredictionVenueSeriesBadge = (venue: {
+	series?: unknown;
+	seriesType?: unknown;
+	officialSeries?: unknown;
+	title?: unknown;
+}): BoatPredictionSeriesBadge | null => {
+	const explicitSeries = normalizeSeries(venue.series)
+		?? normalizeSeries(venue.seriesType)
+		?? normalizeSeries(venue.officialSeries);
+	const series = explicitSeries ?? normalizeSeries(venue.title);
+	if (!series) return null;
+
+	const source = explicitSeries ? "official-series" : "official-event-title";
+	if (series === "rookie") {
+		return {
+			series,
+			label: "ルーキーシリーズ",
+			background: "#dcfce7",
+			border: "#16a34a",
+			color: "#166534",
+			source,
+		};
+	}
+	if (series === "all-ladies") {
+		return {
+			series,
+			label: "オールレディース",
+			background: "#fce7f3",
+			border: "#db2777",
+			color: "#9d174d",
+			source,
+		};
+	}
+	return {
+		series,
+		label: "ヴィーナスシリーズ",
+		background: "#fff1f2",
+		border: "#f43f5e",
+		color: "#9f1239",
+		source,
+	};
+};
+
 export const compareBoatPredictionVenueCards = <T,>(
 	left: BoatPredictionVenueSortValue<T>,
 	right: BoatPredictionVenueSortValue<T>,
 ): number => {
+	const leftSessionOrder = SESSION_SORT_ORDER[left.session as BoatPredictionVenueTimeKind] ?? SESSION_SORT_ORDER.unknown;
+	const rightSessionOrder = SESSION_SORT_ORDER[right.session as BoatPredictionVenueTimeKind] ?? SESSION_SORT_ORDER.unknown;
+	const sessionDiff = leftSessionOrder - rightSessionOrder;
+	if (sessionDiff !== 0) return sessionDiff;
+
 	if (left.firstRaceMinutes !== null && right.firstRaceMinutes !== null) {
 		const timeDiff = left.firstRaceMinutes - right.firstRaceMinutes;
 		if (timeDiff !== 0) return timeDiff;

@@ -20,9 +20,13 @@ const compileCommonJs = (filePath) => {
 	return module.exports;
 };
 
-const { compareBoatPredictionVenueCards, getBoatPredictionSessionTone } = compileCommonJs(helperPath);
+const {
+	compareBoatPredictionVenueCards,
+	getBoatPredictionSessionTone,
+	getBoatPredictionVenueSeriesBadge,
+} = compileCommonJs(helperPath);
 const { formatBoatPredictionSessionLabel, resolveBoatPredictionVenueSession } = compileCommonJs(copyPath);
-const { resolveOfficialVenueSession } = await import("./updateBoatTodayRaceDetails.mjs");
+const { resolveOfficialVenueSeries, resolveOfficialVenueSession } = await import("./updateBoatTodayRaceDetails.mjs");
 
 const readMinutes = (value) => {
 	const match = String(value ?? "").normalize("NFKC").match(/(\d{1,2}):(\d{2})/u);
@@ -64,7 +68,7 @@ const fixtureValues = [
 const sortedFixtures = [...fixtureValues].sort(compareBoatPredictionVenueCards);
 assert.deepEqual(
 	sortedFixtures.map((item) => item.venue),
-	["night-earliest", "morning", "summer", "day-a", "day-z", "midnight", "missing-a", "missing-b"],
+	["morning", "missing-b", "summer", "day-a", "day-z", "missing-a", "night-earliest", "midnight"],
 );
 
 const sessions = ["morning", "day", "summer", "night", "midnight"];
@@ -87,6 +91,33 @@ assert.deepEqual(officialClassFixtures, {
 	night: "night",
 	midnight: "midnight",
 });
+
+const officialSeriesFixtures = {
+	rookie: resolveOfficialVenueSeries({ title: "一般競走", className: "is-ippan is-rookie__3rdadd" }),
+	allLadies: resolveOfficialVenueSeries({ title: "プリンセスカップ", className: "is-G3b is-lady" }),
+	venus: resolveOfficialVenueSeries({ title: "一般競走", className: "is-ippan is-venus" }),
+	titleFallback: resolveOfficialVenueSeries({ title: "ルーキーシリーズ第17戦", className: "is-ippan" }),
+	ambiguousTitle: resolveOfficialVenueSeries({ title: "プリンセスカップ", className: "is-G3b" }),
+};
+assert.deepEqual(officialSeriesFixtures, {
+	rookie: "rookie",
+	allLadies: "all-ladies",
+	venus: "venus",
+	titleFallback: "rookie",
+	ambiguousTitle: null,
+});
+
+const seriesBadgeFixtures = [
+	getBoatPredictionVenueSeriesBadge({ series: "rookie" }),
+	getBoatPredictionVenueSeriesBadge({ series: "all-ladies" }),
+	getBoatPredictionVenueSeriesBadge({ series: "venus" }),
+];
+assert.deepEqual(seriesBadgeFixtures.map((badge) => badge?.label), [
+	"ルーキーシリーズ",
+	"オールレディース",
+	"ヴィーナスシリーズ",
+]);
+assert.equal(new Set(seriesBadgeFixtures.map((badge) => badge?.border)).size, 3);
 
 const venueFixtures = [
 	["01", "桐生", "night"], ["02", "戸田", "day"], ["03", "江戸川", "day"], ["04", "平和島", "day"],
@@ -128,35 +159,50 @@ const activeVenueAudit = sortedActiveValues.map((item, sortIndex) => ({
 	firstRaceMinutes: item.firstRaceMinutes,
 	sortIndex,
 	sessionSource: item.sessionSource,
+	series: getBoatPredictionVenueSeriesBadge(item.venue)?.label ?? null,
+	seriesSource: getBoatPredictionVenueSeriesBadge(item.venue)?.source ?? null,
 }));
 const unknownVenueCount = activeVenueAudit.filter((item) => item.session === "unknown").length;
 const ordinaryDayVenues = activeVenueAudit.filter((item) => item.sessionSource === "official-race-index:ordinary-day");
 const omura = activeVenueAudit.find((item) => item.venue === "大村");
+const fukuoka = activeVenueAudit.find((item) => item.venue === "福岡");
+const gamagori = activeVenueAudit.find((item) => item.venue === "蒲郡");
 assert.equal(unknownVenueCount, 0);
-assert.equal(omura?.session, "midnight");
-assert.equal(omura?.sessionLabel, "ミッドナイト");
 assert.ok(ordinaryDayVenues.every((item) => item.session === "day" && item.sessionLabel === "デイ"));
 if (details.date === "2026-09-18") {
 	assert.equal(activeVenueAudit.length, 15);
 	assert.equal(ordinaryDayVenues.length, 8);
+	assert.equal(omura?.session, "midnight");
+	assert.equal(omura?.sessionLabel, "ミッドナイト");
+	assert.equal(fukuoka?.session, "summer");
+	assert.equal(fukuoka?.sessionLabel, "サマータイム");
+	assert.equal(gamagori?.series, "ルーキーシリーズ");
 }
 
+const sessionOrder = { morning: 0, summer: 1, day: 2, night: 3, midnight: 4, unknown: 5 };
 for (let index = 1; index < activeVenueAudit.length; index += 1) {
 	const previous = activeVenueAudit[index - 1];
 	const current = activeVenueAudit[index];
+	assert.ok(sessionOrder[previous.session] <= sessionOrder[current.session], "active venues must be grouped by session");
+	if (previous.session !== current.session) continue;
 	if (previous.firstRaceMinutes === null) {
-		assert.equal(current.firstRaceMinutes, null, "known first-race times must not follow missing times");
+		assert.equal(current.firstRaceMinutes, null, "known first-race times must not follow missing times in a session group");
 	} else if (current.firstRaceMinutes !== null) {
-		assert.ok(previous.firstRaceMinutes <= current.firstRaceMinutes, "active venues must be sorted by first-race time");
+		assert.ok(previous.firstRaceMinutes <= current.firstRaceMinutes, "session group must be sorted by first-race time");
 	}
 }
 
 const componentSource = fs.readFileSync(path.join(root, componentPath), "utf8");
+const updaterSource = fs.readFileSync(path.join(root, "scripts/updateBoatTodayRaceDetails.mjs"), "utf8");
 assert.match(componentSource, /\.sort\(compareBoatPredictionVenueCards\)/u);
 assert.match(componentSource, /getBoatPredictionSessionTone\(displaySession\)/u);
+assert.match(componentSource, /getBoatPredictionVenueSeriesBadge\(venue\)/u);
+assert.match(componentSource, /公式シリーズ/u);
 assert.match(componentSource, /const selectedVenue = venues\.find/u);
 assert.match(componentSource, /onSelectVenue\(venue\.id\)/u);
 assert.match(componentSource, /Number\(race\.raceNo\) === 1/u);
+assert.match(updaterSource, /className: sessionCell\.attr\("class"\) \?\? ""/u);
+assert.match(updaterSource, /series: resolveOfficialVenueSeries\(\{ title, className: gradeCell\.attr\("class"\) \}\)/u);
 
 console.log(JSON.stringify({
 	ok: true,
@@ -165,16 +211,26 @@ console.log(JSON.stringify({
 		colorMap: true,
 		currentActiveVenueSessions: unknownVenueCount === 0,
 		sourceBackedOrdinaryDay: ordinaryDayVenues.length > 0 && ordinaryDayVenues.every((item) => item.session === "day"),
-		firstRaceTimeAscending: true,
+		sessionGroupOrder: true,
+		firstRaceTimeAscendingWithinGroup: true,
 		sameTimeStableSort: sortedFixtures[3].venueName === "あ会場" && sortedFixtures[4].venueName === "い会場",
-		missingTimeLast: sortedFixtures.slice(-2).every((item) => item.firstRaceMinutes === null),
-		sessionPriorityIndependent: sortedFixtures[0].session === "night" && sortedFixtures[1].session === "morning",
-		omuraMidnightRegression: omura?.session === "midnight",
+		missingTimeLastWithinGroup: sortedFixtures[1].firstRaceMinutes === null && sortedFixtures[5].firstRaceMinutes === null,
+		fukuokaSummerRegression: details.date === "2026-09-18"
+			? fukuoka?.session === "summer"
+			: officialClassFixtures.summer === "summer",
+		omuraMidnightRegression: details.date === "2026-09-18"
+			? omura?.session === "midnight"
+			: officialClassFixtures.midnight === "midnight",
+		seriesBadgeClassification: seriesBadgeFixtures.every(Boolean),
+		activeSeriesBadge: details.date === "2026-09-18"
+			? gamagori?.series === "ルーキーシリーズ"
+			: officialSeriesFixtures.rookie === "rookie",
 		all24VenueFixtureRegression: all24VenueAudit.every((item) => item.ok),
 		selectionWiringPreserved: true,
 	},
 	badgeColors: Object.fromEntries(sessions.map((session) => [session, tones[session].badgeBackground])),
 	officialClassFixtures,
+	officialSeriesFixtures,
 	unknownVenueCount,
 	ordinaryDayVenueCount: ordinaryDayVenues.length,
 	activeVenueAudit,

@@ -7,6 +7,7 @@ export type BoatFrameDisplay = BoatFrameNumber | string;
 export type BoatRaceSession = "day" | "night" | "morning" | "relay" | "unknown";
 
 export type BoatPredictionRaceSession = BoatRaceSession | "summer" | "midnight";
+export type BoatPredictionVenueSeries = "rookie" | "all-ladies" | "venus";
 
 export type BoatRaceStatus =
 	| "scheduled"
@@ -259,6 +260,7 @@ export type BoatTodayVenueItem = {
 	title?: string;
 	date: string;
 	session?: BoatPredictionRaceSession;
+	series?: BoatPredictionVenueSeries | null;
 	status?: BoatRaceStatus;
 	races: BoatRaceItem[];
 	weatherActual?: BoatWeatherActual;

@@ -1,7 +1,11 @@
 import type { CSSProperties } from "react";
 import type { BoatRaceItem, BoatTodayVenueItem } from "../../lib/boatraceTypes";
 import { formatBoatPredictionSessionLabel, getBoatPredictionVenueTimeKind } from "../../lib/boatPredictionGptCopy";
-import { compareBoatPredictionVenueCards, getBoatPredictionSessionTone } from "../../lib/boatPredictionVenueCardPresentation";
+import {
+	compareBoatPredictionVenueCards,
+	getBoatPredictionSessionTone,
+	getBoatPredictionVenueSeriesBadge,
+} from "../../lib/boatPredictionVenueCardPresentation";
 import { resolveBoatVenueDayLabel } from "../../lib/boatVenueDayLabel";
 import { boatTheme } from "../../lib/theme";
 
@@ -530,6 +534,7 @@ export function BoatPredictionVenueRaceChooser({
 						const isSelected = venue.id === selectedVenue.id;
 						const displaySession = resolveBoatVenueSession(venue);
 						const sessionTone = getBoatPredictionSessionTone(displaySession);
+						const seriesBadge = getBoatPredictionVenueSeriesBadge(venue);
 						const racesForVenue = getVenueRaces(venue);
 						const weather = getVenueWeather(venue);
 						const statusLabels = getVenueStatusLabels(racesForVenue);
@@ -604,6 +609,20 @@ export function BoatPredictionVenueRaceChooser({
 								<div style={venueMetaStyle}>
 									<span>{racesForVenue.length}R</span>
 									<span style={sessionChipStyle}>{formatBoatPredictionSessionLabel(displaySession)}</span>
+									{seriesBadge ? (
+										<span
+											style={{
+												...chipStyle,
+												background: seriesBadge.background,
+												border: `1px solid ${seriesBadge.border}`,
+												color: seriesBadge.color,
+												fontSize: "0.68rem",
+											}}
+											title={`公式シリーズ: ${seriesBadge.label}`}
+										>
+											{seriesBadge.label}
+										</span>
+									) : null}
 									<span style={dayChipStyle}>{dayLabel}</span>
 								</div>
 

@@ -734,6 +734,7 @@ function buildFilteredFallbackVenue(venue, fallbackVenue, timestamps, source) {
 			title: venue.title ?? "",
 			date: timestamps.date,
 			session: venue.session ?? "unknown",
+			series: venue.series ?? null,
 			status: venue.status ?? "scheduled",
 			dayText: venue.dayText ?? "",
 			statusText: venue.statusText ?? "",
@@ -752,6 +753,7 @@ function buildFilteredFallbackVenue(venue, fallbackVenue, timestamps, source) {
 		title: venue.title ?? fallbackVenue.title,
 		date: timestamps.date,
 		session: venue.session ?? fallbackVenue.session,
+		series: venue.series ?? fallbackVenue.series ?? null,
 		status: venue.status ?? fallbackVenue.status,
 		dayText: venue.dayText ?? fallbackVenue.dayText,
 		statusText: venue.statusText ?? fallbackVenue.statusText,
@@ -837,6 +839,23 @@ function readOfficialEventSession(value) {
 	if (text.includes("morning") || text.includes("モーニング")) return "morning";
 	if (text.includes("nighter") || text.includes("night") || text.includes("ナイター")) return "night";
 	return null;
+}
+
+function readOfficialEventSeries(value) {
+	const text = compactText(value).normalize("NFKC").replace(/[\s_-]+/g, "").toLowerCase();
+	if (!text) return null;
+	if (text.includes("ルーキーシリーズ") || text.includes("rookieseries")) return "rookie";
+	if (text.includes("オールレディース") || text.includes("allladies")) return "all-ladies";
+	if (text.includes("ヴィーナスシリーズ") || text.includes("venusseries")) return "venus";
+	return null;
+}
+
+export function resolveOfficialVenueSeries({ title, className, explicitSeries } = {}) {
+	const classes = compactText(className).normalize("NFKC").toLowerCase();
+	if (classes.includes("is-rookie")) return "rookie";
+	if (classes.includes("is-lady")) return "all-ladies";
+	if (classes.includes("is-venus")) return "venus";
+	return readOfficialEventSeries(explicitSeries) ?? readOfficialEventSeries(title);
 }
 
 export function resolveOfficialVenueSession({ title, className, explicitSession } = {}) {
@@ -1159,6 +1178,7 @@ function normalizeVenueData(rawVenue, generatedAt, source) {
 	title: rawVenue?.title ?? "",
 	date: venueDate,
 	session: resolveOfficialVenueSession({ title: rawVenue?.title, explicitSession: rawVenue?.session }),
+	series: resolveOfficialVenueSeries({ title: rawVenue?.title, explicitSeries: rawVenue?.series }),
 	status: rawVenue?.status ?? "scheduled",
 	dayText: rawVenue?.dayText ?? "",
 	statusText: rawVenue?.statusText ?? "",
@@ -1231,7 +1251,8 @@ function parseIndexVenueRows(html, { date, dateKey, fallbackVenueByCode }) {
 			venueName: venueName || fallbackVenue?.venueName || "不明会場",
 			title: title || fallbackVenue?.title || "",
 			date,
-			session: resolveOfficialVenueSession({ title, className: sessionCell.attr("class") }),
+			session: resolveOfficialVenueSession({ title, className: sessionCell.attr("class") ?? "" }),
+			series: resolveOfficialVenueSeries({ title, className: gradeCell.attr("class") }),
 			status: classifyVenueStatus(statusCell.text()),
 			source: "official:owpc-html",
 			grade: classifyGrade(gradeCell.attr("class")),
@@ -2933,7 +2954,7 @@ export async function fetchTodayRaceIndex({ existingFeed, timestamps }) {
 	}
 
 	return {
-		venues: Array.isArray(existingFeed?.venues) ? existingFeed.venues.map((venue) => ({ id: venue.id, venueCode: venue.venueCode, venueName: venue.venueName, title: venue.title, date: venue.date, session: venue.session, status: venue.status, source: venue.source })) : [],
+		venues: Array.isArray(existingFeed?.venues) ? existingFeed.venues.map((venue) => ({ id: venue.id, venueCode: venue.venueCode, venueName: venue.venueName, title: venue.title, date: venue.date, session: venue.session, series: venue.series, status: venue.status, source: venue.source })) : [],
 		fallbackVenues: existingFeed?.venues ?? [],
 		source: existingFeed?.source ? `fallback:${existingFeed.source}` : "fallback:existing-json",
 	};
@@ -3079,6 +3100,10 @@ const detailedHtml = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.venueResult(venu
 		session: resolveOfficialVenueSession({
 			title: venue.title ?? fallbackVenue?.title,
 			explicitSession: venue.session ?? fallbackVenue?.session,
+		}),
+		series: resolveOfficialVenueSeries({
+			title: venue.title ?? fallbackVenue?.title,
+			explicitSeries: venue.series ?? fallbackVenue?.series,
 		}),
 		status: venue.status ?? fallbackVenue?.status ?? "scheduled",
 		dayText: venue.dayText ?? fallbackVenue?.dayText ?? "",
