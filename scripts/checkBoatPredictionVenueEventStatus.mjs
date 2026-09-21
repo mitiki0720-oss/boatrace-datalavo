@@ -32,6 +32,8 @@ const { resolveOfficialVenueEventStatus } = await import("./updateBoatTodayRaceD
 const officialFixtures = [
 	{ statusText: "中止", expectedStatus: "cancelled", expectedLabel: "中止" },
 	{ statusText: "12R以降中止", expectedStatus: "cancelled", expectedLabel: "中止" },
+	{ statusText: "5R以降中止順延", expectedStatus: "cancelled", expectedLabel: "中止" },
+	{ statusText: "途中から中止順延", expectedStatus: "cancelled", expectedLabel: "中止" },
 	{ statusText: "順延", expectedStatus: "postponed", expectedLabel: "順延" },
 	{ statusText: "中止順延", expectedStatus: "postponed", expectedLabel: "順延" },
 ];
@@ -93,18 +95,20 @@ assert.deepEqual(
 const updaterSource = fs.readFileSync(path.join(root, updaterPath), "utf8");
 const componentSource = fs.readFileSync(path.join(root, componentPath), "utf8");
 const typesSource = fs.readFileSync(path.join(root, typesPath), "utf8");
-assert.match(updaterSource, /eventStatus: resolveOfficialVenueEventStatus\(\{ statusText \}\)/u);
-assert.match(updaterSource, /eventStatusText: statusText/u);
+assert.match(updaterSource, /import \{ resolveOfficialVenueEventStatus \} from "\.\/boatVenueEventStatus\.mjs"/u);
+assert.match(updaterSource, /const statusCell = venueCell\.next\("td"\)/u);
+assert.match(updaterSource, /eventStatusText: eventStatus === "normal" \? "" : statusText/u);
 assert.match(componentSource, /getBoatPredictionVenueEventStatusBadge\(venue\)/u);
 assert.match(componentSource, /公式開催状態/u);
+assert.match(componentSource, /公式発表/u);
 assert.match(componentSource, /flexWrap: "wrap"/u);
 assert.match(typesSource, /export type BoatVenueEventStatus = "normal" \| "cancelled" \| "postponed";/u);
 
 console.log(JSON.stringify({
 	ok: true,
 	checks: {
-		officialCancelledPropagation: propagationAudit.slice(0, 2).every((item) => item.eventStatus === "cancelled" && item.label === "中止"),
-		officialPostponedPropagation: propagationAudit.slice(2).every((item) => item.eventStatus === "postponed" && item.label === "順延"),
+		officialCancelledPropagation: propagationAudit.slice(0, 4).every((item) => item.eventStatus === "cancelled" && item.label === "中止"),
+		officialPostponedPropagation: propagationAudit.slice(4).every((item) => item.eventStatus === "postponed" && item.label === "順延"),
 		normalVenueHasNoEventBadge: true,
 		legacyOfficialStatusTextCompatibility: legacyCancelled?.label === "中止" && legacyPostponed?.label === "順延",
 		distinctStatusColors: cancelledBadge?.background !== postponedBadge?.background,

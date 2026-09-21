@@ -4,6 +4,9 @@ import { fileURLToPath } from "node:url";
 import { load } from "cheerio";
 import { preserveTodayRaceDetailsFeed } from "./boatExhibitionSnapshotPreservation.mjs";
 import { getJstTimestampParts, normalizeTargetDate, resolveJstTargetDate } from "./boatRaceDate.mjs";
+import { resolveOfficialVenueEventStatus } from "./boatVenueEventStatus.mjs";
+
+export { resolveOfficialVenueEventStatus } from "./boatVenueEventStatus.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,7 +20,7 @@ const ENABLE_REMOTE_FETCH = process.env.BOAT_RACE_ENABLE_REMOTE_FETCH !== "0";
 const MAX_DETAILED_RESULTS_PER_VENUE = Number.parseInt(process.env.BOAT_RACE_MAX_DETAILED_RESULTS_PER_VENUE ?? "12", 10);
 
 const OFFICIAL_ENDPOINTS = {
-	todayRaceIndex: () => `${OFFICIAL_ORIGIN}/owpc/pc/race/index`,
+	todayRaceIndex: (dateKey) => `${OFFICIAL_ORIGIN}/owpc/pc/race/index?hd=${dateKey}`,
 	venueRaceCard: (venueCode, dateKey, raceNo = 1) => `${OFFICIAL_ORIGIN}/owpc/pc/race/racelist?rno=${raceNo}&jcd=${venueCode}&hd=${dateKey}`,
 	venueBeforeInfo: (venueCode, dateKey, raceNo = 1) => `${OFFICIAL_ORIGIN}/owpc/pc/race/beforeinfo?rno=${raceNo}&jcd=${venueCode}&hd=${dateKey}`,
 	venueOdds: (venueCode, dateKey, raceNo = 1) => `${OFFICIAL_ORIGIN}/owpc/pc/race/odds3t?rno=${raceNo}&jcd=${venueCode}&hd=${dateKey}`,
@@ -820,29 +823,6 @@ function classifyVenueStatus(statusText) {
 	return "scheduled";
 }
 
-export function resolveOfficialVenueEventStatus({ statusText, explicitStatus } = {}) {
-	const explicit = compactText(explicitStatus).normalize("NFKC").toLowerCase();
-	if (["postponed", "postpone", "rescheduled", "順延"].includes(explicit)) {
-		return "postponed";
-	}
-	if (["cancelled", "canceled", "cancel", "中止"].includes(explicit)) {
-		return "cancelled";
-	}
-	if (explicit === "normal") {
-		return "normal";
-	}
-
-	const officialText = compactText(statusText).normalize("NFKC");
-	if (officialText.includes("順延")) {
-		return "postponed";
-	}
-	if (officialText.includes("中止")) {
-		return "cancelled";
-	}
-
-	return "normal";
-}
-
 function classifySession(className) {
 	const classes = compactText(className);
 	if (classes.includes("is-midnight")) {
@@ -1266,13 +1246,15 @@ function parseIndexVenueRows(html, { date, dateKey, fallbackVenueByCode }) {
 		}
 
 		const titleCell = titleLink.closest("td");
-		const venueName = compactText(row.find("img[alt]").first().attr("alt"));
+		const venueImage = row.find("img[alt]").first();
+		const venueCell = venueImage.closest("td");
+		const venueName = compactText(venueImage.attr("alt"));
 		const venueCode = extractQueryParam(titleLink.attr("href"), "jcd") ?? "";
 		const fallbackVenue = fallbackVenueByCode.get(venueCode) ?? null;
 		const sessionCell = titleCell.prev("td");
 		const gradeCell = sessionCell.prev("td");
-		const currentRaceCell = gradeCell.prevAll("td").eq(1);
-		const statusCell = gradeCell.prevAll("td").eq(2);
+		const statusCell = venueCell.next("td");
+		const currentRaceCell = statusCell;
 		const dayCell = titleCell.next("td");
 		const linksCell = dayCell.next("td");
 		const readLink = (label) => {
@@ -1283,6 +1265,7 @@ function parseIndexVenueRows(html, { date, dateKey, fallbackVenueByCode }) {
 		const currentRaceNo = parseRaceNo(currentRaceCell.text()) ?? 1;
 		const title = compactText(titleLink.text());
 		const statusText = compactText(statusCell.text());
+		const eventStatus = resolveOfficialVenueEventStatus({ statusText });
 
 		venues.push({
 			id: venueIdFrom(venueCode, fallbackVenue, venueName),
@@ -1293,8 +1276,8 @@ function parseIndexVenueRows(html, { date, dateKey, fallbackVenueByCode }) {
 			session: resolveOfficialVenueSession({ title, className: sessionCell.attr("class") ?? "" }),
 			series: resolveOfficialVenueSeries({ title, className: gradeCell.attr("class") }),
 			status: classifyVenueStatus(statusText),
-			eventStatus: resolveOfficialVenueEventStatus({ statusText }),
-			eventStatusText: statusText,
+			eventStatus,
+			eventStatusText: eventStatus === "normal" ? "" : statusText,
 			source: "official:owpc-html",
 			grade: classifyGrade(gradeCell.attr("class")),
 			dayText: compactText(dayCell.text()),
@@ -2985,7 +2968,7 @@ function mergeDetailedResults(resultListRaces, detailedRaceResults) {
 
 export async function fetchTodayRaceIndex({ existingFeed, timestamps }) {
 	const fallbackVenueByCode = new Map((existingFeed?.venues ?? []).map((venue) => [venue.venueCode, venue]));
-	const html = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.todayRaceIndex());
+	const html = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.todayRaceIndex(timestamps.dateKey));
 
 	if (html) {
 		const venues = parseIndexVenueRows(html, { date: timestamps.date, dateKey: timestamps.dateKey, fallbackVenueByCode });

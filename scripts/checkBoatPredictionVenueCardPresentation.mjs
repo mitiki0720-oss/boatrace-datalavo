@@ -141,11 +141,13 @@ assert.equal(new Set(seriesBadgeFixtures.map((badge) => badge?.border)).size, 3)
 
 const officialEventStatusFixtures = {
 	cancelled: resolveOfficialVenueEventStatus({ statusText: "12R以降中止" }),
+	partialCancelled: resolveOfficialVenueEventStatus({ statusText: "5R以降中止順延" }),
 	postponed: resolveOfficialVenueEventStatus({ statusText: "中止順延" }),
 	normal: resolveOfficialVenueEventStatus({ statusText: "発売中" }),
 };
 assert.deepEqual(officialEventStatusFixtures, {
 	cancelled: "cancelled",
+	partialCancelled: "cancelled",
 	postponed: "postponed",
 	normal: "normal",
 });

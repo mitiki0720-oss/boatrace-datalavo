@@ -635,7 +635,12 @@ export function BoatPredictionVenueRaceChooser({
 								{cancelStatus.level !== "none" ? (
 									<span
 										style={cancelChipStyle}
-										title={venueEventStatus ? `公式開催状態: ${venueEventStatus.label}` : undefined}
+										title={venueEventStatus
+											? `公式開催状態: ${venueEventStatus.label}${venueEventStatus.detail ? `（${venueEventStatus.detail}）` : ""}`
+											: undefined}
+										aria-label={venueEventStatus
+											? `公式開催状態: ${venueEventStatus.label}${venueEventStatus.detail ? `、公式発表: ${venueEventStatus.detail}` : ""}`
+											: undefined}
 									>
 										{cancelStatus.label}
 									</span>

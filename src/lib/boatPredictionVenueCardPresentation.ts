@@ -32,6 +32,7 @@ export type BoatPredictionSeriesBadge = {
 export type BoatPredictionVenueEventStatusBadge = {
 	status: Exclude<BoatVenueEventStatus, "normal">;
 	label: "中止" | "順延";
+	detail: string;
 	background: string;
 	border: string;
 	color: string;
@@ -49,6 +50,7 @@ const normalizeVenueEventStatus = (value: unknown): BoatVenueEventStatus | null 
 const readOfficialStatusText = (value: unknown): BoatVenueEventStatus | null => {
 	const normalized = String(value ?? "").normalize("NFKC").trim();
 	if (!normalized) return null;
+	if (/(?:\d{1,2}\s*R\s*以降|途中(?:から)?|一部)\s*中止/u.test(normalized)) return "cancelled";
 	if (normalized.includes("順延")) return "postponed";
 	if (normalized.includes("中止")) return "cancelled";
 	return null;
@@ -60,6 +62,7 @@ export const getBoatPredictionVenueEventStatusBadge = (venue: {
 	statusText?: unknown;
 }): BoatPredictionVenueEventStatusBadge | null => {
 	const explicitStatus = normalizeVenueEventStatus(venue.eventStatus);
+	const detail = String(venue.eventStatusText ?? venue.statusText ?? "").normalize("NFKC").trim();
 	const status = explicitStatus
 		?? readOfficialStatusText(venue.eventStatusText)
 		?? readOfficialStatusText(venue.statusText)
@@ -70,6 +73,7 @@ export const getBoatPredictionVenueEventStatusBadge = (venue: {
 		return {
 			status,
 			label: "順延",
+			detail,
 			background: "#fef3c7",
 			border: "#d97706",
 			color: "#92400e",
@@ -80,6 +84,7 @@ export const getBoatPredictionVenueEventStatusBadge = (venue: {
 	return {
 		status,
 		label: "中止",
+		detail,
 		background: "#fee2e2",
 		border: "#dc2626",
 		color: "#991b1b",
