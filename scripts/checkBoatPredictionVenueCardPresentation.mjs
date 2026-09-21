@@ -23,10 +23,15 @@ const compileCommonJs = (filePath) => {
 const {
 	compareBoatPredictionVenueCards,
 	getBoatPredictionSessionTone,
+	getBoatPredictionVenueEventStatusBadge,
 	getBoatPredictionVenueSeriesBadge,
 } = compileCommonJs(helperPath);
 const { formatBoatPredictionSessionLabel, resolveBoatPredictionVenueSession } = compileCommonJs(copyPath);
-const { resolveOfficialVenueSeries, resolveOfficialVenueSession } = await import("./updateBoatTodayRaceDetails.mjs");
+const {
+	resolveOfficialVenueEventStatus,
+	resolveOfficialVenueSeries,
+	resolveOfficialVenueSession,
+} = await import("./updateBoatTodayRaceDetails.mjs");
 
 const readMinutes = (value) => {
 	const match = String(value ?? "").normalize("NFKC").match(/(\d{1,2}):(\d{2})/u);
@@ -134,6 +139,20 @@ assert.deepEqual(seriesBadgeFixtures.map((badge) => badge?.label), [
 ]);
 assert.equal(new Set(seriesBadgeFixtures.map((badge) => badge?.border)).size, 3);
 
+const officialEventStatusFixtures = {
+	cancelled: resolveOfficialVenueEventStatus({ statusText: "12R以降中止" }),
+	postponed: resolveOfficialVenueEventStatus({ statusText: "中止順延" }),
+	normal: resolveOfficialVenueEventStatus({ statusText: "発売中" }),
+};
+assert.deepEqual(officialEventStatusFixtures, {
+	cancelled: "cancelled",
+	postponed: "postponed",
+	normal: "normal",
+});
+assert.equal(getBoatPredictionVenueEventStatusBadge({ eventStatus: officialEventStatusFixtures.cancelled })?.label, "中止");
+assert.equal(getBoatPredictionVenueEventStatusBadge({ eventStatus: officialEventStatusFixtures.postponed })?.label, "順延");
+assert.equal(getBoatPredictionVenueEventStatusBadge({ eventStatus: officialEventStatusFixtures.normal }), null);
+
 const venueFixtures = [
 	["01", "桐生", "night"], ["02", "戸田", "day"], ["03", "江戸川", "day"], ["04", "平和島", "day"],
 	["05", "多摩川", "day"], ["06", "浜名湖", "day"], ["07", "蒲郡", "night"], ["08", "常滑", "day"],
@@ -227,6 +246,7 @@ const updaterSource = fs.readFileSync(path.join(root, "scripts/updateBoatTodayRa
 assert.match(componentSource, /\.sort\(compareBoatPredictionVenueCards\)/u);
 assert.match(componentSource, /getBoatPredictionSessionTone\(displaySession\)/u);
 assert.match(componentSource, /getBoatPredictionVenueSeriesBadge\(venue\)/u);
+assert.match(componentSource, /getBoatPredictionVenueEventStatusBadge\(venue\)/u);
 assert.match(componentSource, /公式シリーズ/u);
 assert.match(componentSource, /const selectedVenue = venues\.find/u);
 assert.match(componentSource, /onSelectVenue\(venue\.id\)/u);
@@ -264,6 +284,7 @@ console.log(JSON.stringify({
 	badgeColors: Object.fromEntries(sessions.map((session) => [session, tones[session].badgeBackground])),
 	officialClassFixtures,
 	officialSeriesFixtures,
+	officialEventStatusFixtures,
 	unknownVenueCount,
 	ordinaryDayVenueCount: ordinaryDayVenues.length,
 	activeVenueAudit,

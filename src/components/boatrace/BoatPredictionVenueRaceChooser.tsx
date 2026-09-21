@@ -4,6 +4,7 @@ import { formatBoatPredictionSessionLabel, getBoatPredictionVenueTimeKind } from
 import {
 	compareBoatPredictionVenueCards,
 	getBoatPredictionSessionTone,
+	getBoatPredictionVenueEventStatusBadge,
 	getBoatPredictionVenueSeriesBadge,
 } from "../../lib/boatPredictionVenueCardPresentation";
 import { resolveBoatVenueDayLabel } from "../../lib/boatVenueDayLabel";
@@ -261,8 +262,10 @@ const readCancelReasonFromRecord = (record: Record<string, unknown>): string => 
 
 const isBoatRaceCancelled = (race: BoatRaceItem): boolean => Boolean(readCancelReasonFromRecord(toLooseRecord(race)));
 
-const getBoatVenueCancelStatus = (venue: BoatTodayVenueItem, races: BoatRaceItem[]): BoatVenueCancelSummary => {
-	const venueReason = readCancelReasonFromRecord(toLooseRecord(venue));
+const getBoatVenueCancelStatus = (
+	venueEventStatus: ReturnType<typeof getBoatPredictionVenueEventStatusBadge>,
+	races: BoatRaceItem[],
+): BoatVenueCancelSummary => {
 	const cancelledRaceNos = races
 		.filter(isBoatRaceCancelled)
 		.map((race) => Number(race.raceNo))
@@ -271,12 +274,12 @@ const getBoatVenueCancelStatus = (venue: BoatTodayVenueItem, races: BoatRaceItem
 	const uniqueCancelledRaceNos = Array.from(new Set(cancelledRaceNos));
 	const allRacesCancelled = races.length > 0 && uniqueCancelledRaceNos.length === races.length;
 
-	if (venueReason || allRacesCancelled) {
+	if (venueEventStatus || allRacesCancelled) {
 		return {
-			level: "danger",
-			label: venueReason || "開催中止",
+			level: venueEventStatus?.status === "postponed" ? "warning" : "danger",
+			label: venueEventStatus?.label ?? "中止",
 			cancelledRaceNos: uniqueCancelledRaceNos,
-			reason: venueReason || undefined,
+			reason: venueEventStatus?.label,
 		};
 	}
 
@@ -535,11 +538,12 @@ export function BoatPredictionVenueRaceChooser({
 						const displaySession = resolveBoatVenueSession(venue);
 						const sessionTone = getBoatPredictionSessionTone(displaySession);
 						const seriesBadge = getBoatPredictionVenueSeriesBadge(venue);
+						const venueEventStatus = getBoatPredictionVenueEventStatusBadge(venue);
 						const racesForVenue = getVenueRaces(venue);
 						const weather = getVenueWeather(venue);
 						const statusLabels = getVenueStatusLabels(racesForVenue);
 						const dayLabel = resolveBoatVenueDayLabel(venue, racesForVenue);
-						const cancelStatus = getBoatVenueCancelStatus(venue, racesForVenue);
+						const cancelStatus = getBoatVenueCancelStatus(venueEventStatus, racesForVenue);
 						const cancelTone = cancelStatus.level === "danger"
 							? {
 								background: "linear-gradient(180deg, rgba(255, 241, 242, 0.98) 0%, rgba(255, 255, 255, 0.96) 100%)",
@@ -580,13 +584,15 @@ export function BoatPredictionVenueRaceChooser({
 						};
 						const cancelChipStyle: CSSProperties = {
 							...cancelChipBaseStyle,
-							background: cancelStatus.level === "warning"
+							background: venueEventStatus?.background ?? (cancelStatus.level === "warning"
 								? "rgba(254, 243, 199, 0.96)"
-								: cancelChipBaseStyle.background,
-							border: cancelStatus.level === "warning"
-								? "1px solid rgba(245, 158, 11, 0.44)"
-								: cancelChipBaseStyle.border,
-							color: cancelStatus.level === "warning" ? "#92400e" : "#991b1b",
+								: cancelChipBaseStyle.background),
+							border: venueEventStatus
+								? `1px solid ${venueEventStatus.border}`
+								: cancelStatus.level === "warning"
+									? "1px solid rgba(245, 158, 11, 0.44)"
+									: cancelChipBaseStyle.border,
+							color: venueEventStatus?.color ?? (cancelStatus.level === "warning" ? "#92400e" : "#991b1b"),
 							boxShadow: cancelStatus.level === "warning"
 								? "0 8px 18px rgba(245, 158, 11, 0.12)"
 								: cancelChipBaseStyle.boxShadow,
@@ -627,7 +633,12 @@ export function BoatPredictionVenueRaceChooser({
 								</div>
 
 								{cancelStatus.level !== "none" ? (
-									<span style={cancelChipStyle}>{cancelStatus.label}</span>
+									<span
+										style={cancelChipStyle}
+										title={venueEventStatus ? `公式開催状態: ${venueEventStatus.label}` : undefined}
+									>
+										{cancelStatus.label}
+									</span>
 								) : null}
 
 								<div style={weatherLineStyle}>

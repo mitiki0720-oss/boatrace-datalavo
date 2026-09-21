@@ -736,6 +736,11 @@ function buildFilteredFallbackVenue(venue, fallbackVenue, timestamps, source) {
 			session: venue.session ?? "unknown",
 			series: venue.series ?? null,
 			status: venue.status ?? "scheduled",
+			eventStatus: resolveOfficialVenueEventStatus({
+				statusText: venue.eventStatusText ?? venue.statusText,
+				explicitStatus: venue.eventStatus,
+			}),
+			eventStatusText: venue.eventStatusText ?? venue.statusText ?? "",
 			dayText: venue.dayText ?? "",
 			statusText: venue.statusText ?? "",
 			currentRaceNo: venue.currentRaceNo ?? null,
@@ -755,6 +760,11 @@ function buildFilteredFallbackVenue(venue, fallbackVenue, timestamps, source) {
 		session: venue.session ?? fallbackVenue.session,
 		series: venue.series ?? fallbackVenue.series ?? null,
 		status: venue.status ?? fallbackVenue.status,
+		eventStatus: resolveOfficialVenueEventStatus({
+			statusText: venue.eventStatusText ?? venue.statusText ?? fallbackVenue.eventStatusText ?? fallbackVenue.statusText,
+			explicitStatus: venue.eventStatus ?? fallbackVenue.eventStatus,
+		}),
+		eventStatusText: venue.eventStatusText ?? venue.statusText ?? fallbackVenue.eventStatusText ?? fallbackVenue.statusText ?? "",
 		dayText: venue.dayText ?? fallbackVenue.dayText,
 		statusText: venue.statusText ?? fallbackVenue.statusText,
 		currentRaceNo: venue.currentRaceNo ?? fallbackVenue.currentRaceNo,
@@ -808,6 +818,29 @@ function classifyVenueStatus(statusText) {
 	}
 
 	return "scheduled";
+}
+
+export function resolveOfficialVenueEventStatus({ statusText, explicitStatus } = {}) {
+	const explicit = compactText(explicitStatus).normalize("NFKC").toLowerCase();
+	if (["postponed", "postpone", "rescheduled", "順延"].includes(explicit)) {
+		return "postponed";
+	}
+	if (["cancelled", "canceled", "cancel", "中止"].includes(explicit)) {
+		return "cancelled";
+	}
+	if (explicit === "normal") {
+		return "normal";
+	}
+
+	const officialText = compactText(statusText).normalize("NFKC");
+	if (officialText.includes("順延")) {
+		return "postponed";
+	}
+	if (officialText.includes("中止")) {
+		return "cancelled";
+	}
+
+	return "normal";
 }
 
 function classifySession(className) {
@@ -1180,6 +1213,11 @@ function normalizeVenueData(rawVenue, generatedAt, source) {
 	session: resolveOfficialVenueSession({ title: rawVenue?.title, explicitSession: rawVenue?.session }),
 	series: resolveOfficialVenueSeries({ title: rawVenue?.title, explicitSeries: rawVenue?.series }),
 	status: rawVenue?.status ?? "scheduled",
+	eventStatus: resolveOfficialVenueEventStatus({
+		statusText: rawVenue?.eventStatusText ?? rawVenue?.statusText,
+		explicitStatus: rawVenue?.eventStatus,
+	}),
+	eventStatusText: rawVenue?.eventStatusText ?? rawVenue?.statusText ?? "",
 	dayText: rawVenue?.dayText ?? "",
 	statusText: rawVenue?.statusText ?? "",
 	currentRaceNo: rawVenue?.currentRaceNo ?? null,
@@ -1244,6 +1282,7 @@ function parseIndexVenueRows(html, { date, dateKey, fallbackVenueByCode }) {
 
 		const currentRaceNo = parseRaceNo(currentRaceCell.text()) ?? 1;
 		const title = compactText(titleLink.text());
+		const statusText = compactText(statusCell.text());
 
 		venues.push({
 			id: venueIdFrom(venueCode, fallbackVenue, venueName),
@@ -1253,11 +1292,13 @@ function parseIndexVenueRows(html, { date, dateKey, fallbackVenueByCode }) {
 			date,
 			session: resolveOfficialVenueSession({ title, className: sessionCell.attr("class") ?? "" }),
 			series: resolveOfficialVenueSeries({ title, className: gradeCell.attr("class") }),
-			status: classifyVenueStatus(statusCell.text()),
+			status: classifyVenueStatus(statusText),
+			eventStatus: resolveOfficialVenueEventStatus({ statusText }),
+			eventStatusText: statusText,
 			source: "official:owpc-html",
 			grade: classifyGrade(gradeCell.attr("class")),
 			dayText: compactText(dayCell.text()),
-			statusText: compactText(statusCell.text()),
+			statusText,
 			currentRaceNo,
 			links: {
 				raceIndexUrl: toAbsoluteUrl(titleLink.attr("href")),
@@ -3106,6 +3147,11 @@ const detailedHtml = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.venueResult(venu
 			explicitSeries: venue.series ?? fallbackVenue?.series,
 		}),
 		status: venue.status ?? fallbackVenue?.status ?? "scheduled",
+		eventStatus: resolveOfficialVenueEventStatus({
+			statusText: venue.eventStatusText ?? venue.statusText ?? fallbackVenue?.eventStatusText ?? fallbackVenue?.statusText,
+			explicitStatus: venue.eventStatus ?? fallbackVenue?.eventStatus,
+		}),
+		eventStatusText: venue.eventStatusText ?? venue.statusText ?? fallbackVenue?.eventStatusText ?? fallbackVenue?.statusText ?? "",
 		dayText: venue.dayText ?? fallbackVenue?.dayText ?? "",
 		statusText: venue.statusText ?? fallbackVenue?.statusText ?? "",
 		currentRaceNo: venue.currentRaceNo ?? fallbackVenue?.currentRaceNo ?? null,

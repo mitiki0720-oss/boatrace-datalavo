@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import type { BoatPredictionVenueTimeKind } from "./boatPredictionGptCopy";
-import type { BoatPredictionVenueSeries } from "./boatraceTypes";
+import type { BoatPredictionVenueSeries, BoatVenueEventStatus } from "./boatraceTypes";
 
 export type BoatPredictionSessionTone = {
 	background: string;
@@ -27,6 +27,64 @@ export type BoatPredictionSeriesBadge = {
 	border: string;
 	color: string;
 	source: "official-series" | "official-event-title";
+};
+
+export type BoatPredictionVenueEventStatusBadge = {
+	status: Exclude<BoatVenueEventStatus, "normal">;
+	label: "中止" | "順延";
+	background: string;
+	border: string;
+	color: string;
+	source: "official-event-status" | "official-status-text";
+};
+
+const normalizeVenueEventStatus = (value: unknown): BoatVenueEventStatus | null => {
+	const normalized = String(value ?? "").normalize("NFKC").trim().toLowerCase();
+	if (["postponed", "postpone", "rescheduled", "順延"].includes(normalized)) return "postponed";
+	if (["cancelled", "canceled", "cancel", "中止"].includes(normalized)) return "cancelled";
+	if (normalized === "normal") return "normal";
+	return null;
+};
+
+const readOfficialStatusText = (value: unknown): BoatVenueEventStatus | null => {
+	const normalized = String(value ?? "").normalize("NFKC").trim();
+	if (!normalized) return null;
+	if (normalized.includes("順延")) return "postponed";
+	if (normalized.includes("中止")) return "cancelled";
+	return null;
+};
+
+export const getBoatPredictionVenueEventStatusBadge = (venue: {
+	eventStatus?: unknown;
+	eventStatusText?: unknown;
+	statusText?: unknown;
+}): BoatPredictionVenueEventStatusBadge | null => {
+	const explicitStatus = normalizeVenueEventStatus(venue.eventStatus);
+	const status = explicitStatus
+		?? readOfficialStatusText(venue.eventStatusText)
+		?? readOfficialStatusText(venue.statusText)
+		?? "normal";
+	if (status === "normal") return null;
+
+	if (status === "postponed") {
+		return {
+			status,
+			label: "順延",
+			background: "#fef3c7",
+			border: "#d97706",
+			color: "#92400e",
+			source: explicitStatus ? "official-event-status" : "official-status-text",
+		};
+	}
+
+	return {
+		status,
+		label: "中止",
+		background: "#fee2e2",
+		border: "#dc2626",
+		color: "#991b1b",
+		source: explicitStatus ? "official-event-status" : "official-status-text",
+	};
 };
 
 const normalizeSeries = (value: unknown): BoatPredictionVenueSeries | null => {
