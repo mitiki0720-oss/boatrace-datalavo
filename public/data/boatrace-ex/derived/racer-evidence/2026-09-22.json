@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-racer-evidence",
   "date": "2026-09-22",
-  "generatedAt": "2026-09-21T20:02:53.356Z",
+  "generatedAt": "2026-09-22T00:04:59.573Z",
   "sourceFiles": [
     {
       "sourceName": "boatrace-ex-history-races",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/history/races/2026-09-22.json",
-      "generatedAt": "2026-09-21T20:02:52.923Z",
+      "generatedAt": "2026-09-22T00:04:58.959Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -16,7 +16,7 @@
       "sourceName": "boatrace-ex-coverage",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/coverage/2026-09-22.json",
-      "generatedAt": "2026-09-21T20:02:52.923Z",
+      "generatedAt": "2026-09-22T00:04:58.959Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -24,7 +24,7 @@
       "sourceName": "boatrace-ex-venue-evidence",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/derived/venue-evidence/2026-09-22.json",
-      "generatedAt": "2026-09-21T20:02:53.225Z",
+      "generatedAt": "2026-09-22T00:04:59.401Z",
       "sourceStatus": "available",
       "coverageStatus": "partial",
       "note": "Optional venue context source for racer evidence v0."
@@ -33,15 +33,15 @@
       "sourceName": "registered-racers.generated.json",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/identity/registered-racers.generated.json",
-      "generatedAt": "2026-09-21T20:02:50.538Z",
+      "generatedAt": "2026-09-22T00:04:55.769Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     }
   ],
   "summary": {
-    "racerCount": 632,
-    "appearanceCount": 990,
-    "officialRegistrationNumberRacerCount": 632,
+    "racerCount": 637,
+    "appearanceCount": 1008,
+    "officialRegistrationNumberRacerCount": 637,
     "nameLinkedRacerCount": 0,
     "unresolvedRacerCount": 0,
     "historyDays": 1,
@@ -2004,7 +2004,7 @@
         "2": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "4": {
           "count": 1,
@@ -2022,7 +2022,7 @@
           "frameNo": 2,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.86,
           "motorNo": "19",
           "boatNo": "35",
           "sourceStatus": "available"
@@ -2052,10 +2052,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.86,
+        "bestExhibitionTime": 6.86,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -3522,7 +3522,7 @@
         "1": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "4": {
           "count": 1,
@@ -3540,7 +3540,7 @@
           "frameNo": 1,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.87,
           "motorNo": "19",
           "boatNo": "11",
           "sourceStatus": "available"
@@ -3570,10 +3570,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.87,
+        "bestExhibitionTime": 6.87,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -4302,6 +4302,144 @@
       "registryLastSeenDate": "2026-08-02",
       "registryVenueCount": 2,
       "registryProvenanceCount": 3,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "racerKey": "registrationNumber:4857",
+      "identityStatus": "verified",
+      "registrationNumber": "4857",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "加藤 翔馬",
+      "branch": "兵庫",
+      "className": "A1",
+      "age": "29",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "2": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "6": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 4,
+          "raceKey": "2026-09-22:20:04",
+          "frameNo": 6,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "4",
+          "boatNo": "34",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 11,
+          "raceKey": "2026-09-22:20:11",
+          "frameNo": 2,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "4",
+          "boatNo": "34",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "4"
+        ],
+        "boatNos": [
+          "34"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "4857",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "加藤 翔馬",
+      "normalizedRacerName": "加藤 翔馬",
+      "nameVariants": [
+        "加藤 翔馬"
+      ],
+      "registryAppearanceCount": 4,
+      "registryFirstSeenDate": "2026-07-19",
+      "registryLastSeenDate": "2026-08-02",
+      "registryVenueCount": 2,
+      "registryProvenanceCount": 4,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -7110,7 +7248,7 @@
         "5": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "6": {
           "count": 1,
@@ -7127,8 +7265,8 @@
           "raceKey": "2026-09-22:10:01",
           "frameNo": 5,
           "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
+          "startTiming": 0.24,
+          "exhibitionTime": 6.81,
           "motorNo": "46",
           "boatNo": "65",
           "sourceStatus": "available"
@@ -7149,19 +7287,19 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
+        "availableCount": 1,
+        "averageST": 0.24,
+        "minST": 0.24,
+        "maxST": 0.24,
         "lateStartCount": null,
         "flyingOrLateCount": null,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.81,
+        "bestExhibitionTime": 6.81,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -8627,8 +8765,8 @@
       "frames": {
         "1": {
           "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "resultAvailableCount": 1,
+          "exhibitionAvailableCount": 1
         },
         "3": {
           "count": 1,
@@ -8644,9 +8782,9 @@
           "raceNo": 1,
           "raceKey": "2026-09-22:10:01",
           "frameNo": 1,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
+          "finishOrder": 1,
+          "startTiming": 0.18,
+          "exhibitionTime": 6.8,
           "motorNo": "23",
           "boatNo": "50",
           "sourceStatus": "available"
@@ -8667,19 +8805,19 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
+        "availableCount": 1,
+        "averageST": 0.18,
+        "minST": 0.18,
+        "maxST": 0.18,
         "lateStartCount": null,
         "flyingOrLateCount": null,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.8,
+        "bestExhibitionTime": 6.8,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -8690,11 +8828,13 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "finishCounts": {
+          "1": 1
+        },
+        "top3Count": 1,
+        "winCount": 1,
+        "sourceStatus": "partial"
       },
       "motorBoatEvidence": {
         "motorNos": [
@@ -9985,6 +10125,144 @@
       "warnings": []
     },
     {
+      "racerKey": "registrationNumber:4257",
+      "identityStatus": "verified",
+      "registrationNumber": "4257",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "古川 健",
+      "branch": "広島",
+      "className": "B1",
+      "age": "42",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "1": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "3": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 2,
+          "raceKey": "2026-09-22:22:02",
+          "frameNo": 1,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "56",
+          "boatNo": "126",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 6,
+          "raceKey": "2026-09-22:22:06",
+          "frameNo": 3,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "56",
+          "boatNo": "126",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "56"
+        ],
+        "boatNos": [
+          "126"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "4257",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "古川 健",
+      "normalizedRacerName": "古川 健",
+      "nameVariants": [
+        "古川 健"
+      ],
+      "registryAppearanceCount": 2,
+      "registryFirstSeenDate": "2026-07-19",
+      "registryLastSeenDate": "2026-07-19",
+      "registryVenueCount": 1,
+      "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
       "racerKey": "registrationNumber:3988",
       "identityStatus": "verified",
       "registrationNumber": "3988",
@@ -10841,7 +11119,7 @@
         "5": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -10854,7 +11132,7 @@
           "frameNo": 5,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.9,
           "motorNo": "28",
           "boatNo": "75",
           "sourceStatus": "available"
@@ -10884,10 +11162,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.9,
+        "bestExhibitionTime": 6.9,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -12354,7 +12632,7 @@
         "3": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "6": {
           "count": 1,
@@ -12372,7 +12650,7 @@
           "frameNo": 3,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.87,
           "motorNo": "18",
           "boatNo": "25",
           "sourceStatus": "available"
@@ -12402,10 +12680,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.87,
+        "bestExhibitionTime": 6.87,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -14010,7 +14288,7 @@
         "2": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "6": {
           "count": 1,
@@ -14028,7 +14306,7 @@
           "frameNo": 2,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.86,
           "motorNo": "49",
           "boatNo": "21",
           "sourceStatus": "available"
@@ -14058,10 +14336,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.86,
+        "bestExhibitionTime": 6.86,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -14953,6 +15231,144 @@
       "warnings": []
     },
     {
+      "racerKey": "registrationNumber:5013",
+      "identityStatus": "verified",
+      "registrationNumber": "5013",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "山下 夏鈴",
+      "branch": "三重",
+      "className": "B1",
+      "age": "29",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "4": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "6": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 2,
+          "raceKey": "2026-09-22:22:02",
+          "frameNo": 4,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "64",
+          "boatNo": "109",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 7,
+          "raceKey": "2026-09-22:22:07",
+          "frameNo": 6,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "64",
+          "boatNo": "109",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "64"
+        ],
+        "boatNos": [
+          "109"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "5013",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "山下 夏鈴",
+      "normalizedRacerName": "山下 夏鈴",
+      "nameVariants": [
+        "山下 夏鈴"
+      ],
+      "registryAppearanceCount": 2,
+      "registryFirstSeenDate": "2026-07-19",
+      "registryLastSeenDate": "2026-07-19",
+      "registryVenueCount": 1,
+      "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
       "racerKey": "registrationNumber:4842",
       "identityStatus": "verified",
       "registrationNumber": "4842",
@@ -15532,8 +15948,8 @@
         },
         "6": {
           "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "resultAvailableCount": 1,
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -15544,9 +15960,9 @@
           "raceNo": 1,
           "raceKey": "2026-09-22:10:01",
           "frameNo": 6,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
+          "finishOrder": 3,
+          "startTiming": 0.24,
+          "exhibitionTime": 6.8,
           "motorNo": "56",
           "boatNo": "32",
           "sourceStatus": "available"
@@ -15567,19 +15983,19 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
+        "availableCount": 1,
+        "averageST": 0.24,
+        "minST": 0.24,
+        "maxST": 0.24,
         "lateStartCount": null,
         "flyingOrLateCount": null,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.8,
+        "bestExhibitionTime": 6.8,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -15590,11 +16006,13 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
+        "availableCount": 1,
+        "finishCounts": {
+          "3": 1
+        },
+        "top3Count": 1,
         "winCount": 0,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "motorBoatEvidence": {
         "motorNos": [
@@ -16637,7 +17055,7 @@
         "4": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -16650,7 +17068,7 @@
           "frameNo": 4,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.88,
           "motorNo": "44",
           "boatNo": "46",
           "sourceStatus": "available"
@@ -16680,10 +17098,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.88,
+        "bestExhibitionTime": 6.88,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -16996,6 +17414,144 @@
       "registryAppearanceCount": 2,
       "registryFirstSeenDate": "2026-07-13",
       "registryLastSeenDate": "2026-07-13",
+      "registryVenueCount": 1,
+      "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "racerKey": "registrationNumber:4063",
+      "identityStatus": "verified",
+      "registrationNumber": "4063",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "市橋 卓士",
+      "branch": "徳島",
+      "className": "A1",
+      "age": "47",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "1": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "2": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 2,
+          "raceKey": "2026-09-22:22:02",
+          "frameNo": 2,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "68",
+          "boatNo": "103",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 11,
+          "raceKey": "2026-09-22:22:11",
+          "frameNo": 1,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "68",
+          "boatNo": "103",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "68"
+        ],
+        "boatNos": [
+          "103"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "4063",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "市橋 卓士",
+      "normalizedRacerName": "市橋 卓士",
+      "nameVariants": [
+        "市橋 卓士"
+      ],
+      "registryAppearanceCount": 2,
+      "registryFirstSeenDate": "2026-07-19",
+      "registryLastSeenDate": "2026-07-19",
       "registryVenueCount": 1,
       "registryProvenanceCount": 2,
       "derivedReadiness": {
@@ -19259,7 +19815,7 @@
         "6": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -19272,7 +19828,7 @@
           "frameNo": 6,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.81,
           "motorNo": "48",
           "boatNo": "56",
           "sourceStatus": "available"
@@ -19302,10 +19858,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.81,
+        "bestExhibitionTime": 6.81,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -21000,6 +21556,144 @@
       "registryLastSeenDate": "2026-07-19",
       "registryVenueCount": 1,
       "registryProvenanceCount": 1,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "racerKey": "registrationNumber:4391",
+      "identityStatus": "verified",
+      "registrationNumber": "4391",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "松田 祐季",
+      "branch": "福井",
+      "className": "A1",
+      "age": "40",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "4": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "6": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 6,
+          "raceKey": "2026-09-22:22:06",
+          "frameNo": 6,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "72",
+          "boatNo": "158",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 12,
+          "raceKey": "2026-09-22:22:12",
+          "frameNo": 4,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "72",
+          "boatNo": "158",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "72"
+        ],
+        "boatNos": [
+          "158"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "4391",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "松田 祐季",
+      "normalizedRacerName": "松田 祐季",
+      "nameVariants": [
+        "松田 祐季"
+      ],
+      "registryAppearanceCount": 2,
+      "registryFirstSeenDate": "2026-09-22",
+      "registryLastSeenDate": "2026-09-22",
+      "registryVenueCount": 1,
+      "registryProvenanceCount": 2,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -25877,8 +26571,8 @@
       "frames": {
         "4": {
           "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "resultAvailableCount": 1,
+          "exhibitionAvailableCount": 1
         },
         "6": {
           "count": 1,
@@ -25894,9 +26588,9 @@
           "raceNo": 1,
           "raceKey": "2026-09-22:10:01",
           "frameNo": 4,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
+          "finishOrder": 2,
+          "startTiming": 0.27,
+          "exhibitionTime": 6.88,
           "motorNo": "16",
           "boatNo": "51",
           "sourceStatus": "available"
@@ -25917,19 +26611,19 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
+        "availableCount": 1,
+        "averageST": 0.27,
+        "minST": 0.27,
+        "maxST": 0.27,
         "lateStartCount": null,
         "flyingOrLateCount": null,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.88,
+        "bestExhibitionTime": 6.88,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -25940,11 +26634,13 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
+        "availableCount": 1,
+        "finishCounts": {
+          "2": 1
+        },
+        "top3Count": 1,
         "winCount": 0,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "motorBoatEvidence": {
         "motorNos": [
@@ -27925,6 +28621,144 @@
       "warnings": []
     },
     {
+      "racerKey": "registrationNumber:3300",
+      "identityStatus": "verified",
+      "registrationNumber": "3300",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "川崎 智幸",
+      "branch": "岡山",
+      "className": "A2",
+      "age": "59",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "2": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "4": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 6,
+          "raceKey": "2026-09-22:22:06",
+          "frameNo": 2,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "46",
+          "boatNo": "170",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 11,
+          "raceKey": "2026-09-22:22:11",
+          "frameNo": 4,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "46",
+          "boatNo": "170",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "46"
+        ],
+        "boatNos": [
+          "170"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "3300",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "川崎 智幸",
+      "normalizedRacerName": "川崎 智幸",
+      "nameVariants": [
+        "川崎 智幸"
+      ],
+      "registryAppearanceCount": 2,
+      "registryFirstSeenDate": "2026-09-22",
+      "registryLastSeenDate": "2026-09-22",
+      "registryVenueCount": 1,
+      "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
       "racerKey": "registrationNumber:5109",
       "identityStatus": "verified",
       "registrationNumber": "5109",
@@ -29190,7 +30024,7 @@
         "1": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "5": {
           "count": 1,
@@ -29208,7 +30042,7 @@
           "frameNo": 1,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.87,
           "motorNo": "57",
           "boatNo": "15",
           "sourceStatus": "available"
@@ -29238,10 +30072,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.87,
+        "bestExhibitionTime": 6.87,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -29880,7 +30714,7 @@
         "1": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "4": {
           "count": 1,
@@ -29898,7 +30732,7 @@
           "frameNo": 1,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.9,
           "motorNo": "32",
           "boatNo": "31",
           "sourceStatus": "available"
@@ -29928,10 +30762,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.9,
+        "bestExhibitionTime": 6.9,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -30382,6 +31216,144 @@
       "registryAppearanceCount": 2,
       "registryFirstSeenDate": "2026-09-22",
       "registryLastSeenDate": "2026-09-22",
+      "registryVenueCount": 1,
+      "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "racerKey": "registrationNumber:4656",
+      "identityStatus": "verified",
+      "registrationNumber": "4656",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "大崎 翔",
+      "branch": "兵庫",
+      "className": "A2",
+      "age": "39",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "3": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "4": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 6,
+          "raceKey": "2026-09-22:22:06",
+          "frameNo": 4,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "50",
+          "boatNo": "141",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 10,
+          "raceKey": "2026-09-22:22:10",
+          "frameNo": 3,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "50",
+          "boatNo": "141",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "50"
+        ],
+        "boatNos": [
+          "141"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "4656",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "大崎 翔",
+      "normalizedRacerName": "大崎 翔",
+      "nameVariants": [
+        "大崎 翔"
+      ],
+      "registryAppearanceCount": 2,
+      "registryFirstSeenDate": "2026-07-13",
+      "registryLastSeenDate": "2026-07-13",
       "registryVenueCount": 1,
       "registryProvenanceCount": 2,
       "derivedReadiness": {
@@ -31955,7 +32927,7 @@
         "2": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -31967,8 +32939,8 @@
           "raceKey": "2026-09-22:10:01",
           "frameNo": 2,
           "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
+          "startTiming": 0.21,
+          "exhibitionTime": 6.79,
           "motorNo": "65",
           "boatNo": "14",
           "sourceStatus": "available"
@@ -31989,19 +32961,19 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
+        "availableCount": 1,
+        "averageST": 0.21,
+        "minST": 0.21,
+        "maxST": 0.21,
         "lateStartCount": null,
         "flyingOrLateCount": null,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.79,
+        "bestExhibitionTime": 6.79,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -32783,7 +33755,7 @@
         "5": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -32796,7 +33768,7 @@
           "frameNo": 5,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.9,
           "motorNo": "51",
           "boatNo": "73",
           "sourceStatus": "available"
@@ -32826,10 +33798,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.9,
+        "bestExhibitionTime": 6.9,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -33473,7 +34445,7 @@
         "2": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -33486,7 +34458,7 @@
           "frameNo": 2,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.84,
           "motorNo": "11",
           "boatNo": "71",
           "sourceStatus": "available"
@@ -33516,10 +34488,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.84,
+        "bestExhibitionTime": 6.84,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -34110,6 +35082,144 @@
       "registryLastSeenDate": "2026-09-22",
       "registryVenueCount": 1,
       "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "racerKey": "registrationNumber:4623",
+      "identityStatus": "verified",
+      "registrationNumber": "4623",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "中北 将史",
+      "branch": "三重",
+      "className": "B1",
+      "age": "41",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "3": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "5": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 1,
+          "raceKey": "2026-09-22:22:01",
+          "frameNo": 3,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "37",
+          "boatNo": "145",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 6,
+          "raceKey": "2026-09-22:22:06",
+          "frameNo": 5,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "37",
+          "boatNo": "145",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "37"
+        ],
+        "boatNos": [
+          "145"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "4623",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "中北 将史",
+      "normalizedRacerName": "中北 将史",
+      "nameVariants": [
+        "中北 将史"
+      ],
+      "registryAppearanceCount": 1,
+      "registryFirstSeenDate": "2026-07-13",
+      "registryLastSeenDate": "2026-07-13",
+      "registryVenueCount": 1,
+      "registryProvenanceCount": 1,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -35101,6 +36211,144 @@
       "warnings": []
     },
     {
+      "racerKey": "registrationNumber:5234",
+      "identityStatus": "verified",
+      "registrationNumber": "5234",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "塚越 海斗",
+      "branch": "群馬",
+      "className": "A1",
+      "age": "28",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "1": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "4": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 4,
+          "raceKey": "2026-09-22:20:04",
+          "frameNo": 1,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "54",
+          "boatNo": "31",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 10,
+          "raceKey": "2026-09-22:20:10",
+          "frameNo": 4,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "54",
+          "boatNo": "31",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "54"
+        ],
+        "boatNos": [
+          "31"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "5234",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "塚越 海斗",
+      "normalizedRacerName": "塚越 海斗",
+      "nameVariants": [
+        "塚越 海斗"
+      ],
+      "registryAppearanceCount": 3,
+      "registryFirstSeenDate": "2026-07-19",
+      "registryLastSeenDate": "2026-08-02",
+      "registryVenueCount": 2,
+      "registryProvenanceCount": 3,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
       "racerKey": "registrationNumber:5402",
       "identityStatus": "verified",
       "registrationNumber": "5402",
@@ -35626,6 +36874,144 @@
       "registryAppearanceCount": 2,
       "registryFirstSeenDate": "2026-07-13",
       "registryLastSeenDate": "2026-07-13",
+      "registryVenueCount": 1,
+      "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "racerKey": "registrationNumber:4607",
+      "identityStatus": "verified",
+      "registrationNumber": "4607",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "鶴田 勇雄",
+      "branch": "福岡",
+      "className": "A2",
+      "age": "37",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "3": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "6": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 2,
+          "raceKey": "2026-09-22:22:02",
+          "frameNo": 3,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "17",
+          "boatNo": "106",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 10,
+          "raceKey": "2026-09-22:22:10",
+          "frameNo": 6,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "17",
+          "boatNo": "106",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "17"
+        ],
+        "boatNos": [
+          "106"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "4607",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "鶴田 勇雄",
+      "normalizedRacerName": "鶴田 勇雄",
+      "nameVariants": [
+        "鶴田 勇雄"
+      ],
+      "registryAppearanceCount": 2,
+      "registryFirstSeenDate": "2026-09-22",
+      "registryLastSeenDate": "2026-09-22",
       "registryVenueCount": 1,
       "registryProvenanceCount": 2,
       "derivedReadiness": {
@@ -40345,6 +41731,144 @@
       "warnings": []
     },
     {
+      "racerKey": "registrationNumber:5042",
+      "identityStatus": "verified",
+      "registrationNumber": "5042",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "畑田 汰一",
+      "branch": "埼玉",
+      "className": "A1",
+      "age": "27",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "3": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "4": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 4,
+          "raceKey": "2026-09-22:20:04",
+          "frameNo": 3,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "43",
+          "boatNo": "51",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 9,
+          "raceKey": "2026-09-22:20:09",
+          "frameNo": 4,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "43",
+          "boatNo": "51",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "43"
+        ],
+        "boatNos": [
+          "51"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "5042",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "畑田 汰一",
+      "normalizedRacerName": "畑田 汰一",
+      "nameVariants": [
+        "畑田 汰一"
+      ],
+      "registryAppearanceCount": 2,
+      "registryFirstSeenDate": "2026-07-13",
+      "registryLastSeenDate": "2026-07-19",
+      "registryVenueCount": 2,
+      "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
       "racerKey": "registrationNumber:3940",
       "identityStatus": "verified",
       "registrationNumber": "3940",
@@ -41472,7 +42996,7 @@
         "4": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "5": {
           "count": 1,
@@ -41490,7 +43014,7 @@
           "frameNo": 4,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.91,
           "motorNo": "12",
           "boatNo": "60",
           "sourceStatus": "available"
@@ -41520,10 +43044,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.91,
+        "bestExhibitionTime": 6.91,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -42804,6 +44328,144 @@
       "registryLastSeenDate": "2026-07-19",
       "registryVenueCount": 1,
       "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "racerKey": "registrationNumber:5193",
+      "identityStatus": "verified",
+      "registrationNumber": "5193",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "米丸 乃絵",
+      "branch": "福岡",
+      "className": "A1",
+      "age": "25",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "3": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "4": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 4,
+          "raceKey": "2026-09-22:20:04",
+          "frameNo": 4,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "38",
+          "boatNo": "15",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 8,
+          "raceKey": "2026-09-22:20:08",
+          "frameNo": 3,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "38",
+          "boatNo": "15",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "38"
+        ],
+        "boatNos": [
+          "15"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "5193",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "米丸 乃絵",
+      "normalizedRacerName": "米丸 乃絵",
+      "nameVariants": [
+        "米丸 乃絵"
+      ],
+      "registryAppearanceCount": 3,
+      "registryFirstSeenDate": "2026-07-19",
+      "registryLastSeenDate": "2026-08-02",
+      "registryVenueCount": 2,
+      "registryProvenanceCount": 3,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -45341,7 +47003,7 @@
         "3": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -45354,7 +47016,7 @@
           "frameNo": 3,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.88,
           "motorNo": "30",
           "boatNo": "45",
           "sourceStatus": "available"
@@ -45384,10 +47046,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.88,
+        "bestExhibitionTime": 6.88,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -47218,6 +48880,144 @@
       "registryAppearanceCount": 2,
       "registryFirstSeenDate": "2026-08-02",
       "registryLastSeenDate": "2026-08-02",
+      "registryVenueCount": 1,
+      "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "racerKey": "registrationNumber:3664",
+      "identityStatus": "verified",
+      "registrationNumber": "3664",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "鈴木 賢一",
+      "branch": "埼玉",
+      "className": "B1",
+      "age": "56",
+      "appearanceCount": 2,
+      "venues": [
+        {
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceCount": 2
+        }
+      ],
+      "frames": {
+        "2": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        },
+        "5": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 2,
+          "raceKey": "2026-09-22:22:02",
+          "frameNo": 5,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "63",
+          "boatNo": "148",
+          "sourceStatus": "available"
+        },
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 8,
+          "raceKey": "2026-09-22:22:08",
+          "frameNo": 2,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "63",
+          "boatNo": "148",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "63"
+        ],
+        "boatNos": [
+          "148"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "3664",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "鈴木 賢一",
+      "normalizedRacerName": "鈴木 賢一",
+      "nameVariants": [
+        "鈴木 賢一"
+      ],
+      "registryAppearanceCount": 2,
+      "registryFirstSeenDate": "2026-09-22",
+      "registryLastSeenDate": "2026-09-22",
       "registryVenueCount": 1,
       "registryProvenanceCount": 2,
       "derivedReadiness": {
@@ -51499,7 +53299,7 @@
         "4": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -51512,7 +53312,7 @@
           "frameNo": 4,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.88,
           "motorNo": "25",
           "boatNo": "20",
           "sourceStatus": "available"
@@ -51528,10 +53328,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.88,
+        "bestExhibitionTime": 6.88,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -52284,125 +54084,6 @@
       "registryLastSeenDate": "2026-07-13",
       "registryVenueCount": 1,
       "registryProvenanceCount": 1,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
-      "racerKey": "registrationNumber:4857",
-      "identityStatus": "verified",
-      "registrationNumber": "4857",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "加藤 翔馬",
-      "branch": "兵庫",
-      "className": "A1",
-      "age": "29",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "20",
-          "venueName": "若松",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "2": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "20",
-          "venueName": "若松",
-          "raceNo": 11,
-          "raceKey": "2026-09-22:20:11",
-          "frameNo": 2,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "4",
-          "boatNo": "34",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "4"
-        ],
-        "boatNos": [
-          "34"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "4857",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "加藤 翔馬",
-      "normalizedRacerName": "加藤 翔馬",
-      "nameVariants": [
-        "加藤 翔馬"
-      ],
-      "registryAppearanceCount": 4,
-      "registryFirstSeenDate": "2026-07-19",
-      "registryLastSeenDate": "2026-08-02",
-      "registryVenueCount": 2,
-      "registryProvenanceCount": 4,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -58616,125 +60297,6 @@
       "warnings": []
     },
     {
-      "racerKey": "registrationNumber:5013",
-      "identityStatus": "verified",
-      "registrationNumber": "5013",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "山下 夏鈴",
-      "branch": "三重",
-      "className": "B1",
-      "age": "29",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "6": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceNo": 7,
-          "raceKey": "2026-09-22:22:07",
-          "frameNo": 6,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "64",
-          "boatNo": "109",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "64"
-        ],
-        "boatNos": [
-          "109"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "5013",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "山下 夏鈴",
-      "normalizedRacerName": "山下 夏鈴",
-      "nameVariants": [
-        "山下 夏鈴"
-      ],
-      "registryAppearanceCount": 2,
-      "registryFirstSeenDate": "2026-07-19",
-      "registryLastSeenDate": "2026-07-19",
-      "registryVenueCount": 1,
-      "registryProvenanceCount": 2,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
       "racerKey": "registrationNumber:4872",
       "identityStatus": "verified",
       "registrationNumber": "4872",
@@ -59353,7 +60915,7 @@
         "5": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -59366,7 +60928,7 @@
           "frameNo": 5,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.8,
           "motorNo": "20",
           "boatNo": "72",
           "sourceStatus": "available"
@@ -59382,10 +60944,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.8,
+        "bestExhibitionTime": 6.8,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -59710,7 +61272,7 @@
         "6": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -59723,7 +61285,7 @@
           "frameNo": 6,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.91,
           "motorNo": "29",
           "boatNo": "70",
           "sourceStatus": "available"
@@ -59739,10 +61301,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.91,
+        "bestExhibitionTime": 6.91,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -60257,125 +61819,6 @@
       "registryLastSeenDate": "2026-08-02",
       "registryVenueCount": 3,
       "registryProvenanceCount": 4,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
-      "racerKey": "registrationNumber:4063",
-      "identityStatus": "verified",
-      "registrationNumber": "4063",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "市橋 卓士",
-      "branch": "徳島",
-      "className": "A1",
-      "age": "47",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "1": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceNo": 11,
-          "raceKey": "2026-09-22:22:11",
-          "frameNo": 1,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "68",
-          "boatNo": "103",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "68"
-        ],
-        "boatNos": [
-          "103"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "4063",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "市橋 卓士",
-      "normalizedRacerName": "市橋 卓士",
-      "nameVariants": [
-        "市橋 卓士"
-      ],
-      "registryAppearanceCount": 2,
-      "registryFirstSeenDate": "2026-07-19",
-      "registryLastSeenDate": "2026-07-19",
-      "registryVenueCount": 1,
-      "registryProvenanceCount": 2,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -61209,6 +62652,125 @@
       "registryLastSeenDate": "2026-07-19",
       "registryVenueCount": 1,
       "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "racerKey": "registrationNumber:5034",
+      "identityStatus": "verified",
+      "registrationNumber": "5034",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "若林 義人",
+      "branch": "静岡",
+      "className": "A1",
+      "age": "28",
+      "appearanceCount": 1,
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceCount": 1
+        }
+      ],
+      "frames": {
+        "2": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 4,
+          "raceKey": "2026-09-22:20:04",
+          "frameNo": 2,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "49",
+          "boatNo": "65",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "49"
+        ],
+        "boatNos": [
+          "65"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "5034",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "若林 義人",
+      "normalizedRacerName": "若林 義人",
+      "nameVariants": [
+        "若林 義人"
+      ],
+      "registryAppearanceCount": 5,
+      "registryFirstSeenDate": "2026-07-13",
+      "registryLastSeenDate": "2026-08-02",
+      "registryVenueCount": 3,
+      "registryProvenanceCount": 5,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -63376,125 +64938,6 @@
       "warnings": []
     },
     {
-      "racerKey": "registrationNumber:4391",
-      "identityStatus": "verified",
-      "registrationNumber": "4391",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "松田 祐季",
-      "branch": "福井",
-      "className": "A1",
-      "age": "40",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "4": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceNo": 12,
-          "raceKey": "2026-09-22:22:12",
-          "frameNo": 4,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "72",
-          "boatNo": "158",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "72"
-        ],
-        "boatNos": [
-          "158"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "4391",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "松田 祐季",
-      "normalizedRacerName": "松田 祐季",
-      "nameVariants": [
-        "松田 祐季"
-      ],
-      "registryAppearanceCount": 1,
-      "registryFirstSeenDate": "2026-09-22",
-      "registryLastSeenDate": "2026-09-22",
-      "registryVenueCount": 1,
-      "registryProvenanceCount": 1,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
       "racerKey": "registrationNumber:4100",
       "identityStatus": "verified",
       "registrationNumber": "4100",
@@ -64827,7 +66270,7 @@
         "3": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -64840,7 +66283,7 @@
           "frameNo": 3,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.99,
           "motorNo": "17",
           "boatNo": "27",
           "sourceStatus": "available"
@@ -64856,10 +66299,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.99,
+        "bestExhibitionTime": 6.99,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -66470,6 +67913,125 @@
       "warnings": []
     },
     {
+      "racerKey": "registrationNumber:5220",
+      "identityStatus": "verified",
+      "registrationNumber": "5220",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "青木 蓮",
+      "branch": "埼玉",
+      "className": "A2",
+      "age": "25",
+      "appearanceCount": 1,
+      "venues": [
+        {
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceCount": 1
+        }
+      ],
+      "frames": {
+        "5": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "20",
+          "venueName": "若松",
+          "raceNo": 4,
+          "raceKey": "2026-09-22:20:04",
+          "frameNo": 5,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "53",
+          "boatNo": "42",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "53"
+        ],
+        "boatNos": [
+          "42"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "5220",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "青木 蓮",
+      "normalizedRacerName": "青木 蓮",
+      "nameVariants": [
+        "青木 蓮"
+      ],
+      "registryAppearanceCount": 2,
+      "registryFirstSeenDate": "2026-07-13",
+      "registryLastSeenDate": "2026-07-19",
+      "registryVenueCount": 2,
+      "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
       "racerKey": "registrationNumber:5339",
       "identityStatus": "verified",
       "registrationNumber": "5339",
@@ -66946,125 +68508,6 @@
       "warnings": []
     },
     {
-      "racerKey": "registrationNumber:3300",
-      "identityStatus": "verified",
-      "registrationNumber": "3300",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "川崎 智幸",
-      "branch": "岡山",
-      "className": "A2",
-      "age": "59",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "4": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceNo": 11,
-          "raceKey": "2026-09-22:22:11",
-          "frameNo": 4,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "46",
-          "boatNo": "170",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "46"
-        ],
-        "boatNos": [
-          "170"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "3300",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "川崎 智幸",
-      "normalizedRacerName": "川崎 智幸",
-      "nameVariants": [
-        "川崎 智幸"
-      ],
-      "registryAppearanceCount": 1,
-      "registryFirstSeenDate": "2026-09-22",
-      "registryLastSeenDate": "2026-09-22",
-      "registryVenueCount": 1,
-      "registryProvenanceCount": 1,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
       "racerKey": "registrationNumber:4020",
       "identityStatus": "verified",
       "registrationNumber": "4020",
@@ -67326,7 +68769,7 @@
         "6": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -67339,7 +68782,7 @@
           "frameNo": 6,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.92,
           "motorNo": "41",
           "boatNo": "39",
           "sourceStatus": "available"
@@ -67355,10 +68798,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.92,
+        "bestExhibitionTime": 6.92,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -68349,125 +69792,6 @@
       "registryLastSeenDate": "2026-08-02",
       "registryVenueCount": 2,
       "registryProvenanceCount": 3,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
-      "racerKey": "registrationNumber:4656",
-      "identityStatus": "verified",
-      "registrationNumber": "4656",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "大崎 翔",
-      "branch": "兵庫",
-      "className": "A2",
-      "age": "39",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "3": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceNo": 10,
-          "raceKey": "2026-09-22:22:10",
-          "frameNo": 3,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "50",
-          "boatNo": "141",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "50"
-        ],
-        "boatNos": [
-          "141"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "4656",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "大崎 翔",
-      "normalizedRacerName": "大崎 翔",
-      "nameVariants": [
-        "大崎 翔"
-      ],
-      "registryAppearanceCount": 2,
-      "registryFirstSeenDate": "2026-07-13",
-      "registryLastSeenDate": "2026-07-13",
-      "registryVenueCount": 1,
-      "registryProvenanceCount": 2,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -71706,125 +73030,6 @@
       "warnings": []
     },
     {
-      "racerKey": "registrationNumber:4623",
-      "identityStatus": "verified",
-      "registrationNumber": "4623",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "中北 将史",
-      "branch": "三重",
-      "className": "B1",
-      "age": "41",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "3": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceNo": 1,
-          "raceKey": "2026-09-22:22:01",
-          "frameNo": 3,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "37",
-          "boatNo": "145",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "37"
-        ],
-        "boatNos": [
-          "145"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "4623",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "中北 将史",
-      "normalizedRacerName": "中北 将史",
-      "nameVariants": [
-        "中北 将史"
-      ],
-      "registryAppearanceCount": 1,
-      "registryFirstSeenDate": "2026-07-13",
-      "registryLastSeenDate": "2026-07-13",
-      "registryVenueCount": 1,
-      "registryProvenanceCount": 1,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
       "racerKey": "registrationNumber:5282",
       "identityStatus": "verified",
       "registrationNumber": "5282",
@@ -73253,125 +74458,6 @@
       "warnings": []
     },
     {
-      "racerKey": "registrationNumber:5234",
-      "identityStatus": "verified",
-      "registrationNumber": "5234",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "塚越 海斗",
-      "branch": "群馬",
-      "className": "A1",
-      "age": "28",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "20",
-          "venueName": "若松",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "4": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "20",
-          "venueName": "若松",
-          "raceNo": 10,
-          "raceKey": "2026-09-22:20:10",
-          "frameNo": 4,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "54",
-          "boatNo": "31",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "54"
-        ],
-        "boatNos": [
-          "31"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "5234",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "塚越 海斗",
-      "normalizedRacerName": "塚越 海斗",
-      "nameVariants": [
-        "塚越 海斗"
-      ],
-      "registryAppearanceCount": 3,
-      "registryFirstSeenDate": "2026-07-19",
-      "registryLastSeenDate": "2026-08-02",
-      "registryVenueCount": 2,
-      "registryProvenanceCount": 3,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
       "racerKey": "registrationNumber:5289",
       "identityStatus": "verified",
       "registrationNumber": "5289",
@@ -73466,125 +74552,6 @@
       "registryLastSeenDate": "2026-08-02",
       "registryVenueCount": 2,
       "registryProvenanceCount": 4,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
-      "racerKey": "registrationNumber:4607",
-      "identityStatus": "verified",
-      "registrationNumber": "4607",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "鶴田 勇雄",
-      "branch": "福岡",
-      "className": "A2",
-      "age": "37",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "6": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceNo": 10,
-          "raceKey": "2026-09-22:22:10",
-          "frameNo": 6,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "17",
-          "boatNo": "106",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "17"
-        ],
-        "boatNos": [
-          "106"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "4607",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "鶴田 勇雄",
-      "normalizedRacerName": "鶴田 勇雄",
-      "nameVariants": [
-        "鶴田 勇雄"
-      ],
-      "registryAppearanceCount": 1,
-      "registryFirstSeenDate": "2026-09-22",
-      "registryLastSeenDate": "2026-09-22",
-      "registryVenueCount": 1,
-      "registryProvenanceCount": 1,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -73823,6 +74790,125 @@
       "registryLastSeenDate": "2026-07-13",
       "registryVenueCount": 1,
       "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "racerKey": "registrationNumber:5459",
+      "identityStatus": "verified",
+      "registrationNumber": "5459",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "田中 きら",
+      "branch": "山口",
+      "className": "B2",
+      "age": "20",
+      "appearanceCount": 1,
+      "venues": [
+        {
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceCount": 1
+        }
+      ],
+      "frames": {
+        "6": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 2,
+          "raceKey": "2026-09-22:22:02",
+          "frameNo": 6,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "48",
+          "boatNo": "127",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "48"
+        ],
+        "boatNos": [
+          "127"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "5459",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "田中 きら",
+      "normalizedRacerName": "田中 きら",
+      "nameVariants": [
+        "田中 きら"
+      ],
+      "registryAppearanceCount": 1,
+      "registryFirstSeenDate": "2026-09-22",
+      "registryLastSeenDate": "2026-09-22",
+      "registryVenueCount": 1,
+      "registryProvenanceCount": 1,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -74347,7 +75433,7 @@
         "3": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -74359,27 +75445,27 @@
           "raceKey": "2026-09-22:10:01",
           "frameNo": 3,
           "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
+          "startTiming": 0.26,
+          "exhibitionTime": 6.91,
           "motorNo": "33",
           "boatNo": "20",
           "sourceStatus": "available"
         }
       ],
       "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
+        "availableCount": 1,
+        "averageST": 0.26,
+        "minST": 0.26,
+        "maxST": 0.26,
         "lateStartCount": null,
         "flyingOrLateCount": null,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.91,
+        "bestExhibitionTime": 6.91,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -75871,6 +76957,125 @@
       "warnings": []
     },
     {
+      "racerKey": "registrationNumber:5180",
+      "identityStatus": "verified",
+      "registrationNumber": "5180",
+      "resolvedRegistrationNo": null,
+      "identityLinkMethod": null,
+      "registrationNoSourceStatus": null,
+      "officialRegistrationNoAvailable": true,
+      "racerName": "藤本 紗弥香",
+      "branch": "山口",
+      "className": "B2",
+      "age": "28",
+      "appearanceCount": 1,
+      "venues": [
+        {
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceCount": 1
+        }
+      ],
+      "frames": {
+        "1": {
+          "count": 1,
+          "resultAvailableCount": 0,
+          "exhibitionAvailableCount": 0
+        }
+      },
+      "raceEvidence": [
+        {
+          "date": "2026-09-22",
+          "venueCode": "22",
+          "venueName": "福岡",
+          "raceNo": 6,
+          "raceKey": "2026-09-22:22:06",
+          "frameNo": 1,
+          "finishOrder": null,
+          "startTiming": null,
+          "exhibitionTime": null,
+          "motorNo": "16",
+          "boatNo": "102",
+          "sourceStatus": "available"
+        }
+      ],
+      "startEvidence": {
+        "availableCount": 0,
+        "averageST": null,
+        "minST": null,
+        "maxST": null,
+        "lateStartCount": null,
+        "flyingOrLateCount": null,
+        "sourceStatus": "missing"
+      },
+      "exhibitionEvidence": {
+        "availableCount": 0,
+        "averageExhibitionTime": null,
+        "bestExhibitionTime": null,
+        "sourceStatus": "missing"
+      },
+      "courseChangeEvidence": {
+        "availableCount": 0,
+        "frameToFinalCourseChangedCount": null,
+        "exhibitionToFinalCourseChangedCount": null,
+        "examples": [],
+        "sourceStatus": "missing",
+        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
+      },
+      "resultEvidence": {
+        "availableCount": 0,
+        "finishCounts": {},
+        "top3Count": 0,
+        "winCount": 0,
+        "sourceStatus": "missing"
+      },
+      "motorBoatEvidence": {
+        "motorNos": [
+          "16"
+        ],
+        "boatNos": [
+          "102"
+        ],
+        "sourceStatus": "partial"
+      },
+      "identityRegistryKey": "5180",
+      "identityRegistryMatched": true,
+      "identityRegistrySource": "registered-racers.generated.json",
+      "canonicalRacerName": "藤本 紗弥香",
+      "normalizedRacerName": "藤本 紗弥香",
+      "nameVariants": [
+        "藤本 紗弥香"
+      ],
+      "registryAppearanceCount": 2,
+      "registryFirstSeenDate": "2026-07-19",
+      "registryLastSeenDate": "2026-08-02",
+      "registryVenueCount": 2,
+      "registryProvenanceCount": 2,
+      "derivedReadiness": {
+        "racerProfile": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
+        },
+        "courseChangePattern": {
+          "status": "insufficient-history",
+          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
+        },
+        "exhibitionReliability": {
+          "status": "insufficient-history",
+          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
+        },
+        "startTimingPattern": {
+          "status": "insufficient-history",
+          "reason": "Start timing pattern requires accumulated ST evidence."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
       "racerKey": "registrationNumber:4330",
       "identityStatus": "verified",
       "registrationNumber": "4330",
@@ -76441,125 +77646,6 @@
       "registryLastSeenDate": "2026-09-22",
       "registryVenueCount": 1,
       "registryProvenanceCount": 1,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
-      "racerKey": "registrationNumber:5042",
-      "identityStatus": "verified",
-      "registrationNumber": "5042",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "畑田 汰一",
-      "branch": "埼玉",
-      "className": "A1",
-      "age": "27",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "20",
-          "venueName": "若松",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "4": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "20",
-          "venueName": "若松",
-          "raceNo": 9,
-          "raceKey": "2026-09-22:20:09",
-          "frameNo": 4,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "43",
-          "boatNo": "51",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "43"
-        ],
-        "boatNos": [
-          "51"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "5042",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "畑田 汰一",
-      "normalizedRacerName": "畑田 汰一",
-      "nameVariants": [
-        "畑田 汰一"
-      ],
-      "registryAppearanceCount": 2,
-      "registryFirstSeenDate": "2026-07-13",
-      "registryLastSeenDate": "2026-07-19",
-      "registryVenueCount": 2,
-      "registryProvenanceCount": 2,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -78464,125 +79550,6 @@
       "registryLastSeenDate": "2026-07-13",
       "registryVenueCount": 1,
       "registryProvenanceCount": 2,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
-      "racerKey": "registrationNumber:5193",
-      "identityStatus": "verified",
-      "registrationNumber": "5193",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "米丸 乃絵",
-      "branch": "福岡",
-      "className": "A1",
-      "age": "25",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "20",
-          "venueName": "若松",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "3": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "20",
-          "venueName": "若松",
-          "raceNo": 8,
-          "raceKey": "2026-09-22:20:08",
-          "frameNo": 3,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "38",
-          "boatNo": "15",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "38"
-        ],
-        "boatNos": [
-          "15"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "5193",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "米丸 乃絵",
-      "normalizedRacerName": "米丸 乃絵",
-      "nameVariants": [
-        "米丸 乃絵"
-      ],
-      "registryAppearanceCount": 3,
-      "registryFirstSeenDate": "2026-07-19",
-      "registryLastSeenDate": "2026-08-02",
-      "registryVenueCount": 2,
-      "registryProvenanceCount": 3,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
@@ -80725,125 +81692,6 @@
       "registryLastSeenDate": "2026-07-19",
       "registryVenueCount": 1,
       "registryProvenanceCount": 2,
-      "derivedReadiness": {
-        "racerProfile": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Racer profile requires accumulated evidence."
-        },
-        "courseChangePattern": {
-          "status": "insufficient-history",
-          "reason": "Course-change pattern requires repeated source-backed approach/exhibition evidence."
-        },
-        "exhibitionReliability": {
-          "status": "insufficient-history",
-          "reason": "Exhibition reliability requires multi-race comparison of exhibition and race results."
-        },
-        "startTimingPattern": {
-          "status": "insufficient-history",
-          "reason": "Start timing pattern requires accumulated ST evidence."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": []
-    },
-    {
-      "racerKey": "registrationNumber:3664",
-      "identityStatus": "verified",
-      "registrationNumber": "3664",
-      "resolvedRegistrationNo": null,
-      "identityLinkMethod": null,
-      "registrationNoSourceStatus": null,
-      "officialRegistrationNoAvailable": true,
-      "racerName": "鈴木 賢一",
-      "branch": "埼玉",
-      "className": "B1",
-      "age": "56",
-      "appearanceCount": 1,
-      "venues": [
-        {
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceCount": 1
-        }
-      ],
-      "frames": {
-        "2": {
-          "count": 1,
-          "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
-        }
-      },
-      "raceEvidence": [
-        {
-          "date": "2026-09-22",
-          "venueCode": "22",
-          "venueName": "福岡",
-          "raceNo": 8,
-          "raceKey": "2026-09-22:22:08",
-          "frameNo": 2,
-          "finishOrder": null,
-          "startTiming": null,
-          "exhibitionTime": null,
-          "motorNo": "63",
-          "boatNo": "148",
-          "sourceStatus": "available"
-        }
-      ],
-      "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
-        "lateStartCount": null,
-        "flyingOrLateCount": null,
-        "sourceStatus": "missing"
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
-      },
-      "courseChangeEvidence": {
-        "availableCount": 0,
-        "frameToFinalCourseChangedCount": null,
-        "exhibitionToFinalCourseChangedCount": null,
-        "examples": [],
-        "sourceStatus": "missing",
-        "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
-      },
-      "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
-        "winCount": 0,
-        "sourceStatus": "missing"
-      },
-      "motorBoatEvidence": {
-        "motorNos": [
-          "63"
-        ],
-        "boatNos": [
-          "148"
-        ],
-        "sourceStatus": "partial"
-      },
-      "identityRegistryKey": "3664",
-      "identityRegistryMatched": true,
-      "identityRegistrySource": "registered-racers.generated.json",
-      "canonicalRacerName": "鈴木 賢一",
-      "normalizedRacerName": "鈴木 賢一",
-      "nameVariants": [
-        "鈴木 賢一"
-      ],
-      "registryAppearanceCount": 1,
-      "registryFirstSeenDate": "2026-09-22",
-      "registryLastSeenDate": "2026-09-22",
-      "registryVenueCount": 1,
-      "registryProvenanceCount": 1,
       "derivedReadiness": {
         "racerProfile": {
           "status": "insufficient-history",
