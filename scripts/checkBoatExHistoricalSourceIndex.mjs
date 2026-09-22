@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
 const INDEX_PATH = "public/data/boatrace-ex/source/historical-sources.generated.json";
-const COVERAGE_PATH = "public/data/boatrace-ex/derived/history-coverage/latest.json";
+const COVERAGE_PATH = "public/data/boatrace-ex/derived/historical-source-coverage/latest.json";
 const SOURCE_TYPES = new Set(["review-text", "review-json", "dog-image", "boatrace-generated-json", "boatrace-ex-derived-json", "unknown"]);
 
 function readJson(relativePath) {

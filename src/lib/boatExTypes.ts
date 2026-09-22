@@ -1198,6 +1198,38 @@ export interface BoatExHistoricalSourceCoverageFile {
 	warnings: string[];
 }
 
+export interface BoatExHistoryCoverageFile {
+	schemaVersion: "boat-ex-history-coverage-v2";
+	kind: "boatrace-ex-history-coverage";
+	generatedAt: string;
+	sourceIndexPath: string;
+	dateRange: {
+		from: BoatExDateKey | null;
+		to: BoatExDateKey | null;
+		dateCount: number;
+	};
+	summary: {
+		raceCount: number;
+		venueCount: number;
+		resultAvailableRaceCount: number;
+		payoutAvailableRaceCount: number;
+		exhibitionAvailableRaceCount: number;
+		weatherAvailableRaceCount: number;
+	};
+	venues: Array<{
+		venueCode: BoatExVenueCode;
+		venueName: string;
+		dateCount: number;
+		raceCount: number;
+	}>;
+	readiness: {
+		status: "ready" | "available" | "unavailable";
+		reason: string;
+	};
+	sourceFiles: string[];
+	warnings: string[];
+}
+
 export interface BoatExTodayFlowV1File {
 	schemaVersion: "boat-ex-today-flow-v1";
 	generatedAt: string;

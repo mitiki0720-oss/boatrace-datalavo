@@ -36,6 +36,23 @@ function writeJson(relativePath, value, dryRun) {
 	fs.writeFileSync(target, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
+function sameExceptGeneratedAt(left, right) {
+	if (!left || !right) return false;
+	const { generatedAt: _leftGeneratedAt, ...leftRest } = left;
+	const { generatedAt: _rightGeneratedAt, ...rightRest } = right;
+	return JSON.stringify(leftRest) === JSON.stringify(rightRest);
+}
+
+function writeShardIfChanged(relativePath, value, dryRun) {
+	const target = absolute(relativePath);
+	if (fs.existsSync(target)) {
+		const existing = JSON.parse(fs.readFileSync(target, "utf8"));
+		if (sameExceptGeneratedAt(existing, value)) return false;
+	}
+	writeJson(relativePath, value, dryRun);
+	return true;
+}
+
 function availability(value, required = false) {
 	return value ? "available" : required ? "missing" : "not-supported";
 }
@@ -199,6 +216,7 @@ function main() {
 	const latestAnalysis = readJson(LATEST_ANALYSIS_PATH);
 	const dateSummaries = [];
 	const allRaces = [];
+	let changedShardCount = 0;
 
 	for (const date of index.availableDates ?? []) {
 		const sourcePaths = sourcePathsFor(date);
@@ -220,7 +238,7 @@ function main() {
 			sourceFiles: Object.values(sourcePaths),
 			races,
 		};
-		writeJson(shardPath, shard, args.dryRun);
+		if (writeShardIfChanged(shardPath, shard, args.dryRun)) changedShardCount += 1;
 		dateSummaries.push({ date, path: shardPath, ...summary, readiness: shard.summary.readiness });
 		allRaces.push(...races);
 	}
@@ -277,7 +295,7 @@ function main() {
 	writeJson(HISTORY_INDEX_PATH, historyIndex, args.dryRun);
 	writeJson(auditPath, audit, args.dryRun);
 	writeJson(MANIFEST_PATH, manifest, args.dryRun);
-	console.log(JSON.stringify({ ok: true, dateCount: dateSummaries.length, historyRaceCount: totals.raceCount, latestDate, latestRaceCount: latestDateSummary?.raceCount ?? 0, resultAvailableRaceCount: totals.resultAvailableRaceCount, payoutAvailableRaceCount: totals.payoutAvailableRaceCount, summaryPath: SUMMARY_PATH, historyIndexPath: HISTORY_INDEX_PATH, auditPath }, null, 2));
+	console.log(JSON.stringify({ ok: true, dateCount: dateSummaries.length, changedShardCount, historyRaceCount: totals.raceCount, latestDate, latestRaceCount: latestDateSummary?.raceCount ?? 0, resultAvailableRaceCount: totals.resultAvailableRaceCount, payoutAvailableRaceCount: totals.payoutAvailableRaceCount, summaryPath: SUMMARY_PATH, historyIndexPath: HISTORY_INDEX_PATH, auditPath }, null, 2));
 }
 
 main();

@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { isDeepStrictEqual } from "node:util";
 import { fileURLToPath } from "node:url";
 import { load } from "cheerio";
 import { preserveTodayRaceDetailsFeed } from "./boatExhibitionSnapshotPreservation.mjs";
@@ -509,6 +510,13 @@ function normalizeRaceNo(value) {
 	return match ? Number(match[1]) : null;
 }
 
+export function normalizeVenueCode(value) {
+	const text = compactText(value);
+	if (!text) return "";
+	if (/^\d{1,2}$/.test(text)) return text.padStart(2, "0");
+	return text;
+}
+
 function getDetailResult(detail) {
 	if (!detail || typeof detail !== "object") {
 		return null;
@@ -986,6 +994,118 @@ function dedupeByRaceNo(races) {
 	return Array.from(raceMap.values()).sort((left, right) => left.raceNo - right.raceNo);
 }
 
+function hasMergeValue(value) {
+	return value !== undefined && value !== null && value !== "";
+}
+
+function mergeStrictValue(current, candidate, location) {
+	if (!hasMergeValue(current)) return candidate;
+	if (!hasMergeValue(candidate)) return current;
+	if (isDeepStrictEqual(current, candidate)) return current;
+	throw new Error(`[boat details] conflicting duplicate source value at ${location}: ${JSON.stringify(current)} !== ${JSON.stringify(candidate)}`);
+}
+
+function mergeStrictObject(current, candidate, location) {
+	const merged = { ...(current ?? {}) };
+	for (const [key, value] of Object.entries(candidate ?? {})) {
+		merged[key] = mergeStrictValue(merged[key], value, `${location}.${key}`);
+	}
+	return merged;
+}
+
+function dedupeRacesStrict(races, venueCode) {
+	const raceMap = new Map();
+
+	for (const sourceRace of races ?? []) {
+		const raceNo = normalizeRaceNo(sourceRace?.raceNo);
+		if (!raceNo) continue;
+		const race = { ...sourceRace, raceNo };
+		const existing = raceMap.get(raceNo);
+		if (!existing) {
+			raceMap.set(raceNo, race);
+			continue;
+		}
+		if (!isDeepStrictEqual(existing, race)) {
+			throw new Error(`[boat details] conflicting duplicate race ${normalizeVenueCode(venueCode)}:${raceNo}`);
+		}
+	}
+
+	return [...raceMap.values()].sort((left, right) => left.raceNo - right.raceNo);
+}
+
+export function dedupeOfficialVenueRows(venues, expectedDate) {
+	const venueMap = new Map();
+	const mergeFields = [
+		"id",
+		"title",
+		"session",
+		"series",
+		"status",
+		"eventStatus",
+		"eventStatusText",
+		"source",
+		"grade",
+		"dayText",
+		"statusText",
+		"currentRaceNo",
+	];
+
+	for (const sourceVenue of venues ?? []) {
+		const venueCode = normalizeVenueCode(sourceVenue?.venueCode);
+		const venueName = compactText(sourceVenue?.venueName);
+		const date = normalizeTargetDate(sourceVenue?.date);
+		if (!venueCode || !venueName || !date) {
+			throw new Error(`[boat details] venue identity is incomplete: ${JSON.stringify({ date, venueCode, venueName })}`);
+		}
+		if (expectedDate && date !== expectedDate) {
+			throw new Error(`[boat details] venue date mismatch for ${venueCode}: ${date} !== ${expectedDate}`);
+		}
+
+		const venue = { ...sourceVenue, venueCode, venueName, date };
+		const existing = venueMap.get(venueCode);
+		if (!existing) {
+			venueMap.set(venueCode, venue);
+			continue;
+		}
+		if (existing.date !== venue.date || existing.venueName !== venue.venueName) {
+			throw new Error(`[boat details] conflicting duplicate venue identity for ${venueCode}: ${existing.date}/${existing.venueName} !== ${venue.date}/${venue.venueName}`);
+		}
+
+		const merged = { ...existing };
+		for (const field of mergeFields) {
+			merged[field] = mergeStrictValue(existing[field], venue[field], `venue ${venueCode}.${field}`);
+		}
+		merged.links = mergeStrictObject(existing.links, venue.links, `venue ${venueCode}.links`);
+		venueMap.set(venueCode, merged);
+	}
+
+	return [...venueMap.values()];
+}
+
+function assertUniqueVenueRaceFeed(venues, expectedDate) {
+	const venueCodes = new Set();
+	const raceKeys = new Set();
+
+	for (const venue of venues ?? []) {
+		const venueCode = normalizeVenueCode(venue?.venueCode);
+		const date = normalizeTargetDate(venue?.date);
+		if (!venueCode) throw new Error("[boat details] output venueCode is required");
+		if (expectedDate && date !== expectedDate) {
+			throw new Error(`[boat details] output venue date mismatch for ${venueCode}: ${date} !== ${expectedDate}`);
+		}
+		if (venueCodes.has(venueCode)) throw new Error(`[boat details] duplicate output venueCode: ${venueCode}`);
+		venueCodes.add(venueCode);
+
+		for (const race of venue.races ?? []) {
+			const raceNo = normalizeRaceNo(race?.raceNo);
+			if (!raceNo) throw new Error(`[boat details] invalid raceNo for venue ${venueCode}: ${JSON.stringify(race?.raceNo)}`);
+			const raceKey = `${venueCode}:${raceNo}`;
+			if (raceKeys.has(raceKey)) throw new Error(`[boat details] duplicate output race key: ${raceKey}`);
+			raceKeys.add(raceKey);
+		}
+	}
+}
+
 function normalizeWeatherActual(weatherActual, generatedAt, source) {
 	if (!weatherActual || typeof weatherActual !== "object") {
 		return {
@@ -1181,12 +1301,13 @@ function normalizeRaceData(rawRace, venue, generatedAt, source) {
 }
 
 function normalizeVenueData(rawVenue, generatedAt, source) {
-	const venueId = rawVenue?.id ?? `venue-${rawVenue?.venueCode ?? "unknown"}`;
+	const venueCode = normalizeVenueCode(rawVenue?.venueCode);
+	const venueId = rawVenue?.id ?? `venue-${venueCode || "unknown"}`;
 	const venueDate = normalizeTargetDate(rawVenue?.date);
 
 	return {
 	id: venueId,
-	venueCode: rawVenue?.venueCode ?? "",
+	venueCode,
 	venueName: rawVenue?.venueName ?? rawVenue?.name ?? "不明会場",
 	title: rawVenue?.title ?? "",
 	date: venueDate,
@@ -1204,7 +1325,7 @@ function normalizeVenueData(rawVenue, generatedAt, source) {
 	source: rawVenue?.source ?? source,
 	generatedAt,
 	weatherActual: normalizeWeatherActual(rawVenue?.weatherActual, generatedAt, source),
-	races: dedupeByRaceNo(rawVenue?.races).map((race) => normalizeRaceData(race, { id: venueId }, generatedAt, source)),
+	races: dedupeRacesStrict(rawVenue?.races, venueCode).map((race) => normalizeRaceData(race, { id: venueId }, generatedAt, source)),
 };
 }
 
@@ -1233,7 +1354,7 @@ async function fetchOfficialHtml(url) {
 	}
 }
 
-function parseIndexVenueRows(html, { date, dateKey, fallbackVenueByCode }) {
+export function parseIndexVenueRows(html, { date, dateKey, fallbackVenueByCode = new Map() }) {
 	const $ = load(html);
 	const venues = [];
 
@@ -1245,11 +1366,16 @@ function parseIndexVenueRows(html, { date, dateKey, fallbackVenueByCode }) {
 			return;
 		}
 
+		const rowDateKey = extractQueryParam(titleLink.attr("href"), "hd");
+		if (rowDateKey && rowDateKey !== dateKey) {
+			return;
+		}
+
 		const titleCell = titleLink.closest("td");
 		const venueImage = row.find("img[alt]").first();
 		const venueCell = venueImage.closest("td");
 		const venueName = compactText(venueImage.attr("alt"));
-		const venueCode = extractQueryParam(titleLink.attr("href"), "jcd") ?? "";
+		const venueCode = normalizeVenueCode(extractQueryParam(titleLink.attr("href"), "jcd"));
 		const fallbackVenue = fallbackVenueByCode.get(venueCode) ?? null;
 		const sessionCell = titleCell.prev("td");
 		const gradeCell = sessionCell.prev("td");
@@ -1292,7 +1418,7 @@ function parseIndexVenueRows(html, { date, dateKey, fallbackVenueByCode }) {
 		});
 	});
 
-	return venues;
+	return dedupeOfficialVenueRows(venues, date);
 }
 
 function readNumericTokens(value) {
@@ -2967,7 +3093,7 @@ function mergeDetailedResults(resultListRaces, detailedRaceResults) {
 }
 
 export async function fetchTodayRaceIndex({ existingFeed, timestamps }) {
-	const fallbackVenueByCode = new Map((existingFeed?.venues ?? []).map((venue) => [venue.venueCode, venue]));
+	const fallbackVenueByCode = new Map((existingFeed?.venues ?? []).map((venue) => [normalizeVenueCode(venue.venueCode), venue]));
 	const html = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.todayRaceIndex(timestamps.dateKey));
 
 	if (html) {
@@ -3156,6 +3282,7 @@ const detailedHtml = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.venueResult(venu
 }
 
 export function buildTodayRaceDetailsFeed({ raceIndex, venueDetails, generatedAt, date }) {
+	assertUniqueVenueRaceFeed(venueDetails, date);
 	const officialVenueCount = venueDetails.filter((venue) => String(venue?.source ?? "").startsWith("official:")).length;
 	const weatherVenueCount = venueDetails.filter((venue) => hasResolvedWeatherActual(venue.weatherActual)).length;
 	const totalRaceCount = venueDetails.reduce((count, venue) => count + (venue.races?.length ?? 0), 0);
@@ -3212,8 +3339,8 @@ export async function main(rawOptions = {}) {
 				? resolveActiveTargetSession(baseOptions.targetSession, raceIndex, existingFeed, timestamps)
 				: baseOptions.targetSession,
 	});
-	const fallbackVenueByCode = new Map((existingFeed?.venues ?? []).map((venue) => [venue.venueCode, venue]));
-	const venueExtrasVenueByCode = new Map((existingVenueExtrasFeed?.venues ?? []).map((venue) => [venue.venueCode, venue]));
+	const fallbackVenueByCode = new Map((existingFeed?.venues ?? []).map((venue) => [normalizeVenueCode(venue.venueCode), venue]));
+	const venueExtrasVenueByCode = new Map((existingVenueExtrasFeed?.venues ?? []).map((venue) => [normalizeVenueCode(venue.venueCode), venue]));
 	const normalizedVenueDetails = [];
 	const completedSkipSummary = {
 		skipped: 0,

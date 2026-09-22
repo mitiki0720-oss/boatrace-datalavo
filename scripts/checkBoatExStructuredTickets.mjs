@@ -13,8 +13,6 @@ const audit = readJson(`public/data/boatrace-ex/audit/structured-tickets-evaluat
 
 assert.equal(summary.parserVersion, PARSER_VERSION);
 assert.equal(summary.dateCount, index.availableDates.length);
-assert.equal(summary.historyRaceCount, 8784);
-assert.equal(summary.predictionTextAvailableRaceCount, 8292);
 assert.equal(historyIndex.dates.length, index.availableDates.length);
 assert.equal(historyIndex.latestDate, index.latestDate);
 assert.equal(audit.kind, "boatrace-ex-structured-tickets-evaluation-audit");
@@ -42,6 +40,7 @@ for (const date of index.availableDates) {
 	}
 }
 for (const [key, value] of Object.entries(totals)) assert.equal(summary[key], value, `summary ${key} must equal all shard totals`);
+assert.equal(summary.historyRaceCount, totals.raceCount, "historyRaceCount must equal all source-backed shard records");
 assert.ok(regressionRace, "strict parser regression race must exist");
 assert.equal(regressionRace.structuredTickets.length, 10, "regression source has ten strict tickets");
 for (const [group, count] of Object.entries(audit.regression.expectedGroupCounts)) assert.equal(regressionRace.structuredTickets.filter((ticket) => ticket.group === group).length, count, `regression group ${group} count`);

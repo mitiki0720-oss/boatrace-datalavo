@@ -6,7 +6,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
 const INDEX_PATH = "public/data/boatrace-ex/source/historical-sources.generated.json";
-const COVERAGE_PATH = "public/data/boatrace-ex/derived/history-coverage/latest.json";
+const COVERAGE_PATH = "public/data/boatrace-ex/derived/historical-source-coverage/latest.json";
+const LEGACY_COVERAGE_PATH = "public/data/boatrace-ex/derived/history-coverage/latest.json";
 const DATE_PATTERN = /\b(20\d{2}-\d{2}-\d{2})\b/;
 const IMAGE_EXTENSIONS = new Set([".avif", ".gif", ".jpeg", ".jpg", ".png", ".webp"]);
 const VENUES = [
@@ -207,7 +208,7 @@ function shouldPreserveExistingCoverage(existingCoverage, scannedCoverage, force
 
 function main() {
 	const force = process.argv.includes("--force");
-	const existingCoverage = readJsonIfPresent(COVERAGE_PATH);
+	const existingCoverage = readJsonIfPresent(COVERAGE_PATH) ?? readJsonIfPresent(LEGACY_COVERAGE_PATH);
 	const sourceRoot = resolveSourceRoot();
 	const roots = [
 		"public/data/reviews",
@@ -218,7 +219,7 @@ function main() {
 	const files = roots.flatMap((relativeRoot) => walkFiles(path.join(sourceRoot, ...relativeRoot.split("/"))))
 		.filter((filePath) => {
 			const relativePath = toPosix(path.relative(sourceRoot, filePath));
-			return ![INDEX_PATH, COVERAGE_PATH].includes(relativePath)
+			return ![INDEX_PATH, COVERAGE_PATH, LEGACY_COVERAGE_PATH].includes(relativePath)
 				&& (!relativePath.startsWith("public/dog/") || IMAGE_EXTENSIONS.has(path.extname(relativePath).toLowerCase()))
 				&& (!relativePath.startsWith("public/data/boatrace/") || relativePath.endsWith(".generated.json"))
 				&& (!relativePath.startsWith("public/data/boatrace-ex/") || relativePath.endsWith(".json"));
@@ -233,6 +234,7 @@ function main() {
 	};
 	const coverage = summarize(sources, generatedAt);
 	if (shouldPreserveExistingCoverage(existingCoverage, coverage, force)) {
+		if (!readJsonIfPresent(COVERAGE_PATH)) writeJson(COVERAGE_PATH, existingCoverage);
 		console.log("[historical-source-index] preserved existing index because scanned source coverage is smaller than committed coverage.");
 		console.log(`existing: ${existingCoverage.sourceCount} sources / ${existingCoverage.dateCount} dates`);
 		console.log(`scanned: ${coverage.sourceCount} sources / ${coverage.dateCount} dates`);

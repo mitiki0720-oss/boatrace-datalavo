@@ -1,44 +1,290 @@
 {
-  "schemaVersion": "boat-ex-history-coverage-v1",
+  "schemaVersion": "boat-ex-history-coverage-v2",
   "kind": "boatrace-ex-history-coverage",
-  "ok": true,
-  "generatedAt": "2026-08-27T13:40:41.796Z",
-  "sourceIndexPath": "public/data/boatrace-ex/source/historical-sources.generated.json",
-  "dateFrom": "2026-05-24",
-  "dateTo": "2026-08-27",
-  "dateCount": 93,
-  "venueCount": 22,
-  "venueNames": [
-    "びわこ",
-    "芦屋",
-    "下関",
-    "蒲郡",
-    "丸亀",
-    "宮島",
-    "桐生",
-    "戸田",
-    "江戸川",
-    "三国",
-    "児島",
-    "住之江",
-    "常滑",
-    "多摩川",
-    "大村",
-    "津",
-    "徳山",
-    "尼崎",
-    "浜名湖",
-    "福岡",
-    "平和島",
-    "鳴門"
+  "generatedAt": "2026-09-22T20:04:22.504Z",
+  "sourceIndexPath": "public/data/boatrace-ex/index.generated.json",
+  "dateRange": {
+    "from": "2026-05-24",
+    "to": "2026-09-23",
+    "dateCount": 117
+  },
+  "summary": {
+    "raceCount": 16680,
+    "venueCount": 24,
+    "resultAvailableRaceCount": 12748,
+    "payoutAvailableRaceCount": 12712,
+    "exhibitionAvailableRaceCount": 1067,
+    "weatherAvailableRaceCount": 16668
+  },
+  "venues": [
+    {
+      "venueCode": "01",
+      "venueName": "桐生",
+      "dateCount": 60,
+      "raceCount": 732
+    },
+    {
+      "venueCode": "02",
+      "venueName": "戸田",
+      "dateCount": 52,
+      "raceCount": 624
+    },
+    {
+      "venueCode": "03",
+      "venueName": "江戸川",
+      "dateCount": 51,
+      "raceCount": 612
+    },
+    {
+      "venueCode": "04",
+      "venueName": "平和島",
+      "dateCount": 56,
+      "raceCount": 672
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "dateCount": 60,
+      "raceCount": 720
+    },
+    {
+      "venueCode": "06",
+      "venueName": "浜名湖",
+      "dateCount": 61,
+      "raceCount": 732
+    },
+    {
+      "venueCode": "07",
+      "venueName": "蒲郡",
+      "dateCount": 54,
+      "raceCount": 648
+    },
+    {
+      "venueCode": "08",
+      "venueName": "常滑",
+      "dateCount": 73,
+      "raceCount": 876
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "dateCount": 55,
+      "raceCount": 660
+    },
+    {
+      "venueCode": "10",
+      "venueName": "三国",
+      "dateCount": 66,
+      "raceCount": 792
+    },
+    {
+      "venueCode": "11",
+      "venueName": "びわこ",
+      "dateCount": 59,
+      "raceCount": 708
+    },
+    {
+      "venueCode": "12",
+      "venueName": "住之江",
+      "dateCount": 51,
+      "raceCount": 612
+    },
+    {
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "dateCount": 64,
+      "raceCount": 768
+    },
+    {
+      "venueCode": "14",
+      "venueName": "鳴門",
+      "dateCount": 50,
+      "raceCount": 600
+    },
+    {
+      "venueCode": "15",
+      "venueName": "丸亀",
+      "dateCount": 49,
+      "raceCount": 588
+    },
+    {
+      "venueCode": "16",
+      "venueName": "児島",
+      "dateCount": 62,
+      "raceCount": 744
+    },
+    {
+      "venueCode": "17",
+      "venueName": "宮島",
+      "dateCount": 60,
+      "raceCount": 720
+    },
+    {
+      "venueCode": "18",
+      "venueName": "徳山",
+      "dateCount": 62,
+      "raceCount": 744
+    },
+    {
+      "venueCode": "19",
+      "venueName": "下関",
+      "dateCount": 55,
+      "raceCount": 660
+    },
+    {
+      "venueCode": "20",
+      "venueName": "若松",
+      "dateCount": 61,
+      "raceCount": 732
+    },
+    {
+      "venueCode": "21",
+      "venueName": "芦屋",
+      "dateCount": 60,
+      "raceCount": 720
+    },
+    {
+      "venueCode": "22",
+      "venueName": "福岡",
+      "dateCount": 62,
+      "raceCount": 744
+    },
+    {
+      "venueCode": "23",
+      "venueName": "唐津",
+      "dateCount": 51,
+      "raceCount": 612
+    },
+    {
+      "venueCode": "24",
+      "venueName": "大村",
+      "dateCount": 55,
+      "raceCount": 660
+    }
   ],
-  "sourceCount": 2170,
-  "reviewFileCount": 2150,
-  "dogImageCount": 0,
-  "boatraceGeneratedJsonCount": 5,
-  "boatraceExDerivedJsonCount": 15,
-  "unresolvedSourceCount": 205,
-  "warnings": [
-    "日付または会場が未解決の素材が 205 件あります。"
-  ]
+  "readiness": {
+    "status": "ready",
+    "reason": "All indexed BOATRACE EX history dates are represented in the coverage summary."
+  },
+  "sourceFiles": [
+    "public/data/boatrace-ex/index.generated.json",
+    "public/data/boatrace-ex/history/races/2026-05-24.json",
+    "public/data/boatrace-ex/history/races/2026-05-25.json",
+    "public/data/boatrace-ex/history/races/2026-05-26.json",
+    "public/data/boatrace-ex/history/races/2026-05-27.json",
+    "public/data/boatrace-ex/history/races/2026-05-28.json",
+    "public/data/boatrace-ex/history/races/2026-05-29.json",
+    "public/data/boatrace-ex/history/races/2026-05-30.json",
+    "public/data/boatrace-ex/history/races/2026-05-31.json",
+    "public/data/boatrace-ex/history/races/2026-06-01.json",
+    "public/data/boatrace-ex/history/races/2026-06-02.json",
+    "public/data/boatrace-ex/history/races/2026-06-03.json",
+    "public/data/boatrace-ex/history/races/2026-06-04.json",
+    "public/data/boatrace-ex/history/races/2026-06-05.json",
+    "public/data/boatrace-ex/history/races/2026-06-06.json",
+    "public/data/boatrace-ex/history/races/2026-06-07.json",
+    "public/data/boatrace-ex/history/races/2026-06-08.json",
+    "public/data/boatrace-ex/history/races/2026-06-09.json",
+    "public/data/boatrace-ex/history/races/2026-06-10.json",
+    "public/data/boatrace-ex/history/races/2026-06-11.json",
+    "public/data/boatrace-ex/history/races/2026-06-12.json",
+    "public/data/boatrace-ex/history/races/2026-06-13.json",
+    "public/data/boatrace-ex/history/races/2026-06-14.json",
+    "public/data/boatrace-ex/history/races/2026-06-15.json",
+    "public/data/boatrace-ex/history/races/2026-06-17.json",
+    "public/data/boatrace-ex/history/races/2026-06-18.json",
+    "public/data/boatrace-ex/history/races/2026-06-19.json",
+    "public/data/boatrace-ex/history/races/2026-06-20.json",
+    "public/data/boatrace-ex/history/races/2026-06-21.json",
+    "public/data/boatrace-ex/history/races/2026-06-22.json",
+    "public/data/boatrace-ex/history/races/2026-06-23.json",
+    "public/data/boatrace-ex/history/races/2026-06-24.json",
+    "public/data/boatrace-ex/history/races/2026-06-25.json",
+    "public/data/boatrace-ex/history/races/2026-06-27.json",
+    "public/data/boatrace-ex/history/races/2026-06-28.json",
+    "public/data/boatrace-ex/history/races/2026-06-30.json",
+    "public/data/boatrace-ex/history/races/2026-07-01.json",
+    "public/data/boatrace-ex/history/races/2026-07-02.json",
+    "public/data/boatrace-ex/history/races/2026-07-03.json",
+    "public/data/boatrace-ex/history/races/2026-07-04.json",
+    "public/data/boatrace-ex/history/races/2026-07-05.json",
+    "public/data/boatrace-ex/history/races/2026-07-06.json",
+    "public/data/boatrace-ex/history/races/2026-07-07.json",
+    "public/data/boatrace-ex/history/races/2026-07-08.json",
+    "public/data/boatrace-ex/history/races/2026-07-09.json",
+    "public/data/boatrace-ex/history/races/2026-07-10.json",
+    "public/data/boatrace-ex/history/races/2026-07-11.json",
+    "public/data/boatrace-ex/history/races/2026-07-12.json",
+    "public/data/boatrace-ex/history/races/2026-07-13.json",
+    "public/data/boatrace-ex/history/races/2026-07-14.json",
+    "public/data/boatrace-ex/history/races/2026-07-15.json",
+    "public/data/boatrace-ex/history/races/2026-07-16.json",
+    "public/data/boatrace-ex/history/races/2026-07-17.json",
+    "public/data/boatrace-ex/history/races/2026-07-18.json",
+    "public/data/boatrace-ex/history/races/2026-07-19.json",
+    "public/data/boatrace-ex/history/races/2026-07-20.json",
+    "public/data/boatrace-ex/history/races/2026-07-21.json",
+    "public/data/boatrace-ex/history/races/2026-07-22.json",
+    "public/data/boatrace-ex/history/races/2026-07-23.json",
+    "public/data/boatrace-ex/history/races/2026-07-24.json",
+    "public/data/boatrace-ex/history/races/2026-07-25.json",
+    "public/data/boatrace-ex/history/races/2026-07-26.json",
+    "public/data/boatrace-ex/history/races/2026-07-27.json",
+    "public/data/boatrace-ex/history/races/2026-07-28.json",
+    "public/data/boatrace-ex/history/races/2026-07-29.json",
+    "public/data/boatrace-ex/history/races/2026-07-30.json",
+    "public/data/boatrace-ex/history/races/2026-07-31.json",
+    "public/data/boatrace-ex/history/races/2026-08-01.json",
+    "public/data/boatrace-ex/history/races/2026-08-02.json",
+    "public/data/boatrace-ex/history/races/2026-08-03.json",
+    "public/data/boatrace-ex/history/races/2026-08-04.json",
+    "public/data/boatrace-ex/history/races/2026-08-05.json",
+    "public/data/boatrace-ex/history/races/2026-08-06.json",
+    "public/data/boatrace-ex/history/races/2026-08-07.json",
+    "public/data/boatrace-ex/history/races/2026-08-08.json",
+    "public/data/boatrace-ex/history/races/2026-08-09.json",
+    "public/data/boatrace-ex/history/races/2026-08-10.json",
+    "public/data/boatrace-ex/history/races/2026-08-11.json",
+    "public/data/boatrace-ex/history/races/2026-08-12.json",
+    "public/data/boatrace-ex/history/races/2026-08-13.json",
+    "public/data/boatrace-ex/history/races/2026-08-14.json",
+    "public/data/boatrace-ex/history/races/2026-08-15.json",
+    "public/data/boatrace-ex/history/races/2026-08-16.json",
+    "public/data/boatrace-ex/history/races/2026-08-17.json",
+    "public/data/boatrace-ex/history/races/2026-08-18.json",
+    "public/data/boatrace-ex/history/races/2026-08-19.json",
+    "public/data/boatrace-ex/history/races/2026-08-20.json",
+    "public/data/boatrace-ex/history/races/2026-08-21.json",
+    "public/data/boatrace-ex/history/races/2026-08-22.json",
+    "public/data/boatrace-ex/history/races/2026-08-23.json",
+    "public/data/boatrace-ex/history/races/2026-08-24.json",
+    "public/data/boatrace-ex/history/races/2026-08-25.json",
+    "public/data/boatrace-ex/history/races/2026-08-26.json",
+    "public/data/boatrace-ex/history/races/2026-08-27.json",
+    "public/data/boatrace-ex/history/races/2026-08-31.json",
+    "public/data/boatrace-ex/history/races/2026-09-01.json",
+    "public/data/boatrace-ex/history/races/2026-09-02.json",
+    "public/data/boatrace-ex/history/races/2026-09-03.json",
+    "public/data/boatrace-ex/history/races/2026-09-04.json",
+    "public/data/boatrace-ex/history/races/2026-09-05.json",
+    "public/data/boatrace-ex/history/races/2026-09-06.json",
+    "public/data/boatrace-ex/history/races/2026-09-07.json",
+    "public/data/boatrace-ex/history/races/2026-09-08.json",
+    "public/data/boatrace-ex/history/races/2026-09-09.json",
+    "public/data/boatrace-ex/history/races/2026-09-10.json",
+    "public/data/boatrace-ex/history/races/2026-09-11.json",
+    "public/data/boatrace-ex/history/races/2026-09-12.json",
+    "public/data/boatrace-ex/history/races/2026-09-13.json",
+    "public/data/boatrace-ex/history/races/2026-09-14.json",
+    "public/data/boatrace-ex/history/races/2026-09-15.json",
+    "public/data/boatrace-ex/history/races/2026-09-16.json",
+    "public/data/boatrace-ex/history/races/2026-09-17.json",
+    "public/data/boatrace-ex/history/races/2026-09-18.json",
+    "public/data/boatrace-ex/history/races/2026-09-19.json",
+    "public/data/boatrace-ex/history/races/2026-09-20.json",
+    "public/data/boatrace-ex/history/races/2026-09-21.json",
+    "public/data/boatrace-ex/history/races/2026-09-22.json",
+    "public/data/boatrace-ex/history/races/2026-09-23.json"
+  ],
+  "warnings": []
 }

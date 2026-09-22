@@ -143,6 +143,9 @@ function main() {
 		].join("\n"));
 	}
 	history.records?.forEach((record, index) => validateRaceRecord(record, index, date, errors));
+	const raceKeys = (history.records ?? []).map((record) => record.raceKey);
+	const duplicateRaceKeys = raceKeys.filter((raceKey, index) => raceKeys.indexOf(raceKey) !== index);
+	assert(new Set(raceKeys).size === raceKeys.length, `history.records raceKey must be unique; duplicates: ${[...new Set(duplicateRaceKeys)].join(", ")}`, errors);
 
 	assert(coverage.schemaVersion === 1, "coverage.schemaVersion must be 1", errors);
 	assert(coverage.kind === "boatrace-ex-coverage-date", "coverage.kind mismatch", errors);

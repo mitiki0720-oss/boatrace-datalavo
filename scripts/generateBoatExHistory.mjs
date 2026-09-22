@@ -173,6 +173,27 @@ function createEmptyOutputMessage({ date, records, venues, allowed = false }) {
 	].join("\n");
 }
 
+function dedupeHistoryRecords(records) {
+	const recordMap = new Map();
+	let exactDuplicateCount = 0;
+
+	for (const record of records) {
+		const raceKey = String(record?.raceKey ?? "").trim();
+		if (!raceKey) throw new Error("BOATRACE EX history record is missing raceKey.");
+		const existing = recordMap.get(raceKey);
+		if (!existing) {
+			recordMap.set(raceKey, record);
+			continue;
+		}
+		if (JSON.stringify(existing) !== JSON.stringify(record)) {
+			throw new Error(`BOATRACE EX history has conflicting duplicate raceKey: ${raceKey}`);
+		}
+		exactDuplicateCount += 1;
+	}
+
+	return { records: [...recordMap.values()], exactDuplicateCount };
+}
+
 function makeSource(meta, overrides = {}) {
 	return compact({
 		...meta,
@@ -718,7 +739,9 @@ function main() {
 		}
 	}
 
-	records.sort((left, right) => (
+	const deduped = dedupeHistoryRecords(records);
+	const uniqueRecords = deduped.records;
+	uniqueRecords.sort((left, right) => (
 		String(left.venueCode).localeCompare(String(right.venueCode), "ja") ||
 		Number(left.raceNo) - Number(right.raceNo)
 	));
@@ -727,16 +750,16 @@ function main() {
 	const historyPath = `${OUTPUT_ROOT}/history/races/${date}.json`;
 	const coveragePath = `${OUTPUT_ROOT}/coverage/${date}.json`;
 	const manifestPath = `${OUTPUT_ROOT}/manifest.generated.json`;
-	const coverageSummary = summarizeCoverage(records, generatedAt, sourceFiles);
-	const venueCount = new Set(records.map((record) => record.venueCode)).size;
-	const isEmptyOutput = records.length === 0 || venueCount === 0;
+	const coverageSummary = summarizeCoverage(uniqueRecords, generatedAt, sourceFiles);
+	const venueCount = new Set(uniqueRecords.map((record) => record.venueCode)).size;
+	const isEmptyOutput = uniqueRecords.length === 0 || venueCount === 0;
 	const historyJson = {
 		schemaVersion: 1,
 		kind: HISTORY_KIND,
 		date,
 		generatedAt,
 		sourceFiles,
-		records,
+		records: uniqueRecords,
 	};
 	const coverageJson = {
 		schemaVersion: 1,
@@ -746,7 +769,7 @@ function main() {
 		sourceFiles,
 		totals: {
 			venues: venueCount,
-			races: records.length,
+			races: uniqueRecords.length,
 		},
 		fieldTotals: coverageSummary.fieldTotals,
 		venues: coverageSummary.venues,
@@ -757,14 +780,14 @@ function main() {
 		generatedAt,
 		historyPath,
 		coveragePath,
-		records,
+		records: uniqueRecords,
 		sourceFiles,
 	});
 
 	if (isEmptyOutput) {
 		const message = createEmptyOutputMessage({
 			date,
-			records: records.length,
+			records: uniqueRecords.length,
 			venues: venueCount,
 			allowed: args.allowEmpty,
 		});
@@ -774,7 +797,7 @@ function main() {
 			console.log(JSON.stringify({
 				dryRun: args.dryRun,
 				date,
-				records: records.length,
+				records: uniqueRecords.length,
 				venues: venueCount,
 				outputs: [historyPath, coveragePath, manifestPath],
 				refusedEmptyOutput: true,
@@ -793,8 +816,9 @@ function main() {
 	console.log(JSON.stringify({
 		dryRun: args.dryRun,
 		date,
-		records: records.length,
+		records: uniqueRecords.length,
 		venues: coverageJson.totals.venues,
+		exactDuplicateCount: deduped.exactDuplicateCount,
 		outputs: [historyPath, coveragePath, manifestPath],
 		fieldTotals: coverageJson.fieldTotals,
 	}, null, 2));

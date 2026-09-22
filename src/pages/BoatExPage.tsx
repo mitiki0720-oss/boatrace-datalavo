@@ -5,6 +5,7 @@ import { withBasePath } from "../lib/assetPath";
 import type {
 	BoatExDateIndexEntry,
 	BoatExDateIndexFile,
+	BoatExHistoryCoverageFile,
 	BoatExHistoricalSourceCoverageFile,
 	BoatExNameIdentityBridgeAuditFile,
 	BoatExRacerEvidenceRegistryLinkageAuditFile,
@@ -123,6 +124,7 @@ type LoadState = {
 	raceAnalysis: BoatExRaceAnalysisFile | null;
 	historicalRaceAnalysisSummary: BoatExHistoricalRaceAnalysisSummaryFile | null;
 	historicalRaceAnalysisIndex: BoatExHistoricalRaceAnalysisIndexFile | null;
+	historyCoverage: BoatExHistoryCoverageFile | null;
 	historicalSourceCoverage: BoatExHistoricalSourceCoverageFile | null;
 	registeredIdentityRegistry: BoatExRegisteredRacerIdentityRegistryFile | null;
 	registryLinkageAudit: BoatExRacerEvidenceRegistryLinkageAuditFile | null;
@@ -394,7 +396,16 @@ function findDateIndexEntry(dateIndex: BoatExDateIndexFile | null, date: string)
 
 async function fetchOptionalJson<T>(path: string): Promise<T | null> {
 	const response = await fetch(withBasePath(path), { cache: "no-store" });
-	return response.ok ? await response.json() as T : null;
+	if (!response.ok) return null;
+
+	const contentType = response.headers.get("content-type") ?? "";
+	if (!contentType.includes("application/json")) return null;
+
+	try {
+		return await response.json() as T;
+	} catch {
+		return null;
+	}
 }
 
 function readinessLabel(entry: BoatExDateIndexEntry | undefined, key: keyof BoatExDateIndexEntry["readiness"]): string {
@@ -1647,6 +1658,7 @@ export function BoatExPage() {
 		structuredTicketsHistoryIndex: null,
 		historicalRaceAnalysisSummary: null,
 		historicalRaceAnalysisIndex: null,
+		historyCoverage: null,
 		historicalSourceCoverage: null,
 		registeredIdentityRegistry: null,
 		registryLinkageAudit: null,
@@ -1684,7 +1696,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, racerFeatures, racerIdentityUnresolvedAudit, currentDayPredictionCoverage, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historyCoverageResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, racerFeatures, racerIdentityUnresolvedAudit, currentDayPredictionCoverage, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1702,6 +1714,7 @@ export function BoatExPage() {
 					fetch(withBasePath("data/boatrace-ex/derived/race-analysis/history-summary.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/race-analysis/history-index.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/history-coverage/latest.json"), { cache: "no-store" }),
+					fetch(withBasePath("data/boatrace-ex/derived/historical-source-coverage/latest.json"), { cache: "no-store" }),
 					fetch(withBasePath("data/boatrace-ex/derived/weather-water-history/latest.json"), { cache: "no-store" }),
 					fetchOptionalJson<BoatExRacerFeaturesFile>("data/boatrace-ex/derived/racer-features/latest.json"),
 					fetchOptionalJson<BoatExRacerIdentityUnresolvedAuditFile>("data/boatrace-ex/audit/racer-identity-unresolved-audit-latest.generated.json"),
@@ -1726,6 +1739,7 @@ export function BoatExPage() {
 				if (!raceAnalysisResponse.ok) throw new Error(`race analysis fetch failed: ${raceAnalysisResponse.status}`);
 				if (!historicalRaceAnalysisSummaryResponse.ok) throw new Error(`historical race analysis summary fetch failed: ${historicalRaceAnalysisSummaryResponse.status}`);
 				if (!historicalRaceAnalysisIndexResponse.ok) throw new Error(`historical race analysis index fetch failed: ${historicalRaceAnalysisIndexResponse.status}`);
+				if (!historyCoverageResponse.ok) throw new Error(`history coverage fetch failed: ${historyCoverageResponse.status}`);
 				if (!historicalSourceCoverageResponse.ok) throw new Error(`historical source coverage fetch failed: ${historicalSourceCoverageResponse.status}`);
 				if (!weatherWaterHistoryResponse.ok) throw new Error(`weather water history fetch failed: ${weatherWaterHistoryResponse.status}`);
 
@@ -1741,6 +1755,7 @@ export function BoatExPage() {
 				const raceAnalysis = await raceAnalysisResponse.json() as BoatExRaceAnalysisFile;
 				const historicalRaceAnalysisSummary = await historicalRaceAnalysisSummaryResponse.json() as BoatExHistoricalRaceAnalysisSummaryFile;
 				const historicalRaceAnalysisIndex = await historicalRaceAnalysisIndexResponse.json() as BoatExHistoricalRaceAnalysisIndexFile;
+				const historyCoverage = await historyCoverageResponse.json() as BoatExHistoryCoverageFile;
 				const historicalSourceCoverage = await historicalSourceCoverageResponse.json() as BoatExHistoricalSourceCoverageFile;
 				const weatherWaterHistory = await weatherWaterHistoryResponse.json() as BoatExWeatherWaterHistoryFile;
 
@@ -1765,6 +1780,7 @@ export function BoatExPage() {
 					raceAnalysis,
 					historicalRaceAnalysisSummary,
 					historicalRaceAnalysisIndex,
+					historyCoverage,
 					historicalSourceCoverage,
 					registeredIdentityRegistry,
 					registryLinkageAudit,
@@ -1775,7 +1791,7 @@ export function BoatExPage() {
 						message: indexMissing ? "EX日付indexがありません。manifestの最新日付を使用します。" : "EXセクションを表示できます。",
 					});
 				}
-			} catch {
+			} catch (error) {
 				if (isMounted) {
 					setLoadState({
 						status: "missing",
@@ -1797,6 +1813,7 @@ export function BoatExPage() {
 					raceAnalysis: null,
 					historicalRaceAnalysisSummary: null,
 					historicalRaceAnalysisIndex: null,
+					historyCoverage: null,
 					historicalSourceCoverage: null,
 					registeredIdentityRegistry: null,
 					registryLinkageAudit: null,
@@ -1804,7 +1821,7 @@ export function BoatExPage() {
 					registrationProvenanceAudit: null,
 					nameIdentityBridgeAudit: null,
 					tabCompletenessAudit: null,
-						message: "EXエビデンスがありません。",
+						message: `EXエビデンスを読み込めません: ${error instanceof Error ? error.message : String(error)}`,
 					});
 				}
 			}
@@ -1833,6 +1850,7 @@ export function BoatExPage() {
 	const raceAnalysis = loadState.raceAnalysis;
 	const historicalRaceAnalysisSummary = loadState.historicalRaceAnalysisSummary;
 	const historicalRaceAnalysisIndex = loadState.historicalRaceAnalysisIndex;
+	const historyCoverage = loadState.historyCoverage;
 	const historicalSourceCoverage = loadState.historicalSourceCoverage;
 	const registeredIdentityRegistry = loadState.registeredIdentityRegistry;
 	const registryLinkageAudit = loadState.registryLinkageAudit;
@@ -1852,6 +1870,7 @@ export function BoatExPage() {
 	const latestDateIsStale = typeof latestDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(latestDate) && latestDate < jstDateString();
 	const materialStatuses: BoatExMaterialStatus[] = [
 		{ label: "history/races", latestDate, dateCount: availableDateCount, count: loadState.dateIndex?.summary.historyDateCount ?? "未取得", status: "ready", sourceType: "source-backed", updatedAt: loadState.dateIndex?.generatedAt ?? "未取得" },
+		{ label: "history coverage", latestDate: historyCoverage?.dateRange.to ?? "未取得", dateCount: historyCoverage?.dateRange.dateCount ?? "未取得", count: historyCoverage?.summary.raceCount ?? "未取得", status: historyCoverage?.readiness.status ?? "未取得", sourceType: "history/races aggregate", updatedAt: historyCoverage?.generatedAt ?? "未取得" },
 		{ label: "coverage", latestDate, dateCount: loadState.dateIndex?.summary.coverageDateCount ?? "未取得", count: venueEvidence?.summary.recordCount ?? "未取得", status: dateIndexEntry?.coverage.status ?? "未取得", sourceType: "source-backed", updatedAt: loadState.dateIndex?.generatedAt ?? "未取得" },
 		materialStatusFromManifest(loadState.derivedManifest, "venue-evidence", "/venue-evidence/"),
 		materialStatusFromManifest(loadState.derivedManifest, "racer-evidence", "/racer-evidence/"),
@@ -2032,12 +2051,12 @@ export function BoatExPage() {
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>日次パイプライン</p>
-								<p style={valueStyle}>手動実行可能</p>
+								<p style={valueStyle}>自動更新</p>
 								<ul style={noteListStyle}>
 									<li>日付index: {loadState.dateIndex ? "表示可能" : "EX日付indexなし"}</li>
 									<li>最新日付: {latestDate}</li>
 									<li>日数: {availableDateCount}</li>
-									<li>次の工程: workflow統合は準備中</li>
+									<li>履歴派生: index進行時に増分同期</li>
 								</ul>
 							</article>
 							<article style={cardStyle}>
@@ -2089,14 +2108,14 @@ export function BoatExPage() {
 								<p style={textStyle}>Phase 3の履歴ソースです。</p>
 							</article>
 							<article style={cardStyle}>
-								<p style={labelStyle}>日付index</p>
-								<p style={metricValueStyle}>{loadState.dateIndex ? "表示可能" : "なし"}</p>
-								<p style={textStyle}>最新日付 {latestDate} / 日数 {availableDateCount}</p>
+								<p style={labelStyle}>EX履歴coverage</p>
+								<p style={metricValueStyle}>{historyCoverage?.readiness.status ? statusLabel(historyCoverage.readiness.status) : "なし"}</p>
+								<p style={textStyle}>最新日付 {historyCoverage?.dateRange.to ?? latestDate} / 日数 {historyCoverage?.dateRange.dateCount ?? availableDateCount} / {historyCoverage?.summary.raceCount ?? "未取得"}R</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>日次パイプライン</p>
-								<p style={metricValueStyle}>手動</p>
-								<p style={textStyle}>実行環境は準備済みです。workflow統合は準備中です。</p>
+								<p style={metricValueStyle}>自動同期</p>
+								<p style={textStyle}>index進行時に履歴派生と13タブ監査を増分更新します。</p>
 							</article>
 							<article style={cardStyle}>
 								<p style={labelStyle}>会場エビデンス</p>
@@ -2281,8 +2300,13 @@ export function BoatExPage() {
 				</article>
 				<article style={cardStyle}>
 					<p style={labelStyle}>EX分析済み日数</p>
-					<p style={metricValueStyle}>{availableDateCount}</p>
-					<p style={textStyle}>派生分析に利用できる日付</p>
+					<p style={metricValueStyle}>{historyCoverage?.dateRange.dateCount ?? availableDateCount}</p>
+					<p style={textStyle}>{historyCoverage?.dateRange.from ?? earliestDate} ～ {historyCoverage?.dateRange.to ?? latestDate}</p>
+				</article>
+				<article style={cardStyle}>
+					<p style={labelStyle}>EX履歴レース / 会場</p>
+					<p style={metricValueStyle}>{historyCoverage?.summary.raceCount ?? "なし"} / {historyCoverage?.summary.venueCount ?? "なし"}</p>
+					<p style={textStyle}>index済み履歴のsource-backed集計</p>
 				</article>
 				<article style={cardStyle}>
 					<p style={labelStyle}>過去素材日数</p>
@@ -2319,6 +2343,7 @@ export function BoatExPage() {
 			<section style={sectionMenuStyle} aria-label="BOATRACE EX セクション">
 				{sectionCards.map((section) => {
 					const isActive = activeSection === section.key;
+					const auditedStatus = tabCompletenessAudit?.tabs.find((tab) => tab.key === section.key)?.status;
 					return (
 						<button
 							key={section.key}
@@ -2332,7 +2357,7 @@ export function BoatExPage() {
 							}}
 							aria-pressed={isActive}
 						>
-							<p style={labelStyle}>{statusLabel(section.status)}</p>
+							<p style={labelStyle}>{statusLabel(auditedStatus ?? section.status)}</p>
 							<p style={menuTitleStyle}>{section.title}</p>
 							<p style={menuSubtitleStyle}>{section.subtitle}</p>
 						</button>

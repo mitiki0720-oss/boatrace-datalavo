@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { evaluateBoatExCurrentDayHistoryRefresh } from "./boatExCurrentDayHistoryLifecycle.mjs";
+import { compareHistoricalRaceAnalysisFreshness } from "./boatExHistoricalDerivedFreshness.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -233,6 +234,55 @@ function summarizeDateIndex() {
 	};
 }
 
+function historicalDerivedStaleReasons(index) {
+	const expectedDate = index.latestDate;
+	const expectedDateCount = index.summary?.dateCount ?? index.availableDates?.length ?? 0;
+	const checks = [
+		["history-coverage", "public/data/boatrace-ex/derived/history-coverage/latest.json", (value) => value?.dateRange?.to === expectedDate && value?.dateRange?.dateCount === expectedDateCount],
+		["weather-water-history", "public/data/boatrace-ex/derived/weather-water-history/latest.json", (value) => value?.dateRange?.to === expectedDate && value?.dateRange?.dateCount === expectedDateCount],
+		["venue-race-band-history", "public/data/boatrace-ex/derived/venue-race-band-history/latest.json", (value) => value?.dateRange?.to === expectedDate && value?.dateRange?.dateCount === expectedDateCount],
+		["motor-boat-history", "public/data/boatrace-ex/derived/motor-boat-history/latest.json", (value) => value?.dateRange?.to === expectedDate && value?.dateRange?.dateCount === expectedDateCount],
+		["entry-shift-history", "public/data/boatrace-ex/derived/entry-shift-history/latest.json", (value) => value?.dateRange?.to === expectedDate && value?.dateRange?.dateCount === expectedDateCount],
+		["decision-method-history", "public/data/boatrace-ex/derived/decision-method-history/latest.json", (value) => value?.dateRange?.to === expectedDate && value?.dateRange?.dateCount === expectedDateCount],
+	];
+	const reasons = checks.flatMap(([label, relativePath, isCurrent]) => {
+		const value = readJsonIfExists(relativePath);
+		return value && isCurrent(value) ? [] : [label];
+	});
+	const historicalFreshness = compareHistoricalRaceAnalysisFreshness({
+		index,
+		roughIndex: readJsonIfExists("public/data/boatrace-ex/derived/rough-index/latest.json"),
+		historyCoverage: readJsonIfExists("public/data/boatrace-ex/derived/history-coverage/latest.json"),
+		historicalSummary: readJsonIfExists("public/data/boatrace-ex/derived/race-analysis/history-summary.json"),
+	});
+	if (!historicalFreshness.current) {
+		reasons.push(...historicalFreshness.reasons.map((reason) => `historical-race-analysis:${reason}`));
+	}
+	return reasons;
+}
+
+function refreshHistoricalDerivedIfNeeded(index, dryRun) {
+	const staleReasons = historicalDerivedStaleReasons(index);
+	if (dryRun || staleReasons.length === 0) {
+		return { status: dryRun ? "dry-run-skipped" : "current", staleReasons };
+	}
+	const steps = [
+		["weather-water-history", "scripts/generateBoatExWeatherWaterHistory.mjs", [], "scripts/checkBoatExWeatherWaterHistory.mjs", []],
+		["venue-race-band-history", "scripts/generateBoatExVenueRaceBandHistory.mjs", [], "scripts/checkBoatExVenueRaceBandHistory.mjs", []],
+		["motor-boat-history", "scripts/generateBoatExMotorBoatHistory.mjs", [], "scripts/checkBoatExMotorBoatHistory.mjs", []],
+		["entry-shift-history", "scripts/generateBoatExEntryShiftHistory.mjs", [], "scripts/checkBoatExEntryShiftHistory.mjs", []],
+		["decision-method-history", "scripts/generateBoatExDecisionMethodHistory.mjs", [], "scripts/checkBoatExDecisionMethodHistory.mjs", []],
+		["historical-race-analysis", "scripts/generateBoatExHistoricalRaceAnalysis.mjs", [], "scripts/checkBoatExHistoricalRaceAnalysis.mjs", []],
+	];
+	const requiredSteps = steps.filter(([label]) => staleReasons.some((reason) => reason === label || reason.startsWith(`${label}:`)));
+	const results = requiredSteps.map(([, generateScript, generateArgs, checkScript, checkArgs]) => ({
+		generateScript,
+		generated: runNode(generateScript, generateArgs),
+		checked: runNode(checkScript, checkArgs),
+	}));
+	return { status: "refreshed", staleReasons, results };
+}
+
 function runGenerationStep(script, date, args) {
 	const commandArgs = ["--date", date];
 	if (args.dryRun) commandArgs.push("--dry-run");
@@ -324,6 +374,10 @@ function main() {
 	}
 	const dateIndex = summarizeDateIndex();
 	runNode("scripts/checkBoatExDateIndex.mjs", [...(args.allowEmpty ? ["--allow-empty"] : [])]);
+	const historyCoverageGenerated = runNode("scripts/generateBoatExHistoryCoverage.mjs", [...(args.dryRun ? ["--dry-run"] : [])]);
+	const historyCoverageChecked = args.dryRun
+		? { status: "dry-run", ...historyCoverageGenerated }
+		: runNode("scripts/checkBoatExHistoryCoverage.mjs", []);
 	const venueBiasGenerated = runNode("scripts/generateBoatExVenueBias.mjs", [...(args.dryRun ? ["--dry-run"] : [])]);
 	const venueBiasChecked = runNode("scripts/checkBoatExVenueBias.mjs", []);
 
@@ -372,6 +426,13 @@ function main() {
 		const checked = runNode("scripts/checkBoatExCurrentDayPredictionCoverage.mjs", []);
 		currentDayPredictionCoverage = { status: "checked", ...generated, ...checked };
 	}
+	const historicalDerived = refreshHistoricalDerivedIfNeeded(readJson("public/data/boatrace-ex/index.generated.json"), args.dryRun);
+	const tabCompleteness = args.dryRun
+		? { status: "dry-run-skipped" }
+		: {
+			status: "checked",
+			...runNode("scripts/checkBoatExTabCompleteness.mjs", ["--write"]),
+		};
 
 	console.log(JSON.stringify({
 		ok: true,
@@ -391,6 +452,11 @@ function main() {
 			appearanceCount: racerChecked.appearanceCount ?? racerGenerated?.appearanceCount ?? null,
 		},
 		dateIndex,
+		historyCoverage: {
+			status: args.dryRun ? "dry-run" : "checked",
+			dateRange: historyCoverageChecked.dateRange ?? historyCoverageGenerated?.dateRange ?? null,
+			summary: historyCoverageChecked.summary ?? historyCoverageGenerated?.summary ?? null,
+		},
 		venueBias: {
 			status: "checked",
 			dateCount: venueBiasChecked.dateCount ?? venueBiasGenerated?.dateCount ?? null,
@@ -457,6 +523,8 @@ function main() {
 			notReadyReasonCounts: raceAnalysisChecked.notReadyReasonCounts ?? raceAnalysisGenerated?.notReadyReasonCounts ?? {},
 		},
 		currentDayPredictionCoverage,
+		historicalDerived,
+		tabCompleteness,
 		warnings,
 	}, null, 2));
 }

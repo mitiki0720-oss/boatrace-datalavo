@@ -18,6 +18,17 @@ const writeJson = (relativePath, value, dryRun) => {
 	fs.mkdirSync(path.dirname(target), { recursive: true });
 	fs.writeFileSync(target, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 };
+const writeShardIfChanged = (relativePath, value, dryRun) => {
+	const target = absolute(relativePath);
+	if (fs.existsSync(target)) {
+		const existing = readJson(relativePath);
+		const { generatedAt: _existingGeneratedAt, ...existingRest } = existing;
+		const { generatedAt: _nextGeneratedAt, ...nextRest } = value;
+		if (JSON.stringify(existingRest) === JSON.stringify(nextRest)) return false;
+	}
+	writeJson(relativePath, value, dryRun);
+	return true;
+};
 
 function parseArgs(argv) {
 	const args = { dryRun: false };
@@ -108,6 +119,7 @@ function main() {
 	const dates = [];
 	const totals = emptySummary();
 	const skippedReasons = {};
+	let changedShardCount = 0;
 	for (const date of index.availableDates ?? []) {
 		const historyPath = `public/data/boatrace-ex/history/races/${date}.json`;
 		const history = readJson(historyPath);
@@ -120,7 +132,7 @@ function main() {
 		}
 		const shardPath = `public/data/boatrace-ex/derived/prediction-structure/dates/${date}.json`;
 		const shard = { schemaVersion: "boat-ex-structured-tickets-v1", kind: "boatrace-ex-structured-tickets-date", generatedAt, date, summary: { date, ...dateSummary, readiness: readiness(dateSummary) }, races, sourceFiles: [historyPath] };
-		writeJson(shardPath, shard, args.dryRun);
+		if (writeShardIfChanged(shardPath, shard, args.dryRun)) changedShardCount += 1;
 		dates.push({ date, path: shardPath, ...dateSummary, readiness: shard.summary.readiness });
 		for (const [key, value] of Object.entries(dateSummary)) totals[key] += value;
 	}
@@ -163,7 +175,7 @@ function main() {
 	writeJson(HISTORY_INDEX_PATH, historyIndex, args.dryRun);
 	writeJson(auditPath, audit, args.dryRun);
 	writeJson(MANIFEST_PATH, manifest, args.dryRun);
-	console.log(JSON.stringify({ ok: true, dateCount: summary.dateCount, historyRaceCount: summary.historyRaceCount, predictionTextAvailableRaceCount: summary.predictionTextAvailableRaceCount, structuredTicketAvailableRaceCount: summary.structuredTicketAvailableRaceCount, structuredTicketCount: summary.structuredTicketCount, classifiedTicketCount: summary.classifiedTicketCount, unclassifiedTicketCount: summary.unclassifiedTicketCount, evaluatedPredictionRaceCount: summary.evaluatedPredictionRaceCount, hitRaceCount: summary.hitRaceCount, missRaceCount: summary.missRaceCount, payoutLinkedHitCount: summary.payoutLinkedHitCount, totalSourceBackedPayoutYen: summary.totalSourceBackedPayoutYen, readiness: summary.readiness.status }, null, 2));
+	console.log(JSON.stringify({ ok: true, dateCount: summary.dateCount, changedShardCount, historyRaceCount: summary.historyRaceCount, predictionTextAvailableRaceCount: summary.predictionTextAvailableRaceCount, structuredTicketAvailableRaceCount: summary.structuredTicketAvailableRaceCount, structuredTicketCount: summary.structuredTicketCount, classifiedTicketCount: summary.classifiedTicketCount, unclassifiedTicketCount: summary.unclassifiedTicketCount, evaluatedPredictionRaceCount: summary.evaluatedPredictionRaceCount, hitRaceCount: summary.hitRaceCount, missRaceCount: summary.missRaceCount, payoutLinkedHitCount: summary.payoutLinkedHitCount, totalSourceBackedPayoutYen: summary.totalSourceBackedPayoutYen, readiness: summary.readiness.status }, null, 2));
 }
 
 main();

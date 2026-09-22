@@ -10,11 +10,6 @@ const writeJson = (relativePath, value) => {
 	fs.mkdirSync(path.dirname(target), { recursive: true });
 	fs.writeFileSync(target, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 };
-const writeText = (relativePath, value) => {
-	const target = path.join(root, relativePath);
-	fs.mkdirSync(path.dirname(target), { recursive: true });
-	fs.writeFileSync(target, value, "utf8");
-};
 const readText = (relativePath) => fs.readFileSync(path.join(root, relativePath), "utf8");
 
 const index = readJson("public/data/boatrace-ex/index.generated.json");
@@ -28,11 +23,13 @@ const predictionStructure = readJson("public/data/boatrace-ex/derived/prediction
 const structuredTicketsHistorySummary = readJson("public/data/boatrace-ex/derived/prediction-structure/history-summary.json");
 const structuredTicketsHistoryIndex = readJson("public/data/boatrace-ex/derived/prediction-structure/history-index.json");
 const historyCoverage = readJson("public/data/boatrace-ex/derived/history-coverage/latest.json");
+const historicalSourceCoverage = readJson("public/data/boatrace-ex/derived/historical-source-coverage/latest.json");
 const raceAnalysis = readJson("public/data/boatrace-ex/derived/race-analysis/latest.json");
 const historicalRaceAnalysisSummary = readJson("public/data/boatrace-ex/derived/race-analysis/history-summary.json");
 const historicalRaceAnalysisIndex = readJson("public/data/boatrace-ex/derived/race-analysis/history-index.json");
 const currentDayPredictionCoverage = readJson("public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json");
-const nameBridgePath = `public/data/boatrace-ex/audit/name-identity-bridge-${targetDate}.generated.json`;
+const identityRegistryPath = "public/data/boatrace-ex/identity/registered-racers.generated.json";
+const currentDayRegistryAuditPath = `public/data/boatrace-ex/audit/current-day-registry-linkage-gap-${targetDate}.generated.json`;
 const predictionAuditPath = `public/data/boatrace-ex/audit/prediction-structure-contract-${targetDate}.generated.json`;
 const sourcePaths = {
 	index: "public/data/boatrace-ex/index.generated.json",
@@ -48,18 +45,25 @@ const sourcePaths = {
 	historicalRaceAnalysisSummary: "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
 	historicalRaceAnalysisIndex: "public/data/boatrace-ex/derived/race-analysis/history-index.json",
 	historyCoverage: "public/data/boatrace-ex/derived/history-coverage/latest.json",
+	historicalSourceCoverage: "public/data/boatrace-ex/derived/historical-source-coverage/latest.json",
 	currentDayPredictionCoverage: "public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json",
-	nameBridge: nameBridgePath,
+	identityRegistry: identityRegistryPath,
+	currentDayRegistryAudit: currentDayRegistryAuditPath,
 	predictionAudit: predictionAuditPath,
 };
 for (const sourcePath of Object.values(sourcePaths)) {
 	if (!fs.existsSync(path.join(root, sourcePath))) throw new Error(`Required source is missing: ${sourcePath}`);
 }
 
+const historyIsCurrent = historyCoverage.dateRange?.to === targetDate
+	&& historyCoverage.dateRange?.dateCount === index.summary?.dateCount;
+const raceAnalysisIsCurrent = historicalRaceAnalysisSummary.dateRange?.latestDate === targetDate
+	&& historicalRaceAnalysisIndex.latestDate === targetDate
+	&& historicalRaceAnalysisIndex.dateCount === index.summary?.dateCount;
 const tabs = [
-	{ key: "overview", status: "ready", reason: `Historical EX and current-day coverage are separated. Current target date: ${currentDayPredictionCoverage.targetDate}.`, sourcePaths: [sourcePaths.index, sourcePaths.historyCoverage, sourcePaths.currentDayPredictionCoverage] },
-	{ key: "identity", status: "available", reason: "Racer evidence, registered identity registry, and name identity audit are available.", sourcePaths: [sourcePaths.racer, sourcePaths.nameBridge] },
-	{ key: "data-coverage", status: "available", reason: "Date, historical EX, and current-day prediction coverage files are available.", sourcePaths: [sourcePaths.index, sourcePaths.historyCoverage, sourcePaths.currentDayPredictionCoverage, sourcePaths.venue] },
+	{ key: "overview", status: historyIsCurrent && raceAnalysisIsCurrent ? "ready" : "available", reason: `Historical EX covers ${historyCoverage.dateRange?.dateCount ?? 0} dates through ${historyCoverage.dateRange?.to ?? "unavailable"}; current-day coverage targets ${currentDayPredictionCoverage.targetDate}.`, sourcePaths: [sourcePaths.index, sourcePaths.historyCoverage, sourcePaths.currentDayPredictionCoverage] },
+	{ key: "identity", status: "available", reason: "Latest racer evidence, the registered identity registry, and current-day exact-link audit are available; name-only inference is not used.", sourcePaths: [sourcePaths.racer, sourcePaths.identityRegistry, sourcePaths.currentDayRegistryAudit] },
+	{ key: "data-coverage", status: historyIsCurrent ? "ready" : "available", reason: `Date index and EX history coverage are synchronized through ${historyCoverage.dateRange?.to ?? "unavailable"}; auxiliary historical source coverage is tracked separately.`, sourcePaths: [sourcePaths.index, sourcePaths.historyCoverage, sourcePaths.historicalSourceCoverage, sourcePaths.currentDayPredictionCoverage, sourcePaths.venue] },
 	{ key: "trend-lab", status: venueBias.readiness.status, reason: venueBias.readiness.reason, sourcePaths: [sourcePaths.venueBias, sourcePaths.roughIndex] },
 	{ key: "trifecta-ranking", status: "available", reason: "Only source-backed trifecta result and payout coverage is presented; no ranking prediction is generated.", sourcePaths: [sourcePaths.roughIndex, sourcePaths.todayFlow] },
 	{ key: "rough-index", status: roughIndex.readiness.status, reason: roughIndex.readiness.reason, sourcePaths: [sourcePaths.roughIndex] },
@@ -68,11 +72,10 @@ const tabs = [
 	{ key: "venue-bias", status: venueBias.readiness.status, reason: venueBias.readiness.reason, sourcePaths: [sourcePaths.venueBias] },
 	{ key: "today-flow", status: todayFlow.readiness.status, reason: todayFlow.readiness.reason, sourcePaths: [sourcePaths.todayFlow] },
 	{ key: "prediction-structure", status: structuredTicketsHistorySummary.readiness.status, reason: `${predictionStructure.readiness.reason} Strict structured ticket history covers ${structuredTicketsHistoryIndex.dateCount} dates.`, sourcePaths: [sourcePaths.predictionStructure, sourcePaths.structuredTicketsHistorySummary, sourcePaths.structuredTicketsHistoryIndex, sourcePaths.predictionAudit] },
-	{ key: "race-analysis", status: historicalRaceAnalysisSummary.summary.readiness.status, reason: `${raceAnalysis.summary.readiness.reason} Historical index covers ${historicalRaceAnalysisIndex.dateCount} dates.`, sourcePaths: [sourcePaths.raceAnalysis, sourcePaths.historicalRaceAnalysisSummary, sourcePaths.historicalRaceAnalysisIndex, sourcePaths.racer, sourcePaths.venue] },
+	{ key: "race-analysis", status: raceAnalysisIsCurrent ? historicalRaceAnalysisSummary.summary.readiness.status : "available", reason: `${raceAnalysis.summary.readiness.reason} Historical index covers ${historicalRaceAnalysisIndex.dateCount} dates through ${historicalRaceAnalysisIndex.latestDate}.`, sourcePaths: [sourcePaths.raceAnalysis, sourcePaths.historicalRaceAnalysisSummary, sourcePaths.historicalRaceAnalysisIndex, sourcePaths.racer, sourcePaths.venue] },
 	{ key: "ex-analysis", status: "available", reason: "The hub separates historical result-based EX from current-day prediction coverage without ranking them.", sourcePaths: [sourcePaths.venueBias, sourcePaths.roughIndex, sourcePaths.todayFlow, sourcePaths.predictionStructure, sourcePaths.currentDayPredictionCoverage] },
 ];
 const auditPath = `public/data/boatrace-ex/audit/tab-completeness-${targetDate}.generated.json`;
-const markdownPath = `docs/boat-ex/tab-completeness-${targetDate}.md`;
 const audit = {
 	schemaVersion: 1,
 	kind: "boatrace-ex-tab-completeness-audit",
@@ -88,11 +91,9 @@ const audit = {
 	},
 	tabs,
 };
-const markdown = `# Boat EX Tab Completeness (${targetDate})\n\n${tabs.map((tab) => `- ${tab.key}: ${tab.status} - ${tab.reason}`).join("\n")}\n\nAll sections expose source-backed availability, readiness, reason, or audit information.\n`;
 
 if (write) {
 	writeJson(auditPath, audit);
-	writeText(markdownPath, markdown);
 }
 
 const existing = write ? audit : readJson(auditPath);
@@ -106,11 +107,19 @@ for (const key of expectedKeys) {
 	else if (!tab.status || !tab.reason || !Array.isArray(tab.sourcePaths) || tab.sourcePaths.length === 0) errors.push(`incomplete tab audit entry: ${key}`);
 }
 if ((existing.summary?.pendingCount ?? -1) !== 0) errors.push("tab audit must not report pending tabs");
+if (existing.auditDate !== targetDate) errors.push("tab audit date must match EX index latestDate");
+if (!historyIsCurrent) errors.push("history coverage is stale against EX date index");
+if (!raceAnalysisIsCurrent) errors.push("historical race analysis is stale against EX date index");
+if (venueBias.dateRange?.to !== targetDate || venueBias.dateRange?.dateCount !== index.summary?.dateCount) errors.push("venue bias is stale against EX date index");
+if (roughIndex.dateRange?.to !== targetDate || roughIndex.dateRange?.dateCount !== index.summary?.dateCount) errors.push("rough index is stale against EX date index");
+if (structuredTicketsHistorySummary.periodEnd !== targetDate || structuredTicketsHistorySummary.dateCount !== index.summary?.dateCount) errors.push("prediction structure history is stale against EX date index");
+if (currentDayPredictionCoverage.targetDate !== targetDate) errors.push("current-day prediction coverage targetDate mismatch");
 const pageSource = readText("src/pages/BoatExPage.tsx");
 for (const key of expectedKeys) {
 	if (!pageSource.includes(`case \"${key}\"`)) errors.push(`BoatExPage is missing tab case: ${key}`);
 }
 if (!pageSource.includes("CurrentDayPredictionCoverageSection")) errors.push("BoatExPage is missing current-day prediction coverage display");
+if (!pageSource.includes("auditedStatus ?? section.status")) errors.push("BoatExPage tab cards are not wired to the latest completeness audit");
 if (!pageSource.includes("coverage.preRaceCount") || !pageSource.includes("coverage.raceAnalysisAvailableRaceCount") || !pageSource.includes("coverage.inconsistentStatusCount")) {
 	errors.push("BoatExPage is missing current-day lifecycle summary display");
 }
@@ -118,5 +127,5 @@ if (errors.length > 0) {
 	console.error(errors.join("\n"));
 	process.exitCode = 1;
 } else {
-	console.log(JSON.stringify({ ok: true, auditPath, markdownPath, summary: existing.summary }, null, 2));
+	console.log(JSON.stringify({ ok: true, auditPath, targetDate, historyCoverage: historyCoverage.dateRange, raceAnalysis: { latestDate: historicalRaceAnalysisIndex.latestDate, dateCount: historicalRaceAnalysisIndex.dateCount }, summary: existing.summary }, null, 2));
 }

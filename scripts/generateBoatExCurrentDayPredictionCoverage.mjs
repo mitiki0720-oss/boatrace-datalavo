@@ -21,7 +21,37 @@ const hasPartialResult = (race) => {
 };
 const hasRawPayout = (race) => isAvailable(race.result?.payout3tan?.payout ?? race.payout?.trifecta?.payout);
 
+const normalizeVenueCode = (value) => {
+	const valueText = text(value);
+	return /^\d{1,2}$/.test(valueText) ? valueText.padStart(2, "0") : valueText;
+};
+
+const assertUniqueCurrentFeed = (feed) => {
+	const venueCodes = new Set();
+	const raceKeys = new Set();
+	for (const venue of feed.venues ?? []) {
+		const venueCode = normalizeVenueCode(venue.venueCode);
+		if (!venueCode) throw new Error("current-day coverage source has a venue without venueCode");
+		if (venueCodes.has(venueCode)) throw new Error(`current-day coverage source has duplicate venueCode: ${venueCode}`);
+		venueCodes.add(venueCode);
+		const raceNumbers = new Set();
+		for (const race of venue.races ?? []) {
+			const raceNo = Number(race.raceNo);
+			if (!Number.isInteger(raceNo) || raceNo < 1 || raceNo > 12) {
+				throw new Error(`current-day coverage source has invalid raceNo: ${venueCode}:${JSON.stringify(race.raceNo)}`);
+			}
+			if (raceNumbers.has(raceNo)) throw new Error(`current-day coverage source has duplicate raceNo: ${venueCode}:${raceNo}`);
+			raceNumbers.add(raceNo);
+			const raceKey = `${venueCode}:${raceNo}`;
+			if (raceKeys.has(raceKey)) throw new Error(`current-day coverage source has duplicate race key: ${raceKey}`);
+			raceKeys.add(raceKey);
+		}
+	}
+	return venueCodes.size;
+};
+
 const current = read("public/data/boatrace/today-race-details.generated.json");
+const uniqueVenueCount = assertUniqueCurrentFeed(current);
 const registry = read("public/data/boatrace-ex/identity/registered-racers.generated.json");
 const latestRaceAnalysis = read("public/data/boatrace-ex/derived/race-analysis/latest.json");
 const knownRegistrationNos = new Set((registry.identities ?? []).map((identity) => text(identity.registrationNo)));
@@ -135,7 +165,7 @@ const coverage = {
 	generatedAt,
 	sourcePath,
 	identityPolicy: "registrationNo exact registry lookup only; no name-only linkage",
-	venueCount: venues.length,
+	venueCount: uniqueVenueCount,
 	raceCount,
 	slotCount: sum("slotCount"),
 	entriesCompleteRaceCount: sum("entriesCompleteRaceCount"),
