@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-tab-completeness-audit",
+  "auditDate": "2026-09-24",
+  "generatedAt": "2026-09-23T18:40:09.573Z",
+  "policy": "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. Strict source-text ticket extraction and exact-order evaluation are limited to the documented prediction-structure contract; no fake score, rank, recommendation, inferred result, or inferred payout is used.",
+  "summary": {
+    "tabCount": 13,
+    "readyCount": 6,
+    "availableCount": 4,
+    "insufficientHistoryCount": 3,
+    "pendingCount": 0
+  },
+  "tabs": [
+    {
+      "key": "overview",
+      "status": "ready",
+      "reason": "Historical EX covers 118 dates through 2026-09-24; current-day coverage targets 2026-09-24.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/index.generated.json",
+        "public/data/boatrace-ex/derived/history-coverage/latest.json",
+        "public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json"
+      ]
+    },
+    {
+      "key": "identity",
+      "status": "available",
+      "reason": "Latest racer evidence, the registered identity registry, and current-day exact-link audit are available; name-only inference is not used.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/racer-evidence/2026-09-24.json",
+        "public/data/boatrace-ex/identity/registered-racers.generated.json",
+        "public/data/boatrace-ex/audit/current-day-registry-linkage-gap-2026-09-24.generated.json"
+      ]
+    },
+    {
+      "key": "data-coverage",
+      "status": "ready",
+      "reason": "Date index and EX history coverage are synchronized through 2026-09-24; auxiliary historical source coverage is tracked separately.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/index.generated.json",
+        "public/data/boatrace-ex/derived/history-coverage/latest.json",
+        "public/data/boatrace-ex/derived/historical-source-coverage/latest.json",
+        "public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json",
+        "public/data/boatrace-ex/derived/venue-evidence/2026-09-24.json"
+      ]
+    },
+    {
+      "key": "trend-lab",
+      "status": "ready",
+      "reason": "dateCount 118 meets minDateCount 7",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/venue-bias/latest.json",
+        "public/data/boatrace-ex/derived/rough-index/latest.json"
+      ]
+    },
+    {
+      "key": "trifecta-ranking",
+      "status": "available",
+      "reason": "Only source-backed trifecta result and payout coverage is presented; no ranking prediction is generated.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/rough-index/latest.json",
+        "public/data/boatrace-ex/derived/today-flow/latest.json"
+      ]
+    },
+    {
+      "key": "rough-index",
+      "status": "ready",
+      "reason": "history and payout samples meet the minimum thresholds",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/rough-index/latest.json"
+      ]
+    },
+    {
+      "key": "race-transition",
+      "status": "insufficient-history",
+      "reason": "No result-backed races are available.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/today-flow/latest.json"
+      ]
+    },
+    {
+      "key": "weather",
+      "status": "available",
+      "reason": "Venue evidence contains source-backed weather coverage.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/venue-evidence/2026-09-24.json"
+      ]
+    },
+    {
+      "key": "venue-bias",
+      "status": "ready",
+      "reason": "dateCount 118 meets minDateCount 7",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/venue-bias/latest.json"
+      ]
+    },
+    {
+      "key": "today-flow",
+      "status": "insufficient-history",
+      "reason": "No result-backed races are available.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/today-flow/latest.json"
+      ]
+    },
+    {
+      "key": "prediction-structure",
+      "status": "insufficient-history",
+      "reason": "Strict structured ticket coverage is source-backed but remains below the 30-race readiness threshold. Strict structured ticket history covers 118 dates.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/prediction-structure/latest.json",
+        "public/data/boatrace-ex/derived/prediction-structure/history-summary.json",
+        "public/data/boatrace-ex/derived/prediction-structure/history-index.json",
+        "public/data/boatrace-ex/audit/prediction-structure-contract-2026-09-24.generated.json"
+      ]
+    },
+    {
+      "key": "race-analysis",
+      "status": "ready",
+      "reason": "No race satisfies the source-backed race-analysis generation contract. Historical index covers 118 dates through 2026-09-24.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/race-analysis/latest.json",
+        "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
+        "public/data/boatrace-ex/derived/race-analysis/history-index.json",
+        "public/data/boatrace-ex/derived/racer-evidence/2026-09-24.json",
+        "public/data/boatrace-ex/derived/venue-evidence/2026-09-24.json"
+      ]
+    },
+    {
+      "key": "ex-analysis",
+      "status": "available",
+      "reason": "The hub separates historical result-based EX from current-day prediction coverage without ranking them.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/venue-bias/latest.json",
+        "public/data/boatrace-ex/derived/rough-index/latest.json",
+        "public/data/boatrace-ex/derived/today-flow/latest.json",
+        "public/data/boatrace-ex/derived/prediction-structure/latest.json",
+        "public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json"
+      ]
+    }
+  ]
+}
