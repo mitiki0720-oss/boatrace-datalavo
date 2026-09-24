@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-tab-completeness-audit",
   "auditDate": "2026-09-25",
-  "generatedAt": "2026-09-24T19:08:05.211Z",
+  "generatedAt": "2026-09-24T23:57:41.632Z",
   "policy": "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. Strict source-text ticket extraction and exact-order evaluation are limited to the documented prediction-structure contract; no fake score, rank, recommendation, inferred result, or inferred payout is used.",
   "summary": {
     "tabCount": 13,
@@ -73,7 +73,7 @@
     {
       "key": "race-transition",
       "status": "insufficient-history",
-      "reason": "No result-backed races are available.",
+      "reason": "Result-backed race count is below minimum display threshold.",
       "sourcePaths": [
         "public/data/boatrace-ex/derived/today-flow/latest.json"
       ]
@@ -97,7 +97,7 @@
     {
       "key": "today-flow",
       "status": "insufficient-history",
-      "reason": "No result-backed races are available.",
+      "reason": "Result-backed race count is below minimum display threshold.",
       "sourcePaths": [
         "public/data/boatrace-ex/derived/today-flow/latest.json"
       ]
@@ -116,7 +116,7 @@
     {
       "key": "race-analysis",
       "status": "ready",
-      "reason": "No race satisfies the source-backed race-analysis generation contract. Historical index covers 119 dates through 2026-09-25.",
+      "reason": "1/144 races have complete source-backed result, trifecta payout, entries, and source identity. Historical index covers 119 dates through 2026-09-25.",
       "sourcePaths": [
         "public/data/boatrace-ex/derived/race-analysis/latest.json",
         "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
