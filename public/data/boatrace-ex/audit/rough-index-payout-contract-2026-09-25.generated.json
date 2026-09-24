@@ -1,170 +1,39 @@
 {
-  "schemaVersion": "boat-ex-history-coverage-v2",
-  "kind": "boatrace-ex-history-coverage",
-  "generatedAt": "2026-09-24T18:40:05.358Z",
-  "sourceIndexPath": "public/data/boatrace-ex/index.generated.json",
-  "dateRange": {
-    "from": "2026-05-24",
-    "to": "2026-09-25",
-    "dateCount": 119
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-rough-index-payout-contract-audit",
+  "auditDate": "2026-09-25",
+  "generatedAt": "2026-09-24T18:40:10.084Z",
+  "mode": "source-backed",
+  "contract": {
+    "recordPath": "officialResult.payout[]",
+    "trifectaTypeFields": [
+      "betType",
+      "type",
+      "name"
+    ],
+    "trifectaTypeValues": [
+      "3連単",
+      "三連単",
+      "trifecta"
+    ],
+    "amountFields": [
+      "payoutYen",
+      "amount",
+      "payoutAmount",
+      "payout",
+      "yen"
+    ],
+    "amountFormat": "non-negative integer or yen-formatted string",
+    "note": "Only payout values already present in BOATRACE EX history are counted. No payout value is inferred or generated."
   },
   "summary": {
+    "dateCount": 119,
     "raceCount": 16980,
-    "venueCount": 24,
     "resultAvailableRaceCount": 12748,
     "payoutAvailableRaceCount": 12712,
-    "exhibitionAvailableRaceCount": 1170,
-    "weatherAvailableRaceCount": 16968
-  },
-  "venues": [
-    {
-      "venueCode": "01",
-      "venueName": "桐生",
-      "dateCount": 62,
-      "raceCount": 756
-    },
-    {
-      "venueCode": "02",
-      "venueName": "戸田",
-      "dateCount": 53,
-      "raceCount": 636
-    },
-    {
-      "venueCode": "03",
-      "venueName": "江戸川",
-      "dateCount": 51,
-      "raceCount": 612
-    },
-    {
-      "venueCode": "04",
-      "venueName": "平和島",
-      "dateCount": 56,
-      "raceCount": 672
-    },
-    {
-      "venueCode": "05",
-      "venueName": "多摩川",
-      "dateCount": 61,
-      "raceCount": 732
-    },
-    {
-      "venueCode": "06",
-      "venueName": "浜名湖",
-      "dateCount": 62,
-      "raceCount": 744
-    },
-    {
-      "venueCode": "07",
-      "venueName": "蒲郡",
-      "dateCount": 54,
-      "raceCount": 648
-    },
-    {
-      "venueCode": "08",
-      "venueName": "常滑",
-      "dateCount": 75,
-      "raceCount": 900
-    },
-    {
-      "venueCode": "09",
-      "venueName": "津",
-      "dateCount": 57,
-      "raceCount": 684
-    },
-    {
-      "venueCode": "10",
-      "venueName": "三国",
-      "dateCount": 68,
-      "raceCount": 816
-    },
-    {
-      "venueCode": "11",
-      "venueName": "びわこ",
-      "dateCount": 61,
-      "raceCount": 732
-    },
-    {
-      "venueCode": "12",
-      "venueName": "住之江",
-      "dateCount": 51,
-      "raceCount": 612
-    },
-    {
-      "venueCode": "13",
-      "venueName": "尼崎",
-      "dateCount": 66,
-      "raceCount": 792
-    },
-    {
-      "venueCode": "14",
-      "venueName": "鳴門",
-      "dateCount": 50,
-      "raceCount": 600
-    },
-    {
-      "venueCode": "15",
-      "venueName": "丸亀",
-      "dateCount": 49,
-      "raceCount": 588
-    },
-    {
-      "venueCode": "16",
-      "venueName": "児島",
-      "dateCount": 62,
-      "raceCount": 744
-    },
-    {
-      "venueCode": "17",
-      "venueName": "宮島",
-      "dateCount": 60,
-      "raceCount": 720
-    },
-    {
-      "venueCode": "18",
-      "venueName": "徳山",
-      "dateCount": 64,
-      "raceCount": 768
-    },
-    {
-      "venueCode": "19",
-      "venueName": "下関",
-      "dateCount": 57,
-      "raceCount": 684
-    },
-    {
-      "venueCode": "20",
-      "venueName": "若松",
-      "dateCount": 63,
-      "raceCount": 756
-    },
-    {
-      "venueCode": "21",
-      "venueName": "芦屋",
-      "dateCount": 62,
-      "raceCount": 744
-    },
-    {
-      "venueCode": "22",
-      "venueName": "福岡",
-      "dateCount": 64,
-      "raceCount": 768
-    },
-    {
-      "venueCode": "23",
-      "venueName": "唐津",
-      "dateCount": 51,
-      "raceCount": 612
-    },
-    {
-      "venueCode": "24",
-      "venueName": "大村",
-      "dateCount": 55,
-      "raceCount": 660
-    }
-  ],
-  "readiness": {
-    "status": "ready",
-    "reason": "All indexed BOATRACE EX history dates are represented in the coverage summary."
+    "trifectaAvailableRaceCount": 12712,
+    "trifectaOver10000RaceCount": 2076,
+    "readiness": "ready"
   },
   "sourceFiles": [
     "public/data/boatrace-ex/index.generated.json",
