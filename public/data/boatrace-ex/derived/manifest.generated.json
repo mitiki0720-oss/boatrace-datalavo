@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "boatrace-ex-derived-manifest",
-  "generatedAt": "2026-09-25T18:51:07.639Z",
+  "generatedAt": "2026-09-25T19:16:11.456Z",
   "sourceFiles": [
     {
       "sourceName": "boatrace-ex-history-races",
@@ -23,7 +23,7 @@
       "sourceName": "boatrace-ex-venue-evidence",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/derived/venue-evidence/2026-09-26.json",
-      "generatedAt": "2026-09-25T18:50:42.077Z",
+      "generatedAt": "2026-09-25T19:15:56.458Z",
       "sourceStatus": "available",
       "coverageStatus": "partial",
       "note": "Optional venue context source for racer evidence v0."
@@ -32,12 +32,39 @@
       "sourceName": "registered-racers.generated.json",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/identity/registered-racers.generated.json",
-      "generatedAt": "2026-09-25T18:50:38.692Z",
+      "generatedAt": "2026-09-25T19:15:53.474Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     }
   ],
   "files": [
+    {
+      "path": "public/data/boatrace-ex/derived/decision-method-history/latest.json",
+      "kind": "boat-ex-decision-method-history-v1",
+      "date": "2026-09-26",
+      "generatedAt": "2026-09-25T18:51:07.528Z",
+      "sourceStatus": "available",
+      "coverageStatus": "ready",
+      "recordCount": 12719
+    },
+    {
+      "path": "public/data/boatrace-ex/derived/entry-shift-history/latest.json",
+      "kind": "boat-ex-entry-shift-history-v1",
+      "date": "2026-09-26",
+      "generatedAt": "2026-09-25T18:51:05.533Z",
+      "sourceStatus": "available",
+      "coverageStatus": "available",
+      "recordCount": 1210
+    },
+    {
+      "path": "public/data/boatrace-ex/derived/motor-boat-history/latest.json",
+      "kind": "boat-ex-motor-boat-history-v1",
+      "date": "2026-09-26",
+      "generatedAt": "2026-09-25T18:51:03.553Z",
+      "sourceStatus": "available",
+      "coverageStatus": "partial",
+      "recordCount": 17136
+    },
     {
       "path": "public/data/boatrace-ex/derived/race-analysis/dates/2026-08-31.json",
       "kind": "boatrace-ex-historical-race-analysis-date",
@@ -271,6 +298,22 @@
       "coverageStatus": "available",
       "recordCount": 144,
       "racerCount": 864
+    },
+    {
+      "path": "public/data/boatrace-ex/derived/race-analysis/history-index.json",
+      "kind": "boatrace-ex-historical-race-analysis-index",
+      "date": "2026-09-26",
+      "sourceStatus": "available",
+      "coverageStatus": "ready",
+      "recordCount": 120
+    },
+    {
+      "path": "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
+      "kind": "boatrace-ex-historical-race-analysis-summary",
+      "date": "2026-09-26",
+      "sourceStatus": "available",
+      "coverageStatus": "ready",
+      "recordCount": 17136
     },
     {
       "path": "public/data/boatrace-ex/derived/racer-evidence/2026-05-24.json",
@@ -1468,7 +1511,7 @@
       "date": "2026-09-26",
       "recordCount": 156,
       "racerCount": 588,
-      "generatedAt": "2026-09-25T18:50:42.238Z",
+      "generatedAt": "2026-09-25T19:15:56.613Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -1479,7 +1522,7 @@
       "recordCount": 17136,
       "venueCount": 24,
       "payoutAvailableRaceCount": 12713,
-      "generatedAt": "2026-09-25T18:50:52.073Z",
+      "generatedAt": "2026-09-25T19:16:06.209Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -1491,7 +1534,7 @@
       "venueCount": 13,
       "resultAvailableRaceCount": 0,
       "payoutAvailableRaceCount": 0,
-      "generatedAt": "2026-09-25T18:50:55.312Z",
+      "generatedAt": "2026-09-25T19:16:09.438Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -1501,7 +1544,7 @@
       "date": "2026-09-26",
       "recordCount": 17136,
       "venueCount": 24,
-      "generatedAt": "2026-09-25T18:50:47.268Z",
+      "generatedAt": "2026-09-25T19:16:01.552Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -2461,15 +2504,42 @@
       "path": "public/data/boatrace-ex/derived/venue-evidence/2026-09-26.json",
       "kind": "derived",
       "date": "2026-09-26",
-      "generatedAt": "2026-09-25T18:50:42.077Z",
+      "generatedAt": "2026-09-25T19:15:56.458Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
+    },
+    {
+      "path": "public/data/boatrace-ex/derived/venue-race-band-history/latest.json",
+      "kind": "boat-ex-venue-race-band-history-v1",
+      "date": "2026-09-26",
+      "generatedAt": "2026-09-25T18:51:01.445Z",
+      "sourceStatus": "available",
+      "coverageStatus": "ready",
+      "recordCount": 17136
+    },
+    {
+      "path": "public/data/boatrace-ex/derived/weather-water-history/history-summary.json",
+      "kind": "boat-ex-weather-water-history-summary-v1",
+      "date": "2026-09-26",
+      "generatedAt": "2026-09-25T18:50:59.398Z",
+      "sourceStatus": "available",
+      "coverageStatus": "ready",
+      "recordCount": 17136
+    },
+    {
+      "path": "public/data/boatrace-ex/derived/weather-water-history/latest.json",
+      "kind": "boat-ex-weather-water-history-v1",
+      "date": "2026-09-26",
+      "generatedAt": "2026-09-25T18:50:59.398Z",
+      "sourceStatus": "available",
+      "coverageStatus": "ready",
+      "recordCount": 17136
     },
     {
       "path": "public/data/boatrace-ex/derived/prediction-structure/history-summary.json",
       "kind": "boatrace-ex-structured-tickets-history-summary",
       "date": "2026-09-26",
-      "generatedAt": "2026-09-25T18:50:55.439Z",
+      "generatedAt": "2026-09-25T19:16:09.556Z",
       "sourceStatus": "available",
       "coverageStatus": "insufficient-history",
       "recordCount": 17136
@@ -2478,7 +2548,7 @@
       "path": "public/data/boatrace-ex/derived/prediction-structure/history-index.json",
       "kind": "boatrace-ex-structured-tickets-history-index",
       "date": "2026-09-26",
-      "generatedAt": "2026-09-25T18:50:55.439Z",
+      "generatedAt": "2026-09-25T19:16:09.556Z",
       "sourceStatus": "available",
       "coverageStatus": "insufficient-history",
       "recordCount": 120
@@ -2487,7 +2557,7 @@
       "path": "public/data/boatrace-ex/derived/prediction-structure/latest.json",
       "kind": "boat-ex-prediction-structure-v1",
       "date": "2026-09-26",
-      "generatedAt": "2026-09-25T18:50:57.263Z",
+      "generatedAt": "2026-09-25T19:16:11.317Z",
       "sourceStatus": "available",
       "coverageStatus": "insufficient-history",
       "recordCount": 156
@@ -2509,76 +2579,6 @@
       "coverageStatus": "not-ready",
       "recordCount": 156,
       "racerCount": 936
-    },
-    {
-      "path": "public/data/boatrace-ex/derived/weather-water-history/history-summary.json",
-      "kind": "boat-ex-weather-water-history-summary-v1",
-      "date": "2026-09-26",
-      "generatedAt": "2026-09-25T18:50:59.398Z",
-      "sourceStatus": "available",
-      "coverageStatus": "ready",
-      "recordCount": 17136
-    },
-    {
-      "path": "public/data/boatrace-ex/derived/weather-water-history/latest.json",
-      "kind": "boat-ex-weather-water-history-v1",
-      "date": "2026-09-26",
-      "generatedAt": "2026-09-25T18:50:59.398Z",
-      "sourceStatus": "available",
-      "coverageStatus": "ready",
-      "recordCount": 17136
-    },
-    {
-      "path": "public/data/boatrace-ex/derived/venue-race-band-history/latest.json",
-      "kind": "boat-ex-venue-race-band-history-v1",
-      "date": "2026-09-26",
-      "generatedAt": "2026-09-25T18:51:01.445Z",
-      "sourceStatus": "available",
-      "coverageStatus": "ready",
-      "recordCount": 17136
-    },
-    {
-      "path": "public/data/boatrace-ex/derived/motor-boat-history/latest.json",
-      "kind": "boat-ex-motor-boat-history-v1",
-      "date": "2026-09-26",
-      "generatedAt": "2026-09-25T18:51:03.553Z",
-      "sourceStatus": "available",
-      "coverageStatus": "partial",
-      "recordCount": 17136
-    },
-    {
-      "path": "public/data/boatrace-ex/derived/entry-shift-history/latest.json",
-      "kind": "boat-ex-entry-shift-history-v1",
-      "date": "2026-09-26",
-      "generatedAt": "2026-09-25T18:51:05.533Z",
-      "sourceStatus": "available",
-      "coverageStatus": "available",
-      "recordCount": 1210
-    },
-    {
-      "path": "public/data/boatrace-ex/derived/decision-method-history/latest.json",
-      "kind": "boat-ex-decision-method-history-v1",
-      "date": "2026-09-26",
-      "generatedAt": "2026-09-25T18:51:07.528Z",
-      "sourceStatus": "available",
-      "coverageStatus": "ready",
-      "recordCount": 12719
-    },
-    {
-      "path": "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
-      "kind": "boatrace-ex-historical-race-analysis-summary",
-      "date": "2026-09-26",
-      "sourceStatus": "available",
-      "coverageStatus": "ready",
-      "recordCount": 17136
-    },
-    {
-      "path": "public/data/boatrace-ex/derived/race-analysis/history-index.json",
-      "kind": "boatrace-ex-historical-race-analysis-index",
-      "date": "2026-09-26",
-      "sourceStatus": "available",
-      "coverageStatus": "ready",
-      "recordCount": 120
     }
   ]
 }
