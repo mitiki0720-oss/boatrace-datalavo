@@ -1,10 +1,10 @@
 {
   "schemaVersion": "boat-ex-today-flow-v1",
-  "generatedAt": "2026-09-25T19:16:09.438Z",
+  "generatedAt": "2026-09-26T00:02:54.886Z",
   "status": "available",
   "readiness": {
     "status": "insufficient-history",
-    "reason": "No result-backed races are available."
+    "reason": "Result-backed race count is below minimum display threshold."
   },
   "targetDate": "2026-09-26",
   "dateRange": {
@@ -15,9 +15,9 @@
   "summary": {
     "venueCount": 13,
     "raceCount": 156,
-    "resultAvailableRaceCount": 0,
-    "trifectaAvailableRaceCount": 0,
-    "payoutAvailableRaceCount": 0
+    "resultAvailableRaceCount": 1,
+    "trifectaAvailableRaceCount": 1,
+    "payoutAvailableRaceCount": 1
   },
   "venues": [
     {
@@ -808,9 +808,9 @@
       "venueCode": "18",
       "venueName": "徳山",
       "raceCount": 12,
-      "resultAvailableRaceCount": 0,
+      "resultAvailableRaceCount": 1,
       "firstPlaceBoatCounts": {
-        "1": 0,
+        "1": 1,
         "2": 0,
         "3": 0,
         "4": 0,
@@ -820,9 +820,9 @@
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
+          "firstPlaceBoat": "1",
+          "trifecta": "1-2-3",
+          "payoutYen": 1320
         },
         {
           "raceNo": 2,
@@ -892,15 +892,14 @@
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [],
-      "insideWinCount": 0,
+      "recentFirstPlaceBoats": [
+        "1"
+      ],
+      "insideWinCount": 1,
       "outsideWinCount": 0,
-      "payoutAvailableRaceCount": 0,
+      "payoutAvailableRaceCount": 1,
       "highPayoutRaceCount": 0,
-      "notes": [
-        "No source-backed results are available for this venue.",
-        "No source-backed trifecta payout values are available for this venue."
-      ]
+      "notes": []
     },
     {
       "venueCode": "19",
@@ -1309,8 +1308,5 @@
       "coverageStatus": "partial"
     }
   ],
-  "warnings": [
-    "No source-backed same-day result facts are available.",
-    "Payout data is not available; payout-based flow facts are disabled."
-  ]
+  "warnings": []
 }
