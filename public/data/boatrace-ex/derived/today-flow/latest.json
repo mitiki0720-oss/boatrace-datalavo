@@ -1,23 +1,23 @@
 {
   "schemaVersion": "boat-ex-today-flow-v1",
-  "generatedAt": "2026-09-26T00:02:54.886Z",
+  "generatedAt": "2026-09-26T17:56:16.023Z",
   "status": "available",
   "readiness": {
     "status": "insufficient-history",
-    "reason": "Result-backed race count is below minimum display threshold."
+    "reason": "No result-backed races are available."
   },
-  "targetDate": "2026-09-26",
+  "targetDate": "2026-09-27",
   "dateRange": {
-    "from": "2026-09-26",
-    "to": "2026-09-26",
+    "from": "2026-09-27",
+    "to": "2026-09-27",
     "dateCount": 1
   },
   "summary": {
     "venueCount": 13,
     "raceCount": 156,
-    "resultAvailableRaceCount": 1,
-    "trifectaAvailableRaceCount": 1,
-    "payoutAvailableRaceCount": 1
+    "resultAvailableRaceCount": 0,
+    "trifectaAvailableRaceCount": 0,
+    "payoutAvailableRaceCount": 0
   },
   "venues": [
     {
@@ -707,8 +707,8 @@
       ]
     },
     {
-      "venueCode": "15",
-      "venueName": "丸亀",
+      "venueCode": "14",
+      "venueName": "鳴門",
       "raceCount": 12,
       "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
@@ -805,12 +805,12 @@
       ]
     },
     {
-      "venueCode": "18",
-      "venueName": "徳山",
+      "venueCode": "15",
+      "venueName": "丸亀",
       "raceCount": 12,
-      "resultAvailableRaceCount": 1,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
-        "1": 1,
+        "1": 0,
         "2": 0,
         "3": 0,
         "4": 0,
@@ -820,9 +820,9 @@
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-3",
-          "payoutYen": 1320
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 2,
@@ -892,14 +892,15 @@
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "1"
-      ],
-      "insideWinCount": 1,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
       "outsideWinCount": 0,
-      "payoutAvailableRaceCount": 1,
+      "payoutAvailableRaceCount": 0,
       "highPayoutRaceCount": 0,
-      "notes": []
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
     },
     {
       "venueCode": "19",
@@ -1302,11 +1303,14 @@
       "coverageStatus": "available"
     },
     {
-      "sourceName": "BOATRACE EX history 2026-09-26",
-      "sourcePath": "public/data/boatrace-ex/history/races/2026-09-26.json",
+      "sourceName": "BOATRACE EX history 2026-09-27",
+      "sourcePath": "public/data/boatrace-ex/history/races/2026-09-27.json",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     }
   ],
-  "warnings": []
+  "warnings": [
+    "No source-backed same-day result facts are available.",
+    "Payout data is not available; payout-based flow facts are disabled."
+  ]
 }

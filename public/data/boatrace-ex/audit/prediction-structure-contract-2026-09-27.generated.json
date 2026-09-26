@@ -1,63 +1,48 @@
 {
-  "schemaVersion": "boat-ex-prediction-structure-v1",
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-prediction-structure-contract-audit",
+  "auditDate": "2026-09-27",
   "generatedAt": "2026-09-26T17:56:17.572Z",
-  "status": "available",
-  "readiness": {
-    "status": "insufficient-history",
-    "reason": "Strict structured ticket coverage is source-backed but remains below the 30-race readiness threshold.",
-    "missingRequirements": [
-      "strict-structured-ticket-coverage-below-30"
-    ]
+  "mode": "strict-source-backed",
+  "contract": {
+    "predictionText": "prediction.textExcerpt with prediction.sourceStatus === available",
+    "parser": "strict-ticket-pattern after a buy-ticket marker and 3-trifecta group heading",
+    "resultPath": "officialResult.finishOrder",
+    "payoutPath": "officialResult.payout[]",
+    "evaluation": "exact ordered boat-number triple only"
   },
-  "targetDate": "2026-09-27",
-  "dateRange": {
-    "from": "2026-09-27",
-    "to": "2026-09-27",
-    "dateCount": 1
-  },
-  "summary": {
-    "venueCount": 13,
-    "raceCount": 156,
-    "officialRaceCount": 156,
-    "resultAvailableRaceCount": 0,
-    "payoutAvailableRaceCount": 0,
-    "exhibitionAvailableRaceCount": 0,
-    "weatherAvailableRaceCount": 156,
-    "motorAvailableRaceCount": 156,
-    "boatAvailableRaceCount": 156,
-    "racerAvailableRaceCount": 156,
-    "predictionTextAvailableRaceCount": 0,
-    "structuredTicketAvailableRaceCount": 0,
-    "structuredTicketCount": 0,
-    "classifiedTicketCount": 0,
-    "unclassifiedTicketCount": 0,
-    "evaluatedPredictionRaceCount": 0,
-    "hitRaceCount": 0,
-    "missRaceCount": 0,
-    "payoutLinkedHitCount": 0,
-    "totalSourceBackedPayoutYen": 0
-  },
-  "venues": [],
-  "sourceFiles": [
-    {
-      "sourceName": "BOATRACE EX date index",
-      "sourcePath": "public/data/boatrace-ex/index.generated.json",
-      "sourceStatus": "available",
-      "coverageStatus": "available"
+  "targetDate": {
+    "date": "2026-09-27",
+    "summary": {
+      "venueCount": 13,
+      "raceCount": 156,
+      "officialRaceCount": 156,
+      "resultAvailableRaceCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "exhibitionAvailableRaceCount": 0,
+      "weatherAvailableRaceCount": 156,
+      "motorAvailableRaceCount": 156,
+      "boatAvailableRaceCount": 156,
+      "racerAvailableRaceCount": 156,
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "structuredTicketCount": 0,
+      "classifiedTicketCount": 0,
+      "unclassifiedTicketCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "hitRaceCount": 0,
+      "missRaceCount": 0,
+      "payoutLinkedHitCount": 0,
+      "totalSourceBackedPayoutYen": 0
     },
-    {
-      "sourceName": "Latest history",
-      "sourcePath": "public/data/boatrace-ex/history/races/2026-09-27.json",
-      "sourceStatus": "available",
-      "coverageStatus": "partial"
-    },
-    {
-      "sourceName": "Strict ticket history summary",
-      "sourcePath": "public/data/boatrace-ex/derived/prediction-structure/history-summary.json",
-      "sourceStatus": "available",
-      "coverageStatus": "insufficient-history"
+    "readiness": {
+      "status": "insufficient-history",
+      "reason": "Strict structured ticket coverage is source-backed but remains below the 30-race readiness threshold.",
+      "missingRequirements": [
+        "strict-structured-ticket-coverage-below-30"
+      ]
     }
-  ],
+  },
   "historyCoverage": {
     "schemaVersion": "boat-ex-structured-tickets-v1",
     "kind": "boatrace-ex-structured-tickets-history-summary",
@@ -106,7 +91,9 @@
       "public/data/boatrace-ex/audit/structured-tickets-evaluation-2026-09-27.generated.json"
     ]
   },
-  "warnings": [
-    "Strict parser results remain source-backed and are not promoted to ready before the configured coverage threshold is met."
+  "sourceFiles": [
+    "public/data/boatrace-ex/index.generated.json",
+    "public/data/boatrace-ex/history/races/2026-09-27.json",
+    "public/data/boatrace-ex/derived/prediction-structure/history-summary.json"
   ]
 }
