@@ -1,34 +1,34 @@
 {
   "schemaVersion": 1,
   "kind": "boat-ex-entry-shift-history-v1",
-  "generatedAt": "2026-09-28T20:44:21.520Z",
+  "generatedAt": "2026-09-29T19:39:33.853Z",
   "sourceFiles": [
     {
       "sourceName": "boatrace-ex-history-races",
       "sourcePath": "public/data/boatrace-ex/history/races/<date>.json",
       "field": "officialExhibition.entries.course",
-      "dateCount": 123
+      "dateCount": 124
     }
   ],
   "dateRange": {
     "from": "2026-05-24",
-    "to": "2026-09-29",
-    "dateCount": 123
+    "to": "2026-09-30",
+    "dateCount": 124
   },
   "summary": {
     "sourceField": "officialExhibition.entries.course",
     "venueCount": 24,
-    "exhibitionRaceCount": 1286,
-    "courseAvailableRaceCount": 634,
-    "sourceFieldInsufficientRaceCount": 652
+    "exhibitionRaceCount": 1324,
+    "courseAvailableRaceCount": 641,
+    "sourceFieldInsufficientRaceCount": 683
   },
   "venues": [
     {
       "venueCode": "03",
       "venueName": "江戸川",
-      "raceCount": 24,
+      "raceCount": 25,
       "courseAvailableRaceCount": 22,
-      "sourceFieldInsufficientRaceCount": 2,
+      "sourceFieldInsufficientRaceCount": 3,
       "frameToCourseCounts": {
         "1": {
           "1": 22
@@ -81,9 +81,9 @@
     {
       "venueCode": "04",
       "venueName": "平和島",
-      "raceCount": 36,
+      "raceCount": 48,
       "courseAvailableRaceCount": 29,
-      "sourceFieldInsufficientRaceCount": 7,
+      "sourceFieldInsufficientRaceCount": 19,
       "frameToCourseCounts": {
         "1": {
           "1": 29
@@ -147,9 +147,9 @@
     {
       "venueCode": "05",
       "venueName": "多摩川",
-      "raceCount": 31,
+      "raceCount": 34,
       "courseAvailableRaceCount": 31,
-      "sourceFieldInsufficientRaceCount": 0,
+      "sourceFieldInsufficientRaceCount": 3,
       "frameToCourseCounts": {
         "1": {
           "1": 31
@@ -202,7 +202,9 @@
         "status": "ready",
         "minRaceCount": 30
       },
-      "warnings": []
+      "warnings": [
+        "source field insufficient"
+      ]
     },
     {
       "venueCode": "06",
@@ -388,9 +390,9 @@
     {
       "venueCode": "13",
       "venueName": "尼崎",
-      "raceCount": 36,
+      "raceCount": 37,
       "courseAvailableRaceCount": 36,
-      "sourceFieldInsufficientRaceCount": 0,
+      "sourceFieldInsufficientRaceCount": 1,
       "frameToCourseCounts": {
         "1": {
           "1": 36
@@ -440,53 +442,56 @@
         "status": "ready",
         "minRaceCount": 30
       },
-      "warnings": []
+      "warnings": [
+        "source field insufficient"
+      ]
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
-      "raceCount": 32,
-      "courseAvailableRaceCount": 18,
-      "sourceFieldInsufficientRaceCount": 14,
+      "raceCount": 38,
+      "courseAvailableRaceCount": 22,
+      "sourceFieldInsufficientRaceCount": 16,
       "frameToCourseCounts": {
         "1": {
-          "1": 17,
+          "1": 21,
           "6": 1
         },
         "2": {
           "1": 1,
-          "2": 16,
-          "3": 1
+          "2": 19,
+          "3": 1,
+          "4": 1
         },
         "3": {
-          "2": 1,
-          "3": 15,
+          "2": 2,
+          "3": 18,
           "4": 2
         },
         "4": {
           "2": 1,
-          "3": 1,
-          "4": 15,
+          "3": 2,
+          "4": 18,
           "5": 1
         },
         "5": {
           "3": 1,
           "4": 1,
-          "5": 13,
-          "6": 3
+          "5": 16,
+          "6": 4
         },
         "6": {
-          "5": 4,
-          "6": 14
+          "5": 5,
+          "6": 17
         }
       },
-      "frameNariRaceCount": 12,
-      "entryShiftRaceCount": 6,
-      "lane1InsideCount": 17,
+      "frameNariRaceCount": 15,
+      "entryShiftRaceCount": 7,
+      "lane1InsideCount": 21,
       "byRaceBand": {
         "1R-4R": {
-          "raceCount": 10,
-          "entryShiftRaceCount": 4
+          "raceCount": 14,
+          "entryShiftRaceCount": 5
         },
         "5R-8R": {
           "raceCount": 4,
@@ -497,9 +502,9 @@
           "entryShiftRaceCount": 2
         }
       },
-      "frameNariRate": 0.6666666666666666,
-      "entryShiftRate": 0.3333333333333333,
-      "lane1InsideRate": 0.9444444444444444,
+      "frameNariRate": 0.6818181818181818,
+      "entryShiftRate": 0.3181818181818182,
+      "lane1InsideRate": 0.9545454545454546,
       "readiness": {
         "status": "low-sample",
         "minRaceCount": 30
@@ -876,9 +881,9 @@
     {
       "venueCode": "02",
       "venueName": "戸田",
-      "raceCount": 28,
+      "raceCount": 39,
       "courseAvailableRaceCount": 20,
-      "sourceFieldInsufficientRaceCount": 8,
+      "sourceFieldInsufficientRaceCount": 19,
       "frameToCourseCounts": {
         "1": {
           "1": 20
@@ -1285,44 +1290,46 @@
     {
       "venueCode": "21",
       "venueName": "芦屋",
-      "raceCount": 38,
-      "courseAvailableRaceCount": 30,
-      "sourceFieldInsufficientRaceCount": 8,
+      "raceCount": 42,
+      "courseAvailableRaceCount": 33,
+      "sourceFieldInsufficientRaceCount": 9,
       "frameToCourseCounts": {
         "1": {
-          "1": 30
+          "1": 33
         },
         "2": {
-          "2": 28,
+          "2": 31,
           "3": 1,
           "4": 1
         },
         "3": {
           "2": 1,
-          "3": 28,
+          "3": 31,
           "5": 1
         },
         "4": {
           "3": 1,
-          "4": 28,
+          "4": 30,
+          "5": 1,
           "6": 1
         },
         "5": {
           "2": 1,
-          "5": 29
+          "5": 31,
+          "6": 1
         },
         "6": {
-          "4": 1,
-          "6": 29
+          "4": 2,
+          "6": 31
         }
       },
-      "frameNariRaceCount": 28,
-      "entryShiftRaceCount": 2,
-      "lane1InsideCount": 30,
+      "frameNariRaceCount": 30,
+      "entryShiftRaceCount": 3,
+      "lane1InsideCount": 33,
       "byRaceBand": {
         "1R-4R": {
-          "raceCount": 14,
-          "entryShiftRaceCount": 1
+          "raceCount": 17,
+          "entryShiftRaceCount": 2
         },
         "5R-8R": {
           "raceCount": 8,
@@ -1333,8 +1340,8 @@
           "entryShiftRaceCount": 0
         }
       },
-      "frameNariRate": 0.9333333333333333,
-      "entryShiftRate": 0.06666666666666667,
+      "frameNariRate": 0.9090909090909091,
+      "entryShiftRate": 0.09090909090909091,
       "lane1InsideRate": 1,
       "readiness": {
         "status": "ready",
