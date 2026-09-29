@@ -16,5 +16,8 @@ assert.equal(audit.targetDate.readiness.status, summary.readiness.status);
 assert.equal(audit.historyCoverage.structuredTicketCount, summary.structuredTicketCount);
 assert.equal(output.historyCoverage.structuredTicketCount, summary.structuredTicketCount);
 assert.equal(summary.historyRaceCount, roughIndex.summary.raceCount);
-assert.equal(summary.readiness.status, "insufficient-history");
+const expectedReadiness = summary.structuredTicketAvailableRaceCount >= 30 && summary.evaluatedPredictionRaceCount >= 30
+	? "ready"
+	: "insufficient-history";
+assert.equal(summary.readiness.status, expectedReadiness);
 console.log(JSON.stringify({ ok: true, targetDate: index.latestDate, historyRaceCount: summary.historyRaceCount, structuredTicketCount: summary.structuredTicketCount, evaluatedPredictionRaceCount: summary.evaluatedPredictionRaceCount, readiness: summary.readiness.status }, null, 2));

@@ -37,5 +37,8 @@ assert.equal(summary.hitRaceCount, hits);
 assert.equal(summary.missRaceCount, misses);
 assert.equal(summary.payoutLinkedHitCount, payoutLinkedHits);
 assert.equal(summary.totalSourceBackedPayoutYen, payoutTotal);
-assert.equal(summary.readiness.status, "insufficient-history", "one evaluated race must not be promoted to ready");
+const expectedReadiness = summary.structuredTicketAvailableRaceCount >= 30 && evaluated >= 30
+	? "ready"
+	: "insufficient-history";
+assert.equal(summary.readiness.status, expectedReadiness, "readiness must follow the 30-race structured-ticket and evaluation threshold");
 console.log(JSON.stringify({ ok: true, dateCount: index.availableDates.length, evaluatedPredictionRaceCount: evaluated, hitRaceCount: hits, missRaceCount: misses, payoutLinkedHitCount: payoutLinkedHits, totalSourceBackedPayoutYen: payoutTotal, readiness: summary.readiness.status }, null, 2));

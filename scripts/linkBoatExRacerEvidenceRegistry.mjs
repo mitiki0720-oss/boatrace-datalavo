@@ -64,7 +64,7 @@ for (const date of dates) {
 					sample(unlinkedSamples, { date, racerName: racer.racerName, reason: "name-linked-registry-missing" });
 					continue;
 				}
-				if (identity.normalizedRacerName !== normalizeName(racer.normalizedRacerName)) {
+				if (identity.normalizedRacerName !== normalizeName(racer.normalizedRacerName || racer.racerName)) {
 					counts.collision += 1;
 					sample(unlinkedSamples, { date, racerName: racer.racerName, reason: "name-linked-registry-name-mismatch" });
 					continue;
@@ -93,7 +93,7 @@ for (const date of dates) {
 			sample(unlinkedSamples, { date, registrationNo: racer.registrationNumber, racerName: racer.racerName, reason: "registry-missing" });
 			continue;
 		}
-		if (identity.normalizedRacerName !== normalizeName(racer.normalizedRacerName)) {
+		if (identity.normalizedRacerName !== normalizeName(racer.normalizedRacerName || racer.racerName)) {
 			counts.collision += 1;
 			sample(unlinkedSamples, { date, registrationNo: racer.registrationNumber, racerName: racer.racerName, reason: "registry-name-mismatch" });
 			continue;
