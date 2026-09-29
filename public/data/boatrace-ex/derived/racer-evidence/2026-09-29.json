@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-racer-evidence",
   "date": "2026-09-29",
-  "generatedAt": "2026-09-29T11:30:56.685Z",
+  "generatedAt": "2026-09-29T11:42:45.075Z",
   "sourceFiles": [
     {
       "sourceName": "boatrace-ex-history-races",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/history/races/2026-09-29.json",
-      "generatedAt": "2026-09-29T11:30:15.136Z",
+      "generatedAt": "2026-09-29T11:42:12.344Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -16,7 +16,7 @@
       "sourceName": "boatrace-ex-coverage",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/coverage/2026-09-29.json",
-      "generatedAt": "2026-09-29T11:27:44.332Z",
+      "generatedAt": "2026-09-29T11:40:22.367Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -24,7 +24,7 @@
       "sourceName": "boatrace-ex-venue-evidence",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/derived/venue-evidence/2026-09-29.json",
-      "generatedAt": "2026-09-29T11:27:44.722Z",
+      "generatedAt": "2026-09-29T11:40:22.763Z",
       "sourceStatus": "available",
       "coverageStatus": "partial",
       "note": "Optional venue context source for racer evidence v0."
@@ -33,7 +33,7 @@
       "sourceName": "registered-racers.generated.json",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/identity/registered-racers.generated.json",
-      "generatedAt": "2026-09-29T11:30:44.261Z",
+      "generatedAt": "2026-09-29T11:42:32.510Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     }
@@ -243,7 +243,7 @@
           "raceKey": "2026-09-29:15:11",
           "frameNo": 3,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.24,
           "exhibitionTime": 6.8,
           "motorNo": "28",
           "boatNo": "57",
@@ -251,10 +251,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.04,
+        "availableCount": 2,
+        "averageST": 0.14,
         "minST": 0.04,
-        "maxST": 0.04,
+        "maxST": 0.24,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -521,7 +521,7 @@
           "raceKey": "2026-09-29:19:11",
           "frameNo": 6,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.23,
           "exhibitionTime": 6.84,
           "motorNo": "29",
           "boatNo": "34",
@@ -529,10 +529,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.21,
+        "availableCount": 2,
+        "averageST": 0.22,
         "minST": 0.21,
-        "maxST": 0.21,
+        "maxST": 0.23,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -2473,7 +2473,7 @@
           "raceKey": "2026-09-29:19:11",
           "frameNo": 2,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.11,
           "exhibitionTime": 6.9,
           "motorNo": "71",
           "boatNo": "28",
@@ -2481,9 +2481,9 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.16,
-        "minST": 0.16,
+        "availableCount": 2,
+        "averageST": 0.135,
+        "minST": 0.11,
         "maxST": 0.16,
         "lateStartCount": null,
         "flyingOrLateCount": null,
@@ -3142,7 +3142,7 @@
         },
         "6": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         }
       },
@@ -3168,8 +3168,8 @@
           "raceNo": 11,
           "raceKey": "2026-09-29:15:11",
           "frameNo": 6,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 3,
+          "startTiming": 0.23,
           "exhibitionTime": 6.75,
           "motorNo": "47",
           "boatNo": "16",
@@ -3177,10 +3177,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.11,
+        "availableCount": 2,
+        "averageST": 0.17,
         "minST": 0.11,
-        "maxST": 0.11,
+        "maxST": 0.23,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -3200,11 +3200,12 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "finishCounts": {
-          "1": 1
+          "1": 1,
+          "3": 1
         },
-        "top3Count": 1,
+        "top3Count": 2,
         "winCount": 1,
         "sourceStatus": "partial"
       },
@@ -3557,7 +3558,7 @@
         "2": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "4": {
           "count": 1,
@@ -3589,7 +3590,7 @@
           "frameNo": 2,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.93,
           "motorNo": "22",
           "boatNo": "78",
           "sourceStatus": "available"
@@ -3605,9 +3606,9 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.97,
-        "bestExhibitionTime": 6.97,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.95,
+        "bestExhibitionTime": 6.93,
         "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
@@ -3700,7 +3701,7 @@
         "6": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -3727,7 +3728,7 @@
           "frameNo": 6,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.75,
           "motorNo": "40",
           "boatNo": "75",
           "sourceStatus": "available"
@@ -3743,8 +3744,8 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.68,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.715,
         "bestExhibitionTime": 6.68,
         "sourceStatus": "partial"
       },
@@ -3834,7 +3835,7 @@
       "frames": {
         "3": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         },
         "5": {
@@ -3865,8 +3866,8 @@
           "raceNo": 11,
           "raceKey": "2026-09-29:19:11",
           "frameNo": 3,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 1,
+          "startTiming": 0.11,
           "exhibitionTime": 6.78,
           "motorNo": "26",
           "boatNo": "35",
@@ -3874,7 +3875,7 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "averageST": 0.11,
         "minST": 0.11,
         "maxST": 0.11,
@@ -3897,12 +3898,13 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "finishCounts": {
+          "1": 1,
           "3": 1
         },
-        "top3Count": 1,
-        "winCount": 0,
+        "top3Count": 2,
+        "winCount": 1,
         "sourceStatus": "partial"
       },
       "motorBoatEvidence": {
@@ -3980,7 +3982,7 @@
         "6": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -4007,7 +4009,7 @@
           "frameNo": 6,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.76,
           "motorNo": "37",
           "boatNo": "27",
           "sourceStatus": "available"
@@ -4023,9 +4025,9 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.88,
-        "bestExhibitionTime": 6.88,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.82,
+        "bestExhibitionTime": 6.76,
         "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
@@ -4394,7 +4396,7 @@
         "4": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -4421,7 +4423,7 @@
           "frameNo": 4,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.72,
           "motorNo": "22",
           "boatNo": "22",
           "sourceStatus": "available"
@@ -4437,8 +4439,8 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.66,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.69,
         "bestExhibitionTime": 6.66,
         "sourceStatus": "partial"
       },
@@ -5091,7 +5093,7 @@
         "4": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -5118,7 +5120,7 @@
           "frameNo": 4,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.92,
           "motorNo": "63",
           "boatNo": "65",
           "sourceStatus": "available"
@@ -5134,8 +5136,8 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.9,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.91,
         "bestExhibitionTime": 6.9,
         "sourceStatus": "partial"
       },
@@ -5362,7 +5364,7 @@
         "1": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "2": {
           "count": 1,
@@ -5394,7 +5396,7 @@
           "frameNo": 1,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.68,
           "motorNo": "65",
           "boatNo": "40",
           "sourceStatus": "available"
@@ -5410,9 +5412,9 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.72,
-        "bestExhibitionTime": 6.72,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.7,
+        "bestExhibitionTime": 6.68,
         "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
@@ -8289,7 +8291,7 @@
         "1": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "2": {
           "count": 1,
@@ -8307,7 +8309,7 @@
           "frameNo": 1,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.88,
           "motorNo": "72",
           "boatNo": "25",
           "sourceStatus": "available"
@@ -8337,10 +8339,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.88,
+        "bestExhibitionTime": 6.88,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -9547,7 +9549,7 @@
       "frames": {
         "1": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         },
         "5": {
@@ -9578,8 +9580,8 @@
           "raceNo": 11,
           "raceKey": "2026-09-29:19:11",
           "frameNo": 1,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 2,
+          "startTiming": 0.13,
           "exhibitionTime": 6.83,
           "motorNo": "45",
           "boatNo": "60",
@@ -9587,9 +9589,9 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.21,
-        "minST": 0.21,
+        "availableCount": 2,
+        "averageST": 0.17,
+        "minST": 0.13,
         "maxST": 0.21,
         "lateStartCount": null,
         "flyingOrLateCount": null,
@@ -9610,11 +9612,11 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "finishCounts": {
-          "2": 1
+          "2": 2
         },
-        "top3Count": 1,
+        "top3Count": 2,
         "winCount": 0,
         "sourceStatus": "partial"
       },
@@ -9705,7 +9707,7 @@
           "raceKey": "2026-09-29:24:06",
           "frameNo": 2,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.19,
           "exhibitionTime": 6.98,
           "motorNo": "35",
           "boatNo": "44",
@@ -9727,13 +9729,13 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
+        "availableCount": 1,
+        "averageST": 0.19,
+        "minST": 0.19,
+        "maxST": 0.19,
         "lateStartCount": null,
         "flyingOrLateCount": null,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
         "availableCount": 1,
@@ -10243,7 +10245,7 @@
       "frames": {
         "1": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         },
         "5": {
@@ -10274,8 +10276,8 @@
           "raceNo": 6,
           "raceKey": "2026-09-29:24:06",
           "frameNo": 1,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 1,
+          "startTiming": 0.12,
           "exhibitionTime": 6.86,
           "motorNo": "70",
           "boatNo": "85",
@@ -10283,9 +10285,9 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.27,
-        "minST": 0.27,
+        "availableCount": 2,
+        "averageST": 0.195,
+        "minST": 0.12,
         "maxST": 0.27,
         "lateStartCount": null,
         "flyingOrLateCount": null,
@@ -10306,12 +10308,13 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "finishCounts": {
+          "1": 1,
           "3": 1
         },
-        "top3Count": 1,
-        "winCount": 0,
+        "top3Count": 2,
+        "winCount": 1,
         "sourceStatus": "partial"
       },
       "motorBoatEvidence": {
@@ -11508,7 +11511,7 @@
         "5": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -11535,7 +11538,7 @@
           "frameNo": 5,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.77,
           "motorNo": "27",
           "boatNo": "54",
           "sourceStatus": "available"
@@ -11551,8 +11554,8 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.74,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.755,
         "bestExhibitionTime": 6.74,
         "sourceStatus": "partial"
       },
@@ -16390,7 +16393,7 @@
         "2": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "4": {
           "count": 1,
@@ -16422,7 +16425,7 @@
           "frameNo": 2,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.77,
           "motorNo": "29",
           "boatNo": "44",
           "sourceStatus": "available"
@@ -16438,9 +16441,9 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.78,
-        "bestExhibitionTime": 6.78,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.775,
+        "bestExhibitionTime": 6.77,
         "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
@@ -17392,7 +17395,7 @@
           "raceKey": "2026-09-29:15:11",
           "frameNo": 2,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.2,
           "exhibitionTime": 6.85,
           "motorNo": "1",
           "boatNo": "39",
@@ -17400,10 +17403,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.09,
+        "availableCount": 2,
+        "averageST": 0.145,
         "minST": 0.09,
-        "maxST": 0.09,
+        "maxST": 0.2,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -17644,7 +17647,7 @@
         },
         "4": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         }
       },
@@ -17670,8 +17673,8 @@
           "raceNo": 11,
           "raceKey": "2026-09-29:07:11",
           "frameNo": 4,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 2,
+          "startTiming": 0.25,
           "exhibitionTime": 6.71,
           "motorNo": "62",
           "boatNo": "16",
@@ -17679,10 +17682,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.12,
+        "availableCount": 2,
+        "averageST": 0.185,
         "minST": 0.12,
-        "maxST": 0.12,
+        "maxST": 0.25,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -17702,11 +17705,13 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
+        "availableCount": 1,
+        "finishCounts": {
+          "2": 1
+        },
+        "top3Count": 1,
         "winCount": 0,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "motorBoatEvidence": {
         "motorNos": [
@@ -18087,7 +18092,7 @@
           "raceKey": "2026-09-29:07:11",
           "frameNo": 3,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.21,
           "exhibitionTime": 6.74,
           "motorNo": "35",
           "boatNo": "72",
@@ -18095,10 +18100,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.12,
+        "availableCount": 2,
+        "averageST": 0.165,
         "minST": 0.12,
-        "maxST": 0.12,
+        "maxST": 0.21,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -20316,7 +20321,7 @@
           "raceKey": "2026-09-29:15:11",
           "frameNo": 4,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.26,
           "exhibitionTime": 6.82,
           "motorNo": "63",
           "boatNo": "11",
@@ -20324,10 +20329,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.24,
+        "availableCount": 2,
+        "averageST": 0.25,
         "minST": 0.24,
-        "maxST": 0.24,
+        "maxST": 0.26,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -21263,7 +21268,7 @@
       "frames": {
         "1": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         },
         "5": {
@@ -21294,8 +21299,8 @@
           "raceNo": 11,
           "raceKey": "2026-09-29:15:11",
           "frameNo": 1,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 1,
+          "startTiming": 0.26,
           "exhibitionTime": 6.85,
           "motorNo": "65",
           "boatNo": "14",
@@ -21303,10 +21308,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.15,
+        "availableCount": 2,
+        "averageST": 0.205,
         "minST": 0.15,
-        "maxST": 0.15,
+        "maxST": 0.26,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -21326,12 +21331,13 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "finishCounts": {
+          "1": 1,
           "3": 1
         },
-        "top3Count": 1,
-        "winCount": 0,
+        "top3Count": 2,
+        "winCount": 1,
         "sourceStatus": "partial"
       },
       "motorBoatEvidence": {
@@ -25360,7 +25366,7 @@
           "raceKey": "2026-09-29:19:11",
           "frameNo": 4,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.11,
           "exhibitionTime": 6.92,
           "motorNo": "18",
           "boatNo": "14",
@@ -25368,9 +25374,9 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.13,
-        "minST": 0.13,
+        "availableCount": 2,
+        "averageST": 0.12,
+        "minST": 0.11,
         "maxST": 0.13,
         "lateStartCount": null,
         "flyingOrLateCount": null,
@@ -27146,7 +27152,7 @@
         "2": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "4": {
           "count": 1,
@@ -27178,7 +27184,7 @@
           "frameNo": 2,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.68,
           "motorNo": "11",
           "boatNo": "48",
           "sourceStatus": "available"
@@ -27194,7 +27200,7 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "averageExhibitionTime": 6.68,
         "bestExhibitionTime": 6.68,
         "sourceStatus": "partial"
@@ -29941,7 +29947,7 @@
         "1": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "4": {
           "count": 1,
@@ -29973,7 +29979,7 @@
           "frameNo": 1,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.76,
           "motorNo": "3",
           "boatNo": "63",
           "sourceStatus": "available"
@@ -29989,7 +29995,7 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "averageExhibitionTime": 6.76,
         "bestExhibitionTime": 6.76,
         "sourceStatus": "partial"
@@ -30081,7 +30087,7 @@
         "3": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "6": {
           "count": 1,
@@ -30113,7 +30119,7 @@
           "frameNo": 3,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.84,
           "motorNo": "33",
           "boatNo": "66",
           "sourceStatus": "available"
@@ -30129,9 +30135,9 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.85,
-        "bestExhibitionTime": 6.85,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.845,
+        "bestExhibitionTime": 6.84,
         "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
@@ -32042,7 +32048,7 @@
         "6": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -32069,7 +32075,7 @@
           "frameNo": 6,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.97,
           "motorNo": "21",
           "boatNo": "49",
           "sourceStatus": "available"
@@ -32085,8 +32091,8 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.89,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.93,
         "bestExhibitionTime": 6.89,
         "sourceStatus": "partial"
       },
@@ -34692,7 +34698,7 @@
         "3": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "6": {
           "count": 1,
@@ -34724,7 +34730,7 @@
           "frameNo": 3,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.72,
           "motorNo": "54",
           "boatNo": "58",
           "sourceStatus": "available"
@@ -34740,8 +34746,8 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.68,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.7,
         "bestExhibitionTime": 6.68,
         "sourceStatus": "partial"
       },
@@ -36232,7 +36238,7 @@
         },
         "5": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         }
       },
@@ -36258,8 +36264,8 @@
           "raceNo": 11,
           "raceKey": "2026-09-29:19:11",
           "frameNo": 5,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 3,
+          "startTiming": 0.23,
           "exhibitionTime": 6.81,
           "motorNo": "22",
           "boatNo": "67",
@@ -36267,10 +36273,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.11,
+        "availableCount": 2,
+        "averageST": 0.17,
         "minST": 0.11,
-        "maxST": 0.11,
+        "maxST": 0.23,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -36290,11 +36296,11 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "finishCounts": {
-          "3": 1
+          "3": 2
         },
-        "top3Count": 1,
+        "top3Count": 2,
         "winCount": 0,
         "sourceStatus": "partial"
       },
@@ -37929,7 +37935,7 @@
           "raceKey": "2026-09-29:07:11",
           "frameNo": 6,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.29,
           "exhibitionTime": 6.79,
           "motorNo": "20",
           "boatNo": "14",
@@ -37937,10 +37943,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.15,
+        "availableCount": 2,
+        "averageST": 0.22,
         "minST": 0.15,
-        "maxST": 0.15,
+        "maxST": 0.29,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -38461,7 +38467,7 @@
         },
         "4": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         }
       },
@@ -38473,8 +38479,8 @@
           "raceNo": 6,
           "raceKey": "2026-09-29:24:06",
           "frameNo": 4,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 2,
+          "startTiming": 0.12,
           "exhibitionTime": 6.84,
           "motorNo": "57",
           "boatNo": "30",
@@ -38496,13 +38502,13 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
+        "availableCount": 1,
+        "averageST": 0.12,
+        "minST": 0.12,
+        "maxST": 0.12,
         "lateStartCount": null,
         "flyingOrLateCount": null,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
         "availableCount": 1,
@@ -38519,11 +38525,13 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
+        "availableCount": 1,
+        "finishCounts": {
+          "2": 1
+        },
+        "top3Count": 1,
         "winCount": 0,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "motorBoatEvidence": {
         "motorNos": [
@@ -39430,7 +39438,7 @@
       "frames": {
         "5": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         },
         "6": {
@@ -39461,8 +39469,8 @@
           "raceNo": 11,
           "raceKey": "2026-09-29:15:11",
           "frameNo": 5,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 2,
+          "startTiming": 0.23,
           "exhibitionTime": 6.69,
           "motorNo": "7",
           "boatNo": "22",
@@ -39470,10 +39478,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.17,
+        "availableCount": 2,
+        "averageST": 0.2,
         "minST": 0.17,
-        "maxST": 0.17,
+        "maxST": 0.23,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -39493,11 +39501,12 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "finishCounts": {
-          "1": 1
+          "1": 1,
+          "2": 1
         },
-        "top3Count": 1,
+        "top3Count": 2,
         "winCount": 1,
         "sourceStatus": "partial"
       },
@@ -40970,7 +40979,7 @@
         "4": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         },
         "6": {
           "count": 1,
@@ -41002,7 +41011,7 @@
           "frameNo": 4,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.86,
           "motorNo": "10",
           "boatNo": "23",
           "sourceStatus": "available"
@@ -41018,8 +41027,8 @@
         "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
-        "availableCount": 1,
-        "averageExhibitionTime": 6.82,
+        "availableCount": 2,
+        "averageExhibitionTime": 6.84,
         "bestExhibitionTime": 6.82,
         "sourceStatus": "partial"
       },
@@ -41112,7 +41121,7 @@
         },
         "5": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         }
       },
@@ -41138,8 +41147,8 @@
           "raceNo": 11,
           "raceKey": "2026-09-29:07:11",
           "frameNo": 5,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 3,
+          "startTiming": 0.25,
           "exhibitionTime": 6.7,
           "motorNo": "39",
           "boatNo": "50",
@@ -41147,10 +41156,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.18,
+        "availableCount": 2,
+        "averageST": 0.215,
         "minST": 0.18,
-        "maxST": 0.18,
+        "maxST": 0.25,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -41170,11 +41179,11 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "finishCounts": {
-          "3": 1
+          "3": 2
         },
-        "top3Count": 1,
+        "top3Count": 2,
         "winCount": 0,
         "sourceStatus": "partial"
       },
@@ -42395,7 +42404,7 @@
           "raceKey": "2026-09-29:07:11",
           "frameNo": 2,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.23,
           "exhibitionTime": 6.74,
           "motorNo": "25",
           "boatNo": "63",
@@ -42403,10 +42412,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.12,
+        "availableCount": 2,
+        "averageST": 0.175,
         "minST": 0.12,
-        "maxST": 0.12,
+        "maxST": 0.23,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -42639,7 +42648,7 @@
       "frames": {
         "1": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         },
         "2": {
@@ -42670,8 +42679,8 @@
           "raceNo": 11,
           "raceKey": "2026-09-29:07:11",
           "frameNo": 1,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 1,
+          "startTiming": 0.15,
           "exhibitionTime": 6.7,
           "motorNo": "18",
           "boatNo": "28",
@@ -42679,10 +42688,10 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 1,
-        "averageST": 0.09,
+        "availableCount": 2,
+        "averageST": 0.12,
         "minST": 0.09,
-        "maxST": 0.09,
+        "maxST": 0.15,
         "lateStartCount": null,
         "flyingOrLateCount": null,
         "sourceStatus": "partial"
@@ -42702,12 +42711,12 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 1,
+        "availableCount": 2,
         "finishCounts": {
-          "1": 1
+          "1": 2
         },
-        "top3Count": 1,
-        "winCount": 1,
+        "top3Count": 2,
+        "winCount": 2,
         "sourceStatus": "partial"
       },
       "motorBoatEvidence": {
@@ -45136,7 +45145,7 @@
         "1": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -45149,7 +45158,7 @@
           "frameNo": 1,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.78,
           "motorNo": "59",
           "boatNo": "16",
           "sourceStatus": "available"
@@ -45165,10 +45174,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.78,
+        "bestExhibitionTime": 6.78,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -46096,7 +46105,7 @@
         "2": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -46109,7 +46118,7 @@
           "frameNo": 2,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.78,
           "motorNo": "12",
           "boatNo": "41",
           "sourceStatus": "available"
@@ -46125,10 +46134,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.78,
+        "bestExhibitionTime": 6.78,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -49210,7 +49219,7 @@
         "6": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -49223,7 +49232,7 @@
           "frameNo": 6,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.85,
           "motorNo": "30",
           "boatNo": "40",
           "sourceStatus": "available"
@@ -49239,10 +49248,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.85,
+        "bestExhibitionTime": 6.85,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -56521,7 +56530,7 @@
         "5": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -56534,7 +56543,7 @@
           "frameNo": 5,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.91,
           "motorNo": "44",
           "boatNo": "76",
           "sourceStatus": "available"
@@ -56550,10 +56559,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.91,
+        "bestExhibitionTime": 6.91,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -57251,7 +57260,7 @@
           "raceKey": "2026-09-29:24:06",
           "frameNo": 3,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.15,
           "exhibitionTime": 6.91,
           "motorNo": "43",
           "boatNo": "14",
@@ -57259,13 +57268,13 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
+        "availableCount": 1,
+        "averageST": 0.15,
+        "minST": 0.15,
+        "maxST": 0.15,
         "lateStartCount": null,
         "flyingOrLateCount": null,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
         "availableCount": 1,
@@ -59040,7 +59049,7 @@
         "3": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -59053,7 +59062,7 @@
           "frameNo": 3,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.89,
           "motorNo": "39",
           "boatNo": "52",
           "sourceStatus": "available"
@@ -59069,10 +59078,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.89,
+        "bestExhibitionTime": 6.89,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -59995,7 +60004,7 @@
       "frames": {
         "5": {
           "count": 1,
-          "resultAvailableCount": 0,
+          "resultAvailableCount": 1,
           "exhibitionAvailableCount": 1
         }
       },
@@ -60007,8 +60016,8 @@
           "raceNo": 6,
           "raceKey": "2026-09-29:24:06",
           "frameNo": 5,
-          "finishOrder": null,
-          "startTiming": null,
+          "finishOrder": 3,
+          "startTiming": 0.16,
           "exhibitionTime": 6.87,
           "motorNo": "50",
           "boatNo": "61",
@@ -60016,13 +60025,13 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
+        "availableCount": 1,
+        "averageST": 0.16,
+        "minST": 0.16,
+        "maxST": 0.16,
         "lateStartCount": null,
         "flyingOrLateCount": null,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
         "availableCount": 1,
@@ -60039,11 +60048,13 @@
         "note": "Final course / exhibition course comparison is only populated when source-backed course data exists."
       },
       "resultEvidence": {
-        "availableCount": 0,
-        "finishCounts": {},
-        "top3Count": 0,
+        "availableCount": 1,
+        "finishCounts": {
+          "3": 1
+        },
+        "top3Count": 1,
         "winCount": 0,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "motorBoatEvidence": {
         "motorNos": [
@@ -64318,7 +64329,7 @@
         "4": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -64331,7 +64342,7 @@
           "frameNo": 4,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.7,
           "motorNo": "67",
           "boatNo": "66",
           "sourceStatus": "available"
@@ -64347,10 +64358,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.7,
+        "bestExhibitionTime": 6.7,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -65754,7 +65765,7 @@
         "3": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -65767,7 +65778,7 @@
           "frameNo": 3,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 7,
           "motorNo": "20",
           "boatNo": "20",
           "sourceStatus": "available"
@@ -65783,10 +65794,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 7,
+        "bestExhibitionTime": 7,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
@@ -69358,7 +69369,7 @@
           "raceKey": "2026-09-29:24:06",
           "frameNo": 6,
           "finishOrder": null,
-          "startTiming": null,
+          "startTiming": 0.16,
           "exhibitionTime": 6.95,
           "motorNo": "73",
           "boatNo": "50",
@@ -69366,13 +69377,13 @@
         }
       ],
       "startEvidence": {
-        "availableCount": 0,
-        "averageST": null,
-        "minST": null,
-        "maxST": null,
+        "availableCount": 1,
+        "averageST": 0.16,
+        "minST": 0.16,
+        "maxST": 0.16,
         "lateStartCount": null,
         "flyingOrLateCount": null,
-        "sourceStatus": "missing"
+        "sourceStatus": "partial"
       },
       "exhibitionEvidence": {
         "availableCount": 1,
@@ -71385,7 +71396,7 @@
         "5": {
           "count": 1,
           "resultAvailableCount": 0,
-          "exhibitionAvailableCount": 0
+          "exhibitionAvailableCount": 1
         }
       },
       "raceEvidence": [
@@ -71398,7 +71409,7 @@
           "frameNo": 5,
           "finishOrder": null,
           "startTiming": null,
-          "exhibitionTime": null,
+          "exhibitionTime": 6.79,
           "motorNo": "63",
           "boatNo": "24",
           "sourceStatus": "available"
@@ -71414,10 +71425,10 @@
         "sourceStatus": "missing"
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "averageExhibitionTime": null,
-        "bestExhibitionTime": null,
-        "sourceStatus": "missing"
+        "availableCount": 1,
+        "averageExhibitionTime": 6.79,
+        "bestExhibitionTime": 6.79,
+        "sourceStatus": "partial"
       },
       "courseChangeEvidence": {
         "availableCount": 0,
