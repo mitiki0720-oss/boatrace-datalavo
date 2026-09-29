@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { getTodayIsoJst, resolveJstTargetDate } from "./boatRaceDate.mjs";
+import { resolveScheduledBoatTargetDate } from "./boatUpdateScheduleDate.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +23,10 @@ for (const fixture of fixtures) {
 
 assert.throws(() => resolveJstTargetDate("2026-02-30"), /valid JST calendar date/);
 assert.equal(resolveJstTargetDate("2026-08-16"), "2026-08-16");
+assert.equal(resolveScheduledBoatTargetDate("30 14 * * *", new Date("2026-09-28T18:30:00.000Z")), "2026-09-28");
+assert.equal(resolveScheduledBoatTargetDate("30 14 * * *", new Date("2026-09-29T03:00:00.000Z")), "2026-09-28");
+assert.equal(resolveScheduledBoatTargetDate("30 14 * * *", new Date("2026-09-29T15:00:00.000Z")), "2026-09-29");
+assert.equal(resolveScheduledBoatTargetDate("5 21 * * *", new Date("2026-09-29T03:00:00.000Z")), null);
 
 const [workflow, updateBoatData, updateTodayDetails] = await Promise.all([
 	readFile(path.join(projectRoot, ".github", "workflows", "update-boat-data.yml"), "utf8"),
@@ -31,7 +36,11 @@ const [workflow, updateBoatData, updateTodayDetails] = await Promise.all([
 
 assert.match(workflow, /target_date:\s*\n\s+description: "Target date in JST YYYY-MM-DD\. Empty = JST today"/);
 assert.match(workflow, /TARGET_DATE: \$\{\{ inputs\.target_date \|\| '' \}\}/);
-assert.match(workflow, /ARGS\+=\(--target-date "\$TARGET_DATE"\)/);
+assert.match(workflow, /ARGS\+=\(--target-date "\$RESOLVED_TARGET_DATE"\)/);
+assert.match(workflow, /SCHEDULED_INTENDED_DATE="\$\(node scripts\/boatUpdateScheduleDate\.mjs --schedule "\$EVENT_SCHEDULE"\)"/);
+assert.match(workflow, /TARGET_DATE="\$SCHEDULED_INTENDED_DATE"/);
+assert.match(workflow, /current JST date=\$CURRENT_JST_DATE/);
+assert.match(workflow, /resolved target date=\$RESOLVED_TARGET_DATE/);
 assert.match(workflow, /EX_DATE="\$\{\{ inputs\.boatrace_ex_date \}\}"/);
 assert.match(workflow, /EX_DATE="\$\{EX_DATE:-auto\}"/);
 assert.match(workflow, /\[\[ -z "\$\{EX_DATE\/\/\[\[:space:\]\]\/\}" \]\]/);

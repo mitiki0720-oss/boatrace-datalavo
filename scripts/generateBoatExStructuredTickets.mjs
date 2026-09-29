@@ -53,6 +53,15 @@ function emptySummary() {
 		resultUnavailableEvaluationCount: 0,
 		payoutLinkedHitCount: 0,
 		totalSourceBackedPayoutYen: 0,
+		totalSourceBackedInvestmentYen: 0,
+		groups: Object.fromEntries(CLASSIFIED_GROUPS.map((group) => [group, {
+			ticketCount: 0,
+			evaluatedRaceCount: 0,
+			hitCount: 0,
+			investmentYen: 0,
+			payoutYen: 0,
+			recoveryRate: null,
+		}])),
 	};
 }
 
@@ -69,6 +78,18 @@ function addSummary(summary, race) {
 	summary.resultUnavailableEvaluationCount += race.evaluation.evaluationStatus === "result-unavailable" ? 1 : 0;
 	summary.payoutLinkedHitCount += race.evaluation.hit === true && race.evaluation.payoutYen !== null ? 1 : 0;
 	summary.totalSourceBackedPayoutYen += race.evaluation.hit === true && Number.isSafeInteger(race.evaluation.payoutYen) ? race.evaluation.payoutYen : 0;
+	summary.totalSourceBackedInvestmentYen += Number.isSafeInteger(race.evaluation.investmentYen) ? race.evaluation.investmentYen : 0;
+	for (const group of CLASSIFIED_GROUPS) {
+		const groupTickets = race.structuredTickets.filter((ticket) => ticket.group === group);
+		const groupEvaluation = race.groupEvaluations[group];
+		const groupSummary = summary.groups[group];
+		groupSummary.ticketCount += groupTickets.length;
+		groupSummary.evaluatedRaceCount += groupEvaluation.evaluationStatus === "evaluated" ? 1 : 0;
+		groupSummary.hitCount += groupEvaluation.hit === true ? 1 : 0;
+		groupSummary.investmentYen += Number.isSafeInteger(groupEvaluation.investmentYen) ? groupEvaluation.investmentYen : 0;
+		groupSummary.payoutYen += groupEvaluation.hit === true && Number.isSafeInteger(groupEvaluation.payoutYen) ? groupEvaluation.payoutYen : 0;
+		groupSummary.recoveryRate = groupSummary.investmentYen > 0 ? Number((groupSummary.payoutYen / groupSummary.investmentYen).toFixed(4)) : null;
+	}
 }
 
 function readiness(summary) {
@@ -89,6 +110,7 @@ function buildRace(record) {
 	const result = officialResult(record);
 	const payoutYen = trifectaPayout(record);
 	const evaluation = evaluateTickets(parsed.tickets, result, payoutYen);
+	const groupEvaluations = Object.fromEntries(CLASSIFIED_GROUPS.map((group) => [group, evaluateTickets(parsed.tickets.filter((ticket) => ticket.group === group), result, payoutYen)]));
 	return {
 		date: record.date,
 		venueCode: record.venueCode,
@@ -98,6 +120,7 @@ function buildRace(record) {
 		structuredTickets: parsed.tickets,
 		officialResult: { finishOrder: result ?? [], trifectaPayoutYen: payoutYen },
 		evaluation,
+		groupEvaluations,
 		skippedReasons: parsed.skippedReasons,
 		sourcePaths: {
 			history: `public/data/boatrace-ex/history/races/${record.date}.json`,
@@ -128,13 +151,13 @@ function main() {
 		const dateSummary = emptySummary();
 		for (const race of races) {
 			addSummary(dateSummary, race);
+			addSummary(totals, race);
 			for (const reason of race.skippedReasons) skippedReasons[reason] = (skippedReasons[reason] ?? 0) + 1;
 		}
 		const shardPath = `public/data/boatrace-ex/derived/prediction-structure/dates/${date}.json`;
 		const shard = { schemaVersion: "boat-ex-structured-tickets-v1", kind: "boatrace-ex-structured-tickets-date", generatedAt, date, summary: { date, ...dateSummary, readiness: readiness(dateSummary) }, races, sourceFiles: [historyPath] };
 		if (writeShardIfChanged(shardPath, shard, args.dryRun)) changedShardCount += 1;
 		dates.push({ date, path: shardPath, ...dateSummary, readiness: shard.summary.readiness });
-		for (const [key, value] of Object.entries(dateSummary)) totals[key] += value;
 	}
 	const summary = {
 		schemaVersion: "boat-ex-structured-tickets-v1",

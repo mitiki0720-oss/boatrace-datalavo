@@ -92,14 +92,22 @@ jobs:
           set -euo pipefail
 
           MODE="$REQUESTED_MODE"
+          CURRENT_JST_DATE="$(TZ=Asia/Tokyo date +%F)"
+          SCHEDULED_INTENDED_DATE=""
           if [ "$EVENT_SCHEDULE" = "30 14 * * *" ]; then
             MODE="final"
+            SCHEDULED_INTENDED_DATE="$(node scripts/boatUpdateScheduleDate.mjs --schedule "$EVENT_SCHEDULE")"
+            TARGET_DATE="$SCHEDULED_INTENDED_DATE"
           fi
 
+          RESOLVED_TARGET_DATE="${TARGET_DATE:-$CURRENT_JST_DATE}"
+          echo "[update-boat-data] mode=$MODE"
+          echo "[update-boat-data] scheduled intended date=${SCHEDULED_INTENDED_DATE:-not-scheduled-final}"
+          echo "[update-boat-data] current JST date=$CURRENT_JST_DATE"
+          echo "[update-boat-data] resolved target date=$RESOLVED_TARGET_DATE"
+
           ARGS=(--mode "$MODE" --target-session "${{ inputs.targetSession || 'auto' }}")
-          if [ -n "$TARGET_DATE" ]; then
-            ARGS+=(--target-date "$TARGET_DATE")
-          fi
+          ARGS+=(--target-date "$RESOLVED_TARGET_DATE")
 
           node scripts/updateBoatData.mjs "${ARGS[@]}"
 

@@ -134,7 +134,7 @@ function buildRace(record, racerLookup, sourcePaths) {
 		ambiguousCount: 0,
 		collisionCount: 0,
 	};
-	const resultStatus = availability(finishOrder.length > 0, true);
+	const resultStatus = availability(finishOrder.length >= 3 && finishOrder.slice(0, 3).every((value) => Number.isInteger(Number(value)) && Number(value) >= 1 && Number(value) <= 6), true);
 	const payoutStatus = availability(Boolean(payout), true);
 	const exhibitionStatus = availability(exhibitionEntries.length > 0, true);
 	const weatherStatus = availability(hasWeather(record), true);

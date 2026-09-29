@@ -312,6 +312,10 @@ function statusLabel(status: string | undefined): string {
 		missing: "なし",
 		error: "エラー",
 		unknown: "不明",
+		current: "最新",
+		partial: "一部取得",
+		stale: "更新遅延",
+		"pre-race": "レース前",
 	};
 	return labels[value] ?? value;
 }
@@ -1369,6 +1373,20 @@ function StructuredTicketHistorySection({ summary, historyIndex }: { summary: Bo
 			<article style={cardStyle}><p style={labelStyle}>評価: 的中 / 不的中</p><p style={metricValueStyle}>{summary.hitRaceCount} / {summary.missRaceCount}</p><p style={textStyle}>完全一致の着順だけで判定します。</p></article>
 			<article style={cardStyle}><p style={labelStyle}>払戻連結 / 合計</p><p style={metricValueStyle}>{summary.payoutLinkedHitCount} / {summary.totalSourceBackedPayoutYen.toLocaleString("ja-JP")}</p><p style={textStyle}>公式3連単払戻がある的中だけを合算します。</p></article>
 		</section>
+		{summary.groups ? <section style={cardStyle}>
+			<p style={labelStyle}>買い目区分別の実績</p>
+			<div style={tableWrapStyle}>
+				<table style={{ ...tableStyle, minWidth: "720px" }}>
+					<thead><tr><th style={thStyle}>区分</th><th style={thStyle}>券数</th><th style={thStyle}>評価R</th><th style={thStyle}>的中</th><th style={thStyle}>投資</th><th style={thStyle}>払戻</th><th style={thStyle}>回収率</th></tr></thead>
+					<tbody>{["厚め", "本線", "中穴", "大穴"].map((group) => {
+						const values = summary.groups?.[group];
+						if (!values) return null;
+						return <tr key={group}><td style={tdStyle}>{group}</td><td style={tdStyle}>{values.ticketCount}</td><td style={tdStyle}>{values.evaluatedRaceCount}</td><td style={tdStyle}>{values.hitCount}</td><td style={tdStyle}>{values.investmentYen.toLocaleString("ja-JP")}円</td><td style={tdStyle}>{values.payoutYen.toLocaleString("ja-JP")}円</td><td style={tdStyle}>{values.recoveryRate === null ? "未算出" : `${(values.recoveryRate * 100).toFixed(1)}%`}</td></tr>;
+					})}</tbody>
+				</table>
+			</div>
+			<p style={textStyle}>保存済み予想の明示区分と投資額、公式3連単払戻だけを集計します。</p>
+		</section> : null}
 		<section style={cardStyle}><p style={labelStyle}>strict parser</p><p style={textStyle}>{summary.parserRules.join(" ")}</p><p style={textStyle}>skip: {Object.entries(summary.skippedReasons).map(([reason, count]) => `${reason} ${count}`).join(" / ")}</p><p style={textStyle}>audit: <code>{summary.auditPaths[0]}</code></p></section>
 		<section style={cardStyle}><label style={textStyle}>日付<select value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} style={{ display: "block", marginTop: "4px" }}>{historyIndex.dates.map((entry) => <option key={entry.date} value={entry.date}>{entry.date} - 券種 {entry.structuredTicketAvailableRaceCount} / 評価 {entry.evaluatedPredictionRaceCount}</option>)}</select></label></section>
 		{dateFile ? <section style={cardStyle}><p style={labelStyle}>{dateFile.date} の評価レース</p>{evaluated.length === 0 ? <p style={textStyle}>この日には strict structured ticket の評価レースがありません。</p> : <ul style={noteListStyle}>{evaluated.map((race) => <li key={`${race.date}:${race.venueCode}:${race.raceNo}`}>{race.venueName} {race.raceNo}R: {race.structuredTickets.map((ticket) => `${ticket.group} ${ticket.boatNumbers.join("-")}`).join(", ")} / 着順 {race.officialResult.finishOrder.join("-")} / {race.evaluation.hit ? "的中" : "不的中"} / 払戻 {race.evaluation.payoutYen?.toLocaleString("ja-JP") ?? "未連結"}<br /><code>{race.sourcePaths.prediction ?? race.sourcePaths.history}</code></li>)}</ul>}</section> : <p style={textStyle}>日別券種 shard を読み込んでいます。</p>}
@@ -1383,15 +1401,19 @@ function ReadinessMatrixSection({ audit }: { audit: BoatExTabCompletenessAuditFi
 			<div>
 				<p style={labelStyle}>readiness matrix</p>
 				<p style={valueStyle}>各タブの出典・状態・理由</p>
+				<p style={textStyle}>index {audit.freshness?.indexLatestDate ?? audit.auditDate} / 結果確定 {audit.freshness?.resultCompleteThrough ?? "未取得"} / 払戻確定 {audit.freshness?.payoutCompleteThrough ?? "未取得"} / 天候 {audit.freshness?.weatherThrough ?? "未取得"}</p>
 				<p style={textStyle}>推測値ではなく、生成済みのsource-backedデータまたは監査結果を表示します。</p>
 			</div>
 			<div style={tableWrapStyle}>
-				<table style={{ ...tableStyle, minWidth: "960px" }}>
+				<table style={{ ...tableStyle, minWidth: "1420px" }}>
 					<thead>
 						<tr>
 							<th style={thStyle}>タブ</th>
 							<th style={thStyle}>状態</th>
+							<th style={thStyle}>index / 結果確定</th>
+							<th style={thStyle}>R / 結果 / 払戻 / 天候</th>
 							<th style={thStyle}>理由</th>
+							<th style={thStyle}>主source</th>
 							<th style={thStyle}>出典</th>
 						</tr>
 					</thead>
@@ -1400,7 +1422,10 @@ function ReadinessMatrixSection({ audit }: { audit: BoatExTabCompletenessAuditFi
 							<tr key={tab.key}>
 								<td style={tdStyle}>{tab.key}</td>
 								<td style={tdStyle}>{statusLabel(tab.status)}</td>
+								<td style={tdStyle}>{tab.latestIndexedDate ?? audit.auditDate} / {tab.latestFinalizedResultDate ?? "未取得"}</td>
+								<td style={tdStyle}>{tab.raceCount ?? 0} / {tab.resultSampleCount ?? 0} / {tab.payoutSampleCount ?? 0} / {tab.weatherSampleCount ?? 0}</td>
 								<td style={tdStyle}>{tab.reason}</td>
+								<td style={tdStyle}>{tab.primarySource ?? tab.sourcePaths[0]}</td>
 								<td style={tdStyle}>{tab.sourcePaths.join("\n")}</td>
 							</tr>
 						))}

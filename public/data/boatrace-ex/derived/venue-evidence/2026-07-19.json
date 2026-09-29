@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-venue-evidence",
   "date": "2026-07-19",
-  "generatedAt": "2026-08-02T23:20:05.903Z",
+  "generatedAt": "2026-09-28T23:09:51.494Z",
   "sourceFiles": [
     {
       "sourceName": "boatrace-ex-history-races",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/history/races/2026-07-19.json",
-      "generatedAt": "2026-08-02T23:20:05.256Z",
+      "generatedAt": "2026-09-28T23:09:50.953Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -16,7 +16,7 @@
       "sourceName": "boatrace-ex-coverage",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/coverage/2026-07-19.json",
-      "generatedAt": "2026-07-19T05:24:16.715Z",
+      "generatedAt": "2026-09-28T23:09:50.953Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     }
@@ -50,19 +50,49 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "差し": 1,
+          "まくり差し": 3,
+          "まくり": 4,
+          "逃げ": 4
+        },
+        "courseWinCounts": {
+          "1": 5,
+          "2": 1,
+          "3": 4,
+          "4": 2
+        },
+        "averageTrifectaPayout": 4948.33,
+        "maxTrifectaPayout": 27940,
+        "highPayoutRaceCount": 1
       },
       "exhibitionEvidence": {
         "availableCount": 12,
         "missingCount": 0,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 1,
+            "averageExhibitionTime": 6.75
+          },
+          {
+            "frame": 3,
+            "averageExhibitionTime": 6.76
+          },
+          {
+            "frame": 4,
+            "averageExhibitionTime": 6.77
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 6.75,
+          "2": 6.78,
+          "3": 6.76,
+          "4": 6.77,
+          "5": 6.79,
+          "6": 6.78
+        }
       },
       "weatherEvidence": {
         "availableCount": 12,
@@ -89,10 +119,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -116,34 +143,35 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 7,
-        "payoutAvailableCount": 7,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
         "winningTechniqueCounts": {
-          "差し": 1,
-          "逃げ": 2,
-          "まくり": 3,
+          "差し": 2,
+          "逃げ": 4,
+          "まくり": 5,
           "抜き": 1
         },
         "courseWinCounts": {
-          "1": 2,
-          "2": 2,
+          "1": 4,
+          "2": 4,
+          "3": 1,
           "4": 3
         },
-        "averageTrifectaPayout": 2390,
-        "maxTrifectaPayout": 5350,
-        "highPayoutRaceCount": 0
+        "averageTrifectaPayout": 3135.83,
+        "maxTrifectaPayout": 10850,
+        "highPayoutRaceCount": 1
       },
       "exhibitionEvidence": {
         "availableCount": 12,
         "missingCount": 0,
         "topExhibitionTimeFrames": [
           {
-            "frame": 2,
+            "frame": 1,
             "averageExhibitionTime": 6.71
           },
           {
-            "frame": 1,
-            "averageExhibitionTime": 6.72
+            "frame": 2,
+            "averageExhibitionTime": 6.71
           },
           {
             "frame": 3,
@@ -151,12 +179,12 @@
           }
         ],
         "averageExhibitionTimeByFrame": {
-          "1": 6.72,
+          "1": 6.71,
           "2": 6.71,
           "3": 6.73,
           "4": 6.77,
-          "5": 6.79,
-          "6": 6.76
+          "5": 6.8,
+          "6": 6.77
         }
       },
       "weatherEvidence": {
@@ -184,10 +212,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -211,21 +236,23 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 5,
-        "payoutAvailableCount": 5,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
         "winningTechniqueCounts": {
-          "逃げ": 1,
+          "逃げ": 5,
           "まくり差し": 2,
-          "抜き": 1,
-          "差し": 1
+          "抜き": 2,
+          "差し": 2,
+          "まくり": 1
         },
         "courseWinCounts": {
-          "1": 1,
-          "2": 2,
-          "3": 1,
+          "1": 5,
+          "2": 3,
+          "3": 2,
+          "4": 1,
           "5": 1
         },
-        "averageTrifectaPayout": 5358,
+        "averageTrifectaPayout": 3830,
         "maxTrifectaPayout": 16360,
         "highPayoutRaceCount": 1
       },
@@ -280,10 +307,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -307,18 +331,21 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 6,
-        "payoutAvailableCount": 6,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
         "winningTechniqueCounts": {
-          "逃げ": 4,
-          "まくり": 2
+          "逃げ": 7,
+          "まくり": 3,
+          "抜き": 1,
+          "差し": 1
         },
         "courseWinCounts": {
-          "1": 4,
-          "2": 1,
-          "3": 1
+          "1": 8,
+          "2": 2,
+          "3": 1,
+          "6": 1
         },
-        "averageTrifectaPayout": 7831.67,
+        "averageTrifectaPayout": 5758.33,
         "maxTrifectaPayout": 26520,
         "highPayoutRaceCount": 2
       },
@@ -373,10 +400,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -400,22 +424,24 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 7,
-        "payoutAvailableCount": 7,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
         "winningTechniqueCounts": {
-          "逃げ": 4,
+          "逃げ": 6,
           "差し": 2,
-          "まくり差し": 1
+          "まくり差し": 1,
+          "まくり": 2,
+          "抜き": 1
         },
         "courseWinCounts": {
-          "1": 4,
-          "2": 1,
-          "3": 1,
+          "1": 6,
+          "2": 3,
+          "3": 2,
           "4": 1
         },
-        "averageTrifectaPayout": 9185.71,
-        "maxTrifectaPayout": 32620,
-        "highPayoutRaceCount": 2
+        "averageTrifectaPayout": 10231.67,
+        "maxTrifectaPayout": 46280,
+        "highPayoutRaceCount": 3
       },
       "exhibitionEvidence": {
         "availableCount": 9,
@@ -468,10 +494,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -495,22 +518,23 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 7,
-        "payoutAvailableCount": 7,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
         "winningTechniqueCounts": {
           "まくり差し": 2,
           "抜き": 1,
-          "逃げ": 3,
-          "差し": 1
+          "逃げ": 7,
+          "差し": 1,
+          "まくり": 1
         },
         "courseWinCounts": {
-          "1": 3,
-          "2": 2,
+          "1": 7,
+          "2": 3,
           "3": 2
         },
-        "averageTrifectaPayout": 3554.29,
-        "maxTrifectaPayout": 6460,
-        "highPayoutRaceCount": 0
+        "averageTrifectaPayout": 3964.17,
+        "maxTrifectaPayout": 11640,
+        "highPayoutRaceCount": 1
       },
       "exhibitionEvidence": {
         "availableCount": 12,
@@ -563,10 +587,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -684,34 +705,38 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 7,
-        "payoutAvailableCount": 7,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
         "winningTechniqueCounts": {
           "まくり": 3,
-          "逃げ": 1,
-          "差し": 3
+          "逃げ": 2,
+          "差し": 3,
+          "まくり差し": 2,
+          "恵まれ": 1,
+          "抜き": 1
         },
         "courseWinCounts": {
-          "1": 1,
+          "1": 3,
           "2": 4,
-          "4": 1,
+          "3": 2,
+          "4": 2,
           "5": 1
         },
-        "averageTrifectaPayout": 5674.29,
-        "maxTrifectaPayout": 12610,
-        "highPayoutRaceCount": 2
+        "averageTrifectaPayout": 7895.83,
+        "maxTrifectaPayout": 28170,
+        "highPayoutRaceCount": 5
       },
       "exhibitionEvidence": {
         "availableCount": 12,
         "missingCount": 0,
         "topExhibitionTimeFrames": [
           {
-            "frame": 6,
-            "averageExhibitionTime": 6.76
+            "frame": 2,
+            "averageExhibitionTime": 6.78
           },
           {
-            "frame": 2,
-            "averageExhibitionTime": 6.77
+            "frame": 6,
+            "averageExhibitionTime": 6.78
           },
           {
             "frame": 1,
@@ -720,11 +745,11 @@
         ],
         "averageExhibitionTimeByFrame": {
           "1": 6.8,
-          "2": 6.77,
-          "3": 6.83,
+          "2": 6.78,
+          "3": 6.81,
           "4": 6.82,
-          "5": 6.82,
-          "6": 6.76
+          "5": 6.83,
+          "6": 6.78
         }
       },
       "weatherEvidence": {
@@ -752,9 +777,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -778,13 +801,24 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "逃げ": 6,
+          "まくり差し": 3,
+          "まくり": 2,
+          "抜き": 1
+        },
+        "courseWinCounts": {
+          "1": 7,
+          "2": 1,
+          "4": 2,
+          "5": 1,
+          "6": 1
+        },
+        "averageTrifectaPayout": 4008.33,
+        "maxTrifectaPayout": 12110,
+        "highPayoutRaceCount": 1
       },
       "exhibitionEvidence": {
         "availableCount": 12,
@@ -817,9 +851,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -843,21 +875,24 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 5,
-        "payoutAvailableCount": 5,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
         "winningTechniqueCounts": {
           "逃げ": 1,
-          "まくり差し": 2,
-          "まくり": 2
+          "まくり差し": 4,
+          "まくり": 3,
+          "抜き": 3,
+          "差し": 1
         },
         "courseWinCounts": {
-          "1": 1,
-          "4": 3,
-          "5": 1
+          "1": 2,
+          "3": 4,
+          "4": 4,
+          "5": 2
         },
-        "averageTrifectaPayout": 10620,
+        "averageTrifectaPayout": 7023.33,
         "maxTrifectaPayout": 18680,
-        "highPayoutRaceCount": 2
+        "highPayoutRaceCount": 3
       },
       "exhibitionEvidence": {
         "availableCount": 6,
@@ -910,10 +945,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -937,24 +969,24 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 7,
-        "payoutAvailableCount": 7,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
         "winningTechniqueCounts": {
           "差し": 1,
-          "逃げ": 2,
+          "逃げ": 5,
           "まくり": 2,
-          "まくり差し": 1,
-          "抜き": 1
+          "まくり差し": 2,
+          "抜き": 2
         },
         "courseWinCounts": {
-          "1": 3,
-          "2": 1,
+          "1": 6,
+          "2": 2,
           "3": 2,
-          "5": 1
+          "5": 2
         },
-        "averageTrifectaPayout": 16374.29,
+        "averageTrifectaPayout": 13377.5,
         "maxTrifectaPayout": 85480,
-        "highPayoutRaceCount": 2
+        "highPayoutRaceCount": 3
       },
       "exhibitionEvidence": {
         "availableCount": 9,
@@ -1007,10 +1039,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -1034,22 +1063,22 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 11,
-        "payoutAvailableCount": 11,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
         "winningTechniqueCounts": {
           "逃げ": 6,
           "差し": 2,
-          "抜き": 1,
+          "抜き": 2,
           "まくり差し": 1,
           "まくり": 1
         },
         "courseWinCounts": {
-          "1": 7,
+          "1": 8,
           "2": 1,
           "3": 2,
           "4": 1
         },
-        "averageTrifectaPayout": 8018.18,
+        "averageTrifectaPayout": 7430.83,
         "maxTrifectaPayout": 35560,
         "highPayoutRaceCount": 2
       },
@@ -1104,9 +1133,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -1130,13 +1157,22 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "逃げ": 6,
+          "抜き": 1,
+          "まくり": 2,
+          "差し": 3
+        },
+        "courseWinCounts": {
+          "1": 7,
+          "2": 2,
+          "3": 3
+        },
+        "averageTrifectaPayout": 7371.67,
+        "maxTrifectaPayout": 36750,
+        "highPayoutRaceCount": 3
       },
       "exhibitionEvidence": {
         "availableCount": 1,
@@ -1169,10 +1205,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -1196,13 +1229,23 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "まくり": 2,
+          "抜き": 3,
+          "逃げ": 7
+        },
+        "courseWinCounts": {
+          "1": 7,
+          "2": 1,
+          "3": 2,
+          "4": 1,
+          "5": 1
+        },
+        "averageTrifectaPayout": 5400.83,
+        "maxTrifectaPayout": 37690,
+        "highPayoutRaceCount": 1
       },
       "exhibitionEvidence": {
         "availableCount": 0,
@@ -1235,10 +1278,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-07-19",
@@ -1356,17 +1396,20 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 4,
-        "payoutAvailableCount": 4,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
         "winningTechniqueCounts": {
-          "逃げ": 3,
-          "差し": 1
+          "逃げ": 8,
+          "差し": 2,
+          "まくり": 1,
+          "抜き": 1
         },
         "courseWinCounts": {
-          "1": 3,
-          "2": 1
+          "1": 8,
+          "2": 3,
+          "3": 1
         },
-        "averageTrifectaPayout": 4117.5,
+        "averageTrifectaPayout": 3781.67,
         "maxTrifectaPayout": 10940,
         "highPayoutRaceCount": 1
       },
@@ -1421,10 +1464,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     }
   ]
 }

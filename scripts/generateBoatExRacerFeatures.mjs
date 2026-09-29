@@ -95,15 +95,25 @@ for (const identity of registry.identities ?? []) {
 
 const buildFeature = (entry) => {
 	const events = [...entry.events].sort((left, right) => left.date.localeCompare(right.date));
-	const starts = events.length;
-	const top = (limit) => events.slice(-limit);
-	const summarize = (items) => ({ starts: items.length, averageST: average(items.map((item) => item.startTiming).filter((value) => value !== null)), top3Rate: rate(items.filter((item) => item.finishOrder && item.finishOrder <= 3).length, items.length) });
+	const resultEvents = events.filter((event) => Number.isInteger(event.finishOrder) && event.finishOrder >= 1);
+	const appearanceCount = events.length;
+	const resultSampleCount = resultEvents.length;
+	const top = (items, limit) => items.slice(-limit);
+	const summarize = (items) => {
+		const resultItems = items.filter((item) => Number.isInteger(item.finishOrder) && item.finishOrder >= 1);
+		const stValues = items.map((item) => item.startTiming).filter((value) => value !== null);
+		return { appearanceCount: items.length, resultSampleCount: resultItems.length, starts: resultItems.length, averageST: average(stValues), top3Rate: rate(resultItems.filter((item) => item.finishOrder <= 3).length, resultItems.length) };
+	};
 	const byVenue = new Map(); const byFrame = new Map(); const methods = {}; const conditions = {};
 	for (const event of events) {
-		const venue = byVenue.get(event.venueCode) ?? { venueCode: event.venueCode, venueName: event.venueName, starts: 0, wins: 0, top2: 0, top3: 0 };
-		venue.starts += 1; venue.wins += event.finishOrder === 1 ? 1 : 0; venue.top2 += event.finishOrder && event.finishOrder <= 2 ? 1 : 0; venue.top3 += event.finishOrder && event.finishOrder <= 3 ? 1 : 0; byVenue.set(event.venueCode, venue);
-		const frame = byFrame.get(event.lane) ?? { frameNo: event.lane, starts: 0, wins: 0, top2: 0, top3: 0 };
-		frame.starts += 1; frame.wins += event.finishOrder === 1 ? 1 : 0; frame.top2 += event.finishOrder && event.finishOrder <= 2 ? 1 : 0; frame.top3 += event.finishOrder && event.finishOrder <= 3 ? 1 : 0; byFrame.set(event.lane, frame);
+		const venue = byVenue.get(event.venueCode) ?? { venueCode: event.venueCode, venueName: event.venueName, appearanceCount: 0, resultSampleCount: 0, starts: 0, wins: 0, top2: 0, top3: 0 };
+		venue.appearanceCount += 1;
+		if (Number.isInteger(event.finishOrder) && event.finishOrder >= 1) { venue.resultSampleCount += 1; venue.starts += 1; venue.wins += event.finishOrder === 1 ? 1 : 0; venue.top2 += event.finishOrder <= 2 ? 1 : 0; venue.top3 += event.finishOrder <= 3 ? 1 : 0; }
+		byVenue.set(event.venueCode, venue);
+		const frame = byFrame.get(event.lane) ?? { frameNo: event.lane, appearanceCount: 0, resultSampleCount: 0, starts: 0, wins: 0, top2: 0, top3: 0 };
+		frame.appearanceCount += 1;
+		if (Number.isInteger(event.finishOrder) && event.finishOrder >= 1) { frame.resultSampleCount += 1; frame.starts += 1; frame.wins += event.finishOrder === 1 ? 1 : 0; frame.top2 += event.finishOrder <= 2 ? 1 : 0; frame.top3 += event.finishOrder <= 3 ? 1 : 0; }
+		byFrame.set(event.lane, frame);
 		increment(methods, event.winningTechnique);
 		increment(conditions, `${event.sessionType || "未取得"} / ${event.weather || "未取得"} / ${event.windSpeedBand} / ${event.waveHeightBand}`);
 	}
@@ -111,13 +121,13 @@ const buildFeature = (entry) => {
 	const variance = stValues.length ? stValues.reduce((sum, value) => sum + (value - average(stValues)) ** 2, 0) / stValues.length : null;
 	return {
 		registrationNo: entry.registrationNo, name: entry.name, nameVariants: entry.nameVariants, branch: entry.branch, className: entry.className,
-		historyStarts: starts, firstSeen: events[0]?.date ?? null, lastSeen: events.at(-1)?.date ?? null, sourceCount: starts, sampleLevel: sampleLevel(starts),
-		venues: [...byVenue.values()].map((item) => ({ ...item, winRate: rate(item.wins, item.starts), top2Rate: rate(item.top2, item.starts), top3Rate: rate(item.top3, item.starts), sampleLevel: sampleLevel(item.starts) })).sort((a, b) => b.starts - a.starts),
-		frames: [...byFrame.values()].map((item) => ({ ...item, firstRate: rate(item.wins, item.starts), top2Rate: rate(item.top2, item.starts), top3Rate: rate(item.top3, item.starts), sampleLevel: sampleLevel(item.starts) })).sort((a, b) => a.frameNo - b.frameNo),
+		appearanceCount, resultSampleCount, historyStarts: resultSampleCount, firstSeen: events[0]?.date ?? null, lastSeen: events.at(-1)?.date ?? null, sourceCount: appearanceCount, sampleLevel: sampleLevel(resultSampleCount),
+		venues: [...byVenue.values()].map((item) => ({ ...item, winRate: rate(item.wins, item.resultSampleCount), top2Rate: rate(item.top2, item.resultSampleCount), top3Rate: rate(item.top3, item.resultSampleCount), sampleLevel: sampleLevel(item.resultSampleCount) })).sort((a, b) => b.appearanceCount - a.appearanceCount),
+		frames: [...byFrame.values()].map((item) => ({ ...item, firstRate: rate(item.wins, item.resultSampleCount), top2Rate: rate(item.top2, item.resultSampleCount), top3Rate: rate(item.top3, item.resultSampleCount), sampleLevel: sampleLevel(item.resultSampleCount) })).sort((a, b) => a.frameNo - b.frameNo),
 		startTiming: { sampleCount: stValues.length, average: average(stValues), median: median(stValues), standardDeviation: variance === null ? null : Number(Math.sqrt(variance).toFixed(3)), fastStartCount: stValues.filter((value) => value <= 0.1).length, lateStartCount: stValues.filter((value) => value >= 0.2).length, sampleLevel: sampleLevel(stValues.length) },
 		winMethodCounts: methods,
 		conditionSamples: Object.entries(conditions).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([condition, count]) => ({ condition, count, sampleLevel: sampleLevel(count) })),
-		recent: { last5: summarize(top(5)), last10: summarize(top(10)), last30Days: summarize(events.filter((event) => event.date >= (events.at(-1)?.date ?? "").replace(/-\d\d$/u, "-01"))) },
+		recent: { last5: summarize(top(resultEvents, 5)), last10: summarize(top(resultEvents, 10)), last30Days: summarize(events.filter((event) => event.date >= (events.at(-1)?.date ?? "").replace(/-\d\d$/u, "-01"))) },
 	policy: "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history",
 	};
 };
@@ -127,7 +137,7 @@ const currentSlots = (current.venues ?? []).flatMap((venue) => (venue.races ?? [
 const currentMissing = currentSlots.filter((slot) => !slot.registrationNo);
 const currentExact = currentSlots.filter((slot) => slot.registrationNo && registryByRegistration.has(slot.registrationNo));
 const generatedAt = new Date().toISOString();
-const latest = { schemaVersion: 1, kind: "boatrace-ex-racer-features", generatedAt, identityPolicy: "registrationNo exact registry identity only; no name-only identity", sourceFiles: ["public/data/boatrace-ex/identity/registered-racers.generated.json", "public/data/boatrace-ex/index.generated.json", ...(index.availableDates ?? []).map((date) => `public/data/boatrace-ex/history/races/${date}.json`)], summary: { racerCount: racers.length, exactLinkedRacerCount: racers.length, lowSampleRacerCount: racers.filter((racer) => racer.sampleLevel === "low-sample").length, historyStartCount: racers.reduce((sum, racer) => sum + racer.historyStarts, 0), dateRange: { first: index.availableDates?.[0] ?? null, last: index.latestDate ?? null, dateCount: index.availableDates?.length ?? 0 } }, racers };
+const latest = { schemaVersion: 1, kind: "boatrace-ex-racer-features", generatedAt, identityPolicy: "registrationNo exact registry identity only; no name-only identity", sourceFiles: ["public/data/boatrace-ex/identity/registered-racers.generated.json", "public/data/boatrace-ex/index.generated.json", ...(index.availableDates ?? []).map((date) => `public/data/boatrace-ex/history/races/${date}.json`)], summary: { racerCount: racers.length, exactLinkedRacerCount: racers.length, lowSampleRacerCount: racers.filter((racer) => racer.sampleLevel === "low-sample").length, appearanceCount: racers.reduce((sum, racer) => sum + racer.appearanceCount, 0), resultSampleCount: racers.reduce((sum, racer) => sum + racer.resultSampleCount, 0), historyStartCount: racers.reduce((sum, racer) => sum + racer.historyStarts, 0), dateRange: { first: index.availableDates?.[0] ?? null, last: index.latestDate ?? null, dateCount: index.availableDates?.length ?? 0 } }, racers };
 const audit = { schemaVersion: 1, kind: "boatrace-ex-racer-identity-unresolved-audit", auditDate: current.date, generatedAt, policy: "registrationNo exact only; name-only is never an exact identity", sourceFiles: ["public/data/boatrace/today.generated.json", "public/data/boatrace/today-race-details.generated.json", "public/data/boatrace-ex/identity/registered-racers.generated.json", "public/data/boatrace-ex/index.generated.json"], unresolved: { appearanceCount: unresolved.appearanceCount, uniqueRacerCount: unresolved.uniqueNames.size, bySource: unresolved.bySource, parserDroppedRegistrationNo: unresolved.parserDroppedRegistrationNo, historicalSourceNameOnly: unresolved.historicalSourceNameOnly }, currentDay: { date: current.date, venueCount: current.venues?.length ?? 0, raceCount: (current.venues ?? []).reduce((sum, venue) => sum + (venue.races?.length ?? 0), 0), slotCount: currentSlots.length, registrationPresentCount: currentSlots.length - currentMissing.length, registrationMissingCount: currentMissing.length, exactRegistryLinkedCount: currentExact.length, missingExamples: currentMissing.slice(0, 50) }, classifications: ["source-missing-registrationNo", "parser-dropped-registrationNo", "historical-source-name-only", "stale-generated-source", "foreign-racer-alias-needed", "unsafe-name-only", "unknown"] };
 const summary = { schemaVersion: 1, kind: "boatrace-ex-racer-features-history-summary", generatedAt, ...latest.summary, unresolvedAuditPath: "public/data/boatrace-ex/audit/racer-identity-unresolved-audit-latest.generated.json" };
 write("public/data/boatrace-ex/derived/racer-features/latest.json", latest);

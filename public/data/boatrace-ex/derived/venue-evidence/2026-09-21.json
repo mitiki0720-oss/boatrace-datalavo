@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-venue-evidence",
   "date": "2026-09-21",
-  "generatedAt": "2026-09-20T23:16:37.640Z",
+  "generatedAt": "2026-09-28T22:32:17.467Z",
   "sourceFiles": [
     {
       "sourceName": "boatrace-ex-history-races",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/history/races/2026-09-21.json",
-      "generatedAt": "2026-09-20T18:14:21.801Z",
+      "generatedAt": "2026-09-28T22:32:17.129Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -16,7 +16,7 @@
       "sourceName": "boatrace-ex-coverage",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/coverage/2026-09-21.json",
-      "generatedAt": "2026-09-20T18:14:21.801Z",
+      "generatedAt": "2026-09-28T22:32:17.129Z",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     }
@@ -32,6 +32,101 @@
       "date": "2026-09-21",
       "venueCode": "01",
       "venueName": "桐生",
+      "raceCount": 12,
+      "coverage": {
+        "race": "available",
+        "result": "available",
+        "exhibition": "available",
+        "weather": "available",
+        "motor": "available",
+        "boat": "available",
+        "racer": "available"
+      },
+      "availability": {
+        "officialRaceCount": 12,
+        "officialResultCount": 12,
+        "officialExhibitionCount": 12,
+        "weatherCount": 12
+      },
+      "resultEvidence": {
+        "resultAvailableCount": 12,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "差し": 3,
+          "逃げ": 4,
+          "抜き": 1,
+          "まくり": 2,
+          "まくり差し": 2
+        },
+        "courseWinCounts": {
+          "1": 4,
+          "2": 2,
+          "3": 4,
+          "5": 1,
+          "6": 1
+        },
+        "averageTrifectaPayout": 4059.17,
+        "maxTrifectaPayout": 14560,
+        "highPayoutRaceCount": 2
+      },
+      "exhibitionEvidence": {
+        "availableCount": 12,
+        "missingCount": 0,
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 5,
+            "averageExhibitionTime": 6.84
+          },
+          {
+            "frame": 1,
+            "averageExhibitionTime": 6.86
+          },
+          {
+            "frame": 6,
+            "averageExhibitionTime": 6.86
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 6.86,
+          "2": 6.87,
+          "3": 6.87,
+          "4": 6.88,
+          "5": 6.84,
+          "6": 6.86
+        }
+      },
+      "weatherEvidence": {
+        "availableCount": 12,
+        "windSpeedAverageMps": 1.58,
+        "windSpeedMaxMps": 4,
+        "waveHeightAverageCm": 1.08,
+        "waveHeightMaxCm": 3
+      },
+      "derivedReadiness": {
+        "venueBias": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
+        },
+        "roughIndex": {
+          "status": "insufficient-history",
+          "reason": "Roughness scoring is pending until payout/result history accumulates."
+        },
+        "todayFlow": {
+          "status": "insufficient-history",
+          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "date": "2026-09-21",
+      "venueCode": "02",
+      "venueName": "戸田",
       "raceCount": 12,
       "coverage": {
         "race": "available",
@@ -53,7 +148,9 @@
         "trifectaAvailableCount": 0,
         "payoutAvailableCount": 0,
         "winningTechniqueCounts": {},
-        "courseWinCounts": {},
+        "courseWinCounts": {
+          "1": 12
+        },
         "averageTrifectaPayout": null,
         "maxTrifectaPayout": null,
         "highPayoutRaceCount": null
@@ -90,74 +187,7 @@
         }
       },
       "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
-    },
-    {
-      "date": "2026-09-21",
-      "venueCode": "02",
-      "venueName": "戸田",
-      "raceCount": 12,
-      "coverage": {
-        "race": "available",
-        "result": "available",
-        "exhibition": "missing",
-        "weather": "available",
-        "motor": "available",
-        "boat": "available",
-        "racer": "available"
-      },
-      "availability": {
-        "officialRaceCount": 12,
-        "officialResultCount": 12,
-        "officialExhibitionCount": 0,
-        "weatherCount": 12
-      },
-      "resultEvidence": {
-        "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "missingCount": 12,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
-      },
-      "weatherEvidence": {
-        "availableCount": 12,
-        "windSpeedAverageMps": 0,
-        "windSpeedMaxMps": 0,
-        "waveHeightAverageCm": 0,
-        "waveHeightMaxCm": 0
-      },
-      "derivedReadiness": {
-        "venueBias": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
-        },
-        "roughIndex": {
-          "status": "insufficient-history",
-          "reason": "Roughness scoring is pending until payout/result history accumulates."
-        },
-        "todayFlow": {
-          "status": "insufficient-history",
-          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
+        "officialExhibition is not complete for all races"
       ]
     },
     {
@@ -185,7 +215,9 @@
         "trifectaAvailableCount": 0,
         "payoutAvailableCount": 0,
         "winningTechniqueCounts": {},
-        "courseWinCounts": {},
+        "courseWinCounts": {
+          "1": 12
+        },
         "averageTrifectaPayout": null,
         "maxTrifectaPayout": null,
         "highPayoutRaceCount": null
@@ -222,8 +254,7 @@
         }
       },
       "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
+        "officialExhibition is not complete for all races"
       ]
     },
     {
@@ -234,7 +265,7 @@
       "coverage": {
         "race": "available",
         "result": "available",
-        "exhibition": "missing",
+        "exhibition": "available",
         "weather": "available",
         "motor": "available",
         "boat": "available",
@@ -243,31 +274,62 @@
       "availability": {
         "officialRaceCount": 12,
         "officialResultCount": 12,
-        "officialExhibitionCount": 0,
+        "officialExhibitionCount": 12,
         "weatherCount": 12
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "逃げ": 8,
+          "まくり差し": 2,
+          "まくり": 1,
+          "差し": 1
+        },
+        "courseWinCounts": {
+          "1": 8,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "6": 1
+        },
+        "averageTrifectaPayout": 4302.5,
+        "maxTrifectaPayout": 19250,
+        "highPayoutRaceCount": 1
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "missingCount": 12,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
+        "availableCount": 12,
+        "missingCount": 0,
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 2,
+            "averageExhibitionTime": 6.74
+          },
+          {
+            "frame": 1,
+            "averageExhibitionTime": 6.76
+          },
+          {
+            "frame": 5,
+            "averageExhibitionTime": 6.76
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 6.76,
+          "2": 6.74,
+          "3": 6.78,
+          "4": 6.79,
+          "5": 6.76,
+          "6": 6.79
+        }
       },
       "weatherEvidence": {
         "availableCount": 12,
-        "windSpeedAverageMps": null,
-        "windSpeedMaxMps": null,
-        "waveHeightAverageCm": null,
-        "waveHeightMaxCm": null
+        "windSpeedAverageMps": 1.33,
+        "windSpeedMaxMps": 3,
+        "waveHeightAverageCm": 2,
+        "waveHeightMaxCm": 2
       },
       "derivedReadiness": {
         "venueBias": {
@@ -287,10 +349,7 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "date": "2026-09-21",
@@ -300,7 +359,7 @@
       "coverage": {
         "race": "available",
         "result": "available",
-        "exhibition": "missing",
+        "exhibition": "available",
         "weather": "available",
         "motor": "available",
         "boat": "available",
@@ -309,31 +368,61 @@
       "availability": {
         "officialRaceCount": 12,
         "officialResultCount": 12,
-        "officialExhibitionCount": 0,
+        "officialExhibitionCount": 12,
         "weatherCount": 12
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "差し": 5,
+          "まくり差し": 4,
+          "逃げ": 3
+        },
+        "courseWinCounts": {
+          "1": 3,
+          "2": 5,
+          "3": 2,
+          "4": 1,
+          "5": 1
+        },
+        "averageTrifectaPayout": 15464.17,
+        "maxTrifectaPayout": 102510,
+        "highPayoutRaceCount": 6
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "missingCount": 12,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
+        "availableCount": 12,
+        "missingCount": 0,
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 1,
+            "averageExhibitionTime": 6.88
+          },
+          {
+            "frame": 3,
+            "averageExhibitionTime": 6.89
+          },
+          {
+            "frame": 2,
+            "averageExhibitionTime": 6.9
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 6.88,
+          "2": 6.9,
+          "3": 6.89,
+          "4": 6.9,
+          "5": 6.9,
+          "6": 6.91
+        }
       },
       "weatherEvidence": {
         "availableCount": 12,
-        "windSpeedAverageMps": null,
-        "windSpeedMaxMps": null,
-        "waveHeightAverageCm": null,
-        "waveHeightMaxCm": null
+        "windSpeedAverageMps": 1.67,
+        "windSpeedMaxMps": 2,
+        "waveHeightAverageCm": 1,
+        "waveHeightMaxCm": 1
       },
       "derivedReadiness": {
         "venueBias": {
@@ -353,10 +442,98 @@
           "reason": "Prediction signal generation is scheduled for a later phase."
         }
       },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
+    },
+    {
+      "date": "2026-09-21",
+      "venueCode": "09",
+      "venueName": "津",
+      "raceCount": 12,
+      "coverage": {
+        "race": "available",
+        "result": "available",
+        "exhibition": "available",
+        "weather": "available",
+        "motor": "available",
+        "boat": "available",
+        "racer": "available"
+      },
+      "availability": {
+        "officialRaceCount": 12,
+        "officialResultCount": 12,
+        "officialExhibitionCount": 12,
+        "weatherCount": 12
+      },
+      "resultEvidence": {
+        "resultAvailableCount": 12,
+        "trifectaAvailableCount": 4,
+        "payoutAvailableCount": 4,
+        "winningTechniqueCounts": {
+          "逃げ": 2,
+          "抜き": 1,
+          "差し": 1
+        },
+        "courseWinCounts": {
+          "1": 10,
+          "4": 1,
+          "6": 1
+        },
+        "averageTrifectaPayout": 2590,
+        "maxTrifectaPayout": 4860,
+        "highPayoutRaceCount": 0
+      },
+      "exhibitionEvidence": {
+        "availableCount": 12,
+        "missingCount": 0,
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 2,
+            "averageExhibitionTime": 6.79
+          },
+          {
+            "frame": 1,
+            "averageExhibitionTime": 6.81
+          },
+          {
+            "frame": 3,
+            "averageExhibitionTime": 6.82
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 6.81,
+          "2": 6.79,
+          "3": 6.82,
+          "4": 6.88,
+          "5": 6.86,
+          "6": 6.84
+        }
+      },
+      "weatherEvidence": {
+        "availableCount": 12,
+        "windSpeedAverageMps": 7.25,
+        "windSpeedMaxMps": 8,
+        "waveHeightAverageCm": 5.25,
+        "waveHeightMaxCm": 6
+      },
+      "derivedReadiness": {
+        "venueBias": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
+        },
+        "roughIndex": {
+          "status": "insufficient-history",
+          "reason": "Roughness scoring is pending until payout/result history accumulates."
+        },
+        "todayFlow": {
+          "status": "insufficient-history",
+          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
     },
     {
       "date": "2026-09-21",
@@ -366,7 +543,7 @@
       "coverage": {
         "race": "available",
         "result": "available",
-        "exhibition": "missing",
+        "exhibition": "partial",
         "weather": "available",
         "motor": "available",
         "boat": "available",
@@ -375,31 +552,62 @@
       "availability": {
         "officialRaceCount": 12,
         "officialResultCount": 12,
-        "officialExhibitionCount": 0,
+        "officialExhibitionCount": 11,
         "weatherCount": 12
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
+        "trifectaAvailableCount": 10,
+        "payoutAvailableCount": 10,
+        "winningTechniqueCounts": {
+          "まくり差し": 3,
+          "逃げ": 3,
+          "まくり": 2,
+          "差し": 1
+        },
+        "courseWinCounts": {
+          "1": 6,
+          "2": 1,
+          "3": 3,
+          "4": 1,
+          "6": 1
+        },
+        "averageTrifectaPayout": 4331,
+        "maxTrifectaPayout": 26870,
+        "highPayoutRaceCount": 1
       },
       "exhibitionEvidence": {
-        "availableCount": 0,
-        "missingCount": 12,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
+        "availableCount": 11,
+        "missingCount": 1,
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 6,
+            "averageExhibitionTime": 7.02
+          },
+          {
+            "frame": 5,
+            "averageExhibitionTime": 7.04
+          },
+          {
+            "frame": 1,
+            "averageExhibitionTime": 7.05
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 7.05,
+          "2": 7.05,
+          "3": 7.06,
+          "4": 7.09,
+          "5": 7.04,
+          "6": 7.02
+        }
       },
       "weatherEvidence": {
         "availableCount": 12,
-        "windSpeedAverageMps": null,
-        "windSpeedMaxMps": null,
-        "waveHeightAverageCm": null,
-        "waveHeightMaxCm": null
+        "windSpeedAverageMps": 8.78,
+        "windSpeedMaxMps": 10,
+        "waveHeightAverageCm": 8.78,
+        "waveHeightMaxCm": 10
       },
       "derivedReadiness": {
         "venueBias": {
@@ -420,8 +628,7 @@
         }
       },
       "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
+        "officialExhibition is not complete for all races"
       ]
     },
     {
@@ -432,473 +639,11 @@
       "coverage": {
         "race": "available",
         "result": "available",
-        "exhibition": "missing",
-        "weather": "available",
-        "motor": "available",
-        "boat": "available",
-        "racer": "available"
-      },
-      "availability": {
-        "officialRaceCount": 12,
-        "officialResultCount": 12,
-        "officialExhibitionCount": 0,
-        "weatherCount": 12
-      },
-      "resultEvidence": {
-        "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "missingCount": 12,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
-      },
-      "weatherEvidence": {
-        "availableCount": 12,
-        "windSpeedAverageMps": null,
-        "windSpeedMaxMps": null,
-        "waveHeightAverageCm": null,
-        "waveHeightMaxCm": null
-      },
-      "derivedReadiness": {
-        "venueBias": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
-        },
-        "roughIndex": {
-          "status": "insufficient-history",
-          "reason": "Roughness scoring is pending until payout/result history accumulates."
-        },
-        "todayFlow": {
-          "status": "insufficient-history",
-          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
-    },
-    {
-      "date": "2026-09-21",
-      "venueCode": "13",
-      "venueName": "尼崎",
-      "raceCount": 12,
-      "coverage": {
-        "race": "available",
-        "result": "available",
-        "exhibition": "missing",
-        "weather": "available",
-        "motor": "available",
-        "boat": "available",
-        "racer": "available"
-      },
-      "availability": {
-        "officialRaceCount": 12,
-        "officialResultCount": 12,
-        "officialExhibitionCount": 0,
-        "weatherCount": 12
-      },
-      "resultEvidence": {
-        "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "missingCount": 12,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
-      },
-      "weatherEvidence": {
-        "availableCount": 12,
-        "windSpeedAverageMps": null,
-        "windSpeedMaxMps": null,
-        "waveHeightAverageCm": null,
-        "waveHeightMaxCm": null
-      },
-      "derivedReadiness": {
-        "venueBias": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
-        },
-        "roughIndex": {
-          "status": "insufficient-history",
-          "reason": "Roughness scoring is pending until payout/result history accumulates."
-        },
-        "todayFlow": {
-          "status": "insufficient-history",
-          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
-    },
-    {
-      "date": "2026-09-21",
-      "venueCode": "14",
-      "venueName": "鳴門",
-      "raceCount": 12,
-      "coverage": {
-        "race": "available",
-        "result": "available",
-        "exhibition": "missing",
-        "weather": "available",
-        "motor": "missing",
-        "boat": "missing",
-        "racer": "missing"
-      },
-      "availability": {
-        "officialRaceCount": 12,
-        "officialResultCount": 12,
-        "officialExhibitionCount": 0,
-        "weatherCount": 12
-      },
-      "resultEvidence": {
-        "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "missingCount": 12,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
-      },
-      "weatherEvidence": {
-        "availableCount": 12,
-        "windSpeedAverageMps": null,
-        "windSpeedMaxMps": null,
-        "waveHeightAverageCm": null,
-        "waveHeightMaxCm": null
-      },
-      "derivedReadiness": {
-        "venueBias": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
-        },
-        "roughIndex": {
-          "status": "insufficient-history",
-          "reason": "Roughness scoring is pending until payout/result history accumulates."
-        },
-        "todayFlow": {
-          "status": "insufficient-history",
-          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
-    },
-    {
-      "date": "2026-09-21",
-      "venueCode": "15",
-      "venueName": "丸亀",
-      "raceCount": 12,
-      "coverage": {
-        "race": "available",
-        "result": "available",
-        "exhibition": "missing",
-        "weather": "available",
-        "motor": "available",
-        "boat": "available",
-        "racer": "available"
-      },
-      "availability": {
-        "officialRaceCount": 12,
-        "officialResultCount": 12,
-        "officialExhibitionCount": 0,
-        "weatherCount": 12
-      },
-      "resultEvidence": {
-        "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "missingCount": 12,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
-      },
-      "weatherEvidence": {
-        "availableCount": 12,
-        "windSpeedAverageMps": 3.6,
-        "windSpeedMaxMps": 3.6,
-        "waveHeightAverageCm": null,
-        "waveHeightMaxCm": null
-      },
-      "derivedReadiness": {
-        "venueBias": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
-        },
-        "roughIndex": {
-          "status": "insufficient-history",
-          "reason": "Roughness scoring is pending until payout/result history accumulates."
-        },
-        "todayFlow": {
-          "status": "insufficient-history",
-          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
-    },
-    {
-      "date": "2026-09-21",
-      "venueCode": "16",
-      "venueName": "児島",
-      "raceCount": 12,
-      "coverage": {
-        "race": "available",
-        "result": "available",
-        "exhibition": "missing",
-        "weather": "available",
-        "motor": "available",
-        "boat": "available",
-        "racer": "available"
-      },
-      "availability": {
-        "officialRaceCount": 12,
-        "officialResultCount": 12,
-        "officialExhibitionCount": 0,
-        "weatherCount": 12
-      },
-      "resultEvidence": {
-        "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "missingCount": 12,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
-      },
-      "weatherEvidence": {
-        "availableCount": 12,
-        "windSpeedAverageMps": null,
-        "windSpeedMaxMps": null,
-        "waveHeightAverageCm": null,
-        "waveHeightMaxCm": null
-      },
-      "derivedReadiness": {
-        "venueBias": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
-        },
-        "roughIndex": {
-          "status": "insufficient-history",
-          "reason": "Roughness scoring is pending until payout/result history accumulates."
-        },
-        "todayFlow": {
-          "status": "insufficient-history",
-          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
-    },
-    {
-      "date": "2026-09-21",
-      "venueCode": "17",
-      "venueName": "宮島",
-      "raceCount": 12,
-      "coverage": {
-        "race": "available",
-        "result": "available",
-        "exhibition": "missing",
-        "weather": "available",
-        "motor": "available",
-        "boat": "available",
-        "racer": "available"
-      },
-      "availability": {
-        "officialRaceCount": 12,
-        "officialResultCount": 12,
-        "officialExhibitionCount": 0,
-        "weatherCount": 12
-      },
-      "resultEvidence": {
-        "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "missingCount": 12,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
-      },
-      "weatherEvidence": {
-        "availableCount": 12,
-        "windSpeedAverageMps": 3.3,
-        "windSpeedMaxMps": 3.3,
-        "waveHeightAverageCm": null,
-        "waveHeightMaxCm": null
-      },
-      "derivedReadiness": {
-        "venueBias": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
-        },
-        "roughIndex": {
-          "status": "insufficient-history",
-          "reason": "Roughness scoring is pending until payout/result history accumulates."
-        },
-        "todayFlow": {
-          "status": "insufficient-history",
-          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
-    },
-    {
-      "date": "2026-09-21",
-      "venueCode": "23",
-      "venueName": "唐津",
-      "raceCount": 12,
-      "coverage": {
-        "race": "available",
-        "result": "available",
-        "exhibition": "missing",
-        "weather": "available",
-        "motor": "missing",
-        "boat": "missing",
-        "racer": "missing"
-      },
-      "availability": {
-        "officialRaceCount": 12,
-        "officialResultCount": 12,
-        "officialExhibitionCount": 0,
-        "weatherCount": 12
-      },
-      "resultEvidence": {
-        "resultAvailableCount": 12,
-        "trifectaAvailableCount": 0,
-        "payoutAvailableCount": 0,
-        "winningTechniqueCounts": {},
-        "courseWinCounts": {},
-        "averageTrifectaPayout": null,
-        "maxTrifectaPayout": null,
-        "highPayoutRaceCount": null
-      },
-      "exhibitionEvidence": {
-        "availableCount": 0,
-        "missingCount": 12,
-        "topExhibitionTimeFrames": [],
-        "averageExhibitionTimeByFrame": {}
-      },
-      "weatherEvidence": {
-        "availableCount": 12,
-        "windSpeedAverageMps": null,
-        "windSpeedMaxMps": null,
-        "waveHeightAverageCm": null,
-        "waveHeightMaxCm": null
-      },
-      "derivedReadiness": {
-        "venueBias": {
-          "status": "insufficient-history",
-          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
-        },
-        "roughIndex": {
-          "status": "insufficient-history",
-          "reason": "Roughness scoring is pending until payout/result history accumulates."
-        },
-        "todayFlow": {
-          "status": "insufficient-history",
-          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
-        },
-        "predictionSignals": {
-          "status": "pending",
-          "reason": "Prediction signal generation is scheduled for a later phase."
-        }
-      },
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
-    },
-    {
-      "date": "2026-09-21",
-      "venueCode": "24",
-      "venueName": "大村",
-      "raceCount": 12,
-      "coverage": {
-        "race": "available",
-        "result": "available",
         "exhibition": "available",
         "weather": "available",
-        "motor": "missing",
-        "boat": "missing",
-        "racer": "missing"
+        "motor": "available",
+        "boat": "available",
+        "racer": "available"
       },
       "availability": {
         "officialRaceCount": 12,
@@ -908,6 +653,561 @@
       },
       "resultEvidence": {
         "resultAvailableCount": 12,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "逃げ": 7,
+          "差し": 2,
+          "まくり": 2,
+          "抜き": 1
+        },
+        "courseWinCounts": {
+          "1": 7,
+          "3": 2,
+          "4": 2,
+          "5": 1
+        },
+        "averageTrifectaPayout": 12265,
+        "maxTrifectaPayout": 109470,
+        "highPayoutRaceCount": 2
+      },
+      "exhibitionEvidence": {
+        "availableCount": 12,
+        "missingCount": 0,
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 2,
+            "averageExhibitionTime": 6.97
+          },
+          {
+            "frame": 1,
+            "averageExhibitionTime": 6.98
+          },
+          {
+            "frame": 5,
+            "averageExhibitionTime": 6.98
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 6.98,
+          "2": 6.97,
+          "3": 6.99,
+          "4": 7,
+          "5": 6.98,
+          "6": 7.01
+        }
+      },
+      "weatherEvidence": {
+        "availableCount": 12,
+        "windSpeedAverageMps": 3.33,
+        "windSpeedMaxMps": 5,
+        "waveHeightAverageCm": 1.42,
+        "waveHeightMaxCm": 2
+      },
+      "derivedReadiness": {
+        "venueBias": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
+        },
+        "roughIndex": {
+          "status": "insufficient-history",
+          "reason": "Roughness scoring is pending until payout/result history accumulates."
+        },
+        "todayFlow": {
+          "status": "insufficient-history",
+          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "date": "2026-09-21",
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "raceCount": 12,
+      "coverage": {
+        "race": "available",
+        "result": "available",
+        "exhibition": "available",
+        "weather": "available",
+        "motor": "available",
+        "boat": "available",
+        "racer": "available"
+      },
+      "availability": {
+        "officialRaceCount": 12,
+        "officialResultCount": 12,
+        "officialExhibitionCount": 12,
+        "weatherCount": 12
+      },
+      "resultEvidence": {
+        "resultAvailableCount": 12,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "逃げ": 10,
+          "抜き": 1,
+          "まくり差し": 1
+        },
+        "courseWinCounts": {
+          "1": 11,
+          "3": 1
+        },
+        "averageTrifectaPayout": 1711.67,
+        "maxTrifectaPayout": 3270,
+        "highPayoutRaceCount": 0
+      },
+      "exhibitionEvidence": {
+        "availableCount": 12,
+        "missingCount": 0,
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 1,
+            "averageExhibitionTime": 6.89
+          },
+          {
+            "frame": 3,
+            "averageExhibitionTime": 6.89
+          },
+          {
+            "frame": 2,
+            "averageExhibitionTime": 6.9
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 6.89,
+          "2": 6.9,
+          "3": 6.89,
+          "4": 6.91,
+          "5": 6.92,
+          "6": 6.92
+        }
+      },
+      "weatherEvidence": {
+        "availableCount": 12,
+        "windSpeedAverageMps": 2.58,
+        "windSpeedMaxMps": 5,
+        "waveHeightAverageCm": 0.25,
+        "waveHeightMaxCm": 3
+      },
+      "derivedReadiness": {
+        "venueBias": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
+        },
+        "roughIndex": {
+          "status": "insufficient-history",
+          "reason": "Roughness scoring is pending until payout/result history accumulates."
+        },
+        "todayFlow": {
+          "status": "insufficient-history",
+          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "date": "2026-09-21",
+      "venueCode": "15",
+      "venueName": "丸亀",
+      "raceCount": 12,
+      "coverage": {
+        "race": "available",
+        "result": "available",
+        "exhibition": "available",
+        "weather": "available",
+        "motor": "available",
+        "boat": "available",
+        "racer": "available"
+      },
+      "availability": {
+        "officialRaceCount": 12,
+        "officialResultCount": 12,
+        "officialExhibitionCount": 12,
+        "weatherCount": 12
+      },
+      "resultEvidence": {
+        "resultAvailableCount": 12,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "まくり差し": 1,
+          "まくり": 3,
+          "逃げ": 8
+        },
+        "courseWinCounts": {
+          "1": 8,
+          "3": 2,
+          "4": 2
+        },
+        "averageTrifectaPayout": 7900,
+        "maxTrifectaPayout": 34100,
+        "highPayoutRaceCount": 4
+      },
+      "exhibitionEvidence": {
+        "availableCount": 12,
+        "missingCount": 0,
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 1,
+            "averageExhibitionTime": 6.8
+          },
+          {
+            "frame": 2,
+            "averageExhibitionTime": 6.8
+          },
+          {
+            "frame": 6,
+            "averageExhibitionTime": 6.81
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 6.8,
+          "2": 6.8,
+          "3": 6.83,
+          "4": 6.84,
+          "5": 6.84,
+          "6": 6.81
+        }
+      },
+      "weatherEvidence": {
+        "availableCount": 12,
+        "windSpeedAverageMps": 5.17,
+        "windSpeedMaxMps": 7,
+        "waveHeightAverageCm": 5.17,
+        "waveHeightMaxCm": 7
+      },
+      "derivedReadiness": {
+        "venueBias": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
+        },
+        "roughIndex": {
+          "status": "insufficient-history",
+          "reason": "Roughness scoring is pending until payout/result history accumulates."
+        },
+        "todayFlow": {
+          "status": "insufficient-history",
+          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "date": "2026-09-21",
+      "venueCode": "16",
+      "venueName": "児島",
+      "raceCount": 12,
+      "coverage": {
+        "race": "available",
+        "result": "available",
+        "exhibition": "available",
+        "weather": "available",
+        "motor": "available",
+        "boat": "available",
+        "racer": "available"
+      },
+      "availability": {
+        "officialRaceCount": 12,
+        "officialResultCount": 12,
+        "officialExhibitionCount": 12,
+        "weatherCount": 12
+      },
+      "resultEvidence": {
+        "resultAvailableCount": 12,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "逃げ": 5,
+          "まくり": 2,
+          "差し": 2,
+          "抜き": 1,
+          "まくり差し": 2
+        },
+        "courseWinCounts": {
+          "1": 5,
+          "2": 1,
+          "3": 3,
+          "4": 1,
+          "5": 1,
+          "6": 1
+        },
+        "averageTrifectaPayout": 17645,
+        "maxTrifectaPayout": 88560,
+        "highPayoutRaceCount": 5
+      },
+      "exhibitionEvidence": {
+        "availableCount": 12,
+        "missingCount": 0,
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 1,
+            "averageExhibitionTime": 6.95
+          },
+          {
+            "frame": 2,
+            "averageExhibitionTime": 6.96
+          },
+          {
+            "frame": 3,
+            "averageExhibitionTime": 6.97
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 6.95,
+          "2": 6.96,
+          "3": 6.97,
+          "4": 6.98,
+          "5": 6.98,
+          "6": 6.98
+        }
+      },
+      "weatherEvidence": {
+        "availableCount": 12,
+        "windSpeedAverageMps": 6.33,
+        "windSpeedMaxMps": 8,
+        "waveHeightAverageCm": 6,
+        "waveHeightMaxCm": 7
+      },
+      "derivedReadiness": {
+        "venueBias": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
+        },
+        "roughIndex": {
+          "status": "insufficient-history",
+          "reason": "Roughness scoring is pending until payout/result history accumulates."
+        },
+        "todayFlow": {
+          "status": "insufficient-history",
+          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "date": "2026-09-21",
+      "venueCode": "17",
+      "venueName": "宮島",
+      "raceCount": 12,
+      "coverage": {
+        "race": "available",
+        "result": "available",
+        "exhibition": "available",
+        "weather": "available",
+        "motor": "available",
+        "boat": "available",
+        "racer": "available"
+      },
+      "availability": {
+        "officialRaceCount": 12,
+        "officialResultCount": 12,
+        "officialExhibitionCount": 12,
+        "weatherCount": 12
+      },
+      "resultEvidence": {
+        "resultAvailableCount": 12,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "逃げ": 8,
+          "まくり": 1,
+          "差し": 2,
+          "まくり差し": 1
+        },
+        "courseWinCounts": {
+          "1": 8,
+          "2": 3,
+          "3": 1
+        },
+        "averageTrifectaPayout": 1441.67,
+        "maxTrifectaPayout": 3710,
+        "highPayoutRaceCount": 0
+      },
+      "exhibitionEvidence": {
+        "availableCount": 12,
+        "missingCount": 0,
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 4,
+            "averageExhibitionTime": 6.91
+          },
+          {
+            "frame": 6,
+            "averageExhibitionTime": 6.91
+          },
+          {
+            "frame": 2,
+            "averageExhibitionTime": 6.92
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 6.94,
+          "2": 6.92,
+          "3": 6.93,
+          "4": 6.91,
+          "5": 6.93,
+          "6": 6.91
+        }
+      },
+      "weatherEvidence": {
+        "availableCount": 12,
+        "windSpeedAverageMps": 4.75,
+        "windSpeedMaxMps": 7,
+        "waveHeightAverageCm": 4.92,
+        "waveHeightMaxCm": 8
+      },
+      "derivedReadiness": {
+        "venueBias": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
+        },
+        "roughIndex": {
+          "status": "insufficient-history",
+          "reason": "Roughness scoring is pending until payout/result history accumulates."
+        },
+        "todayFlow": {
+          "status": "insufficient-history",
+          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "date": "2026-09-21",
+      "venueCode": "18",
+      "venueName": "徳山",
+      "raceCount": 12,
+      "coverage": {
+        "race": "available",
+        "result": "available",
+        "exhibition": "available",
+        "weather": "available",
+        "motor": "available",
+        "boat": "available",
+        "racer": "available"
+      },
+      "availability": {
+        "officialRaceCount": 12,
+        "officialResultCount": 12,
+        "officialExhibitionCount": 12,
+        "weatherCount": 12
+      },
+      "resultEvidence": {
+        "resultAvailableCount": 12,
+        "trifectaAvailableCount": 12,
+        "payoutAvailableCount": 12,
+        "winningTechniqueCounts": {
+          "逃げ": 7,
+          "まくり差し": 1,
+          "差し": 2,
+          "まくり": 2
+        },
+        "courseWinCounts": {
+          "1": 7,
+          "2": 3,
+          "4": 1,
+          "5": 1
+        },
+        "averageTrifectaPayout": 4208.33,
+        "maxTrifectaPayout": 17650,
+        "highPayoutRaceCount": 1
+      },
+      "exhibitionEvidence": {
+        "availableCount": 12,
+        "missingCount": 0,
+        "topExhibitionTimeFrames": [
+          {
+            "frame": 1,
+            "averageExhibitionTime": 6.9
+          },
+          {
+            "frame": 2,
+            "averageExhibitionTime": 6.91
+          },
+          {
+            "frame": 4,
+            "averageExhibitionTime": 6.91
+          }
+        ],
+        "averageExhibitionTimeByFrame": {
+          "1": 6.9,
+          "2": 6.91,
+          "3": 6.92,
+          "4": 6.91,
+          "5": 6.92,
+          "6": 6.91
+        }
+      },
+      "weatherEvidence": {
+        "availableCount": 12,
+        "windSpeedAverageMps": 3.67,
+        "windSpeedMaxMps": 5,
+        "waveHeightAverageCm": 3.67,
+        "waveHeightMaxCm": 5
+      },
+      "derivedReadiness": {
+        "venueBias": {
+          "status": "insufficient-history",
+          "reason": "Only 1 history day is available. Venue bias scoring requires accumulated multi-day evidence."
+        },
+        "roughIndex": {
+          "status": "insufficient-history",
+          "reason": "Roughness scoring is pending until payout/result history accumulates."
+        },
+        "todayFlow": {
+          "status": "insufficient-history",
+          "reason": "Today flow requires same-day sequence rules and more validated result coverage."
+        },
+        "predictionSignals": {
+          "status": "pending",
+          "reason": "Prediction signal generation is scheduled for a later phase."
+        }
+      },
+      "warnings": []
+    },
+    {
+      "date": "2026-09-21",
+      "venueCode": "20",
+      "venueName": "若松",
+      "raceCount": 12,
+      "coverage": {
+        "race": "available",
+        "result": "available",
+        "exhibition": "missing",
+        "weather": "available",
+        "motor": "missing",
+        "boat": "missing",
+        "racer": "missing"
+      },
+      "availability": {
+        "officialRaceCount": 12,
+        "officialResultCount": 12,
+        "officialExhibitionCount": 0,
+        "weatherCount": 12
+      },
+      "resultEvidence": {
+        "resultAvailableCount": 12,
         "trifectaAvailableCount": 0,
         "payoutAvailableCount": 0,
         "winningTechniqueCounts": {},
@@ -917,30 +1217,10 @@
         "highPayoutRaceCount": null
       },
       "exhibitionEvidence": {
-        "availableCount": 12,
-        "missingCount": 0,
-        "topExhibitionTimeFrames": [
-          {
-            "frame": 1,
-            "averageExhibitionTime": 6.94
-          },
-          {
-            "frame": 3,
-            "averageExhibitionTime": 6.94
-          },
-          {
-            "frame": 4,
-            "averageExhibitionTime": 6.95
-          }
-        ],
-        "averageExhibitionTimeByFrame": {
-          "1": 6.94,
-          "2": 6.97,
-          "3": 6.94,
-          "4": 6.95,
-          "5": 6.96,
-          "6": 6.95
-        }
+        "availableCount": 0,
+        "missingCount": 12,
+        "topExhibitionTimeFrames": [],
+        "averageExhibitionTimeByFrame": {}
       },
       "weatherEvidence": {
         "availableCount": 12,
@@ -968,6 +1248,7 @@
         }
       },
       "warnings": [
+        "officialExhibition is not complete for all races",
         "officialResult is not complete for all races"
       ]
     }

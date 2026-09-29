@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-coverage-date",
   "date": "2026-08-03",
-  "generatedAt": "2026-08-27T13:36:49.882Z",
+  "generatedAt": "2026-09-28T23:10:37.799Z",
   "sourceFiles": [
     {
       "sourceName": "today-race-details.generated.json",
@@ -27,31 +27,65 @@
       "generatedAt": "2026-08-27T22:34:07+09:00",
       "sourceStatus": "available",
       "coverageStatus": "partial"
+    },
+    {
+      "sourceName": "local review prediction",
+      "sourceType": "user",
+      "sourcePath": "local-readonly/reviews/2026-08-03/2026-08-03-heiwajima-predictions.txt",
+      "generatedAt": "2026-08-03T12:33:43.889Z",
+      "sourceFetchedAt": "2026-08-03T12:33:43.889Z",
+      "sourceStatus": "available",
+      "coverageStatus": "partial",
+      "provenance": "read-only local source"
+    },
+    {
+      "sourceName": "today-race-details.generated.json",
+      "sourceType": "official",
+      "sourcePath": "git:e9f6039218119b8e77fc09307fb14835bc2dfe05:public/data/boatrace/today-race-details.generated.json",
+      "generatedAt": "2026-08-03T22:27:41+09:00",
+      "sourceStatus": "available",
+      "coverageStatus": "partial"
+    },
+    {
+      "sourceName": "today.generated.json",
+      "sourceType": "official",
+      "sourcePath": "git:e9f6039218119b8e77fc09307fb14835bc2dfe05:public/data/boatrace/today.generated.json",
+      "generatedAt": "2026-08-03T22:27:41+09:00",
+      "sourceStatus": "available",
+      "coverageStatus": "partial"
+    },
+    {
+      "sourceName": "venue-extras.generated.json",
+      "sourceType": "official",
+      "sourcePath": "git:e9f6039218119b8e77fc09307fb14835bc2dfe05:public/data/boatrace/venue-extras.generated.json",
+      "generatedAt": "2026-08-03T22:27:44+09:00",
+      "sourceStatus": "available",
+      "coverageStatus": "partial"
     }
   ],
   "totals": {
-    "venues": 13,
-    "races": 168
+    "venues": 19,
+    "races": 228
   },
   "fieldTotals": {
     "officialRace": {
-      "complete": 79,
+      "complete": 144,
       "partial": 0,
-      "missing": 89,
+      "missing": 84,
       "pending": 0,
       "notSupported": 0,
       "unknown": 0
     },
     "officialResult": {
-      "complete": 67,
+      "complete": 144,
       "partial": 0,
-      "missing": 77,
-      "pending": 24,
+      "missing": 72,
+      "pending": 12,
       "notSupported": 0,
       "unknown": 0
     },
     "officialExhibition": {
-      "complete": 84,
+      "complete": 144,
       "partial": 0,
       "missing": 0,
       "pending": 84,
@@ -59,7 +93,7 @@
       "unknown": 0
     },
     "weather": {
-      "complete": 168,
+      "complete": 228,
       "partial": 0,
       "missing": 0,
       "pending": 0,
@@ -71,39 +105,39 @@
       "partial": 0,
       "missing": 0,
       "pending": 0,
-      "notSupported": 168,
+      "notSupported": 228,
       "unknown": 0
     },
     "motor": {
-      "complete": 79,
+      "complete": 144,
       "partial": 0,
-      "missing": 89,
+      "missing": 84,
       "pending": 0,
       "notSupported": 0,
       "unknown": 0
     },
     "boat": {
-      "complete": 79,
+      "complete": 144,
       "partial": 0,
-      "missing": 89,
+      "missing": 84,
       "pending": 0,
       "notSupported": 0,
       "unknown": 0
     },
     "racer": {
-      "complete": 79,
+      "complete": 144,
       "partial": 0,
-      "missing": 89,
+      "missing": 84,
       "pending": 0,
       "notSupported": 0,
       "unknown": 0
     },
     "prediction": {
-      "complete": 0,
+      "complete": 12,
       "partial": 0,
       "missing": 0,
       "pending": 0,
-      "notSupported": 168,
+      "notSupported": 216,
       "unknown": 0
     },
     "summary": {
@@ -111,7 +145,7 @@
       "partial": 0,
       "missing": 0,
       "pending": 0,
-      "notSupported": 168,
+      "notSupported": 228,
       "unknown": 0
     },
     "review": {
@@ -119,7 +153,7 @@
       "partial": 0,
       "missing": 0,
       "pending": 0,
-      "notSupported": 168,
+      "notSupported": 228,
       "unknown": 0
     },
     "derivedSignals": {
@@ -127,7 +161,7 @@
       "partial": 0,
       "missing": 0,
       "pending": 0,
-      "notSupported": 168,
+      "notSupported": 228,
       "unknown": 0
     }
   },
@@ -135,17 +169,33 @@
     {
       "venueCode": "01",
       "venueName": "桐生",
-      "raceCount": 24,
-      "completeOfficialRaceCount": 24,
+      "raceCount": 12,
+      "completeOfficialRaceCount": 12,
       "completeResultCount": 12,
-      "completeExhibitionCount": 24,
-      "warnings": [
-        "officialResult is not complete for all races"
-      ]
+      "completeExhibitionCount": 12,
+      "warnings": []
     },
     {
       "venueCode": "04",
       "venueName": "平和島",
+      "raceCount": 12,
+      "completeOfficialRaceCount": 12,
+      "completeResultCount": 12,
+      "completeExhibitionCount": 12,
+      "warnings": []
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceCount": 12,
+      "completeOfficialRaceCount": 12,
+      "completeResultCount": 12,
+      "completeExhibitionCount": 12,
+      "warnings": []
+    },
+    {
+      "venueCode": "06",
+      "venueName": "浜名湖",
       "raceCount": 12,
       "completeOfficialRaceCount": 12,
       "completeResultCount": 12,
@@ -159,10 +209,7 @@
       "completeOfficialRaceCount": 0,
       "completeResultCount": 0,
       "completeExhibitionCount": 0,
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "venueCode": "08",
@@ -180,10 +227,7 @@
       "completeOfficialRaceCount": 0,
       "completeResultCount": 0,
       "completeExhibitionCount": 0,
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "venueCode": "10",
@@ -192,10 +236,7 @@
       "completeOfficialRaceCount": 0,
       "completeResultCount": 0,
       "completeExhibitionCount": 0,
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "venueCode": "11",
@@ -204,21 +245,16 @@
       "completeOfficialRaceCount": 0,
       "completeResultCount": 0,
       "completeExhibitionCount": 0,
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceCount": 12,
-      "completeOfficialRaceCount": 7,
-      "completeResultCount": 7,
+      "completeOfficialRaceCount": 12,
+      "completeResultCount": 12,
       "completeExhibitionCount": 12,
-      "warnings": [
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "venueCode": "14",
@@ -227,10 +263,7 @@
       "completeOfficialRaceCount": 0,
       "completeResultCount": 0,
       "completeExhibitionCount": 0,
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "venueCode": "15",
@@ -239,10 +272,7 @@
       "completeOfficialRaceCount": 0,
       "completeResultCount": 0,
       "completeExhibitionCount": 0,
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
     },
     {
       "venueCode": "17",
@@ -260,14 +290,47 @@
       "completeOfficialRaceCount": 0,
       "completeResultCount": 0,
       "completeExhibitionCount": 0,
-      "warnings": [
-        "officialExhibition is not complete for all races",
-        "officialResult is not complete for all races"
-      ]
+      "warnings": []
+    },
+    {
+      "venueCode": "19",
+      "venueName": "下関",
+      "raceCount": 12,
+      "completeOfficialRaceCount": 12,
+      "completeResultCount": 12,
+      "completeExhibitionCount": 12,
+      "warnings": []
+    },
+    {
+      "venueCode": "20",
+      "venueName": "若松",
+      "raceCount": 12,
+      "completeOfficialRaceCount": 12,
+      "completeResultCount": 12,
+      "completeExhibitionCount": 12,
+      "warnings": []
+    },
+    {
+      "venueCode": "21",
+      "venueName": "芦屋",
+      "raceCount": 12,
+      "completeOfficialRaceCount": 12,
+      "completeResultCount": 12,
+      "completeExhibitionCount": 12,
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
+      "raceCount": 12,
+      "completeOfficialRaceCount": 12,
+      "completeResultCount": 12,
+      "completeExhibitionCount": 12,
+      "warnings": []
+    },
+    {
+      "venueCode": "23",
+      "venueName": "唐津",
       "raceCount": 12,
       "completeOfficialRaceCount": 12,
       "completeResultCount": 12,
@@ -279,17 +342,22 @@
     "today-race-details.generated.json": {
       "sourceStatus": "available",
       "coverageStatus": "partial",
-      "sourcePath": "public/data/boatrace/today-race-details.generated.json"
+      "sourcePath": "git:e9f6039218119b8e77fc09307fb14835bc2dfe05:public/data/boatrace/today-race-details.generated.json"
     },
     "today.generated.json": {
       "sourceStatus": "available",
       "coverageStatus": "partial",
-      "sourcePath": "public/data/boatrace/today.generated.json"
+      "sourcePath": "git:e9f6039218119b8e77fc09307fb14835bc2dfe05:public/data/boatrace/today.generated.json"
     },
     "venue-extras.generated.json": {
       "sourceStatus": "available",
       "coverageStatus": "partial",
-      "sourcePath": "public/data/boatrace/venue-extras.generated.json"
+      "sourcePath": "git:e9f6039218119b8e77fc09307fb14835bc2dfe05:public/data/boatrace/venue-extras.generated.json"
+    },
+    "local review prediction": {
+      "sourceStatus": "available",
+      "coverageStatus": "partial",
+      "sourcePath": "local-readonly/reviews/2026-08-03/2026-08-03-heiwajima-predictions.txt"
     }
   }
 }

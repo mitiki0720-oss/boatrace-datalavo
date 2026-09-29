@@ -26,7 +26,10 @@ function readJson(relativePath) {
 }
 
 function hasResult(record) {
-	return Array.isArray(record?.officialResult?.finishOrder) && record.officialResult.finishOrder.length > 0;
+	const finishOrder = Array.isArray(record?.officialResult?.finishOrder)
+		? record.officialResult.finishOrder
+		: [];
+	return finishOrder.length >= 3;
 }
 
 function parseYen(value) {

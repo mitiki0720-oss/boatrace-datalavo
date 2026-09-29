@@ -1,15 +1,17 @@
-export const PARSER_VERSION = "boat-ex-strict-ticket-parser-v1";
+export const PARSER_VERSION = "boat-ex-strict-ticket-parser-v2";
 export const CLASSIFIED_GROUPS = ["\u539a\u3081", "\u672c\u7dda", "\u4e2d\u7a74", "\u5927\u7a74"];
 const BUY_MARKER = "\u8cb7\u3044\u76ee";
 const TRIFECTA_MARKER = "3\u9023\u5358";
 const GROUP_PATTERN = new RegExp(CLASSIFIED_GROUPS.join("|"), "u");
 const TICKET_PATTERN = /(?:^|\s|\d{1,2}[\s\u3000]+)([1-6])\s*[-\u30fc\uff0d]\s*([1-6])\s*[-\u30fc\uff0d]\s*([1-6])(?=\s|$)/gu;
+const PIPE_TICKET_PATTERN = /^\s*(\d{1,2})\s*[|｜]\s*3連単\s*[|｜]\s*([1-6])\s*[-ー－]\s*([1-6])\s*[-ー－]\s*([1-6])\s*[|｜]\s*(厚め|本線|中穴|大穴)\s*$/u;
 
 export const PARSER_RULES = [
 	"Only source-backed prediction.textExcerpt values are read.",
 	"Only text after the first buy-ticket marker is eligible.",
 	"A ticket section must contain the 3-trifecta marker and an allowed group label.",
 	"Only a line-level ordered three-boat pattern using 1 through 6 is accepted.",
+	"The numbered pipe format NN | 3連単 | A-B-C | category is accepted exactly as written.",
 	"Repeated boat numbers, formation expressions, entrance assumptions, prose, and non-ticket text are skipped.",
 	"A hit requires an exact ordered match against officialResult.finishOrder[0..2].",
 ];
@@ -33,8 +35,21 @@ export function extractStrictStructuredTickets(text, sourcePath) {
 	let activeGroup = null;
 	const tickets = [];
 	const seen = new Set();
+	const purchasePoints = Number(text.match(/(?:^|\n)purchasePoints\s*:\s*(\d+)\s*$/imu)?.[1] ?? Number.NaN);
+	const investmentYen = Number(text.match(/(?:^|\n)investmentYen\s*:\s*(\d+)\s*$/imu)?.[1] ?? Number.NaN);
 	for (let index = 0; index < lines.length; index += 1) {
 		const line = lines[index];
+		const pipeMatch = line.match(PIPE_TICKET_PATTERN);
+		if (pipeMatch) {
+			const boatNumbers = pipeMatch.slice(2, 5).map(Number);
+			if (new Set(boatNumbers).size !== 3) continue;
+			const group = pipeMatch[5];
+			const key = `${group}:${boatNumbers.join("-")}`;
+			if (seen.has(key)) continue;
+			seen.add(key);
+			tickets.push({ ticketId: `strict-${tickets.length + 1}`, group, boatNumbers, sourceText: line.trim(), sourceLineHint: buyIndex + lines.slice(0, index + 1).join("\n").length, sourcePath, parseMethod: "strict-pipe-ticket-pattern" });
+			continue;
+		}
 		if (line.includes(TRIFECTA_MARKER)) {
 			activeGroup = groupForHeading(line);
 			continue;
@@ -59,6 +74,10 @@ export function extractStrictStructuredTickets(text, sourcePath) {
 			}
 		}
 	}
+	if (tickets.length > 0 && purchasePoints === tickets.length && Number.isSafeInteger(investmentYen) && investmentYen >= 0 && investmentYen % purchasePoints === 0) {
+		const unitStakeYen = investmentYen / purchasePoints;
+		for (const ticket of tickets) ticket.stakeYen = unitStakeYen;
+	}
 	return { tickets, skippedReasons: tickets.length ? [] : ["strict-ticket-pattern-unavailable"] };
 }
 
@@ -82,8 +101,11 @@ export function trifectaPayout(record) {
 }
 
 export function evaluateTickets(tickets, result, payoutYen) {
-	if (!tickets.length) return { evaluationStatus: "structured-ticket-unavailable", hit: null, hitTicketId: null, payoutYen: null };
-	if (!result) return { evaluationStatus: "result-unavailable", hit: null, hitTicketId: null, payoutYen: null };
+	const investmentYen = tickets.every((ticket) => Number.isSafeInteger(ticket.stakeYen)) ? tickets.reduce((sum, ticket) => sum + ticket.stakeYen, 0) : null;
+	if (!tickets.length) return { evaluationStatus: "structured-ticket-unavailable", hit: null, hitTicketId: null, investmentYen: null, payoutYen: null, recoveryRate: null };
+	if (!result) return { evaluationStatus: "result-unavailable", hit: null, hitTicketId: null, investmentYen, payoutYen: null, recoveryRate: null };
 	const hit = tickets.find((ticket) => ticket.boatNumbers.every((boat, index) => boat === result[index])) ?? null;
-	return { evaluationStatus: "evaluated", hit: Boolean(hit), hitTicketId: hit?.ticketId ?? null, payoutYen: hit ? payoutYen : null };
+	const linkedPayoutYen = hit ? payoutYen : 0;
+	const recoveryRate = investmentYen !== null && linkedPayoutYen !== null ? Number((linkedPayoutYen / investmentYen).toFixed(4)) : null;
+	return { evaluationStatus: "evaluated", hit: Boolean(hit), hitTicketId: hit?.ticketId ?? null, investmentYen, payoutYen: linkedPayoutYen, recoveryRate };
 }

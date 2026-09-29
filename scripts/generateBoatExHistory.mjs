@@ -46,6 +46,9 @@ function parseArgs(argv) {
 		date: undefined,
 		dryRun: false,
 		allowEmpty: false,
+		inputDir: undefined,
+		sourceRevision: undefined,
+		mergeExisting: false,
 	};
 
 	for (let index = 0; index < argv.length; index += 1) {
@@ -70,6 +73,19 @@ function parseArgs(argv) {
 			index += 1;
 			continue;
 		}
+		if (arg === "--merge-existing") {
+			args.mergeExisting = true;
+			continue;
+		}
+
+		if (arg === "--input-dir" || arg === "--source-revision") {
+			const next = argv[index + 1];
+			if (!next || next.startsWith("--")) throw new Error(`${arg} requires a value`);
+			if (arg === "--input-dir") args.inputDir = path.resolve(repoRoot, next);
+			else args.sourceRevision = next;
+			index += 1;
+			continue;
+		}
 
 		throw new Error(`Unknown argument: ${arg}`);
 	}
@@ -81,8 +97,13 @@ function parseArgs(argv) {
 	return args;
 }
 
-function readJsonSource(source) {
-	const absolutePath = path.join(repoRoot, source.sourcePath);
+function readJsonSource(source, options = {}) {
+	const absolutePath = options.inputDir
+		? path.join(options.inputDir, path.basename(source.sourcePath))
+		: path.join(repoRoot, source.sourcePath);
+	const sourcePath = options.sourceRevision
+		? `git:${options.sourceRevision}:${source.sourcePath}`
+		: source.sourcePath;
 
 	try {
 		const raw = fs.readFileSync(absolutePath, "utf8");
@@ -95,7 +116,7 @@ function readJsonSource(source) {
 			meta: {
 				sourceName: source.sourceName,
 				sourceType: "official",
-				sourcePath: source.sourcePath,
+				sourcePath,
 				generatedAt: typeof data.generatedAt === "string" ? data.generatedAt : undefined,
 				sourceStatus: venueCount > 0 ? "available" : "parse-empty",
 				coverageStatus: venueCount > 0 ? "partial" : "missing",
@@ -108,7 +129,7 @@ function readJsonSource(source) {
 			meta: {
 				sourceName: source.sourceName,
 				sourceType: "official",
-				sourcePath: source.sourcePath,
+				sourcePath,
 				sourceStatus: "unknown",
 				coverageStatus: "missing",
 				note: error instanceof Error ? error.message : String(error),
@@ -694,7 +715,7 @@ function main() {
 	const generatedAt = new Date().toISOString();
 	const sources = Object.fromEntries(
 		INPUT_FILES.map((source) => {
-			const loaded = readJsonSource(source);
+			const loaded = readJsonSource(source, args);
 			return [source.sourceName, loaded];
 		}),
 	);
@@ -740,14 +761,23 @@ function main() {
 	}
 
 	const deduped = dedupeHistoryRecords(records);
-	const uniqueRecords = deduped.records;
+	let uniqueRecords = deduped.records;
+	const historyPath = `${OUTPUT_ROOT}/history/races/${date}.json`;
+	const historyAbsolutePath = path.join(repoRoot, historyPath);
+	const existingHistory = args.mergeExisting && fs.existsSync(historyAbsolutePath)
+		? JSON.parse(fs.readFileSync(historyAbsolutePath, "utf8"))
+		: null;
+	if (existingHistory?.records) {
+		const merged = new Map(existingHistory.records.map((record) => [record.raceKey, record]));
+		for (const record of uniqueRecords) merged.set(record.raceKey, record);
+		uniqueRecords = [...merged.values()];
+	}
 	uniqueRecords.sort((left, right) => (
 		String(left.venueCode).localeCompare(String(right.venueCode), "ja") ||
 		Number(left.raceNo) - Number(right.raceNo)
 	));
 
-	const sourceFiles = sourceList(detailSource, todaySource, extraSource);
-	const historyPath = `${OUTPUT_ROOT}/history/races/${date}.json`;
+	const sourceFiles = sourceList(...(existingHistory?.sourceFiles ?? []), detailSource, todaySource, extraSource);
 	const coveragePath = `${OUTPUT_ROOT}/coverage/${date}.json`;
 	const manifestPath = `${OUTPUT_ROOT}/manifest.generated.json`;
 	const coverageSummary = summarizeCoverage(uniqueRecords, generatedAt, sourceFiles);

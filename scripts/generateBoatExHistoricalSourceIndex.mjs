@@ -200,15 +200,16 @@ function readJsonIfPresent(relativePath) {
 	}
 }
 
-function shouldPreserveExistingCoverage(existingCoverage, scannedCoverage, force) {
-	if (force || !existingCoverage || typeof existingCoverage.sourceCount !== "number" || typeof existingCoverage.dateCount !== "number") return false;
-	return scannedCoverage.sourceCount < existingCoverage.sourceCount
-		|| scannedCoverage.dateCount < existingCoverage.dateCount;
+function mergeSources(existingSources, scannedSources) {
+	const merged = new Map((existingSources ?? []).map((source) => [source.sourceId || `${source.sourceType}:${source.relativePath}`, source]));
+	for (const source of scannedSources) merged.set(source.sourceId, source);
+	return [...merged.values()].sort((left, right) => left.relativePath.localeCompare(right.relativePath));
 }
 
 function main() {
 	const force = process.argv.includes("--force");
 	const existingCoverage = readJsonIfPresent(COVERAGE_PATH) ?? readJsonIfPresent(LEGACY_COVERAGE_PATH);
+	const existingIndex = readJsonIfPresent(INDEX_PATH);
 	const sourceRoot = resolveSourceRoot();
 	const roots = [
 		"public/data/reviews",
@@ -224,7 +225,8 @@ function main() {
 				&& (!relativePath.startsWith("public/data/boatrace/") || relativePath.endsWith(".generated.json"))
 				&& (!relativePath.startsWith("public/data/boatrace-ex/") || relativePath.endsWith(".json"));
 		});
-	const sources = files.map((filePath) => buildEntry(sourceRoot, filePath)).sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+	const scannedSources = files.map((filePath) => buildEntry(sourceRoot, filePath)).sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+	const sources = force ? scannedSources : mergeSources(existingIndex?.sources, scannedSources);
 	const generatedAt = new Date().toISOString();
 	const index = {
 		schemaVersion: "boat-ex-historical-source-index-v1",
@@ -233,17 +235,18 @@ function main() {
 		sources,
 	};
 	const coverage = summarize(sources, generatedAt);
-	if (shouldPreserveExistingCoverage(existingCoverage, coverage, force)) {
-		if (!readJsonIfPresent(COVERAGE_PATH)) writeJson(COVERAGE_PATH, existingCoverage);
-		console.log("[historical-source-index] preserved existing index because scanned source coverage is smaller than committed coverage.");
-		console.log(`existing: ${existingCoverage.sourceCount} sources / ${existingCoverage.dateCount} dates`);
-		console.log(`scanned: ${coverage.sourceCount} sources / ${coverage.dateCount} dates`);
-		console.log(JSON.stringify({ ok: true, preserved: true, indexPath: INDEX_PATH, coveragePath: COVERAGE_PATH, ...existingCoverage }, null, 2));
-		return;
-	}
 	writeJson(INDEX_PATH, index);
 	writeJson(COVERAGE_PATH, coverage);
-	console.log(JSON.stringify({ ok: true, preserved: false, indexPath: INDEX_PATH, coveragePath: COVERAGE_PATH, ...coverage }, null, 2));
+	console.log(JSON.stringify({
+		ok: true,
+		preserved: false,
+		merged: !force,
+		indexPath: INDEX_PATH,
+		coveragePath: COVERAGE_PATH,
+		existing: existingCoverage ? { sourceCount: existingCoverage.sourceCount, dateCount: existingCoverage.dateCount } : null,
+		scanned: summarize(scannedSources, generatedAt),
+		...coverage,
+	}, null, 2));
 }
 
 main();

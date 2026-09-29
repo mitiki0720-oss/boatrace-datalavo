@@ -28,6 +28,8 @@ const raceAnalysis = readJson("public/data/boatrace-ex/derived/race-analysis/lat
 const historicalRaceAnalysisSummary = readJson("public/data/boatrace-ex/derived/race-analysis/history-summary.json");
 const historicalRaceAnalysisIndex = readJson("public/data/boatrace-ex/derived/race-analysis/history-index.json");
 const currentDayPredictionCoverage = readJson("public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json");
+const weatherWaterHistory = readJson("public/data/boatrace-ex/derived/weather-water-history/latest.json");
+const racerFeatures = readJson("public/data/boatrace-ex/derived/racer-features/latest.json");
 const identityRegistryPath = "public/data/boatrace-ex/identity/registered-racers.generated.json";
 const currentDayRegistryAuditPath = `public/data/boatrace-ex/audit/current-day-registry-linkage-gap-${targetDate}.generated.json`;
 const predictionAuditPath = `public/data/boatrace-ex/audit/prediction-structure-contract-${targetDate}.generated.json`;
@@ -47,6 +49,8 @@ const sourcePaths = {
 	historyCoverage: "public/data/boatrace-ex/derived/history-coverage/latest.json",
 	historicalSourceCoverage: "public/data/boatrace-ex/derived/historical-source-coverage/latest.json",
 	currentDayPredictionCoverage: "public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json",
+	weatherWaterHistory: "public/data/boatrace-ex/derived/weather-water-history/latest.json",
+	racerFeatures: "public/data/boatrace-ex/derived/racer-features/latest.json",
 	identityRegistry: identityRegistryPath,
 	currentDayRegistryAudit: currentDayRegistryAuditPath,
 	predictionAudit: predictionAuditPath,
@@ -60,20 +64,65 @@ const historyIsCurrent = historyCoverage.dateRange?.to === targetDate
 const raceAnalysisIsCurrent = historicalRaceAnalysisSummary.dateRange?.latestDate === targetDate
 	&& historicalRaceAnalysisIndex.latestDate === targetDate
 	&& historicalRaceAnalysisIndex.dateCount === index.summary?.dateCount;
+const dateMetrics = (index.availableDates ?? []).map((date) => {
+	const history = readJson(`public/data/boatrace-ex/history/races/${date}.json`);
+	const records = history.records ?? [];
+	const resultSampleCount = records.filter((record) => (record.officialResult?.finishOrder ?? []).length >= 3).length;
+	const payoutSampleCount = records.filter((record) => (record.officialResult?.payout ?? []).some((item) => String(item?.betType ?? "").includes("3連単") && /\d/u.test(String(item?.payoutYen ?? "")))).length;
+	const weatherSampleCount = records.filter((record) => Object.values(record.weather ?? {}).some((value) => value !== null && value !== undefined && value !== "")).length;
+	return { date, raceCount: records.length, resultSampleCount, payoutSampleCount, weatherSampleCount };
+});
+const latestDateWhere = (predicate) => dateMetrics.filter(predicate).at(-1)?.date ?? null;
+const previousIndexedDate = index.availableDates?.at(-2) ?? null;
+const previousMetrics = dateMetrics.at(-2) ?? { raceCount: 0, resultSampleCount: 0, payoutSampleCount: 0, weatherSampleCount: 0 };
+const latestMetrics = dateMetrics.at(-1) ?? { raceCount: 0, resultSampleCount: 0, payoutSampleCount: 0, weatherSampleCount: 0 };
+const resultCompleteThrough = latestDateWhere((item) => item.raceCount > 0 && item.resultSampleCount === item.raceCount);
+const payoutCompleteThrough = latestDateWhere((item) => item.raceCount > 0 && item.payoutSampleCount === item.raceCount);
+const weatherThrough = latestDateWhere((item) => item.raceCount > 0 && item.weatherSampleCount === item.raceCount);
+const predictionEvaluationThrough = [...(structuredTicketsHistoryIndex.dates ?? [])].filter((item) => (item.evaluatedPredictionRaceCount ?? 0) > 0).at(-1)?.date ?? null;
+const historicalStatus = latestMetrics.resultSampleCount === 0 && previousMetrics.resultSampleCount > 0
+	? previousMetrics.resultSampleCount === previousMetrics.raceCount
+		? "current"
+		: "partial"
+	: latestMetrics.resultSampleCount > 0 && latestMetrics.resultSampleCount < latestMetrics.raceCount
+		? "partial"
+		: resultCompleteThrough === targetDate
+			? "current"
+			: "stale";
+const freshness = {
+	indexLatestDate: targetDate,
+	resultCompleteThrough,
+	payoutCompleteThrough,
+	weatherThrough,
+	racerResultThrough: latestDateWhere((item) => item.resultSampleCount > 0),
+	historicalSourceThrough: historicalSourceCoverage.dateTo ?? null,
+	predictionEvaluationThrough,
+};
+const total = (key) => dateMetrics.reduce((sum, item) => sum + item[key], 0);
+const tabMetrics = (primarySource, status = historicalStatus) => ({
+	primarySource,
+	latestIndexedDate: targetDate,
+	latestFinalizedResultDate: resultCompleteThrough,
+	raceCount: total("raceCount"),
+	resultSampleCount: total("resultSampleCount"),
+	payoutSampleCount: total("payoutSampleCount"),
+	weatherSampleCount: total("weatherSampleCount"),
+	freshness: status,
+});
 const tabs = [
-	{ key: "overview", status: historyIsCurrent && raceAnalysisIsCurrent ? "ready" : "available", reason: `Historical EX covers ${historyCoverage.dateRange?.dateCount ?? 0} dates through ${historyCoverage.dateRange?.to ?? "unavailable"}; current-day coverage targets ${currentDayPredictionCoverage.targetDate}.`, sourcePaths: [sourcePaths.index, sourcePaths.historyCoverage, sourcePaths.currentDayPredictionCoverage] },
-	{ key: "identity", status: "available", reason: "Latest racer evidence, the registered identity registry, and current-day exact-link audit are available; name-only inference is not used.", sourcePaths: [sourcePaths.racer, sourcePaths.identityRegistry, sourcePaths.currentDayRegistryAudit] },
-	{ key: "data-coverage", status: historyIsCurrent ? "ready" : "available", reason: `Date index and EX history coverage are synchronized through ${historyCoverage.dateRange?.to ?? "unavailable"}; auxiliary historical source coverage is tracked separately.`, sourcePaths: [sourcePaths.index, sourcePaths.historyCoverage, sourcePaths.historicalSourceCoverage, sourcePaths.currentDayPredictionCoverage, sourcePaths.venue] },
-	{ key: "trend-lab", status: venueBias.readiness.status, reason: venueBias.readiness.reason, sourcePaths: [sourcePaths.venueBias, sourcePaths.roughIndex] },
-	{ key: "trifecta-ranking", status: "available", reason: "Only source-backed trifecta result and payout coverage is presented; no ranking prediction is generated.", sourcePaths: [sourcePaths.roughIndex, sourcePaths.todayFlow] },
-	{ key: "rough-index", status: roughIndex.readiness.status, reason: roughIndex.readiness.reason, sourcePaths: [sourcePaths.roughIndex] },
-	{ key: "race-transition", status: todayFlow.readiness.status, reason: todayFlow.readiness.reason, sourcePaths: [sourcePaths.todayFlow] },
-	{ key: "weather", status: "available", reason: "Venue evidence contains source-backed weather coverage.", sourcePaths: [sourcePaths.venue] },
-	{ key: "venue-bias", status: venueBias.readiness.status, reason: venueBias.readiness.reason, sourcePaths: [sourcePaths.venueBias] },
-	{ key: "today-flow", status: todayFlow.readiness.status, reason: todayFlow.readiness.reason, sourcePaths: [sourcePaths.todayFlow] },
-	{ key: "prediction-structure", status: structuredTicketsHistorySummary.readiness.status, reason: `${predictionStructure.readiness.reason} Strict structured ticket history covers ${structuredTicketsHistoryIndex.dateCount} dates.`, sourcePaths: [sourcePaths.predictionStructure, sourcePaths.structuredTicketsHistorySummary, sourcePaths.structuredTicketsHistoryIndex, sourcePaths.predictionAudit] },
-	{ key: "race-analysis", status: raceAnalysisIsCurrent ? historicalRaceAnalysisSummary.summary.readiness.status : "available", reason: `${raceAnalysis.summary.readiness.reason} Historical index covers ${historicalRaceAnalysisIndex.dateCount} dates through ${historicalRaceAnalysisIndex.latestDate}.`, sourcePaths: [sourcePaths.raceAnalysis, sourcePaths.historicalRaceAnalysisSummary, sourcePaths.historicalRaceAnalysisIndex, sourcePaths.racer, sourcePaths.venue] },
-	{ key: "ex-analysis", status: "available", reason: "The hub separates historical result-based EX from current-day prediction coverage without ranking them.", sourcePaths: [sourcePaths.venueBias, sourcePaths.roughIndex, sourcePaths.todayFlow, sourcePaths.predictionStructure, sourcePaths.currentDayPredictionCoverage] },
+	{ key: "overview", status: historicalStatus, ...tabMetrics(sourcePaths.historyCoverage), reason: `Index ${targetDate}; finalized results through ${resultCompleteThrough ?? "unavailable"}.`, sourcePaths: [sourcePaths.index, sourcePaths.historyCoverage, sourcePaths.currentDayPredictionCoverage] },
+	{ key: "identity", status: historicalStatus, ...tabMetrics(sourcePaths.racerFeatures), reason: `Exact-registration racer result samples: ${racerFeatures.summary?.resultSampleCount ?? 0}; name-only inference is not used.`, sourcePaths: [sourcePaths.racer, sourcePaths.racerFeatures, sourcePaths.identityRegistry, sourcePaths.currentDayRegistryAudit] },
+	{ key: "data-coverage", status: historicalStatus, ...tabMetrics(sourcePaths.historyCoverage), reason: `Indexed through ${targetDate}; result complete through ${resultCompleteThrough ?? "unavailable"}; historical sources through ${freshness.historicalSourceThrough ?? "unavailable"}.`, sourcePaths: [sourcePaths.index, sourcePaths.historyCoverage, sourcePaths.historicalSourceCoverage, sourcePaths.currentDayPredictionCoverage, sourcePaths.venue] },
+	{ key: "trend-lab", status: historicalStatus, ...tabMetrics(sourcePaths.venueBias), reason: venueBias.readiness.reason, sourcePaths: [sourcePaths.venueBias, sourcePaths.roughIndex] },
+	{ key: "trifecta-ranking", status: payoutCompleteThrough === resultCompleteThrough ? historicalStatus : "partial", ...tabMetrics(sourcePaths.roughIndex, payoutCompleteThrough === resultCompleteThrough ? historicalStatus : "partial"), reason: `Source-backed trifecta payout samples through ${payoutCompleteThrough ?? "unavailable"}; no prediction ranking is generated.`, sourcePaths: [sourcePaths.roughIndex, sourcePaths.todayFlow] },
+	{ key: "rough-index", status: historicalStatus, ...tabMetrics(sourcePaths.roughIndex), reason: roughIndex.readiness.reason, sourcePaths: [sourcePaths.roughIndex] },
+	{ key: "race-transition", status: latestMetrics.resultSampleCount === 0 ? "pre-race" : historicalStatus, ...tabMetrics(sourcePaths.todayFlow, latestMetrics.resultSampleCount === 0 ? "pre-race" : historicalStatus), reason: todayFlow.readiness.reason, sourcePaths: [sourcePaths.todayFlow] },
+	{ key: "weather", status: weatherThrough === targetDate ? "current" : "partial", ...tabMetrics(sourcePaths.weatherWaterHistory, weatherThrough === targetDate ? "current" : "partial"), reason: `Source-backed weather is complete through ${weatherThrough ?? "unavailable"}.`, sourcePaths: [sourcePaths.weatherWaterHistory, sourcePaths.venue] },
+	{ key: "venue-bias", status: historicalStatus, ...tabMetrics(sourcePaths.venueBias), reason: venueBias.readiness.reason, sourcePaths: [sourcePaths.venueBias] },
+	{ key: "today-flow", status: latestMetrics.resultSampleCount === 0 ? "pre-race" : historicalStatus, ...tabMetrics(sourcePaths.todayFlow, latestMetrics.resultSampleCount === 0 ? "pre-race" : historicalStatus), reason: todayFlow.readiness.reason, sourcePaths: [sourcePaths.todayFlow] },
+	{ key: "prediction-structure", status: predictionEvaluationThrough ? (predictionEvaluationThrough === resultCompleteThrough ? historicalStatus : "partial") : "stale", ...tabMetrics(sourcePaths.structuredTicketsHistorySummary, predictionEvaluationThrough ? (predictionEvaluationThrough === resultCompleteThrough ? historicalStatus : "partial") : "stale"), reason: `Strict exact-order evaluations are available through ${predictionEvaluationThrough ?? "unavailable"}.`, sourcePaths: [sourcePaths.predictionStructure, sourcePaths.structuredTicketsHistorySummary, sourcePaths.structuredTicketsHistoryIndex, sourcePaths.predictionAudit] },
+	{ key: "race-analysis", status: historicalStatus, ...tabMetrics(sourcePaths.historicalRaceAnalysisSummary), reason: `${raceAnalysis.summary.readiness.reason} Historical index covers ${historicalRaceAnalysisIndex.dateCount} dates through ${historicalRaceAnalysisIndex.latestDate}.`, sourcePaths: [sourcePaths.raceAnalysis, sourcePaths.historicalRaceAnalysisSummary, sourcePaths.historicalRaceAnalysisIndex, sourcePaths.racer, sourcePaths.venue] },
+	{ key: "ex-analysis", status: historicalStatus, ...tabMetrics(sourcePaths.historicalRaceAnalysisSummary), reason: "The hub separates finalized historical EX from current-day pre-race coverage without ranking them.", sourcePaths: [sourcePaths.venueBias, sourcePaths.roughIndex, sourcePaths.todayFlow, sourcePaths.predictionStructure, sourcePaths.currentDayPredictionCoverage] },
 ];
 const auditPath = `public/data/boatrace-ex/audit/tab-completeness-${targetDate}.generated.json`;
 const audit = {
@@ -82,12 +131,17 @@ const audit = {
 	auditDate: targetDate,
 	generatedAt: new Date().toISOString(),
 	policy: "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. Strict source-text ticket extraction and exact-order evaluation are limited to the documented prediction-structure contract; no fake score, rank, recommendation, inferred result, or inferred payout is used.",
+	freshness,
 	summary: {
 		tabCount: tabs.length,
 		readyCount: tabs.filter((tab) => tab.status === "ready").length,
 		availableCount: tabs.filter((tab) => tab.status === "available").length,
 		insufficientHistoryCount: tabs.filter((tab) => tab.status === "insufficient-history").length,
 		pendingCount: tabs.filter((tab) => tab.status === "pending").length,
+		currentCount: tabs.filter((tab) => tab.status === "current").length,
+		partialCount: tabs.filter((tab) => tab.status === "partial").length,
+		staleCount: tabs.filter((tab) => tab.status === "stale").length,
+		preRaceCount: tabs.filter((tab) => tab.status === "pre-race").length,
 	},
 	tabs,
 };
@@ -106,7 +160,9 @@ for (const key of expectedKeys) {
 	if (!tab) errors.push(`missing tab audit entry: ${key}`);
 	else if (!tab.status || !tab.reason || !Array.isArray(tab.sourcePaths) || tab.sourcePaths.length === 0) errors.push(`incomplete tab audit entry: ${key}`);
 }
-if ((existing.summary?.pendingCount ?? -1) !== 0) errors.push("tab audit must not report pending tabs");
+for (const key of ["indexLatestDate", "resultCompleteThrough", "payoutCompleteThrough", "weatherThrough", "racerResultThrough", "historicalSourceThrough", "predictionEvaluationThrough"]) {
+	if (!(key in (existing.freshness ?? {}))) errors.push(`tab audit freshness is missing ${key}`);
+}
 if (existing.auditDate !== targetDate) errors.push("tab audit date must match EX index latestDate");
 if (!historyIsCurrent) errors.push("history coverage is stale against EX date index");
 if (!raceAnalysisIsCurrent) errors.push("historical race analysis is stale against EX date index");

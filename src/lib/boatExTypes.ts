@@ -799,16 +799,37 @@ export interface BoatExTabCompletenessAuditFile {
 	schemaVersion: number;
 	kind: "boatrace-ex-tab-completeness-audit";
 	auditDate: BoatExDateKey;
+	freshness?: {
+		indexLatestDate: BoatExDateKey;
+		resultCompleteThrough: BoatExDateKey | null;
+		payoutCompleteThrough: BoatExDateKey | null;
+		weatherThrough: BoatExDateKey | null;
+		racerResultThrough: BoatExDateKey | null;
+		historicalSourceThrough: BoatExDateKey | null;
+		predictionEvaluationThrough: BoatExDateKey | null;
+	};
 	summary: {
 		tabCount: number;
 		readyCount: number;
 		availableCount: number;
 		insufficientHistoryCount: number;
 		pendingCount: number;
+		currentCount?: number;
+		partialCount?: number;
+		staleCount?: number;
+		preRaceCount?: number;
 	};
 	tabs: Array<{
 		key: string;
 		status: string;
+		primarySource?: string;
+		latestIndexedDate?: BoatExDateKey;
+		latestFinalizedResultDate?: BoatExDateKey | null;
+		raceCount?: number;
+		resultSampleCount?: number;
+		payoutSampleCount?: number;
+		weatherSampleCount?: number;
+		freshness?: string;
 		reason: string;
 		sourcePaths: string[];
 	}>;
@@ -1327,7 +1348,8 @@ export interface BoatExStructuredTicket {
 	sourceText: string;
 	sourceLineHint?: number;
 	sourcePath: string;
-	parseMethod: "strict-ticket-pattern";
+	parseMethod: "strict-ticket-pattern" | "strict-pipe-ticket-pattern";
+	stakeYen?: number;
 }
 
 export interface BoatExStructuredTicketsDateFile {
@@ -1353,7 +1375,7 @@ export interface BoatExStructuredTicketsDateFile {
 		predictionTextAvailable: boolean;
 		structuredTickets: BoatExStructuredTicket[];
 		officialResult: { finishOrder: number[]; trifectaPayoutYen: number | null };
-		evaluation: { evaluationStatus: "evaluated" | "result-unavailable" | "structured-ticket-unavailable"; hit: boolean | null; hitTicketId: string | null; payoutYen: number | null };
+		evaluation: { evaluationStatus: "evaluated" | "result-unavailable" | "structured-ticket-unavailable"; hit: boolean | null; hitTicketId: string | null; investmentYen?: number | null; payoutYen: number | null; recoveryRate?: number | null };
 		skippedReasons: string[];
 		sourcePaths: { history: string; prediction: string | null };
 	}>;
@@ -1376,6 +1398,8 @@ export interface BoatExStructuredTicketsHistorySummaryFile {
 	missRaceCount: number;
 	payoutLinkedHitCount: number;
 	totalSourceBackedPayoutYen: number;
+	totalSourceBackedInvestmentYen?: number;
+	groups?: Record<string, { ticketCount: number; evaluatedRaceCount: number; hitCount: number; investmentYen: number; payoutYen: number; recoveryRate: number | null }>;
 	readiness: BoatExPredictionStructureReadiness;
 	parserVersion: string;
 	parserRules: string[];

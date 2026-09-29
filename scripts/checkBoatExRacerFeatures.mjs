@@ -12,6 +12,8 @@ const allowedSampleLevels = new Set(["no-history", "low-sample", "limited", "suf
 const invalid = racerList.filter((racer) => (
 	!/^\d{4,6}$/.test(String(racer.registrationNo ?? ""))
 	|| !racer.name
+	|| racer.appearanceCount < racer.resultSampleCount
+	|| racer.historyStarts !== racer.resultSampleCount
 	|| racer.historyStarts < 0
 	|| (racer.historyStarts === 0 && racer.sampleLevel !== "no-history")
 	|| (racer.historyStarts > 0 && racer.sampleLevel === "no-history")
@@ -20,6 +22,8 @@ const invalid = racerList.filter((racer) => (
 	|| !Array.isArray(racer.frames)
 	|| !racer.startTiming
 	|| !racer.recent
+	|| racer.venues.some((venue) => venue.appearanceCount < venue.resultSampleCount || venue.starts !== venue.resultSampleCount)
+	|| racer.frames.some((frame) => frame.appearanceCount < frame.resultSampleCount || frame.starts !== frame.resultSampleCount)
 ));
 const duplicateRegistrationNos = racerList
 	.map((racer) => racer.registrationNo)
@@ -27,7 +31,9 @@ const duplicateRegistrationNos = racerList
 const forbidden = JSON.stringify(features).match(/(?:fake|guessed|inferred|score|rank|prediction)/gi) ?? [];
 const checks = {
 	kind: features.kind === "boatrace-ex-racer-features" && summary.kind === "boatrace-ex-racer-features-history-summary",
-	featureSummaryMatches: features.summary?.racerCount === racerList.length && summary.racerCount === racerList.length,
+	featureSummaryMatches: features.summary?.racerCount === racerList.length && summary.racerCount === racerList.length
+		&& features.summary?.appearanceCount === racerList.reduce((sum, racer) => sum + racer.appearanceCount, 0)
+		&& features.summary?.resultSampleCount === racerList.reduce((sum, racer) => sum + racer.resultSampleCount, 0),
 	dateCoverageMatches: summary.dateRange?.dateCount === features.summary?.dateRange?.dateCount && features.summary?.dateRange?.dateCount > 0,
 	featureShape: invalid.length === 0 && duplicateRegistrationNos.length === 0,
 	auditIsLinked: summary.unresolvedAuditPath === "public/data/boatrace-ex/audit/racer-identity-unresolved-audit-latest.generated.json" && audit.kind === "boatrace-ex-racer-identity-unresolved-audit",

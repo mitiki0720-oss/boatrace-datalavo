@@ -1,43 +1,77 @@
 {
   "schemaVersion": "boat-ex-structured-tickets-v1",
   "kind": "boatrace-ex-structured-tickets-history-summary",
-  "generatedAt": "2026-09-28T21:20:33.141Z",
+  "generatedAt": "2026-09-28T23:11:10.098Z",
   "periodStart": "2026-05-24",
   "periodEnd": "2026-09-29",
   "dateCount": 123,
-  "historyRaceCount": 17580,
-  "raceCount": 17580,
-  "predictionTextAvailableRaceCount": 12132,
-  "structuredTicketAvailableRaceCount": 1,
-  "structuredTicketCount": 10,
-  "classifiedTicketCount": 10,
-  "unclassifiedTicketCount": 0,
-  "evaluatedPredictionRaceCount": 1,
-  "hitRaceCount": 1,
-  "missRaceCount": 0,
-  "resultUnavailableEvaluationCount": 0,
-  "payoutLinkedHitCount": 1,
-  "totalSourceBackedPayoutYen": 770,
-  "readiness": {
-    "status": "insufficient-history",
-    "reason": "Strict structured ticket coverage is source-backed but remains below the 30-race readiness threshold.",
-    "missingRequirements": [
-      "strict-structured-ticket-coverage-below-30"
-    ]
+  "historyRaceCount": 17760,
+  "raceCount": 17760,
+  "predictionTextAvailableRaceCount": 13992,
+  "structuredTicketAvailableRaceCount": 4358,
+  "structuredTicketCount": 43578,
+  "classifiedTicketCount": 43458,
+  "unclassifiedTicketCount": 120,
+  "evaluatedPredictionRaceCount": 4345,
+  "hitRaceCount": 1468,
+  "missRaceCount": 2877,
+  "resultUnavailableEvaluationCount": 13,
+  "payoutLinkedHitCount": 1463,
+  "totalSourceBackedPayoutYen": 3355190,
+  "totalSourceBackedInvestmentYen": 1698000,
+  "groups": {
+    "厚め": {
+      "ticketCount": 8692,
+      "evaluatedRaceCount": 4333,
+      "hitCount": 612,
+      "investmentYen": 339600,
+      "payoutYen": 753310,
+      "recoveryRate": 2.2182
+    },
+    "本線": {
+      "ticketCount": 13040,
+      "evaluatedRaceCount": 4333,
+      "hitCount": 562,
+      "investmentYen": 509400,
+      "payoutYen": 1050560,
+      "recoveryRate": 2.0623
+    },
+    "中穴": {
+      "ticketCount": 13035,
+      "evaluatedRaceCount": 4332,
+      "hitCount": 243,
+      "investmentYen": 509400,
+      "payoutYen": 843430,
+      "recoveryRate": 1.6557
+    },
+    "大穴": {
+      "ticketCount": 8691,
+      "evaluatedRaceCount": 4333,
+      "hitCount": 48,
+      "investmentYen": 339600,
+      "payoutYen": 704860,
+      "recoveryRate": 2.0756
+    }
   },
-  "parserVersion": "boat-ex-strict-ticket-parser-v1",
+  "readiness": {
+    "status": "ready",
+    "reason": "Source-backed strict structured tickets and exact-order evaluations meet the readiness threshold.",
+    "missingRequirements": []
+  },
+  "parserVersion": "boat-ex-strict-ticket-parser-v2",
   "parserRules": [
     "Only source-backed prediction.textExcerpt values are read.",
     "Only text after the first buy-ticket marker is eligible.",
     "A ticket section must contain the 3-trifecta marker and an allowed group label.",
     "Only a line-level ordered three-boat pattern using 1 through 6 is accepted.",
+    "The numbered pipe format NN | 3連単 | A-B-C | category is accepted exactly as written.",
     "Repeated boat numbers, formation expressions, entrance assumptions, prose, and non-ticket text are skipped.",
     "A hit requires an exact ordered match against officialResult.finishOrder[0..2]."
   ],
   "skippedReasons": {
-    "buy-ticket-marker-unavailable": 12008,
-    "strict-ticket-pattern-unavailable": 123,
-    "prediction-text-unavailable": 5448
+    "buy-ticket-marker-unavailable": 9626,
+    "strict-ticket-pattern-unavailable": 8,
+    "prediction-text-unavailable": 3768
   },
   "sourcePaths": [
     "public/data/boatrace-ex/index.generated.json"

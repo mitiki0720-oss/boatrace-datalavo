@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { CLASSIFIED_GROUPS, PARSER_VERSION } from "./boatExStructuredTickets.mjs";
+import { CLASSIFIED_GROUPS, PARSER_VERSION, extractStrictStructuredTickets } from "./boatExStructuredTickets.mjs";
 
 const root = process.cwd();
 const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8"));
@@ -16,7 +16,8 @@ assert.equal(summary.dateCount, index.availableDates.length);
 assert.equal(historyIndex.dates.length, index.availableDates.length);
 assert.equal(historyIndex.latestDate, index.latestDate);
 assert.equal(audit.kind, "boatrace-ex-structured-tickets-evaluation-audit");
-const totals = { raceCount: 0, predictionTextAvailableRaceCount: 0, structuredTicketAvailableRaceCount: 0, structuredTicketCount: 0, classifiedTicketCount: 0, unclassifiedTicketCount: 0, evaluatedPredictionRaceCount: 0, hitRaceCount: 0, missRaceCount: 0, resultUnavailableEvaluationCount: 0, payoutLinkedHitCount: 0, totalSourceBackedPayoutYen: 0 };
+const totalKeys = ["raceCount", "predictionTextAvailableRaceCount", "structuredTicketAvailableRaceCount", "structuredTicketCount", "classifiedTicketCount", "unclassifiedTicketCount", "evaluatedPredictionRaceCount", "hitRaceCount", "missRaceCount", "resultUnavailableEvaluationCount", "payoutLinkedHitCount", "totalSourceBackedPayoutYen", "totalSourceBackedInvestmentYen"];
+const totals = Object.fromEntries(totalKeys.map((key) => [key, 0]));
 let regressionRace = null;
 for (const date of index.availableDates) {
 	const entry = historyIndex.dates.find((candidate) => candidate.date === date);
@@ -25,11 +26,11 @@ for (const date of index.availableDates) {
 	const shard = readJson(entry.path);
 	assert.equal(shard.date, date);
 	assert.equal(shard.races.length, entry.raceCount);
-	for (const [key] of Object.entries(totals)) totals[key] += shard.summary[key] ?? 0;
+	for (const key of totalKeys) totals[key] += shard.summary[key] ?? 0;
 	for (const race of shard.races) {
 		assert.ok(Array.isArray(race.structuredTickets));
 		for (const ticket of race.structuredTickets) {
-			assert.equal(ticket.parseMethod, "strict-ticket-pattern");
+			assert.ok(["strict-ticket-pattern", "strict-pipe-ticket-pattern"].includes(ticket.parseMethod));
 			assert.ok(CLASSIFIED_GROUPS.includes(ticket.group) || ticket.group === "unclassified-source-text");
 			assert.equal(ticket.boatNumbers.length, 3);
 			assert.equal(new Set(ticket.boatNumbers).size, 3);
@@ -45,4 +46,8 @@ assert.ok(regressionRace, "strict parser regression race must exist");
 assert.equal(regressionRace.structuredTickets.length, 10, "regression source has ten strict tickets");
 for (const [group, count] of Object.entries(audit.regression.expectedGroupCounts)) assert.equal(regressionRace.structuredTickets.filter((ticket) => ticket.group === group).length, count, `regression group ${group} count`);
 assert.deepEqual(regressionRace.structuredTickets.map((ticket) => ticket.boatNumbers), [[2, 5, 6], [2, 6, 5], [2, 1, 6], [2, 5, 1], [5, 2, 6], [1, 2, 6], [5, 6, 2], [4, 5, 6], [6, 2, 5], [6, 5, 2]]);
+const pipeFixture = extractStrictStructuredTickets(`purchasePoints: 4\ninvestmentYen: 400\n【買い目】\n01 | 3連単 | 1-3-5 | 厚め\n02 | 3連単 | 1-5-3 | 本線\n03 | 3連単 | 3-1-5 | 中穴\n04 | 3連単 | 5-1-3 | 大穴`, "fixture:pipe-format");
+assert.deepEqual(pipeFixture.tickets.map((ticket) => ticket.boatNumbers), [[1, 3, 5], [1, 5, 3], [3, 1, 5], [5, 1, 3]]);
+assert.deepEqual(pipeFixture.tickets.map((ticket) => ticket.group), ["厚め", "本線", "中穴", "大穴"]);
+assert.ok(pipeFixture.tickets.every((ticket) => ticket.stakeYen === 100));
 console.log(JSON.stringify({ ok: true, parserVersion: summary.parserVersion, dateCount: summary.dateCount, predictionTextAvailableRaceCount: summary.predictionTextAvailableRaceCount, structuredTicketAvailableRaceCount: summary.structuredTicketAvailableRaceCount, structuredTicketCount: summary.structuredTicketCount, classifiedTicketCount: summary.classifiedTicketCount, unclassifiedTicketCount: summary.unclassifiedTicketCount, skippedReasons: summary.skippedReasons }, null, 2));

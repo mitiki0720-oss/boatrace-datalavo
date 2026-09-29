@@ -150,20 +150,23 @@ function parseJsonFromStdout(stdout) {
 }
 
 function runNode(script, args) {
-	const result = spawnSync(process.execPath, [script, ...args], {
-		cwd: repoRoot,
-		encoding: "utf8",
-	});
-	const parsed = parseJsonFromStdout(result.stdout);
-	if (result.status !== 0) {
-		const message = [
-			`${script} failed with exit code ${result.status}`,
-			result.stderr?.trim(),
-			result.stdout?.trim(),
-		].filter(Boolean).join("\n");
-		throw new Error(message);
+	let lastResult;
+	for (let attempt = 1; attempt <= 3; attempt += 1) {
+		const result = spawnSync(process.execPath, [script, ...args], {
+			cwd: repoRoot,
+			encoding: "utf8",
+		});
+		if (result.status === 0) return parseJsonFromStdout(result.stdout);
+		lastResult = result;
+		if (!/UNKNOWN: unknown error, open/u.test(`${result.stderr ?? ""}\n${result.stdout ?? ""}`) || attempt === 3) break;
+		Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 300 * attempt);
 	}
-	return parsed;
+	const message = [
+		`${script} failed with exit code ${lastResult?.status}`,
+		lastResult?.stderr?.trim(),
+		lastResult?.stdout?.trim(),
+	].filter(Boolean).join("\n");
+	throw new Error(message);
 }
 
 function resolveDate(dateArg) {
@@ -427,6 +430,15 @@ function main() {
 		currentDayPredictionCoverage = { status: "checked", ...generated, ...checked };
 	}
 	const historicalDerived = refreshHistoricalDerivedIfNeeded(readJson("public/data/boatrace-ex/index.generated.json"), args.dryRun);
+	const racerFeatures = args.dryRun
+		? { status: "dry-run-skipped" }
+		: {
+			generated: runNode("scripts/generateBoatExRacerFeatures.mjs", []),
+			checked: runNode("scripts/checkBoatExRacerFeatures.mjs", []),
+		};
+	const finalizedHistoryCoverage = args.dryRun
+		? { status: "dry-run-skipped" }
+		: runNode("scripts/checkBoatExFinalizedHistoryCoverage.mjs", ["--write"]);
 	const tabCompleteness = args.dryRun
 		? { status: "dry-run-skipped" }
 		: {
@@ -524,6 +536,8 @@ function main() {
 		},
 		currentDayPredictionCoverage,
 		historicalDerived,
+		racerFeatures,
+		finalizedHistoryCoverage,
 		tabCompleteness,
 		warnings,
 	}, null, 2));
