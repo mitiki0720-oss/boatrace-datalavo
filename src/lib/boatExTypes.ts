@@ -1651,6 +1651,102 @@ export interface BoatExPredictionStrategyAnalysisFile {
 	sourceFiles: string[];
 }
 
+export interface BoatExPredictionShadowMetric {
+	raceCount: number;
+	exactHit: number;
+	exactHitRate: number | null;
+	winnerCovered: number;
+	winnerCoverageRate: number | null;
+	secondPositionCovered: number;
+	secondPositionCoverageRate: number | null;
+	thirdPositionCovered: number;
+	thirdPositionCoverageRate: number | null;
+	thirdMiss: number;
+	secondThirdSwap: number;
+	opponentMiss: number;
+	winnerMiss: number;
+}
+
+export interface BoatExPredictionShadowStrategySummary {
+	strategyId: "third-expansion-v1" | "reverse-pair-v1";
+	label: string;
+	role: "candidate" | "control";
+	evaluatedRaceCount: number;
+	baseline: BoatExPredictionShadowMetric;
+	shadow: BoatExPredictionShadowMetric;
+	netExactHitGain: number;
+	improvedRaceCount: number;
+	degradedRaceCount: number;
+	unchangedHitRaceCount: number;
+	unchangedMissRaceCount: number;
+	pairedUncertainty: {
+		status: "insufficient" | "available";
+		evaluatedRaceCount: number;
+		discordantPairCount: number;
+		netRate: number | null;
+		confidenceInterval95: [number, number] | null;
+		method: string;
+	};
+	checkpoints: Array<{
+		checkpoint: 100 | 300 | 500 | 1000;
+		status: "reached" | "insufficient";
+		evaluatedRaceCount: number;
+		baseline: BoatExPredictionShadowMetric;
+		shadow: BoatExPredictionShadowMetric;
+		netExactHitGain: number;
+		improvedRaceCount: number;
+		degradedRaceCount: number;
+		unchangedHitRaceCount: number;
+		unchangedMissRaceCount: number;
+	}>;
+}
+
+export interface BoatExPredictionShadowValidationFile {
+	schemaVersion: "boat-ex-prediction-shadow-validation-v1";
+	kind: "boatrace-ex-prediction-shadow-validation-summary" | "boatrace-ex-prediction-shadow-validation-latest";
+	generatedAt: string;
+	startDate: BoatExDateKey;
+	strategyVersions: Array<"third-expansion-v1" | "reverse-pair-v1">;
+	summary: {
+		generatedShadowRaceCount: number;
+		pendingRaceCount: number;
+		evaluatedRaceCount: number;
+		ineligibleRaceCount: number;
+		retroGeneratedRaceCount: number;
+		postResultGeneratedRaceCount: number;
+		postStartGeneratedRaceCount: number;
+		baselinePostStartRaceCount: number;
+		preRaceTimingUnknownCount: number;
+		sameDayTrainingLeakageCount: number;
+	};
+	strategies: Record<string, BoatExPredictionShadowStrategySummary>;
+	daily: Array<{
+		date: BoatExDateKey;
+		evaluatedR: number;
+		baselineExact: number;
+		shadowExact: number;
+		netGain: number;
+		improved: number;
+		degraded: number;
+		cumulativeNetGain: number;
+	}>;
+	venues: Array<{
+		venueCode: string;
+		venueName: string;
+		evaluatedR: number;
+		baselineExact: number;
+		shadowExact: number;
+		netGain: number;
+	}>;
+	roiReference: {
+		selectionUse: false;
+		populationRaceCount: number;
+		status: string;
+		policy: string;
+	};
+	policies: string[];
+}
+
 export type BoatExDateIndexStatus = "available" | "partial" | "missing" | "pending" | "unknown";
 
 export interface BoatExDateIndexSourceState {

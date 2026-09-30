@@ -308,6 +308,9 @@ function main() {
 		currentOfficialSource,
 	});
 	const shouldRefreshHistory = args.refreshHistory || lifecycleRefresh.shouldRefresh;
+	const predictionShadowGeneration = runNode(
+		"scripts/generateBoatExPredictionShadowValidation.mjs", ["--phase", "generate", "--date", date, ...(args.dryRun ? ["--dry-run"] : [])],
+	);
 
 	if (args.allowEmpty) {
 		warnings.push("--allow-empty is for explicit empty-output testing and is not recommended for normal daily EX runs.");
@@ -466,6 +469,10 @@ function main() {
 			status: "checked",
 			...runNode("scripts/checkBoatExTabCompleteness.mjs", ["--write"]),
 		};
+	const predictionShadowEvaluation = runNode(
+		"scripts/generateBoatExPredictionShadowValidation.mjs", ["--phase", "evaluate", "--date", date, ...(args.dryRun ? ["--dry-run"] : [])],
+	);
+	const predictionShadowValidationChecked = runNode("scripts/checkBoatExPredictionShadowValidation.mjs", []);
 
 	console.log(JSON.stringify({
 		ok: true,
@@ -558,6 +565,13 @@ function main() {
 			period: predictionStrategyAnalysisChecked?.period ?? predictionStrategyAnalysisGenerated?.period ?? null,
 			foldCount: predictionStrategyAnalysisChecked?.folds?.length ?? predictionStrategyAnalysisGenerated?.foldCount ?? null,
 			validationRaceCount: predictionStrategyAnalysisChecked?.invariants?.validationRaceCount ?? predictionStrategyAnalysisGenerated?.validationRaceCount ?? null,
+		},
+		predictionShadowValidation: {
+			status: args.dryRun ? "dry-run" : "checked",
+			generation: predictionShadowGeneration?.run ?? null,
+			evaluation: predictionShadowEvaluation?.run ?? null,
+			summary: predictionShadowEvaluation?.summary ?? predictionShadowGeneration?.summary ?? null,
+			checked: predictionShadowValidationChecked?.checks ?? null,
 		},
 		predictionStructure: {
 			status: "checked",

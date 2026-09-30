@@ -21,6 +21,7 @@ import type {
 	BoatExPredictionStructureAnalysisFile,
 	BoatExPredictionAccuracyAnalysisFile,
 	BoatExPredictionStrategyAnalysisFile,
+	BoatExPredictionShadowValidationFile,
 	BoatExStructuredTicketsDateFile,
 	BoatExStructuredTicketsHistoryIndexFile,
 	BoatExStructuredTicketsHistorySummaryFile,
@@ -125,6 +126,7 @@ type LoadState = {
 	predictionStructureAnalysis: BoatExPredictionStructureAnalysisFile | null;
 	predictionAccuracyAnalysis: BoatExPredictionAccuracyAnalysisFile | null;
 	predictionStrategyAnalysis: BoatExPredictionStrategyAnalysisFile | null;
+	predictionShadowValidation: BoatExPredictionShadowValidationFile | null;
 	structuredTicketsHistorySummary: BoatExStructuredTicketsHistorySummaryFile | null;
 	structuredTicketsHistoryIndex: BoatExStructuredTicketsHistoryIndexFile | null;
 	raceAnalysis: BoatExRaceAnalysisFile | null;
@@ -1566,6 +1568,47 @@ function PredictionStrategyAnalysisSection({ analysis }: { analysis: BoatExPredi
 	</section>;
 }
 
+function PredictionShadowValidationSection({ validation }: { validation: BoatExPredictionShadowValidationFile | null }) {
+	if (!validation) return <section style={cardStyle}><p style={labelStyle}>ライブ・シャドー検証</p><p style={textStyle}>prospective shadow validation を読み込めません。</p></section>;
+	const candidate = validation.strategies["third-expansion-v1"];
+	const control = validation.strategies["reverse-pair-v1"];
+	const summary = validation.summary;
+	return <section style={{ ...cardStyle, gap: "14px", borderColor: boatTheme.colors.aquaDeep }}>
+		<div>
+			<p style={labelStyle}>ライブ・シャドー検証</p>
+			<p style={valueStyle}>Strategy B Third Expansion / prospective v1</p>
+			<div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "8px" }}>
+				<span style={{ border: `1px solid ${boatTheme.colors.aquaDeep}`, borderRadius: "999px", padding: "5px 9px", color: boatTheme.colors.aquaDeep, fontWeight: 800 }}>実予想には未反映</span>
+				<span style={{ border: `1px solid ${boatTheme.colors.line}`, borderRadius: "999px", padding: "5px 9px", color: boatTheme.colors.navy, fontWeight: 800 }}>未来レースで検証中</span>
+			</div>
+			<p style={{ ...textStyle, marginTop: "8px" }}>開始日 {validation.startDate}。正式予想10点は変更せず、結果未確定時に保存したshadowだけを結果確定後に評価します。</p>
+		</div>
+		<div style={dashboardRowStyle}>
+			<article style={{ ...cardStyle, boxShadow: "none" }}><p style={labelStyle}>生成済み</p><p style={metricValueStyle}>{summary.generatedShadowRaceCount}</p><p style={textStyle}>retro {summary.retroGeneratedRaceCount} / post-result {summary.postResultGeneratedRaceCount} / post-start {summary.postStartGeneratedRaceCount}</p></article>
+			<article style={{ ...cardStyle, boxShadow: "none" }}><p style={labelStyle}>PENDING</p><p style={metricValueStyle}>{summary.pendingRaceCount}</p><p style={textStyle}>結果待ち</p></article>
+			<article style={{ ...cardStyle, boxShadow: "none" }}><p style={labelStyle}>EVALUATED</p><p style={metricValueStyle}>{summary.evaluatedRaceCount}</p><p style={textStyle}>公式結果で評価済み</p></article>
+			<article style={{ ...cardStyle, boxShadow: "none" }}><p style={labelStyle}>INELIGIBLE</p><p style={metricValueStyle}>{summary.ineligibleRaceCount}</p><p style={textStyle}>開始時刻不明 {summary.preRaceTimingUnknownCount} / timestampまたは契約不整合</p></article>
+		</div>
+		{candidate ? <>
+			<div style={tableWrapStyle}>
+				<table style={{ ...tableStyle, minWidth: "1100px" }}>
+					<thead><tr><th style={thStyle}>比較</th><th style={thStyle}>評価R</th><th style={thStyle}>完全的中</th><th style={thStyle}>的中率</th><th style={thStyle}>net</th><th style={thStyle}>改善 / 悪化</th><th style={thStyle}>1着coverage</th><th style={thStyle}>2着coverage</th><th style={thStyle}>3着coverage</th></tr></thead>
+					<tbody>
+						<tr><td style={tdStyle}>Baseline</td><td style={tdStyle}>{candidate.evaluatedRaceCount}</td><td style={tdStyle}>{candidate.baseline.exactHit}</td><td style={tdStyle}>{rateLabel(candidate.baseline.exactHitRate)}</td><td style={tdStyle}>-</td><td style={tdStyle}>-</td><td style={tdStyle}>{rateLabel(candidate.baseline.winnerCoverageRate)}</td><td style={tdStyle}>{rateLabel(candidate.baseline.secondPositionCoverageRate)}</td><td style={tdStyle}>{rateLabel(candidate.baseline.thirdPositionCoverageRate)}</td></tr>
+						<tr><td style={tdStyle}>Shadow B</td><td style={tdStyle}>{candidate.evaluatedRaceCount}</td><td style={tdStyle}>{candidate.shadow.exactHit}</td><td style={tdStyle}>{rateLabel(candidate.shadow.exactHitRate)}</td><td style={tdStyle}>{candidate.netExactHitGain >= 0 ? "+" : ""}{candidate.netExactHitGain}</td><td style={tdStyle}>{candidate.improvedRaceCount} / {candidate.degradedRaceCount}</td><td style={tdStyle}>{rateLabel(candidate.shadow.winnerCoverageRate)}</td><td style={tdStyle}>{rateLabel(candidate.shadow.secondPositionCoverageRate)}</td><td style={tdStyle}>{rateLabel(candidate.shadow.thirdPositionCoverageRate)}</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<section style={twoColumnGridStyle}>
+				<div style={tableWrapStyle}><table style={{ ...tableStyle, minWidth: "620px" }}><thead><tr><th style={thStyle}>checkpoint</th><th style={thStyle}>状態</th><th style={thStyle}>評価R</th><th style={thStyle}>net</th><th style={thStyle}>改善 / 悪化</th></tr></thead><tbody>{candidate.checkpoints.map((checkpoint) => <tr key={checkpoint.checkpoint}><td style={tdStyle}>{checkpoint.checkpoint}R</td><td style={tdStyle}>{checkpoint.status === "reached" ? "到達" : "不足"}</td><td style={tdStyle}>{checkpoint.evaluatedRaceCount}</td><td style={tdStyle}>{checkpoint.netExactHitGain}</td><td style={tdStyle}>{checkpoint.improvedRaceCount} / {checkpoint.degradedRaceCount}</td></tr>)}</tbody></table></div>
+				<article style={{ ...cardStyle, boxShadow: "none" }}><p style={labelStyle}>paired uncertainty</p><p style={valueStyle}>{candidate.pairedUncertainty.status === "available" ? "算出済み" : "sample不足"}</p><p style={textStyle}>discordant {candidate.pairedUncertainty.discordantPairCount} / 95% CI {candidate.pairedUncertainty.confidenceInterval95?.join(" ～ ") ?? "未算出"}</p><p style={textStyle}>checkpoint到達でも自動採用しません。ROIは戦略選択に使用しません。</p></article>
+			</section>
+			{validation.daily.length > 0 ? <div style={tableWrapStyle}><table style={{ ...tableStyle, minWidth: "760px" }}><thead><tr><th style={thStyle}>日付</th><th style={thStyle}>評価R</th><th style={thStyle}>Baseline</th><th style={thStyle}>Shadow B</th><th style={thStyle}>日次net</th><th style={thStyle}>累積net</th></tr></thead><tbody>{validation.daily.map((day) => <tr key={day.date}><td style={tdStyle}>{day.date}</td><td style={tdStyle}>{day.evaluatedR}</td><td style={tdStyle}>{day.baselineExact}</td><td style={tdStyle}>{day.shadowExact}</td><td style={tdStyle}>{day.netGain}</td><td style={tdStyle}>{day.cumulativeNetGain}</td></tr>)}</tbody></table></div> : <p style={textStyle}>評価済みレースがないため、日別推移は開始待ちです。</p>}
+		</> : <p style={textStyle}>Strategy B summary がありません。</p>}
+		<p style={textStyle}>Control A: {control ? `${control.evaluatedRaceCount}R / net ${control.netExactHitGain}` : "未取得"}。strategy version: {validation.strategyVersions.join(" / ")}。</p>
+	</section>;
+}
+
 function ReadinessMatrixSection({ audit }: { audit: BoatExTabCompletenessAuditFile | null }) {
 	if (!audit) return <p style={textStyle}>タブ充足状況監査を読み込めません。</p>;
 
@@ -1854,6 +1897,7 @@ export function BoatExPage() {
 		predictionStructureAnalysis: null,
 		predictionAccuracyAnalysis: null,
 		predictionStrategyAnalysis: null,
+		predictionShadowValidation: null,
 		raceAnalysis: null,
 		structuredTicketsHistorySummary: null,
 		structuredTicketsHistoryIndex: null,
@@ -1897,7 +1941,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historyCoverageResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, racerFeatures, racerIdentityUnresolvedAudit, currentDayPredictionCoverage, predictionStructureAnalysis, predictionAccuracyAnalysis, predictionStrategyAnalysis, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historyCoverageResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, racerFeatures, racerIdentityUnresolvedAudit, currentDayPredictionCoverage, predictionStructureAnalysis, predictionAccuracyAnalysis, predictionStrategyAnalysis, predictionShadowValidation, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1923,6 +1967,7 @@ export function BoatExPage() {
 					fetchOptionalJson<BoatExPredictionStructureAnalysisFile>("data/boatrace-ex/derived/prediction-structure-analysis/history-summary.json"),
 					fetchOptionalJson<BoatExPredictionAccuracyAnalysisFile>("data/boatrace-ex/derived/prediction-accuracy-analysis/history-summary.json"),
 					fetchOptionalJson<BoatExPredictionStrategyAnalysisFile>("data/boatrace-ex/derived/prediction-strategy-analysis/history-summary.json"),
+					fetchOptionalJson<BoatExPredictionShadowValidationFile>("data/boatrace-ex/derived/prediction-shadow-validation/history-summary.json"),
 					fetchOptionalJson<BoatExRegisteredRacerIdentityRegistryFile>("data/boatrace-ex/identity/registered-racers.generated.json"),
 					fetchOptionalJson<BoatExRacerEvidenceRegistryLinkageAuditFile>(`data/boatrace-ex/audit/racer-evidence-registry-linkage-${targetDate}.generated.json`),
 					fetchOptionalJson<BoatExRegisteredRegistrationQualityAuditFile>(`data/boatrace-ex/audit/registered-registration-quality-${targetDate}.generated.json`),
@@ -1982,6 +2027,7 @@ export function BoatExPage() {
 					predictionStructureAnalysis,
 					predictionAccuracyAnalysis,
 					predictionStrategyAnalysis,
+					predictionShadowValidation,
 					structuredTicketsHistorySummary,
 					structuredTicketsHistoryIndex,
 					raceAnalysis,
@@ -2018,6 +2064,7 @@ export function BoatExPage() {
 					predictionStructureAnalysis: null,
 					predictionAccuracyAnalysis: null,
 					predictionStrategyAnalysis: null,
+					predictionShadowValidation: null,
 					structuredTicketsHistorySummary: null,
 					structuredTicketsHistoryIndex: null,
 					raceAnalysis: null,
@@ -2060,6 +2107,7 @@ export function BoatExPage() {
 	const predictionStructureAnalysis = loadState.predictionStructureAnalysis;
 	const predictionAccuracyAnalysis = loadState.predictionAccuracyAnalysis;
 	const predictionStrategyAnalysis = loadState.predictionStrategyAnalysis;
+	const predictionShadowValidation = loadState.predictionShadowValidation;
 	const raceAnalysis = loadState.raceAnalysis;
 	const historicalRaceAnalysisSummary = loadState.historicalRaceAnalysisSummary;
 	const historicalRaceAnalysisIndex = loadState.historicalRaceAnalysisIndex;
@@ -2462,6 +2510,7 @@ export function BoatExPage() {
 						<PredictionStructureAnalysisSection analysis={predictionStructureAnalysis} />
 						<PredictionAccuracyAnalysisSection analysis={predictionAccuracyAnalysis} />
 						<PredictionStrategyAnalysisSection analysis={predictionStrategyAnalysis} />
+						<PredictionShadowValidationSection validation={predictionShadowValidation} />
 					</SectionShell>
 				);
 			case "race-analysis":
