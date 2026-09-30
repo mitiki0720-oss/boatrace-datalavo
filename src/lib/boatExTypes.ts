@@ -1586,6 +1586,71 @@ export interface BoatExPredictionAccuracyAnalysisFile {
 	sourceFiles: string[];
 }
 
+export interface BoatExPredictionStrategyMetric {
+	raceCount: number;
+	exactHit: number;
+	winnerCovered: number;
+	secondPositionCovered: number;
+	thirdPositionCovered: number;
+	thirdMiss: number;
+	secondThirdSwap: number;
+	opponentMiss: number;
+	winnerMiss: number;
+	exactHitRate: number | null;
+	winnerCoverageRate: number | null;
+	secondPositionCoverageRate: number | null;
+	thirdPositionCoverageRate: number | null;
+}
+
+export interface BoatExPredictionStrategyResult {
+	strategyId: string;
+	label: string;
+	validationRaceCount: number;
+	changedRaceCount: number;
+	baseline: BoatExPredictionStrategyMetric;
+	strategy: BoatExPredictionStrategyMetric;
+	netExactHitGain: number;
+	exactHitRateDelta: number | null;
+	improvedRaceCount: number;
+	degradedRaceCount: number;
+	unchangedRaceCount: number;
+	insufficientTrainingBaselineRaceCount: number;
+	nonTenTicketBaselineRaceCount: number;
+	topAddedTicketPatterns: Array<{ ticket: string; count: number }>;
+	topRemovedTicketPatterns: Array<{ ticket: string; count: number }>;
+	folds: Array<{
+		foldId: string;
+		baseline: BoatExPredictionStrategyMetric;
+		strategy: BoatExPredictionStrategyMetric;
+		changedRaceCount: number;
+		improvedRaceCount: number;
+		degradedRaceCount: number;
+		unchangedRaceCount: number;
+		netExactHitGain: number;
+		insufficientTrainingBaselineRaceCount: number;
+	}>;
+}
+
+export interface BoatExPredictionStrategyAnalysisFile {
+	schemaVersion: "boat-ex-prediction-strategy-analysis-v1";
+	kind: "boatrace-ex-prediction-strategy-analysis-history-summary" | "boatrace-ex-prediction-strategy-analysis-latest";
+	generatedAt: string;
+	period: { from: BoatExDateKey | null; to: BoatExDateKey; dateCount: number };
+	walkForwardPolicy: {
+		type: "expanding-window";
+		initialTrainingFrom: BoatExDateKey;
+		initialTrainingTo: BoatExDateKey;
+		validationWindowDays: number;
+		minimumGlobalTrainingRaceCount: number;
+	};
+	baseline: { fullPopulation: BoatExPredictionStrategyMetric; validationPopulation: BoatExPredictionStrategyMetric };
+	folds: Array<{ id: string; trainingFrom: BoatExDateKey; trainingTo: BoatExDateKey; validationFrom: BoatExDateKey; validationTo: BoatExDateKey; trainingRaceCount: number; validationRaceCount: number }>;
+	strategies: Record<string, BoatExPredictionStrategyResult>;
+	categorySemantics: string;
+	roiPolicy: string;
+	sourceFiles: string[];
+}
+
 export type BoatExDateIndexStatus = "available" | "partial" | "missing" | "pending" | "unknown";
 
 export interface BoatExDateIndexSourceState {

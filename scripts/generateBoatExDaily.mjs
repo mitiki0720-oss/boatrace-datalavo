@@ -418,6 +418,13 @@ function main() {
 	const predictionAccuracyAnalysisChecked = args.dryRun
 		? { status: "dry-run", ...predictionAccuracyAnalysisGenerated }
 		: runNode("scripts/checkBoatExPredictionAccuracyAnalysis.mjs", []);
+	const predictionStrategyAnalysisGenerated = runNode(
+		"scripts/generateBoatExPredictionStrategyAnalysis.mjs",
+		[...(args.dryRun ? ["--dry-run"] : [])],
+	);
+	const predictionStrategyAnalysisChecked = args.dryRun
+		? { status: "dry-run", ...predictionStrategyAnalysisGenerated }
+		: runNode("scripts/checkBoatExPredictionStrategyAnalysis.mjs", []);
 	const predictionStructureGenerated = runNode(
 		"scripts/generateBoatExPredictionStructure.mjs",
 		[...(args.dryRun ? ["--dry-run"] : [])],
@@ -545,6 +552,12 @@ function main() {
 			roiPopulationRaceCount: predictionAccuracyAnalysisChecked?.overall?.roiPopulationRaceCount ?? predictionAccuracyAnalysisGenerated?.overall?.roiPopulationRaceCount ?? null,
 			secondPositionCoveredRate: predictionAccuracyAnalysisChecked?.opponentCoverage?.secondPositionCoveredRate ?? predictionAccuracyAnalysisGenerated?.opponentCoverage?.secondPositionCoveredRate ?? null,
 			thirdPositionCoveredRate: predictionAccuracyAnalysisChecked?.opponentCoverage?.thirdPositionCoveredRate ?? predictionAccuracyAnalysisGenerated?.opponentCoverage?.thirdPositionCoveredRate ?? null,
+		},
+		predictionStrategyAnalysis: {
+			status: args.dryRun ? "dry-run" : "checked",
+			period: predictionStrategyAnalysisChecked?.period ?? predictionStrategyAnalysisGenerated?.period ?? null,
+			foldCount: predictionStrategyAnalysisChecked?.folds?.length ?? predictionStrategyAnalysisGenerated?.foldCount ?? null,
+			validationRaceCount: predictionStrategyAnalysisChecked?.invariants?.validationRaceCount ?? predictionStrategyAnalysisGenerated?.validationRaceCount ?? null,
 		},
 		predictionStructure: {
 			status: "checked",
