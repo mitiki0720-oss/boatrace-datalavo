@@ -411,6 +411,13 @@ function main() {
 	const predictionStructureAnalysisChecked = args.dryRun
 		? { status: "dry-run", ...predictionStructureAnalysisGenerated }
 		: runNode("scripts/checkBoatExPredictionStructureAnalysis.mjs", []);
+	const predictionAccuracyAnalysisGenerated = runNode(
+		"scripts/generateBoatExPredictionAccuracyAnalysis.mjs",
+		[...(args.dryRun ? ["--dry-run"] : [])],
+	);
+	const predictionAccuracyAnalysisChecked = args.dryRun
+		? { status: "dry-run", ...predictionAccuracyAnalysisGenerated }
+		: runNode("scripts/checkBoatExPredictionAccuracyAnalysis.mjs", []);
 	const predictionStructureGenerated = runNode(
 		"scripts/generateBoatExPredictionStructure.mjs",
 		[...(args.dryRun ? ["--dry-run"] : [])],
@@ -530,6 +537,14 @@ function main() {
 			period: predictionStructureAnalysisChecked?.period ?? predictionStructureAnalysisGenerated?.period ?? null,
 			eligibleRaceCount: predictionStructureAnalysisChecked?.evaluationEligibility?.eligibleRaceCount ?? predictionStructureAnalysisGenerated?.evaluationEligibility?.eligibleRaceCount ?? null,
 			futureLeakageRaceCount: predictionStructureAnalysisChecked?.evaluationEligibility?.futureLeakageRaceCount ?? predictionStructureAnalysisGenerated?.evaluationEligibility?.futureLeakageRaceCount ?? null,
+		},
+		predictionAccuracyAnalysis: {
+			status: args.dryRun ? "dry-run" : "checked",
+			period: predictionAccuracyAnalysisChecked?.period ?? predictionAccuracyAnalysisGenerated?.period ?? null,
+			eligibleRaceCount: predictionAccuracyAnalysisChecked?.evaluationEligibility?.eligibleRaceCount ?? predictionAccuracyAnalysisGenerated?.evaluationEligibility?.eligibleRaceCount ?? null,
+			roiPopulationRaceCount: predictionAccuracyAnalysisChecked?.overall?.roiPopulationRaceCount ?? predictionAccuracyAnalysisGenerated?.overall?.roiPopulationRaceCount ?? null,
+			secondPositionCoveredRate: predictionAccuracyAnalysisChecked?.opponentCoverage?.secondPositionCoveredRate ?? predictionAccuracyAnalysisGenerated?.opponentCoverage?.secondPositionCoveredRate ?? null,
+			thirdPositionCoveredRate: predictionAccuracyAnalysisChecked?.opponentCoverage?.thirdPositionCoveredRate ?? predictionAccuracyAnalysisGenerated?.opponentCoverage?.thirdPositionCoveredRate ?? null,
 		},
 		predictionStructure: {
 			status: "checked",

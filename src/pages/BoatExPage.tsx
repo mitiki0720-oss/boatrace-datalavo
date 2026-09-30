@@ -19,6 +19,7 @@ import type {
 	BoatExRegistrationProvenanceAuditFile,
 	BoatExPredictionStructureV1File,
 	BoatExPredictionStructureAnalysisFile,
+	BoatExPredictionAccuracyAnalysisFile,
 	BoatExStructuredTicketsDateFile,
 	BoatExStructuredTicketsHistoryIndexFile,
 	BoatExStructuredTicketsHistorySummaryFile,
@@ -121,6 +122,7 @@ type LoadState = {
 	todayFlow: BoatExTodayFlowV1File | null;
 	predictionStructure: BoatExPredictionStructureV1File | null;
 	predictionStructureAnalysis: BoatExPredictionStructureAnalysisFile | null;
+	predictionAccuracyAnalysis: BoatExPredictionAccuracyAnalysisFile | null;
 	structuredTicketsHistorySummary: BoatExStructuredTicketsHistorySummaryFile | null;
 	structuredTicketsHistoryIndex: BoatExStructuredTicketsHistoryIndexFile | null;
 	raceAnalysis: BoatExRaceAnalysisFile | null;
@@ -1470,6 +1472,60 @@ function PredictionStructureAnalysisSection({ analysis }: { analysis: BoatExPred
 	</>;
 }
 
+const predictionAccuracyAxes = [
+	{ key: "venue", label: "会場" },
+	{ key: "raceNoGroup", label: "レース帯" },
+	{ key: "actualWinningLane", label: "実着1着艇" },
+	{ key: "windSpeedBucket", label: "風速帯" },
+	{ key: "category", label: "買い目区分" },
+] as const;
+
+function PredictionAccuracyAnalysisSection({ analysis }: { analysis: BoatExPredictionAccuracyAnalysisFile | null }) {
+	const [axis, setAxis] = useState<(typeof predictionAccuracyAxes)[number]["key"]>("venue");
+	const [selectedId, setSelectedId] = useState("");
+	if (!analysis) return <section style={cardStyle}><p style={labelStyle}>相手・着順分析</p><p style={textStyle}>Prediction Accuracy Phase 2 を読み込めません。</p></section>;
+	const entries = analysis.dimensions[axis] ?? [];
+	const selected = entries.find((entry) => entry.id === selectedId) ?? entries[0] ?? null;
+	const opponent = analysis.opponentCoverage;
+	const summaryCards = [
+		{ label: "1着艇カバー", value: opponent.winnerCoveredRaceCount, rate: opponent.winnerCoveredRaceCount / analysis.overall.hitRatePopulationRaceCount },
+		{ label: "2着位置カバー", value: opponent.secondPositionCoveredCount, rate: opponent.secondPositionCoveredRate },
+		{ label: "3着位置カバー", value: opponent.thirdPositionCoveredCount, rate: opponent.thirdPositionCoveredRate },
+		{ label: "3着だけ外れ", value: analysis.overall.thirdMiss, rate: analysis.overall.thirdMiss / analysis.overall.hitRatePopulationRaceCount },
+		{ label: "2・3着逆転", value: analysis.overall.secondThirdSwap, rate: analysis.overall.secondThirdSwap / analysis.overall.hitRatePopulationRaceCount },
+		{ label: "相手不足", value: analysis.overall.opponentMiss, rate: analysis.overall.opponentMiss / analysis.overall.hitRatePopulationRaceCount },
+		{ label: "1着艇外れ", value: analysis.overall.winnerMiss, rate: analysis.overall.winnerMiss / analysis.overall.hitRatePopulationRaceCount },
+	];
+	return <section style={{ ...cardStyle, gap: "14px" }}>
+		<div>
+			<p style={labelStyle}>相手・着順分析</p>
+			<p style={valueStyle}>1着を押さえた後の2・3着選択を分解</p>
+			<p style={textStyle}>的中率対象 {analysis.overall.hitRatePopulationRaceCount.toLocaleString("ja-JP")}R / ROI対象 {analysis.overall.roiPopulationRaceCount.toLocaleString("ja-JP")}R / ROI標本 {sampleStatusLabel(analysis.overall.roiSampleStatus)}。的中率とROIの母集団を分離しています。</p>
+		</div>
+		<div style={dashboardRowStyle}>{summaryCards.map((item) => <div key={item.label} style={{ minWidth: "150px", flex: "1 1 150px" }}><p style={labelStyle}>{item.label}</p><p style={metricValueStyle}>{item.value.toLocaleString("ja-JP")}</p><p style={textStyle}>{rateLabel(Number.isFinite(item.rate) ? item.rate : null)}</p></div>)}</div>
+		<div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+			<label style={textStyle}>分析軸
+				<select value={axis} onChange={(event) => { setAxis(event.target.value as typeof axis); setSelectedId(""); }} style={{ display: "block", minWidth: "180px", marginTop: "4px", padding: "7px" }}>
+					{predictionAccuracyAxes.map((item) => <option key={item.key} value={item.key}>{item.label}</option>)}
+				</select>
+			</label>
+			<label style={textStyle}>条件
+				<select value={selected?.id ?? ""} onChange={(event) => setSelectedId(event.target.value)} style={{ display: "block", minWidth: "220px", marginTop: "4px", padding: "7px" }}>
+					{entries.map((entry) => <option key={entry.id} value={entry.id}>{entry.label}</option>)}
+				</select>
+			</label>
+		</div>
+		{selected ? <div style={tableWrapStyle}>
+			<table style={{ ...tableStyle, minWidth: "1080px" }}>
+				<thead><tr><th style={thStyle}>条件</th><th style={thStyle}>的中率対象</th><th style={thStyle}>完全一致</th><th style={thStyle}>1着外れ</th><th style={thStyle}>2・3着逆転</th><th style={thStyle}>3着外れ</th><th style={thStyle}>相手不足</th><th style={thStyle}>ROI対象</th><th style={thStyle}>投資</th><th style={thStyle}>払戻</th><th style={thStyle}>回収率</th></tr></thead>
+				<tbody><tr><td style={tdStyle}>{selected.label}</td><td style={tdStyle}>{selected.hitRatePopulationRaceCount.toLocaleString("ja-JP")}R</td><td style={tdStyle}>{selected.exactHit.toLocaleString("ja-JP")}</td><td style={tdStyle}>{selected.winnerMiss.toLocaleString("ja-JP")}</td><td style={tdStyle}>{selected.secondThirdSwap.toLocaleString("ja-JP")}</td><td style={tdStyle}>{selected.thirdMiss.toLocaleString("ja-JP")}</td><td style={tdStyle}>{selected.opponentMiss.toLocaleString("ja-JP")}</td><td style={tdStyle}>{selected.roiPopulationRaceCount.toLocaleString("ja-JP")}R</td><td style={tdStyle}>{yenLabel(selected.investmentYen)}</td><td style={tdStyle}>{yenLabel(selected.payoutYen)}</td><td style={tdStyle}>{rateLabel(selected.recoveryRate)}</td></tr></tbody>
+			</table>
+		</div> : <p style={textStyle}>この軸にはsource-backed sampleがありません。</p>}
+		<p style={textStyle}>ROIは同一レースの投資額と公式払戻が揃い、かつ1点額または均等配分が本文に明示された {analysis.stakeAudit.safeSourceBackedRaceCount.toLocaleString("ja-JP")}Rだけを使用します。メタデータのみの {analysis.stakeAudit.metadataOnlyRejectedRaceCount.toLocaleString("ja-JP")}Rは推測せず除外しています。</p>
+		<p style={textStyle}>級別は raceKey + 枠番のexact evidenceだけを許可します。安全な追加補完は1号艇級別 {analysis.classCoverageAudit.lane1Class.safeBackfillCount}R / 構成 {analysis.classCoverageAudit.classComposition.safeBackfillCount}R、衝突 {analysis.classCoverageAudit.evidenceConflictCount}件です。</p>
+	</section>;
+}
+
 function ReadinessMatrixSection({ audit }: { audit: BoatExTabCompletenessAuditFile | null }) {
 	if (!audit) return <p style={textStyle}>タブ充足状況監査を読み込めません。</p>;
 
@@ -1756,6 +1812,7 @@ export function BoatExPage() {
 		todayFlow: null,
 		predictionStructure: null,
 		predictionStructureAnalysis: null,
+		predictionAccuracyAnalysis: null,
 		raceAnalysis: null,
 		structuredTicketsHistorySummary: null,
 		structuredTicketsHistoryIndex: null,
@@ -1799,7 +1856,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historyCoverageResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, racerFeatures, racerIdentityUnresolvedAudit, currentDayPredictionCoverage, predictionStructureAnalysis, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historyCoverageResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, racerFeatures, racerIdentityUnresolvedAudit, currentDayPredictionCoverage, predictionStructureAnalysis, predictionAccuracyAnalysis, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1823,6 +1880,7 @@ export function BoatExPage() {
 					fetchOptionalJson<BoatExRacerIdentityUnresolvedAuditFile>("data/boatrace-ex/audit/racer-identity-unresolved-audit-latest.generated.json"),
 					fetchOptionalJson<BoatExCurrentDayPredictionCoverageFile>("data/boatrace-ex/derived/current-day-prediction-coverage/latest.json"),
 					fetchOptionalJson<BoatExPredictionStructureAnalysisFile>("data/boatrace-ex/derived/prediction-structure-analysis/history-summary.json"),
+					fetchOptionalJson<BoatExPredictionAccuracyAnalysisFile>("data/boatrace-ex/derived/prediction-accuracy-analysis/history-summary.json"),
 					fetchOptionalJson<BoatExRegisteredRacerIdentityRegistryFile>("data/boatrace-ex/identity/registered-racers.generated.json"),
 					fetchOptionalJson<BoatExRacerEvidenceRegistryLinkageAuditFile>(`data/boatrace-ex/audit/racer-evidence-registry-linkage-${targetDate}.generated.json`),
 					fetchOptionalJson<BoatExRegisteredRegistrationQualityAuditFile>(`data/boatrace-ex/audit/registered-registration-quality-${targetDate}.generated.json`),
@@ -1880,6 +1938,7 @@ export function BoatExPage() {
 					todayFlow,
 					predictionStructure,
 					predictionStructureAnalysis,
+					predictionAccuracyAnalysis,
 					structuredTicketsHistorySummary,
 					structuredTicketsHistoryIndex,
 					raceAnalysis,
@@ -1914,6 +1973,7 @@ export function BoatExPage() {
 					todayFlow: null,
 					predictionStructure: null,
 					predictionStructureAnalysis: null,
+					predictionAccuracyAnalysis: null,
 					structuredTicketsHistorySummary: null,
 					structuredTicketsHistoryIndex: null,
 					raceAnalysis: null,
@@ -1954,6 +2014,7 @@ export function BoatExPage() {
 	const structuredTicketsHistorySummary = loadState.structuredTicketsHistorySummary;
 	const structuredTicketsHistoryIndex = loadState.structuredTicketsHistoryIndex;
 	const predictionStructureAnalysis = loadState.predictionStructureAnalysis;
+	const predictionAccuracyAnalysis = loadState.predictionAccuracyAnalysis;
 	const raceAnalysis = loadState.raceAnalysis;
 	const historicalRaceAnalysisSummary = loadState.historicalRaceAnalysisSummary;
 	const historicalRaceAnalysisIndex = loadState.historicalRaceAnalysisIndex;
@@ -2354,6 +2415,7 @@ export function BoatExPage() {
 						<PredictionStructureSection predictionStructure={predictionStructure} />
 						<StructuredTicketHistorySection summary={structuredTicketsHistorySummary} historyIndex={structuredTicketsHistoryIndex} />
 						<PredictionStructureAnalysisSection analysis={predictionStructureAnalysis} />
+						<PredictionAccuracyAnalysisSection analysis={predictionAccuracyAnalysis} />
 					</SectionShell>
 				);
 			case "race-analysis":
