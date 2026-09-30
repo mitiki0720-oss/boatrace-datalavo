@@ -1499,6 +1499,93 @@ export interface BoatExPredictionStructureAnalysisFile {
 	sourceFiles: string[];
 }
 
+export interface BoatExPredictionAccuracyMetric {
+	id: string;
+	label: string;
+	ticketCount: number;
+	hitRatePopulationRaceCount: number;
+	exactHit: number;
+	winnerMiss: number;
+	secondThirdSwap: number;
+	thirdMiss: number;
+	opponentMiss: number;
+	roiPopulationRaceCount: number;
+	investmentYen: number;
+	payoutYen: number;
+	hitRate: number | null;
+	recoveryRate: number | null;
+	investmentCoverageRate: number | null;
+	sampleStatus: BoatExPredictionAnalysisSampleStatus;
+	roiSampleStatus: BoatExPredictionAnalysisSampleStatus;
+	venueCode?: string;
+	venueName?: string;
+	raceNo?: number;
+	raceNoGroup?: string;
+	lane?: number;
+	windSpeedBucket?: string;
+	waveHeightBucket?: string;
+	lane1Class?: string;
+	classComposition?: string;
+	category?: string;
+}
+
+export interface BoatExPredictionAccuracyAnalysisFile {
+	schemaVersion: "boat-ex-prediction-accuracy-analysis-v1";
+	kind: "boatrace-ex-prediction-accuracy-analysis-history-summary" | "boatrace-ex-prediction-accuracy-analysis-latest";
+	generatedAt: string;
+	period: { from: BoatExDateKey | null; to: BoatExDateKey; dateCount: number };
+	evaluationEligibility: {
+		candidateEvaluatedRaceCount: number;
+		eligibleRaceCount: number;
+		unknownRaceCount: number;
+		futureLeakageRaceCount: number;
+	};
+	overall: BoatExPredictionAccuracyMetric;
+	opponentCoverage: {
+		winnerCoveredRaceCount: number;
+		secondCoveredCount: number;
+		thirdCoveredCount: number;
+		secondPositionCoveredCount: number;
+		thirdPositionCoveredCount: number;
+		secondOnlyMissingCount: number;
+		thirdOnlyMissingCount: number;
+		bothOpponentMissingCount: number;
+		bothOpponentsCoveredCount: number;
+		secondThirdSwapCount: number;
+		secondCoveredRate: number | null;
+		thirdCoveredRate: number | null;
+		secondPositionCoveredRate: number | null;
+		thirdPositionCoveredRate: number | null;
+		secondOnlyMissingRate: number | null;
+		thirdOnlyMissingRate: number | null;
+		bothOpponentMissingRate: number | null;
+		bothOpponentsCoveredRate: number | null;
+		secondThirdSwapRate: number | null;
+	};
+	dimensions: Record<string, BoatExPredictionAccuracyMetric[]>;
+	missDistance: Array<{ value: number; raceCount: number }>;
+	stakeAudit: {
+		candidateEvaluatedRaceCount: number;
+		metadataCandidateRaceCount: number;
+		safeSourceBackedRaceCount: number;
+		metadataOnlyRejectedRaceCount: number;
+		unresolvedRaceCount: number;
+		investmentCoverageRate: number | null;
+		methodCounts: Record<string, number>;
+		policy: string;
+	};
+	classCoverageAudit: {
+		populationRaceCount: number;
+		exactEvidenceRowCount: number;
+		evidenceConflictCount: number;
+		lane1Class: { before: number; after: number; safeBackfillCount: number; missingAfter: number };
+		classComposition: { before: number; after: number; safeBackfillCount: number; missingAfter: number };
+		policy: string;
+	};
+	policies: string[];
+	sourceFiles: string[];
+}
+
 export type BoatExDateIndexStatus = "available" | "partial" | "missing" | "pending" | "unknown";
 
 export interface BoatExDateIndexSourceState {
