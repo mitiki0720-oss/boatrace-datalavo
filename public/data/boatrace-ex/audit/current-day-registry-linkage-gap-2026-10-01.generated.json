@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-current-day-registry-linkage-gap-audit",
+  "generatedAt": "2026-09-30T20:04:36.201Z",
+  "targetDate": "2026-10-01",
+  "policy": "registrationNo exact only; current-day supplement requires official source metadata and does not use name-only or fuzzy linkage",
+  "sourceFiles": [
+    "public/data/boatrace/today-race-details.generated.json",
+    "public/data/boatrace-ex/identity/registered-racers.generated.json",
+    "public/data/boatrace-ex/derived/racer-features/latest.json"
+  ],
+  "summary": {
+    "targetDate": "2026-10-01",
+    "venueCount": 14,
+    "raceCount": 168,
+    "slotCount": 864,
+    "registrationPresentCount": 864,
+    "beforeExactRegistryLinkedCount": 861,
+    "exactRegistryLinkedCount": 864,
+    "supplementedIdentityCount": 2,
+    "supplementedSlotCount": 3,
+    "unmatchedSlotCount": 0,
+    "unmatchedRegistrationNumberCount": 0,
+    "duplicateUnmatchedRegistrationNumbers": [],
+    "duplicateBaselineUnmatchedRegistrationNumbers": [
+      {
+        "registrationNo": "3623",
+        "slotCount": 2
+      }
+    ],
+    "reasonCounts": {},
+    "baselineReasonCounts": {
+      "notInRegisteredIdentityRegistry": 3
+    }
+  },
+  "baselineUnmatchedExamples": [
+    {
+      "venueCode": "06",
+      "venueName": "浜名湖",
+      "raceNo": 5,
+      "frameNo": 5,
+      "racerName": "深川 真二",
+      "registrationNo": "3623",
+      "branch": "佐賀",
+      "age": "52",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-10-01T04:56:56+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "06",
+      "venueName": "浜名湖",
+      "raceNo": 10,
+      "frameNo": 3,
+      "racerName": "深川 真二",
+      "registrationNo": "3623",
+      "branch": "佐賀",
+      "age": "52",
+      "className": "A1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-10-01T04:56:56+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "19",
+      "venueName": "下関",
+      "raceNo": 5,
+      "frameNo": 3,
+      "racerName": "三松 直美",
+      "registrationNo": "3943",
+      "branch": "岡山",
+      "age": "47",
+      "className": "B2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-10-01T04:56:56+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    }
+  ],
+  "unmatchedExamples": [],
+  "venueSummary": [
+    {
+      "venueCode": "03",
+      "venueName": "江戸川",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "04",
+      "venueName": "平和島",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "06",
+      "venueName": "浜名湖",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "07",
+      "venueName": "蒲郡",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "12",
+      "venueName": "住之江",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "14",
+      "venueName": "鳴門",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "15",
+      "venueName": "丸亀",
+      "slotCount": 42,
+      "exactLinkedCount": 42,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "16",
+      "venueName": "児島",
+      "slotCount": 60,
+      "exactLinkedCount": 60,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "19",
+      "venueName": "下関",
+      "slotCount": 42,
+      "exactLinkedCount": 42,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "22",
+      "venueName": "福岡",
+      "slotCount": 36,
+      "exactLinkedCount": 36,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "23",
+      "venueName": "唐津",
+      "slotCount": 60,
+      "exactLinkedCount": 60,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "24",
+      "venueName": "大村",
+      "slotCount": 48,
+      "exactLinkedCount": 48,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    }
+  ]
+}

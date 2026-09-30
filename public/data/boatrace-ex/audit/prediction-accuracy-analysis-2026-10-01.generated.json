@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-prediction-accuracy-analysis-audit",
+  "generatedAt": "2026-09-30T20:05:03.501Z",
+  "auditDate": "2026-10-01",
+  "evaluationEligibility": {
+    "candidateEvaluatedRaceCount": 4345,
+    "eligibleRaceCount": 4261,
+    "unknownRaceCount": 0,
+    "futureLeakageRaceCount": 84
+  },
+  "stakeAudit": {
+    "candidateEvaluatedRaceCount": 4261,
+    "metadataCandidateRaceCount": 1685,
+    "safeSourceBackedRaceCount": 6,
+    "metadataOnlyRejectedRaceCount": 1679,
+    "unresolvedRaceCount": 4255,
+    "investmentCoverageRate": 0.0014,
+    "methodCounts": {
+      "explicit-unit-amount": 6
+    },
+    "policy": "purchasePoints and investmentYen are not sufficient alone; an explicit per-ticket amount or equal-allocation statement is required."
+  },
+  "classCoverageAudit": {
+    "populationRaceCount": 4261,
+    "exactEvidenceRowCount": 33480,
+    "evidenceConflictCount": 0,
+    "lane1Class": {
+      "before": 1823,
+      "after": 1823,
+      "safeBackfillCount": 0,
+      "missingAfter": 2438
+    },
+    "classComposition": {
+      "before": 1823,
+      "after": 1823,
+      "safeBackfillCount": 0,
+      "missingAfter": 2438
+    },
+    "policy": "Only history race className or exact raceKey + frameNo racer-evidence is accepted; names are never matched."
+  },
+  "invariants": {
+    "duplicateRaceKeyCount": 0,
+    "duplicateTicketCount": 0,
+    "primaryErrorPartitionCount": 4261,
+    "missDistancePartitionCount": 4261,
+    "opponentSecondMatrixSampleCount": 3873,
+    "opponentThirdMatrixSampleCount": 3873,
+    "hitRatePopulationRaceCount": 4261,
+    "roiPopulationRaceCount": 6
+  }
+}
