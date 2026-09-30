@@ -1,25 +1,25 @@
 {
   "schemaVersion": "boat-ex-prediction-structure-v1",
-  "generatedAt": "2026-09-29T11:40:40.837Z",
+  "generatedAt": "2026-09-30T00:47:10.940Z",
   "status": "available",
   "readiness": {
     "status": "ready",
     "reason": "Source-backed strict structured tickets and exact-order evaluations meet the readiness threshold.",
     "missingRequirements": []
   },
-  "targetDate": "2026-09-29",
+  "targetDate": "2026-09-30",
   "dateRange": {
-    "from": "2026-09-29",
-    "to": "2026-09-29",
+    "from": "2026-09-30",
+    "to": "2026-09-30",
     "dateCount": 1
   },
   "summary": {
     "venueCount": 12,
     "raceCount": 144,
     "officialRaceCount": 144,
-    "resultAvailableRaceCount": 135,
-    "payoutAvailableRaceCount": 136,
-    "exhibitionAvailableRaceCount": 140,
+    "resultAvailableRaceCount": 4,
+    "payoutAvailableRaceCount": 5,
+    "exhibitionAvailableRaceCount": 32,
     "weatherAvailableRaceCount": 144,
     "motorAvailableRaceCount": 144,
     "boatAvailableRaceCount": 144,
@@ -45,7 +45,7 @@
     },
     {
       "sourceName": "Latest history",
-      "sourcePath": "public/data/boatrace-ex/history/races/2026-09-29.json",
+      "sourcePath": "public/data/boatrace-ex/history/races/2026-09-30.json",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     },
@@ -59,12 +59,12 @@
   "historyCoverage": {
     "schemaVersion": "boat-ex-structured-tickets-v1",
     "kind": "boatrace-ex-structured-tickets-history-summary",
-    "generatedAt": "2026-09-29T11:40:38.343Z",
+    "generatedAt": "2026-09-30T00:47:08.062Z",
     "periodStart": "2026-05-24",
-    "periodEnd": "2026-09-29",
-    "dateCount": 123,
-    "historyRaceCount": 17760,
-    "raceCount": 17760,
+    "periodEnd": "2026-09-30",
+    "dateCount": 124,
+    "historyRaceCount": 17904,
+    "raceCount": 17904,
     "predictionTextAvailableRaceCount": 13992,
     "structuredTicketAvailableRaceCount": 4358,
     "structuredTicketCount": 43578,
@@ -129,13 +129,13 @@
     "skippedReasons": {
       "buy-ticket-marker-unavailable": 9626,
       "strict-ticket-pattern-unavailable": 8,
-      "prediction-text-unavailable": 3768
+      "prediction-text-unavailable": 3912
     },
     "sourcePaths": [
       "public/data/boatrace-ex/index.generated.json"
     ],
     "auditPaths": [
-      "public/data/boatrace-ex/audit/structured-tickets-evaluation-2026-09-29.generated.json"
+      "public/data/boatrace-ex/audit/structured-tickets-evaluation-2026-09-30.generated.json"
     ]
   },
   "warnings": []

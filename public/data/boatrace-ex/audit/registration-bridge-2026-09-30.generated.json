@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-registration-bridge-audit",
+  "auditDate": "2026-09-30",
+  "generatedAt": "2026-09-30T00:47:55.168Z",
+  "mode": "write",
+  "policy": "Only an exact date + venueCode + raceNo + official boatNo tuple with one normalized exact racerName match and explicit official registrationNumber is written. No fuzzy matching, inferred identity, or dog/review registration number is allowed.",
+  "readOnlyInputs": {
+    "reviewSourceRoot": {
+      "path": "C:\\Users\\mitik\\Desktop\\ボートレースウェブ作成用\\boatrace-datalavo\\public\\data\\reviews",
+      "fileCount": 2996,
+      "usedForRegistrationBridge": false
+    },
+    "dogSourceRoot": {
+      "path": "C:\\Users\\mitik\\Desktop\\ボートレースウェブ作成用\\boatrace-datalavo\\public\\dog",
+      "fileCount": 1496,
+      "usedForRegistrationBridge": false
+    }
+  },
+  "officialSource": {
+    "sourceFiles": [
+      "public/data/boatrace-ex/source/official-details/2026-08-03.json"
+    ],
+    "rejectedFiles": [],
+    "candidateEntryCount": 600
+  },
+  "coverage": {
+    "dates": [
+      "2026-09-30"
+    ],
+    "dateCount": 1,
+    "before": {
+      "registrationAppearanceCount": 864,
+      "missingRegistrationAppearanceCount": 0
+    },
+    "after": {
+      "registrationAppearanceCount": 864,
+      "missingRegistrationAppearanceCount": 0
+    },
+    "changedDates": []
+  },
+  "classification": {
+    "safeBridge": {
+      "count": 0,
+      "rule": "Exact official tuple and normalized racerName match with explicit registrationNumber and provenance.",
+      "appearances": []
+    },
+    "candidateBridge": {
+      "count": 0,
+      "reasons": {},
+      "samples": []
+    },
+    "unresolved": {
+      "count": 0,
+      "reasons": {},
+      "samples": []
+    }
+  },
+  "warnings": [
+    "No source-backed safeBridge appearance met every required exact-match condition; history registration values were not changed."
+  ]
+}

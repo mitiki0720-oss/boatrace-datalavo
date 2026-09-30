@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-tab-completeness-audit",
+  "auditDate": "2026-09-30",
+  "generatedAt": "2026-09-30T00:47:35.210Z",
+  "policy": "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. Strict source-text ticket extraction and exact-order evaluation are limited to the documented prediction-structure contract; no fake score, rank, recommendation, inferred result, or inferred payout is used.",
+  "freshness": {
+    "indexLatestDate": "2026-09-30",
+    "resultCompleteThrough": "2026-09-27",
+    "payoutCompleteThrough": "2026-09-27",
+    "weatherThrough": "2026-09-30",
+    "racerResultThrough": "2026-09-30",
+    "historicalSourceThrough": "2026-09-28",
+    "predictionEvaluationThrough": "2026-09-28"
+  },
+  "summary": {
+    "tabCount": 13,
+    "readyCount": 0,
+    "availableCount": 0,
+    "insufficientHistoryCount": 0,
+    "pendingCount": 0,
+    "currentCount": 1,
+    "partialCount": 12,
+    "staleCount": 0,
+    "preRaceCount": 0
+  },
+  "tabs": [
+    {
+      "key": "overview",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/history-coverage/latest.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "Index 2026-09-30; finalized results through 2026-09-27.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/index.generated.json",
+        "public/data/boatrace-ex/derived/history-coverage/latest.json",
+        "public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json"
+      ]
+    },
+    {
+      "key": "identity",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/racer-features/latest.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "Exact-registration racer result samples: 14210; name-only inference is not used.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/racer-evidence/2026-09-30.json",
+        "public/data/boatrace-ex/derived/racer-features/latest.json",
+        "public/data/boatrace-ex/identity/registered-racers.generated.json",
+        "public/data/boatrace-ex/audit/current-day-registry-linkage-gap-2026-09-30.generated.json"
+      ]
+    },
+    {
+      "key": "data-coverage",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/history-coverage/latest.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "Indexed through 2026-09-30; result complete through 2026-09-27; historical sources through 2026-09-28.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/index.generated.json",
+        "public/data/boatrace-ex/derived/history-coverage/latest.json",
+        "public/data/boatrace-ex/derived/historical-source-coverage/latest.json",
+        "public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json",
+        "public/data/boatrace-ex/derived/venue-evidence/2026-09-30.json"
+      ]
+    },
+    {
+      "key": "trend-lab",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/venue-bias/latest.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "dateCount 124 meets minDateCount 7",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/venue-bias/latest.json",
+        "public/data/boatrace-ex/derived/rough-index/latest.json"
+      ]
+    },
+    {
+      "key": "trifecta-ranking",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/rough-index/latest.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "Source-backed trifecta payout samples through 2026-09-27; no prediction ranking is generated.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/rough-index/latest.json",
+        "public/data/boatrace-ex/derived/today-flow/latest.json"
+      ]
+    },
+    {
+      "key": "rough-index",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/rough-index/latest.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "history and payout samples meet the minimum thresholds",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/rough-index/latest.json"
+      ]
+    },
+    {
+      "key": "race-transition",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/today-flow/latest.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "Source-backed same-day result and payout facts are available.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/today-flow/latest.json"
+      ]
+    },
+    {
+      "key": "weather",
+      "status": "current",
+      "primarySource": "public/data/boatrace-ex/derived/weather-water-history/latest.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "current",
+      "reason": "Source-backed weather is complete through 2026-09-30.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/weather-water-history/latest.json",
+        "public/data/boatrace-ex/derived/venue-evidence/2026-09-30.json"
+      ]
+    },
+    {
+      "key": "venue-bias",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/venue-bias/latest.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "dateCount 124 meets minDateCount 7",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/venue-bias/latest.json"
+      ]
+    },
+    {
+      "key": "today-flow",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/today-flow/latest.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "Source-backed same-day result and payout facts are available.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/today-flow/latest.json"
+      ]
+    },
+    {
+      "key": "prediction-structure",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/prediction-structure/history-summary.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "Strict exact-order evaluations are available through 2026-09-28.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/prediction-structure/latest.json",
+        "public/data/boatrace-ex/derived/prediction-structure/history-summary.json",
+        "public/data/boatrace-ex/derived/prediction-structure/history-index.json",
+        "public/data/boatrace-ex/audit/prediction-structure-contract-2026-09-30.generated.json"
+      ]
+    },
+    {
+      "key": "race-analysis",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "4/144 races have complete source-backed result, trifecta payout, entries, and source identity. Historical index covers 124 dates through 2026-09-30.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/race-analysis/latest.json",
+        "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
+        "public/data/boatrace-ex/derived/race-analysis/history-index.json",
+        "public/data/boatrace-ex/derived/racer-evidence/2026-09-30.json",
+        "public/data/boatrace-ex/derived/venue-evidence/2026-09-30.json"
+      ]
+    },
+    {
+      "key": "ex-analysis",
+      "status": "partial",
+      "primarySource": "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
+      "latestIndexedDate": "2026-09-30",
+      "latestFinalizedResultDate": "2026-09-27",
+      "raceCount": 17904,
+      "resultSampleCount": 17391,
+      "payoutSampleCount": 17315,
+      "weatherSampleCount": 17904,
+      "freshness": "partial",
+      "reason": "The hub separates finalized historical EX from current-day pre-race coverage without ranking them.",
+      "sourcePaths": [
+        "public/data/boatrace-ex/derived/venue-bias/latest.json",
+        "public/data/boatrace-ex/derived/rough-index/latest.json",
+        "public/data/boatrace-ex/derived/today-flow/latest.json",
+        "public/data/boatrace-ex/derived/prediction-structure/latest.json",
+        "public/data/boatrace-ex/derived/current-day-prediction-coverage/latest.json"
+      ]
+    }
+  ]
+}

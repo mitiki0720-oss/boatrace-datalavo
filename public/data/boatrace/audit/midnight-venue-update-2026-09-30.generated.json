@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-30T04:56:39+09:00",
+  "targetDate": "2026-09-30",
+  "dryRun": false,
+  "detection": {
+    "method": "official source label first; per-venue latest closing time fallback at or after 21:00 JST",
+    "count": 1,
+    "venues": [
+      {
+        "venueCode": "24",
+        "venueName": "大村",
+        "title": "ミッドナイトボートレースｉｎ大村 １０",
+        "raceCount": 12,
+        "latestClosingTime": "22:41",
+        "latestClosingMinutes": 1361,
+        "source": "official:owpc-html",
+        "detection": "explicit-label",
+        "detectionDetail": "title: ミッドナイトボートレースｉｎ大村 １０"
+      }
+    ],
+    "skippedVenues": [
+      {
+        "venueCode": "02",
+        "venueName": "戸田",
+        "title": "ＴＡＭＲＯＮＣＵＰ",
+        "raceCount": 12,
+        "latestClosingTime": "16:30",
+        "latestClosingMinutes": 990,
+        "source": "official:owpc-html",
+        "reason": "no explicit midnight label and latest closing 16:30 is before 21:00 JST"
+      },
+      {
+        "venueCode": "03",
+        "venueName": "江戸川",
+        "title": "第９回ういちの江戸川ナイスぅ〜っ！カップ",
+        "raceCount": 12,
+        "latestClosingTime": "16:25",
+        "latestClosingMinutes": 985,
+        "source": "official:owpc-html",
+        "reason": "no explicit midnight label and latest closing 16:25 is before 21:00 JST"
+      },
+      {
+        "venueCode": "04",
+        "venueName": "平和島",
+        "title": "マスターズリーグ第６戦 俺の生きる道杯",
+        "raceCount": 12,
+        "latestClosingTime": "16:38",
+        "latestClosingMinutes": 998,
+        "source": "official:owpc-html",
+        "reason": "no explicit midnight label and latest closing 16:38 is before 21:00 JST"
+      },
+      {
+        "venueCode": "05",
+        "venueName": "多摩川",
+        "title": "第３７回日本モーターボート選手会会長賞",
+        "raceCount": 12,
+        "latestClosingTime": "16:46",
+        "latestClosingMinutes": 1006,
+        "source": "official:owpc-html",
+        "reason": "no explicit midnight label and latest closing 16:46 is before 21:00 JST"
+      },
+      {
+        "venueCode": "06",
+        "venueName": "浜名湖",
+        "title": "中日スポーツシルバーカップ",
+        "raceCount": 12,
+        "latestClosingTime": "16:44",
+        "latestClosingMinutes": 1004,
+        "source": "official:owpc-html",
+        "reason": "no explicit midnight label and latest closing 16:44 is before 21:00 JST"
+      },
+      {
+        "venueCode": "07",
+        "venueName": "蒲郡",
+        "title": "「いい風吹け」キリンビール晴れ風賞",
+        "raceCount": 12,
+        "latestClosingTime": "20:45",
+        "latestClosingMinutes": 1245,
+        "source": "official:owpc-html",
+        "reason": "no explicit midnight label and latest closing 20:45 is before 21:00 JST"
+      },
+      {
+        "venueCode": "09",
+        "venueName": "津",
+        "title": "津インクル開設１５周年記念レース",
+        "raceCount": 12,
+        "latestClosingTime": "15:35",
+        "latestClosingMinutes": 935,
+        "source": "official:owpc-html",
+        "reason": "no explicit midnight label and latest closing 15:35 is before 21:00 JST"
+      },
+      {
+        "venueCode": "14",
+        "venueName": "鳴門",
+        "title": "ＢＯＡＴＲＡＣＥ振興会会長杯競走",
+        "raceCount": 12,
+        "latestClosingTime": "14:10",
+        "latestClosingMinutes": 850,
+        "source": "official:owpc-html",
+        "reason": "no explicit midnight label and latest closing 14:10 is before 21:00 JST"
+      },
+      {
+        "venueCode": "15",
+        "venueName": "丸亀",
+        "title": "四国新聞社杯",
+        "raceCount": 12,
+        "latestClosingTime": "20:36",
+        "latestClosingMinutes": 1236,
+        "source": "official:owpc-html",
+        "reason": "no explicit midnight label and latest closing 20:36 is before 21:00 JST"
+      },
+      {
+        "venueCode": "16",
+        "venueName": "児島",
+        "title": "児島キングカップ開設７４周年記念競走",
+        "raceCount": 12,
+        "latestClosingTime": "16:50",
+        "latestClosingMinutes": 1010,
+        "source": "official:owpc-html",
+        "reason": "no explicit midnight label and latest closing 16:50 is before 21:00 JST"
+      },
+      {
+        "venueCode": "23",
+        "venueName": "唐津",
+        "title": "日刊スポーツ杯",
+        "raceCount": 12,
+        "latestClosingTime": "14:22",
+        "latestClosingMinutes": 862,
+        "source": "official:owpc-html",
+        "reason": "no explicit midnight label and latest closing 14:22 is before 21:00 JST"
+      }
+    ]
+  },
+  "input": {
+    "path": "public/data/boatrace/today.generated.json",
+    "sourceUrl": "https://www.boatrace.jp/owpc/pc/race/index"
+  },
+  "updatedDataFiles": [
+    "public/data/boatrace/today.generated.json",
+    "public/data/boatrace/today-race-details.generated.json",
+    "public/data/boatrace/venue-extras.generated.json"
+  ],
+  "coverage": {
+    "before": {
+      "venueCount": 1,
+      "raceCount": 12,
+      "exhibitionRaceCount": 0,
+      "settledRaceCount": 0,
+      "weatherVenueCount": 1
+    },
+    "after": {
+      "venueCount": 1,
+      "raceCount": 12,
+      "exhibitionRaceCount": 0,
+      "settledRaceCount": 0,
+      "weatherVenueCount": 1
+    }
+  },
+  "result": {
+    "status": "updated",
+    "message": "Updated only detected midnight venues using official sources."
+  }
+}
