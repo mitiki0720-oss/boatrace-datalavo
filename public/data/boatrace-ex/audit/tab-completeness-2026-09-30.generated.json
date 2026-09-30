@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-tab-completeness-audit",
   "auditDate": "2026-09-30",
-  "generatedAt": "2026-09-29T19:59:19.962Z",
+  "generatedAt": "2026-09-30T00:27:27.568Z",
   "policy": "Every Boat EX tab presents source-backed counts, readiness, reasons, or audit paths. Strict source-text ticket extraction and exact-order evaluation are limited to the documented prediction-structure contract; no fake score, rank, recommendation, inferred result, or inferred payout is used.",
   "summary": {
     "tabCount": 13,
     "readyCount": 6,
-    "availableCount": 4,
-    "insufficientHistoryCount": 3,
+    "availableCount": 6,
+    "insufficientHistoryCount": 1,
     "pendingCount": 0
   },
   "tabs": [
@@ -72,8 +72,8 @@
     },
     {
       "key": "race-transition",
-      "status": "insufficient-history",
-      "reason": "No result-backed races are available.",
+      "status": "available",
+      "reason": "Source-backed same-day result and payout facts are available.",
       "sourcePaths": [
         "public/data/boatrace-ex/derived/today-flow/latest.json"
       ]
@@ -96,8 +96,8 @@
     },
     {
       "key": "today-flow",
-      "status": "insufficient-history",
-      "reason": "No result-backed races are available.",
+      "status": "available",
+      "reason": "Source-backed same-day result and payout facts are available.",
       "sourcePaths": [
         "public/data/boatrace-ex/derived/today-flow/latest.json"
       ]
@@ -116,7 +116,7 @@
     {
       "key": "race-analysis",
       "status": "ready",
-      "reason": "No race satisfies the source-backed race-analysis generation contract. Historical index covers 124 dates through 2026-09-30.",
+      "reason": "3/144 races have complete source-backed result, trifecta payout, entries, and source identity. Historical index covers 124 dates through 2026-09-30.",
       "sourcePaths": [
         "public/data/boatrace-ex/derived/race-analysis/latest.json",
         "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
