@@ -1416,6 +1416,89 @@ export interface BoatExStructuredTicketsHistoryIndexFile {
 	dates: Array<{ date: BoatExDateKey; path: string; raceCount: number; predictionTextAvailableRaceCount: number; structuredTicketAvailableRaceCount: number; structuredTicketCount: number; evaluatedPredictionRaceCount: number; hitRaceCount: number; missRaceCount: number; readiness: BoatExPredictionStructureReadiness }>;
 }
 
+export type BoatExPredictionAnalysisSampleStatus = "insufficient" | "low" | "usable" | "strong";
+
+export interface BoatExPredictionAnalysisMetric {
+	id: string;
+	label: string;
+	ticketCount: number;
+	eligibleTicketCount: number;
+	evaluatedRaceCount: number;
+	hitCount: number;
+	hitRate: number | null;
+	investmentYen: number;
+	payoutYen: number;
+	recoveryRate: number | null;
+	investmentKnownRaceCount: number;
+	investmentUnknownRaceCount: number;
+	unpairedPayoutYen: number;
+	payoutUnknownHitCount: number;
+	sampleStatus: BoatExPredictionAnalysisSampleStatus;
+	venueCode?: string;
+	venueName?: string;
+	raceNo?: number;
+	raceNoGroup?: string;
+	category?: string;
+	lane?: number;
+	weather?: string;
+	windSpeedBucket?: string;
+	waveHeightBucket?: string;
+	lane1Class?: string;
+	classComposition?: string;
+}
+
+export interface BoatExPredictionStructureAnalysisFile {
+	schemaVersion: "boat-ex-prediction-structure-analysis-v2";
+	kind: "boatrace-ex-prediction-structure-analysis-history-summary" | "boatrace-ex-prediction-structure-analysis-latest";
+	generatedAt: string;
+	period: { from: BoatExDateKey | null; to: BoatExDateKey; dateCount: number };
+	sourceTotals: {
+		historyRaceCount: number;
+		structuredTicketAvailableRaceCount: number;
+		structuredTicketCount: number;
+		classifiedTicketCount: number;
+		unclassifiedTicketCount: number;
+		evaluatedPredictionRaceCount: number;
+		hitRaceCount: number;
+		totalSourceBackedInvestmentYen: number;
+		totalSourceBackedPayoutYen: number;
+	};
+	evaluationEligibility: {
+		candidateEvaluatedRaceCount: number;
+		eligibleRaceCount: number;
+		unknownRaceCount: number;
+		futureLeakageRaceCount: number;
+	};
+	overall: BoatExPredictionAnalysisMetric;
+	samplePolicy: {
+		basis: "evaluatedRaceCount";
+		thresholds: { insufficientBelow: number; lowBelow: number; usableBelow: number };
+		rationale: string;
+	};
+	missingness: Record<string, {
+		populationRaceCount: number;
+		availableRaceCount: number;
+		missingRaceCount: number;
+		missingRate: number | null;
+		reason: string;
+	}>;
+	errorStructure: {
+		evaluatedRaceCount: number;
+		exactHit: number;
+		winnerCovered: number;
+		top2Covered: number;
+		thirdMiss: number;
+		secondThirdSwap: number;
+		winnerMiss: number;
+		opponentMiss: number;
+		primary: Record<string, number>;
+		rates: Record<string, number | null>;
+	};
+	dimensions: Record<string, BoatExPredictionAnalysisMetric[]>;
+	policies: string[];
+	sourceFiles: string[];
+}
+
 export type BoatExDateIndexStatus = "available" | "partial" | "missing" | "pending" | "unknown";
 
 export interface BoatExDateIndexSourceState {

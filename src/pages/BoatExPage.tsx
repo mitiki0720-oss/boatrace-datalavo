@@ -18,6 +18,7 @@ import type {
 	BoatExRegisteredRegistrationQualityAuditFile,
 	BoatExRegistrationProvenanceAuditFile,
 	BoatExPredictionStructureV1File,
+	BoatExPredictionStructureAnalysisFile,
 	BoatExStructuredTicketsDateFile,
 	BoatExStructuredTicketsHistoryIndexFile,
 	BoatExStructuredTicketsHistorySummaryFile,
@@ -119,6 +120,7 @@ type LoadState = {
 	roughIndex: BoatExRoughIndexV1File | null;
 	todayFlow: BoatExTodayFlowV1File | null;
 	predictionStructure: BoatExPredictionStructureV1File | null;
+	predictionStructureAnalysis: BoatExPredictionStructureAnalysisFile | null;
 	structuredTicketsHistorySummary: BoatExStructuredTicketsHistorySummaryFile | null;
 	structuredTicketsHistoryIndex: BoatExStructuredTicketsHistoryIndexFile | null;
 	raceAnalysis: BoatExRaceAnalysisFile | null;
@@ -151,7 +153,7 @@ const sectionCards: Array<{
 	{ key: "weather", title: "天候・水面", subtitle: "風・波の事実", status: "available" },
 	{ key: "venue-bias", title: "会場傾向", subtitle: "会場傾向 v1", status: "available" },
 	{ key: "today-flow", title: "当日フロー", subtitle: "当日フロー v1", status: "available" },
-	{ key: "prediction-structure", title: "予測構造ラボ", subtitle: "カバレッジマップ v1", status: "insufficient-history" },
+	{ key: "prediction-structure", title: "予測構造ラボ", subtitle: "条件別分析 v2", status: "insufficient-history" },
 	{ key: "race-analysis", title: "全レース分析", subtitle: "最新日・履歴全体の全レース詳細", status: "ready" },
 	{ key: "ex-analysis", title: "EX分析", subtitle: "会場・選手の照合", status: "available" },
 ];
@@ -370,6 +372,14 @@ function materialStatusFromManifest(
 function yenLabel(value: number | null | undefined): string {
 	if (typeof value !== "number") return "なし";
 	return `${value.toLocaleString("ja-JP")}円`;
+}
+
+function rateLabel(value: number | null | undefined): string {
+	return typeof value === "number" ? `${(value * 100).toFixed(1)}%` : "未算出";
+}
+
+function sampleStatusLabel(value: string): string {
+	return ({ insufficient: "不足", low: "少数", usable: "利用可", strong: "十分" } as Record<string, string>)[value] ?? value;
 }
 
 function venueReadinessLabel(venue: BoatExVenueEvidenceItem, key: "venueBias" | "roughIndex" | "todayFlow"): string {
@@ -1393,6 +1403,73 @@ function StructuredTicketHistorySection({ summary, historyIndex }: { summary: Bo
 	</>;
 }
 
+const predictionAnalysisAxes = [
+	{ key: "venue", label: "会場" },
+	{ key: "raceNo", label: "raceNo" },
+	{ key: "category", label: "カテゴリ" },
+	{ key: "windSpeedBucket", label: "風速" },
+	{ key: "waveHeightBucket", label: "波高" },
+	{ key: "lane1Class", label: "1号艇級班" },
+] as const;
+
+function PredictionStructureAnalysisSection({ analysis }: { analysis: BoatExPredictionStructureAnalysisFile | null }) {
+	const [axis, setAxis] = useState<(typeof predictionAnalysisAxes)[number]["key"]>("venue");
+	const [selectedId, setSelectedId] = useState("");
+	if (!analysis) return <section style={cardStyle}><p style={labelStyle}>条件別分析</p><p style={textStyle}>Prediction Structure Analysis v2 を読み込めません。</p></section>;
+	const entries = analysis.dimensions[axis] ?? [];
+	const selected = entries.find((entry) => entry.id === selectedId) ?? entries[0] ?? null;
+	const errors = analysis.errorStructure;
+	const errorItems = [
+		["完全一致", "exactHit"],
+		["1着艇をカバー", "winnerCovered"],
+		["1・2着順をカバー", "top2Covered"],
+		["3着だけ外れ", "thirdMiss"],
+		["2・3着逆転", "secondThirdSwap"],
+		["1着艇外れ", "winnerMiss"],
+		["相手不足", "opponentMiss"],
+	] as const;
+	return <>
+		<section style={{ ...cardStyle, gap: "14px" }}>
+			<div>
+				<p style={labelStyle}>条件別分析 v2</p>
+				<p style={valueStyle}>漏洩防止済み {analysis.evaluationEligibility.eligibleRaceCount.toLocaleString("ja-JP")}R</p>
+				<p style={textStyle}>候補 {analysis.evaluationEligibility.candidateEvaluatedRaceCount.toLocaleString("ja-JP")}R / timestamp順序で除外 {analysis.evaluationEligibility.futureLeakageRaceCount.toLocaleString("ja-JP")}R / timestamp不明 {analysis.evaluationEligibility.unknownRaceCount.toLocaleString("ja-JP")}R</p>
+			</div>
+			<div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+				<label style={textStyle}>分析軸
+					<select value={axis} onChange={(event) => { setAxis(event.target.value as typeof axis); setSelectedId(""); }} style={{ display: "block", minWidth: "180px", marginTop: "4px", padding: "7px" }}>
+						{predictionAnalysisAxes.map((item) => <option key={item.key} value={item.key}>{item.label}</option>)}
+					</select>
+				</label>
+				<label style={textStyle}>条件
+					<select value={selected?.id ?? ""} onChange={(event) => setSelectedId(event.target.value)} style={{ display: "block", minWidth: "220px", marginTop: "4px", padding: "7px" }}>
+						{entries.map((entry) => <option key={entry.id} value={entry.id}>{entry.label}</option>)}
+					</select>
+				</label>
+			</div>
+			{selected ? <div style={tableWrapStyle}>
+				<table style={{ ...tableStyle, minWidth: "900px" }}>
+					<thead><tr><th style={thStyle}>条件</th><th style={thStyle}>券数</th><th style={thStyle}>評価R</th><th style={thStyle}>的中</th><th style={thStyle}>的中率</th><th style={thStyle}>投資</th><th style={thStyle}>払戻</th><th style={thStyle}>回収率</th><th style={thStyle}>sample</th></tr></thead>
+					<tbody><tr><td style={tdStyle}>{selected.label}</td><td style={tdStyle}>{selected.ticketCount.toLocaleString("ja-JP")}</td><td style={tdStyle}>{selected.evaluatedRaceCount.toLocaleString("ja-JP")}</td><td style={tdStyle}>{selected.hitCount.toLocaleString("ja-JP")}</td><td style={tdStyle}>{rateLabel(selected.hitRate)}</td><td style={tdStyle}>{yenLabel(selected.investmentYen)}</td><td style={tdStyle}>{yenLabel(selected.payoutYen)}</td><td style={tdStyle}>{rateLabel(selected.recoveryRate)}</td><td style={tdStyle}>{sampleStatusLabel(selected.sampleStatus)}</td></tr></tbody>
+				</table>
+			</div> : <p style={textStyle}>この軸にはsource-backed sampleがありません。</p>}
+			<p style={textStyle}>投資・払戻・回収率はstakeがsourceにあるレースだけを対にして集計します。stake不明 {selected?.investmentUnknownRaceCount ?? 0}Rの払戻は回収率へ混ぜません。</p>
+			<p style={textStyle}>sample基準: 10R未満=不足、10～29R=少数、30～99R=利用可、100R以上=十分。回収率だけでは評価しません。</p>
+		</section>
+
+		<section style={cardStyle}>
+			<p style={labelStyle}>予想外れ構造</p>
+			<p style={textStyle}>exact ordered trifectaだけを的中とし、複数券は完全一致 → 1着外れ → 2・3着逆転 → 3着外れ → 相手不足の順で主分類します。</p>
+			<div style={dashboardRowStyle}>{errorItems.map(([label, key]) => <article key={key} style={{ ...cardStyle, boxShadow: "none" }}><p style={labelStyle}>{label}</p><p style={metricValueStyle}>{errors[key].toLocaleString("ja-JP")}</p><p style={textStyle}>{rateLabel(errors.rates[key])} / {errors.evaluatedRaceCount.toLocaleString("ja-JP")}R</p></article>)}</div>
+		</section>
+
+		<section style={cardStyle}>
+			<p style={labelStyle}>dimension欠損監査</p>
+			<div style={tableWrapStyle}><table style={{ ...tableStyle, minWidth: "760px" }}><thead><tr><th style={thStyle}>dimension</th><th style={thStyle}>取得R</th><th style={thStyle}>missing</th><th style={thStyle}>missing率</th><th style={thStyle}>除外理由</th></tr></thead><tbody>{Object.entries(analysis.missingness).map(([key, value]) => <tr key={key}><td style={tdStyle}>{key}</td><td style={tdStyle}>{value.availableRaceCount.toLocaleString("ja-JP")}</td><td style={tdStyle}>{value.missingRaceCount.toLocaleString("ja-JP")}</td><td style={tdStyle}>{rateLabel(value.missingRate)}</td><td style={tdStyle}>{value.reason}</td></tr>)}</tbody></table></div>
+		</section>
+	</>;
+}
+
 function ReadinessMatrixSection({ audit }: { audit: BoatExTabCompletenessAuditFile | null }) {
 	if (!audit) return <p style={textStyle}>タブ充足状況監査を読み込めません。</p>;
 
@@ -1678,6 +1755,7 @@ export function BoatExPage() {
 		roughIndex: null,
 		todayFlow: null,
 		predictionStructure: null,
+		predictionStructureAnalysis: null,
 		raceAnalysis: null,
 		structuredTicketsHistorySummary: null,
 		structuredTicketsHistoryIndex: null,
@@ -1721,7 +1799,7 @@ export function BoatExPage() {
 				const targetDate = dateIndex?.latestDate ?? latestHistory?.date;
 				if (!targetDate) throw new Error("latest EX date is missing");
 
-				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historyCoverageResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, racerFeatures, racerIdentityUnresolvedAudit, currentDayPredictionCoverage, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
+				const [derivedManifestResponse, venueResponse, racerResponse, venueBiasResponse, roughIndexResponse, todayFlowResponse, predictionStructureResponse, structuredTicketsHistorySummaryResponse, structuredTicketsHistoryIndexResponse, raceAnalysisResponse, historicalRaceAnalysisSummaryResponse, historicalRaceAnalysisIndexResponse, historyCoverageResponse, historicalSourceCoverageResponse, weatherWaterHistoryResponse, racerFeatures, racerIdentityUnresolvedAudit, currentDayPredictionCoverage, predictionStructureAnalysis, registeredIdentityRegistry, registryLinkageAudit, registrationQualityAudit, registrationProvenanceAudit, nameIdentityBridgeAudit, tabCompletenessAudit] = await Promise.all([
 					fetch(withBasePath("data/boatrace-ex/derived/manifest.generated.json"), { cache: "no-store" }),
 					fetch(withBasePath(`data/boatrace-ex/derived/venue-evidence/${targetDate}.json`), {
 						cache: "no-store",
@@ -1744,6 +1822,7 @@ export function BoatExPage() {
 					fetchOptionalJson<BoatExRacerFeaturesFile>("data/boatrace-ex/derived/racer-features/latest.json"),
 					fetchOptionalJson<BoatExRacerIdentityUnresolvedAuditFile>("data/boatrace-ex/audit/racer-identity-unresolved-audit-latest.generated.json"),
 					fetchOptionalJson<BoatExCurrentDayPredictionCoverageFile>("data/boatrace-ex/derived/current-day-prediction-coverage/latest.json"),
+					fetchOptionalJson<BoatExPredictionStructureAnalysisFile>("data/boatrace-ex/derived/prediction-structure-analysis/history-summary.json"),
 					fetchOptionalJson<BoatExRegisteredRacerIdentityRegistryFile>("data/boatrace-ex/identity/registered-racers.generated.json"),
 					fetchOptionalJson<BoatExRacerEvidenceRegistryLinkageAuditFile>(`data/boatrace-ex/audit/racer-evidence-registry-linkage-${targetDate}.generated.json`),
 					fetchOptionalJson<BoatExRegisteredRegistrationQualityAuditFile>(`data/boatrace-ex/audit/registered-registration-quality-${targetDate}.generated.json`),
@@ -1800,6 +1879,7 @@ export function BoatExPage() {
 					roughIndex,
 					todayFlow,
 					predictionStructure,
+					predictionStructureAnalysis,
 					structuredTicketsHistorySummary,
 					structuredTicketsHistoryIndex,
 					raceAnalysis,
@@ -1833,6 +1913,7 @@ export function BoatExPage() {
 					roughIndex: null,
 					todayFlow: null,
 					predictionStructure: null,
+					predictionStructureAnalysis: null,
 					structuredTicketsHistorySummary: null,
 					structuredTicketsHistoryIndex: null,
 					raceAnalysis: null,
@@ -1872,6 +1953,7 @@ export function BoatExPage() {
 	const predictionStructure = loadState.predictionStructure;
 	const structuredTicketsHistorySummary = loadState.structuredTicketsHistorySummary;
 	const structuredTicketsHistoryIndex = loadState.structuredTicketsHistoryIndex;
+	const predictionStructureAnalysis = loadState.predictionStructureAnalysis;
 	const raceAnalysis = loadState.raceAnalysis;
 	const historicalRaceAnalysisSummary = loadState.historicalRaceAnalysisSummary;
 	const historicalRaceAnalysisIndex = loadState.historicalRaceAnalysisIndex;
@@ -2263,7 +2345,7 @@ export function BoatExPage() {
 				);
 			case "prediction-structure":
 				return (
-					<SectionShell title="予測構造ラボ" subtitle="カバレッジマップ v1">
+					<SectionShell title="予測構造ラボ" subtitle="条件別分析 v2">
 						<PendingPanel
 							status={predictionStructure?.readiness.status ?? "insufficient-history"}
 							reason={predictionStructure?.readiness.reason ?? "予測構造エビデンスがありません。"}
@@ -2271,6 +2353,7 @@ export function BoatExPage() {
 						/>
 						<PredictionStructureSection predictionStructure={predictionStructure} />
 						<StructuredTicketHistorySection summary={structuredTicketsHistorySummary} historyIndex={structuredTicketsHistoryIndex} />
+						<PredictionStructureAnalysisSection analysis={predictionStructureAnalysis} />
 					</SectionShell>
 				);
 			case "race-analysis":

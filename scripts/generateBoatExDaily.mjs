@@ -404,6 +404,13 @@ function main() {
 		"scripts/generateBoatExStructuredTickets.mjs",
 		[...(args.dryRun ? ["--dry-run"] : [])],
 	);
+	const predictionStructureAnalysisGenerated = runNode(
+		"scripts/generateBoatExPredictionStructureAnalysis.mjs",
+		[...(args.dryRun ? ["--dry-run"] : [])],
+	);
+	const predictionStructureAnalysisChecked = args.dryRun
+		? { status: "dry-run", ...predictionStructureAnalysisGenerated }
+		: runNode("scripts/checkBoatExPredictionStructureAnalysis.mjs", []);
 	const predictionStructureGenerated = runNode(
 		"scripts/generateBoatExPredictionStructure.mjs",
 		[...(args.dryRun ? ["--dry-run"] : [])],
@@ -517,6 +524,12 @@ function main() {
 			dateCount: structuredTicketsGenerated?.dateCount ?? null,
 			races: structuredTicketsGenerated?.historyRaceCount ?? null,
 			readiness: structuredTicketsGenerated?.readiness ?? null,
+		},
+		predictionStructureAnalysis: {
+			status: args.dryRun ? "dry-run" : "checked",
+			period: predictionStructureAnalysisChecked?.period ?? predictionStructureAnalysisGenerated?.period ?? null,
+			eligibleRaceCount: predictionStructureAnalysisChecked?.evaluationEligibility?.eligibleRaceCount ?? predictionStructureAnalysisGenerated?.evaluationEligibility?.eligibleRaceCount ?? null,
+			futureLeakageRaceCount: predictionStructureAnalysisChecked?.evaluationEligibility?.futureLeakageRaceCount ?? predictionStructureAnalysisGenerated?.evaluationEligibility?.futureLeakageRaceCount ?? null,
 		},
 		predictionStructure: {
 			status: "checked",
