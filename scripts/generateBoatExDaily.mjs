@@ -169,6 +169,58 @@ function runNode(script, args) {
 	throw new Error(message);
 }
 
+function runIdentityAuditPipeline(date, dryRun) {
+	if (dryRun) {
+		return {
+			status: "dry-run-skipped",
+			reason: "Identity audit writers are skipped in dry-run mode.",
+		};
+	}
+
+	const previousRegistry = readJsonIfExists("public/data/boatrace-ex/identity/registered-racers.generated.json");
+	const registrationBridge = runNode("scripts/bridgeBoatExRegistrationNumbers.mjs", ["--write"]);
+	const registrationProvenance = runNode("scripts/propagateBoatExRegistrationProvenance.mjs", ["--write"]);
+	const registeredRegistrationQuality = runNode("scripts/auditBoatExRegisteredRegistrationNumbers.mjs", ["--write"]);
+	const registeredRacerIdentityRegistry = runNode("scripts/generateBoatExRegisteredRacerIdentityRegistry.mjs", ["--write"]);
+	const index = readJson("public/data/boatrace-ex/index.generated.json");
+	const registryChanged = previousRegistry?.summary?.identityCount !== registeredRacerIdentityRegistry?.identityCount;
+	const changedDates = [
+		date,
+		...(registrationBridge?.changedDates ?? []),
+		...(registrationProvenance?.changedDates ?? []),
+	];
+	const racerEvidenceDates = registryChanged
+		? index.availableDates
+		: [...new Set(changedDates)].filter((value) => index.availableDates.includes(value)).sort();
+	const racerEvidence = racerEvidenceDates.map((evidenceDate) => ({
+		date: evidenceDate,
+		generated: runNode("scripts/generateBoatExRacerEvidence.mjs", ["--date", evidenceDate]),
+		checked: runNode("scripts/checkBoatExRacerEvidence.mjs", ["--date", evidenceDate]),
+	}));
+	const generated = {
+		registrationBridge,
+		registrationProvenance,
+		registeredRegistrationQuality,
+		registeredRacerIdentityRegistry,
+		racerEvidence: { registryChanged, dates: racerEvidenceDates, results: racerEvidence },
+		racerEvidenceRegistryLinkage: runNode("scripts/linkBoatExRacerEvidenceRegistry.mjs", ["--write"]),
+		nameIdentityBridge: runNode("scripts/generateBoatExNameIdentityBridge.mjs", ["--write"]),
+		racerRegistrationLinkage: runNode("scripts/checkBoatExRacerRegistrationLinkage.mjs", [date, "--write"]),
+	};
+	const checked = {
+		registrationBridge: runNode("scripts/checkBoatExRegistrationBridge.mjs", ["--date", date]),
+		registrationProvenance: runNode("scripts/checkBoatExRegistrationProvenance.mjs", ["--date", date]),
+		registeredRegistrationQuality: runNode("scripts/checkBoatExRegisteredRegistrationAudit.mjs", ["--date", date]),
+		registeredRacerIdentityRegistry: runNode("scripts/checkBoatExRegisteredRacerIdentityRegistry.mjs", ["--date", date]),
+		racerEvidenceRegistryLinkage: runNode("scripts/checkBoatExRacerEvidenceRegistryLinkage.mjs", []),
+		nameIdentityBridge: runNode("scripts/checkBoatExNameIdentityBridge.mjs", []),
+		racerRegistrationLinkage: runNode("scripts/checkBoatExRacerRegistrationLinkage.mjs", [date]),
+		displayRegisteredIdentityLinkage: runNode("scripts/checkBoatExDisplayRegisteredIdentityLinkage.mjs", []),
+	};
+
+	return { status: "checked", generated, checked };
+}
+
 function resolveDate(dateArg) {
 	const index = readJson("public/data/boatrace-ex/index.generated.json");
 	if (/^\d{4}-\d{2}-\d{2}$/.test(dateArg)) {
@@ -380,6 +432,7 @@ function main() {
 	}
 	const dateIndex = summarizeDateIndex();
 	runNode("scripts/checkBoatExDateIndex.mjs", [...(args.allowEmpty ? ["--allow-empty"] : [])]);
+	const identityAuditGeneration = runIdentityAuditPipeline(dateIndex.latestDate, args.dryRun);
 	const historyCoverageGenerated = runNode("scripts/generateBoatExHistoryCoverage.mjs", [...(args.dryRun ? ["--dry-run"] : [])]);
 	const historyCoverageChecked = args.dryRun
 		? { status: "dry-run", ...historyCoverageGenerated }
@@ -492,6 +545,7 @@ function main() {
 			appearanceCount: racerChecked.appearanceCount ?? racerGenerated?.appearanceCount ?? null,
 		},
 		dateIndex,
+		identityAuditGeneration,
 		historyCoverage: {
 			status: args.dryRun ? "dry-run" : "checked",
 			dateRange: historyCoverageChecked.dateRange ?? historyCoverageGenerated?.dateRange ?? null,

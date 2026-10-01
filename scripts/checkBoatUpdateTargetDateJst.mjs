@@ -64,8 +64,12 @@ assert.match(restoreBlock, /git restore public\/data\/boatrace\/johnson-predicti
 assert.doesNotMatch(allowlistBlock, /johnson-predictions\.generated\.json/);
 assert.doesNotMatch(allowlistBlock, /registered-racer-identity-registry-\d{4}-\d{2}-\d{2}\.md/);
 assert.match(allowlistBlock, /shopt -s nullglob/);
+assert.match(allowlistBlock, /docs\/boat-ex\/registration-bridge-\*\.md/);
+assert.match(allowlistBlock, /docs\/boat-ex\/registration-provenance-\*\.md/);
+assert.match(allowlistBlock, /docs\/boat-ex\/registered-registration-quality-\*\.md/);
 assert.match(allowlistBlock, /docs\/boat-ex\/registered-racer-identity-registry-\*\.md/);
 assert.match(allowlistBlock, /docs\/boat-ex\/racer-evidence-registry-linkage-\*\.md/);
+assert.match(allowlistBlock, /docs\/boat-ex\/name-identity-bridge-\*\.md/);
 assert.match(allowlistBlock, /docs\/boat-ex\/registration-coverage-audit-\*\.md/);
 assert.match(allowlistBlock, /docs\/boat-ex\/reviews-dog-history-backfill-\*\.md/);
 assert.match(allowlistBlock, /git add -- "\$\{generated_boat_ex_docs\[@\]\}"/);
@@ -103,8 +107,12 @@ console.log(JSON.stringify({
 	resultsModeBeforeInfoRefresh: true,
 	resultsModeVenueWeatherRefresh: true,
 	generatedBoatExDocsAllowlist: [
+		"registration-bridge-*.md",
+		"registration-provenance-*.md",
+		"registered-registration-quality-*.md",
 		"registered-racer-identity-registry-*.md",
 		"racer-evidence-registry-linkage-*.md",
+		"name-identity-bridge-*.md",
 		"registration-coverage-audit-*.md",
 		"reviews-dog-history-backfill-*.md",
 	],

@@ -3,7 +3,7 @@
 ## Scope
 
 - period: 2026-05-24 to 2026-10-01
-- source appearances: 31752
+- source appearances: 33564
 - registry identities: 1597
 - first/last seen: 2026-05-24 / 2026-10-01
 
@@ -12,7 +12,7 @@
 - collision: 0
 - aliasCandidate: 0
 - unresolved appearances excluded: 72792
-- provenance-incomplete registered appearances excluded: 1812
+- provenance-incomplete registered appearances excluded: 0
 
 The registry uses registrationNo as its only primary key. It does not modify history and does not merge identities by name.
 

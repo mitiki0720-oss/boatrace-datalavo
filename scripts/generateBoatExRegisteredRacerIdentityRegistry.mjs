@@ -113,6 +113,15 @@ function currentDayRegistryIdentity(entry) {
 function main() {
 	const args = parseArgs(process.argv.slice(2));
 	const index = readJson("public/data/boatrace-ex/index.generated.json");
+	const auditDate = index.latestDate;
+	const qualityAudit = readJson(`public/data/boatrace-ex/audit/registered-registration-quality-${auditDate}.generated.json`);
+	const provenanceAudit = readJson(`public/data/boatrace-ex/audit/registration-provenance-${auditDate}.generated.json`);
+	if (qualityAudit.kind !== "boatrace-ex-registered-registration-quality-audit" || qualityAudit.auditDate !== auditDate) {
+		throw new Error(`Registered registration quality audit is stale or invalid for ${auditDate}.`);
+	}
+	if (provenanceAudit.kind !== "boatrace-ex-registration-provenance-audit" || provenanceAudit.auditDate !== auditDate) {
+		throw new Error(`Registration provenance audit is stale or invalid for ${auditDate}.`);
+	}
 	const dates = (Array.isArray(index.availableDates) ? index.availableDates : []).filter((date) => (!args.from || date >= args.from) && (!args.to || date <= args.to));
 	if (dates.length === 0) throw new Error("No Boat EX history dates match the requested range.");
 	const entries = new Map();
@@ -194,7 +203,6 @@ function main() {
 		.map(currentDayRegistryIdentity);
 	const identities = [...historicalIdentities, ...currentDayIdentities].sort((left, right) => left.registrationNo.localeCompare(right.registrationNo));
 	const identityDates = identities.flatMap((identity) => [identity.firstSeenDate, identity.lastSeenDate]).filter(Boolean).sort();
-	const auditDate = index.latestDate;
 	const registryRelativePath = "public/data/boatrace-ex/identity/registered-racers.generated.json";
 	const auditRelativePath = `public/data/boatrace-ex/audit/registered-racer-identity-registry-${auditDate}.generated.json`;
 	const markdownRelativePath = `docs/boat-ex/registered-racer-identity-registry-${auditDate}.md`;
