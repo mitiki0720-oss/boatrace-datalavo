@@ -29,7 +29,7 @@ function parseArgs(argv) {
 	}
 	for (const value of [args.from, args.to]) if (value && !DATE_PATTERN.test(value)) throw new Error("--from/--to require YYYY-MM-DD");
 	for (const [label, sourceRoot] of [["--review-source-root", args.reviewSourceRoot], ["--dog-source-root", args.dogSourceRoot]]) {
-		if (!sourceRoot || !fs.existsSync(sourceRoot)) throw new Error(`${label} must point to an existing read-only source directory`);
+		if (sourceRoot && !fs.existsSync(sourceRoot)) throw new Error(`${label} must point to an existing read-only source directory`);
 	}
 	return args;
 }
@@ -51,6 +51,7 @@ const asText = (value) => typeof value === "string" ? value.trim() : "";
 const isRegistrationNumber = (value) => REGISTRATION_PATTERN.test(asText(value)) && asText(value) !== "0000";
 const normalizeName = (value) => asText(value).normalize("NFKC").replace(/\s+/gu, " ");
 const countFiles = (sourceRoot) => {
+	if (!sourceRoot) return 0;
 	let count = 0;
 	const visit = (directory) => {
 		for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -231,8 +232,8 @@ function main() {
 		mode: args.dryRun ? "dry-run" : "write",
 		policy: "Only an exact date + venueCode + raceNo + official boatNo tuple with one normalized exact racerName match and explicit official registrationNumber is written. No fuzzy matching, inferred identity, or dog/review registration number is allowed.",
 		readOnlyInputs: {
-			reviewSourceRoot: { path: args.reviewSourceRoot, fileCount: countFiles(args.reviewSourceRoot), usedForRegistrationBridge: false },
-			dogSourceRoot: { path: args.dogSourceRoot, fileCount: countFiles(args.dogSourceRoot), usedForRegistrationBridge: false },
+			reviewSourceRoot: { path: args.reviewSourceRoot ?? null, fileCount: countFiles(args.reviewSourceRoot), usedForRegistrationBridge: false },
+			dogSourceRoot: { path: args.dogSourceRoot ?? null, fileCount: countFiles(args.dogSourceRoot), usedForRegistrationBridge: false },
 		},
 		officialSource: { sourceFiles: bridge.sourceFiles, rejectedFiles: bridge.rejectedFiles, candidateEntryCount: bridge.candidates.length },
 		coverage: { dates, dateCount: dates.length, before, after, changedDates: [...changedDates].sort() },
