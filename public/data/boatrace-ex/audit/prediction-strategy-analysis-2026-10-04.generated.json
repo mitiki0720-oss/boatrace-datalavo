@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-prediction-strategy-analysis-audit",
+  "generatedAt": "2026-10-03T18:42:46.831Z",
+  "auditDate": "2026-10-04",
+  "walkForwardPolicy": {
+    "type": "expanding-window",
+    "initialTrainingFrom": "2026-05-24",
+    "initialTrainingTo": "2026-06-30",
+    "validationWindowDays": 7,
+    "minimumGlobalTrainingRaceCount": 500
+  },
+  "strategyRules": {
+    "reverse-pair": {
+      "label": "Strategy A Reverse Pair",
+      "minimumSampleCount": 80,
+      "minimumRate": 0.06,
+      "signal": "swapRate",
+      "conditionHierarchy": [
+        "venue+raceNoGroup+predictedWinner+wind+lane1Class",
+        "venue+raceNoGroup+predictedWinner+wind",
+        "raceNoGroup+predictedWinner+wind",
+        "raceNoGroup+predictedWinner"
+      ],
+      "removalPolicy": "lowest training-only ticket utility, then candidate redundancy",
+      "actualResultAvailableToBuilder": false
+    },
+    "third-expansion": {
+      "label": "Strategy B Third Expansion",
+      "minimumSampleCount": 80,
+      "minimumRate": 0.22,
+      "signal": "thirdMissRate",
+      "conditionHierarchy": [
+        "venue+raceNoGroup+predictedWinner+wind+lane1Class",
+        "venue+raceNoGroup+predictedWinner+wind",
+        "raceNoGroup+predictedWinner+wind",
+        "raceNoGroup+predictedWinner"
+      ],
+      "removalPolicy": "lowest training-only ticket utility, then candidate redundancy",
+      "actualResultAvailableToBuilder": false
+    },
+    "symmetry": {
+      "label": "Strategy C Symmetry",
+      "minimumSampleCount": 120,
+      "minimumRate": 0.08,
+      "signal": "swapRate",
+      "conditionHierarchy": [
+        "venue+raceNoGroup+predictedWinner+wind+lane1Class",
+        "venue+raceNoGroup+predictedWinner+wind",
+        "raceNoGroup+predictedWinner+wind",
+        "raceNoGroup+predictedWinner"
+      ],
+      "removalPolicy": "lowest training-only ticket utility, then candidate redundancy",
+      "actualResultAvailableToBuilder": false
+    },
+    "winner-diversification": {
+      "label": "Strategy D Winner Diversification",
+      "minimumSampleCount": 120,
+      "minimumRate": 0.12,
+      "signal": "winnerMissRate",
+      "conditionHierarchy": [
+        "venue+raceNoGroup+predictedWinner+wind+lane1Class",
+        "venue+raceNoGroup+predictedWinner+wind",
+        "raceNoGroup+predictedWinner+wind",
+        "raceNoGroup+predictedWinner"
+      ],
+      "removalPolicy": "lowest training-only ticket utility, then candidate redundancy",
+      "actualResultAvailableToBuilder": false
+    }
+  },
+  "invariants": {
+    "walkForwardFoldCount": 13,
+    "validationRaceCount": 3737,
+    "changedRaceDetailCount": 5539,
+    "futureTrainingViolationCount": 0,
+    "roiSelectionReferenceCount": 0
+  }
+}
