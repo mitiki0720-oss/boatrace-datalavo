@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-prediction-structure-contract-audit",
+  "auditDate": "2026-10-05",
+  "generatedAt": "2026-10-04T18:40:56.179Z",
+  "mode": "strict-source-backed",
+  "contract": {
+    "predictionText": "prediction.textExcerpt with prediction.sourceStatus === available",
+    "parser": "strict-ticket-pattern after a buy-ticket marker and 3-trifecta group heading",
+    "resultPath": "officialResult.finishOrder",
+    "payoutPath": "officialResult.payout[]",
+    "evaluation": "exact ordered boat-number triple only"
+  },
+  "targetDate": {
+    "date": "2026-10-05",
+    "summary": {
+      "venueCount": 12,
+      "raceCount": 144,
+      "officialRaceCount": 144,
+      "resultAvailableRaceCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "exhibitionAvailableRaceCount": 0,
+      "weatherAvailableRaceCount": 144,
+      "motorAvailableRaceCount": 144,
+      "boatAvailableRaceCount": 144,
+      "racerAvailableRaceCount": 144,
+      "predictionTextAvailableRaceCount": 0,
+      "structuredTicketAvailableRaceCount": 0,
+      "structuredTicketCount": 0,
+      "classifiedTicketCount": 0,
+      "unclassifiedTicketCount": 0,
+      "evaluatedPredictionRaceCount": 0,
+      "hitRaceCount": 0,
+      "missRaceCount": 0,
+      "payoutLinkedHitCount": 0,
+      "totalSourceBackedPayoutYen": 0
+    },
+    "readiness": {
+      "status": "ready",
+      "reason": "Source-backed strict structured tickets and exact-order evaluations meet the readiness threshold.",
+      "missingRequirements": []
+    }
+  },
+  "historyCoverage": {
+    "schemaVersion": "boat-ex-structured-tickets-v1",
+    "kind": "boatrace-ex-structured-tickets-history-summary",
+    "generatedAt": "2026-10-04T18:40:36.415Z",
+    "periodStart": "2026-05-24",
+    "periodEnd": "2026-10-05",
+    "dateCount": 129,
+    "historyRaceCount": 18696,
+    "raceCount": 18696,
+    "predictionTextAvailableRaceCount": 13992,
+    "structuredTicketAvailableRaceCount": 4358,
+    "structuredTicketCount": 43578,
+    "classifiedTicketCount": 43458,
+    "unclassifiedTicketCount": 120,
+    "evaluatedPredictionRaceCount": 4345,
+    "hitRaceCount": 1468,
+    "missRaceCount": 2877,
+    "resultUnavailableEvaluationCount": 13,
+    "payoutLinkedHitCount": 1463,
+    "totalSourceBackedPayoutYen": 3355190,
+    "totalSourceBackedInvestmentYen": 1698000,
+    "groups": {
+      "厚め": {
+        "ticketCount": 8692,
+        "evaluatedRaceCount": 4333,
+        "hitCount": 612,
+        "investmentYen": 339600,
+        "payoutYen": 753310,
+        "recoveryRate": 2.2182
+      },
+      "本線": {
+        "ticketCount": 13040,
+        "evaluatedRaceCount": 4333,
+        "hitCount": 562,
+        "investmentYen": 509400,
+        "payoutYen": 1050560,
+        "recoveryRate": 2.0623
+      },
+      "中穴": {
+        "ticketCount": 13035,
+        "evaluatedRaceCount": 4332,
+        "hitCount": 243,
+        "investmentYen": 509400,
+        "payoutYen": 843430,
+        "recoveryRate": 1.6557
+      },
+      "大穴": {
+        "ticketCount": 8691,
+        "evaluatedRaceCount": 4333,
+        "hitCount": 48,
+        "investmentYen": 339600,
+        "payoutYen": 704860,
+        "recoveryRate": 2.0756
+      }
+    },
+    "readiness": {
+      "status": "ready",
+      "reason": "Source-backed strict structured tickets and exact-order evaluations meet the readiness threshold.",
+      "missingRequirements": []
+    },
+    "parserVersion": "boat-ex-strict-ticket-parser-v2",
+    "parserRules": [
+      "Only source-backed prediction.textExcerpt values are read.",
+      "Only text after the first buy-ticket marker is eligible.",
+      "A ticket section must contain the 3-trifecta marker and an allowed group label.",
+      "Only a line-level ordered three-boat pattern using 1 through 6 is accepted.",
+      "The numbered pipe format NN | 3連単 | A-B-C | category is accepted exactly as written.",
+      "Repeated boat numbers, formation expressions, entrance assumptions, prose, and non-ticket text are skipped.",
+      "A hit requires an exact ordered match against officialResult.finishOrder[0..2]."
+    ],
+    "skippedReasons": {
+      "buy-ticket-marker-unavailable": 9626,
+      "strict-ticket-pattern-unavailable": 8,
+      "prediction-text-unavailable": 4704
+    },
+    "sourcePaths": [
+      "public/data/boatrace-ex/index.generated.json"
+    ],
+    "auditPaths": [
+      "public/data/boatrace-ex/audit/structured-tickets-evaluation-2026-10-05.generated.json"
+    ]
+  },
+  "sourceFiles": [
+    "public/data/boatrace-ex/index.generated.json",
+    "public/data/boatrace-ex/history/races/2026-10-05.json",
+    "public/data/boatrace-ex/derived/prediction-structure/history-summary.json"
+  ]
+}
