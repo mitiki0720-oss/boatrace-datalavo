@@ -4,7 +4,7 @@
 
 - period: 2026-05-24 to 2026-10-05
 - source appearances: 37368
-- registry identities: 1598
+- registry identities: 1599
 - first/last seen: 2026-05-24 / 2026-10-05
 
 ## Safety
