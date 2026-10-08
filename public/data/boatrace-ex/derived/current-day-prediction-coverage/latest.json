@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-current-day-prediction-coverage",
   "targetDate": "2026-10-09",
-  "generatedAt": "2026-10-08T20:46:45.263Z",
+  "generatedAt": "2026-10-08T23:06:46.105Z",
   "sourcePath": "public/data/boatrace/today-race-details.generated.json",
   "identityPolicy": "registrationNo exact registry lookup only; no name-only linkage",
   "venueCount": 12,
@@ -12,9 +12,9 @@
   "registrationPresentCount": 864,
   "registrationMissingCount": 0,
   "exactRegistryLinkedCount": 864,
-  "weatherAvailableRaceCount": 0,
-  "windAvailableRaceCount": 0,
-  "waveAvailableRaceCount": 0,
+  "weatherAvailableRaceCount": 24,
+  "windAvailableRaceCount": 24,
+  "waveAvailableRaceCount": 24,
   "exhibitionDisplayTimeCompleteRaceCount": 0,
   "exhibitionDisplayTimePartialRaceCount": 0,
   "exhibitionDisplayTimeMissingRaceCount": 144,
@@ -34,8 +34,12 @@
   "rawPayoutWithoutCompleteResultCount": 0,
   "resultStatus": "pre-race",
   "sourceKinds": [
+    "official-beforeinfo-fetch-unavailable",
     "official:owpc-html",
-    "official:owpc-html+beforeinfo"
+    "official:owpc-html+beforeinfo",
+    "official:owpc-html+odds",
+    "official:owpc-html+odds+venue-weather",
+    "official:owpc-html+partial-odds+venue-weather"
   ],
   "venues": [
     {
@@ -77,7 +81,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -90,7 +94,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -103,7 +107,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -116,7 +120,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -129,7 +133,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -142,7 +146,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -155,7 +159,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -168,7 +172,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -181,7 +185,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -194,7 +198,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -207,7 +211,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -220,7 +224,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         }
       ]
@@ -264,7 +268,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -277,7 +281,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -290,7 +294,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -303,7 +307,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -316,7 +320,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -329,7 +333,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -342,7 +346,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -355,7 +359,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -368,7 +372,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -381,7 +385,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -394,7 +398,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -407,7 +411,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         }
       ]
@@ -451,7 +455,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -464,7 +468,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -477,7 +481,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -490,7 +494,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -503,7 +507,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -516,7 +520,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -529,7 +533,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -542,7 +546,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -555,7 +559,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -568,7 +572,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -581,7 +585,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -594,7 +598,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         }
       ]
@@ -638,7 +642,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -651,7 +655,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -664,7 +668,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -677,7 +681,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -690,7 +694,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -703,7 +707,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -716,7 +720,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -729,7 +733,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -742,7 +746,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -755,7 +759,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -768,7 +772,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -781,7 +785,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         }
       ]
@@ -825,7 +829,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -838,7 +842,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -851,7 +855,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -864,7 +868,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -877,7 +881,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -890,7 +894,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -903,7 +907,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -916,7 +920,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -929,7 +933,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -942,7 +946,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -955,7 +959,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -968,7 +972,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         }
       ]
@@ -1012,7 +1016,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1025,7 +1029,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1038,7 +1042,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1051,7 +1055,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1064,7 +1068,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1077,7 +1081,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1090,7 +1094,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1103,7 +1107,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1116,7 +1120,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1129,7 +1133,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1142,7 +1146,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1155,7 +1159,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         }
       ]
@@ -1199,7 +1203,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1212,7 +1216,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1225,7 +1229,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1238,7 +1242,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1251,7 +1255,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1264,7 +1268,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1277,7 +1281,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1290,7 +1294,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1303,7 +1307,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1316,7 +1320,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1329,7 +1333,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1342,7 +1346,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         }
       ]
@@ -1356,9 +1360,9 @@
       "registrationPresentCount": 72,
       "registrationMissingCount": 0,
       "exactRegistryLinkedCount": 72,
-      "weatherAvailableRaceCount": 0,
-      "windAvailableRaceCount": 0,
-      "waveAvailableRaceCount": 0,
+      "weatherAvailableRaceCount": 12,
+      "windAvailableRaceCount": 12,
+      "waveAvailableRaceCount": 12,
       "exhibitionDisplayTimeCompleteRaceCount": 0,
       "exhibitionDisplayTimePartialRaceCount": 0,
       "exhibitionDisplayTimeMissingRaceCount": 12,
@@ -1386,7 +1390,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1399,7 +1403,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1412,7 +1416,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1425,7 +1429,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1438,7 +1442,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1451,7 +1455,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1464,7 +1468,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1477,7 +1481,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1490,7 +1494,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1503,7 +1507,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1516,7 +1520,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1529,7 +1533,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         }
       ]
@@ -1572,8 +1576,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1585,8 +1589,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1598,8 +1602,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1611,8 +1615,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1625,7 +1629,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1637,8 +1641,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1650,8 +1654,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1664,7 +1668,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1677,7 +1681,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1690,7 +1694,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1702,8 +1706,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1715,8 +1719,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         }
       ]
@@ -1760,7 +1764,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1773,7 +1777,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1786,7 +1790,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1798,8 +1802,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1812,7 +1816,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1824,8 +1828,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1838,7 +1842,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1850,8 +1854,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1864,7 +1868,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1877,7 +1881,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1889,8 +1893,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1903,7 +1907,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         }
       ]
@@ -1917,9 +1921,9 @@
       "registrationPresentCount": 72,
       "registrationMissingCount": 0,
       "exactRegistryLinkedCount": 72,
-      "weatherAvailableRaceCount": 0,
-      "windAvailableRaceCount": 0,
-      "waveAvailableRaceCount": 0,
+      "weatherAvailableRaceCount": 12,
+      "windAvailableRaceCount": 12,
+      "waveAvailableRaceCount": 12,
       "exhibitionDisplayTimeCompleteRaceCount": 0,
       "exhibitionDisplayTimePartialRaceCount": 0,
       "exhibitionDisplayTimeMissingRaceCount": 12,
@@ -1946,8 +1950,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1960,7 +1964,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1973,7 +1977,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1986,7 +1990,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -1999,7 +2003,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2012,7 +2016,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2024,8 +2028,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2038,7 +2042,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2051,7 +2055,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2064,7 +2068,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2077,7 +2081,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2089,8 +2093,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         }
       ]
@@ -2134,7 +2138,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2147,7 +2151,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2159,8 +2163,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2173,7 +2177,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2186,7 +2190,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2199,7 +2203,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2212,7 +2216,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2225,7 +2229,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2238,7 +2242,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2251,7 +2255,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2264,7 +2268,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         },
         {
@@ -2277,7 +2281,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+          "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
           "warnings": []
         }
       ]
@@ -2294,7 +2298,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2307,7 +2311,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2320,7 +2324,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2333,7 +2337,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2346,7 +2350,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2359,7 +2363,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2372,7 +2376,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2385,7 +2389,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2398,7 +2402,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2411,7 +2415,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2424,7 +2428,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2437,7 +2441,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2450,7 +2454,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2463,7 +2467,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2476,7 +2480,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2489,7 +2493,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2502,7 +2506,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2515,7 +2519,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2528,7 +2532,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2541,7 +2545,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2554,7 +2558,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2567,7 +2571,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2580,7 +2584,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2593,7 +2597,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2606,7 +2610,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2619,7 +2623,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2632,7 +2636,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2645,7 +2649,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2658,7 +2662,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2671,7 +2675,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2684,7 +2688,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2697,7 +2701,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2710,7 +2714,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2723,7 +2727,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2736,7 +2740,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2749,7 +2753,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2762,7 +2766,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2775,7 +2779,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2788,7 +2792,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2801,7 +2805,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2814,7 +2818,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2827,7 +2831,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2840,7 +2844,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2853,7 +2857,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2866,7 +2870,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2879,7 +2883,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2892,7 +2896,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2905,7 +2909,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2918,7 +2922,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2931,7 +2935,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2944,7 +2948,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2957,7 +2961,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2970,7 +2974,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2983,7 +2987,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -2996,7 +3000,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3009,7 +3013,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3022,7 +3026,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3035,7 +3039,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3048,7 +3052,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3061,7 +3065,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3074,7 +3078,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3087,7 +3091,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3100,7 +3104,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3113,7 +3117,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3126,7 +3130,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3139,7 +3143,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3152,7 +3156,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3165,7 +3169,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3178,7 +3182,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3191,7 +3195,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3204,7 +3208,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3217,7 +3221,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3230,7 +3234,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3243,7 +3247,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3256,7 +3260,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3269,7 +3273,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3282,7 +3286,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3295,7 +3299,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3308,7 +3312,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3321,7 +3325,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3334,7 +3338,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3347,7 +3351,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3360,7 +3364,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3373,7 +3377,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3386,7 +3390,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3399,7 +3403,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3412,7 +3416,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3425,7 +3429,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3438,7 +3442,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3451,7 +3455,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3464,7 +3468,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3477,7 +3481,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3490,7 +3494,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3503,7 +3507,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3516,7 +3520,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3529,7 +3533,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3541,8 +3545,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3554,8 +3558,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3567,8 +3571,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3580,8 +3584,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3594,7 +3598,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3606,8 +3610,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3619,8 +3623,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3633,7 +3637,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3646,7 +3650,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3659,7 +3663,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3671,8 +3675,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3684,8 +3688,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3698,7 +3702,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3711,7 +3715,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3724,7 +3728,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3736,8 +3740,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3750,7 +3754,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3762,8 +3766,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3776,7 +3780,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3788,8 +3792,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3802,7 +3806,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3815,7 +3819,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3827,8 +3831,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3841,7 +3845,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3853,8 +3857,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3867,7 +3871,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3880,7 +3884,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3893,7 +3897,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3906,7 +3910,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3919,7 +3923,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3931,8 +3935,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3945,7 +3949,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3958,7 +3962,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3971,7 +3975,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3984,7 +3988,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -3996,8 +4000,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4010,7 +4014,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -4023,7 +4027,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -4035,8 +4039,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4049,7 +4053,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -4062,7 +4066,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -4075,7 +4079,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -4088,7 +4092,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -4101,7 +4105,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -4114,7 +4118,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -4127,7 +4131,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -4140,7 +4144,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     },
     {
@@ -4153,7 +4157,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-10-09T05:40:10+09:00",
+      "sourceAcquiredAt": "2026-10-09T08:01:03+09:00",
       "warnings": []
     }
   ]
