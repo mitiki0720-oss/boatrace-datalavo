@@ -1,10 +1,10 @@
 {
   "schemaVersion": "boat-ex-today-flow-v1",
-  "generatedAt": "2026-10-09T20:08:58.768Z",
+  "generatedAt": "2026-10-10T00:45:51.597Z",
   "status": "available",
   "readiness": {
-    "status": "insufficient-history",
-    "reason": "No result-backed races are available."
+    "status": "available",
+    "reason": "Source-backed same-day result and payout facts are available."
   },
   "targetDate": "2026-10-10",
   "dateRange": {
@@ -15,9 +15,9 @@
   "summary": {
     "venueCount": 13,
     "raceCount": 156,
-    "resultAvailableRaceCount": 0,
-    "trifectaAvailableRaceCount": 0,
-    "payoutAvailableRaceCount": 0
+    "resultAvailableRaceCount": 5,
+    "trifectaAvailableRaceCount": 5,
+    "payoutAvailableRaceCount": 5
   },
   "venues": [
     {
@@ -1004,27 +1004,27 @@
       "venueCode": "18",
       "venueName": "徳山",
       "raceCount": 12,
-      "resultAvailableRaceCount": 0,
+      "resultAvailableRaceCount": 2,
       "firstPlaceBoatCounts": {
         "1": 0,
         "2": 0,
-        "3": 0,
-        "4": 0,
+        "3": 1,
+        "4": 1,
         "5": 0,
         "6": 0
       },
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
+          "firstPlaceBoat": "3",
+          "trifecta": "3-1-4",
+          "payoutYen": 14060
         },
         {
           "raceNo": 2,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
+          "firstPlaceBoat": "4",
+          "trifecta": "4-3-1",
+          "payoutYen": 6690
         },
         {
           "raceNo": 3,
@@ -1088,15 +1088,15 @@
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [],
-      "insideWinCount": 0,
-      "outsideWinCount": 0,
-      "payoutAvailableRaceCount": 0,
-      "highPayoutRaceCount": 0,
-      "notes": [
-        "No source-backed results are available for this venue.",
-        "No source-backed trifecta payout values are available for this venue."
-      ]
+      "recentFirstPlaceBoats": [
+        "3",
+        "4"
+      ],
+      "insideWinCount": 1,
+      "outsideWinCount": 1,
+      "payoutAvailableRaceCount": 2,
+      "highPayoutRaceCount": 1,
+      "notes": []
     },
     {
       "venueCode": "22",
@@ -1200,33 +1200,33 @@
       "venueCode": "23",
       "venueName": "唐津",
       "raceCount": 12,
-      "resultAvailableRaceCount": 0,
+      "resultAvailableRaceCount": 3,
       "firstPlaceBoatCounts": {
-        "1": 0,
+        "1": 2,
         "2": 0,
         "3": 0,
-        "4": 0,
+        "4": 1,
         "5": 0,
         "6": 0
       },
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
+          "firstPlaceBoat": "1",
+          "trifecta": "1-4-6",
+          "payoutYen": 2050
         },
         {
           "raceNo": 2,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
+          "firstPlaceBoat": "1",
+          "trifecta": "1-2-4",
+          "payoutYen": 3640
         },
         {
           "raceNo": 3,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
+          "firstPlaceBoat": "4",
+          "trifecta": "4-5-2",
+          "payoutYen": 24700
         },
         {
           "raceNo": 4,
@@ -1284,15 +1284,16 @@
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [],
-      "insideWinCount": 0,
-      "outsideWinCount": 0,
-      "payoutAvailableRaceCount": 0,
-      "highPayoutRaceCount": 0,
-      "notes": [
-        "No source-backed results are available for this venue.",
-        "No source-backed trifecta payout values are available for this venue."
-      ]
+      "recentFirstPlaceBoats": [
+        "1",
+        "1",
+        "4"
+      ],
+      "insideWinCount": 2,
+      "outsideWinCount": 1,
+      "payoutAvailableRaceCount": 3,
+      "highPayoutRaceCount": 1,
+      "notes": []
     }
   ],
   "sourceFiles": [
@@ -1309,8 +1310,5 @@
       "coverageStatus": "partial"
     }
   ],
-  "warnings": [
-    "No source-backed same-day result facts are available.",
-    "Payout data is not available; payout-based flow facts are disabled."
-  ]
+  "warnings": []
 }
