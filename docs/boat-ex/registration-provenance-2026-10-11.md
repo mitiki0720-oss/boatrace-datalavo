@@ -6,14 +6,14 @@ Only metadata from the same history race record is copied. sourceFetchedAt uses 
 
 ## Result
 
-- before complete/missing: 41832/744
-- propagated: 744
+- before complete/missing: 41832/936
+- propagated: 936
 - alreadyComplete: 41832
 - sourceMissing: 0
 - sourceConflict: 0
 - contextMismatch: 0
 - unresolved: 0
-- after complete/missing: 42576/0
+- after complete/missing: 42768/0
 - changed dates: 2026-10-11
 
 ## Safety
