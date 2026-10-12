@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "kind": "boat-ex-weather-water-history-v1",
-  "generatedAt": "2026-10-11T19:35:43.103Z",
+  "generatedAt": "2026-10-12T22:35:31.061Z",
   "sourceFiles": [
     {
       "sourceName": "boatrace-ex-date-index",
       "sourceType": "derived",
       "sourcePath": "public/data/boatrace-ex/index.generated.json",
-      "generatedAt": "2026-10-11T19:34:31.519Z",
+      "generatedAt": "2026-10-12T22:34:30.830Z",
       "sourceStatus": "available",
       "coverageStatus": "available"
     },
@@ -962,20 +962,27 @@
       "sourcePath": "public/data/boatrace-ex/history/races/2026-10-12.json",
       "sourceStatus": "available",
       "coverageStatus": "available"
+    },
+    {
+      "sourceName": "boatrace-ex-history-races",
+      "sourceType": "derived",
+      "sourcePath": "public/data/boatrace-ex/history/races/2026-10-13.json",
+      "sourceStatus": "available",
+      "coverageStatus": "available"
     }
   ],
   "dateRange": {
     "from": "2026-05-24",
-    "to": "2026-10-12",
-    "dateCount": 136
+    "to": "2026-10-13",
+    "dateCount": 137
   },
   "summary": {
-    "raceCount": 19764,
+    "raceCount": 19896,
     "venueCount": 24,
-    "weatherAvailableRaceCount": 19764,
+    "weatherAvailableRaceCount": 19896,
     "weatherCoverageRate": 1,
-    "windSpeedAvailableRaceCount": 19248,
-    "waveHeightAvailableRaceCount": 19200
+    "windSpeedAvailableRaceCount": 19404,
+    "waveHeightAvailableRaceCount": 19356
   },
   "venues": [
     {
@@ -985,46 +992,46 @@
       "raceCount": 816,
       "weatherAvailableRaceCount": 816,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 791,
-      "waveHeightAvailableRaceCount": 791,
+      "windSpeedAvailableRaceCount": 803,
+      "waveHeightAvailableRaceCount": 803,
       "windSpeedAverageMps": 2.48,
       "windSpeedMaxMps": 9,
       "waveHeightAverageCm": 1.68,
       "waveHeightMaxCm": 8,
       "weatherConditionCounts": {
-        "曇り": 156,
-        "晴": 126,
+        "曇り": 163,
+        "晴": 131,
         "雨": 66,
         "取得済み": 444,
-        "確認中": 24
+        "確認中": 12
       },
       "windDirectionCounts": {
-        "南南西": 325,
-        "南南東": 146,
-        "西南西": 59,
+        "南南西": 328,
+        "南南東": 147,
+        "西南西": 67,
         "東南東": 94,
         "無風": 50,
         "東北東": 87,
         "北北東": 30,
-        "確認中": 25
+        "確認中": 13
       },
       "windSpeedBandCounts": {
-        "0-2m": 439,
-        "3-5m": 340,
+        "0-2m": 447,
+        "3-5m": 344,
         "6m+": 12,
-        "unknown": 25
+        "unknown": 13
       },
       "waveHeightBandCounts": {
-        "0-2cm": 643,
-        "3-5cm": 139,
+        "0-2cm": 654,
+        "3-5cm": 140,
         "6cm+": 9,
-        "unknown": 25
+        "unknown": 13
       },
       "conditionProfiles": {
         "weather": [
           {
             "key": "曇り",
-            "raceCount": 156,
+            "raceCount": 163,
             "courseFirstCounts": {
               "1": 75,
               "2": 23,
@@ -1036,19 +1043,19 @@
             "payoutAvailableRaceCount": 156,
             "trifectaOver10000Count": 35,
             "courseFirstRates": {
-              "1": 0.4808,
-              "2": 0.1474,
-              "3": 0.1795,
-              "4": 0.0705,
-              "5": 0.0833,
-              "6": 0.0385
+              "1": 0.4601,
+              "2": 0.1411,
+              "3": 0.1718,
+              "4": 0.0675,
+              "5": 0.0798,
+              "6": 0.0368
             },
             "roughRate": 0.2244,
             "readiness": "ready"
           },
           {
             "key": "晴",
-            "raceCount": 126,
+            "raceCount": 131,
             "courseFirstCounts": {
               "1": 35,
               "2": 10,
@@ -1060,12 +1067,12 @@
             "payoutAvailableRaceCount": 66,
             "trifectaOver10000Count": 6,
             "courseFirstRates": {
-              "1": 0.2778,
-              "2": 0.0794,
-              "3": 0.0794,
-              "4": 0.0556,
-              "5": 0.0079,
-              "6": 0.0238
+              "1": 0.2672,
+              "2": 0.0763,
+              "3": 0.0763,
+              "4": 0.0534,
+              "5": 0.0076,
+              "6": 0.0229
             },
             "roughRate": 0.0909,
             "readiness": "ready"
@@ -1120,7 +1127,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -1146,7 +1153,7 @@
         "windDirection": [
           {
             "key": "南南西",
-            "raceCount": 325,
+            "raceCount": 328,
             "courseFirstCounts": {
               "1": 159,
               "2": 31,
@@ -1158,19 +1165,19 @@
             "payoutAvailableRaceCount": 304,
             "trifectaOver10000Count": 58,
             "courseFirstRates": {
-              "1": 0.4892,
-              "2": 0.0954,
-              "3": 0.1415,
-              "4": 0.0923,
-              "5": 0.08,
-              "6": 0.04
+              "1": 0.4848,
+              "2": 0.0945,
+              "3": 0.1402,
+              "4": 0.0915,
+              "5": 0.0793,
+              "6": 0.0396
             },
             "roughRate": 0.1908,
             "readiness": "ready"
           },
           {
             "key": "南南東",
-            "raceCount": 146,
+            "raceCount": 147,
             "courseFirstCounts": {
               "1": 75,
               "2": 28,
@@ -1182,19 +1189,19 @@
             "payoutAvailableRaceCount": 140,
             "trifectaOver10000Count": 27,
             "courseFirstRates": {
-              "1": 0.5137,
-              "2": 0.1918,
-              "3": 0.137,
-              "4": 0.0548,
-              "5": 0.0205,
-              "6": 0.0411
+              "1": 0.5102,
+              "2": 0.1905,
+              "3": 0.1361,
+              "4": 0.0544,
+              "5": 0.0204,
+              "6": 0.0408
             },
             "roughRate": 0.1929,
             "readiness": "ready"
           },
           {
             "key": "西南西",
-            "raceCount": 59,
+            "raceCount": 67,
             "courseFirstCounts": {
               "1": 22,
               "2": 9,
@@ -1206,12 +1213,12 @@
             "payoutAvailableRaceCount": 50,
             "trifectaOver10000Count": 10,
             "courseFirstRates": {
-              "1": 0.3729,
-              "2": 0.1525,
-              "3": 0.1864,
-              "4": 0.0508,
-              "5": 0.0508,
-              "6": 0.0339
+              "1": 0.3284,
+              "2": 0.1343,
+              "3": 0.1642,
+              "4": 0.0448,
+              "5": 0.0448,
+              "6": 0.0299
             },
             "roughRate": 0.2,
             "readiness": "ready"
@@ -1314,7 +1321,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 25,
+            "raceCount": 13,
             "courseFirstCounts": {
               "1": 1,
               "2": 0,
@@ -1326,7 +1333,7 @@
             "payoutAvailableRaceCount": 0,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.04,
+              "1": 0.0769,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -1340,7 +1347,7 @@
         "windSpeedBand": [
           {
             "key": "3-5m",
-            "raceCount": 340,
+            "raceCount": 344,
             "courseFirstCounts": {
               "1": 150,
               "2": 39,
@@ -1352,19 +1359,19 @@
             "payoutAvailableRaceCount": 323,
             "trifectaOver10000Count": 66,
             "courseFirstRates": {
-              "1": 0.4412,
-              "2": 0.1147,
-              "3": 0.1647,
-              "4": 0.1,
-              "5": 0.0794,
-              "6": 0.0529
+              "1": 0.436,
+              "2": 0.1134,
+              "3": 0.1628,
+              "4": 0.0988,
+              "5": 0.0785,
+              "6": 0.0523
             },
             "roughRate": 0.2043,
             "readiness": "ready"
           },
           {
             "key": "0-2m",
-            "raceCount": 439,
+            "raceCount": 447,
             "courseFirstCounts": {
               "1": 219,
               "2": 62,
@@ -1376,19 +1383,19 @@
             "payoutAvailableRaceCount": 395,
             "trifectaOver10000Count": 61,
             "courseFirstRates": {
-              "1": 0.4989,
-              "2": 0.1412,
-              "3": 0.1139,
-              "4": 0.0683,
-              "5": 0.0433,
-              "6": 0.0342
+              "1": 0.4899,
+              "2": 0.1387,
+              "3": 0.1119,
+              "4": 0.0671,
+              "5": 0.0425,
+              "6": 0.0336
             },
             "roughRate": 0.1544,
             "readiness": "ready"
           },
           {
             "key": "unknown",
-            "raceCount": 25,
+            "raceCount": 13,
             "courseFirstCounts": {
               "1": 1,
               "2": 0,
@@ -1400,7 +1407,7 @@
             "payoutAvailableRaceCount": 0,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.04,
+              "1": 0.0769,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -1438,7 +1445,7 @@
         "waveHeightBand": [
           {
             "key": "0-2cm",
-            "raceCount": 643,
+            "raceCount": 654,
             "courseFirstCounts": {
               "1": 309,
               "2": 86,
@@ -1450,19 +1457,19 @@
             "payoutAvailableRaceCount": 589,
             "trifectaOver10000Count": 104,
             "courseFirstRates": {
-              "1": 0.4806,
-              "2": 0.1337,
-              "3": 0.1369,
-              "4": 0.0762,
-              "5": 0.0482,
-              "6": 0.042
+              "1": 0.4725,
+              "2": 0.1315,
+              "3": 0.1346,
+              "4": 0.0749,
+              "5": 0.0474,
+              "6": 0.0413
             },
             "roughRate": 0.1766,
             "readiness": "ready"
           },
           {
             "key": "3-5cm",
-            "raceCount": 139,
+            "raceCount": 140,
             "courseFirstCounts": {
               "1": 60,
               "2": 16,
@@ -1474,19 +1481,19 @@
             "payoutAvailableRaceCount": 132,
             "trifectaOver10000Count": 25,
             "courseFirstRates": {
-              "1": 0.4317,
-              "2": 0.1151,
-              "3": 0.1295,
-              "4": 0.1151,
-              "5": 0.1151,
-              "6": 0.0432
+              "1": 0.4286,
+              "2": 0.1143,
+              "3": 0.1286,
+              "4": 0.1143,
+              "5": 0.1143,
+              "6": 0.0429
             },
             "roughRate": 0.1894,
             "readiness": "ready"
           },
           {
             "key": "unknown",
-            "raceCount": 25,
+            "raceCount": 13,
             "courseFirstCounts": {
               "1": 1,
               "2": 0,
@@ -1498,7 +1505,7 @@
             "payoutAvailableRaceCount": 0,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.04,
+              "1": 0.0769,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -1536,7 +1543,7 @@
         "exact": [
           {
             "key": "{\"weather\":\"曇り\",\"windDirection\":\"南南西\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 31,
+            "raceCount": 32,
             "courseFirstCounts": {
               "1": 14,
               "2": 2,
@@ -1548,19 +1555,19 @@
             "payoutAvailableRaceCount": 31,
             "trifectaOver10000Count": 9,
             "courseFirstRates": {
-              "1": 0.4516,
-              "2": 0.0645,
-              "3": 0.2903,
-              "4": 0.0323,
-              "5": 0.0968,
-              "6": 0.0645
+              "1": 0.4375,
+              "2": 0.0625,
+              "3": 0.2813,
+              "4": 0.0313,
+              "5": 0.0938,
+              "6": 0.0625
             },
             "roughRate": 0.2903,
             "readiness": "ready"
           },
           {
             "key": "{\"weather\":\"曇り\",\"windDirection\":\"南南東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 22,
+            "raceCount": 23,
             "courseFirstCounts": {
               "1": 9,
               "2": 6,
@@ -1572,19 +1579,19 @@
             "payoutAvailableRaceCount": 22,
             "trifectaOver10000Count": 7,
             "courseFirstRates": {
-              "1": 0.4091,
-              "2": 0.2727,
-              "3": 0.2273,
+              "1": 0.3913,
+              "2": 0.2609,
+              "3": 0.2174,
               "4": 0,
-              "5": 0.0455,
-              "6": 0.0455
+              "5": 0.0435,
+              "6": 0.0435
             },
             "roughRate": 0.3182,
             "readiness": "low-sample"
           },
           {
             "key": "{\"weather\":\"曇り\",\"windDirection\":\"南南西\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 27,
+            "raceCount": 28,
             "courseFirstCounts": {
               "1": 12,
               "2": 4,
@@ -1596,19 +1603,19 @@
             "payoutAvailableRaceCount": 27,
             "trifectaOver10000Count": 6,
             "courseFirstRates": {
-              "1": 0.4444,
-              "2": 0.1481,
-              "3": 0.0741,
-              "4": 0.0741,
-              "5": 0.2222,
-              "6": 0.037
+              "1": 0.4286,
+              "2": 0.1429,
+              "3": 0.0714,
+              "4": 0.0714,
+              "5": 0.2143,
+              "6": 0.0357
             },
             "roughRate": 0.2222,
             "readiness": "low-sample"
           },
           {
             "key": "{\"weather\":\"曇り\",\"windDirection\":\"南南西\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 27,
+            "raceCount": 28,
             "courseFirstCounts": {
               "1": 18,
               "2": 1,
@@ -1620,11 +1627,11 @@
             "payoutAvailableRaceCount": 27,
             "trifectaOver10000Count": 3,
             "courseFirstRates": {
-              "1": 0.6667,
-              "2": 0.037,
-              "3": 0.1111,
-              "4": 0.1111,
-              "5": 0.0741,
+              "1": 0.6429,
+              "2": 0.0357,
+              "3": 0.1071,
+              "4": 0.1071,
+              "5": 0.0714,
               "6": 0
             },
             "roughRate": 0.1111,
@@ -2616,7 +2623,7 @@
           },
           {
             "key": "{\"weather\":\"確認中\",\"windDirection\":\"確認中\",\"windSpeedBand\":\"unknown\",\"waveHeightBand\":\"unknown\"}",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -2760,7 +2767,7 @@
           },
           {
             "key": "{\"weather\":\"曇り\",\"windDirection\":\"西南西\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 7,
+            "raceCount": 10,
             "courseFirstCounts": {
               "1": 6,
               "2": 0,
@@ -2772,10 +2779,10 @@
             "payoutAvailableRaceCount": 7,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.8571,
+              "1": 0.6,
               "2": 0,
               "3": 0,
-              "4": 0.1429,
+              "4": 0.1,
               "5": 0,
               "6": 0
             },
@@ -3024,7 +3031,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"西南西\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 7,
+            "raceCount": 10,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -3120,7 +3127,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"西南西\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 2,
+            "raceCount": 4,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -3160,9 +3167,9 @@
       "weatherCoverageRate": 1,
       "windSpeedAvailableRaceCount": 780,
       "waveHeightAvailableRaceCount": 780,
-      "windSpeedAverageMps": 1.66,
+      "windSpeedAverageMps": 1.69,
       "windSpeedMaxMps": 9,
-      "waveHeightAverageCm": 1.05,
+      "waveHeightAverageCm": 1.06,
       "waveHeightMaxCm": 6,
       "weatherConditionCounts": {
         "取得済み": 444,
@@ -3173,22 +3180,21 @@
         "台風": 11
       },
       "windDirectionCounts": {
-        "南南東": 142,
+        "南南東": 145,
         "西北西": 125,
         "北北西": 98,
         "無風": 145,
-        "南南西": 73,
-        "西南西": 112,
+        "南南西": 79,
+        "西南西": 115,
         "北北東": 10,
         "東北東": 8,
         "東南東": 55,
         "-": 1,
-        "確認中": 11,
-        "北東 向い風": 12
+        "確認中": 11
       },
       "windSpeedBandCounts": {
-        "0-2m": 607,
-        "3-5m": 168,
+        "0-2m": 599,
+        "3-5m": 176,
         "6m+": 5,
         "unknown": 12
       },
@@ -3348,7 +3354,7 @@
         "windDirection": [
           {
             "key": "南南東",
-            "raceCount": 142,
+            "raceCount": 145,
             "courseFirstCounts": {
               "1": 40,
               "2": 28,
@@ -3360,12 +3366,12 @@
             "payoutAvailableRaceCount": 112,
             "trifectaOver10000Count": 16,
             "courseFirstRates": {
-              "1": 0.2817,
-              "2": 0.1972,
-              "3": 0.1197,
-              "4": 0.0986,
-              "5": 0.0704,
-              "6": 0.0211
+              "1": 0.2759,
+              "2": 0.1931,
+              "3": 0.1172,
+              "4": 0.0966,
+              "5": 0.069,
+              "6": 0.0207
             },
             "roughRate": 0.1429,
             "readiness": "ready"
@@ -3444,7 +3450,7 @@
           },
           {
             "key": "南南西",
-            "raceCount": 73,
+            "raceCount": 79,
             "courseFirstCounts": {
               "1": 22,
               "2": 4,
@@ -3456,11 +3462,11 @@
             "payoutAvailableRaceCount": 43,
             "trifectaOver10000Count": 9,
             "courseFirstRates": {
-              "1": 0.3014,
-              "2": 0.0548,
-              "3": 0.0548,
-              "4": 0.1096,
-              "5": 0.0685,
+              "1": 0.2785,
+              "2": 0.0506,
+              "3": 0.0506,
+              "4": 0.1013,
+              "5": 0.0633,
               "6": 0
             },
             "roughRate": 0.2093,
@@ -3468,7 +3474,7 @@
           },
           {
             "key": "西南西",
-            "raceCount": 112,
+            "raceCount": 115,
             "courseFirstCounts": {
               "1": 40,
               "2": 17,
@@ -3480,12 +3486,12 @@
             "payoutAvailableRaceCount": 97,
             "trifectaOver10000Count": 12,
             "courseFirstRates": {
-              "1": 0.3571,
-              "2": 0.1518,
-              "3": 0.1518,
-              "4": 0.1161,
-              "5": 0.0714,
-              "6": 0.0357
+              "1": 0.3478,
+              "2": 0.1478,
+              "3": 0.1478,
+              "4": 0.113,
+              "5": 0.0696,
+              "6": 0.0348
             },
             "roughRate": 0.1237,
             "readiness": "ready"
@@ -3609,36 +3615,12 @@
             },
             "roughRate": null,
             "readiness": "low-sample"
-          },
-          {
-            "key": "北東 向い風",
-            "raceCount": 12,
-            "courseFirstCounts": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0
-            },
-            "payoutAvailableRaceCount": 0,
-            "trifectaOver10000Count": 0,
-            "courseFirstRates": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0
-            },
-            "roughRate": null,
-            "readiness": "low-sample"
           }
         ],
         "windSpeedBand": [
           {
             "key": "0-2m",
-            "raceCount": 607,
+            "raceCount": 599,
             "courseFirstCounts": {
               "1": 228,
               "2": 94,
@@ -3650,19 +3632,19 @@
             "payoutAvailableRaceCount": 508,
             "trifectaOver10000Count": 77,
             "courseFirstRates": {
-              "1": 0.3756,
-              "2": 0.1549,
-              "3": 0.1054,
-              "4": 0.1153,
-              "5": 0.0626,
-              "6": 0.0247
+              "1": 0.3806,
+              "2": 0.1569,
+              "3": 0.1068,
+              "4": 0.1169,
+              "5": 0.0634,
+              "6": 0.025
             },
             "roughRate": 0.1516,
             "readiness": "ready"
           },
           {
             "key": "3-5m",
-            "raceCount": 168,
+            "raceCount": 176,
             "courseFirstCounts": {
               "1": 52,
               "2": 34,
@@ -3674,12 +3656,12 @@
             "payoutAvailableRaceCount": 154,
             "trifectaOver10000Count": 32,
             "courseFirstRates": {
-              "1": 0.3095,
-              "2": 0.2024,
-              "3": 0.1905,
-              "4": 0.119,
-              "5": 0.0714,
-              "6": 0.0476
+              "1": 0.2955,
+              "2": 0.1932,
+              "3": 0.1818,
+              "4": 0.1136,
+              "5": 0.0682,
+              "6": 0.0455
             },
             "roughRate": 0.2078,
             "readiness": "ready"
@@ -4602,7 +4584,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南南西\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 12,
+            "raceCount": 13,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -4617,7 +4599,7 @@
               "1": 0,
               "2": 0,
               "3": 0,
-              "4": 0.25,
+              "4": 0.2308,
               "5": 0,
               "6": 0
             },
@@ -4626,7 +4608,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南南東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 31,
+            "raceCount": 34,
             "courseFirstCounts": {
               "1": 4,
               "2": 2,
@@ -4638,9 +4620,9 @@
             "payoutAvailableRaceCount": 9,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.129,
-              "2": 0.0645,
-              "3": 0.0968,
+              "1": 0.1176,
+              "2": 0.0588,
+              "3": 0.0882,
               "4": 0,
               "5": 0,
               "6": 0
@@ -5010,7 +4992,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"西南西\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 6,
+            "raceCount": 9,
             "courseFirstCounts": {
               "1": 1,
               "2": 0,
@@ -5022,7 +5004,7 @@
             "payoutAvailableRaceCount": 1,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.1667,
+              "1": 0.1111,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -5154,31 +5136,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南南西\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 2,
-            "courseFirstCounts": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0
-            },
-            "payoutAvailableRaceCount": 0,
-            "trifectaOver10000Count": 0,
-            "courseFirstRates": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0
-            },
-            "roughRate": null,
-            "readiness": "low-sample"
-          },
-          {
-            "key": "{\"weather\":\"晴\",\"windDirection\":\"北東 向い風\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 12,
+            "raceCount": 7,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -5216,42 +5174,41 @@
       "raceCount": 756,
       "weatherAvailableRaceCount": 756,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 708,
-      "waveHeightAvailableRaceCount": 708,
-      "windSpeedAverageMps": 3.83,
+      "windSpeedAvailableRaceCount": 720,
+      "waveHeightAvailableRaceCount": 720,
+      "windSpeedAverageMps": 3.87,
       "windSpeedMaxMps": 10,
-      "waveHeightAverageCm": 5.88,
+      "waveHeightAverageCm": 5.92,
       "waveHeightMaxCm": 20,
       "weatherConditionCounts": {
         "曇り": 129,
-        "晴": 121,
+        "晴": 133,
         "取得済み": 384,
-        "雨": 110,
-        "確認中": 12
+        "雨": 110
       },
       "windDirectionCounts": {
         "西南西": 128,
-        "西北西": 182,
+        "西北西": 194,
         "北北西": 55,
         "北北東": 86,
         "東北東": 227,
         "南南東": 4,
         "南南西": 8,
         "東南東": 17,
-        "確認中": 48,
+        "確認中": 36,
         "無風": 1
       },
       "windSpeedBandCounts": {
         "0-2m": 225,
-        "3-5m": 330,
-        "6m+": 153,
-        "unknown": 48
+        "3-5m": 331,
+        "6m+": 164,
+        "unknown": 36
       },
       "waveHeightBandCounts": {
         "0-2cm": 0,
-        "3-5cm": 606,
-        "6cm+": 102,
-        "unknown": 48
+        "3-5cm": 612,
+        "6cm+": 108,
+        "unknown": 36
       },
       "conditionProfiles": {
         "weather": [
@@ -5281,7 +5238,7 @@
           },
           {
             "key": "晴",
-            "raceCount": 121,
+            "raceCount": 133,
             "courseFirstCounts": {
               "1": 31,
               "2": 4,
@@ -5293,12 +5250,12 @@
             "payoutAvailableRaceCount": 60,
             "trifectaOver10000Count": 10,
             "courseFirstRates": {
-              "1": 0.2562,
-              "2": 0.0331,
-              "3": 0.0826,
-              "4": 0.0579,
-              "5": 0.0496,
-              "6": 0.0248
+              "1": 0.2331,
+              "2": 0.0301,
+              "3": 0.0752,
+              "4": 0.0526,
+              "5": 0.0451,
+              "6": 0.0226
             },
             "roughRate": 0.1667,
             "readiness": "ready"
@@ -5350,30 +5307,6 @@
             },
             "roughRate": 0.1505,
             "readiness": "ready"
-          },
-          {
-            "key": "確認中",
-            "raceCount": 12,
-            "courseFirstCounts": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0
-            },
-            "payoutAvailableRaceCount": 0,
-            "trifectaOver10000Count": 0,
-            "courseFirstRates": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0
-            },
-            "roughRate": null,
-            "readiness": "low-sample"
           }
         ],
         "windDirection": [
@@ -5403,7 +5336,7 @@
           },
           {
             "key": "西北西",
-            "raceCount": 182,
+            "raceCount": 194,
             "courseFirstCounts": {
               "1": 62,
               "2": 23,
@@ -5415,12 +5348,12 @@
             "payoutAvailableRaceCount": 145,
             "trifectaOver10000Count": 27,
             "courseFirstRates": {
-              "1": 0.3407,
-              "2": 0.1264,
-              "3": 0.1484,
-              "4": 0.1044,
-              "5": 0.0604,
-              "6": 0.0165
+              "1": 0.3196,
+              "2": 0.1186,
+              "3": 0.1392,
+              "4": 0.0979,
+              "5": 0.0567,
+              "6": 0.0155
             },
             "roughRate": 0.1862,
             "readiness": "ready"
@@ -5571,7 +5504,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 48,
+            "raceCount": 36,
             "courseFirstCounts": {
               "1": 36,
               "2": 0,
@@ -5583,7 +5516,7 @@
             "payoutAvailableRaceCount": 0,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.75,
+              "1": 1,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -5621,7 +5554,7 @@
         "windSpeedBand": [
           {
             "key": "3-5m",
-            "raceCount": 330,
+            "raceCount": 331,
             "courseFirstCounts": {
               "1": 126,
               "2": 40,
@@ -5633,19 +5566,19 @@
             "payoutAvailableRaceCount": 274,
             "trifectaOver10000Count": 51,
             "courseFirstRates": {
-              "1": 0.3818,
-              "2": 0.1212,
-              "3": 0.1333,
-              "4": 0.0939,
-              "5": 0.0606,
-              "6": 0.0394
+              "1": 0.3807,
+              "2": 0.1208,
+              "3": 0.1329,
+              "4": 0.0937,
+              "5": 0.0604,
+              "6": 0.0393
             },
             "roughRate": 0.1861,
             "readiness": "ready"
           },
           {
             "key": "6m+",
-            "raceCount": 153,
+            "raceCount": 164,
             "courseFirstCounts": {
               "1": 73,
               "2": 28,
@@ -5657,12 +5590,12 @@
             "payoutAvailableRaceCount": 151,
             "trifectaOver10000Count": 27,
             "courseFirstRates": {
-              "1": 0.4771,
-              "2": 0.183,
-              "3": 0.098,
-              "4": 0.1307,
-              "5": 0.0784,
-              "6": 0.0196
+              "1": 0.4451,
+              "2": 0.1707,
+              "3": 0.0915,
+              "4": 0.122,
+              "5": 0.0732,
+              "6": 0.0183
             },
             "roughRate": 0.1788,
             "readiness": "ready"
@@ -5693,7 +5626,7 @@
           },
           {
             "key": "unknown",
-            "raceCount": 48,
+            "raceCount": 36,
             "courseFirstCounts": {
               "1": 36,
               "2": 0,
@@ -5705,7 +5638,7 @@
             "payoutAvailableRaceCount": 0,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.75,
+              "1": 1,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -5719,7 +5652,7 @@
         "waveHeightBand": [
           {
             "key": "3-5cm",
-            "raceCount": 606,
+            "raceCount": 612,
             "courseFirstCounts": {
               "1": 254,
               "2": 85,
@@ -5731,19 +5664,19 @@
             "payoutAvailableRaceCount": 544,
             "trifectaOver10000Count": 95,
             "courseFirstRates": {
-              "1": 0.4191,
-              "2": 0.1403,
-              "3": 0.1353,
-              "4": 0.1023,
-              "5": 0.0759,
-              "6": 0.0264
+              "1": 0.415,
+              "2": 0.1389,
+              "3": 0.134,
+              "4": 0.1013,
+              "5": 0.0752,
+              "6": 0.0261
             },
             "roughRate": 0.1746,
             "readiness": "ready"
           },
           {
             "key": "6cm+",
-            "raceCount": 102,
+            "raceCount": 108,
             "courseFirstCounts": {
               "1": 45,
               "2": 22,
@@ -5755,19 +5688,19 @@
             "payoutAvailableRaceCount": 91,
             "trifectaOver10000Count": 17,
             "courseFirstRates": {
-              "1": 0.4412,
-              "2": 0.2157,
-              "3": 0.0588,
-              "4": 0.1176,
-              "5": 0.0392,
-              "6": 0.0196
+              "1": 0.4167,
+              "2": 0.2037,
+              "3": 0.0556,
+              "4": 0.1111,
+              "5": 0.037,
+              "6": 0.0185
             },
             "roughRate": 0.1868,
             "readiness": "ready"
           },
           {
             "key": "unknown",
-            "raceCount": 48,
+            "raceCount": 36,
             "courseFirstCounts": {
               "1": 36,
               "2": 0,
@@ -5779,7 +5712,7 @@
             "payoutAvailableRaceCount": 0,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.75,
+              "1": 1,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -5889,7 +5822,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"西北西\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 35,
+            "raceCount": 36,
             "courseFirstCounts": {
               "1": 5,
               "2": 1,
@@ -5901,12 +5834,12 @@
             "payoutAvailableRaceCount": 15,
             "trifectaOver10000Count": 4,
             "courseFirstRates": {
-              "1": 0.1429,
-              "2": 0.0286,
-              "3": 0.1143,
-              "4": 0.0857,
-              "5": 0.0286,
-              "6": 0.0286
+              "1": 0.1389,
+              "2": 0.0278,
+              "3": 0.1111,
+              "4": 0.0833,
+              "5": 0.0278,
+              "6": 0.0278
             },
             "roughRate": 0.2667,
             "readiness": "ready"
@@ -7712,8 +7645,32 @@
             "readiness": "low-sample"
           },
           {
-            "key": "{\"weather\":\"確認中\",\"windDirection\":\"確認中\",\"windSpeedBand\":\"unknown\",\"waveHeightBand\":\"unknown\"}",
-            "raceCount": 12,
+            "key": "{\"weather\":\"晴\",\"windDirection\":\"西北西\",\"windSpeedBand\":\"6m+\",\"waveHeightBand\":\"6cm+\"}",
+            "raceCount": 6,
+            "courseFirstCounts": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "payoutAvailableRaceCount": 0,
+            "trifectaOver10000Count": 0,
+            "courseFirstRates": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "roughRate": null,
+            "readiness": "low-sample"
+          },
+          {
+            "key": "{\"weather\":\"晴\",\"windDirection\":\"西北西\",\"windSpeedBand\":\"6m+\",\"waveHeightBand\":\"3-5cm\"}",
+            "raceCount": 5,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -7747,9 +7704,9 @@
     {
       "venueCode": "04",
       "venueName": "平和島",
-      "dateCount": 63,
-      "raceCount": 756,
-      "weatherAvailableRaceCount": 756,
+      "dateCount": 64,
+      "raceCount": 768,
+      "weatherAvailableRaceCount": 768,
       "weatherCoverageRate": 1,
       "windSpeedAvailableRaceCount": 756,
       "waveHeightAvailableRaceCount": 756,
@@ -7761,7 +7718,8 @@
         "取得済み": 492,
         "曇り": 125,
         "雨": 82,
-        "晴": 57
+        "晴": 57,
+        "確認中": 12
       },
       "windDirectionCounts": {
         "西": 212,
@@ -7772,19 +7730,20 @@
         "北": 24,
         "南東": 7,
         "南西": 6,
-        "南": 2
+        "南": 2,
+        "確認中": 12
       },
       "windSpeedBandCounts": {
         "0-2m": 394,
         "3-5m": 341,
         "6m+": 21,
-        "unknown": 0
+        "unknown": 12
       },
       "waveHeightBandCounts": {
         "0-2cm": 0,
         "3-5cm": 756,
         "6cm+": 0,
-        "unknown": 0
+        "unknown": 12
       },
       "conditionProfiles": {
         "weather": [
@@ -7883,6 +7842,30 @@
             },
             "roughRate": 0.16,
             "readiness": "ready"
+          },
+          {
+            "key": "確認中",
+            "raceCount": 12,
+            "courseFirstCounts": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "payoutAvailableRaceCount": 0,
+            "trifectaOver10000Count": 0,
+            "courseFirstRates": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "roughRate": null,
+            "readiness": "low-sample"
           }
         ],
         "windDirection": [
@@ -8101,6 +8084,30 @@
             },
             "roughRate": 0.5,
             "readiness": "low-sample"
+          },
+          {
+            "key": "確認中",
+            "raceCount": 12,
+            "courseFirstCounts": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "payoutAvailableRaceCount": 0,
+            "trifectaOver10000Count": 0,
+            "courseFirstRates": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "roughRate": null,
+            "readiness": "low-sample"
           }
         ],
         "windSpeedBand": [
@@ -8175,6 +8182,30 @@
             },
             "roughRate": 0.1429,
             "readiness": "low-sample"
+          },
+          {
+            "key": "unknown",
+            "raceCount": 12,
+            "courseFirstCounts": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "payoutAvailableRaceCount": 0,
+            "trifectaOver10000Count": 0,
+            "courseFirstRates": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "roughRate": null,
+            "readiness": "low-sample"
           }
         ],
         "waveHeightBand": [
@@ -8201,6 +8232,30 @@
             },
             "roughRate": 0.1597,
             "readiness": "ready"
+          },
+          {
+            "key": "unknown",
+            "raceCount": 12,
+            "courseFirstCounts": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "payoutAvailableRaceCount": 0,
+            "trifectaOver10000Count": 0,
+            "courseFirstRates": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "roughRate": null,
+            "readiness": "low-sample"
           }
         ],
         "exact": [
@@ -9287,6 +9342,30 @@
           {
             "key": "{\"weather\":\"曇り\",\"windDirection\":\"北東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
             "raceCount": 1,
+            "courseFirstCounts": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "payoutAvailableRaceCount": 0,
+            "trifectaOver10000Count": 0,
+            "courseFirstRates": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "roughRate": null,
+            "readiness": "low-sample"
+          },
+          {
+            "key": "{\"weather\":\"確認中\",\"windDirection\":\"確認中\",\"windSpeedBand\":\"unknown\",\"waveHeightBand\":\"unknown\"}",
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -11663,25 +11742,25 @@
     {
       "venueCode": "06",
       "venueName": "浜名湖",
-      "dateCount": 72,
-      "raceCount": 864,
-      "weatherAvailableRaceCount": 864,
+      "dateCount": 73,
+      "raceCount": 876,
+      "weatherAvailableRaceCount": 876,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 852,
-      "waveHeightAvailableRaceCount": 852,
-      "windSpeedAverageMps": 3.15,
+      "windSpeedAvailableRaceCount": 864,
+      "waveHeightAvailableRaceCount": 864,
+      "windSpeedAverageMps": 3.17,
       "windSpeedMaxMps": 7,
       "waveHeightAverageCm": 1.71,
       "waveHeightMaxCm": 5,
       "weatherConditionCounts": {
         "曇り": 137,
         "雨": 41,
-        "晴": 194,
+        "晴": 206,
         "取得済み": 480,
         "確認中": 12
       },
       "windDirectionCounts": {
-        "西": 325,
+        "西": 337,
         "北西": 57,
         "南西": 167,
         "南": 67,
@@ -11694,13 +11773,13 @@
       },
       "windSpeedBandCounts": {
         "0-2m": 249,
-        "3-5m": 568,
+        "3-5m": 580,
         "6m+": 35,
         "unknown": 12
       },
       "waveHeightBandCounts": {
-        "0-2cm": 720,
-        "3-5cm": 132,
+        "0-2cm": 729,
+        "3-5cm": 135,
         "6cm+": 0,
         "unknown": 12
       },
@@ -11756,7 +11835,7 @@
           },
           {
             "key": "晴",
-            "raceCount": 194,
+            "raceCount": 206,
             "courseFirstCounts": {
               "1": 67,
               "2": 23,
@@ -11768,12 +11847,12 @@
             "payoutAvailableRaceCount": 133,
             "trifectaOver10000Count": 24,
             "courseFirstRates": {
-              "1": 0.3454,
-              "2": 0.1186,
-              "3": 0.0722,
-              "4": 0.0515,
-              "5": 0.0722,
-              "6": 0.0258
+              "1": 0.3252,
+              "2": 0.1117,
+              "3": 0.068,
+              "4": 0.0485,
+              "5": 0.068,
+              "6": 0.0243
             },
             "roughRate": 0.1805,
             "readiness": "ready"
@@ -11830,7 +11909,7 @@
         "windDirection": [
           {
             "key": "西",
-            "raceCount": 325,
+            "raceCount": 337,
             "courseFirstCounts": {
               "1": 151,
               "2": 33,
@@ -11842,12 +11921,12 @@
             "payoutAvailableRaceCount": 293,
             "trifectaOver10000Count": 50,
             "courseFirstRates": {
-              "1": 0.4646,
-              "2": 0.1015,
-              "3": 0.1108,
-              "4": 0.0923,
-              "5": 0.0708,
-              "6": 0.0615
+              "1": 0.4481,
+              "2": 0.0979,
+              "3": 0.1068,
+              "4": 0.089,
+              "5": 0.0682,
+              "6": 0.0593
             },
             "roughRate": 0.1706,
             "readiness": "ready"
@@ -12072,7 +12151,7 @@
         "windSpeedBand": [
           {
             "key": "3-5m",
-            "raceCount": 568,
+            "raceCount": 580,
             "courseFirstCounts": {
               "1": 274,
               "2": 68,
@@ -12084,12 +12163,12 @@
             "payoutAvailableRaceCount": 519,
             "trifectaOver10000Count": 86,
             "courseFirstRates": {
-              "1": 0.4824,
-              "2": 0.1197,
-              "3": 0.1144,
-              "4": 0.0986,
-              "5": 0.0546,
-              "6": 0.044
+              "1": 0.4724,
+              "2": 0.1172,
+              "3": 0.1121,
+              "4": 0.0966,
+              "5": 0.0534,
+              "6": 0.0431
             },
             "roughRate": 0.1657,
             "readiness": "ready"
@@ -12170,7 +12249,7 @@
         "waveHeightBand": [
           {
             "key": "0-2cm",
-            "raceCount": 720,
+            "raceCount": 729,
             "courseFirstCounts": {
               "1": 356,
               "2": 86,
@@ -12182,19 +12261,19 @@
             "payoutAvailableRaceCount": 648,
             "trifectaOver10000Count": 105,
             "courseFirstRates": {
-              "1": 0.4944,
-              "2": 0.1194,
-              "3": 0.0986,
-              "4": 0.1014,
-              "5": 0.0556,
-              "6": 0.0306
+              "1": 0.4883,
+              "2": 0.118,
+              "3": 0.0974,
+              "4": 0.1001,
+              "5": 0.0549,
+              "6": 0.0302
             },
             "roughRate": 0.162,
             "readiness": "ready"
           },
           {
             "key": "3-5cm",
-            "raceCount": 132,
+            "raceCount": 135,
             "courseFirstCounts": {
               "1": 62,
               "2": 18,
@@ -12206,12 +12285,12 @@
             "payoutAvailableRaceCount": 132,
             "trifectaOver10000Count": 22,
             "courseFirstRates": {
-              "1": 0.4697,
-              "2": 0.1364,
-              "3": 0.1591,
-              "4": 0.0682,
-              "5": 0.0833,
-              "6": 0.0833
+              "1": 0.4593,
+              "2": 0.1333,
+              "3": 0.1556,
+              "4": 0.0667,
+              "5": 0.0815,
+              "6": 0.0815
             },
             "roughRate": 0.1667,
             "readiness": "ready"
@@ -12460,7 +12539,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"西\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 65,
+            "raceCount": 74,
             "courseFirstCounts": {
               "1": 20,
               "2": 4,
@@ -12472,12 +12551,12 @@
             "payoutAvailableRaceCount": 35,
             "trifectaOver10000Count": 6,
             "courseFirstRates": {
-              "1": 0.3077,
-              "2": 0.0615,
-              "3": 0.0308,
-              "4": 0.0462,
-              "5": 0.0615,
-              "6": 0.0308
+              "1": 0.2703,
+              "2": 0.0541,
+              "3": 0.027,
+              "4": 0.0405,
+              "5": 0.0541,
+              "6": 0.027
             },
             "roughRate": 0.1714,
             "readiness": "ready"
@@ -12628,7 +12707,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"西\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 7,
+            "raceCount": 10,
             "courseFirstCounts": {
               "1": 2,
               "2": 1,
@@ -12640,12 +12719,12 @@
             "payoutAvailableRaceCount": 7,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.2857,
-              "2": 0.1429,
-              "3": 0.2857,
-              "4": 0.1429,
+              "1": 0.2,
+              "2": 0.1,
+              "3": 0.2,
+              "4": 0.1,
               "5": 0,
-              "6": 0.1429
+              "6": 0.1
             },
             "roughRate": 0.1429,
             "readiness": "low-sample"
@@ -17879,41 +17958,41 @@
       "raceCount": 840,
       "weatherAvailableRaceCount": 840,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 784,
-      "waveHeightAvailableRaceCount": 784,
-      "windSpeedAverageMps": 2.86,
+      "windSpeedAvailableRaceCount": 796,
+      "waveHeightAvailableRaceCount": 796,
+      "windSpeedAverageMps": 2.85,
       "windSpeedMaxMps": 8,
       "waveHeightAverageCm": 1.87,
       "waveHeightMaxCm": 6,
       "weatherConditionCounts": {
         "取得済み": 444,
         "曇り": 136,
-        "晴": 157,
-        "確認中": 36,
+        "晴": 169,
+        "確認中": 24,
         "雨": 67
       },
       "windDirectionCounts": {
-        "東南東": 321,
+        "東南東": 330,
         "西南西": 20,
-        "西北西": 131,
-        "東北東": 230,
+        "西北西": 132,
+        "東北東": 232,
         "北北東": 1,
         "無風": 68,
         "北北西": 3,
-        "確認中": 56,
+        "確認中": 44,
         "南南東": 10
       },
       "windSpeedBandCounts": {
-        "0-2m": 341,
-        "3-5m": 358,
+        "0-2m": 345,
+        "3-5m": 366,
         "6m+": 85,
-        "unknown": 56
+        "unknown": 44
       },
       "waveHeightBandCounts": {
-        "0-2cm": 642,
+        "0-2cm": 654,
         "3-5cm": 141,
         "6cm+": 1,
-        "unknown": 56
+        "unknown": 44
       },
       "conditionProfiles": {
         "weather": [
@@ -17967,7 +18046,7 @@
           },
           {
             "key": "晴",
-            "raceCount": 157,
+            "raceCount": 169,
             "courseFirstCounts": {
               "1": 69,
               "2": 12,
@@ -17979,19 +18058,19 @@
             "payoutAvailableRaceCount": 86,
             "trifectaOver10000Count": 14,
             "courseFirstRates": {
-              "1": 0.4395,
-              "2": 0.0764,
-              "3": 0.0828,
-              "4": 0.0255,
-              "5": 0.0255,
-              "6": 0.0255
+              "1": 0.4083,
+              "2": 0.071,
+              "3": 0.0769,
+              "4": 0.0237,
+              "5": 0.0237,
+              "6": 0.0237
             },
             "roughRate": 0.1628,
             "readiness": "ready"
           },
           {
             "key": "確認中",
-            "raceCount": 36,
+            "raceCount": 24,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -18011,7 +18090,7 @@
               "6": 0
             },
             "roughRate": null,
-            "readiness": "ready"
+            "readiness": "low-sample"
           },
           {
             "key": "雨",
@@ -18041,7 +18120,7 @@
         "windDirection": [
           {
             "key": "東南東",
-            "raceCount": 321,
+            "raceCount": 330,
             "courseFirstCounts": {
               "1": 165,
               "2": 46,
@@ -18053,12 +18132,12 @@
             "payoutAvailableRaceCount": 295,
             "trifectaOver10000Count": 47,
             "courseFirstRates": {
-              "1": 0.514,
-              "2": 0.1433,
-              "3": 0.1184,
-              "4": 0.0841,
-              "5": 0.0467,
-              "6": 0.0125
+              "1": 0.5,
+              "2": 0.1394,
+              "3": 0.1152,
+              "4": 0.0818,
+              "5": 0.0455,
+              "6": 0.0121
             },
             "roughRate": 0.1593,
             "readiness": "ready"
@@ -18089,7 +18168,7 @@
           },
           {
             "key": "西北西",
-            "raceCount": 131,
+            "raceCount": 132,
             "courseFirstCounts": {
               "1": 68,
               "2": 15,
@@ -18101,19 +18180,19 @@
             "payoutAvailableRaceCount": 115,
             "trifectaOver10000Count": 15,
             "courseFirstRates": {
-              "1": 0.5191,
-              "2": 0.1145,
-              "3": 0.0992,
-              "4": 0.0763,
-              "5": 0.0458,
-              "6": 0.0305
+              "1": 0.5152,
+              "2": 0.1136,
+              "3": 0.0985,
+              "4": 0.0758,
+              "5": 0.0455,
+              "6": 0.0303
             },
             "roughRate": 0.1304,
             "readiness": "ready"
           },
           {
             "key": "東北東",
-            "raceCount": 230,
+            "raceCount": 232,
             "courseFirstCounts": {
               "1": 99,
               "2": 30,
@@ -18125,12 +18204,12 @@
             "payoutAvailableRaceCount": 197,
             "trifectaOver10000Count": 39,
             "courseFirstRates": {
-              "1": 0.4304,
-              "2": 0.1304,
-              "3": 0.1043,
-              "4": 0.0696,
-              "5": 0.0783,
-              "6": 0.0435
+              "1": 0.4267,
+              "2": 0.1293,
+              "3": 0.1034,
+              "4": 0.069,
+              "5": 0.0776,
+              "6": 0.0431
             },
             "roughRate": 0.198,
             "readiness": "ready"
@@ -18209,7 +18288,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 56,
+            "raceCount": 44,
             "courseFirstCounts": {
               "1": 20,
               "2": 0,
@@ -18221,7 +18300,7 @@
             "payoutAvailableRaceCount": 1,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.3571,
+              "1": 0.4545,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -18259,7 +18338,7 @@
         "windSpeedBand": [
           {
             "key": "3-5m",
-            "raceCount": 358,
+            "raceCount": 366,
             "courseFirstCounts": {
               "1": 164,
               "2": 52,
@@ -18271,12 +18350,12 @@
             "payoutAvailableRaceCount": 319,
             "trifectaOver10000Count": 53,
             "courseFirstRates": {
-              "1": 0.4581,
-              "2": 0.1453,
-              "3": 0.1229,
-              "4": 0.0866,
-              "5": 0.067,
-              "6": 0.0168
+              "1": 0.4481,
+              "2": 0.1421,
+              "3": 0.1202,
+              "4": 0.0847,
+              "5": 0.0656,
+              "6": 0.0164
             },
             "roughRate": 0.1661,
             "readiness": "ready"
@@ -18307,7 +18386,7 @@
           },
           {
             "key": "0-2m",
-            "raceCount": 341,
+            "raceCount": 345,
             "courseFirstCounts": {
               "1": 189,
               "2": 41,
@@ -18319,19 +18398,19 @@
             "payoutAvailableRaceCount": 303,
             "trifectaOver10000Count": 47,
             "courseFirstRates": {
-              "1": 0.5543,
-              "2": 0.1202,
-              "3": 0.088,
-              "4": 0.0557,
-              "5": 0.044,
-              "6": 0.0264
+              "1": 0.5478,
+              "2": 0.1188,
+              "3": 0.087,
+              "4": 0.0551,
+              "5": 0.0435,
+              "6": 0.0261
             },
             "roughRate": 0.1551,
             "readiness": "ready"
           },
           {
             "key": "unknown",
-            "raceCount": 56,
+            "raceCount": 44,
             "courseFirstCounts": {
               "1": 20,
               "2": 0,
@@ -18343,7 +18422,7 @@
             "payoutAvailableRaceCount": 1,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.3571,
+              "1": 0.4545,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -18381,7 +18460,7 @@
           },
           {
             "key": "0-2cm",
-            "raceCount": 642,
+            "raceCount": 654,
             "courseFirstCounts": {
               "1": 324,
               "2": 85,
@@ -18393,19 +18472,19 @@
             "payoutAvailableRaceCount": 573,
             "trifectaOver10000Count": 94,
             "courseFirstRates": {
-              "1": 0.5047,
-              "2": 0.1324,
-              "3": 0.1044,
-              "4": 0.0701,
-              "5": 0.0576,
-              "6": 0.0234
+              "1": 0.4954,
+              "2": 0.13,
+              "3": 0.1024,
+              "4": 0.0688,
+              "5": 0.0566,
+              "6": 0.0229
             },
             "roughRate": 0.164,
             "readiness": "ready"
           },
           {
             "key": "unknown",
-            "raceCount": 56,
+            "raceCount": 44,
             "courseFirstCounts": {
               "1": 20,
               "2": 0,
@@ -18417,7 +18496,7 @@
             "payoutAvailableRaceCount": 1,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.3571,
+              "1": 0.4545,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -18839,7 +18918,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東南東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 36,
+            "raceCount": 43,
             "courseFirstCounts": {
               "1": 11,
               "2": 6,
@@ -18851,10 +18930,10 @@
             "payoutAvailableRaceCount": 23,
             "trifectaOver10000Count": 2,
             "courseFirstRates": {
-              "1": 0.3056,
-              "2": 0.1667,
-              "3": 0.1389,
-              "4": 0.0278,
+              "1": 0.2558,
+              "2": 0.1395,
+              "3": 0.1163,
+              "4": 0.0233,
               "5": 0,
               "6": 0
             },
@@ -18863,7 +18942,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東南東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 9,
+            "raceCount": 11,
             "courseFirstCounts": {
               "1": 2,
               "2": 0,
@@ -18875,9 +18954,9 @@
             "payoutAvailableRaceCount": 4,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.2222,
+              "1": 0.1818,
               "2": 0,
-              "3": 0.2222,
+              "3": 0.1818,
               "4": 0,
               "5": 0,
               "6": 0
@@ -18935,7 +19014,7 @@
           },
           {
             "key": "{\"weather\":\"確認中\",\"windDirection\":\"確認中\",\"windSpeedBand\":\"unknown\",\"waveHeightBand\":\"unknown\"}",
-            "raceCount": 36,
+            "raceCount": 24,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -18955,7 +19034,7 @@
               "6": 0
             },
             "roughRate": null,
-            "readiness": "ready"
+            "readiness": "low-sample"
           },
           {
             "key": "{\"weather\":\"取得済み\",\"windDirection\":\"東北東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
@@ -19367,7 +19446,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東北東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 23,
+            "raceCount": 24,
             "courseFirstCounts": {
               "1": 9,
               "2": 2,
@@ -19379,12 +19458,12 @@
             "payoutAvailableRaceCount": 16,
             "trifectaOver10000Count": 4,
             "courseFirstRates": {
-              "1": 0.3913,
-              "2": 0.087,
+              "1": 0.375,
+              "2": 0.0833,
               "3": 0,
-              "4": 0.087,
-              "5": 0.087,
-              "6": 0.0435
+              "4": 0.0833,
+              "5": 0.0833,
+              "6": 0.0417
             },
             "roughRate": 0.25,
             "readiness": "low-sample"
@@ -19607,7 +19686,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東北東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 18,
+            "raceCount": 19,
             "courseFirstCounts": {
               "1": 3,
               "2": 1,
@@ -19619,9 +19698,9 @@
             "payoutAvailableRaceCount": 6,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.1667,
-              "2": 0.0556,
-              "3": 0.1111,
+              "1": 0.1579,
+              "2": 0.0526,
+              "3": 0.1053,
               "4": 0,
               "5": 0,
               "6": 0
@@ -19631,7 +19710,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"西北西\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 1,
+            "raceCount": 2,
             "courseFirstCounts": {
               "1": 1,
               "2": 0,
@@ -19643,7 +19722,7 @@
             "payoutAvailableRaceCount": 1,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 1,
+              "1": 0.5,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -21865,19 +21944,19 @@
     {
       "venueCode": "11",
       "venueName": "びわこ",
-      "dateCount": 71,
-      "raceCount": 852,
-      "weatherAvailableRaceCount": 852,
+      "dateCount": 72,
+      "raceCount": 864,
+      "weatherAvailableRaceCount": 864,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 804,
-      "waveHeightAvailableRaceCount": 804,
-      "windSpeedAverageMps": 2.43,
+      "windSpeedAvailableRaceCount": 816,
+      "waveHeightAvailableRaceCount": 816,
+      "windSpeedAverageMps": 2.42,
       "windSpeedMaxMps": 8,
-      "waveHeightAverageCm": 2.49,
+      "waveHeightAverageCm": 2.47,
       "waveHeightMaxCm": 8,
       "weatherConditionCounts": {
         "曇り": 86,
-        "晴": 200,
+        "晴": 212,
         "取得済み": 444,
         "確認中": 48,
         "雨": 74
@@ -21885,23 +21964,23 @@
       "windDirectionCounts": {
         "西": 57,
         "北西": 74,
-        "無風": 69,
-        "南東": 414,
+        "無風": 70,
+        "南東": 423,
         "北東": 20,
-        "南": 56,
+        "南": 58,
         "東": 84,
         "南西": 26,
         "北": 4,
         "確認中": 48
       },
       "windSpeedBandCounts": {
-        "0-2m": 443,
-        "3-5m": 338,
+        "0-2m": 454,
+        "3-5m": 339,
         "6m+": 23,
         "unknown": 48
       },
       "waveHeightBandCounts": {
-        "0-2cm": 466,
+        "0-2cm": 478,
         "3-5cm": 300,
         "6cm+": 38,
         "unknown": 48
@@ -21934,7 +22013,7 @@
           },
           {
             "key": "晴",
-            "raceCount": 200,
+            "raceCount": 212,
             "courseFirstCounts": {
               "1": 85,
               "2": 23,
@@ -21946,12 +22025,12 @@
             "payoutAvailableRaceCount": 152,
             "trifectaOver10000Count": 25,
             "courseFirstRates": {
-              "1": 0.425,
-              "2": 0.115,
-              "3": 0.08,
-              "4": 0.07,
-              "5": 0.06,
-              "6": 0.01
+              "1": 0.4009,
+              "2": 0.1085,
+              "3": 0.0755,
+              "4": 0.066,
+              "5": 0.0566,
+              "6": 0.0094
             },
             "roughRate": 0.1645,
             "readiness": "ready"
@@ -22080,7 +22159,7 @@
           },
           {
             "key": "無風",
-            "raceCount": 69,
+            "raceCount": 70,
             "courseFirstCounts": {
               "1": 31,
               "2": 7,
@@ -22092,19 +22171,19 @@
             "payoutAvailableRaceCount": 56,
             "trifectaOver10000Count": 5,
             "courseFirstRates": {
-              "1": 0.4493,
-              "2": 0.1014,
-              "3": 0.0725,
-              "4": 0.087,
-              "5": 0.058,
-              "6": 0.0435
+              "1": 0.4429,
+              "2": 0.1,
+              "3": 0.0714,
+              "4": 0.0857,
+              "5": 0.0571,
+              "6": 0.0429
             },
             "roughRate": 0.0893,
             "readiness": "ready"
           },
           {
             "key": "南東",
-            "raceCount": 414,
+            "raceCount": 423,
             "courseFirstCounts": {
               "1": 223,
               "2": 54,
@@ -22116,12 +22195,12 @@
             "payoutAvailableRaceCount": 386,
             "trifectaOver10000Count": 57,
             "courseFirstRates": {
-              "1": 0.5386,
-              "2": 0.1304,
-              "3": 0.1111,
-              "4": 0.0821,
-              "5": 0.0604,
-              "6": 0.0097
+              "1": 0.5272,
+              "2": 0.1277,
+              "3": 0.1087,
+              "4": 0.0804,
+              "5": 0.0591,
+              "6": 0.0095
             },
             "roughRate": 0.1477,
             "readiness": "ready"
@@ -22152,7 +22231,7 @@
           },
           {
             "key": "南",
-            "raceCount": 56,
+            "raceCount": 58,
             "courseFirstCounts": {
               "1": 32,
               "2": 7,
@@ -22164,11 +22243,11 @@
             "payoutAvailableRaceCount": 53,
             "trifectaOver10000Count": 5,
             "courseFirstRates": {
-              "1": 0.5714,
-              "2": 0.125,
-              "3": 0.1429,
-              "4": 0.0893,
-              "5": 0.0179,
+              "1": 0.5517,
+              "2": 0.1207,
+              "3": 0.1379,
+              "4": 0.0862,
+              "5": 0.0172,
               "6": 0
             },
             "roughRate": 0.0943,
@@ -22274,7 +22353,7 @@
         "windSpeedBand": [
           {
             "key": "3-5m",
-            "raceCount": 338,
+            "raceCount": 339,
             "courseFirstCounts": {
               "1": 177,
               "2": 42,
@@ -22286,11 +22365,11 @@
             "payoutAvailableRaceCount": 313,
             "trifectaOver10000Count": 58,
             "courseFirstRates": {
-              "1": 0.5237,
-              "2": 0.1243,
-              "3": 0.1331,
-              "4": 0.0592,
-              "5": 0.074,
+              "1": 0.5221,
+              "2": 0.1239,
+              "3": 0.1327,
+              "4": 0.059,
+              "5": 0.0737,
               "6": 0.0118
             },
             "roughRate": 0.1853,
@@ -22298,7 +22377,7 @@
           },
           {
             "key": "0-2m",
-            "raceCount": 443,
+            "raceCount": 454,
             "courseFirstCounts": {
               "1": 228,
               "2": 49,
@@ -22310,12 +22389,12 @@
             "payoutAvailableRaceCount": 397,
             "trifectaOver10000Count": 54,
             "courseFirstRates": {
-              "1": 0.5147,
-              "2": 0.1106,
-              "3": 0.1016,
-              "4": 0.1016,
-              "5": 0.0497,
-              "6": 0.0181
+              "1": 0.5022,
+              "2": 0.1079,
+              "3": 0.0991,
+              "4": 0.0991,
+              "5": 0.0485,
+              "6": 0.0176
             },
             "roughRate": 0.136,
             "readiness": "ready"
@@ -22396,7 +22475,7 @@
           },
           {
             "key": "0-2cm",
-            "raceCount": 466,
+            "raceCount": 478,
             "courseFirstCounts": {
               "1": 244,
               "2": 52,
@@ -22408,12 +22487,12 @@
             "payoutAvailableRaceCount": 421,
             "trifectaOver10000Count": 60,
             "courseFirstRates": {
-              "1": 0.5236,
-              "2": 0.1116,
-              "3": 0.103,
-              "4": 0.0987,
-              "5": 0.0494,
-              "6": 0.0172
+              "1": 0.5105,
+              "2": 0.1088,
+              "3": 0.1004,
+              "4": 0.0962,
+              "5": 0.0481,
+              "6": 0.0167
             },
             "roughRate": 0.1425,
             "readiness": "ready"
@@ -22614,7 +22693,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"無風\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 15,
+            "raceCount": 16,
             "courseFirstCounts": {
               "1": 5,
               "2": 1,
@@ -22626,12 +22705,12 @@
             "payoutAvailableRaceCount": 10,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.3333,
-              "2": 0.0667,
+              "1": 0.3125,
+              "2": 0.0625,
               "3": 0,
-              "4": 0.0667,
-              "5": 0.1333,
-              "6": 0.0667
+              "4": 0.0625,
+              "5": 0.125,
+              "6": 0.0625
             },
             "roughRate": 0.1,
             "readiness": "low-sample"
@@ -22662,7 +22741,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 17,
+            "raceCount": 19,
             "courseFirstCounts": {
               "1": 10,
               "2": 1,
@@ -22674,9 +22753,9 @@
             "payoutAvailableRaceCount": 14,
             "trifectaOver10000Count": 2,
             "courseFirstRates": {
-              "1": 0.5882,
-              "2": 0.0588,
-              "3": 0.1765,
+              "1": 0.5263,
+              "2": 0.0526,
+              "3": 0.1579,
               "4": 0,
               "5": 0,
               "6": 0
@@ -22710,7 +22789,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 53,
+            "raceCount": 61,
             "courseFirstCounts": {
               "1": 26,
               "2": 7,
@@ -22722,11 +22801,11 @@
             "payoutAvailableRaceCount": 46,
             "trifectaOver10000Count": 7,
             "courseFirstRates": {
-              "1": 0.4906,
-              "2": 0.1321,
-              "3": 0.1132,
-              "4": 0.1132,
-              "5": 0.0189,
+              "1": 0.4262,
+              "2": 0.1148,
+              "3": 0.0984,
+              "4": 0.0984,
+              "5": 0.0164,
               "6": 0
             },
             "roughRate": 0.1522,
@@ -23526,7 +23605,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 6,
+            "raceCount": 7,
             "courseFirstCounts": {
               "1": 3,
               "2": 1,
@@ -23538,9 +23617,9 @@
             "payoutAvailableRaceCount": 5,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.5,
-              "2": 0.1667,
-              "3": 0.1667,
+              "1": 0.4286,
+              "2": 0.1429,
+              "3": 0.1429,
               "4": 0,
               "5": 0,
               "6": 0
@@ -24328,39 +24407,39 @@
     {
       "venueCode": "12",
       "venueName": "住之江",
-      "dateCount": 60,
-      "raceCount": 720,
-      "weatherAvailableRaceCount": 720,
+      "dateCount": 61,
+      "raceCount": 732,
+      "weatherAvailableRaceCount": 732,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 708,
-      "waveHeightAvailableRaceCount": 708,
-      "windSpeedAverageMps": 1.63,
+      "windSpeedAvailableRaceCount": 720,
+      "waveHeightAvailableRaceCount": 720,
+      "windSpeedAverageMps": 1.64,
       "windSpeedMaxMps": 7,
       "waveHeightAverageCm": 1.13,
       "waveHeightMaxCm": 3,
       "weatherConditionCounts": {
         "取得済み": 384,
-        "晴": 152,
+        "晴": 164,
         "曇り": 103,
         "雨": 69,
         "確認中": 12
       },
       "windDirectionCounts": {
-        "南東": 112,
-        "無風": 233,
-        "東": 165,
+        "南東": 114,
+        "無風": 235,
+        "東": 173,
         "西": 84,
         "南西": 114,
         "確認中": 12
       },
       "windSpeedBandCounts": {
-        "0-2m": 540,
-        "3-5m": 160,
+        "0-2m": 548,
+        "3-5m": 164,
         "6m+": 8,
         "unknown": 12
       },
       "waveHeightBandCounts": {
-        "0-2cm": 700,
+        "0-2cm": 712,
         "3-5cm": 8,
         "6cm+": 0,
         "unknown": 12
@@ -24393,7 +24472,7 @@
           },
           {
             "key": "晴",
-            "raceCount": 152,
+            "raceCount": 164,
             "courseFirstCounts": {
               "1": 56,
               "2": 13,
@@ -24405,12 +24484,12 @@
             "payoutAvailableRaceCount": 92,
             "trifectaOver10000Count": 10,
             "courseFirstRates": {
-              "1": 0.3684,
-              "2": 0.0855,
-              "3": 0.0592,
-              "4": 0.0461,
-              "5": 0.0197,
-              "6": 0.0263
+              "1": 0.3415,
+              "2": 0.0793,
+              "3": 0.0549,
+              "4": 0.0427,
+              "5": 0.0183,
+              "6": 0.0244
             },
             "roughRate": 0.1087,
             "readiness": "ready"
@@ -24491,7 +24570,7 @@
         "windDirection": [
           {
             "key": "南東",
-            "raceCount": 112,
+            "raceCount": 114,
             "courseFirstCounts": {
               "1": 49,
               "2": 16,
@@ -24503,11 +24582,11 @@
             "payoutAvailableRaceCount": 98,
             "trifectaOver10000Count": 11,
             "courseFirstRates": {
-              "1": 0.4375,
-              "2": 0.1429,
-              "3": 0.1429,
-              "4": 0.125,
-              "5": 0.0268,
+              "1": 0.4298,
+              "2": 0.1404,
+              "3": 0.1404,
+              "4": 0.1228,
+              "5": 0.0263,
               "6": 0
             },
             "roughRate": 0.1122,
@@ -24515,7 +24594,7 @@
           },
           {
             "key": "無風",
-            "raceCount": 233,
+            "raceCount": 235,
             "courseFirstCounts": {
               "1": 111,
               "2": 36,
@@ -24527,19 +24606,19 @@
             "payoutAvailableRaceCount": 213,
             "trifectaOver10000Count": 34,
             "courseFirstRates": {
-              "1": 0.4764,
-              "2": 0.1545,
-              "3": 0.1288,
-              "4": 0.103,
-              "5": 0.0343,
-              "6": 0.0172
+              "1": 0.4723,
+              "2": 0.1532,
+              "3": 0.1277,
+              "4": 0.1021,
+              "5": 0.034,
+              "6": 0.017
             },
             "roughRate": 0.1596,
             "readiness": "ready"
           },
           {
             "key": "東",
-            "raceCount": 165,
+            "raceCount": 173,
             "courseFirstCounts": {
               "1": 65,
               "2": 19,
@@ -24551,12 +24630,12 @@
             "payoutAvailableRaceCount": 124,
             "trifectaOver10000Count": 19,
             "courseFirstRates": {
-              "1": 0.3939,
-              "2": 0.1152,
-              "3": 0.0909,
-              "4": 0.097,
-              "5": 0.0424,
-              "6": 0.0121
+              "1": 0.3757,
+              "2": 0.1098,
+              "3": 0.0867,
+              "4": 0.0925,
+              "5": 0.0405,
+              "6": 0.0116
             },
             "roughRate": 0.1532,
             "readiness": "ready"
@@ -24637,7 +24716,7 @@
         "windSpeedBand": [
           {
             "key": "0-2m",
-            "raceCount": 540,
+            "raceCount": 548,
             "courseFirstCounts": {
               "1": 263,
               "2": 75,
@@ -24649,19 +24728,19 @@
             "payoutAvailableRaceCount": 494,
             "trifectaOver10000Count": 75,
             "courseFirstRates": {
-              "1": 0.487,
-              "2": 0.1389,
-              "3": 0.1204,
-              "4": 0.1056,
-              "5": 0.0463,
-              "6": 0.0167
+              "1": 0.4799,
+              "2": 0.1369,
+              "3": 0.1186,
+              "4": 0.104,
+              "5": 0.0456,
+              "6": 0.0164
             },
             "roughRate": 0.1518,
             "readiness": "ready"
           },
           {
             "key": "3-5m",
-            "raceCount": 160,
+            "raceCount": 164,
             "courseFirstCounts": {
               "1": 59,
               "2": 20,
@@ -24673,12 +24752,12 @@
             "payoutAvailableRaceCount": 125,
             "trifectaOver10000Count": 16,
             "courseFirstRates": {
-              "1": 0.3688,
-              "2": 0.125,
-              "3": 0.125,
-              "4": 0.1063,
-              "5": 0.0313,
-              "6": 0.025
+              "1": 0.3598,
+              "2": 0.122,
+              "3": 0.122,
+              "4": 0.1037,
+              "5": 0.0305,
+              "6": 0.0244
             },
             "roughRate": 0.128,
             "readiness": "ready"
@@ -24735,7 +24814,7 @@
         "waveHeightBand": [
           {
             "key": "0-2cm",
-            "raceCount": 700,
+            "raceCount": 712,
             "courseFirstCounts": {
               "1": 322,
               "2": 95,
@@ -24747,12 +24826,12 @@
             "payoutAvailableRaceCount": 619,
             "trifectaOver10000Count": 91,
             "courseFirstRates": {
-              "1": 0.46,
-              "2": 0.1357,
-              "3": 0.1214,
-              "4": 0.1057,
-              "5": 0.0429,
-              "6": 0.0186
+              "1": 0.4522,
+              "2": 0.1334,
+              "3": 0.1194,
+              "4": 0.1039,
+              "5": 0.0421,
+              "6": 0.0183
             },
             "roughRate": 0.147,
             "readiness": "ready"
@@ -25049,7 +25128,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"無風\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 33,
+            "raceCount": 35,
             "courseFirstCounts": {
               "1": 18,
               "2": 4,
@@ -25061,9 +25140,9 @@
             "payoutAvailableRaceCount": 24,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.5455,
-              "2": 0.1212,
-              "3": 0.0606,
+              "1": 0.5143,
+              "2": 0.1143,
+              "3": 0.0571,
               "4": 0,
               "5": 0,
               "6": 0
@@ -25097,7 +25176,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 16,
+            "raceCount": 20,
             "courseFirstCounts": {
               "1": 7,
               "2": 0,
@@ -25109,10 +25188,10 @@
             "payoutAvailableRaceCount": 10,
             "trifectaOver10000Count": 2,
             "courseFirstRates": {
-              "1": 0.4375,
+              "1": 0.35,
               "2": 0,
-              "3": 0.0625,
-              "4": 0.125,
+              "3": 0.05,
+              "4": 0.1,
               "5": 0,
               "6": 0
             },
@@ -25457,7 +25536,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 8,
+            "raceCount": 10,
             "courseFirstCounts": {
               "1": 3,
               "2": 0,
@@ -25469,10 +25548,10 @@
             "payoutAvailableRaceCount": 5,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.375,
+              "1": 0.3,
               "2": 0,
               "3": 0,
-              "4": 0.25,
+              "4": 0.2,
               "5": 0,
               "6": 0
             },
@@ -25553,7 +25632,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 40,
+            "raceCount": 44,
             "courseFirstCounts": {
               "1": 9,
               "2": 4,
@@ -25565,12 +25644,12 @@
             "payoutAvailableRaceCount": 15,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.225,
-              "2": 0.1,
-              "3": 0.025,
+              "1": 0.2045,
+              "2": 0.0909,
+              "3": 0.0227,
               "4": 0,
               "5": 0,
-              "6": 0.025
+              "6": 0.0227
             },
             "roughRate": 0.0667,
             "readiness": "ready"
@@ -25659,9 +25738,9 @@
     {
       "venueCode": "13",
       "venueName": "尼崎",
-      "dateCount": 76,
-      "raceCount": 912,
-      "weatherAvailableRaceCount": 912,
+      "dateCount": 77,
+      "raceCount": 924,
+      "weatherAvailableRaceCount": 924,
       "weatherCoverageRate": 1,
       "windSpeedAvailableRaceCount": 900,
       "waveHeightAvailableRaceCount": 900,
@@ -25674,7 +25753,7 @@
         "晴": 123,
         "曇り": 144,
         "雨": 105,
-        "確認中": 12
+        "確認中": 24
       },
       "windDirectionCounts": {
         "東南東": 105,
@@ -25686,19 +25765,19 @@
         "無風": 101,
         "北北西": 36,
         "南南東": 29,
-        "確認中": 12
+        "確認中": 24
       },
       "windSpeedBandCounts": {
         "0-2m": 356,
         "3-5m": 470,
         "6m+": 74,
-        "unknown": 12
+        "unknown": 24
       },
       "waveHeightBandCounts": {
         "0-2cm": 706,
         "3-5cm": 181,
         "6cm+": 13,
-        "unknown": 12
+        "unknown": 24
       },
       "conditionProfiles": {
         "weather": [
@@ -25800,7 +25879,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 12,
+            "raceCount": 24,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -26042,7 +26121,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 12,
+            "raceCount": 24,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -26140,7 +26219,7 @@
           },
           {
             "key": "unknown",
-            "raceCount": 12,
+            "raceCount": 24,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -26238,7 +26317,7 @@
           },
           {
             "key": "unknown",
-            "raceCount": 12,
+            "raceCount": 24,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -27992,7 +28071,7 @@
           },
           {
             "key": "{\"weather\":\"確認中\",\"windDirection\":\"確認中\",\"windSpeedBand\":\"unknown\",\"waveHeightBand\":\"unknown\"}",
-            "raceCount": 12,
+            "raceCount": 24,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -28578,26 +28657,26 @@
     {
       "venueCode": "14",
       "venueName": "鳴門",
-      "dateCount": 62,
-      "raceCount": 744,
-      "weatherAvailableRaceCount": 744,
+      "dateCount": 63,
+      "raceCount": 756,
+      "weatherAvailableRaceCount": 756,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 696,
-      "waveHeightAvailableRaceCount": 696,
+      "windSpeedAvailableRaceCount": 708,
+      "waveHeightAvailableRaceCount": 708,
       "windSpeedAverageMps": 2.38,
       "windSpeedMaxMps": 6,
       "waveHeightAverageCm": 2.4,
       "waveHeightMaxCm": 6,
       "weatherConditionCounts": {
-        "晴": 184,
-        "曇り": 112,
+        "晴": 194,
+        "曇り": 114,
         "雨": 64,
         "取得済み": 336,
         "確認中": 48
       },
       "windDirectionCounts": {
-        "東": 297,
-        "南東": 62,
+        "東": 304,
+        "南東": 67,
         "北東": 18,
         "無風": 15,
         "南西": 74,
@@ -28608,14 +28687,14 @@
         "北": 1
       },
       "windSpeedBandCounts": {
-        "0-2m": 405,
-        "3-5m": 285,
+        "0-2m": 414,
+        "3-5m": 288,
         "6m+": 6,
         "unknown": 48
       },
       "waveHeightBandCounts": {
-        "0-2cm": 405,
-        "3-5cm": 285,
+        "0-2cm": 414,
+        "3-5cm": 288,
         "6cm+": 6,
         "unknown": 48
       },
@@ -28623,7 +28702,7 @@
         "weather": [
           {
             "key": "晴",
-            "raceCount": 184,
+            "raceCount": 194,
             "courseFirstCounts": {
               "1": 53,
               "2": 19,
@@ -28635,19 +28714,19 @@
             "payoutAvailableRaceCount": 120,
             "trifectaOver10000Count": 23,
             "courseFirstRates": {
-              "1": 0.288,
-              "2": 0.1033,
-              "3": 0.1141,
-              "4": 0.0761,
-              "5": 0.0543,
-              "6": 0.0163
+              "1": 0.2732,
+              "2": 0.0979,
+              "3": 0.1082,
+              "4": 0.0722,
+              "5": 0.0515,
+              "6": 0.0155
             },
             "roughRate": 0.1917,
             "readiness": "ready"
           },
           {
             "key": "曇り",
-            "raceCount": 112,
+            "raceCount": 114,
             "courseFirstCounts": {
               "1": 51,
               "2": 14,
@@ -28659,12 +28738,12 @@
             "payoutAvailableRaceCount": 105,
             "trifectaOver10000Count": 19,
             "courseFirstRates": {
-              "1": 0.4554,
-              "2": 0.125,
-              "3": 0.1786,
-              "4": 0.0982,
-              "5": 0.0625,
-              "6": 0.0179
+              "1": 0.4474,
+              "2": 0.1228,
+              "3": 0.1754,
+              "4": 0.0965,
+              "5": 0.0614,
+              "6": 0.0175
             },
             "roughRate": 0.181,
             "readiness": "ready"
@@ -28745,7 +28824,7 @@
         "windDirection": [
           {
             "key": "東",
-            "raceCount": 297,
+            "raceCount": 304,
             "courseFirstCounts": {
               "1": 145,
               "2": 39,
@@ -28757,19 +28836,19 @@
             "payoutAvailableRaceCount": 261,
             "trifectaOver10000Count": 39,
             "courseFirstRates": {
-              "1": 0.4882,
-              "2": 0.1313,
-              "3": 0.1246,
-              "4": 0.0438,
-              "5": 0.064,
-              "6": 0.0269
+              "1": 0.477,
+              "2": 0.1283,
+              "3": 0.1217,
+              "4": 0.0428,
+              "5": 0.0625,
+              "6": 0.0263
             },
             "roughRate": 0.1494,
             "readiness": "ready"
           },
           {
             "key": "南東",
-            "raceCount": 62,
+            "raceCount": 67,
             "courseFirstCounts": {
               "1": 16,
               "2": 8,
@@ -28781,12 +28860,12 @@
             "payoutAvailableRaceCount": 46,
             "trifectaOver10000Count": 9,
             "courseFirstRates": {
-              "1": 0.2581,
-              "2": 0.129,
-              "3": 0.1613,
-              "4": 0.0968,
-              "5": 0.0806,
-              "6": 0.0161
+              "1": 0.2388,
+              "2": 0.1194,
+              "3": 0.1493,
+              "4": 0.0896,
+              "5": 0.0746,
+              "6": 0.0149
             },
             "roughRate": 0.1957,
             "readiness": "ready"
@@ -28987,7 +29066,7 @@
         "windSpeedBand": [
           {
             "key": "3-5m",
-            "raceCount": 285,
+            "raceCount": 288,
             "courseFirstCounts": {
               "1": 124,
               "2": 34,
@@ -28999,19 +29078,19 @@
             "payoutAvailableRaceCount": 257,
             "trifectaOver10000Count": 44,
             "courseFirstRates": {
-              "1": 0.4351,
-              "2": 0.1193,
-              "3": 0.1509,
-              "4": 0.1053,
-              "5": 0.0632,
-              "6": 0.0281
+              "1": 0.4306,
+              "2": 0.1181,
+              "3": 0.1493,
+              "4": 0.1042,
+              "5": 0.0625,
+              "6": 0.0278
             },
             "roughRate": 0.1712,
             "readiness": "ready"
           },
           {
             "key": "0-2m",
-            "raceCount": 405,
+            "raceCount": 414,
             "courseFirstCounts": {
               "1": 191,
               "2": 51,
@@ -29023,12 +29102,12 @@
             "payoutAvailableRaceCount": 361,
             "trifectaOver10000Count": 66,
             "courseFirstRates": {
-              "1": 0.4716,
-              "2": 0.1259,
-              "3": 0.1309,
-              "4": 0.0815,
-              "5": 0.0642,
-              "6": 0.0173
+              "1": 0.4614,
+              "2": 0.1232,
+              "3": 0.128,
+              "4": 0.0797,
+              "5": 0.0628,
+              "6": 0.0169
             },
             "roughRate": 0.1828,
             "readiness": "ready"
@@ -29085,7 +29164,7 @@
         "waveHeightBand": [
           {
             "key": "3-5cm",
-            "raceCount": 285,
+            "raceCount": 288,
             "courseFirstCounts": {
               "1": 124,
               "2": 34,
@@ -29097,19 +29176,19 @@
             "payoutAvailableRaceCount": 257,
             "trifectaOver10000Count": 44,
             "courseFirstRates": {
-              "1": 0.4351,
-              "2": 0.1193,
-              "3": 0.1509,
-              "4": 0.1053,
-              "5": 0.0632,
-              "6": 0.0281
+              "1": 0.4306,
+              "2": 0.1181,
+              "3": 0.1493,
+              "4": 0.1042,
+              "5": 0.0625,
+              "6": 0.0278
             },
             "roughRate": 0.1712,
             "readiness": "ready"
           },
           {
             "key": "0-2cm",
-            "raceCount": 405,
+            "raceCount": 414,
             "courseFirstCounts": {
               "1": 191,
               "2": 51,
@@ -29121,12 +29200,12 @@
             "payoutAvailableRaceCount": 361,
             "trifectaOver10000Count": 66,
             "courseFirstRates": {
-              "1": 0.4716,
-              "2": 0.1259,
-              "3": 0.1309,
-              "4": 0.0815,
-              "5": 0.0642,
-              "6": 0.0173
+              "1": 0.4614,
+              "2": 0.1232,
+              "3": 0.128,
+              "4": 0.0797,
+              "5": 0.0628,
+              "6": 0.0169
             },
             "roughRate": 0.1828,
             "readiness": "ready"
@@ -29183,7 +29262,7 @@
         "exact": [
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 59,
+            "raceCount": 62,
             "courseFirstCounts": {
               "1": 17,
               "2": 3,
@@ -29195,19 +29274,19 @@
             "payoutAvailableRaceCount": 34,
             "trifectaOver10000Count": 6,
             "courseFirstRates": {
-              "1": 0.2881,
-              "2": 0.0508,
-              "3": 0.1017,
-              "4": 0.0508,
-              "5": 0.0508,
-              "6": 0.0339
+              "1": 0.2742,
+              "2": 0.0484,
+              "3": 0.0968,
+              "4": 0.0484,
+              "5": 0.0484,
+              "6": 0.0323
             },
             "roughRate": 0.1765,
             "readiness": "ready"
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 40,
+            "raceCount": 42,
             "courseFirstCounts": {
               "1": 13,
               "2": 8,
@@ -29219,11 +29298,11 @@
             "payoutAvailableRaceCount": 31,
             "trifectaOver10000Count": 7,
             "courseFirstRates": {
-              "1": 0.325,
-              "2": 0.2,
-              "3": 0.1,
-              "4": 0.075,
-              "5": 0.075,
+              "1": 0.3095,
+              "2": 0.1905,
+              "3": 0.0952,
+              "4": 0.0714,
+              "5": 0.0714,
               "6": 0
             },
             "roughRate": 0.2258,
@@ -29231,7 +29310,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 23,
+            "raceCount": 28,
             "courseFirstCounts": {
               "1": 5,
               "2": 0,
@@ -29243,11 +29322,11 @@
             "payoutAvailableRaceCount": 10,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.2174,
+              "1": 0.1786,
               "2": 0,
-              "3": 0.1304,
-              "4": 0.0435,
-              "5": 0.0435,
+              "3": 0.1071,
+              "4": 0.0357,
+              "5": 0.0357,
               "6": 0
             },
             "roughRate": 0.1,
@@ -30047,7 +30126,7 @@
           },
           {
             "key": "{\"weather\":\"曇り\",\"windDirection\":\"東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 31,
+            "raceCount": 33,
             "courseFirstCounts": {
               "1": 17,
               "2": 5,
@@ -30059,12 +30138,12 @@
             "payoutAvailableRaceCount": 30,
             "trifectaOver10000Count": 4,
             "courseFirstRates": {
-              "1": 0.5484,
-              "2": 0.1613,
-              "3": 0.129,
-              "4": 0.0645,
-              "5": 0.0323,
-              "6": 0.0323
+              "1": 0.5152,
+              "2": 0.1515,
+              "3": 0.1212,
+              "4": 0.0606,
+              "5": 0.0303,
+              "6": 0.0303
             },
             "roughRate": 0.1333,
             "readiness": "ready"
@@ -30369,42 +30448,42 @@
     {
       "venueCode": "15",
       "venueName": "丸亀",
-      "dateCount": 59,
-      "raceCount": 708,
-      "weatherAvailableRaceCount": 708,
+      "dateCount": 60,
+      "raceCount": 720,
+      "weatherAvailableRaceCount": 720,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 708,
-      "waveHeightAvailableRaceCount": 684,
-      "windSpeedAverageMps": 2.03,
+      "windSpeedAvailableRaceCount": 720,
+      "waveHeightAvailableRaceCount": 696,
+      "windSpeedAverageMps": 2.05,
       "windSpeedMaxMps": 7,
-      "waveHeightAverageCm": 2.1,
+      "waveHeightAverageCm": 2.08,
       "waveHeightMaxCm": 7,
       "weatherConditionCounts": {
         "雨": 67,
         "曇り": 59,
-        "晴": 126,
+        "晴": 138,
         "取得済み": 432,
         "-": 24
       },
       "windDirectionCounts": {
-        "北東": 72,
+        "北東": 74,
         "北": 33,
         "北西": 122,
-        "無風": 17,
+        "無風": 18,
         "南": 87,
-        "西": 191,
-        "南東": 26,
-        "東": 42,
+        "西": 195,
+        "南東": 27,
+        "東": 46,
         "南西": 118
       },
       "windSpeedBandCounts": {
-        "0-2m": 513,
+        "0-2m": 525,
         "3-5m": 175,
         "6m+": 20,
         "unknown": 0
       },
       "waveHeightBandCounts": {
-        "0-2cm": 489,
+        "0-2cm": 501,
         "3-5cm": 175,
         "6cm+": 20,
         "unknown": 24
@@ -30461,7 +30540,7 @@
           },
           {
             "key": "晴",
-            "raceCount": 126,
+            "raceCount": 138,
             "courseFirstCounts": {
               "1": 42,
               "2": 8,
@@ -30473,12 +30552,12 @@
             "payoutAvailableRaceCount": 78,
             "trifectaOver10000Count": 13,
             "courseFirstRates": {
-              "1": 0.3333,
-              "2": 0.0635,
-              "3": 0.0635,
-              "4": 0.0635,
-              "5": 0.0714,
-              "6": 0.0238
+              "1": 0.3043,
+              "2": 0.058,
+              "3": 0.058,
+              "4": 0.058,
+              "5": 0.0652,
+              "6": 0.0217
             },
             "roughRate": 0.1667,
             "readiness": "ready"
@@ -30535,7 +30614,7 @@
         "windDirection": [
           {
             "key": "北東",
-            "raceCount": 72,
+            "raceCount": 74,
             "courseFirstCounts": {
               "1": 27,
               "2": 6,
@@ -30547,12 +30626,12 @@
             "payoutAvailableRaceCount": 63,
             "trifectaOver10000Count": 12,
             "courseFirstRates": {
-              "1": 0.375,
-              "2": 0.0833,
-              "3": 0.1944,
-              "4": 0.0972,
-              "5": 0.0972,
-              "6": 0.0278
+              "1": 0.3649,
+              "2": 0.0811,
+              "3": 0.1892,
+              "4": 0.0946,
+              "5": 0.0946,
+              "6": 0.027
             },
             "roughRate": 0.1905,
             "readiness": "ready"
@@ -30607,7 +30686,7 @@
           },
           {
             "key": "無風",
-            "raceCount": 17,
+            "raceCount": 18,
             "courseFirstCounts": {
               "1": 8,
               "2": 4,
@@ -30619,12 +30698,12 @@
             "payoutAvailableRaceCount": 16,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.4706,
-              "2": 0.2353,
-              "3": 0.0588,
-              "4": 0.1176,
+              "1": 0.4444,
+              "2": 0.2222,
+              "3": 0.0556,
+              "4": 0.1111,
               "5": 0,
-              "6": 0.0588
+              "6": 0.0556
             },
             "roughRate": 0.0625,
             "readiness": "low-sample"
@@ -30655,7 +30734,7 @@
           },
           {
             "key": "西",
-            "raceCount": 191,
+            "raceCount": 195,
             "courseFirstCounts": {
               "1": 95,
               "2": 24,
@@ -30667,19 +30746,19 @@
             "payoutAvailableRaceCount": 172,
             "trifectaOver10000Count": 33,
             "courseFirstRates": {
-              "1": 0.4974,
-              "2": 0.1257,
-              "3": 0.1204,
-              "4": 0.0838,
-              "5": 0.0471,
-              "6": 0.0262
+              "1": 0.4872,
+              "2": 0.1231,
+              "3": 0.1179,
+              "4": 0.0821,
+              "5": 0.0462,
+              "6": 0.0256
             },
             "roughRate": 0.1919,
             "readiness": "ready"
           },
           {
             "key": "南東",
-            "raceCount": 26,
+            "raceCount": 27,
             "courseFirstCounts": {
               "1": 9,
               "2": 2,
@@ -30691,10 +30770,10 @@
             "payoutAvailableRaceCount": 14,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.3462,
-              "2": 0.0769,
-              "3": 0.0385,
-              "4": 0.0769,
+              "1": 0.3333,
+              "2": 0.0741,
+              "3": 0.037,
+              "4": 0.0741,
               "5": 0,
               "6": 0
             },
@@ -30703,7 +30782,7 @@
           },
           {
             "key": "東",
-            "raceCount": 42,
+            "raceCount": 46,
             "courseFirstCounts": {
               "1": 12,
               "2": 3,
@@ -30715,11 +30794,11 @@
             "payoutAvailableRaceCount": 31,
             "trifectaOver10000Count": 8,
             "courseFirstRates": {
-              "1": 0.2857,
-              "2": 0.0714,
-              "3": 0.1667,
-              "4": 0.0714,
-              "5": 0.1429,
+              "1": 0.2609,
+              "2": 0.0652,
+              "3": 0.1522,
+              "4": 0.0652,
+              "5": 0.1304,
               "6": 0
             },
             "roughRate": 0.2581,
@@ -30753,7 +30832,7 @@
         "windSpeedBand": [
           {
             "key": "0-2m",
-            "raceCount": 513,
+            "raceCount": 525,
             "courseFirstCounts": {
               "1": 246,
               "2": 66,
@@ -30765,12 +30844,12 @@
             "payoutAvailableRaceCount": 449,
             "trifectaOver10000Count": 69,
             "courseFirstRates": {
-              "1": 0.4795,
-              "2": 0.1287,
-              "3": 0.1131,
-              "4": 0.0858,
-              "5": 0.0448,
-              "6": 0.0234
+              "1": 0.4686,
+              "2": 0.1257,
+              "3": 0.1105,
+              "4": 0.0838,
+              "5": 0.0438,
+              "6": 0.0229
             },
             "roughRate": 0.1537,
             "readiness": "ready"
@@ -30827,7 +30906,7 @@
         "waveHeightBand": [
           {
             "key": "0-2cm",
-            "raceCount": 489,
+            "raceCount": 501,
             "courseFirstCounts": {
               "1": 246,
               "2": 66,
@@ -30839,12 +30918,12 @@
             "payoutAvailableRaceCount": 449,
             "trifectaOver10000Count": 69,
             "courseFirstRates": {
-              "1": 0.5031,
-              "2": 0.135,
-              "3": 0.1186,
-              "4": 0.09,
-              "5": 0.047,
-              "6": 0.0245
+              "1": 0.491,
+              "2": 0.1317,
+              "3": 0.1158,
+              "4": 0.0878,
+              "5": 0.0459,
+              "6": 0.024
             },
             "roughRate": 0.1537,
             "readiness": "ready"
@@ -31357,7 +31436,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"西\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 34,
+            "raceCount": 38,
             "courseFirstCounts": {
               "1": 8,
               "2": 3,
@@ -31369,12 +31448,12 @@
             "payoutAvailableRaceCount": 19,
             "trifectaOver10000Count": 3,
             "courseFirstRates": {
-              "1": 0.2353,
-              "2": 0.0882,
-              "3": 0.0294,
-              "4": 0.1176,
-              "5": 0.0588,
-              "6": 0.0294
+              "1": 0.2105,
+              "2": 0.0789,
+              "3": 0.0263,
+              "4": 0.1053,
+              "5": 0.0526,
+              "6": 0.0263
             },
             "roughRate": 0.1579,
             "readiness": "ready"
@@ -31981,7 +32060,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"北東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 11,
+            "raceCount": 13,
             "courseFirstCounts": {
               "1": 1,
               "2": 0,
@@ -31993,11 +32072,11 @@
             "payoutAvailableRaceCount": 3,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.0909,
+              "1": 0.0769,
               "2": 0,
               "3": 0,
-              "4": 0.0909,
-              "5": 0.0909,
+              "4": 0.0769,
+              "5": 0.0769,
               "6": 0
             },
             "roughRate": 0.3333,
@@ -32173,7 +32252,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 14,
+            "raceCount": 18,
             "courseFirstCounts": {
               "1": 1,
               "2": 0,
@@ -32185,11 +32264,11 @@
             "payoutAvailableRaceCount": 3,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.0714,
+              "1": 0.0556,
               "2": 0,
-              "3": 0.0714,
+              "3": 0.0556,
               "4": 0,
-              "5": 0.0714,
+              "5": 0.0556,
               "6": 0
             },
             "roughRate": 0.3333,
@@ -32365,7 +32444,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"無風\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 2,
+            "raceCount": 3,
             "courseFirstCounts": {
               "1": 1,
               "2": 0,
@@ -32377,7 +32456,7 @@
             "payoutAvailableRaceCount": 1,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.5,
+              "1": 0.3333,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -32385,6 +32464,30 @@
               "6": 0
             },
             "roughRate": 0,
+            "readiness": "low-sample"
+          },
+          {
+            "key": "{\"weather\":\"晴\",\"windDirection\":\"南東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
+            "raceCount": 1,
+            "courseFirstCounts": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "payoutAvailableRaceCount": 0,
+            "trifectaOver10000Count": 0,
+            "courseFirstRates": {
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0
+            },
+            "roughRate": null,
             "readiness": "low-sample"
           },
           {
@@ -32427,46 +32530,46 @@
       "raceCount": 888,
       "weatherAvailableRaceCount": 888,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 864,
-      "waveHeightAvailableRaceCount": 864,
-      "windSpeedAverageMps": 2.66,
+      "windSpeedAvailableRaceCount": 876,
+      "waveHeightAvailableRaceCount": 876,
+      "windSpeedAverageMps": 2.65,
       "windSpeedMaxMps": 8,
       "waveHeightAverageCm": 2.88,
       "waveHeightMaxCm": 7,
       "weatherConditionCounts": {
-        "晴": 240,
+        "晴": 252,
         "取得済み": 492,
         "曇り": 87,
         "雨": 45,
-        "確認中": 24
+        "確認中": 12
       },
       "windDirectionCounts": {
-        "南西": 374,
-        "西": 183,
+        "南西": 379,
+        "西": 190,
         "北西": 109,
         "北東": 52,
         "南東": 82,
         "無風": 8,
         "東": 56,
-        "確認中": 24
+        "確認中": 12
       },
       "windSpeedBandCounts": {
-        "0-2m": 439,
-        "3-5m": 401,
+        "0-2m": 449,
+        "3-5m": 403,
         "6m+": 24,
-        "unknown": 24
+        "unknown": 12
       },
       "waveHeightBandCounts": {
-        "0-2cm": 134,
-        "3-5cm": 724,
+        "0-2cm": 137,
+        "3-5cm": 733,
         "6cm+": 6,
-        "unknown": 24
+        "unknown": 12
       },
       "conditionProfiles": {
         "weather": [
           {
             "key": "晴",
-            "raceCount": 240,
+            "raceCount": 252,
             "courseFirstCounts": {
               "1": 61,
               "2": 18,
@@ -32478,12 +32581,12 @@
             "payoutAvailableRaceCount": 144,
             "trifectaOver10000Count": 31,
             "courseFirstRates": {
-              "1": 0.2542,
-              "2": 0.075,
-              "3": 0.1083,
-              "4": 0.0958,
-              "5": 0.05,
-              "6": 0.0167
+              "1": 0.2421,
+              "2": 0.0714,
+              "3": 0.1032,
+              "4": 0.0913,
+              "5": 0.0476,
+              "6": 0.0159
             },
             "roughRate": 0.2153,
             "readiness": "ready"
@@ -32562,7 +32665,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -32588,7 +32691,7 @@
         "windDirection": [
           {
             "key": "南西",
-            "raceCount": 374,
+            "raceCount": 379,
             "courseFirstCounts": {
               "1": 158,
               "2": 27,
@@ -32600,19 +32703,19 @@
             "payoutAvailableRaceCount": 312,
             "trifectaOver10000Count": 57,
             "courseFirstRates": {
-              "1": 0.4225,
-              "2": 0.0722,
-              "3": 0.1524,
-              "4": 0.0936,
-              "5": 0.0695,
-              "6": 0.0267
+              "1": 0.4169,
+              "2": 0.0712,
+              "3": 0.1504,
+              "4": 0.0923,
+              "5": 0.0686,
+              "6": 0.0264
             },
             "roughRate": 0.1827,
             "readiness": "ready"
           },
           {
             "key": "西",
-            "raceCount": 183,
+            "raceCount": 190,
             "courseFirstCounts": {
               "1": 78,
               "2": 24,
@@ -32624,12 +32727,12 @@
             "payoutAvailableRaceCount": 169,
             "trifectaOver10000Count": 38,
             "courseFirstRates": {
-              "1": 0.4262,
-              "2": 0.1311,
-              "3": 0.1257,
-              "4": 0.1475,
-              "5": 0.082,
-              "6": 0.0109
+              "1": 0.4105,
+              "2": 0.1263,
+              "3": 0.1211,
+              "4": 0.1421,
+              "5": 0.0789,
+              "6": 0.0105
             },
             "roughRate": 0.2249,
             "readiness": "ready"
@@ -32756,7 +32859,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -32782,7 +32885,7 @@
         "windSpeedBand": [
           {
             "key": "0-2m",
-            "raceCount": 439,
+            "raceCount": 449,
             "courseFirstCounts": {
               "1": 232,
               "2": 46,
@@ -32794,19 +32897,19 @@
             "payoutAvailableRaceCount": 399,
             "trifectaOver10000Count": 75,
             "courseFirstRates": {
-              "1": 0.5285,
-              "2": 0.1048,
-              "3": 0.1207,
-              "4": 0.0797,
-              "5": 0.0478,
-              "6": 0.0296
+              "1": 0.5167,
+              "2": 0.1024,
+              "3": 0.118,
+              "4": 0.078,
+              "5": 0.0468,
+              "6": 0.029
             },
             "roughRate": 0.188,
             "readiness": "ready"
           },
           {
             "key": "3-5m",
-            "raceCount": 401,
+            "raceCount": 403,
             "courseFirstCounts": {
               "1": 158,
               "2": 43,
@@ -32818,12 +32921,12 @@
             "payoutAvailableRaceCount": 345,
             "trifectaOver10000Count": 76,
             "courseFirstRates": {
-              "1": 0.394,
-              "2": 0.1072,
-              "3": 0.1421,
-              "4": 0.1222,
-              "5": 0.0773,
-              "6": 0.0175
+              "1": 0.3921,
+              "2": 0.1067,
+              "3": 0.1414,
+              "4": 0.1216,
+              "5": 0.0769,
+              "6": 0.0174
             },
             "roughRate": 0.2203,
             "readiness": "ready"
@@ -32854,7 +32957,7 @@
           },
           {
             "key": "unknown",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -32880,7 +32983,7 @@
         "waveHeightBand": [
           {
             "key": "3-5cm",
-            "raceCount": 724,
+            "raceCount": 733,
             "courseFirstCounts": {
               "1": 326,
               "2": 80,
@@ -32892,19 +32995,19 @@
             "payoutAvailableRaceCount": 643,
             "trifectaOver10000Count": 127,
             "courseFirstRates": {
-              "1": 0.4503,
-              "2": 0.1105,
-              "3": 0.1381,
-              "4": 0.105,
-              "5": 0.0635,
-              "6": 0.0207
+              "1": 0.4447,
+              "2": 0.1091,
+              "3": 0.1364,
+              "4": 0.1037,
+              "5": 0.0628,
+              "6": 0.0205
             },
             "roughRate": 0.1975,
             "readiness": "ready"
           },
           {
             "key": "0-2cm",
-            "raceCount": 134,
+            "raceCount": 137,
             "courseFirstCounts": {
               "1": 70,
               "2": 11,
@@ -32916,19 +33019,19 @@
             "payoutAvailableRaceCount": 118,
             "trifectaOver10000Count": 26,
             "courseFirstRates": {
-              "1": 0.5224,
-              "2": 0.0821,
-              "3": 0.0896,
-              "4": 0.097,
-              "5": 0.0597,
-              "6": 0.0373
+              "1": 0.5109,
+              "2": 0.0803,
+              "3": 0.0876,
+              "4": 0.0949,
+              "5": 0.0584,
+              "6": 0.0365
             },
             "roughRate": 0.2203,
             "readiness": "ready"
           },
           {
             "key": "unknown",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -32978,7 +33081,7 @@
         "exact": [
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南西\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 25,
+            "raceCount": 27,
             "courseFirstCounts": {
               "1": 10,
               "2": 0,
@@ -32990,10 +33093,10 @@
             "payoutAvailableRaceCount": 12,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.4,
+              "1": 0.3704,
               "2": 0,
               "3": 0,
-              "4": 0.08,
+              "4": 0.0741,
               "5": 0,
               "6": 0
             },
@@ -33002,7 +33105,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南西\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 102,
+            "raceCount": 104,
             "courseFirstCounts": {
               "1": 22,
               "2": 5,
@@ -33014,19 +33117,19 @@
             "payoutAvailableRaceCount": 61,
             "trifectaOver10000Count": 15,
             "courseFirstRates": {
-              "1": 0.2157,
-              "2": 0.049,
-              "3": 0.1569,
-              "4": 0.1078,
-              "5": 0.049,
-              "6": 0.0196
+              "1": 0.2115,
+              "2": 0.0481,
+              "3": 0.1538,
+              "4": 0.1058,
+              "5": 0.0481,
+              "6": 0.0192
             },
             "roughRate": 0.2459,
             "readiness": "ready"
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南西\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 11,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 2,
               "2": 1,
@@ -33038,11 +33141,11 @@
             "payoutAvailableRaceCount": 4,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.1818,
-              "2": 0.0909,
+              "1": 0.1667,
+              "2": 0.0833,
               "3": 0,
               "4": 0,
-              "5": 0.0909,
+              "5": 0.0833,
               "6": 0
             },
             "roughRate": 0.25,
@@ -33554,7 +33657,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"西\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 15,
+            "raceCount": 20,
             "courseFirstCounts": {
               "1": 5,
               "2": 0,
@@ -33566,12 +33669,12 @@
             "payoutAvailableRaceCount": 10,
             "trifectaOver10000Count": 2,
             "courseFirstRates": {
-              "1": 0.3333,
+              "1": 0.25,
               "2": 0,
-              "3": 0.2,
-              "4": 0.0667,
+              "3": 0.15,
+              "4": 0.05,
               "5": 0,
-              "6": 0.0667
+              "6": 0.05
             },
             "roughRate": 0.2,
             "readiness": "low-sample"
@@ -33626,7 +33729,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"西\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 6,
+            "raceCount": 8,
             "courseFirstCounts": {
               "1": 1,
               "2": 0,
@@ -33638,9 +33741,9 @@
             "payoutAvailableRaceCount": 2,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.1667,
+              "1": 0.125,
               "2": 0,
-              "3": 0.1667,
+              "3": 0.125,
               "4": 0,
               "5": 0,
               "6": 0
@@ -34130,7 +34233,7 @@
           },
           {
             "key": "{\"weather\":\"確認中\",\"windDirection\":\"確認中\",\"windSpeedBand\":\"unknown\",\"waveHeightBand\":\"unknown\"}",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -36818,12 +36921,12 @@
     {
       "venueCode": "18",
       "venueName": "徳山",
-      "dateCount": 76,
-      "raceCount": 912,
-      "weatherAvailableRaceCount": 912,
+      "dateCount": 77,
+      "raceCount": 924,
+      "weatherAvailableRaceCount": 924,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 876,
-      "waveHeightAvailableRaceCount": 876,
+      "windSpeedAvailableRaceCount": 888,
+      "waveHeightAvailableRaceCount": 888,
       "windSpeedAverageMps": 2.86,
       "windSpeedMaxMps": 6,
       "waveHeightAverageCm": 2.86,
@@ -36831,30 +36934,30 @@
       "weatherConditionCounts": {
         "雨": 53,
         "曇り": 100,
-        "晴": 243,
+        "晴": 255,
         "取得済み": 480,
         "確認中": 36
       },
       "windDirectionCounts": {
-        "南": 336,
-        "南東": 221,
-        "東": 126,
+        "南": 340,
+        "南東": 222,
+        "東": 132,
         "北東": 88,
-        "南西": 35,
+        "南西": 36,
         "北西": 39,
         "北": 19,
         "西": 12,
         "確認中": 36
       },
       "windSpeedBandCounts": {
-        "0-2m": 354,
-        "3-5m": 503,
+        "0-2m": 359,
+        "3-5m": 510,
         "6m+": 19,
         "unknown": 36
       },
       "waveHeightBandCounts": {
-        "0-2cm": 354,
-        "3-5cm": 503,
+        "0-2cm": 359,
+        "3-5cm": 510,
         "6cm+": 19,
         "unknown": 36
       },
@@ -36910,7 +37013,7 @@
           },
           {
             "key": "晴",
-            "raceCount": 243,
+            "raceCount": 255,
             "courseFirstCounts": {
               "1": 106,
               "2": 22,
@@ -36922,12 +37025,12 @@
             "payoutAvailableRaceCount": 166,
             "trifectaOver10000Count": 23,
             "courseFirstRates": {
-              "1": 0.4362,
-              "2": 0.0905,
-              "3": 0.07,
-              "4": 0.037,
-              "5": 0.0412,
-              "6": 0.0082
+              "1": 0.4157,
+              "2": 0.0863,
+              "3": 0.0667,
+              "4": 0.0353,
+              "5": 0.0392,
+              "6": 0.0078
             },
             "roughRate": 0.1386,
             "readiness": "ready"
@@ -36984,7 +37087,7 @@
         "windDirection": [
           {
             "key": "南",
-            "raceCount": 336,
+            "raceCount": 340,
             "courseFirstCounts": {
               "1": 186,
               "2": 49,
@@ -36996,19 +37099,19 @@
             "payoutAvailableRaceCount": 310,
             "trifectaOver10000Count": 50,
             "courseFirstRates": {
-              "1": 0.5536,
-              "2": 0.1458,
-              "3": 0.1071,
-              "4": 0.0655,
-              "5": 0.0327,
-              "6": 0.0179
+              "1": 0.5471,
+              "2": 0.1441,
+              "3": 0.1059,
+              "4": 0.0647,
+              "5": 0.0324,
+              "6": 0.0176
             },
             "roughRate": 0.1613,
             "readiness": "ready"
           },
           {
             "key": "南東",
-            "raceCount": 221,
+            "raceCount": 222,
             "courseFirstCounts": {
               "1": 126,
               "2": 28,
@@ -37020,19 +37123,19 @@
             "payoutAvailableRaceCount": 210,
             "trifectaOver10000Count": 36,
             "courseFirstRates": {
-              "1": 0.5701,
-              "2": 0.1267,
-              "3": 0.1403,
-              "4": 0.0588,
-              "5": 0.0407,
-              "6": 0.0136
+              "1": 0.5676,
+              "2": 0.1261,
+              "3": 0.1396,
+              "4": 0.0586,
+              "5": 0.0405,
+              "6": 0.0135
             },
             "roughRate": 0.1714,
             "readiness": "ready"
           },
           {
             "key": "東",
-            "raceCount": 126,
+            "raceCount": 132,
             "courseFirstCounts": {
               "1": 59,
               "2": 17,
@@ -37044,12 +37147,12 @@
             "payoutAvailableRaceCount": 108,
             "trifectaOver10000Count": 18,
             "courseFirstRates": {
-              "1": 0.4683,
-              "2": 0.1349,
-              "3": 0.1032,
-              "4": 0.0952,
-              "5": 0.0317,
-              "6": 0.0238
+              "1": 0.447,
+              "2": 0.1288,
+              "3": 0.0985,
+              "4": 0.0909,
+              "5": 0.0303,
+              "6": 0.0227
             },
             "roughRate": 0.1667,
             "readiness": "ready"
@@ -37080,7 +37183,7 @@
           },
           {
             "key": "南西",
-            "raceCount": 35,
+            "raceCount": 36,
             "courseFirstCounts": {
               "1": 16,
               "2": 7,
@@ -37092,11 +37195,11 @@
             "payoutAvailableRaceCount": 31,
             "trifectaOver10000Count": 4,
             "courseFirstRates": {
-              "1": 0.4571,
-              "2": 0.2,
-              "3": 0.1714,
-              "4": 0.0286,
-              "5": 0.0286,
+              "1": 0.4444,
+              "2": 0.1944,
+              "3": 0.1667,
+              "4": 0.0278,
+              "5": 0.0278,
               "6": 0
             },
             "roughRate": 0.129,
@@ -37202,7 +37305,7 @@
         "windSpeedBand": [
           {
             "key": "0-2m",
-            "raceCount": 354,
+            "raceCount": 359,
             "courseFirstCounts": {
               "1": 195,
               "2": 48,
@@ -37214,19 +37317,19 @@
             "payoutAvailableRaceCount": 310,
             "trifectaOver10000Count": 38,
             "courseFirstRates": {
-              "1": 0.5508,
-              "2": 0.1356,
-              "3": 0.0847,
-              "4": 0.0452,
-              "5": 0.0395,
-              "6": 0.0198
+              "1": 0.5432,
+              "2": 0.1337,
+              "3": 0.0836,
+              "4": 0.0446,
+              "5": 0.039,
+              "6": 0.0195
             },
             "roughRate": 0.1226,
             "readiness": "ready"
           },
           {
             "key": "3-5m",
-            "raceCount": 503,
+            "raceCount": 510,
             "courseFirstCounts": {
               "1": 256,
               "2": 67,
@@ -37238,12 +37341,12 @@
             "payoutAvailableRaceCount": 451,
             "trifectaOver10000Count": 88,
             "courseFirstRates": {
-              "1": 0.5089,
-              "2": 0.1332,
-              "3": 0.1213,
-              "4": 0.0755,
-              "5": 0.0398,
-              "6": 0.0179
+              "1": 0.502,
+              "2": 0.1314,
+              "3": 0.1196,
+              "4": 0.0745,
+              "5": 0.0392,
+              "6": 0.0176
             },
             "roughRate": 0.1951,
             "readiness": "ready"
@@ -37300,7 +37403,7 @@
         "waveHeightBand": [
           {
             "key": "0-2cm",
-            "raceCount": 354,
+            "raceCount": 359,
             "courseFirstCounts": {
               "1": 195,
               "2": 48,
@@ -37312,19 +37415,19 @@
             "payoutAvailableRaceCount": 310,
             "trifectaOver10000Count": 38,
             "courseFirstRates": {
-              "1": 0.5508,
-              "2": 0.1356,
-              "3": 0.0847,
-              "4": 0.0452,
-              "5": 0.0395,
-              "6": 0.0198
+              "1": 0.5432,
+              "2": 0.1337,
+              "3": 0.0836,
+              "4": 0.0446,
+              "5": 0.039,
+              "6": 0.0195
             },
             "roughRate": 0.1226,
             "readiness": "ready"
           },
           {
             "key": "3-5cm",
-            "raceCount": 503,
+            "raceCount": 510,
             "courseFirstCounts": {
               "1": 256,
               "2": 67,
@@ -37336,12 +37439,12 @@
             "payoutAvailableRaceCount": 451,
             "trifectaOver10000Count": 88,
             "courseFirstRates": {
-              "1": 0.5089,
-              "2": 0.1332,
-              "3": 0.1213,
-              "4": 0.0755,
-              "5": 0.0398,
-              "6": 0.0179
+              "1": 0.502,
+              "2": 0.1314,
+              "3": 0.1196,
+              "4": 0.0745,
+              "5": 0.0392,
+              "6": 0.0176
             },
             "roughRate": 0.1951,
             "readiness": "ready"
@@ -37494,7 +37597,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 36,
+            "raceCount": 37,
             "courseFirstCounts": {
               "1": 19,
               "2": 4,
@@ -37506,11 +37609,11 @@
             "payoutAvailableRaceCount": 28,
             "trifectaOver10000Count": 3,
             "courseFirstRates": {
-              "1": 0.5278,
-              "2": 0.1111,
-              "3": 0.0556,
-              "4": 0.0556,
-              "5": 0.0278,
+              "1": 0.5135,
+              "2": 0.1081,
+              "3": 0.0541,
+              "4": 0.0541,
+              "5": 0.027,
               "6": 0
             },
             "roughRate": 0.1071,
@@ -37542,7 +37645,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 19,
+            "raceCount": 20,
             "courseFirstCounts": {
               "1": 8,
               "2": 3,
@@ -37554,11 +37657,11 @@
             "payoutAvailableRaceCount": 16,
             "trifectaOver10000Count": 3,
             "courseFirstRates": {
-              "1": 0.4211,
-              "2": 0.1579,
-              "3": 0.1579,
-              "4": 0.0526,
-              "5": 0.0526,
+              "1": 0.4,
+              "2": 0.15,
+              "3": 0.15,
+              "4": 0.05,
+              "5": 0.05,
               "6": 0
             },
             "roughRate": 0.1875,
@@ -37566,7 +37669,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 70,
+            "raceCount": 73,
             "courseFirstCounts": {
               "1": 31,
               "2": 7,
@@ -37578,11 +37681,11 @@
             "payoutAvailableRaceCount": 52,
             "trifectaOver10000Count": 9,
             "courseFirstRates": {
-              "1": 0.4429,
-              "2": 0.1,
-              "3": 0.0857,
-              "4": 0.0429,
-              "5": 0.0714,
+              "1": 0.4247,
+              "2": 0.0959,
+              "3": 0.0822,
+              "4": 0.0411,
+              "5": 0.0685,
               "6": 0
             },
             "roughRate": 0.1731,
@@ -38238,7 +38341,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 7,
+            "raceCount": 10,
             "courseFirstCounts": {
               "1": 5,
               "2": 0,
@@ -38250,7 +38353,7 @@
             "payoutAvailableRaceCount": 5,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.7143,
+              "1": 0.5,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -38262,7 +38365,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 25,
+            "raceCount": 28,
             "courseFirstCounts": {
               "1": 11,
               "2": 1,
@@ -38274,9 +38377,9 @@
             "payoutAvailableRaceCount": 14,
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
-              "1": 0.44,
-              "2": 0.04,
-              "3": 0.08,
+              "1": 0.3929,
+              "2": 0.0357,
+              "3": 0.0714,
               "4": 0,
               "5": 0,
               "6": 0
@@ -38862,7 +38965,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南西\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 3,
+            "raceCount": 4,
             "courseFirstCounts": {
               "1": 1,
               "2": 0,
@@ -38874,7 +38977,7 @@
             "payoutAvailableRaceCount": 1,
             "trifectaOver10000Count": 0,
             "courseFirstRates": {
-              "1": 0.3333,
+              "1": 0.25,
               "2": 0,
               "3": 0,
               "4": 0,
@@ -38944,19 +39047,19 @@
     {
       "venueCode": "19",
       "venueName": "下関",
-      "dateCount": 70,
-      "raceCount": 840,
-      "weatherAvailableRaceCount": 840,
+      "dateCount": 71,
+      "raceCount": 852,
+      "weatherAvailableRaceCount": 852,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 816,
-      "waveHeightAvailableRaceCount": 816,
+      "windSpeedAvailableRaceCount": 828,
+      "waveHeightAvailableRaceCount": 828,
       "windSpeedAverageMps": 2.61,
       "windSpeedMaxMps": 7,
       "waveHeightAverageCm": 2.61,
       "waveHeightMaxCm": 7,
       "weatherConditionCounts": {
         "取得済み": 516,
-        "晴": 185,
+        "晴": 197,
         "雨": 41,
         "曇り": 74,
         "確認中": 24
@@ -38969,18 +39072,18 @@
         "南西": 55,
         "南東": 190,
         "東": 68,
-        "北東": 118,
+        "北東": 130,
         "確認中": 24
       },
       "windSpeedBandCounts": {
-        "0-2m": 411,
-        "3-5m": 400,
+        "0-2m": 418,
+        "3-5m": 405,
         "6m+": 5,
         "unknown": 24
       },
       "waveHeightBandCounts": {
-        "0-2cm": 411,
-        "3-5cm": 400,
+        "0-2cm": 418,
+        "3-5cm": 405,
         "6cm+": 5,
         "unknown": 24
       },
@@ -39012,7 +39115,7 @@
           },
           {
             "key": "晴",
-            "raceCount": 185,
+            "raceCount": 197,
             "courseFirstCounts": {
               "1": 88,
               "2": 9,
@@ -39024,12 +39127,12 @@
             "payoutAvailableRaceCount": 136,
             "trifectaOver10000Count": 21,
             "courseFirstRates": {
-              "1": 0.4757,
-              "2": 0.0486,
-              "3": 0.1135,
-              "4": 0.0595,
-              "5": 0.027,
-              "6": 0.0108
+              "1": 0.4467,
+              "2": 0.0457,
+              "3": 0.1066,
+              "4": 0.0558,
+              "5": 0.0254,
+              "6": 0.0102
             },
             "roughRate": 0.1544,
             "readiness": "ready"
@@ -39278,7 +39381,7 @@
           },
           {
             "key": "北東",
-            "raceCount": 118,
+            "raceCount": 130,
             "courseFirstCounts": {
               "1": 48,
               "2": 3,
@@ -39290,12 +39393,12 @@
             "payoutAvailableRaceCount": 74,
             "trifectaOver10000Count": 8,
             "courseFirstRates": {
-              "1": 0.4068,
-              "2": 0.0254,
-              "3": 0.1102,
-              "4": 0.0508,
-              "5": 0.0254,
-              "6": 0.0085
+              "1": 0.3692,
+              "2": 0.0231,
+              "3": 0.1,
+              "4": 0.0462,
+              "5": 0.0231,
+              "6": 0.0077
             },
             "roughRate": 0.1081,
             "readiness": "ready"
@@ -39328,7 +39431,7 @@
         "windSpeedBand": [
           {
             "key": "0-2m",
-            "raceCount": 411,
+            "raceCount": 418,
             "courseFirstCounts": {
               "1": 235,
               "2": 43,
@@ -39340,19 +39443,19 @@
             "payoutAvailableRaceCount": 377,
             "trifectaOver10000Count": 51,
             "courseFirstRates": {
-              "1": 0.5718,
-              "2": 0.1046,
-              "3": 0.09,
-              "4": 0.0706,
-              "5": 0.0487,
-              "6": 0.0316
+              "1": 0.5622,
+              "2": 0.1029,
+              "3": 0.0885,
+              "4": 0.0694,
+              "5": 0.0478,
+              "6": 0.0311
             },
             "roughRate": 0.1353,
             "readiness": "ready"
           },
           {
             "key": "3-5m",
-            "raceCount": 400,
+            "raceCount": 405,
             "courseFirstCounts": {
               "1": 229,
               "2": 30,
@@ -39364,12 +39467,12 @@
             "payoutAvailableRaceCount": 361,
             "trifectaOver10000Count": 45,
             "courseFirstRates": {
-              "1": 0.5725,
-              "2": 0.075,
-              "3": 0.1175,
-              "4": 0.0725,
-              "5": 0.03,
-              "6": 0.035
+              "1": 0.5654,
+              "2": 0.0741,
+              "3": 0.116,
+              "4": 0.0716,
+              "5": 0.0296,
+              "6": 0.0346
             },
             "roughRate": 0.1247,
             "readiness": "ready"
@@ -39426,7 +39529,7 @@
         "waveHeightBand": [
           {
             "key": "0-2cm",
-            "raceCount": 411,
+            "raceCount": 418,
             "courseFirstCounts": {
               "1": 235,
               "2": 43,
@@ -39438,19 +39541,19 @@
             "payoutAvailableRaceCount": 377,
             "trifectaOver10000Count": 51,
             "courseFirstRates": {
-              "1": 0.5718,
-              "2": 0.1046,
-              "3": 0.09,
-              "4": 0.0706,
-              "5": 0.0487,
-              "6": 0.0316
+              "1": 0.5622,
+              "2": 0.1029,
+              "3": 0.0885,
+              "4": 0.0694,
+              "5": 0.0478,
+              "6": 0.0311
             },
             "roughRate": 0.1353,
             "readiness": "ready"
           },
           {
             "key": "3-5cm",
-            "raceCount": 400,
+            "raceCount": 405,
             "courseFirstCounts": {
               "1": 229,
               "2": 30,
@@ -39462,12 +39565,12 @@
             "payoutAvailableRaceCount": 361,
             "trifectaOver10000Count": 45,
             "courseFirstRates": {
-              "1": 0.5725,
-              "2": 0.075,
-              "3": 0.1175,
-              "4": 0.0725,
-              "5": 0.03,
-              "6": 0.035
+              "1": 0.5654,
+              "2": 0.0741,
+              "3": 0.116,
+              "4": 0.0716,
+              "5": 0.0296,
+              "6": 0.0346
             },
             "roughRate": 0.1247,
             "readiness": "ready"
@@ -39956,7 +40059,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"北東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 24,
+            "raceCount": 31,
             "courseFirstCounts": {
               "1": 6,
               "2": 2,
@@ -39968,15 +40071,15 @@
             "payoutAvailableRaceCount": 11,
             "trifectaOver10000Count": 2,
             "courseFirstRates": {
-              "1": 0.25,
-              "2": 0.0833,
-              "3": 0.0833,
-              "4": 0.0417,
+              "1": 0.1935,
+              "2": 0.0645,
+              "3": 0.0645,
+              "4": 0.0323,
               "5": 0,
               "6": 0
             },
             "roughRate": 0.1818,
-            "readiness": "low-sample"
+            "readiness": "ready"
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
@@ -40004,7 +40107,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"北東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 58,
+            "raceCount": 63,
             "courseFirstCounts": {
               "1": 27,
               "2": 0,
@@ -40016,11 +40119,11 @@
             "payoutAvailableRaceCount": 37,
             "trifectaOver10000Count": 3,
             "courseFirstRates": {
-              "1": 0.4655,
+              "1": 0.4286,
               "2": 0,
-              "3": 0.1379,
-              "4": 0.0172,
-              "5": 0.0172,
+              "3": 0.127,
+              "4": 0.0159,
+              "5": 0.0159,
               "6": 0
             },
             "roughRate": 0.0811,
@@ -40806,9 +40909,9 @@
     {
       "venueCode": "20",
       "venueName": "若松",
-      "dateCount": 73,
-      "raceCount": 876,
-      "weatherAvailableRaceCount": 876,
+      "dateCount": 74,
+      "raceCount": 888,
+      "weatherAvailableRaceCount": 888,
       "weatherCoverageRate": 1,
       "windSpeedAvailableRaceCount": 852,
       "waveHeightAvailableRaceCount": 852,
@@ -40821,7 +40924,7 @@
         "取得済み": 516,
         "曇り": 101,
         "雨": 32,
-        "確認中": 24
+        "確認中": 36
       },
       "windDirectionCounts": {
         "西北西": 61,
@@ -40833,19 +40936,19 @@
         "無風": 16,
         "西南西": 9,
         "南南西": 3,
-        "確認中": 24
+        "確認中": 36
       },
       "windSpeedBandCounts": {
         "0-2m": 367,
         "3-5m": 426,
         "6m+": 59,
-        "unknown": 24
+        "unknown": 36
       },
       "waveHeightBandCounts": {
         "0-2cm": 367,
         "3-5cm": 426,
         "6cm+": 59,
-        "unknown": 24
+        "unknown": 36
       },
       "conditionProfiles": {
         "weather": [
@@ -40947,7 +41050,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 24,
+            "raceCount": 36,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -40967,7 +41070,7 @@
               "6": 0
             },
             "roughRate": null,
-            "readiness": "low-sample"
+            "readiness": "ready"
           }
         ],
         "windDirection": [
@@ -41189,7 +41292,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 24,
+            "raceCount": 36,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -41209,7 +41312,7 @@
               "6": 0
             },
             "roughRate": null,
-            "readiness": "low-sample"
+            "readiness": "ready"
           }
         ],
         "windSpeedBand": [
@@ -41287,7 +41390,7 @@
           },
           {
             "key": "unknown",
-            "raceCount": 24,
+            "raceCount": 36,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -41307,7 +41410,7 @@
               "6": 0
             },
             "roughRate": null,
-            "readiness": "low-sample"
+            "readiness": "ready"
           }
         ],
         "waveHeightBand": [
@@ -41385,7 +41488,7 @@
           },
           {
             "key": "unknown",
-            "raceCount": 24,
+            "raceCount": 36,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -41405,7 +41508,7 @@
               "6": 0
             },
             "roughRate": null,
-            "readiness": "low-sample"
+            "readiness": "ready"
           }
         ],
         "exact": [
@@ -42275,7 +42378,7 @@
           },
           {
             "key": "{\"weather\":\"確認中\",\"windDirection\":\"確認中\",\"windSpeedBand\":\"unknown\",\"waveHeightBand\":\"unknown\"}",
-            "raceCount": 24,
+            "raceCount": 36,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -42295,7 +42398,7 @@
               "6": 0
             },
             "roughRate": null,
-            "readiness": "low-sample"
+            "readiness": "ready"
           },
           {
             "key": "{\"weather\":\"曇り\",\"windDirection\":\"東北東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
@@ -44602,25 +44705,25 @@
     {
       "venueCode": "22",
       "venueName": "福岡",
-      "dateCount": 75,
-      "raceCount": 900,
-      "weatherAvailableRaceCount": 900,
+      "dateCount": 76,
+      "raceCount": 912,
+      "weatherAvailableRaceCount": 912,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 864,
-      "waveHeightAvailableRaceCount": 864,
+      "windSpeedAvailableRaceCount": 876,
+      "waveHeightAvailableRaceCount": 876,
       "windSpeedAverageMps": 2.97,
       "windSpeedMaxMps": 7,
       "waveHeightAverageCm": 3.03,
       "waveHeightMaxCm": 7,
       "weatherConditionCounts": {
         "取得済み": 504,
-        "晴": 193,
+        "晴": 205,
         "雨": 44,
         "曇り": 123,
         "確認中": 36
       },
       "windDirectionCounts": {
-        "南南西": 505,
+        "南南西": 517,
         "北北東": 123,
         "東南東": 25,
         "西南西": 54,
@@ -44632,13 +44735,13 @@
       },
       "windSpeedBandCounts": {
         "0-2m": 225,
-        "3-5m": 624,
+        "3-5m": 636,
         "6m+": 15,
         "unknown": 36
       },
       "waveHeightBandCounts": {
         "0-2cm": 225,
-        "3-5cm": 624,
+        "3-5cm": 636,
         "6cm+": 15,
         "unknown": 36
       },
@@ -44670,7 +44773,7 @@
           },
           {
             "key": "晴",
-            "raceCount": 193,
+            "raceCount": 205,
             "courseFirstCounts": {
               "1": 94,
               "2": 24,
@@ -44682,12 +44785,12 @@
             "payoutAvailableRaceCount": 143,
             "trifectaOver10000Count": 7,
             "courseFirstRates": {
-              "1": 0.487,
-              "2": 0.1244,
-              "3": 0.0777,
-              "4": 0.0207,
-              "5": 0.0207,
-              "6": 0.0104
+              "1": 0.4585,
+              "2": 0.1171,
+              "3": 0.0732,
+              "4": 0.0195,
+              "5": 0.0195,
+              "6": 0.0098
             },
             "roughRate": 0.049,
             "readiness": "ready"
@@ -44768,7 +44871,7 @@
         "windDirection": [
           {
             "key": "南南西",
-            "raceCount": 505,
+            "raceCount": 517,
             "courseFirstCounts": {
               "1": 285,
               "2": 67,
@@ -44780,12 +44883,12 @@
             "payoutAvailableRaceCount": 472,
             "trifectaOver10000Count": 55,
             "courseFirstRates": {
-              "1": 0.5644,
-              "2": 0.1327,
-              "3": 0.1386,
-              "4": 0.0495,
-              "5": 0.0257,
-              "6": 0.0238
+              "1": 0.5513,
+              "2": 0.1296,
+              "3": 0.1354,
+              "4": 0.0484,
+              "5": 0.0251,
+              "6": 0.0232
             },
             "roughRate": 0.1165,
             "readiness": "ready"
@@ -44986,7 +45089,7 @@
         "windSpeedBand": [
           {
             "key": "3-5m",
-            "raceCount": 624,
+            "raceCount": 636,
             "courseFirstCounts": {
               "1": 347,
               "2": 83,
@@ -44998,12 +45101,12 @@
             "payoutAvailableRaceCount": 576,
             "trifectaOver10000Count": 62,
             "courseFirstRates": {
-              "1": 0.5561,
-              "2": 0.133,
-              "3": 0.1362,
-              "4": 0.0593,
-              "5": 0.0176,
-              "6": 0.0208
+              "1": 0.5456,
+              "2": 0.1305,
+              "3": 0.1336,
+              "4": 0.0582,
+              "5": 0.0173,
+              "6": 0.0204
             },
             "roughRate": 0.1076,
             "readiness": "ready"
@@ -45084,7 +45187,7 @@
         "waveHeightBand": [
           {
             "key": "3-5cm",
-            "raceCount": 624,
+            "raceCount": 636,
             "courseFirstCounts": {
               "1": 347,
               "2": 83,
@@ -45096,12 +45199,12 @@
             "payoutAvailableRaceCount": 576,
             "trifectaOver10000Count": 62,
             "courseFirstRates": {
-              "1": 0.5561,
-              "2": 0.133,
-              "3": 0.1362,
-              "4": 0.0593,
-              "5": 0.0176,
-              "6": 0.0208
+              "1": 0.5456,
+              "2": 0.1305,
+              "3": 0.1336,
+              "4": 0.0582,
+              "5": 0.0173,
+              "6": 0.0204
             },
             "roughRate": 0.1076,
             "readiness": "ready"
@@ -45494,7 +45597,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"南南西\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 111,
+            "raceCount": 123,
             "courseFirstCounts": {
               "1": 76,
               "2": 14,
@@ -45506,12 +45609,12 @@
             "payoutAvailableRaceCount": 104,
             "trifectaOver10000Count": 3,
             "courseFirstRates": {
-              "1": 0.6847,
-              "2": 0.1261,
-              "3": 0.0631,
-              "4": 0.027,
-              "5": 0.018,
-              "6": 0.018
+              "1": 0.6179,
+              "2": 0.1138,
+              "3": 0.0569,
+              "4": 0.0244,
+              "5": 0.0163,
+              "6": 0.0163
             },
             "roughRate": 0.0288,
             "readiness": "ready"
@@ -46132,40 +46235,40 @@
       "raceCount": 756,
       "weatherAvailableRaceCount": 756,
       "weatherCoverageRate": 1,
-      "windSpeedAvailableRaceCount": 732,
-      "waveHeightAvailableRaceCount": 732,
-      "windSpeedAverageMps": 3.53,
+      "windSpeedAvailableRaceCount": 744,
+      "waveHeightAvailableRaceCount": 744,
+      "windSpeedAverageMps": 3.52,
       "windSpeedMaxMps": 9,
-      "waveHeightAverageCm": 3.55,
+      "waveHeightAverageCm": 3.54,
       "waveHeightMaxCm": 10,
       "weatherConditionCounts": {
         "曇り": 55,
-        "晴": 194,
+        "晴": 206,
         "取得済み": 468,
         "雨": 15,
-        "確認中": 24
+        "確認中": 12
       },
       "windDirectionCounts": {
-        "東北東": 349,
+        "東北東": 361,
         "東南東": 79,
         "西北西": 165,
         "北北西": 71,
         "西南西": 26,
         "北北東": 31,
         "無風": 11,
-        "確認中": 24
+        "確認中": 12
       },
       "windSpeedBandCounts": {
-        "0-2m": 201,
-        "3-5m": 450,
+        "0-2m": 209,
+        "3-5m": 454,
         "6m+": 81,
-        "unknown": 24
+        "unknown": 12
       },
       "waveHeightBandCounts": {
-        "0-2cm": 201,
-        "3-5cm": 450,
+        "0-2cm": 209,
+        "3-5cm": 454,
         "6cm+": 81,
-        "unknown": 24
+        "unknown": 12
       },
       "conditionProfiles": {
         "weather": [
@@ -46195,7 +46298,7 @@
           },
           {
             "key": "晴",
-            "raceCount": 194,
+            "raceCount": 206,
             "courseFirstCounts": {
               "1": 64,
               "2": 15,
@@ -46207,12 +46310,12 @@
             "payoutAvailableRaceCount": 107,
             "trifectaOver10000Count": 16,
             "courseFirstRates": {
-              "1": 0.3299,
-              "2": 0.0773,
-              "3": 0.067,
-              "4": 0.0361,
-              "5": 0.0361,
-              "6": 0.0052
+              "1": 0.3107,
+              "2": 0.0728,
+              "3": 0.0631,
+              "4": 0.034,
+              "5": 0.034,
+              "6": 0.0049
             },
             "roughRate": 0.1495,
             "readiness": "ready"
@@ -46267,7 +46370,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -46293,7 +46396,7 @@
         "windDirection": [
           {
             "key": "東北東",
-            "raceCount": 349,
+            "raceCount": 361,
             "courseFirstCounts": {
               "1": 130,
               "2": 38,
@@ -46305,12 +46408,12 @@
             "payoutAvailableRaceCount": 271,
             "trifectaOver10000Count": 44,
             "courseFirstRates": {
-              "1": 0.3725,
-              "2": 0.1089,
-              "3": 0.1203,
-              "4": 0.106,
-              "5": 0.043,
-              "6": 0.0258
+              "1": 0.3601,
+              "2": 0.1053,
+              "3": 0.1163,
+              "4": 0.1025,
+              "5": 0.0416,
+              "6": 0.0249
             },
             "roughRate": 0.1624,
             "readiness": "ready"
@@ -46461,7 +46564,7 @@
           },
           {
             "key": "確認中",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -46487,7 +46590,7 @@
         "windSpeedBand": [
           {
             "key": "0-2m",
-            "raceCount": 201,
+            "raceCount": 209,
             "courseFirstCounts": {
               "1": 92,
               "2": 20,
@@ -46499,19 +46602,19 @@
             "payoutAvailableRaceCount": 151,
             "trifectaOver10000Count": 19,
             "courseFirstRates": {
-              "1": 0.4577,
-              "2": 0.0995,
-              "3": 0.0896,
-              "4": 0.0796,
-              "5": 0.0199,
-              "6": 0.005
+              "1": 0.4402,
+              "2": 0.0957,
+              "3": 0.0861,
+              "4": 0.0766,
+              "5": 0.0191,
+              "6": 0.0048
             },
             "roughRate": 0.1258,
             "readiness": "ready"
           },
           {
             "key": "3-5m",
-            "raceCount": 450,
+            "raceCount": 454,
             "courseFirstCounts": {
               "1": 214,
               "2": 59,
@@ -46523,12 +46626,12 @@
             "payoutAvailableRaceCount": 405,
             "trifectaOver10000Count": 72,
             "courseFirstRates": {
-              "1": 0.4756,
-              "2": 0.1311,
-              "3": 0.1156,
-              "4": 0.0956,
-              "5": 0.0533,
-              "6": 0.0289
+              "1": 0.4714,
+              "2": 0.13,
+              "3": 0.1145,
+              "4": 0.0947,
+              "5": 0.0529,
+              "6": 0.0286
             },
             "roughRate": 0.1778,
             "readiness": "ready"
@@ -46559,7 +46662,7 @@
           },
           {
             "key": "unknown",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -46585,7 +46688,7 @@
         "waveHeightBand": [
           {
             "key": "0-2cm",
-            "raceCount": 201,
+            "raceCount": 209,
             "courseFirstCounts": {
               "1": 92,
               "2": 20,
@@ -46597,19 +46700,19 @@
             "payoutAvailableRaceCount": 151,
             "trifectaOver10000Count": 19,
             "courseFirstRates": {
-              "1": 0.4577,
-              "2": 0.0995,
-              "3": 0.0896,
-              "4": 0.0796,
-              "5": 0.0199,
-              "6": 0.005
+              "1": 0.4402,
+              "2": 0.0957,
+              "3": 0.0861,
+              "4": 0.0766,
+              "5": 0.0191,
+              "6": 0.0048
             },
             "roughRate": 0.1258,
             "readiness": "ready"
           },
           {
             "key": "3-5cm",
-            "raceCount": 450,
+            "raceCount": 454,
             "courseFirstCounts": {
               "1": 214,
               "2": 59,
@@ -46621,12 +46724,12 @@
             "payoutAvailableRaceCount": 405,
             "trifectaOver10000Count": 72,
             "courseFirstRates": {
-              "1": 0.4756,
-              "2": 0.1311,
-              "3": 0.1156,
-              "4": 0.0956,
-              "5": 0.0533,
-              "6": 0.0289
+              "1": 0.4714,
+              "2": 0.13,
+              "3": 0.1145,
+              "4": 0.0947,
+              "5": 0.0529,
+              "6": 0.0286
             },
             "roughRate": 0.1778,
             "readiness": "ready"
@@ -46657,7 +46760,7 @@
           },
           {
             "key": "unknown",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
@@ -46779,7 +46882,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東北東\",\"windSpeedBand\":\"0-2m\",\"waveHeightBand\":\"0-2cm\"}",
-            "raceCount": 20,
+            "raceCount": 28,
             "courseFirstCounts": {
               "1": 0,
               "2": 2,
@@ -46792,7 +46895,7 @@
             "trifectaOver10000Count": 1,
             "courseFirstRates": {
               "1": 0,
-              "2": 0.1,
+              "2": 0.0714,
               "3": 0,
               "4": 0,
               "5": 0,
@@ -46803,7 +46906,7 @@
           },
           {
             "key": "{\"weather\":\"晴\",\"windDirection\":\"東北東\",\"windSpeedBand\":\"3-5m\",\"waveHeightBand\":\"3-5cm\"}",
-            "raceCount": 77,
+            "raceCount": 81,
             "courseFirstCounts": {
               "1": 23,
               "2": 3,
@@ -46815,11 +46918,11 @@
             "payoutAvailableRaceCount": 42,
             "trifectaOver10000Count": 6,
             "courseFirstRates": {
-              "1": 0.2987,
-              "2": 0.039,
-              "3": 0.1169,
-              "4": 0.026,
-              "5": 0.0649,
+              "1": 0.284,
+              "2": 0.037,
+              "3": 0.1111,
+              "4": 0.0247,
+              "5": 0.0617,
               "6": 0
             },
             "roughRate": 0.1429,
@@ -47643,7 +47746,7 @@
           },
           {
             "key": "{\"weather\":\"確認中\",\"windDirection\":\"確認中\",\"windSpeedBand\":\"unknown\",\"waveHeightBand\":\"unknown\"}",
-            "raceCount": 24,
+            "raceCount": 12,
             "courseFirstCounts": {
               "1": 0,
               "2": 0,
