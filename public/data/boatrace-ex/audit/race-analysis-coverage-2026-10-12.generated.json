@@ -2,25 +2,25 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-race-analysis-coverage-audit",
   "auditDate": "2026-10-12",
-  "generatedAt": "2026-10-12T00:33:03.991Z",
+  "generatedAt": "2026-10-12T22:15:48.275Z",
   "summary": {
-    "generatedAt": "2026-10-12T00:33:03.991Z",
+    "generatedAt": "2026-10-12T22:15:48.275Z",
     "targetDate": "2026-10-12",
     "latestDate": "2026-10-12",
     "dateCount": 136,
     "historyRaceCount": 19764,
     "latestRaceCount": 168,
     "raceCount": 168,
-    "analyzedRaceCount": 5,
-    "notReadyRaceCount": 163,
+    "analyzedRaceCount": 0,
+    "notReadyRaceCount": 168,
     "notReadyReasonCounts": {
-      "result-unavailable": 163,
-      "payout-unavailable": 163
+      "result-unavailable": 168,
+      "payout-unavailable": 168
     },
     "venueCount": 14,
-    "resultAvailableRaceCount": 5,
-    "payoutAvailableRaceCount": 5,
-    "exhibitionAvailableRaceCount": 58,
+    "resultAvailableRaceCount": 0,
+    "payoutAvailableRaceCount": 0,
+    "exhibitionAvailableRaceCount": 167,
     "weatherAvailableRaceCount": 168,
     "waterConditionAvailableRaceCount": 0,
     "racerEvidenceAvailableRaceCount": 168,
@@ -28,13 +28,13 @@
     "nameLinkedCount": 0,
     "unresolvedRacerCount": 0,
     "readiness": {
-      "status": "available",
-      "reason": "5/168 races have complete source-backed result, trifecta payout, entries, and source identity."
+      "status": "not-ready",
+      "reason": "No race satisfies the source-backed race-analysis generation contract."
     }
   },
   "expectedRaceCount": 168,
   "actualRaceCount": 168,
-  "analyzedRaceCount": 5,
+  "analyzedRaceCount": 0,
   "notReadyRaces": [
     {
       "raceKey": "2026-10-12:01:01",
@@ -625,6 +625,20 @@
       ]
     },
     {
+      "raceKey": "2026-10-12:14:01",
+      "reasons": [
+        "result-unavailable",
+        "payout-unavailable"
+      ]
+    },
+    {
+      "raceKey": "2026-10-12:14:02",
+      "reasons": [
+        "result-unavailable",
+        "payout-unavailable"
+      ]
+    },
+    {
       "raceKey": "2026-10-12:14:03",
       "reasons": [
         "result-unavailable",
@@ -857,6 +871,13 @@
     },
     {
       "raceKey": "2026-10-12:16:12",
+      "reasons": [
+        "result-unavailable",
+        "payout-unavailable"
+      ]
+    },
+    {
+      "raceKey": "2026-10-12:18:01",
       "reasons": [
         "result-unavailable",
         "payout-unavailable"
@@ -1102,6 +1123,20 @@
     },
     {
       "raceKey": "2026-10-12:22:12",
+      "reasons": [
+        "result-unavailable",
+        "payout-unavailable"
+      ]
+    },
+    {
+      "raceKey": "2026-10-12:23:01",
+      "reasons": [
+        "result-unavailable",
+        "payout-unavailable"
+      ]
+    },
+    {
+      "raceKey": "2026-10-12:23:02",
       "reasons": [
         "result-unavailable",
         "payout-unavailable"
