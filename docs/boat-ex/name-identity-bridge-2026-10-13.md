@@ -7,6 +7,6 @@
 - registry name missing: 72792
 - registry missing: 0
 - collision: 0
-- official registrationNo linked racer evidence: 27710
+- official registrationNo linked racer evidence: 27750
 
 Only exact normalized names with one registry registrationNo are linked. The official registrationNo and racerName source fields remain unchanged.
