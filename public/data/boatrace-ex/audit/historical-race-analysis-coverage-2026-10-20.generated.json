@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-historical-race-analysis-coverage-audit",
+  "auditDate": "2026-10-20",
+  "generatedAt": "2026-10-19T20:39:26.044Z",
+  "expected": {
+    "dateCount": 144,
+    "raceCount": 20964,
+    "resultAvailableRaceCount": 17555,
+    "payoutAvailableRaceCount": 17478,
+    "latestRaceCount": 144
+  },
+  "actual": {
+    "dateCount": 144,
+    "raceCount": 20964,
+    "venueCount": 24,
+    "resultAvailableRaceCount": 17555,
+    "payoutAvailableRaceCount": 17478,
+    "exhibitionAvailableRaceCount": 8265,
+    "weatherAvailableRaceCount": 20964,
+    "waterConditionAvailableRaceCount": 0,
+    "racerEvidenceAvailableRaceCount": 20617,
+    "officialRegistrationLinkedCount": 50910,
+    "nameLinkedCount": 0,
+    "unresolvedRacerCount": 72792,
+    "latestRaceCount": 144
+  },
+  "duplicateRaceKeys": [],
+  "policy": "Historical race analysis exposes only source-backed availability and official facts. It does not generate predictions, scores, ranks, tickets, guessed identities, inferred values, fuzzy matches, or partial name matches.",
+  "sourceFiles": [
+    "public/data/boatrace-ex/index.generated.json",
+    "public/data/boatrace-ex/derived/rough-index/latest.json",
+    "public/data/boatrace-ex/derived/race-analysis/latest.json",
+    "public/data/boatrace-ex/derived/race-analysis/history-summary.json",
+    "public/data/boatrace-ex/derived/race-analysis/history-index.json"
+  ]
+}
