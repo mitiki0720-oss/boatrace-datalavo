@@ -13,12 +13,12 @@ Only an exact date + venueCode + raceNo + official boatNo tuple with one normali
 
 ## Result
 
-- before registration appearances: 50910
+- before registration appearances: 50976
 - before missing registration appearances: 72792
 - safeBridge: 0
 - candidateBridge: 0
 - unresolved: 72792
-- after registration appearances: 50910
+- after registration appearances: 50976
 - after missing registration appearances: 72792
 - changed dates: none
 

@@ -1,36 +1,35 @@
 {
   "schemaVersion": "boat-ex-race-analysis-v1",
   "kind": "boatrace-ex-race-analysis",
-  "generatedAt": "2026-10-19T20:39:09.257Z",
+  "generatedAt": "2026-10-20T00:17:37.938Z",
   "targetDate": "2026-10-20",
   "summary": {
-    "generatedAt": "2026-10-19T20:39:09.257Z",
+    "generatedAt": "2026-10-20T00:17:37.938Z",
     "targetDate": "2026-10-20",
     "latestDate": "2026-10-20",
     "dateCount": 144,
     "historyRaceCount": 20964,
     "latestRaceCount": 144,
     "raceCount": 144,
-    "analyzedRaceCount": 0,
-    "notReadyRaceCount": 144,
+    "analyzedRaceCount": 2,
+    "notReadyRaceCount": 142,
     "notReadyReasonCounts": {
-      "result-unavailable": 144,
-      "payout-unavailable": 144,
-      "entries-incomplete": 11
+      "result-unavailable": 142,
+      "payout-unavailable": 142
     },
     "venueCount": 12,
-    "resultAvailableRaceCount": 0,
-    "payoutAvailableRaceCount": 0,
-    "exhibitionAvailableRaceCount": 0,
-    "weatherAvailableRaceCount": 144,
+    "resultAvailableRaceCount": 2,
+    "payoutAvailableRaceCount": 2,
+    "exhibitionAvailableRaceCount": 30,
+    "weatherAvailableRaceCount": 132,
     "waterConditionAvailableRaceCount": 0,
-    "racerEvidenceAvailableRaceCount": 133,
-    "officialRegistrationLinkedCount": 798,
+    "racerEvidenceAvailableRaceCount": 144,
+    "officialRegistrationLinkedCount": 864,
     "nameLinkedCount": 0,
     "unresolvedRacerCount": 0,
     "readiness": {
-      "status": "not-ready",
-      "reason": "No race satisfies the source-backed race-analysis generation contract."
+      "status": "available",
+      "reason": "2/144 races have complete source-backed result, trifecta payout, entries, and source identity."
     }
   },
   "sourceFiles": [
@@ -58,7 +57,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "15:26",
@@ -68,12 +67,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -91,7 +90,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -214,7 +250,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "15:55",
@@ -224,12 +260,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -247,7 +283,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -370,7 +443,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "16:22",
@@ -380,12 +453,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -403,7 +476,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -526,7 +636,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "16:48",
@@ -536,12 +646,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -559,7 +669,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -682,7 +829,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "17:15",
@@ -692,12 +839,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -715,7 +862,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -838,7 +1022,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "ドラドキ目玉",
       "closingTime": "17:50",
@@ -848,12 +1032,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -871,7 +1055,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -994,7 +1215,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "ドラドキ３",
       "closingTime": "18:17",
@@ -1004,12 +1225,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -1027,7 +1248,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -1150,7 +1408,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "ドラドキ５",
       "closingTime": "18:45",
@@ -1160,12 +1418,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -1183,7 +1441,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -1306,7 +1601,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "準優勝戦",
       "closingTime": "19:17",
@@ -1316,12 +1611,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -1339,7 +1634,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -1462,7 +1794,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "準優勝戦",
       "closingTime": "19:47",
@@ -1472,12 +1804,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -1495,7 +1827,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -1618,7 +1987,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "準優勝戦",
       "closingTime": "20:15",
@@ -1628,12 +1997,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -1651,7 +2020,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -1774,7 +2180,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般特賞",
       "closingTime": "20:45",
@@ -1784,12 +2190,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -1807,7 +2213,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "-.--",
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -1930,7 +2373,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "11:14",
@@ -2086,7 +2529,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "11:41",
@@ -2242,7 +2685,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "12:08",
@@ -2398,7 +2841,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "12:35",
@@ -2554,7 +2997,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "13:02",
@@ -2710,7 +3153,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "13:29",
@@ -2866,7 +3309,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "13:56",
@@ -3022,7 +3465,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "14:24",
@@ -3178,7 +3621,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般特賞",
       "closingTime": "14:52",
@@ -3334,7 +3777,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般特賞",
       "closingTime": "15:22",
@@ -3490,7 +3933,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "準優勝戦",
       "closingTime": "15:53",
@@ -3646,7 +4089,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "準優勝戦",
       "closingTime": "16:25",
@@ -3802,7 +4245,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "朝トコ小判Ｒ",
       "closingTime": "10:24",
@@ -3958,7 +4401,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "10:53",
@@ -4114,7 +4557,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "11:20",
@@ -4270,7 +4713,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "11:52",
@@ -4426,7 +4869,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "三Ａ傑戦",
       "closingTime": "12:25",
@@ -4582,7 +5025,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "昼トコ小判Ｒ",
       "closingTime": "12:56",
@@ -4738,7 +5181,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "13:26",
@@ -4894,7 +5337,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "13:59",
@@ -5050,7 +5493,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般特選",
       "closingTime": "14:27",
@@ -5206,7 +5649,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "選抜戦",
       "closingTime": "14:55",
@@ -5362,7 +5805,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "選抜戦",
       "closingTime": "15:30",
@@ -5518,7 +5961,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "優勝戦",
       "closingTime": "16:10",
@@ -5674,7 +6117,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "ツッキーレース",
       "closingTime": "10:33",
@@ -5684,12 +6127,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -5707,7 +6150,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -5830,7 +6310,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "11:01",
@@ -5840,12 +6320,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -5863,7 +6343,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -5986,7 +6503,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "11:30",
@@ -5996,12 +6513,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -6019,7 +6536,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -6142,7 +6696,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "11:59",
@@ -6152,12 +6706,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -6175,7 +6729,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -6298,7 +6889,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "５ールドレース",
       "closingTime": "12:29",
@@ -6308,12 +6899,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -6331,7 +6922,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -6454,7 +7082,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "12:58",
@@ -6464,12 +7092,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -6487,7 +7115,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -6610,7 +7275,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "13:28",
@@ -6620,12 +7285,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -6643,7 +7308,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -6766,7 +7468,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "14:01",
@@ -6776,12 +7478,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -6799,7 +7501,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -6922,7 +7661,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "14:34",
@@ -6932,12 +7671,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -6955,7 +7694,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -7078,7 +7854,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "準優勝戦",
       "closingTime": "15:07",
@@ -7088,12 +7864,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -7111,7 +7887,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -7234,7 +8047,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "準優勝戦",
       "closingTime": "15:36",
@@ -7244,12 +8057,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -7267,7 +8080,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -7390,7 +8240,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "準優勝戦",
       "closingTime": "16:15",
@@ -7400,12 +8250,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -7423,7 +8273,44 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "確認中",
         "windDirection": "確認中",
@@ -7539,53 +8426,236 @@
       "raceNo": 1,
       "raceKey": "2026-10-20:10:01",
       "analysisKey": "2026-10-20:10:01",
-      "status": "not-ready",
-      "reason": "result-unavailable",
-      "notReadyReasons": [
-        "result-unavailable",
-        "payout-unavailable"
-      ],
+      "status": "ready",
+      "reason": null,
+      "notReadyReasons": [],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "みくにあさイチ",
       "closingTime": "08:47",
       "dayPart": "morning",
       "inputs": {
-        "result": "unavailable",
-        "payout": "unavailable",
+        "result": "available",
+        "payout": "available",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
-      "resultStatus": "unavailable",
-      "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
-      "resultFacts": null,
-      "raceFlowFacts": null,
-      "startFacts": null,
-      "exhibitionFacts": null,
-      "weatherFacts": null,
-      "payoutProfile": null,
-      "preRaceReviewHints": [],
-      "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+      "resultFacts": {
+        "top3": [
+          3,
+          1,
+          5
+        ],
+        "winningMethod": "まくり",
+        "trifecta": {
+          "combination": "3-1-5",
+          "payoutYen": 13870,
+          "popularity": 27
+        }
       },
-      "exhibition": [],
+      "raceFlowFacts": {
+        "winnerFrame": 3,
+        "inWin": false,
+        "inWinFailed": true,
+        "sashiObserved": false,
+        "centerAttackObserved": true,
+        "outsideAttackObserved": false,
+        "makuriObserved": true,
+        "makuriSashiObserved": false,
+        "outsidePodium": true,
+        "outsidePodiumFrames": [
+          5
+        ]
+      },
+      "startFacts": {
+        "availability": "available",
+        "startOrder": [
+          {
+            "frame": 1,
+            "st": ".09"
+          },
+          {
+            "frame": 2,
+            "st": ".09"
+          },
+          {
+            "frame": 3,
+            "st": ".09"
+          },
+          {
+            "frame": 4,
+            "st": ".15"
+          },
+          {
+            "frame": 5,
+            "st": ".17"
+          },
+          {
+            "frame": 6,
+            "st": ".17"
+          }
+        ],
+        "fastestStartFrames": [
+          1,
+          2,
+          3
+        ],
+        "fastestStartInTop3Frames": [
+          1,
+          3
+        ]
+      },
+      "exhibitionFacts": {
+        "availability": "available",
+        "timeAvailableCount": 6,
+        "displayTimes": [
+          {
+            "frame": 2,
+            "time": "6.73"
+          },
+          {
+            "frame": 5,
+            "time": "6.81"
+          },
+          {
+            "frame": 1,
+            "time": "6.82"
+          },
+          {
+            "frame": 3,
+            "time": "6.82"
+          },
+          {
+            "frame": 6,
+            "time": "6.82"
+          },
+          {
+            "frame": 4,
+            "time": "6.83"
+          }
+        ],
+        "entryCourses": [
+          {
+            "frame": 1,
+            "course": "1"
+          },
+          {
+            "frame": 2,
+            "course": "2"
+          },
+          {
+            "frame": 3,
+            "course": "3"
+          },
+          {
+            "frame": 4,
+            "course": "4"
+          },
+          {
+            "frame": 5,
+            "course": "5"
+          },
+          {
+            "frame": 6,
+            "course": "6"
+          }
+        ],
+        "fastestExhibitionFrame": 2,
+        "topExhibitionFrames": [
+          2,
+          5,
+          1
+        ],
+        "topExhibitionInTop3Frames": [
+          5,
+          1
+        ]
+      },
+      "weatherFacts": {
+        "availability": "available",
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
+      },
+      "payoutProfile": {
+        "trifectaPayoutYen": 13870,
+        "trifectaOver10000": true,
+        "roughnessLabel": "high",
+        "thresholdYen": 10000
+      },
+      "preRaceReviewHints": [
+        "1号艇の逃げ不成立、3号艇1着を確認",
+        "決まり手 まくりを確認",
+        "外枠5号艇の3着内浮上を確認",
+        "展示上位5・1号艇が3着内",
+        "最速ST1・3号艇が3着内"
+      ],
+      "officialResult": {
+        "finishOrder": [
+          3,
+          1,
+          5
+        ],
+        "trifecta": "3-1-5",
+        "trifectaPayoutYen": 13870,
+        "winningTechnique": "まくり"
+      },
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.82",
+          "startTiming": "F.03",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.73",
+          "startTiming": ".02",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.82",
+          "startTiming": ".01",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.83",
+          "startTiming": ".02",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.81",
+          "startTiming": ".09",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.82",
+          "startTiming": ".03",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -7680,7 +8750,9 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: result-unavailable, payout-unavailable"
+        "結果・3連単払戻・出走表をsource-backedで確認済み。",
+        "展示 available / 天候・風・波 available。",
+        "結果確定後の事実分析であり、予想・買い目ではありません。"
       ],
       "cautions": [
         "source-backed facts only",
@@ -7702,7 +8774,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "みくにあさガチ",
       "closingTime": "09:13",
@@ -7712,12 +8784,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -7735,13 +8807,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.75",
+          "startTiming": "F.07",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.84",
+          "startTiming": ".00",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.81",
+          "startTiming": ".04",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.87",
+          "startTiming": "F.01",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.86",
+          "startTiming": "F.03",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.78",
+          "startTiming": "F.02",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -7858,7 +8967,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "みくにあさズバ",
       "closingTime": "09:39",
@@ -7868,12 +8977,12 @@
         "payout": "unavailable",
         "entries": "available",
         "registrationNumbers": "available",
-        "exhibition": "unavailable",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
@@ -7891,13 +9000,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8014,7 +9160,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "みくにあさ推し",
       "closingTime": "10:05",
@@ -8049,11 +9195,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8170,7 +9316,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "10:31",
@@ -8205,11 +9351,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8326,7 +9472,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "11:04",
@@ -8361,11 +9507,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8482,7 +9628,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "11:33",
@@ -8517,11 +9663,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8638,7 +9784,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "12:10",
@@ -8673,11 +9819,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8794,7 +9940,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般特選",
       "closingTime": "12:40",
@@ -8829,11 +9975,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8950,7 +10096,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "選抜戦",
       "closingTime": "13:15",
@@ -8985,11 +10131,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -9106,7 +10252,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "選抜戦",
       "closingTime": "13:49",
@@ -9141,11 +10287,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -9262,7 +10408,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "優勝戦",
       "closingTime": "14:29",
@@ -9297,11 +10443,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "東北東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -9418,7 +10564,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "住之江ＯＮＥ",
       "closingTime": "15:16",
@@ -9574,7 +10720,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "15:40",
@@ -9730,7 +10876,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "16:06",
@@ -9886,7 +11032,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "16:29",
@@ -10042,7 +11188,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "住之江ファイブ",
       "closingTime": "17:01",
@@ -10198,7 +11344,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "17:29",
@@ -10354,7 +11500,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "17:59",
@@ -10510,7 +11656,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "18:26",
@@ -10666,7 +11812,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "18:55",
@@ -10822,7 +11968,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選特別Ｂ戦",
       "closingTime": "19:38",
@@ -10978,7 +12124,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選特別Ａ戦",
       "closingTime": "20:06",
@@ -11134,7 +12280,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "ダイヤモンドＤ",
       "closingTime": "20:36",
@@ -11290,7 +12436,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "朝からセンプル",
       "closingTime": "10:36",
@@ -11446,7 +12592,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "11:00",
@@ -11602,7 +12748,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "11:25",
@@ -11758,7 +12904,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "11:50",
@@ -11914,7 +13060,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "12:20",
@@ -12070,7 +13216,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "昼どきピンクル",
       "closingTime": "12:50",
@@ -12226,7 +13372,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "13:32",
@@ -12382,7 +13528,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "14:06",
@@ -12538,7 +13684,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選特賞",
       "closingTime": "14:39",
@@ -12694,7 +13840,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選特賞",
       "closingTime": "15:12",
@@ -12850,7 +13996,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選特選",
       "closingTime": "15:45",
@@ -13006,7 +14152,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "ドリーム戦",
       "closingTime": "16:20",
@@ -13162,7 +14308,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "朝得ガァ〜コ戦",
       "closingTime": "10:56",
@@ -13318,7 +14464,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "11:23",
@@ -13474,7 +14620,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "11:53",
@@ -13630,7 +14776,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "コジマだ４っ！",
       "closingTime": "12:23",
@@ -13786,7 +14932,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "日替艇食戦",
       "closingTime": "12:54",
@@ -13942,7 +15088,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "13:24",
@@ -14098,7 +15244,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "13:55",
@@ -14254,7 +15400,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "14:33",
@@ -14410,7 +15556,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "これしか９じゃ",
       "closingTime": "15:05",
@@ -14566,7 +15712,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選特賞",
       "closingTime": "15:34",
@@ -14722,7 +15868,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選特選",
       "closingTime": "16:04",
@@ -14878,7 +16024,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "記者選抜戦",
       "closingTime": "16:46",
@@ -15034,7 +16180,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "ファーストＢ",
       "closingTime": "10:17",
@@ -15069,11 +16215,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -15190,7 +16336,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "10:47",
@@ -15225,11 +16371,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -15346,7 +16492,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "11:16",
@@ -15381,11 +16527,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -15502,7 +16648,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "11:45",
@@ -15537,11 +16683,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -15658,7 +16804,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "12:14",
@@ -15693,11 +16839,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -15814,7 +16960,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "ランチ特賞",
       "closingTime": "12:43",
@@ -15849,11 +16995,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -15970,7 +17116,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "13:10",
@@ -16005,11 +17151,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16126,7 +17272,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "13:34",
@@ -16161,11 +17307,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16282,7 +17428,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "13:58",
@@ -16317,11 +17463,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16438,7 +17584,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選特賞",
       "closingTime": "14:23",
@@ -16473,11 +17619,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16594,7 +17740,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選特選",
       "closingTime": "14:53",
@@ -16629,11 +17775,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16750,7 +17896,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "報知ドリーム",
       "closingTime": "15:28",
@@ -16785,11 +17931,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "235°",
-        "windSpeed": "2.1m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "22.9℃"
+        "weather": "曇り",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16899,60 +18045,311 @@
       "raceNo": 1,
       "raceKey": "2026-10-20:18:01",
       "analysisKey": "2026-10-20:18:01",
-      "status": "not-ready",
-      "reason": "entries-incomplete",
-      "notReadyReasons": [
-        "entries-incomplete",
-        "result-unavailable",
-        "payout-unavailable"
-      ],
+      "status": "ready",
+      "reason": null,
+      "notReadyReasons": [],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
-      "sourceStatus": "missing",
-      "raceTitle": "1R",
-      "closingTime": null,
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
+      "sourceStatus": "complete",
+      "raceTitle": "朝トク予選",
+      "closingTime": "08:35",
       "dayPart": "morning",
       "inputs": {
-        "result": "unavailable",
-        "payout": "unavailable",
-        "entries": "unavailable",
-        "registrationNumbers": "unavailable",
-        "exhibition": "unavailable",
+        "result": "available",
+        "payout": "available",
+        "entries": "available",
+        "registrationNumbers": "available",
+        "exhibition": "available",
         "weather": "available"
       },
-      "resultStatus": "unavailable",
-      "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
-      "racerEvidenceStatus": "missing",
-      "resultFacts": null,
-      "raceFlowFacts": null,
-      "startFacts": null,
-      "exhibitionFacts": null,
-      "weatherFacts": null,
-      "payoutProfile": null,
-      "preRaceReviewHints": [],
-      "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+      "racerEvidenceStatus": "available",
+      "resultFacts": {
+        "top3": [
+          1,
+          2,
+          5
+        ],
+        "winningMethod": "逃げ",
+        "trifecta": {
+          "combination": "1-2-5",
+          "payoutYen": 1020,
+          "popularity": 4
+        }
       },
-      "exhibition": [],
+      "raceFlowFacts": {
+        "winnerFrame": 1,
+        "inWin": true,
+        "inWinFailed": false,
+        "sashiObserved": false,
+        "centerAttackObserved": false,
+        "outsideAttackObserved": false,
+        "makuriObserved": false,
+        "makuriSashiObserved": false,
+        "outsidePodium": true,
+        "outsidePodiumFrames": [
+          5
+        ]
+      },
+      "startFacts": {
+        "availability": "available",
+        "startOrder": [
+          {
+            "frame": 2,
+            "st": ".11"
+          },
+          {
+            "frame": 4,
+            "st": ".12"
+          },
+          {
+            "frame": 3,
+            "st": ".13"
+          },
+          {
+            "frame": 1,
+            "st": ".18"
+          },
+          {
+            "frame": 5,
+            "st": ".19"
+          },
+          {
+            "frame": 6,
+            "st": ".19"
+          }
+        ],
+        "fastestStartFrames": [
+          2
+        ],
+        "fastestStartInTop3Frames": [
+          2
+        ]
+      },
+      "exhibitionFacts": {
+        "availability": "available",
+        "timeAvailableCount": 6,
+        "displayTimes": [
+          {
+            "frame": 1,
+            "time": "6.91"
+          },
+          {
+            "frame": 3,
+            "time": "6.91"
+          },
+          {
+            "frame": 4,
+            "time": "6.94"
+          },
+          {
+            "frame": 5,
+            "time": "7.02"
+          },
+          {
+            "frame": 6,
+            "time": "7.02"
+          },
+          {
+            "frame": 2,
+            "time": "7.03"
+          }
+        ],
+        "entryCourses": [
+          {
+            "frame": 1,
+            "course": "1"
+          },
+          {
+            "frame": 2,
+            "course": "2"
+          },
+          {
+            "frame": 3,
+            "course": "3"
+          },
+          {
+            "frame": 4,
+            "course": "4"
+          },
+          {
+            "frame": 5,
+            "course": "5"
+          },
+          {
+            "frame": 6,
+            "course": "6"
+          }
+        ],
+        "fastestExhibitionFrame": 1,
+        "topExhibitionFrames": [
+          1,
+          3,
+          4
+        ],
+        "topExhibitionInTop3Frames": [
+          1
+        ]
+      },
+      "weatherFacts": {
+        "availability": "available",
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
+      },
+      "payoutProfile": {
+        "trifectaPayoutYen": 1020,
+        "trifectaOver10000": false,
+        "roughnessLabel": "standard",
+        "thresholdYen": 10000
+      },
+      "preRaceReviewHints": [
+        "1号艇の逃げ成功を確認",
+        "決まり手 逃げを確認",
+        "外枠5号艇の3着内浮上を確認",
+        "展示上位1号艇が3着内",
+        "最速ST2号艇が3着内"
+      ],
+      "officialResult": {
+        "finishOrder": [
+          1,
+          2,
+          5
+        ],
+        "trifecta": "1-2-5",
+        "trifectaPayoutYen": 1020,
+        "winningTechnique": "逃げ"
+      },
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.91",
+          "startTiming": ".17",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "7.03",
+          "startTiming": ".13",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.91",
+          "startTiming": ".29",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.94",
+          "startTiming": ".05",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "7.02",
+          "startTiming": "F.01",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "7.02",
+          "startTiming": ".07",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
-      "racers": [],
+      "racers": [
+        {
+          "lane": 1,
+          "racerName": "松本 博昭",
+          "officialRegistrationNo": "4000",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "広島",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 2,
+          "racerName": "西川 新太郎",
+          "officialRegistrationNo": "4016",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "愛知",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 3,
+          "racerName": "塩崎 桐加",
+          "officialRegistrationNo": "4589",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "三重",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 4,
+          "racerName": "寺田 夢生",
+          "officialRegistrationNo": "5397",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "山口",
+          "className": "B2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 5,
+          "racerName": "星 栄爾",
+          "officialRegistrationNo": "4216",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "静岡",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 6,
+          "racerName": "石原 光",
+          "officialRegistrationNo": "5076",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "静岡",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        }
+      ],
       "racerLinkageSummary": {
-        "racerCount": 0,
-        "officialRegistrationLinkedCount": 0,
+        "racerCount": 6,
+        "officialRegistrationLinkedCount": 6,
         "nameLinkedCount": 0,
         "unresolvedCount": 0,
         "ambiguousCount": 0,
@@ -16968,7 +18365,9 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: entries-incomplete, result-unavailable, payout-unavailable"
+        "結果・3連単払戻・出走表をsource-backedで確認済み。",
+        "展示 available / 天候・風・波 available。",
+        "結果確定後の事実分析であり、予想・買い目ではありません。"
       ],
       "cautions": [
         "source-backed facts only",
@@ -16984,33 +18383,32 @@
       "raceKey": "2026-10-20:18:02",
       "analysisKey": "2026-10-20:18:02",
       "status": "not-ready",
-      "reason": "entries-incomplete",
+      "reason": "result-unavailable",
       "notReadyReasons": [
-        "entries-incomplete",
         "result-unavailable",
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
-      "sourceStatus": "missing",
-      "raceTitle": "2R",
-      "closingTime": null,
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
+      "sourceStatus": "complete",
+      "raceTitle": "狙いトク特選",
+      "closingTime": "09:01",
       "dayPart": "morning",
       "inputs": {
         "result": "unavailable",
         "payout": "unavailable",
-        "entries": "unavailable",
-        "registrationNumbers": "unavailable",
-        "exhibition": "unavailable",
+        "entries": "available",
+        "registrationNumbers": "available",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
-      "racerEvidenceStatus": "missing",
+      "racerEvidenceStatus": "available",
       "resultFacts": null,
       "raceFlowFacts": null,
       "startFacts": null,
@@ -17020,23 +18418,133 @@
       "preRaceReviewHints": [],
       "officialResult": {
         "finishOrder": [],
-        "trifecta": null,
+        "trifecta": "1-2-4",
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.94",
+          "startTiming": ".00",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.99",
+          "startTiming": "F.02",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "7.01",
+          "startTiming": ".00",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.93",
+          "startTiming": ".03",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.97",
+          "startTiming": "F.02",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.96",
+          "startTiming": "F.03",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
-      "racers": [],
+      "racers": [
+        {
+          "lane": 1,
+          "racerName": "松下 一也",
+          "officialRegistrationNo": "4207",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "静岡",
+          "className": "A1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 2,
+          "racerName": "橋本 年光",
+          "officialRegistrationNo": "3745",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "兵庫",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 3,
+          "racerName": "中嶋 健一郎",
+          "officialRegistrationNo": "4579",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "三重",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 4,
+          "racerName": "芦澤 望",
+          "officialRegistrationNo": "4053",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "東京",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 5,
+          "racerName": "新井 英孝",
+          "officialRegistrationNo": "4631",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "大阪",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 6,
+          "racerName": "土屋 実沙希",
+          "officialRegistrationNo": "4730",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "静岡",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        }
+      ],
       "racerLinkageSummary": {
-        "racerCount": 0,
-        "officialRegistrationLinkedCount": 0,
+        "racerCount": 6,
+        "officialRegistrationLinkedCount": 6,
         "nameLinkedCount": 0,
         "unresolvedCount": 0,
         "ambiguousCount": 0,
@@ -17052,7 +18560,7 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: entries-incomplete, result-unavailable, payout-unavailable"
+        "race-analysis未生成: result-unavailable, payout-unavailable"
       ],
       "cautions": [
         "source-backed facts only",
@@ -17068,33 +18576,32 @@
       "raceKey": "2026-10-20:18:03",
       "analysisKey": "2026-10-20:18:03",
       "status": "not-ready",
-      "reason": "entries-incomplete",
+      "reason": "result-unavailable",
       "notReadyReasons": [
-        "entries-incomplete",
         "result-unavailable",
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
-      "sourceStatus": "missing",
-      "raceTitle": "3R",
-      "closingTime": null,
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
+      "sourceStatus": "complete",
+      "raceTitle": "決めトク特賞",
+      "closingTime": "09:27",
       "dayPart": "morning",
       "inputs": {
         "result": "unavailable",
         "payout": "unavailable",
-        "entries": "unavailable",
-        "registrationNumbers": "unavailable",
-        "exhibition": "unavailable",
+        "entries": "available",
+        "registrationNumbers": "available",
+        "exhibition": "available",
         "weather": "available"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
-      "exhibitionStatus": "unavailable",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
-      "racerEvidenceStatus": "missing",
+      "racerEvidenceStatus": "available",
       "resultFacts": null,
       "raceFlowFacts": null,
       "startFacts": null,
@@ -17108,19 +18615,129 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
-      "racers": [],
+      "racers": [
+        {
+          "lane": 1,
+          "racerName": "吉川 喜継",
+          "officialRegistrationNo": "4218",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "滋賀",
+          "className": "A1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 2,
+          "racerName": "岡崎 凪汰",
+          "officialRegistrationNo": "5369",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "長崎",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 3,
+          "racerName": "牧山 敦也",
+          "officialRegistrationNo": "4981",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "佐賀",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 4,
+          "racerName": "横田 貴満",
+          "officialRegistrationNo": "4949",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "佐賀",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 5,
+          "racerName": "上原 健次郎",
+          "officialRegistrationNo": "5073",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福岡",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 6,
+          "racerName": "原田 朱理",
+          "officialRegistrationNo": "5421",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "兵庫",
+          "className": "B2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        }
+      ],
       "racerLinkageSummary": {
-        "racerCount": 0,
-        "officialRegistrationLinkedCount": 0,
+        "racerCount": 6,
+        "officialRegistrationLinkedCount": 6,
         "nameLinkedCount": 0,
         "unresolvedCount": 0,
         "ambiguousCount": 0,
@@ -17136,7 +18753,7 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: entries-incomplete, result-unavailable, payout-unavailable"
+        "race-analysis未生成: result-unavailable, payout-unavailable"
       ],
       "cautions": [
         "source-backed facts only",
@@ -17152,23 +18769,22 @@
       "raceKey": "2026-10-20:18:04",
       "analysisKey": "2026-10-20:18:04",
       "status": "not-ready",
-      "reason": "entries-incomplete",
+      "reason": "result-unavailable",
       "notReadyReasons": [
-        "entries-incomplete",
         "result-unavailable",
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
-      "sourceStatus": "missing",
-      "raceTitle": "4R",
-      "closingTime": null,
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
+      "sourceStatus": "complete",
+      "raceTitle": "ガチトク予選",
+      "closingTime": "09:53",
       "dayPart": "morning",
       "inputs": {
         "result": "unavailable",
         "payout": "unavailable",
-        "entries": "unavailable",
-        "registrationNumbers": "unavailable",
+        "entries": "available",
+        "registrationNumbers": "available",
         "exhibition": "unavailable",
         "weather": "available"
       },
@@ -17178,7 +18794,7 @@
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
-      "racerEvidenceStatus": "missing",
+      "racerEvidenceStatus": "available",
       "resultFacts": null,
       "raceFlowFacts": null,
       "startFacts": null,
@@ -17194,17 +18810,90 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
-      "racers": [],
+      "racers": [
+        {
+          "lane": 1,
+          "racerName": "佐藤 悠",
+          "officialRegistrationNo": "4930",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福井",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 2,
+          "racerName": "上田 健太",
+          "officialRegistrationNo": "5002",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "愛知",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 3,
+          "racerName": "吉田 和仁",
+          "officialRegistrationNo": "4182",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "滋賀",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 4,
+          "racerName": "榮田 将彦",
+          "officialRegistrationNo": "4007",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "山口",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 5,
+          "racerName": "加藤 高史",
+          "officialRegistrationNo": "3445",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "埼玉",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 6,
+          "racerName": "知念 伶奈",
+          "officialRegistrationNo": "5451",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "佐賀",
+          "className": "B2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        }
+      ],
       "racerLinkageSummary": {
-        "racerCount": 0,
-        "officialRegistrationLinkedCount": 0,
+        "racerCount": 6,
+        "officialRegistrationLinkedCount": 6,
         "nameLinkedCount": 0,
         "unresolvedCount": 0,
         "ambiguousCount": 0,
@@ -17220,7 +18909,7 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: entries-incomplete, result-unavailable, payout-unavailable"
+        "race-analysis未生成: result-unavailable, payout-unavailable"
       ],
       "cautions": [
         "source-backed facts only",
@@ -17242,7 +18931,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "10:20",
@@ -17277,11 +18966,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -17398,7 +19087,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "10:50",
@@ -17433,11 +19122,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -17548,23 +19237,22 @@
       "raceKey": "2026-10-20:18:07",
       "analysisKey": "2026-10-20:18:07",
       "status": "not-ready",
-      "reason": "entries-incomplete",
+      "reason": "result-unavailable",
       "notReadyReasons": [
-        "entries-incomplete",
         "result-unavailable",
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
-      "sourceStatus": "missing",
-      "raceTitle": "7R",
-      "closingTime": null,
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
+      "sourceStatus": "complete",
+      "raceTitle": "予選",
+      "closingTime": "11:22",
       "dayPart": "morning",
       "inputs": {
         "result": "unavailable",
         "payout": "unavailable",
-        "entries": "unavailable",
-        "registrationNumbers": "unavailable",
+        "entries": "available",
+        "registrationNumbers": "available",
         "exhibition": "unavailable",
         "weather": "available"
       },
@@ -17574,7 +19262,7 @@
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
-      "racerEvidenceStatus": "missing",
+      "racerEvidenceStatus": "available",
       "resultFacts": null,
       "raceFlowFacts": null,
       "startFacts": null,
@@ -17590,17 +19278,90 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
-      "racers": [],
+      "racers": [
+        {
+          "lane": 1,
+          "racerName": "原村 百那",
+          "officialRegistrationNo": "5342",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "山口",
+          "className": "B2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 2,
+          "racerName": "松本 博昭",
+          "officialRegistrationNo": "4000",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "広島",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 3,
+          "racerName": "松本 庸平",
+          "officialRegistrationNo": "4358",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "三重",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 4,
+          "racerName": "西野 翔太",
+          "officialRegistrationNo": "4302",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "広島",
+          "className": "A1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 5,
+          "racerName": "土屋 実沙希",
+          "officialRegistrationNo": "4730",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "静岡",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 6,
+          "racerName": "寺嶋 雄",
+          "officialRegistrationNo": "3870",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福井",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        }
+      ],
       "racerLinkageSummary": {
-        "racerCount": 0,
-        "officialRegistrationLinkedCount": 0,
+        "racerCount": 6,
+        "officialRegistrationLinkedCount": 6,
         "nameLinkedCount": 0,
         "unresolvedCount": 0,
         "ambiguousCount": 0,
@@ -17616,7 +19377,7 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: entries-incomplete, result-unavailable, payout-unavailable"
+        "race-analysis未生成: result-unavailable, payout-unavailable"
       ],
       "cautions": [
         "source-backed facts only",
@@ -17638,7 +19399,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "11:55",
@@ -17673,11 +19434,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -17788,23 +19549,22 @@
       "raceKey": "2026-10-20:18:09",
       "analysisKey": "2026-10-20:18:09",
       "status": "not-ready",
-      "reason": "entries-incomplete",
+      "reason": "result-unavailable",
       "notReadyReasons": [
-        "entries-incomplete",
         "result-unavailable",
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
-      "sourceStatus": "missing",
-      "raceTitle": "9R",
-      "closingTime": null,
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
+      "sourceStatus": "complete",
+      "raceTitle": "推しトク特賞",
+      "closingTime": "12:27",
       "dayPart": "morning",
       "inputs": {
         "result": "unavailable",
         "payout": "unavailable",
-        "entries": "unavailable",
-        "registrationNumbers": "unavailable",
+        "entries": "available",
+        "registrationNumbers": "available",
         "exhibition": "unavailable",
         "weather": "available"
       },
@@ -17814,7 +19574,7 @@
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
-      "racerEvidenceStatus": "missing",
+      "racerEvidenceStatus": "available",
       "resultFacts": null,
       "raceFlowFacts": null,
       "startFacts": null,
@@ -17830,17 +19590,90 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
-      "racers": [],
+      "racers": [
+        {
+          "lane": 1,
+          "racerName": "中嶋 健一郎",
+          "officialRegistrationNo": "4579",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "三重",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 2,
+          "racerName": "榮田 将彦",
+          "officialRegistrationNo": "4007",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "山口",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 3,
+          "racerName": "野間 大樹",
+          "officialRegistrationNo": "4508",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "大阪",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 4,
+          "racerName": "松下 誉士",
+          "officialRegistrationNo": "4693",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福岡",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 5,
+          "racerName": "塩崎 桐加",
+          "officialRegistrationNo": "4589",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "三重",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 6,
+          "racerName": "黒野 元基",
+          "officialRegistrationNo": "4960",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "愛知",
+          "className": "A1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        }
+      ],
       "racerLinkageSummary": {
-        "racerCount": 0,
-        "officialRegistrationLinkedCount": 0,
+        "racerCount": 6,
+        "officialRegistrationLinkedCount": 6,
         "nameLinkedCount": 0,
         "unresolvedCount": 0,
         "ambiguousCount": 0,
@@ -17856,7 +19689,7 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: entries-incomplete, result-unavailable, payout-unavailable"
+        "race-analysis未生成: result-unavailable, payout-unavailable"
       ],
       "cautions": [
         "source-backed facts only",
@@ -17878,7 +19711,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "13:00",
@@ -17913,11 +19746,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -18034,7 +19867,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "13:35",
@@ -18069,11 +19902,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -18184,23 +20017,22 @@
       "raceKey": "2026-10-20:18:12",
       "analysisKey": "2026-10-20:18:12",
       "status": "not-ready",
-      "reason": "entries-incomplete",
+      "reason": "result-unavailable",
       "notReadyReasons": [
-        "entries-incomplete",
         "result-unavailable",
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
-      "sourceStatus": "missing",
-      "raceTitle": "12R",
-      "closingTime": null,
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
+      "sourceStatus": "complete",
+      "raceTitle": "すなっち特選",
+      "closingTime": "14:15",
       "dayPart": "morning",
       "inputs": {
         "result": "unavailable",
         "payout": "unavailable",
-        "entries": "unavailable",
-        "registrationNumbers": "unavailable",
+        "entries": "available",
+        "registrationNumbers": "available",
         "exhibition": "unavailable",
         "weather": "available"
       },
@@ -18210,7 +20042,7 @@
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
-      "racerEvidenceStatus": "missing",
+      "racerEvidenceStatus": "available",
       "resultFacts": null,
       "raceFlowFacts": null,
       "startFacts": null,
@@ -18226,17 +20058,90 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "1m",
+        "waveHeight": "1cm",
+        "waterTemperature": "23.0℃"
       },
       "waterCondition": null,
-      "racers": [],
+      "racers": [
+        {
+          "lane": 1,
+          "racerName": "西野 翔太",
+          "officialRegistrationNo": "4302",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "広島",
+          "className": "A1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 2,
+          "racerName": "木村 亮太",
+          "officialRegistrationNo": "4648",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "兵庫",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 3,
+          "racerName": "上原 崚",
+          "officialRegistrationNo": "5096",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "東京",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 4,
+          "racerName": "佐藤 悠",
+          "officialRegistrationNo": "4930",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福井",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 5,
+          "racerName": "泉 具巳",
+          "officialRegistrationNo": "3339",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "兵庫",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 6,
+          "racerName": "横田 貴満",
+          "officialRegistrationNo": "4949",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "佐賀",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        }
+      ],
       "racerLinkageSummary": {
-        "racerCount": 0,
-        "officialRegistrationLinkedCount": 0,
+        "racerCount": 6,
+        "officialRegistrationLinkedCount": 6,
         "nameLinkedCount": 0,
         "unresolvedCount": 0,
         "ambiguousCount": 0,
@@ -18252,7 +20157,7 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: entries-incomplete, result-unavailable, payout-unavailable"
+        "race-analysis未生成: result-unavailable, payout-unavailable"
       ],
       "cautions": [
         "source-backed facts only",
@@ -18274,7 +20179,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "17:41",
@@ -18424,23 +20329,22 @@
       "raceKey": "2026-10-20:19:02",
       "analysisKey": "2026-10-20:19:02",
       "status": "not-ready",
-      "reason": "entries-incomplete",
+      "reason": "result-unavailable",
       "notReadyReasons": [
-        "entries-incomplete",
         "result-unavailable",
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
-      "sourceStatus": "missing",
-      "raceTitle": "2R",
-      "closingTime": null,
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
+      "sourceStatus": "complete",
+      "raceTitle": "一般",
+      "closingTime": "18:08",
       "dayPart": "night",
       "inputs": {
         "result": "unavailable",
         "payout": "unavailable",
-        "entries": "unavailable",
-        "registrationNumbers": "unavailable",
+        "entries": "available",
+        "registrationNumbers": "available",
         "exhibition": "unavailable",
         "weather": "available"
       },
@@ -18450,7 +20354,7 @@
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
-      "racerEvidenceStatus": "missing",
+      "racerEvidenceStatus": "available",
       "resultFacts": null,
       "raceFlowFacts": null,
       "startFacts": null,
@@ -18473,10 +20377,83 @@
         "waterTemperature": "確認中"
       },
       "waterCondition": null,
-      "racers": [],
+      "racers": [
+        {
+          "lane": 1,
+          "racerName": "嘉手苅 徹哉",
+          "officialRegistrationNo": "5284",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福岡",
+          "className": "B2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 2,
+          "racerName": "武富 智亮",
+          "officialRegistrationNo": "4531",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "佐賀",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 3,
+          "racerName": "岩井 繁",
+          "officialRegistrationNo": "3797",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "広島",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 4,
+          "racerName": "内田 圭",
+          "officialRegistrationNo": "3976",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "山口",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 5,
+          "racerName": "後藤 盛也",
+          "officialRegistrationNo": "4889",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "東京",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 6,
+          "racerName": "森安 弘雅",
+          "officialRegistrationNo": "4154",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "香川",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        }
+      ],
       "racerLinkageSummary": {
-        "racerCount": 0,
-        "officialRegistrationLinkedCount": 0,
+        "racerCount": 6,
+        "officialRegistrationLinkedCount": 6,
         "nameLinkedCount": 0,
         "unresolvedCount": 0,
         "ambiguousCount": 0,
@@ -18492,7 +20469,7 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: entries-incomplete, result-unavailable, payout-unavailable"
+        "race-analysis未生成: result-unavailable, payout-unavailable"
       ],
       "cautions": [
         "source-backed facts only",
@@ -18508,23 +20485,22 @@
       "raceKey": "2026-10-20:19:03",
       "analysisKey": "2026-10-20:19:03",
       "status": "not-ready",
-      "reason": "entries-incomplete",
+      "reason": "result-unavailable",
       "notReadyReasons": [
-        "entries-incomplete",
         "result-unavailable",
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
-      "sourceStatus": "missing",
-      "raceTitle": "3R",
-      "closingTime": null,
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
+      "sourceStatus": "complete",
+      "raceTitle": "一般",
+      "closingTime": "18:34",
       "dayPart": "night",
       "inputs": {
         "result": "unavailable",
         "payout": "unavailable",
-        "entries": "unavailable",
-        "registrationNumbers": "unavailable",
+        "entries": "available",
+        "registrationNumbers": "available",
         "exhibition": "unavailable",
         "weather": "available"
       },
@@ -18534,7 +20510,7 @@
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
-      "racerEvidenceStatus": "missing",
+      "racerEvidenceStatus": "available",
       "resultFacts": null,
       "raceFlowFacts": null,
       "startFacts": null,
@@ -18557,10 +20533,83 @@
         "waterTemperature": "確認中"
       },
       "waterCondition": null,
-      "racers": [],
+      "racers": [
+        {
+          "lane": 1,
+          "racerName": "安達 裕樹",
+          "officialRegistrationNo": "4227",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "三重",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 2,
+          "racerName": "本岡 勝利",
+          "officialRegistrationNo": "4219",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "広島",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 3,
+          "racerName": "齋藤 達希",
+          "officialRegistrationNo": "4740",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "静岡",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 4,
+          "racerName": "伊藤 尚汰",
+          "officialRegistrationNo": "5022",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福岡",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 5,
+          "racerName": "小林 遼太",
+          "officialRegistrationNo": "4638",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福岡",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 6,
+          "racerName": "鈴木 柊介",
+          "officialRegistrationNo": "5385",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "静岡",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        }
+      ],
       "racerLinkageSummary": {
-        "racerCount": 0,
-        "officialRegistrationLinkedCount": 0,
+        "racerCount": 6,
+        "officialRegistrationLinkedCount": 6,
         "nameLinkedCount": 0,
         "unresolvedCount": 0,
         "ambiguousCount": 0,
@@ -18576,7 +20625,7 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: entries-incomplete, result-unavailable, payout-unavailable"
+        "race-analysis未生成: result-unavailable, payout-unavailable"
       ],
       "cautions": [
         "source-backed facts only",
@@ -18598,7 +20647,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "19:03",
@@ -18754,7 +20803,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "シーモ 戦",
       "closingTime": "19:30",
@@ -18910,7 +20959,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "19:56",
@@ -19066,7 +21115,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "ふく〜る 戦",
       "closingTime": "20:25",
@@ -19222,7 +21271,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "一般",
       "closingTime": "20:59",
@@ -19378,7 +21427,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "シーモ特選",
       "closingTime": "21:25",
@@ -19528,23 +21577,22 @@
       "raceKey": "2026-10-20:19:10",
       "analysisKey": "2026-10-20:19:10",
       "status": "not-ready",
-      "reason": "entries-incomplete",
+      "reason": "result-unavailable",
       "notReadyReasons": [
-        "entries-incomplete",
         "result-unavailable",
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
-      "sourceStatus": "missing",
-      "raceTitle": "10R",
-      "closingTime": null,
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
+      "sourceStatus": "complete",
+      "raceTitle": "選抜戦Ｂ",
+      "closingTime": "21:51",
       "dayPart": "night",
       "inputs": {
         "result": "unavailable",
         "payout": "unavailable",
-        "entries": "unavailable",
-        "registrationNumbers": "unavailable",
+        "entries": "available",
+        "registrationNumbers": "available",
         "exhibition": "unavailable",
         "weather": "available"
       },
@@ -19554,7 +21602,7 @@
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
-      "racerEvidenceStatus": "missing",
+      "racerEvidenceStatus": "available",
       "resultFacts": null,
       "raceFlowFacts": null,
       "startFacts": null,
@@ -19577,10 +21625,83 @@
         "waterTemperature": "確認中"
       },
       "waterCondition": null,
-      "racers": [],
+      "racers": [
+        {
+          "lane": 1,
+          "racerName": "田中 辰彦",
+          "officialRegistrationNo": "4434",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "広島",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 2,
+          "racerName": "岩永 雅人",
+          "officialRegistrationNo": "4630",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "愛知",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 3,
+          "racerName": "大賀 龍之介",
+          "officialRegistrationNo": "5009",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福岡",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 4,
+          "racerName": "安達 裕樹",
+          "officialRegistrationNo": "4227",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "三重",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 5,
+          "racerName": "松村 敏",
+          "officialRegistrationNo": "4236",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福岡",
+          "className": "A1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 6,
+          "racerName": "中村 泰平",
+          "officialRegistrationNo": "4910",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "愛知",
+          "className": "A1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        }
+      ],
       "racerLinkageSummary": {
-        "racerCount": 0,
-        "officialRegistrationLinkedCount": 0,
+        "racerCount": 6,
+        "officialRegistrationLinkedCount": 6,
         "nameLinkedCount": 0,
         "unresolvedCount": 0,
         "ambiguousCount": 0,
@@ -19596,7 +21717,7 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: entries-incomplete, result-unavailable, payout-unavailable"
+        "race-analysis未生成: result-unavailable, payout-unavailable"
       ],
       "cautions": [
         "source-backed facts only",
@@ -19612,23 +21733,22 @@
       "raceKey": "2026-10-20:19:11",
       "analysisKey": "2026-10-20:19:11",
       "status": "not-ready",
-      "reason": "entries-incomplete",
+      "reason": "result-unavailable",
       "notReadyReasons": [
-        "entries-incomplete",
         "result-unavailable",
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
-      "sourceStatus": "missing",
-      "raceTitle": "11R",
-      "closingTime": null,
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
+      "sourceStatus": "complete",
+      "raceTitle": "優勝戦",
+      "closingTime": "22:20",
       "dayPart": "night",
       "inputs": {
         "result": "unavailable",
         "payout": "unavailable",
-        "entries": "unavailable",
-        "registrationNumbers": "unavailable",
+        "entries": "available",
+        "registrationNumbers": "available",
         "exhibition": "unavailable",
         "weather": "available"
       },
@@ -19638,7 +21758,7 @@
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
-      "racerEvidenceStatus": "missing",
+      "racerEvidenceStatus": "available",
       "resultFacts": null,
       "raceFlowFacts": null,
       "startFacts": null,
@@ -19661,10 +21781,83 @@
         "waterTemperature": "確認中"
       },
       "waterCondition": null,
-      "racers": [],
+      "racers": [
+        {
+          "lane": 1,
+          "racerName": "篠崎 元志",
+          "officialRegistrationNo": "4350",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福岡",
+          "className": "A1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 2,
+          "racerName": "山田 丈",
+          "officialRegistrationNo": "5104",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福岡",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 3,
+          "racerName": "加藤 優弥",
+          "officialRegistrationNo": "5185",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福井",
+          "className": "B1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 4,
+          "racerName": "竹田 辰也",
+          "officialRegistrationNo": "4239",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "山口",
+          "className": "A1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 5,
+          "racerName": "今垣 光太郎",
+          "officialRegistrationNo": "3388",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "福井",
+          "className": "A1",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        },
+        {
+          "lane": 6,
+          "racerName": "近江 翔吾",
+          "officialRegistrationNo": "4643",
+          "resolvedRegistrationNo": null,
+          "linkageStatus": "official-registration",
+          "branch": "香川",
+          "className": "A2",
+          "motorNo": null,
+          "boatNo": null,
+          "sourceStatus": "available"
+        }
+      ],
       "racerLinkageSummary": {
-        "racerCount": 0,
-        "officialRegistrationLinkedCount": 0,
+        "racerCount": 6,
+        "officialRegistrationLinkedCount": 6,
         "nameLinkedCount": 0,
         "unresolvedCount": 0,
         "ambiguousCount": 0,
@@ -19680,7 +21873,7 @@
         "predictionStructure": "public/data/boatrace-ex/derived/prediction-structure/latest.json"
       },
       "analysisNotes": [
-        "race-analysis未生成: entries-incomplete, result-unavailable, payout-unavailable"
+        "race-analysis未生成: result-unavailable, payout-unavailable"
       ],
       "cautions": [
         "source-backed facts only",
@@ -19702,7 +21895,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "選抜戦Ａ",
       "closingTime": "22:45",
@@ -19858,7 +22051,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "10:38",
@@ -19869,12 +22062,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -19893,11 +22086,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
@@ -20014,7 +22207,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "11:07",
@@ -20025,12 +22218,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -20049,11 +22242,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
@@ -20170,7 +22363,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "11:36",
@@ -20181,12 +22374,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -20205,11 +22398,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
@@ -20326,7 +22519,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "12:05",
@@ -20337,12 +22530,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -20361,11 +22554,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
@@ -20482,7 +22675,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "12:34",
@@ -20493,12 +22686,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -20517,11 +22710,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
@@ -20638,7 +22831,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "13:06",
@@ -20649,12 +22842,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -20673,11 +22866,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
@@ -20794,7 +22987,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "13:38",
@@ -20805,12 +22998,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -20829,11 +23022,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
@@ -20950,7 +23143,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "14:11",
@@ -20961,12 +23154,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -20985,11 +23178,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
@@ -21106,7 +23299,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "14:45",
@@ -21117,12 +23310,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -21141,11 +23334,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
@@ -21262,7 +23455,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "15:21",
@@ -21273,12 +23466,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -21297,11 +23490,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
@@ -21418,7 +23611,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "15:57",
@@ -21429,12 +23622,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -21453,11 +23646,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
@@ -21574,7 +23767,7 @@
         "payout-unavailable"
       ],
       "source": "today-race-details.generated.json+today.generated.json+venue-extras.generated.json",
-      "sourceAcquiredAt": "2026-10-20T05:35:46+09:00",
+      "sourceAcquiredAt": "2026-10-20T09:13:57+09:00",
       "sourceStatus": "complete",
       "raceTitle": "予選",
       "closingTime": "16:36",
@@ -21585,12 +23778,12 @@
         "entries": "available",
         "registrationNumbers": "available",
         "exhibition": "unavailable",
-        "weather": "available"
+        "weather": "unavailable"
       },
       "resultStatus": "unavailable",
       "payoutStatus": "unavailable",
       "exhibitionStatus": "unavailable",
-      "weatherStatus": "available",
+      "weatherStatus": "unavailable",
       "waterStatus": "not-supported",
       "predictionStructureStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -21609,11 +23802,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": null,
+        "windDirection": null,
+        "windSpeed": null,
+        "waveHeight": null,
+        "waterTemperature": null
       },
       "waterCondition": null,
       "racers": [
