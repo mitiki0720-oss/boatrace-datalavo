@@ -1,10 +1,10 @@
 {
   "schemaVersion": "boat-ex-today-flow-v1",
-  "generatedAt": "2026-10-23T00:06:39.189Z",
+  "generatedAt": "2026-10-23T18:41:06.070Z",
   "status": "available",
   "readiness": {
     "status": "insufficient-history",
-    "reason": "Result-backed race count is below minimum display threshold."
+    "reason": "No result-backed races are available."
   },
   "targetDate": "2026-10-23",
   "dateRange": {
@@ -15,9 +15,9 @@
   "summary": {
     "venueCount": 14,
     "raceCount": 168,
-    "resultAvailableRaceCount": 1,
-    "trifectaAvailableRaceCount": 3,
-    "payoutAvailableRaceCount": 1
+    "resultAvailableRaceCount": 0,
+    "trifectaAvailableRaceCount": 0,
+    "payoutAvailableRaceCount": 0
   },
   "venues": [
     {
@@ -612,11 +612,11 @@
       "venueCode": "14",
       "venueName": "鳴門",
       "raceCount": 12,
-      "resultAvailableRaceCount": 1,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
         "1": 0,
         "2": 0,
-        "3": 1,
+        "3": 0,
         "4": 0,
         "5": 0,
         "6": 0
@@ -624,9 +624,9 @@
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-1-2",
-          "payoutYen": 4970
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 2,
@@ -696,14 +696,15 @@
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "3"
-      ],
-      "insideWinCount": 1,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
       "outsideWinCount": 0,
-      "payoutAvailableRaceCount": 1,
+      "payoutAvailableRaceCount": 0,
       "highPayoutRaceCount": 0,
-      "notes": []
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
     },
     {
       "venueCode": "17",
@@ -820,7 +821,7 @@
         {
           "raceNo": 1,
           "firstPlaceBoat": null,
-          "trifecta": "3-1-5",
+          "trifecta": null,
           "payoutYen": null
         },
         {
@@ -1016,7 +1017,7 @@
         {
           "raceNo": 1,
           "firstPlaceBoat": null,
-          "trifecta": "2-1-4",
+          "trifecta": null,
           "payoutYen": null
         },
         {
@@ -1406,5 +1407,8 @@
       "coverageStatus": "partial"
     }
   ],
-  "warnings": []
+  "warnings": [
+    "No source-backed same-day result facts are available.",
+    "Payout data is not available; payout-based flow facts are disabled."
+  ]
 }
