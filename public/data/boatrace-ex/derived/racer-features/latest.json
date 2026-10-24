@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "boatrace-ex-racer-features",
-  "generatedAt": "2026-10-24T14:11:50.910Z",
+  "generatedAt": "2026-10-24T17:36:06.678Z",
   "identityPolicy": "registrationNo exact registry identity only; no name-only identity",
   "sourceFiles": [
     "public/data/boatrace-ex/identity/registered-racers.generated.json",
@@ -159,7 +159,7 @@
     "racerCount": 1604,
     "exactLinkedRacerCount": 1604,
     "lowSampleRacerCount": 254,
-    "appearanceCount": 54930,
+    "appearanceCount": 54936,
     "resultSampleCount": 16273,
     "historyStartCount": 16273,
     "dateRange": {
@@ -372,7 +372,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 雨 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -585,12 +585,12 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 10,
-          "sampleLevel": "sufficient"
+          "count": 9,
+          "sampleLevel": "limited"
         },
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -1400,7 +1400,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 17,
+          "count": 16,
           "sampleLevel": "sufficient"
         },
         {
@@ -2964,8 +2964,8 @@
       "conditionSamples": [
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 9,
-          "sampleLevel": "limited"
+          "count": 10,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
@@ -5222,7 +5222,7 @@
         },
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 2,
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -7244,9 +7244,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 3-5m / 3-5cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -7679,12 +7679,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
@@ -9278,7 +9278,7 @@
         },
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -11540,17 +11540,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "morning / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
-        },
-        {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -11778,12 +11778,12 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
-          "count": 3,
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "condition": "night / 晴 / 3-5m / 3-5cm",
           "count": 3,
           "sampleLevel": "low-sample"
         }
@@ -12250,14 +12250,28 @@
       ],
       "branch": "広島",
       "className": "B2",
-      "appearanceCount": 24,
+      "appearanceCount": 25,
       "resultSampleCount": 3,
       "historyStarts": 3,
       "firstSeen": "2026-07-13",
       "lastSeen": "2026-10-24",
-      "sourceCount": 24,
+      "sourceCount": 25,
       "sampleLevel": "low-sample",
       "venues": [
+        {
+          "venueCode": "17",
+          "venueName": "宮島",
+          "appearanceCount": 9,
+          "resultSampleCount": 0,
+          "starts": 0,
+          "wins": 0,
+          "top2": 0,
+          "top3": 0,
+          "winRate": null,
+          "top2Rate": null,
+          "top3Rate": null,
+          "sampleLevel": "no-history"
+        },
         {
           "venueCode": "13",
           "venueName": "尼崎",
@@ -12271,20 +12285,6 @@
           "top2Rate": 1,
           "top3Rate": 1,
           "sampleLevel": "low-sample"
-        },
-        {
-          "venueCode": "17",
-          "venueName": "宮島",
-          "appearanceCount": 8,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
         },
         {
           "venueCode": "22",
@@ -12318,7 +12318,7 @@
       "frames": [
         {
           "frameNo": 1,
-          "appearanceCount": 4,
+          "appearanceCount": 5,
           "resultSampleCount": 2,
           "starts": 2,
           "wins": 1,
@@ -12409,13 +12409,13 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 曇り / 3-5m / 0-2cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 曇り / 3-5m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -12440,7 +12440,7 @@
           "top3Rate": 1
         },
         "last30Days": {
-          "appearanceCount": 13,
+          "appearanceCount": 14,
           "resultSampleCount": 1,
           "starts": 1,
           "averageST": 0.17,
@@ -14653,7 +14653,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -15994,7 +15994,7 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 5,
           "sampleLevel": "limited"
         }
       ],
@@ -16211,12 +16211,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -16428,13 +16428,13 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 7,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -20951,8 +20951,8 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
           "condition": "day / 晴 / 3-5m / 3-5cm",
@@ -21448,7 +21448,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 10,
+          "count": 12,
           "sampleLevel": "sufficient"
         },
         {
@@ -22152,8 +22152,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -23591,12 +23591,12 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 7,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 雨 / 0-2m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         }
@@ -25112,14 +25112,14 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 3-5cm",
+          "condition": "day / 雨 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 0-2m / 3-5cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -28526,7 +28526,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -29215,13 +29215,13 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "morning / 曇り / 0-2m / 0-2cm",
+          "condition": "night / 晴 / 3-5m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "night / 晴 / 3-5m / 0-2cm",
-          "count": 4,
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -29453,11 +29453,11 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 0-2cm",
+          "condition": "day / 曇り / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -30058,12 +30058,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
-          "sampleLevel": "limited"
+          "condition": "night / 晴 / 3-5m / 3-5cm",
+          "count": 4,
+          "sampleLevel": "low-sample"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -30280,18 +30280,18 @@
       ],
       "branch": "兵庫",
       "className": "B1",
-      "appearanceCount": 12,
+      "appearanceCount": 13,
       "resultSampleCount": 2,
       "historyStarts": 2,
       "firstSeen": "2026-08-31",
-      "lastSeen": "2026-10-23",
-      "sourceCount": 12,
+      "lastSeen": "2026-10-24",
+      "sourceCount": 13,
       "sampleLevel": "low-sample",
       "venues": [
         {
           "venueCode": "17",
           "venueName": "宮島",
-          "appearanceCount": 7,
+          "appearanceCount": 8,
           "resultSampleCount": 0,
           "starts": 0,
           "wins": 0,
@@ -30373,7 +30373,7 @@
         },
         {
           "frameNo": 4,
-          "appearanceCount": 2,
+          "appearanceCount": 3,
           "resultSampleCount": 1,
           "starts": 1,
           "wins": 1,
@@ -30425,17 +30425,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 4,
+          "sampleLevel": "low-sample"
+        },
+        {
           "condition": "night / 晴 / 3-5m / 0-2cm",
           "count": 3,
           "sampleLevel": "low-sample"
         },
         {
           "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 3,
-          "sampleLevel": "low-sample"
-        },
-        {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 3,
           "sampleLevel": "low-sample"
         }
@@ -30456,7 +30456,7 @@
           "top3Rate": 1
         },
         "last30Days": {
-          "appearanceCount": 7,
+          "appearanceCount": 8,
           "resultSampleCount": 0,
           "starts": 0,
           "averageST": null,
@@ -31257,7 +31257,7 @@
       "conditionSamples": [
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -31471,9 +31471,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 雨 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -34685,8 +34685,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 雨 / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -34927,18 +34927,18 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 9,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "night / 晴 / 0-2m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 7,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 5,
           "sampleLevel": "limited"
         }
       ],
@@ -38002,7 +38002,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -38934,12 +38934,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -39370,7 +39370,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 15,
+          "count": 14,
           "sampleLevel": "sufficient"
         },
         {
@@ -39380,7 +39380,7 @@
         },
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -43743,13 +43743,13 @@
       },
       "conditionSamples": [
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
+          "condition": "morning / 曇り / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "night / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -44839,7 +44839,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -46467,9 +46467,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 曇り / 3-5m / 3-5cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -47395,7 +47395,7 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -50199,7 +50199,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -51334,9 +51334,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 曇り / 3-5m / 3-5cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -57666,8 +57666,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 5,
+          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -64340,12 +64340,12 @@
         },
         {
           "condition": "night / 晴 / 3-5m / 0-2cm",
-          "count": 3,
+          "count": 4,
           "sampleLevel": "low-sample"
         },
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 3,
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -64817,8 +64817,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 曇り / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -68402,7 +68402,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         }
@@ -71448,13 +71448,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
-          "count": 6,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "night / 晴 / 3-5m / 3-5cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -73186,12 +73186,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 8,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 8,
           "sampleLevel": "limited"
         },
@@ -75594,7 +75594,7 @@
         },
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 2,
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -75816,8 +75816,8 @@
         },
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 6,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -76889,9 +76889,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 3,
-          "sampleLevel": "low-sample"
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -79848,7 +79848,7 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -82151,12 +82151,12 @@
       "conditionSamples": [
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 10,
+          "count": 12,
           "sampleLevel": "sufficient"
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 9,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -85357,7 +85357,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -90098,12 +90098,12 @@
       ],
       "branch": "埼玉",
       "className": "B1",
-      "appearanceCount": 35,
+      "appearanceCount": 36,
       "resultSampleCount": 4,
       "historyStarts": 4,
       "firstSeen": "2026-07-19",
       "lastSeen": "2026-10-24",
-      "sourceCount": 35,
+      "sourceCount": 36,
       "sampleLevel": "low-sample",
       "venues": [
         {
@@ -90135,6 +90135,20 @@
           "sampleLevel": "no-history"
         },
         {
+          "venueCode": "17",
+          "venueName": "宮島",
+          "appearanceCount": 9,
+          "resultSampleCount": 0,
+          "starts": 0,
+          "wins": 0,
+          "top2": 0,
+          "top3": 0,
+          "winRate": null,
+          "top2Rate": null,
+          "top3Rate": null,
+          "sampleLevel": "no-history"
+        },
+        {
           "venueCode": "05",
           "venueName": "多摩川",
           "appearanceCount": 8,
@@ -90147,20 +90161,6 @@
           "top2Rate": 1,
           "top3Rate": 1,
           "sampleLevel": "low-sample"
-        },
-        {
-          "venueCode": "17",
-          "venueName": "宮島",
-          "appearanceCount": 8,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
         },
         {
           "venueCode": "11",
@@ -90193,7 +90193,7 @@
         },
         {
           "frameNo": 2,
-          "appearanceCount": 7,
+          "appearanceCount": 8,
           "resultSampleCount": 1,
           "starts": 1,
           "wins": 1,
@@ -90302,7 +90302,7 @@
           "top3Rate": 1
         },
         "last30Days": {
-          "appearanceCount": 20,
+          "appearanceCount": 21,
           "resultSampleCount": 1,
           "starts": 1,
           "averageST": 0.15,
@@ -91220,7 +91220,7 @@
         },
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -91872,7 +91872,7 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 確認中 / 未取得 / 未取得",
+          "condition": "day / 雨 / 0-2m / 3-5cm",
           "count": 2,
           "sampleLevel": "low-sample"
         }
@@ -92567,9 +92567,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -93690,7 +93690,7 @@
         },
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -94538,8 +94538,8 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 9,
-          "sampleLevel": "limited"
+          "count": 10,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "night / 晴 / 0-2m / 0-2cm",
@@ -95641,7 +95641,7 @@
         },
         {
           "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 8,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -95883,7 +95883,7 @@
         },
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         }
       ],
@@ -99870,12 +99870,12 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 6,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         }
@@ -100575,7 +100575,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 9,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -102090,8 +102090,8 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 10,
-          "sampleLevel": "sufficient"
+          "count": 9,
+          "sampleLevel": "limited"
         },
         {
           "condition": "day / 晴 / 3-5m / 3-5cm",
@@ -102100,8 +102100,8 @@
         },
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -105621,8 +105621,8 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
           "condition": "morning / 曇り / 0-2m / 0-2cm",
@@ -106084,7 +106084,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -106573,7 +106573,7 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -107451,7 +107451,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 9,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -107676,12 +107676,12 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 6,
-          "sampleLevel": "limited"
+          "condition": "morning / 曇り / 0-2m / 0-2cm",
+          "count": 4,
+          "sampleLevel": "low-sample"
         },
         {
-          "condition": "morning / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -110751,8 +110751,8 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 9,
-          "sampleLevel": "limited"
+          "count": 10,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
@@ -112625,9 +112625,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -114132,12 +114132,12 @@
         },
         {
           "condition": "day / 曇り / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 3,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -118596,9 +118596,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -118856,18 +118856,18 @@
       ],
       "branch": "佐賀",
       "className": "B1",
-      "appearanceCount": 27,
+      "appearanceCount": 28,
       "resultSampleCount": 11,
       "historyStarts": 11,
       "firstSeen": "2026-08-03",
-      "lastSeen": "2026-10-23",
-      "sourceCount": 27,
+      "lastSeen": "2026-10-24",
+      "sourceCount": 28,
       "sampleLevel": "sufficient",
       "venues": [
         {
           "venueCode": "17",
           "venueName": "宮島",
-          "appearanceCount": 9,
+          "appearanceCount": 10,
           "resultSampleCount": 1,
           "starts": 1,
           "wins": 1,
@@ -118936,7 +118936,7 @@
         },
         {
           "frameNo": 3,
-          "appearanceCount": 4,
+          "appearanceCount": 5,
           "resultSampleCount": 2,
           "starts": 2,
           "wins": 0,
@@ -119006,12 +119006,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "morning / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -119032,7 +119032,7 @@
           "top3Rate": 1
         },
         "last30Days": {
-          "appearanceCount": 7,
+          "appearanceCount": 8,
           "resultSampleCount": 0,
           "starts": 0,
           "averageST": null,
@@ -119948,12 +119948,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 3,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 3,
           "sampleLevel": "low-sample"
         }
@@ -121315,6 +121315,11 @@
       },
       "conditionSamples": [
         {
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 7,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 6,
           "sampleLevel": "limited"
@@ -121322,11 +121327,6 @@
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 6,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 5,
           "sampleLevel": "limited"
         }
       ],
@@ -123739,6 +123739,11 @@
       },
       "conditionSamples": [
         {
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
@@ -123747,11 +123752,6 @@
           "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
-        },
-        {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
         }
       ],
       "recent": {
@@ -125760,8 +125760,8 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 曇り / 3-5m / 3-5cm",
-          "count": 3,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -125981,7 +125981,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -127904,12 +127904,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 0-2cm",
-          "count": 5,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "night / 晴 / 3-5m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -129644,13 +129644,13 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 6,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -129865,13 +129865,13 @@
       },
       "conditionSamples": [
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -129913,12 +129913,12 @@
       ],
       "branch": "埼玉",
       "className": "B1",
-      "appearanceCount": 42,
+      "appearanceCount": 43,
       "resultSampleCount": 7,
       "historyStarts": 7,
       "firstSeen": "2026-09-05",
       "lastSeen": "2026-10-24",
-      "sourceCount": 42,
+      "sourceCount": 43,
       "sampleLevel": "limited",
       "venues": [
         {
@@ -129950,9 +129950,9 @@
           "sampleLevel": "low-sample"
         },
         {
-          "venueCode": "21",
-          "venueName": "芦屋",
-          "appearanceCount": 8,
+          "venueCode": "17",
+          "venueName": "宮島",
+          "appearanceCount": 9,
           "resultSampleCount": 0,
           "starts": 0,
           "wins": 0,
@@ -129964,8 +129964,8 @@
           "sampleLevel": "no-history"
         },
         {
-          "venueCode": "17",
-          "venueName": "宮島",
+          "venueCode": "21",
+          "venueName": "芦屋",
           "appearanceCount": 8,
           "resultSampleCount": 0,
           "starts": 0,
@@ -130047,7 +130047,7 @@
         },
         {
           "frameNo": 5,
-          "appearanceCount": 8,
+          "appearanceCount": 9,
           "resultSampleCount": 0,
           "starts": 0,
           "wins": 0,
@@ -130118,7 +130118,7 @@
           "top3Rate": 1
         },
         "last30Days": {
-          "appearanceCount": 22,
+          "appearanceCount": 23,
           "resultSampleCount": 0,
           "starts": 0,
           "averageST": null,
@@ -134432,8 +134432,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 3-5cm",
-          "count": 3,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -135625,6 +135625,11 @@
       },
       "conditionSamples": [
         {
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "night / 雨 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
@@ -135633,11 +135638,6 @@
           "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 5,
           "sampleLevel": "limited"
-        },
-        {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
         }
       ],
       "recent": {
@@ -136043,17 +136043,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
         {
           "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 5,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -137340,8 +137340,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 3-5m / 0-2cm",
-          "count": 2,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -138270,7 +138270,7 @@
         },
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -142779,7 +142779,7 @@
       "conditionSamples": [
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -143890,8 +143890,8 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
@@ -144733,8 +144733,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
-          "count": 3,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -145188,7 +145188,7 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -146995,7 +146995,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -148536,7 +148536,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -150063,7 +150063,7 @@
       "conditionSamples": [
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 15,
+          "count": 16,
           "sampleLevel": "sufficient"
         },
         {
@@ -151296,8 +151296,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -151547,8 +151547,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -152002,7 +152002,7 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 15,
+          "count": 14,
           "sampleLevel": "sufficient"
         },
         {
@@ -154076,12 +154076,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "morning / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
@@ -156314,8 +156314,8 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 2,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -160453,8 +160453,8 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 2,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -162112,12 +162112,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 7,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         },
@@ -162846,9 +162846,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 曇り / 3-5m / 3-5cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -164004,7 +164004,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -164220,8 +164220,8 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "morning / 雨 / 0-2m / 0-2cm",
-          "count": 2,
+          "condition": "day / 曇り / 3-5m / 0-2cm",
+          "count": 1,
           "sampleLevel": "low-sample"
         }
       ],
@@ -164448,7 +164448,7 @@
       "conditionSamples": [
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -168367,12 +168367,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 曇り / 3-5m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -169243,8 +169243,8 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 8,
-          "sampleLevel": "limited"
+          "count": 10,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "night / 晴 / 0-2m / 0-2cm",
@@ -171681,7 +171681,7 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 3,
           "sampleLevel": "low-sample"
         }
@@ -173858,13 +173858,13 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -180248,7 +180248,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 12,
+          "count": 13,
           "sampleLevel": "sufficient"
         },
         {
@@ -181836,7 +181836,7 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 2,
+          "count": 3,
           "sampleLevel": "low-sample"
         },
         {
@@ -182040,7 +182040,7 @@
       "conditionSamples": [
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -184121,12 +184121,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "condition": "morning / 曇り / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         }
@@ -185231,8 +185231,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 3,
+          "condition": "day / 曇り / 3-5m / 3-5cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -185675,7 +185675,7 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -186309,12 +186309,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "night / 晴 / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         }
@@ -187910,13 +187910,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "condition": "day / 雨 / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 3,
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -189136,7 +189136,7 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 2,
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -192831,7 +192831,7 @@
         },
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -193531,7 +193531,7 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -200722,7 +200722,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -201424,7 +201424,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
+          "condition": "day / 雨 / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         }
@@ -207726,7 +207726,7 @@
       "conditionSamples": [
         {
           "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -208773,8 +208773,8 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 3,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -211194,9 +211194,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -212081,8 +212081,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -212716,7 +212716,7 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -213982,7 +213982,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 3-5m / 3-5cm",
-          "count": 8,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -218257,7 +218257,7 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 3,
+          "count": 4,
           "sampleLevel": "low-sample"
         },
         {
@@ -219971,17 +219971,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 7,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -220351,8 +220351,8 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 2,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -220834,12 +220834,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -222313,16 +222313,16 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 3-5cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 2,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 確認中 / 未取得 / 未取得",
+          "condition": "day / 曇り / 0-2m / 3-5cm",
           "count": 2,
           "sampleLevel": "low-sample"
         }
@@ -224539,7 +224539,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 12,
+          "count": 11,
           "sampleLevel": "sufficient"
         },
         {
@@ -226390,7 +226390,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 15,
+          "count": 16,
           "sampleLevel": "sufficient"
         },
         {
@@ -226634,9 +226634,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 3-5m / 3-5cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -226848,7 +226848,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 9,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -228980,12 +228980,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "night / 雨 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -234992,8 +234992,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 3,
+          "condition": "morning / 曇り / 3-5m / 3-5cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -241977,13 +241977,13 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 8,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "condition": "morning / 曇り / 0-2m / 0-2cm",
+          "count": 8,
           "sampleLevel": "limited"
         }
       ],
@@ -242421,13 +242421,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -242658,7 +242658,7 @@
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -244431,7 +244431,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 8,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -245311,12 +245311,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "night / 雨 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -253026,9 +253026,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
-          "count": 3,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -255811,7 +255811,7 @@
         },
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 3,
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -260473,7 +260473,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 8,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -262470,12 +262470,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -263251,13 +263251,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 0-2cm",
-          "count": 6,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "night / 晴 / 3-5m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -264913,8 +264913,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "day / 曇り / 0-2m / 3-5cm",
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -267645,12 +267645,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
-          "count": 6,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "night / 晴 / 3-5m / 3-5cm",
           "count": 6,
           "sampleLevel": "limited"
         }
@@ -269665,7 +269665,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -270283,13 +270283,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 3,
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -271430,12 +271430,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
-          "count": 8,
-          "sampleLevel": "limited"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 10,
+          "sampleLevel": "sufficient"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "night / 雨 / 0-2m / 0-2cm",
           "count": 8,
           "sampleLevel": "limited"
         },
@@ -272836,6 +272836,11 @@
       },
       "conditionSamples": [
         {
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "night / 雨 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
@@ -272844,11 +272849,6 @@
           "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 5,
           "sampleLevel": "limited"
-        },
-        {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 3,
-          "sampleLevel": "low-sample"
         }
       ],
       "recent": {
@@ -273510,9 +273510,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
-          "sampleLevel": "limited"
+          "condition": "day / 曇り / 3-5m / 3-5cm",
+          "count": 4,
+          "sampleLevel": "low-sample"
         }
       ],
       "recent": {
@@ -276447,8 +276447,8 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 10,
-          "sampleLevel": "sufficient"
+          "count": 8,
+          "sampleLevel": "limited"
         },
         {
           "condition": "night / 晴 / 0-2m / 0-2cm",
@@ -277487,7 +277487,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -278116,8 +278116,8 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 2,
+          "condition": "day / 曇り / 3-5m / 3-5cm",
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -278504,17 +278504,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 4,
+          "sampleLevel": "low-sample"
+        },
+        {
           "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 3,
           "sampleLevel": "low-sample"
         },
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 2,
-          "sampleLevel": "low-sample"
-        },
-        {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
           "count": 2,
           "sampleLevel": "low-sample"
         }
@@ -281314,8 +281314,8 @@
         },
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
@@ -281623,12 +281623,12 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 雨 / 0-2m / 3-5cm",
+          "condition": "day / 曇り / 3-5m / 3-5cm",
           "count": 3,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "condition": "day / 雨 / 0-2m / 3-5cm",
           "count": 3,
           "sampleLevel": "low-sample"
         }
@@ -282286,14 +282286,14 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 3,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -282944,7 +282944,7 @@
       "conditionSamples": [
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 11,
+          "count": 12,
           "sampleLevel": "sufficient"
         },
         {
@@ -283638,7 +283638,7 @@
       "conditionSamples": [
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -285069,17 +285069,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
-        },
-        {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -285325,12 +285325,12 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -287110,7 +287110,7 @@
       "conditionSamples": [
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -293094,7 +293094,7 @@
       "conditionSamples": [
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -294949,7 +294949,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "condition": "day / 雨 / 0-2m / 0-2cm",
           "count": 3,
           "sampleLevel": "low-sample"
         }
@@ -295405,9 +295405,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -300232,12 +300232,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -300915,7 +300915,7 @@
         },
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -302104,17 +302104,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
           "condition": "night / 雨 / 0-2m / 0-2cm",
-          "count": 5,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "night / 晴 / 3-5m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -302577,8 +302577,8 @@
         },
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 6,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -303079,8 +303079,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -303264,7 +303264,7 @@
       "conditionSamples": [
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -305553,12 +305553,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 2,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 3,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 雨 / 3-5m / 3-5cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 2,
           "sampleLevel": "low-sample"
         }
@@ -307918,17 +307918,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 5,
           "sampleLevel": "limited"
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -310870,12 +310870,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 曇り / 0-2m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -311550,13 +311550,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 6,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -313274,8 +313274,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 3-5m / 3-5cm",
-          "count": 3,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -313500,12 +313500,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 7,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 雨 / 0-2m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         },
@@ -313985,9 +313985,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -314479,7 +314479,7 @@
       "conditionSamples": [
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 8,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -315713,12 +315713,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 3,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
+          "condition": "night / 晴 / 0-2m / 0-2cm",
           "count": 3,
           "sampleLevel": "low-sample"
         }
@@ -317398,7 +317398,7 @@
       "winMethodCounts": {},
       "conditionSamples": [
         {
-          "condition": "day / 確認中 / 未取得 / 未取得",
+          "condition": "day / 雨 / 0-2m / 0-2cm",
           "count": 1,
           "sampleLevel": "low-sample"
         }
@@ -317802,17 +317802,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 4,
+          "sampleLevel": "low-sample"
+        },
+        {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         },
         {
           "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
-        },
-        {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -319719,7 +319719,7 @@
         },
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -323465,12 +323465,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -323689,9 +323689,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -326375,12 +326375,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -328171,12 +328171,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 3,
-          "sampleLevel": "low-sample"
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 3,
           "sampleLevel": "low-sample"
         }
@@ -329226,7 +329226,7 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "morning / 晴 / 6m以上 / 6cm以上",
+          "condition": "day / 雨 / 0-2m / 0-2cm",
           "count": 3,
           "sampleLevel": "low-sample"
         }
@@ -329674,12 +329674,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
@@ -335015,12 +335015,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -338869,7 +338869,7 @@
       "conditionSamples": [
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 11,
+          "count": 12,
           "sampleLevel": "sufficient"
         },
         {
@@ -338879,7 +338879,7 @@
         },
         {
           "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 4,
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -340343,13 +340343,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 3,
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -341779,7 +341779,7 @@
       "winMethodCounts": {},
       "conditionSamples": [
         {
-          "condition": "day / 確認中 / 未取得 / 未取得",
+          "condition": "day / 雨 / 0-2m / 3-5cm",
           "count": 2,
           "sampleLevel": "low-sample"
         },
@@ -343158,7 +343158,7 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "night / 確認中 / 未取得 / 未取得",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 2,
           "sampleLevel": "low-sample"
         },
@@ -343522,8 +343522,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 3-5m / 0-2cm",
-          "count": 3,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -343685,12 +343685,12 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 2,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 3,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 2,
           "sampleLevel": "low-sample"
         }
@@ -346621,14 +346621,14 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "night / 晴 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 5,
-          "sampleLevel": "limited"
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 4,
+          "sampleLevel": "low-sample"
         }
       ],
       "recent": {
@@ -346664,12 +346664,12 @@
       ],
       "branch": "香川",
       "className": "B2",
-      "appearanceCount": 29,
+      "appearanceCount": 30,
       "resultSampleCount": 0,
       "historyStarts": 0,
       "firstSeen": "2026-07-19",
       "lastSeen": "2026-10-24",
-      "sourceCount": 29,
+      "sourceCount": 30,
       "sampleLevel": "no-history",
       "venues": [
         {
@@ -346717,7 +346717,7 @@
         {
           "venueCode": "17",
           "venueName": "宮島",
-          "appearanceCount": 3,
+          "appearanceCount": 4,
           "resultSampleCount": 0,
           "starts": 0,
           "wins": 0,
@@ -346772,7 +346772,7 @@
         },
         {
           "frameNo": 6,
-          "appearanceCount": 16,
+          "appearanceCount": 17,
           "resultSampleCount": 0,
           "starts": 0,
           "wins": 0,
@@ -346827,7 +346827,7 @@
           "top3Rate": null
         },
         "last30Days": {
-          "appearanceCount": 13,
+          "appearanceCount": 14,
           "resultSampleCount": 0,
           "starts": 0,
           "averageST": null,
@@ -347494,12 +347494,12 @@
         },
         {
           "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 5,
-          "sampleLevel": "limited"
+          "count": 4,
+          "sampleLevel": "low-sample"
         },
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 3,
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -349305,8 +349305,8 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -349832,8 +349832,8 @@
         },
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 6,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
