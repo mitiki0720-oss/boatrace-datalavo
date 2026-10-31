@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "boatrace-ex-racer-features",
-  "generatedAt": "2026-10-31T00:32:13.435Z",
+  "generatedAt": "2026-10-31T00:48:54.686Z",
   "identityPolicy": "registrationNo exact registry identity only; no name-only identity",
   "sourceFiles": [
     "public/data/boatrace-ex/identity/registered-racers.generated.json",
@@ -167,8 +167,8 @@
     "exactLinkedRacerCount": 1607,
     "lowSampleRacerCount": 254,
     "appearanceCount": 61128,
-    "resultSampleCount": 16273,
-    "historyStartCount": 16273,
+    "resultSampleCount": 16291,
+    "historyStartCount": 16291,
     "dateRange": {
       "first": "2026-05-24",
       "last": "2026-10-31",
@@ -798,12 +798,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "condition": "morning / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         },
@@ -3952,6 +3952,11 @@
       },
       "conditionSamples": [
         {
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "night / 晴 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
@@ -3960,11 +3965,6 @@
           "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 5,
           "sampleLevel": "limited"
-        },
-        {
-          "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
         }
       ],
       "recent": {
@@ -4001,8 +4001,8 @@
       "branch": "東京",
       "className": "B1",
       "appearanceCount": 45,
-      "resultSampleCount": 14,
-      "historyStarts": 14,
+      "resultSampleCount": 15,
+      "historyStarts": 15,
       "firstSeen": "2026-07-19",
       "lastSeen": "2026-10-31",
       "sourceCount": 45,
@@ -4068,15 +4068,15 @@
           "venueCode": "18",
           "venueName": "徳山",
           "appearanceCount": 5,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
           "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 0,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "04",
@@ -4150,15 +4150,15 @@
         {
           "frameNo": 4,
           "appearanceCount": 9,
-          "resultSampleCount": 4,
-          "starts": 4,
+          "resultSampleCount": 5,
+          "starts": 5,
           "wins": 0,
           "top2": 4,
-          "top3": 4,
+          "top3": 5,
           "firstRate": 0,
-          "top2Rate": 1,
+          "top2Rate": 0.8,
           "top3Rate": 1,
-          "sampleLevel": "low-sample"
+          "sampleLevel": "limited"
         },
         {
           "frameNo": 5,
@@ -4188,10 +4188,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 23,
-        "average": 0.163,
+        "sampleCount": 24,
+        "average": 0.164,
         "median": 0.16,
-        "standardDeviation": 0.061,
+        "standardDeviation": 0.06,
         "fastStartCount": 4,
         "lateStartCount": 6,
         "sampleLevel": "sufficient"
@@ -4228,15 +4228,15 @@
           "appearanceCount": 10,
           "resultSampleCount": 10,
           "starts": 10,
-          "averageST": 0.17,
+          "averageST": 0.172,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 22,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": null,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.19,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -6204,12 +6204,12 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 17,
-        "average": 0.191,
-        "median": 0.19,
-        "standardDeviation": 0.084,
+        "sampleCount": 18,
+        "average": 0.193,
+        "median": 0.195,
+        "standardDeviation": 0.082,
         "fastStartCount": 2,
-        "lateStartCount": 8,
+        "lateStartCount": 9,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
@@ -6251,7 +6251,7 @@
           "appearanceCount": 19,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": null,
+          "averageST": 0.22,
           "top3Rate": null
         }
       },
@@ -6919,7 +6919,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -9446,10 +9446,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 27,
+        "sampleCount": 28,
         "average": 0.17,
         "median": 0.17,
-        "standardDeviation": 0.066,
+        "standardDeviation": 0.065,
         "fastStartCount": 5,
         "lateStartCount": 10,
         "sampleLevel": "sufficient"
@@ -9462,8 +9462,8 @@
       "conditionSamples": [
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 8,
-          "sampleLevel": "limited"
+          "count": 10,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
@@ -9495,7 +9495,7 @@
           "appearanceCount": 27,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": 0.105,
+          "averageST": 0.13,
           "top3Rate": null
         }
       },
@@ -9905,10 +9905,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 25,
+        "sampleCount": 26,
         "average": 0.145,
-        "median": 0.14,
-        "standardDeviation": 0.067,
+        "median": 0.145,
+        "standardDeviation": 0.065,
         "fastStartCount": 7,
         "lateStartCount": 5,
         "sampleLevel": "sufficient"
@@ -9920,6 +9920,11 @@
       },
       "conditionSamples": [
         {
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 9,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 9,
           "sampleLevel": "limited"
@@ -9927,11 +9932,6 @@
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 8,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -9954,7 +9954,7 @@
           "appearanceCount": 23,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": null,
+          "averageST": 0.15,
           "top3Rate": null
         }
       },
@@ -12457,8 +12457,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 3-5m / 3-5cm",
-          "count": 3,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -17024,8 +17024,8 @@
       "conditionSamples": [
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 8,
-          "sampleLevel": "limited"
+          "count": 10,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "morning / 曇り / 0-2m / 0-2cm",
@@ -17464,10 +17464,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 21,
+        "sampleCount": 22,
         "average": 0.168,
-        "median": 0.16,
-        "standardDeviation": 0.048,
+        "median": 0.165,
+        "standardDeviation": 0.047,
         "fastStartCount": 2,
         "lateStartCount": 6,
         "sampleLevel": "sufficient"
@@ -17514,7 +17514,7 @@
           "appearanceCount": 18,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": 0.2,
+          "averageST": 0.193,
           "top3Rate": null
         }
       },
@@ -18210,8 +18210,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 3,
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -19945,10 +19945,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 17,
-        "average": 0.191,
+        "sampleCount": 18,
+        "average": 0.189,
         "median": 0.18,
-        "standardDeviation": 0.078,
+        "standardDeviation": 0.077,
         "fastStartCount": 2,
         "lateStartCount": 7,
         "sampleLevel": "sufficient"
@@ -19970,7 +19970,7 @@
         },
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -19993,7 +19993,7 @@
           "appearanceCount": 23,
           "resultSampleCount": 1,
           "starts": 1,
-          "averageST": 0.18,
+          "averageST": 0.17,
           "top3Rate": 1
         }
       },
@@ -23311,8 +23311,8 @@
       "branch": "佐賀",
       "className": "A2",
       "appearanceCount": 55,
-      "resultSampleCount": 13,
-      "historyStarts": 13,
+      "resultSampleCount": 14,
+      "historyStarts": 14,
       "firstSeen": "2026-07-19",
       "lastSeen": "2026-10-31",
       "sourceCount": 55,
@@ -23392,15 +23392,15 @@
           "venueCode": "18",
           "venueName": "徳山",
           "appearanceCount": 6,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "resultSampleCount": 1,
+          "starts": 1,
+          "wins": 1,
+          "top2": 1,
+          "top3": 1,
+          "winRate": 1,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "11",
@@ -23435,13 +23435,13 @@
         {
           "frameNo": 1,
           "appearanceCount": 9,
-          "resultSampleCount": 3,
-          "starts": 3,
-          "wins": 1,
-          "top2": 2,
-          "top3": 3,
-          "firstRate": 0.3333,
-          "top2Rate": 0.6667,
+          "resultSampleCount": 4,
+          "starts": 4,
+          "wins": 2,
+          "top2": 3,
+          "top3": 4,
+          "firstRate": 0.5,
+          "top2Rate": 0.75,
           "top3Rate": 1,
           "sampleLevel": "low-sample"
         },
@@ -23512,17 +23512,17 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 30,
+        "sampleCount": 31,
         "average": 0.159,
         "median": 0.16,
-        "standardDeviation": 0.07,
+        "standardDeviation": 0.069,
         "fastStartCount": 5,
         "lateStartCount": 10,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
         "差し": 1,
-        "逃げ": 1,
+        "逃げ": 2,
         "まくり": 1
       },
       "conditionSamples": [
@@ -23537,9 +23537,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -23547,7 +23547,7 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.13,
+          "averageST": 0.136,
           "top3Rate": 1
         },
         "last10": {
@@ -23559,9 +23559,9 @@
         },
         "last30Days": {
           "appearanceCount": 25,
-          "resultSampleCount": 1,
-          "starts": 1,
-          "averageST": 0.195,
+          "resultSampleCount": 2,
+          "starts": 2,
+          "averageST": 0.183,
           "top3Rate": 1
         }
       },
@@ -26026,9 +26026,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 3,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -26728,8 +26728,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 曇り / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -30261,7 +30261,7 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 5,
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -32118,7 +32118,7 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -32792,13 +32792,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 3,
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -34724,12 +34724,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 雨 / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "condition": "morning / 雨 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -35438,17 +35438,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 7,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         },
         {
           "condition": "morning / 曇り / 0-2m / 0-2cm",
-          "count": 7,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         }
@@ -35714,8 +35714,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 5,
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -37148,7 +37148,7 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 5,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -37976,7 +37976,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -43030,8 +43030,8 @@
       "branch": "長崎",
       "className": "B1",
       "appearanceCount": 46,
-      "resultSampleCount": 7,
-      "historyStarts": 7,
+      "resultSampleCount": 8,
+      "historyStarts": 8,
       "firstSeen": "2026-07-19",
       "lastSeen": "2026-10-31",
       "sourceCount": 46,
@@ -43097,15 +43097,15 @@
           "venueCode": "23",
           "venueName": "唐津",
           "appearanceCount": 7,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top2": 1,
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         }
       ],
       "frames": [
@@ -43138,11 +43138,11 @@
         {
           "frameNo": 3,
           "appearanceCount": 11,
-          "resultSampleCount": 2,
-          "starts": 2,
+          "resultSampleCount": 3,
+          "starts": 3,
           "wins": 0,
-          "top2": 2,
-          "top3": 2,
+          "top2": 3,
+          "top3": 3,
           "firstRate": 0,
           "top2Rate": 1,
           "top3Rate": 1,
@@ -43189,11 +43189,11 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 20,
-        "average": 0.198,
-        "median": 0.165,
-        "standardDeviation": 0.096,
-        "fastStartCount": 4,
+        "sampleCount": 21,
+        "average": 0.191,
+        "median": 0.16,
+        "standardDeviation": 0.098,
+        "fastStartCount": 5,
         "lateStartCount": 8,
         "sampleLevel": "sufficient"
       },
@@ -43222,22 +43222,22 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.186,
+          "averageST": 0.164,
           "top3Rate": 1
         },
         "last10": {
-          "appearanceCount": 7,
-          "resultSampleCount": 7,
-          "starts": 7,
-          "averageST": 0.2,
+          "appearanceCount": 8,
+          "resultSampleCount": 8,
+          "starts": 8,
+          "averageST": 0.183,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 26,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": null,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.06,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -44520,12 +44520,12 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 30,
-        "average": 0.164,
-        "median": 0.155,
-        "standardDeviation": 0.057,
+        "sampleCount": 31,
+        "average": 0.167,
+        "median": 0.16,
+        "standardDeviation": 0.058,
         "fastStartCount": 2,
-        "lateStartCount": 7,
+        "lateStartCount": 8,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
@@ -44540,13 +44540,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 3,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -44569,7 +44569,7 @@
           "appearanceCount": 22,
           "resultSampleCount": 1,
           "starts": 1,
-          "averageST": 0.185,
+          "averageST": 0.207,
           "top3Rate": 1
         }
       },
@@ -45758,7 +45758,7 @@
       "winMethodCounts": {},
       "conditionSamples": [
         {
-          "condition": "day / 確認中 / 未取得 / 未取得",
+          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 1,
           "sampleLevel": "low-sample"
         }
@@ -46463,7 +46463,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 曇り / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -48832,8 +48832,8 @@
       "branch": "福岡",
       "className": "B1",
       "appearanceCount": 41,
-      "resultSampleCount": 11,
-      "historyStarts": 11,
+      "resultSampleCount": 12,
+      "historyStarts": 12,
       "firstSeen": "2026-08-31",
       "lastSeen": "2026-10-31",
       "sourceCount": 41,
@@ -48885,15 +48885,15 @@
           "venueCode": "23",
           "venueName": "唐津",
           "appearanceCount": 8,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
           "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 0,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         }
       ],
       "frames": [
@@ -48952,11 +48952,11 @@
         {
           "frameNo": 5,
           "appearanceCount": 6,
-          "resultSampleCount": 1,
-          "starts": 1,
+          "resultSampleCount": 2,
+          "starts": 2,
           "wins": 0,
           "top2": 0,
-          "top3": 1,
+          "top3": 2,
           "firstRate": 0,
           "top2Rate": 0,
           "top3Rate": 1,
@@ -48977,12 +48977,12 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 21,
-        "average": 0.153,
+        "sampleCount": 22,
+        "average": 0.157,
         "median": 0.15,
-        "standardDeviation": 0.062,
+        "standardDeviation": 0.064,
         "fastStartCount": 4,
-        "lateStartCount": 6,
+        "lateStartCount": 7,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
@@ -49012,22 +49012,22 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.12,
+          "averageST": 0.128,
           "top3Rate": 1
         },
         "last10": {
           "appearanceCount": 10,
           "resultSampleCount": 10,
           "starts": 10,
-          "averageST": 0.144,
+          "averageST": 0.158,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 17,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": null,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.25,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -52124,12 +52124,12 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 18,
-        "average": 0.144,
-        "median": 0.135,
-        "standardDeviation": 0.066,
+        "sampleCount": 19,
+        "average": 0.149,
+        "median": 0.14,
+        "standardDeviation": 0.068,
         "fastStartCount": 5,
-        "lateStartCount": 4,
+        "lateStartCount": 5,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
@@ -52137,12 +52137,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 8,
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 8,
           "sampleLevel": "limited"
         },
@@ -52171,7 +52171,7 @@
           "appearanceCount": 24,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": null,
+          "averageST": 0.24,
           "top3Rate": null
         }
       },
@@ -52398,8 +52398,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -53081,13 +53081,13 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -55452,12 +55452,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "condition": "night / 晴 / 3-5m / 3-5cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -55669,11 +55669,11 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 19,
-        "average": 0.161,
-        "median": 0.14,
-        "standardDeviation": 0.059,
-        "fastStartCount": 3,
+        "sampleCount": 20,
+        "average": 0.156,
+        "median": 0.135,
+        "standardDeviation": 0.062,
+        "fastStartCount": 4,
         "lateStartCount": 5,
         "sampleLevel": "sufficient"
       },
@@ -55714,7 +55714,7 @@
           "appearanceCount": 23,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": 0.21,
+          "averageST": 0.16,
           "top3Rate": null
         }
       },
@@ -56320,13 +56320,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 3-5m / 0-2cm",
-          "count": 3,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -57018,13 +57018,13 @@
       "winMethodCounts": {},
       "conditionSamples": [
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 5,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -60236,14 +60236,14 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 3,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -69798,8 +69798,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -70286,7 +70286,7 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -70522,7 +70522,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -72448,6 +72448,11 @@
       },
       "conditionSamples": [
         {
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 7,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
@@ -72455,11 +72460,6 @@
         {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 6,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 5,
           "sampleLevel": "limited"
         }
       ],
@@ -73810,8 +73810,8 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
@@ -74972,7 +74972,7 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -76360,7 +76360,7 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -78032,12 +78032,12 @@
       "winMethodCounts": {},
       "conditionSamples": [
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "condition": "night / 晴 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
@@ -78081,8 +78081,8 @@
       "branch": "大阪",
       "className": "B1",
       "appearanceCount": 31,
-      "resultSampleCount": 7,
-      "historyStarts": 7,
+      "resultSampleCount": 8,
+      "historyStarts": 8,
       "firstSeen": "2026-07-13",
       "lastSeen": "2026-10-31",
       "sourceCount": 31,
@@ -78148,15 +78148,15 @@
           "venueCode": "14",
           "venueName": "鳴門",
           "appearanceCount": 4,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
           "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 0,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "16",
@@ -78242,24 +78242,24 @@
         {
           "frameNo": 6,
           "appearanceCount": 4,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
           "top2": 0,
-          "top3": 0,
-          "firstRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top3": 1,
+          "firstRate": 0,
+          "top2Rate": 0,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         }
       ],
       "startTiming": {
-        "sampleCount": 15,
-        "average": 0.159,
-        "median": 0.15,
-        "standardDeviation": 0.053,
+        "sampleCount": 16,
+        "average": 0.165,
+        "median": 0.155,
+        "standardDeviation": 0.057,
         "fastStartCount": 2,
-        "lateStartCount": 3,
+        "lateStartCount": 4,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {},
@@ -78285,22 +78285,22 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.168,
+          "averageST": 0.184,
           "top3Rate": 1
         },
         "last10": {
-          "appearanceCount": 7,
-          "resultSampleCount": 7,
-          "starts": 7,
-          "averageST": 0.174,
+          "appearanceCount": 8,
+          "resultSampleCount": 8,
+          "starts": 8,
+          "averageST": 0.185,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 16,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": null,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.26,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -79887,8 +79887,8 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 9,
-          "sampleLevel": "limited"
+          "count": 11,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
@@ -80674,8 +80674,8 @@
       "branch": "長崎",
       "className": "B1",
       "appearanceCount": 39,
-      "resultSampleCount": 6,
-      "historyStarts": 6,
+      "resultSampleCount": 7,
+      "historyStarts": 7,
       "firstSeen": "2026-08-31",
       "lastSeen": "2026-10-31",
       "sourceCount": 39,
@@ -80741,15 +80741,15 @@
           "venueCode": "18",
           "venueName": "徳山",
           "appearanceCount": 5,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top2": 1,
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         }
       ],
       "frames": [
@@ -80808,15 +80808,15 @@
         {
           "frameNo": 5,
           "appearanceCount": 6,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "firstRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top2": 1,
+          "top3": 1,
+          "firstRate": 0,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "frameNo": 6,
@@ -80833,12 +80833,12 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 19,
-        "average": 0.179,
-        "median": 0.16,
-        "standardDeviation": 0.065,
+        "sampleCount": 20,
+        "average": 0.184,
+        "median": 0.165,
+        "standardDeviation": 0.068,
         "fastStartCount": 0,
-        "lateStartCount": 4,
+        "lateStartCount": 5,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
@@ -80867,22 +80867,22 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.17,
+          "averageST": 0.198,
           "top3Rate": 1
         },
         "last10": {
-          "appearanceCount": 6,
-          "resultSampleCount": 6,
-          "starts": 6,
-          "averageST": 0.162,
+          "appearanceCount": 7,
+          "resultSampleCount": 7,
+          "starts": 7,
+          "averageST": 0.18,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 21,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": 0.33,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.31,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -83932,12 +83932,12 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 晴 / 0-2m / 3-5cm",
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -85097,19 +85097,19 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 12,
-        "average": 0.16,
-        "median": 0.145,
-        "standardDeviation": 0.057,
+        "sampleCount": 13,
+        "average": 0.17,
+        "median": 0.15,
+        "standardDeviation": 0.065,
         "fastStartCount": 0,
-        "lateStartCount": 2,
+        "lateStartCount": 3,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {},
       "conditionSamples": [
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -85142,7 +85142,7 @@
           "appearanceCount": 15,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": null,
+          "averageST": 0.29,
           "top3Rate": null
         }
       },
@@ -89249,14 +89249,14 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 10,
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 9,
-          "sampleLevel": "limited"
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 10,
+          "sampleLevel": "sufficient"
         }
       ],
       "recent": {
@@ -90119,17 +90119,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 7,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
           "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 6,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         }
@@ -91976,8 +91976,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
-          "count": 3,
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -94994,13 +94994,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "night / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -98200,8 +98200,8 @@
       "branch": "山口",
       "className": "A1",
       "appearanceCount": 51,
-      "resultSampleCount": 21,
-      "historyStarts": 21,
+      "resultSampleCount": 22,
+      "historyStarts": 22,
       "firstSeen": "2026-07-13",
       "lastSeen": "2026-10-31",
       "sourceCount": 51,
@@ -98281,15 +98281,15 @@
           "venueCode": "18",
           "venueName": "徳山",
           "appearanceCount": 5,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top2": 1,
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "06",
@@ -98363,15 +98363,15 @@
         {
           "frameNo": 4,
           "appearanceCount": 10,
-          "resultSampleCount": 4,
-          "starts": 4,
+          "resultSampleCount": 5,
+          "starts": 5,
           "wins": 1,
-          "top2": 3,
-          "top3": 4,
-          "firstRate": 0.25,
-          "top2Rate": 0.75,
+          "top2": 4,
+          "top3": 5,
+          "firstRate": 0.2,
+          "top2Rate": 0.8,
           "top3Rate": 1,
-          "sampleLevel": "low-sample"
+          "sampleLevel": "limited"
         },
         {
           "frameNo": 5,
@@ -98401,10 +98401,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 26,
-        "average": 0.135,
+        "sampleCount": 27,
+        "average": 0.136,
         "median": 0.13,
-        "standardDeviation": 0.066,
+        "standardDeviation": 0.065,
         "fastStartCount": 10,
         "lateStartCount": 4,
         "sampleLevel": "sufficient"
@@ -98436,21 +98436,21 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.102,
+          "averageST": 0.106,
           "top3Rate": 1
         },
         "last10": {
           "appearanceCount": 10,
           "resultSampleCount": 10,
           "starts": 10,
-          "averageST": 0.126,
+          "averageST": 0.133,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 25,
-          "resultSampleCount": 2,
-          "starts": 2,
-          "averageST": 0.135,
+          "resultSampleCount": 3,
+          "starts": 3,
+          "averageST": 0.14,
           "top3Rate": 1
         }
       },
@@ -100984,8 +100984,8 @@
       "branch": "東京",
       "className": "A2",
       "appearanceCount": 50,
-      "resultSampleCount": 15,
-      "historyStarts": 15,
+      "resultSampleCount": 16,
+      "historyStarts": 16,
       "firstSeen": "2026-07-19",
       "lastSeen": "2026-10-31",
       "sourceCount": 50,
@@ -101065,15 +101065,15 @@
           "venueCode": "18",
           "venueName": "徳山",
           "appearanceCount": 5,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
           "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 0,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         }
       ],
       "frames": [
@@ -101093,13 +101093,13 @@
         {
           "frameNo": 2,
           "appearanceCount": 10,
-          "resultSampleCount": 3,
-          "starts": 3,
+          "resultSampleCount": 4,
+          "starts": 4,
           "wins": 2,
           "top2": 3,
-          "top3": 3,
-          "firstRate": 0.6667,
-          "top2Rate": 1,
+          "top3": 4,
+          "firstRate": 0.5,
+          "top2Rate": 0.75,
           "top3Rate": 1,
           "sampleLevel": "low-sample"
         },
@@ -101157,11 +101157,11 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 24,
-        "average": 0.18,
+        "sampleCount": 25,
+        "average": 0.177,
         "median": 0.17,
-        "standardDeviation": 0.045,
-        "fastStartCount": 0,
+        "standardDeviation": 0.047,
+        "fastStartCount": 1,
         "lateStartCount": 7,
         "sampleLevel": "sufficient"
       },
@@ -101182,7 +101182,7 @@
         },
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -101191,21 +101191,21 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.17,
+          "averageST": 0.158,
           "top3Rate": 1
         },
         "last10": {
           "appearanceCount": 10,
           "resultSampleCount": 10,
           "starts": 10,
-          "averageST": 0.172,
+          "averageST": 0.167,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 27,
-          "resultSampleCount": 1,
-          "starts": 1,
-          "averageST": 0.165,
+          "resultSampleCount": 2,
+          "starts": 2,
+          "averageST": 0.14,
           "top3Rate": 1
         }
       },
@@ -101433,8 +101433,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -101631,10 +101631,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 17,
-        "average": 0.158,
-        "median": 0.14,
-        "standardDeviation": 0.077,
+        "sampleCount": 18,
+        "average": 0.155,
+        "median": 0.135,
+        "standardDeviation": 0.075,
         "fastStartCount": 3,
         "lateStartCount": 4,
         "sampleLevel": "sufficient"
@@ -101656,9 +101656,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 3,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -101680,7 +101680,7 @@
           "appearanceCount": 20,
           "resultSampleCount": 1,
           "starts": 1,
-          "averageST": 0.25,
+          "averageST": 0.203,
           "top3Rate": 1
         }
       },
@@ -102067,14 +102067,14 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -102289,13 +102289,13 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 6,
+          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -111391,8 +111391,8 @@
       "branch": "滋賀",
       "className": "A1",
       "appearanceCount": 53,
-      "resultSampleCount": 20,
-      "historyStarts": 20,
+      "resultSampleCount": 21,
+      "historyStarts": 21,
       "firstSeen": "2026-07-13",
       "lastSeen": "2026-10-31",
       "sourceCount": 53,
@@ -111458,15 +111458,15 @@
           "venueCode": "18",
           "venueName": "徳山",
           "appearanceCount": 5,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "resultSampleCount": 1,
+          "starts": 1,
+          "wins": 1,
+          "top2": 1,
+          "top3": 1,
+          "winRate": 1,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "05",
@@ -111487,15 +111487,15 @@
         {
           "frameNo": 1,
           "appearanceCount": 14,
-          "resultSampleCount": 9,
-          "starts": 9,
-          "wins": 9,
-          "top2": 9,
-          "top3": 9,
+          "resultSampleCount": 10,
+          "starts": 10,
+          "wins": 10,
+          "top2": 10,
+          "top3": 10,
           "firstRate": 1,
           "top2Rate": 1,
           "top3Rate": 1,
-          "sampleLevel": "limited"
+          "sampleLevel": "sufficient"
         },
         {
           "frameNo": 2,
@@ -111564,17 +111564,17 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 24,
-        "average": 0.116,
+        "sampleCount": 25,
+        "average": 0.118,
         "median": 0.11,
-        "standardDeviation": 0.06,
+        "standardDeviation": 0.059,
         "fastStartCount": 11,
         "lateStartCount": 3,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
         "逃げ": 6,
-        "抜き": 1,
+        "抜き": 2,
         "まくり差し": 2
       },
       "conditionSamples": [
@@ -111611,10 +111611,10 @@
         },
         "last30Days": {
           "appearanceCount": 25,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": null,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.16,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -115027,14 +115027,14 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "night / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -116239,7 +116239,7 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 3,
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -118017,13 +118017,13 @@
       },
       "conditionSamples": [
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 7,
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 6,
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -120511,12 +120511,12 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -122094,8 +122094,8 @@
       "branch": "愛知",
       "className": "A1",
       "appearanceCount": 58,
-      "resultSampleCount": 21,
-      "historyStarts": 21,
+      "resultSampleCount": 22,
+      "historyStarts": 22,
       "firstSeen": "2026-07-19",
       "lastSeen": "2026-10-31",
       "sourceCount": 58,
@@ -122175,15 +122175,15 @@
           "venueCode": "14",
           "venueName": "鳴門",
           "appearanceCount": 6,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top2": 1,
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "22",
@@ -122218,12 +122218,12 @@
         {
           "frameNo": 1,
           "appearanceCount": 13,
-          "resultSampleCount": 8,
-          "starts": 8,
+          "resultSampleCount": 9,
+          "starts": 9,
           "wins": 6,
-          "top2": 8,
-          "top3": 8,
-          "firstRate": 0.75,
+          "top2": 9,
+          "top3": 9,
+          "firstRate": 0.6667,
           "top2Rate": 1,
           "top3Rate": 1,
           "sampleLevel": "limited"
@@ -122295,10 +122295,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 34,
+        "sampleCount": 35,
         "average": 0.159,
         "median": 0.16,
-        "standardDeviation": 0.069,
+        "standardDeviation": 0.068,
         "fastStartCount": 5,
         "lateStartCount": 8,
         "sampleLevel": "sufficient"
@@ -122331,22 +122331,22 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.18,
+          "averageST": 0.176,
           "top3Rate": 1
         },
         "last10": {
           "appearanceCount": 10,
           "resultSampleCount": 10,
           "starts": 10,
-          "averageST": 0.197,
+          "averageST": 0.187,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 24,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": null,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.16,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -122547,11 +122547,11 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 22,
-        "average": 0.143,
+        "sampleCount": 23,
+        "average": 0.141,
         "median": 0.14,
         "standardDeviation": 0.068,
-        "fastStartCount": 9,
+        "fastStartCount": 10,
         "lateStartCount": 6,
         "sampleLevel": "sufficient"
       },
@@ -122594,7 +122594,7 @@
           "appearanceCount": 20,
           "resultSampleCount": 1,
           "starts": 1,
-          "averageST": 0.2,
+          "averageST": 0.167,
           "top3Rate": 1
         }
       },
@@ -127874,8 +127874,8 @@
         },
         {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
@@ -129271,8 +129271,8 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 9,
-          "sampleLevel": "limited"
+          "count": 11,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
@@ -129734,12 +129734,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 6,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 3-5cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 6,
           "sampleLevel": "limited"
         }
@@ -134245,7 +134245,7 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 8,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -138023,8 +138023,8 @@
       "branch": "福岡",
       "className": "A2",
       "appearanceCount": 56,
-      "resultSampleCount": 16,
-      "historyStarts": 16,
+      "resultSampleCount": 17,
+      "historyStarts": 17,
       "firstSeen": "2026-07-19",
       "lastSeen": "2026-10-31",
       "sourceCount": 56,
@@ -138076,15 +138076,15 @@
           "venueCode": "23",
           "venueName": "唐津",
           "appearanceCount": 9,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "resultSampleCount": 1,
+          "starts": 1,
+          "wins": 1,
+          "top2": 1,
+          "top3": 1,
+          "winRate": 1,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "16",
@@ -138133,11 +138133,11 @@
         {
           "frameNo": 1,
           "appearanceCount": 13,
-          "resultSampleCount": 5,
-          "starts": 5,
-          "wins": 5,
-          "top2": 5,
-          "top3": 5,
+          "resultSampleCount": 6,
+          "starts": 6,
+          "wins": 6,
+          "top2": 6,
+          "top3": 6,
           "firstRate": 1,
           "top2Rate": 1,
           "top3Rate": 1,
@@ -138210,16 +138210,16 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 30,
-        "average": 0.183,
-        "median": 0.17,
-        "standardDeviation": 0.083,
+        "sampleCount": 31,
+        "average": 0.181,
+        "median": 0.16,
+        "standardDeviation": 0.082,
         "fastStartCount": 4,
         "lateStartCount": 13,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
-        "逃げ": 5,
+        "逃げ": 6,
         "差し": 2,
         "まくり": 3
       },
@@ -138245,22 +138245,22 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.186,
+          "averageST": 0.17,
           "top3Rate": 1
         },
         "last10": {
           "appearanceCount": 10,
           "resultSampleCount": 10,
           "starts": 10,
-          "averageST": 0.186,
+          "averageST": 0.176,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 26,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": null,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.14,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -138479,7 +138479,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 12,
+          "count": 14,
           "sampleLevel": "sufficient"
         },
         {
@@ -140044,7 +140044,7 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -141887,7 +141887,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 8,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -144248,7 +144248,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 8,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -144731,7 +144731,7 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -146750,13 +146750,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -147930,7 +147930,7 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -152073,7 +152073,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 6,
           "sampleLevel": "limited"
         }
@@ -153409,7 +153409,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 11,
+          "count": 13,
           "sampleLevel": "sufficient"
         },
         {
@@ -156055,14 +156055,14 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -162973,7 +162973,7 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
@@ -166987,8 +166987,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -167243,7 +167243,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 6,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -168860,13 +168860,13 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -171231,8 +171231,8 @@
       "branch": "広島",
       "className": "B1",
       "appearanceCount": 47,
-      "resultSampleCount": 13,
-      "historyStarts": 13,
+      "resultSampleCount": 14,
+      "historyStarts": 14,
       "firstSeen": "2026-07-13",
       "lastSeen": "2026-10-31",
       "sourceCount": 47,
@@ -171312,15 +171312,15 @@
           "venueCode": "14",
           "venueName": "鳴門",
           "appearanceCount": 5,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top2": 1,
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "23",
@@ -171354,11 +171354,11 @@
         {
           "frameNo": 2,
           "appearanceCount": 7,
-          "resultSampleCount": 1,
-          "starts": 1,
+          "resultSampleCount": 2,
+          "starts": 2,
           "wins": 0,
-          "top2": 1,
-          "top3": 1,
+          "top2": 2,
+          "top3": 2,
           "firstRate": 0,
           "top2Rate": 1,
           "top3Rate": 1,
@@ -171418,11 +171418,11 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 21,
-        "average": 0.129,
+        "sampleCount": 22,
+        "average": 0.125,
         "median": 0.13,
-        "standardDeviation": 0.045,
-        "fastStartCount": 7,
+        "standardDeviation": 0.047,
+        "fastStartCount": 8,
         "lateStartCount": 2,
         "sampleLevel": "sufficient"
       },
@@ -171453,21 +171453,21 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.098,
+          "averageST": 0.09,
           "top3Rate": 1
         },
         "last10": {
           "appearanceCount": 10,
           "resultSampleCount": 10,
           "starts": 10,
-          "averageST": 0.107,
+          "averageST": 0.103,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 27,
-          "resultSampleCount": 1,
-          "starts": 1,
-          "averageST": 0.125,
+          "resultSampleCount": 2,
+          "starts": 2,
+          "averageST": 0.1,
           "top3Rate": 1
         }
       },
@@ -172616,7 +172616,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -172823,7 +172823,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 6,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -173972,9 +173972,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -179067,10 +179067,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 16,
-        "average": 0.164,
+        "sampleCount": 17,
+        "average": 0.163,
         "median": 0.14,
-        "standardDeviation": 0.073,
+        "standardDeviation": 0.071,
         "fastStartCount": 4,
         "lateStartCount": 5,
         "sampleLevel": "sufficient"
@@ -179091,8 +179091,8 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 2,
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -179115,7 +179115,7 @@
           "appearanceCount": 5,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": null,
+          "averageST": 0.14,
           "top3Rate": null
         }
       },
@@ -179294,12 +179294,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "condition": "day / 曇り / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -180009,13 +180009,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -180256,7 +180256,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 10,
+          "count": 11,
           "sampleLevel": "sufficient"
         },
         {
@@ -183507,8 +183507,8 @@
       "branch": "福岡",
       "className": "B1",
       "appearanceCount": 37,
-      "resultSampleCount": 5,
-      "historyStarts": 5,
+      "resultSampleCount": 6,
+      "historyStarts": 6,
       "firstSeen": "2026-09-09",
       "lastSeen": "2026-10-31",
       "sourceCount": 37,
@@ -183560,15 +183560,15 @@
           "venueCode": "23",
           "venueName": "唐津",
           "appearanceCount": 8,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
           "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 0,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         }
       ],
       "frames": [
@@ -183627,13 +183627,13 @@
         {
           "frameNo": 5,
           "appearanceCount": 6,
-          "resultSampleCount": 1,
-          "starts": 1,
+          "resultSampleCount": 2,
+          "starts": 2,
           "wins": 1,
           "top2": 1,
-          "top3": 1,
-          "firstRate": 1,
-          "top2Rate": 1,
+          "top3": 2,
+          "firstRate": 0.5,
+          "top2Rate": 0.5,
           "top3Rate": 1,
           "sampleLevel": "low-sample"
         },
@@ -183652,10 +183652,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 14,
-        "average": 0.151,
-        "median": 0.16,
-        "standardDeviation": 0.103,
+        "sampleCount": 15,
+        "average": 0.153,
+        "median": 0.18,
+        "standardDeviation": 0.1,
         "fastStartCount": 5,
         "lateStartCount": 5,
         "sampleLevel": "sufficient"
@@ -183686,21 +183686,21 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.156,
+          "averageST": 0.166,
           "top3Rate": 1
         },
         "last10": {
-          "appearanceCount": 5,
-          "resultSampleCount": 5,
-          "starts": 5,
-          "averageST": 0.156,
+          "appearanceCount": 6,
+          "resultSampleCount": 6,
+          "starts": 6,
+          "averageST": 0.162,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 23,
-          "resultSampleCount": 1,
-          "starts": 1,
-          "averageST": 0.195,
+          "resultSampleCount": 2,
+          "starts": 2,
+          "averageST": 0.193,
           "top3Rate": 1
         }
       },
@@ -184138,7 +184138,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -185801,8 +185801,8 @@
       "branch": "佐賀",
       "className": "A2",
       "appearanceCount": 59,
-      "resultSampleCount": 21,
-      "historyStarts": 21,
+      "resultSampleCount": 22,
+      "historyStarts": 22,
       "firstSeen": "2026-07-13",
       "lastSeen": "2026-10-31",
       "sourceCount": 59,
@@ -185868,15 +185868,15 @@
           "venueCode": "23",
           "venueName": "唐津",
           "appearanceCount": 9,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "resultSampleCount": 1,
+          "starts": 1,
+          "wins": 1,
+          "top2": 1,
+          "top3": 1,
+          "winRate": 1,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "21",
@@ -185925,13 +185925,13 @@
         {
           "frameNo": 1,
           "appearanceCount": 13,
-          "resultSampleCount": 5,
-          "starts": 5,
-          "wins": 2,
-          "top2": 4,
-          "top3": 5,
-          "firstRate": 0.4,
-          "top2Rate": 0.8,
+          "resultSampleCount": 6,
+          "starts": 6,
+          "wins": 3,
+          "top2": 5,
+          "top3": 6,
+          "firstRate": 0.5,
+          "top2Rate": 0.8333,
           "top3Rate": 1,
           "sampleLevel": "limited"
         },
@@ -186002,18 +186002,18 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 30,
-        "average": 0.135,
+        "sampleCount": 31,
+        "average": 0.132,
         "median": 0.12,
-        "standardDeviation": 0.064,
-        "fastStartCount": 11,
+        "standardDeviation": 0.066,
+        "fastStartCount": 12,
         "lateStartCount": 4,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
         "まくり差し": 3,
         "差し": 2,
-        "逃げ": 2
+        "逃げ": 3
       },
       "conditionSamples": [
         {
@@ -186037,22 +186037,22 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.098,
+          "averageST": 0.08,
           "top3Rate": 1
         },
         "last10": {
           "appearanceCount": 10,
           "resultSampleCount": 10,
           "starts": 10,
-          "averageST": 0.107,
+          "averageST": 0.099,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 29,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": 0.2,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.143,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -186272,12 +186272,12 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 8,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 8,
           "sampleLevel": "limited"
         }
@@ -186704,8 +186704,8 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 6,
+          "sampleLevel": "limited"
         },
         {
           "condition": "night / 雨 / 0-2m / 0-2cm",
@@ -189022,7 +189022,7 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 2,
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -190408,6 +190408,11 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "morning / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
@@ -190416,11 +190421,6 @@
           "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
-        },
-        {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
         }
       ],
       "recent": {
@@ -196564,13 +196564,13 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 晴 / 0-2m / 3-5cm",
-          "count": 8,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 7,
+          "condition": "day / 晴 / 0-2m / 3-5cm",
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -197545,13 +197545,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 3,
+          "condition": "night / 晴 / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -198548,8 +198548,8 @@
       "branch": "東京",
       "className": "B1",
       "appearanceCount": 45,
-      "resultSampleCount": 15,
-      "historyStarts": 15,
+      "resultSampleCount": 16,
+      "historyStarts": 16,
       "firstSeen": "2026-07-19",
       "lastSeen": "2026-10-31",
       "sourceCount": 45,
@@ -198615,15 +198615,15 @@
           "venueCode": "14",
           "venueName": "鳴門",
           "appearanceCount": 5,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
           "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 0,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "10",
@@ -198709,11 +198709,11 @@
         {
           "frameNo": 6,
           "appearanceCount": 6,
-          "resultSampleCount": 1,
-          "starts": 1,
+          "resultSampleCount": 2,
+          "starts": 2,
           "wins": 0,
           "top2": 0,
-          "top3": 1,
+          "top3": 2,
           "firstRate": 0,
           "top2Rate": 0,
           "top3Rate": 1,
@@ -198721,11 +198721,11 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 21,
-        "average": 0.173,
+        "sampleCount": 22,
+        "average": 0.169,
         "median": 0.16,
-        "standardDeviation": 0.07,
-        "fastStartCount": 4,
+        "standardDeviation": 0.071,
+        "fastStartCount": 5,
         "lateStartCount": 5,
         "sampleLevel": "sufficient"
       },
@@ -198745,7 +198745,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -198755,22 +198755,22 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.182,
+          "averageST": 0.166,
           "top3Rate": 1
         },
         "last10": {
           "appearanceCount": 10,
           "resultSampleCount": 10,
           "starts": 10,
-          "averageST": 0.154,
+          "averageST": 0.147,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 23,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": 0.22,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.15,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -205887,13 +205887,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -212370,7 +212370,7 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -214351,9 +214351,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -217947,12 +217947,12 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -219199,12 +219199,12 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 16,
-        "average": 0.158,
+        "sampleCount": 17,
+        "average": 0.196,
         "median": 0.14,
-        "standardDeviation": 0.066,
+        "standardDeviation": 0.166,
         "fastStartCount": 2,
-        "lateStartCount": 4,
+        "lateStartCount": 5,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
@@ -219247,7 +219247,7 @@
           "appearanceCount": 20,
           "resultSampleCount": 1,
           "starts": 1,
-          "averageST": 0.19,
+          "averageST": 0.397,
           "top3Rate": 1
         }
       },
@@ -220535,6 +220535,11 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 4,
+          "sampleLevel": "low-sample"
+        },
+        {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 4,
           "sampleLevel": "low-sample"
@@ -220542,11 +220547,6 @@
         {
           "condition": "morning / 曇り / 0-2m / 0-2cm",
           "count": 4,
-          "sampleLevel": "low-sample"
-        },
-        {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 3,
           "sampleLevel": "low-sample"
         }
       ],
@@ -221209,14 +221209,14 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -221456,8 +221456,8 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 9,
-          "sampleLevel": "limited"
+          "count": 11,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
@@ -224913,13 +224913,13 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "day / 曇り / 0-2m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -225160,8 +225160,8 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 8,
-          "sampleLevel": "limited"
+          "count": 10,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
@@ -225421,7 +225421,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 3-5cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -228895,8 +228895,8 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 8,
-          "sampleLevel": "limited"
+          "count": 10,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
@@ -229150,13 +229150,13 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 7,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -230340,7 +230340,7 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 6,
+          "count": 8,
           "sampleLevel": "limited"
         }
       ],
@@ -233345,9 +233345,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -233587,8 +233587,8 @@
       "conditionSamples": [
         {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 9,
-          "sampleLevel": "limited"
+          "count": 11,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "night / 曇り / 0-2m / 0-2cm",
@@ -236521,9 +236521,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 6,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -239459,12 +239459,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 0-2cm",
+          "condition": "night / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -242536,12 +242536,12 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 34,
-        "average": 0.179,
-        "median": 0.165,
+        "sampleCount": 35,
+        "average": 0.181,
+        "median": 0.17,
         "standardDeviation": 0.077,
         "fastStartCount": 5,
-        "lateStartCount": 14,
+        "lateStartCount": 15,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
@@ -242554,7 +242554,7 @@
       "conditionSamples": [
         {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 8,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -242564,7 +242564,7 @@
         },
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 5,
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -242587,7 +242587,7 @@
           "appearanceCount": 18,
           "resultSampleCount": 1,
           "starts": 1,
-          "averageST": 0.07,
+          "averageST": 0.16,
           "top3Rate": 1
         }
       },
@@ -249865,7 +249865,7 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 6,
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
@@ -251028,7 +251028,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 8,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -252360,7 +252360,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 8,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -253594,13 +253594,13 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 8,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 7,
+          "condition": "day / 雨 / 0-2m / 0-2cm",
+          "count": 8,
           "sampleLevel": "limited"
         }
       ],
@@ -255228,9 +255228,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -257865,7 +257865,7 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / - / 未取得 / 未取得",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 1,
           "sampleLevel": "low-sample"
         }
@@ -258598,7 +258598,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -258862,12 +258862,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 雨 / 0-2m / 0-2cm",
-          "count": 7,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "condition": "day / 雨 / 0-2m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         },
@@ -262100,7 +262100,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 11,
+          "count": 13,
           "sampleLevel": "sufficient"
         },
         {
@@ -262340,7 +262340,7 @@
         },
         {
           "condition": "morning / 晴 / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -263240,14 +263240,14 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 6,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -267316,12 +267316,12 @@
           "sampleLevel": "sufficient"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 晴 / 3-5m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -268424,13 +268424,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 3,
+          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -271074,6 +271074,11 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 7,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
@@ -271081,11 +271086,6 @@
         {
           "condition": "night / 晴 / 0-2m / 0-2cm",
           "count": 6,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 5,
           "sampleLevel": "limited"
         }
       ],
@@ -271553,8 +271553,8 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
           "condition": "day / 雨 / 0-2m / 0-2cm",
@@ -272776,8 +272776,8 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 6,
+          "sampleLevel": "limited"
         },
         {
           "condition": "morning / 曇り / 0-2m / 0-2cm",
@@ -279531,7 +279531,7 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -280289,7 +280289,7 @@
       "winMethodCounts": {},
       "conditionSamples": [
         {
-          "condition": "day / 確認中 / 未取得 / 未取得",
+          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 1,
           "sampleLevel": "low-sample"
         }
@@ -280528,6 +280528,11 @@
       },
       "conditionSamples": [
         {
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 7,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 6,
           "sampleLevel": "limited"
@@ -280535,11 +280540,6 @@
         {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 6,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 5,
           "sampleLevel": "limited"
         }
       ],
@@ -280989,8 +280989,8 @@
       "branch": "静岡",
       "className": "B1",
       "appearanceCount": 44,
-      "resultSampleCount": 14,
-      "historyStarts": 14,
+      "resultSampleCount": 15,
+      "historyStarts": 15,
       "firstSeen": "2026-07-13",
       "lastSeen": "2026-10-31",
       "sourceCount": 44,
@@ -281056,15 +281056,15 @@
           "venueCode": "14",
           "venueName": "鳴門",
           "appearanceCount": 5,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "resultSampleCount": 1,
+          "starts": 1,
+          "wins": 1,
+          "top2": 1,
+          "top3": 1,
+          "winRate": 1,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "09",
@@ -281099,13 +281099,13 @@
         {
           "frameNo": 1,
           "appearanceCount": 5,
-          "resultSampleCount": 1,
-          "starts": 1,
-          "wins": 0,
-          "top2": 0,
-          "top3": 1,
-          "firstRate": 0,
-          "top2Rate": 0,
+          "resultSampleCount": 2,
+          "starts": 2,
+          "wins": 1,
+          "top2": 1,
+          "top3": 2,
+          "firstRate": 0.5,
+          "top2Rate": 0.5,
           "top3Rate": 1,
           "sampleLevel": "low-sample"
         },
@@ -281176,18 +281176,19 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 24,
-        "average": 0.14,
+        "sampleCount": 25,
+        "average": 0.136,
         "median": 0.13,
-        "standardDeviation": 0.053,
-        "fastStartCount": 7,
+        "standardDeviation": 0.055,
+        "fastStartCount": 8,
         "lateStartCount": 5,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
         "差し": 1,
         "まくり": 1,
-        "まくり差し": 1
+        "まくり差し": 1,
+        "抜き": 1
       },
       "conditionSamples": [
         {
@@ -281201,9 +281202,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -281211,22 +281212,22 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.122,
+          "averageST": 0.114,
           "top3Rate": 1
         },
         "last10": {
           "appearanceCount": 10,
           "resultSampleCount": 10,
           "starts": 10,
-          "averageST": 0.136,
+          "averageST": 0.115,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 20,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": null,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.05,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -281701,7 +281702,7 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 7,
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
@@ -283296,12 +283297,12 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 3,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 雨 / 3-5m / 3-5cm",
+          "condition": "day / 晴 / 3-5m / 3-5cm",
           "count": 3,
           "sampleLevel": "low-sample"
         }
@@ -286347,7 +286348,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 曇り / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -287870,7 +287871,7 @@
         },
         {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 3,
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -290222,12 +290223,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 7,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 9,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "condition": "day / 曇り / 0-2m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         },
@@ -291865,13 +291866,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 5,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         }
       ],
@@ -293312,14 +293313,14 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 曇り / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
@@ -295223,17 +295224,17 @@
       },
       "conditionSamples": [
         {
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 9,
+          "sampleLevel": "limited"
+        },
+        {
           "condition": "night / 晴 / 3-5m / 3-5cm",
           "count": 9,
           "sampleLevel": "limited"
         },
         {
           "condition": "night / 晴 / 0-2m / 0-2cm",
-          "count": 7,
-          "sampleLevel": "limited"
-        },
-        {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 7,
           "sampleLevel": "limited"
         }
@@ -297360,12 +297361,12 @@
       },
       "conditionSamples": [
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 5,
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "count": 6,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 5,
           "sampleLevel": "limited"
         },
@@ -304035,7 +304036,7 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 確認中 / 未取得 / 未取得",
+          "condition": "day / 晴 / 3-5m / 0-2cm",
           "count": 2,
           "sampleLevel": "low-sample"
         }
@@ -304518,8 +304519,8 @@
       "branch": "長崎",
       "className": "A2",
       "appearanceCount": 45,
-      "resultSampleCount": 15,
-      "historyStarts": 15,
+      "resultSampleCount": 16,
+      "historyStarts": 16,
       "firstSeen": "2026-07-19",
       "lastSeen": "2026-10-31",
       "sourceCount": 45,
@@ -304571,15 +304572,15 @@
           "venueCode": "23",
           "venueName": "唐津",
           "appearanceCount": 9,
-          "resultSampleCount": 0,
-          "starts": 0,
+          "resultSampleCount": 1,
+          "starts": 1,
           "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "top2": 1,
+          "top3": 1,
+          "winRate": 0,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "09",
@@ -304627,15 +304628,15 @@
         {
           "frameNo": 2,
           "appearanceCount": 7,
-          "resultSampleCount": 4,
-          "starts": 4,
+          "resultSampleCount": 5,
+          "starts": 5,
           "wins": 2,
-          "top2": 3,
-          "top3": 4,
-          "firstRate": 0.5,
-          "top2Rate": 0.75,
+          "top2": 4,
+          "top3": 5,
+          "firstRate": 0.4,
+          "top2Rate": 0.8,
           "top3Rate": 1,
-          "sampleLevel": "low-sample"
+          "sampleLevel": "limited"
         },
         {
           "frameNo": 3,
@@ -304691,10 +304692,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 23,
-        "average": 0.143,
-        "median": 0.15,
-        "standardDeviation": 0.07,
+        "sampleCount": 24,
+        "average": 0.145,
+        "median": 0.155,
+        "standardDeviation": 0.069,
         "fastStartCount": 9,
         "lateStartCount": 4,
         "sampleLevel": "sufficient"
@@ -304716,7 +304717,7 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -304726,21 +304727,21 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.156,
+          "averageST": 0.14,
           "top3Rate": 1
         },
         "last10": {
           "appearanceCount": 10,
           "resultSampleCount": 10,
           "starts": 10,
-          "averageST": 0.134,
+          "averageST": 0.144,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 24,
-          "resultSampleCount": 2,
-          "starts": 2,
-          "averageST": 0.08,
+          "resultSampleCount": 3,
+          "starts": 3,
+          "averageST": 0.117,
           "top3Rate": 1
         }
       },
@@ -305396,26 +305397,26 @@
       "branch": "徳島",
       "className": "B1",
       "appearanceCount": 44,
-      "resultSampleCount": 9,
-      "historyStarts": 9,
+      "resultSampleCount": 10,
+      "historyStarts": 10,
       "firstSeen": "2026-07-13",
       "lastSeen": "2026-10-31",
       "sourceCount": 44,
-      "sampleLevel": "limited",
+      "sampleLevel": "sufficient",
       "venues": [
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "appearanceCount": 14,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "wins": 0,
-          "top2": 0,
-          "top3": 0,
-          "winRate": null,
-          "top2Rate": null,
-          "top3Rate": null,
-          "sampleLevel": "no-history"
+          "resultSampleCount": 1,
+          "starts": 1,
+          "wins": 1,
+          "top2": 1,
+          "top3": 1,
+          "winRate": 1,
+          "top2Rate": 1,
+          "top3Rate": 1,
+          "sampleLevel": "low-sample"
         },
         {
           "venueCode": "04",
@@ -305530,13 +305531,13 @@
         {
           "frameNo": 5,
           "appearanceCount": 8,
-          "resultSampleCount": 2,
-          "starts": 2,
-          "wins": 0,
-          "top2": 1,
-          "top3": 2,
-          "firstRate": 0,
-          "top2Rate": 0.5,
+          "resultSampleCount": 3,
+          "starts": 3,
+          "wins": 1,
+          "top2": 2,
+          "top3": 3,
+          "firstRate": 0.3333,
+          "top2Rate": 0.6667,
           "top3Rate": 1,
           "sampleLevel": "low-sample"
         },
@@ -305555,16 +305556,17 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 20,
-        "average": 0.141,
+        "sampleCount": 21,
+        "average": 0.135,
         "median": 0.13,
-        "standardDeviation": 0.053,
-        "fastStartCount": 6,
+        "standardDeviation": 0.057,
+        "fastStartCount": 7,
         "lateStartCount": 3,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
-        "まくり差し": 1
+        "まくり差し": 1,
+        "まくり": 1
       },
       "conditionSamples": [
         {
@@ -305573,12 +305575,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 雨 / 0-2m / 3-5cm",
-          "count": 5,
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "morning / 晴 / 3-5m / 3-5cm",
+          "condition": "day / 雨 / 0-2m / 3-5cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -305588,22 +305590,22 @@
           "appearanceCount": 5,
           "resultSampleCount": 5,
           "starts": 5,
-          "averageST": 0.124,
+          "averageST": 0.092,
           "top3Rate": 1
         },
         "last10": {
-          "appearanceCount": 9,
-          "resultSampleCount": 9,
-          "starts": 9,
-          "averageST": 0.118,
+          "appearanceCount": 10,
+          "resultSampleCount": 10,
+          "starts": 10,
+          "averageST": 0.109,
           "top3Rate": 1
         },
         "last30Days": {
           "appearanceCount": 23,
-          "resultSampleCount": 0,
-          "starts": 0,
-          "averageST": null,
-          "top3Rate": null
+          "resultSampleCount": 1,
+          "starts": 1,
+          "averageST": 0.03,
+          "top3Rate": 1
         }
       },
       "policy": "registrationNo exact registry identity only; source-backed historical descriptive statistics only; current-day official identities without history are labeled no-history"
@@ -310812,12 +310814,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "night / 晴 / 0-2m / 0-2cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         }
@@ -314037,11 +314039,11 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 21,
-        "average": 0.17,
-        "median": 0.17,
-        "standardDeviation": 0.057,
-        "fastStartCount": 2,
+        "sampleCount": 22,
+        "average": 0.164,
+        "median": 0.165,
+        "standardDeviation": 0.063,
+        "fastStartCount": 3,
         "lateStartCount": 8,
         "sampleLevel": "sufficient"
       },
@@ -314082,7 +314084,7 @@
           "appearanceCount": 23,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": null,
+          "averageST": 0.03,
           "top3Rate": null
         }
       },
@@ -314459,7 +314461,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -320168,12 +320170,12 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "night / 曇り / 0-2m / 0-2cm",
-          "count": 5,
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 7,
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "condition": "night / 曇り / 0-2m / 0-2cm",
           "count": 5,
           "sampleLevel": "limited"
         }
@@ -321478,12 +321480,12 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 19,
-        "average": 0.201,
-        "median": 0.17,
-        "standardDeviation": 0.078,
+        "sampleCount": 20,
+        "average": 0.204,
+        "median": 0.18,
+        "standardDeviation": 0.077,
         "fastStartCount": 0,
-        "lateStartCount": 7,
+        "lateStartCount": 8,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {
@@ -321526,7 +321528,7 @@
           "appearanceCount": 24,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": null,
+          "averageST": 0.26,
           "top3Rate": null
         }
       },
@@ -325392,13 +325394,13 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "condition": "day / 晴 / 0-2m / 0-2cm",
           "count": 4,
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 3,
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -329809,8 +329811,8 @@
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
           "condition": "day / 雨 / 0-2m / 3-5cm",
@@ -335392,7 +335394,7 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -345975,7 +345977,7 @@
       "conditionSamples": [
         {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 7,
+          "count": 8,
           "sampleLevel": "limited"
         },
         {
@@ -346971,20 +346973,20 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 14,
-        "average": 0.136,
+        "sampleCount": 15,
+        "average": 0.143,
         "median": 0.13,
-        "standardDeviation": 0.056,
+        "standardDeviation": 0.061,
         "fastStartCount": 4,
-        "lateStartCount": 2,
+        "lateStartCount": 3,
         "sampleLevel": "sufficient"
       },
       "winMethodCounts": {},
       "conditionSamples": [
         {
           "condition": "morning / 晴 / 3-5m / 3-5cm",
-          "count": 9,
-          "sampleLevel": "limited"
+          "count": 10,
+          "sampleLevel": "sufficient"
         },
         {
           "condition": "night / 晴 / 3-5m / 3-5cm",
@@ -347016,7 +347018,7 @@
           "appearanceCount": 23,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": null,
+          "averageST": 0.25,
           "top3Rate": null
         }
       },
@@ -347350,7 +347352,7 @@
         },
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 5,
+          "count": 7,
           "sampleLevel": "limited"
         }
       ],
@@ -348870,7 +348872,7 @@
           "sampleLevel": "low-sample"
         },
         {
-          "condition": "night / 雨 / 0-2m / 0-2cm",
+          "condition": "morning / 晴 / 3-5m / 3-5cm",
           "count": 3,
           "sampleLevel": "low-sample"
         }
@@ -349708,8 +349710,8 @@
       "conditionSamples": [
         {
           "condition": "day / 晴 / 3-5m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "count": 5,
+          "sampleLevel": "limited"
         },
         {
           "condition": "day / 晴 / 0-2m / 0-2cm",
@@ -351203,8 +351205,8 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 3-5m / 3-5cm",
-          "count": 3,
+          "condition": "day / 晴 / 0-2m / 0-2cm",
+          "count": 4,
           "sampleLevel": "low-sample"
         }
       ],
@@ -357031,10 +357033,10 @@
         }
       ],
       "startTiming": {
-        "sampleCount": 15,
+        "sampleCount": 16,
         "average": 0.198,
         "median": 0.19,
-        "standardDeviation": 0.088,
+        "standardDeviation": 0.085,
         "fastStartCount": 3,
         "lateStartCount": 7,
         "sampleLevel": "sufficient"
@@ -357076,7 +357078,7 @@
           "appearanceCount": 22,
           "resultSampleCount": 0,
           "starts": 0,
-          "averageST": null,
+          "averageST": 0.19,
           "top3Rate": null
         }
       },
@@ -358953,9 +358955,9 @@
           "sampleLevel": "limited"
         },
         {
-          "condition": "day / 晴 / 0-2m / 0-2cm",
-          "count": 4,
-          "sampleLevel": "low-sample"
+          "condition": "day / 晴 / 3-5m / 0-2cm",
+          "count": 5,
+          "sampleLevel": "limited"
         }
       ],
       "recent": {
