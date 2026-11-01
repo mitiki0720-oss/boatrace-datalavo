@@ -1,10 +1,10 @@
 {
   "schemaVersion": "boat-ex-today-flow-v1",
-  "generatedAt": "2026-11-01T00:11:22.098Z",
+  "generatedAt": "2026-11-01T19:07:01.476Z",
   "status": "available",
   "readiness": {
-    "status": "available",
-    "reason": "Source-backed same-day result and payout facts are available."
+    "status": "insufficient-history",
+    "reason": "No result-backed races are available."
   },
   "targetDate": "2026-11-01",
   "dateRange": {
@@ -15,9 +15,9 @@
   "summary": {
     "venueCount": 14,
     "raceCount": 168,
-    "resultAvailableRaceCount": 3,
-    "trifectaAvailableRaceCount": 3,
-    "payoutAvailableRaceCount": 3
+    "resultAvailableRaceCount": 0,
+    "trifectaAvailableRaceCount": 0,
+    "payoutAvailableRaceCount": 0
   },
   "venues": [
     {
@@ -710,9 +710,9 @@
       "venueCode": "14",
       "venueName": "鳴門",
       "raceCount": 12,
-      "resultAvailableRaceCount": 1,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
-        "1": 1,
+        "1": 0,
         "2": 0,
         "3": 0,
         "4": 0,
@@ -722,9 +722,9 @@
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-5-3",
-          "payoutYen": 4260
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 2,
@@ -794,14 +794,15 @@
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "1"
-      ],
-      "insideWinCount": 1,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
       "outsideWinCount": 0,
-      "payoutAvailableRaceCount": 1,
+      "payoutAvailableRaceCount": 0,
       "highPayoutRaceCount": 0,
-      "notes": []
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
     },
     {
       "venueCode": "17",
@@ -905,9 +906,9 @@
       "venueCode": "18",
       "venueName": "徳山",
       "raceCount": 12,
-      "resultAvailableRaceCount": 1,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
-        "1": 1,
+        "1": 0,
         "2": 0,
         "3": 0,
         "4": 0,
@@ -917,9 +918,9 @@
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-3",
-          "payoutYen": 530
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 2,
@@ -989,14 +990,15 @@
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "1"
-      ],
-      "insideWinCount": 1,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
       "outsideWinCount": 0,
-      "payoutAvailableRaceCount": 1,
+      "payoutAvailableRaceCount": 0,
       "highPayoutRaceCount": 0,
-      "notes": []
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
     },
     {
       "venueCode": "19",
@@ -1100,9 +1102,9 @@
       "venueCode": "21",
       "venueName": "芦屋",
       "raceCount": 12,
-      "resultAvailableRaceCount": 1,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
-        "1": 1,
+        "1": 0,
         "2": 0,
         "3": 0,
         "4": 0,
@@ -1112,9 +1114,9 @@
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-6-5",
-          "payoutYen": 7890
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 2,
@@ -1184,14 +1186,15 @@
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "1"
-      ],
-      "insideWinCount": 1,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
       "outsideWinCount": 0,
-      "payoutAvailableRaceCount": 1,
+      "payoutAvailableRaceCount": 0,
       "highPayoutRaceCount": 0,
-      "notes": []
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
     },
     {
       "venueCode": "22",
@@ -1404,5 +1407,8 @@
       "coverageStatus": "partial"
     }
   ],
-  "warnings": []
+  "warnings": [
+    "No source-backed same-day result facts are available.",
+    "Payout data is not available; payout-based flow facts are disabled."
+  ]
 }
