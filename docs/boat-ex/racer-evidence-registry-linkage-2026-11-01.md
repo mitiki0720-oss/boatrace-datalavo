@@ -1,7 +1,7 @@
 # Boat EX Racer Evidence Registry Linkage (2026-11-01)
 
 - registry identities: 1609
-- official registrationNo linked: 38608
+- official registrationNo linked: 38639
 - exact unique name-linked: 0
 - exact unique name-linked appearances: 0
 - unlinkedRegistered: 0
