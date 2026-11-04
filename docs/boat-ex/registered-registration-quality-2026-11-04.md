@@ -8,22 +8,22 @@
 
 ## Summary
 
-- registeredAppearanceCount: 64674
+- registeredAppearanceCount: 64872
 - uniqueRegistrationNoCount: 1612
 - uniqueNormalizedRacerNameCount: 1612
-- validRegistrationNoCount: 64674
+- validRegistrationNoCount: 64872
 - invalidRegistrationNoCount: 0
 - duplicateRegistrationNoCount: 1609
 - sameRegistrationNoMultipleNameCount: 0
 - sameNameMultipleRegistrationNoCount: 0
 - raceLevelDuplicateRegistrationNoCount: 0
 - raceLevelDuplicateBoatNoCount: 0
-- provenanceCompleteCount: 64674
+- provenanceCompleteCount: 64872
 - provenanceMissingCount: 0
 - collisionCount: 0
 - aliasCandidateCount: 0
 - safeRegisteredIdentityCount: 1612
-- racerEvidenceMatchedRegistrationCount: 40243
+- racerEvidenceMatchedRegistrationCount: 40299
 - racerEvidenceMismatchCount: 0
 
 ## Classification
@@ -35,7 +35,7 @@
 
 ## Provenance
 
-- official-derived: 64674
+- official-derived: 64872
 
 ## Safety
 
