@@ -3,7 +3,7 @@
 ## Scope
 
 - period: 2026-05-24 to 2026-11-09
-- source appearances: 69048
+- source appearances: 68964
 - registry identities: 1619
 - first/last seen: 2026-05-24 / 2026-11-09
 
