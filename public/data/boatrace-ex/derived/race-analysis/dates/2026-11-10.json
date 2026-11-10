@@ -1,14 +1,14 @@
 {
   "schemaVersion": "boat-ex-historical-race-analysis-v1",
   "kind": "boatrace-ex-historical-race-analysis-date",
-  "generatedAt": "2026-11-09T23:50:29.582Z",
+  "generatedAt": "2026-11-10T03:29:17.821Z",
   "date": "2026-11-10",
   "summary": {
     "raceCount": 156,
     "venueCount": 13,
-    "resultAvailableRaceCount": 0,
-    "payoutAvailableRaceCount": 0,
-    "exhibitionAvailableRaceCount": 28,
+    "resultAvailableRaceCount": 47,
+    "payoutAvailableRaceCount": 47,
+    "exhibitionAvailableRaceCount": 86,
     "weatherAvailableRaceCount": 156,
     "waterConditionAvailableRaceCount": 0,
     "racerEvidenceAvailableRaceCount": 156,
@@ -40,25 +40,66 @@
       "closingTime": "10:51",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          5,
+          2
+        ],
+        "trifecta": "1-5-2",
+        "trifectaPayoutYen": 8910,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.79",
+          "startTiming": ".01",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.91",
+          "startTiming": ".05",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.68",
+          "startTiming": ".06",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.87",
+          "startTiming": "F.01",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.90",
+          "startTiming": ".07",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.81",
+          "startTiming": ".07",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -171,9 +212,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -189,25 +230,66 @@
       "closingTime": "11:19",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          4,
+          3,
+          5
+        ],
+        "trifecta": "4-3-5",
+        "trifectaPayoutYen": 10240,
+        "winningTechnique": "まくり差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.89",
+          "startTiming": ".05",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.63",
+          "startTiming": ".14",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.77",
+          "startTiming": "F.01",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.81",
+          "startTiming": "F.05",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.80",
+          "startTiming": ".03",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.80",
+          "startTiming": ".03",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -320,9 +402,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -338,25 +420,66 @@
       "closingTime": "11:47",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          3,
+          1,
+          4
+        ],
+        "trifecta": "3-1-4",
+        "trifectaPayoutYen": 6620,
+        "winningTechnique": "まくり差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.91",
+          "startTiming": "F.04",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.79",
+          "startTiming": "F.11",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.97",
+          "startTiming": "F.03",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.96",
+          "startTiming": ".08",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.78",
+          "startTiming": "F.04",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.93",
+          "startTiming": ".05",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "北西",
+        "windSpeed": "2m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -469,9 +592,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -489,23 +612,60 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
         "finishOrder": [],
-        "trifecta": null,
+        "trifecta": "1-4-3",
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.82",
+          "startTiming": ".01",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.86",
+          "startTiming": ".16",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.80",
+          "startTiming": ".05",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.90",
+          "startTiming": ".02",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.87",
+          "startTiming": ".00",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.95",
+          "startTiming": "F.01",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -620,7 +780,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -638,7 +798,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -648,13 +808,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -769,7 +966,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -787,7 +984,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -797,13 +994,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -918,7 +1152,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -936,7 +1170,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -946,13 +1180,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -1067,7 +1338,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -1085,7 +1356,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -1095,13 +1366,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -1216,7 +1524,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -1234,7 +1542,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -1244,13 +1552,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -1365,7 +1710,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -1383,7 +1728,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -1393,13 +1738,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -1514,7 +1896,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -1532,7 +1914,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -1542,13 +1924,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -1663,7 +2082,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -1681,7 +2100,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -1691,13 +2110,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -1812,7 +2268,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -1828,25 +2284,66 @@
       "closingTime": "10:30",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          6,
+          3
+        ],
+        "trifecta": "1-6-3",
+        "trifectaPayoutYen": 2780,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.60",
+          "startTiming": ".05",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.65",
+          "startTiming": ".16",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.67",
+          "startTiming": ".18",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.62",
+          "startTiming": ".01",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.75",
+          "startTiming": ".07",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.63",
+          "startTiming": ".16",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "1m",
+        "waveHeight": "2cm",
+        "waterTemperature": "17.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -1959,9 +2456,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -1977,25 +2474,66 @@
       "closingTime": "10:57",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          2,
+          6
+        ],
+        "trifecta": "1-2-6",
+        "trifectaPayoutYen": 1180,
+        "winningTechnique": "抜き"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.64",
+          "startTiming": "F.01",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.66",
+          "startTiming": "F.07",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.58",
+          "startTiming": "F.01",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.65",
+          "startTiming": ".02",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.58",
+          "startTiming": "F.15",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.60",
+          "startTiming": "F.11",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "北",
+        "windSpeed": "1m",
+        "waveHeight": "2cm",
+        "waterTemperature": "17.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -2108,9 +2646,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -2126,25 +2664,66 @@
       "closingTime": "11:26",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          2,
+          6,
+          1
+        ],
+        "trifecta": "2-6-1",
+        "trifectaPayoutYen": 26540,
+        "winningTechnique": "差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.60",
+          "startTiming": ".15",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.64",
+          "startTiming": ".13",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.66",
+          "startTiming": ".17",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.57",
+          "startTiming": ".06",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.68",
+          "startTiming": ".13",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.58",
+          "startTiming": ".04",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "北西",
+        "windSpeed": "1m",
+        "waveHeight": "2cm",
+        "waterTemperature": "17.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -2257,9 +2836,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -2275,25 +2854,66 @@
       "closingTime": "11:55",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          2,
+          1,
+          5
+        ],
+        "trifecta": "2-1-5",
+        "trifectaPayoutYen": 1550,
+        "winningTechnique": "まくり"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.55",
+          "startTiming": ".08",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.57",
+          "startTiming": ".07",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.69",
+          "startTiming": ".11",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.45",
+          "startTiming": ".09",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.60",
+          "startTiming": ".09",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.65",
+          "startTiming": ".07",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "無風",
+        "windSpeed": "0m",
+        "waveHeight": "2cm",
+        "waterTemperature": "16.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -2406,9 +3026,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -2426,7 +3046,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -2436,13 +3056,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.51",
+          "startTiming": ".07",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.59",
+          "startTiming": ".15",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.62",
+          "startTiming": ".07",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.67",
+          "startTiming": ".34",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.72",
+          "startTiming": ".08",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.63",
+          "startTiming": ".21",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "1m",
+        "waveHeight": "2cm",
+        "waterTemperature": "17.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -2557,7 +3214,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -2575,7 +3232,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -2585,13 +3242,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "1m",
+        "waveHeight": "2cm",
+        "waterTemperature": "17.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -2706,7 +3400,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -2736,11 +3430,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "1m",
+        "waveHeight": "2cm",
+        "waterTemperature": "17.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -2873,7 +3567,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -2883,13 +3577,20 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "1m",
+        "waveHeight": "2cm",
+        "waterTemperature": "17.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -3004,7 +3705,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -3022,7 +3723,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -3032,13 +3733,20 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "1m",
+        "waveHeight": "2cm",
+        "waterTemperature": "17.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -3153,7 +3861,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -3183,11 +3891,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "1m",
+        "waveHeight": "2cm",
+        "waterTemperature": "17.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -3332,11 +4040,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "1m",
+        "waveHeight": "2cm",
+        "waterTemperature": "17.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -3481,11 +4189,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "雨",
+        "windDirection": "西",
+        "windSpeed": "1m",
+        "waveHeight": "2cm",
+        "waterTemperature": "17.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -5404,25 +6112,66 @@
       "closingTime": "10:24",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          4,
+          5,
+          1
+        ],
+        "trifecta": "4-5-1",
+        "trifectaPayoutYen": 4260,
+        "winningTechnique": "まくり"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.51",
+          "startTiming": ".00",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.55",
+          "startTiming": "F.01",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.56",
+          "startTiming": "F.01",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.51",
+          "startTiming": ".03",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.54",
+          "startTiming": ".05",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.56",
+          "startTiming": ".05",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南西",
+        "windSpeed": "3m",
+        "waveHeight": "1cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -5535,9 +6284,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -5553,25 +6302,66 @@
       "closingTime": "11:01",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          3,
+          6
+        ],
+        "trifecta": "1-3-6",
+        "trifectaPayoutYen": 3360,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.42",
+          "startTiming": "F.01",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.49",
+          "startTiming": "F.01",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.49",
+          "startTiming": ".01",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.49",
+          "startTiming": ".05",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.51",
+          "startTiming": "F.01",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.54",
+          "startTiming": ".06",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南西",
+        "windSpeed": "4m",
+        "waveHeight": "2cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -5684,9 +6474,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -5702,25 +6492,66 @@
       "closingTime": "11:31",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          2,
+          6
+        ],
+        "trifecta": "1-2-6",
+        "trifectaPayoutYen": 1070,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.50",
+          "startTiming": "F.07",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.56",
+          "startTiming": "F.05",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.61",
+          "startTiming": "F.09",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.57",
+          "startTiming": ".22",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.57",
+          "startTiming": ".26",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.55",
+          "startTiming": ".05",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南",
+        "windSpeed": "2m",
+        "waveHeight": "1cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -5833,9 +6664,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -5851,25 +6682,66 @@
       "closingTime": "11:59",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          3,
+          1,
+          2
+        ],
+        "trifecta": "3-1-2",
+        "trifectaPayoutYen": 4750,
+        "winningTechnique": "まくり差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.54",
+          "startTiming": "F.01",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.51",
+          "startTiming": ".12",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.50",
+          "startTiming": ".06",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.53",
+          "startTiming": "F.03",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.49",
+          "startTiming": "F.03",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.54",
+          "startTiming": ".11",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南西",
+        "windSpeed": "2m",
+        "waveHeight": "1cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -5982,9 +6854,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -6002,7 +6874,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -6012,13 +6884,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.53",
+          "startTiming": ".00",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.61",
+          "startTiming": ".03",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.60",
+          "startTiming": ".12",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.54",
+          "startTiming": ".05",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.57",
+          "startTiming": ".08",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.56",
+          "startTiming": "F.03",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南西",
+        "windSpeed": "3m",
+        "waveHeight": "1cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -6133,7 +7042,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -6151,7 +7060,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -6161,13 +7070,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南西",
+        "windSpeed": "3m",
+        "waveHeight": "1cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -6282,7 +7228,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -6312,11 +7258,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南西",
+        "windSpeed": "3m",
+        "waveHeight": "1cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -6461,11 +7407,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南西",
+        "windSpeed": "3m",
+        "waveHeight": "1cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -6610,11 +7556,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南西",
+        "windSpeed": "3m",
+        "waveHeight": "1cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -6759,11 +7705,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南西",
+        "windSpeed": "3m",
+        "waveHeight": "1cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -6908,11 +7854,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南西",
+        "windSpeed": "3m",
+        "waveHeight": "1cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -7057,11 +8003,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南西",
+        "windSpeed": "3m",
+        "waveHeight": "1cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -7192,62 +8138,66 @@
       "closingTime": "10:32",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          3,
+          1,
+          5
+        ],
+        "trifecta": "3-1-5",
+        "trifectaPayoutYen": 4130,
+        "winningTechnique": "まくり差し"
       },
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.74",
+          "startTiming": ".24",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.68",
+          "startTiming": ".27",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.68",
+          "startTiming": ".23",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.68",
+          "startTiming": ".14",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.69",
+          "startTiming": ".03",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.65",
+          "startTiming": ".13",
+          "course": "6"
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "5m",
+        "waveHeight": "3cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -7360,8 +8310,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -7378,62 +8328,66 @@
       "closingTime": "11:01",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          2,
+          1,
+          5
+        ],
+        "trifecta": "2-1-5",
+        "trifectaPayoutYen": 1110,
+        "winningTechnique": "差し"
       },
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.66",
+          "startTiming": ".06",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.66",
+          "startTiming": ".05",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.73",
+          "startTiming": ".87",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.73",
+          "startTiming": ".12",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.65",
+          "startTiming": ".11",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.71",
+          "startTiming": ".22",
+          "course": "6"
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "4m",
+        "waveHeight": "2cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -7546,8 +8500,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -7564,62 +8518,66 @@
       "closingTime": "11:30",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          3,
+          6
+        ],
+        "trifecta": "1-3-6",
+        "trifectaPayoutYen": 1590,
+        "winningTechnique": "逃げ"
       },
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.67",
+          "startTiming": ".28",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.63",
+          "startTiming": ".10",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.66",
+          "startTiming": ".19",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.76",
+          "startTiming": ".21",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.67",
+          "startTiming": ".26",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.64",
+          "startTiming": "F.01",
+          "course": "6"
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "4m",
+        "waveHeight": "2cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -7732,8 +8690,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -7750,62 +8708,66 @@
       "closingTime": "11:59",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          4,
+          1,
+          2
+        ],
+        "trifecta": "4-1-2",
+        "trifectaPayoutYen": 3310,
+        "winningTechnique": "差し"
       },
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.78",
+          "startTiming": ".09",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.73",
+          "startTiming": ".06",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.73",
+          "startTiming": ".09",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.75",
+          "startTiming": ".06",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.73",
+          "startTiming": ".05",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.58",
+          "startTiming": ".01",
+          "course": "6"
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "4m",
+        "waveHeight": "2cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -7918,8 +8880,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -7951,47 +8913,47 @@
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.57",
+          "startTiming": ".05",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.67",
+          "startTiming": ".21",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.70",
+          "startTiming": ".10",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.64",
+          "startTiming": ".14",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.74",
+          "startTiming": ".31",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.70",
+          "startTiming": ".15",
+          "course": "6"
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "5m",
+        "waveHeight": "3cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8173,11 +9135,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "5m",
+        "waveHeight": "3cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8359,11 +9321,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "5m",
+        "waveHeight": "3cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8545,11 +9507,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "5m",
+        "waveHeight": "3cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8731,11 +9693,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "5m",
+        "waveHeight": "3cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -8917,11 +9879,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "5m",
+        "waveHeight": "3cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -9103,11 +10065,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "5m",
+        "waveHeight": "3cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -9289,11 +10251,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "西北西",
+        "windSpeed": "5m",
+        "waveHeight": "3cm",
+        "waterTemperature": "14.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -9424,17 +10386,21 @@
       "closingTime": "08:47",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          2,
+          4
+        ],
+        "trifecta": "1-2-4",
+        "trifectaPayoutYen": 1110,
+        "winningTechnique": "逃げ"
       },
       "exhibition": [
         {
@@ -9477,8 +10443,8 @@
       "weather": {
         "weather": "曇り",
         "windDirection": "東南東",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
+        "windSpeed": "2m",
+        "waveHeight": "2cm",
         "waterTemperature": "13.0℃"
       },
       "waterCondition": null,
@@ -9592,8 +10558,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -9610,54 +10576,58 @@
       "closingTime": "09:13",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          2,
+          1,
+          6
+        ],
+        "trifecta": "2-1-6",
+        "trifectaPayoutYen": 3060,
+        "winningTechnique": "差し"
       },
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.69",
+          "startTiming": "F.03",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.73",
+          "startTiming": "F.04",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.72",
+          "startTiming": ".17",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.66",
+          "startTiming": ".06",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.75",
+          "startTiming": ".13",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.68",
+          "startTiming": ".06",
+          "course": "6"
         }
       ],
       "weather": {
@@ -9778,8 +10748,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -9796,22 +10766,63 @@
       "closingTime": "09:39",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          2,
+          3,
+          4
+        ],
+        "trifecta": "2-3-4",
+        "trifectaPayoutYen": 3370,
+        "winningTechnique": "まくり"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.59",
+          "startTiming": ".25",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.66",
+          "startTiming": ".09",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.70",
+          "startTiming": ".06",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.77",
+          "startTiming": ".22",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.80",
+          "startTiming": ".29",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.74",
+          "startTiming": ".26",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "曇り",
-        "windDirection": "東南東",
+        "windDirection": "南南東",
         "windSpeed": "3m",
         "waveHeight": "3cm",
         "waterTemperature": "13.0℃"
@@ -9927,9 +10938,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -9945,19 +10956,60 @@
       "closingTime": "10:05",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          3,
+          2,
+          4
+        ],
+        "trifecta": "3-2-4",
+        "trifectaPayoutYen": 43120,
+        "winningTechnique": "まくり差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.63",
+          "startTiming": "F.06",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.73",
+          "startTiming": ".02",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.78",
+          "startTiming": ".01",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.85",
+          "startTiming": ".29",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.77",
+          "startTiming": ".14",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.72",
+          "startTiming": ".14",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "曇り",
         "windDirection": "東南東",
@@ -10076,9 +11128,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -10094,19 +11146,60 @@
       "closingTime": "10:35",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          3,
+          4,
+          5
+        ],
+        "trifecta": "3-4-5",
+        "trifectaPayoutYen": 28720,
+        "winningTechnique": "差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.85",
+          "startTiming": ".06",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.68",
+          "startTiming": "F.03",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.72",
+          "startTiming": ".02",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.69",
+          "startTiming": ".19",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.73",
+          "startTiming": ".23",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.77",
+          "startTiming": ".28",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "曇り",
         "windDirection": "東南東",
@@ -10225,9 +11318,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -10243,24 +11336,65 @@
       "closingTime": "11:04",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          2,
+          3
+        ],
+        "trifecta": "1-2-3",
+        "trifectaPayoutYen": 750,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.75",
+          "startTiming": ".02",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.85",
+          "startTiming": ".02",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.85",
+          "startTiming": "F.04",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.78",
+          "startTiming": ".06",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.88",
+          "startTiming": ".02",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.79",
+          "startTiming": ".09",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "曇り",
         "windDirection": "東南東",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
+        "windSpeed": "2m",
+        "waveHeight": "2cm",
         "waterTemperature": "13.0℃"
       },
       "waterCondition": null,
@@ -10374,9 +11508,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -10392,22 +11526,63 @@
       "closingTime": "11:36",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          4,
+          5,
+          1
+        ],
+        "trifecta": "4-5-1",
+        "trifectaPayoutYen": 7820,
+        "winningTechnique": "まくり差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.68",
+          "startTiming": ".05",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.73",
+          "startTiming": ".06",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.73",
+          "startTiming": ".09",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.66",
+          "startTiming": ".08",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.68",
+          "startTiming": "F.04",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.70",
+          "startTiming": "F.03",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "曇り",
-        "windDirection": "東南東",
+        "windDirection": "南南東",
         "windSpeed": "3m",
         "waveHeight": "3cm",
         "waterTemperature": "13.0℃"
@@ -10523,9 +11698,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -10541,24 +11716,65 @@
       "closingTime": "12:07",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          5,
+          4,
+          1
+        ],
+        "trifecta": "5-4-1",
+        "trifectaPayoutYen": 25440,
+        "winningTechnique": "まくり差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.71",
+          "startTiming": ".14",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.77",
+          "startTiming": ".06",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.71",
+          "startTiming": ".07",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.74",
+          "startTiming": ".05",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.74",
+          "startTiming": ".01",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.78",
+          "startTiming": "F.08",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "曇り",
         "windDirection": "東南東",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
         "waterTemperature": "13.0℃"
       },
       "waterCondition": null,
@@ -10672,9 +11888,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -10692,7 +11908,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -10702,12 +11918,49 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.71",
+          "startTiming": ".08",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.71",
+          "startTiming": "F.03",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.80",
+          "startTiming": "F.01",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.72",
+          "startTiming": ".08",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.69",
+          "startTiming": ".21",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.80",
+          "startTiming": ".11",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "曇り",
         "windDirection": "東南東",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
+        "windSpeed": "2m",
+        "waveHeight": "2cm",
         "waterTemperature": "13.0℃"
       },
       "waterCondition": null,
@@ -10823,7 +12076,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -10855,8 +12108,8 @@
       "weather": {
         "weather": "曇り",
         "windDirection": "東南東",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
+        "windSpeed": "2m",
+        "waveHeight": "2cm",
         "waterTemperature": "13.0℃"
       },
       "waterCondition": null,
@@ -11004,8 +12257,8 @@
       "weather": {
         "weather": "曇り",
         "windDirection": "東南東",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
+        "windSpeed": "2m",
+        "waveHeight": "2cm",
         "waterTemperature": "13.0℃"
       },
       "waterCondition": null,
@@ -11153,8 +12406,8 @@
       "weather": {
         "weather": "曇り",
         "windDirection": "東南東",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
+        "windSpeed": "2m",
+        "waveHeight": "2cm",
         "waterTemperature": "13.0℃"
       },
       "waterCondition": null,
@@ -11286,62 +12539,66 @@
       "closingTime": "10:27",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          4,
+          6
+        ],
+        "trifecta": "1-4-6",
+        "trifectaPayoutYen": 7840,
+        "winningTechnique": "逃げ"
       },
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.74",
+          "startTiming": ".09",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.97",
+          "startTiming": ".12",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.76",
+          "startTiming": ".14",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.80",
+          "startTiming": ".08",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.81",
+          "startTiming": ".10",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.75",
+          "startTiming": ".05",
+          "course": "6"
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "16.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -11454,8 +12711,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -11472,62 +12729,66 @@
       "closingTime": "10:55",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          4,
+          5,
+          1
+        ],
+        "trifecta": "4-5-1",
+        "trifectaPayoutYen": 3520,
+        "winningTechnique": "抜き"
       },
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.85",
+          "startTiming": ".03",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.88",
+          "startTiming": ".23",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.84",
+          "startTiming": "F.03",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.91",
+          "startTiming": ".09",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.90",
+          "startTiming": ".06",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.83",
+          "startTiming": ".05",
+          "course": "6"
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -11640,8 +12901,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -11658,62 +12919,66 @@
       "closingTime": "11:22",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          6,
+          1,
+          4
+        ],
+        "trifecta": "6-1-4",
+        "trifectaPayoutYen": 65660,
+        "winningTechnique": "まくり差し"
       },
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.74",
+          "startTiming": "F.01",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.84",
+          "startTiming": "F.01",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.78",
+          "startTiming": "F.12",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.78",
+          "startTiming": ".09",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.90",
+          "startTiming": ".09",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.73",
+          "startTiming": ".10",
+          "course": "6"
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -11826,8 +13091,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -11844,62 +13109,66 @@
       "closingTime": "11:51",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          5,
+          3
+        ],
+        "trifecta": "1-5-3",
+        "trifectaPayoutYen": 2390,
+        "winningTechnique": "逃げ"
       },
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.74",
+          "startTiming": ".08",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.79",
+          "startTiming": ".14",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.82",
+          "startTiming": ".12",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.83",
+          "startTiming": ".09",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.89",
+          "startTiming": ".01",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.79",
+          "startTiming": ".10",
+          "course": "6"
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "南東",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "15.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -12012,8 +13281,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -12038,54 +13307,54 @@
       "racerEvidenceStatus": "available",
       "officialResult": {
         "finishOrder": [],
-        "trifecta": null,
+        "trifecta": "1-5-2",
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "7.03",
+          "startTiming": "F.08",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.95",
+          "startTiming": ".15",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.91",
+          "startTiming": ".11",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.97",
+          "startTiming": ".13",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.95",
+          "startTiming": "F.02",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": "-.--",
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "7.02",
+          "startTiming": ".11",
+          "course": "6"
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "16.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -12212,7 +13481,7 @@
       "venueName": "びわこ",
       "raceNo": 6,
       "raceKey": "2026-11-10:11:06",
-      "raceTitle": "一般",
+      "raceTitle": "一般 1200m",
       "closingTime": "12:47",
       "dayPart": "day",
       "sourceStatus": "complete",
@@ -12231,47 +13500,47 @@
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": "-.--",
+          "exhibitionTime": null,
           "startTiming": null,
           "course": null
         },
         {
           "lane": 2,
-          "exhibitionTime": "-.--",
+          "exhibitionTime": null,
           "startTiming": null,
           "course": null
         },
         {
           "lane": 3,
-          "exhibitionTime": "-.--",
+          "exhibitionTime": null,
           "startTiming": null,
           "course": null
         },
         {
           "lane": 4,
-          "exhibitionTime": "-.--",
+          "exhibitionTime": null,
           "startTiming": null,
           "course": null
         },
         {
           "lane": 5,
-          "exhibitionTime": "-.--",
+          "exhibitionTime": null,
           "startTiming": null,
           "course": null
         },
         {
           "lane": 6,
-          "exhibitionTime": "-.--",
+          "exhibitionTime": null,
           "startTiming": null,
           "course": null
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "16.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -12398,7 +13667,7 @@
       "venueName": "びわこ",
       "raceNo": 7,
       "raceKey": "2026-11-10:11:07",
-      "raceTitle": "一般",
+      "raceTitle": "一般 1200m",
       "closingTime": "13:17",
       "dayPart": "day",
       "sourceStatus": "complete",
@@ -12453,11 +13722,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "16.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -12584,7 +13853,7 @@
       "venueName": "びわこ",
       "raceNo": 8,
       "raceKey": "2026-11-10:11:08",
-      "raceTitle": "一般",
+      "raceTitle": "一般 1200m",
       "closingTime": "13:43",
       "dayPart": "day",
       "sourceStatus": "complete",
@@ -12639,11 +13908,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "16.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -12770,7 +14039,7 @@
       "venueName": "びわこ",
       "raceNo": 9,
       "raceKey": "2026-11-10:11:09",
-      "raceTitle": "ビナちゃん特選",
+      "raceTitle": "ビナちゃん特選 1200m",
       "closingTime": "14:12",
       "dayPart": "day",
       "sourceStatus": "complete",
@@ -12825,11 +14094,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "16.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -12956,7 +14225,7 @@
       "venueName": "びわこ",
       "raceNo": 10,
       "raceKey": "2026-11-10:11:10",
-      "raceTitle": "選抜戦",
+      "raceTitle": "選抜戦 1200m",
       "closingTime": "14:40",
       "dayPart": "day",
       "sourceStatus": "complete",
@@ -13011,11 +14280,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "16.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -13142,7 +14411,7 @@
       "venueName": "びわこ",
       "raceNo": 11,
       "raceKey": "2026-11-10:11:11",
-      "raceTitle": "選抜戦",
+      "raceTitle": "選抜戦 1200m",
       "closingTime": "15:13",
       "dayPart": "day",
       "sourceStatus": "complete",
@@ -13197,11 +14466,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "16.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -13328,7 +14597,7 @@
       "venueName": "びわこ",
       "raceNo": 12,
       "raceKey": "2026-11-10:11:12",
-      "raceTitle": "優勝戦",
+      "raceTitle": "優勝戦 1200m",
       "closingTime": "15:49",
       "dayPart": "day",
       "sourceStatus": "complete",
@@ -13383,11 +14652,11 @@
         }
       ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "16.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -15306,25 +16575,66 @@
       "closingTime": "10:50",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          3,
+          4
+        ],
+        "trifecta": "1-3-4",
+        "trifectaPayoutYen": 1100,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.88",
+          "startTiming": "F.04",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.89",
+          "startTiming": "F.02",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.85",
+          "startTiming": "F.03",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.89",
+          "startTiming": "F.01",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.88",
+          "startTiming": ".11",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.77",
+          "startTiming": ".02",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "南東",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -15437,9 +16747,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -15455,25 +16765,66 @@
       "closingTime": "11:17",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          5,
+          1,
+          6
+        ],
+        "trifecta": "5-1-6",
+        "trifectaPayoutYen": 20990,
+        "winningTechnique": "抜き"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.81",
+          "startTiming": ".14",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.83",
+          "startTiming": ".25",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.77",
+          "startTiming": ".05",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.84",
+          "startTiming": "F.05",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.81",
+          "startTiming": "F.12",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.81",
+          "startTiming": "F.02",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "曇り",
+        "windDirection": "東",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -15586,9 +16937,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -15604,25 +16955,66 @@
       "closingTime": "11:44",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          5,
+          6
+        ],
+        "trifecta": "1-5-6",
+        "trifectaPayoutYen": 3000,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.66",
+          "startTiming": ".01",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.74",
+          "startTiming": "F.05",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.68",
+          "startTiming": "F.16",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.85",
+          "startTiming": ".01",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.73",
+          "startTiming": "F.04",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.85",
+          "startTiming": "F.10",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "南東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -15735,9 +17127,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -15753,25 +17145,66 @@
       "closingTime": "12:11",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          3,
+          1,
+          4
+        ],
+        "trifecta": "3-1-4",
+        "trifectaPayoutYen": 3210,
+        "winningTechnique": "まくり差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.75",
+          "startTiming": ".16",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.82",
+          "startTiming": ".08",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.83",
+          "startTiming": ".02",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.87",
+          "startTiming": ".05",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.87",
+          "startTiming": ".07",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.81",
+          "startTiming": ".04",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "南東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -15884,9 +17317,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -15904,7 +17337,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -15914,13 +17347,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.78",
+          "startTiming": ".18",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.81",
+          "startTiming": ".17",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.80",
+          "startTiming": ".22",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.86",
+          "startTiming": ".03",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.80",
+          "startTiming": ".04",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.85",
+          "startTiming": ".03",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "南東",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16035,7 +17505,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -16065,11 +17535,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "南東",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16214,11 +17684,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "南東",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16363,11 +17833,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "南東",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16512,11 +17982,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "南東",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16661,11 +18131,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "南東",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16810,11 +18280,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "南東",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -16959,11 +18429,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "南東",
+        "windSpeed": "3m",
+        "waveHeight": "3cm",
+        "waterTemperature": "20.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -17094,25 +18564,66 @@
       "closingTime": "10:16",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          2,
+          4,
+          1
+        ],
+        "trifecta": "2-4-1",
+        "trifectaPayoutYen": 9770,
+        "winningTechnique": "差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.85",
+          "startTiming": ".04",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.85",
+          "startTiming": ".16",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.84",
+          "startTiming": ".19",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.83",
+          "startTiming": ".15",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.86",
+          "startTiming": ".09",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.81",
+          "startTiming": ".32",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -17225,9 +18736,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -17239,29 +18750,70 @@
       "venueName": "宮島",
       "raceNo": 2,
       "raceKey": "2026-11-10:17:02",
-      "raceTitle": "予選",
-      "closingTime": "10:42",
+      "raceTitle": "予選 1200m",
+      "closingTime": "10:44",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          5,
+          4
+        ],
+        "trifecta": "1-5-4",
+        "trifectaPayoutYen": 2930,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "7.07",
+          "startTiming": "F.05",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.98",
+          "startTiming": "F.09",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "7.06",
+          "startTiming": ".46",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "7.00",
+          "startTiming": "F.02",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.85",
+          "startTiming": ".04",
+          "course": "6"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.95",
+          "startTiming": "F.07",
+          "course": "5"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "5m",
+        "waveHeight": "6cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -17374,9 +18926,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -17388,29 +18940,70 @@
       "venueName": "宮島",
       "raceNo": 3,
       "raceKey": "2026-11-10:17:03",
-      "raceTitle": "予選",
-      "closingTime": "11:09",
+      "raceTitle": "予選 1200m",
+      "closingTime": "11:11",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          5,
+          2
+        ],
+        "trifecta": "1-5-2",
+        "trifectaPayoutYen": 14000,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "7.17",
+          "startTiming": "F.03",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "7.05",
+          "startTiming": "F.04",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.97",
+          "startTiming": "F.03",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.90",
+          "startTiming": "F.05",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "7.01",
+          "startTiming": ".01",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "7.14",
+          "startTiming": "F.02",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "6m",
+        "waveHeight": "6cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -17523,9 +19116,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -17537,29 +19130,70 @@
       "venueName": "宮島",
       "raceNo": 4,
       "raceKey": "2026-11-10:17:04",
-      "raceTitle": "予選",
-      "closingTime": "11:34",
+      "raceTitle": "予選 1200m",
+      "closingTime": "11:35",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          6,
+          2,
+          4
+        ],
+        "trifecta": "6-2-4",
+        "trifectaPayoutYen": 81560,
+        "winningTechnique": "抜き"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.86",
+          "startTiming": ".12",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.94",
+          "startTiming": ".07",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.94",
+          "startTiming": ".07",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.85",
+          "startTiming": ".07",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.87",
+          "startTiming": ".19",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.92",
+          "startTiming": "F.08",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "6m",
+        "waveHeight": "6cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -17672,9 +19306,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -17686,29 +19320,70 @@
       "venueName": "宮島",
       "raceNo": 5,
       "raceKey": "2026-11-10:17:05",
-      "raceTitle": "予選",
-      "closingTime": "12:04",
+      "raceTitle": "予選 1200m",
+      "closingTime": "12:05",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          3,
+          2,
+          4
+        ],
+        "trifecta": "3-2-4",
+        "trifectaPayoutYen": 9310,
+        "winningTechnique": "まくり"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.92",
+          "startTiming": "F.04",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.86",
+          "startTiming": ".02",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.84",
+          "startTiming": ".14",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.93",
+          "startTiming": ".07",
+          "course": "5"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.84",
+          "startTiming": ".08",
+          "course": "6"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.84",
+          "startTiming": ".04",
+          "course": "4"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "6m",
+        "waveHeight": "7cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -17821,9 +19496,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -17835,13 +19510,13 @@
       "venueName": "宮島",
       "raceNo": 6,
       "raceKey": "2026-11-10:17:06",
-      "raceTitle": "ランチ特賞",
-      "closingTime": "12:34",
+      "raceTitle": "ランチ特賞 1200m",
+      "closingTime": "12:35",
       "dayPart": "day",
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -17851,13 +19526,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "7.01",
+          "startTiming": ".15",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.91",
+          "startTiming": "F.05",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "7.02",
+          "startTiming": "F.09",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.90",
+          "startTiming": ".36",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.91",
+          "startTiming": ".16",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.92",
+          "startTiming": ".07",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -17972,7 +19684,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -17984,13 +19696,13 @@
       "venueName": "宮島",
       "raceNo": 7,
       "raceKey": "2026-11-10:17:07",
-      "raceTitle": "予選",
-      "closingTime": "13:05",
+      "raceTitle": "予選 1200m",
+      "closingTime": "13:06",
       "dayPart": "day",
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -18000,13 +19712,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -18121,7 +19870,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -18133,8 +19882,8 @@
       "venueName": "宮島",
       "raceNo": 8,
       "raceKey": "2026-11-10:17:08",
-      "raceTitle": "予選",
-      "closingTime": "13:30",
+      "raceTitle": "予選 1200m",
+      "closingTime": "13:31",
       "dayPart": "day",
       "sourceStatus": "complete",
       "resultStatus": "missing",
@@ -18151,11 +19900,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -18282,8 +20031,8 @@
       "venueName": "宮島",
       "raceNo": 9,
       "raceKey": "2026-11-10:17:09",
-      "raceTitle": "予選",
-      "closingTime": "13:55",
+      "raceTitle": "予選 1200m",
+      "closingTime": "13:56",
       "dayPart": "day",
       "sourceStatus": "complete",
       "resultStatus": "missing",
@@ -18300,11 +20049,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -18431,8 +20180,8 @@
       "venueName": "宮島",
       "raceNo": 10,
       "raceKey": "2026-11-10:17:10",
-      "raceTitle": "予選特賞",
-      "closingTime": "14:19",
+      "raceTitle": "予選特賞 1200m",
+      "closingTime": "14:20",
       "dayPart": "day",
       "sourceStatus": "complete",
       "resultStatus": "missing",
@@ -18449,11 +20198,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -18580,8 +20329,8 @@
       "venueName": "宮島",
       "raceNo": 11,
       "raceKey": "2026-11-10:17:11",
-      "raceTitle": "予選特選",
-      "closingTime": "14:50",
+      "raceTitle": "予選特選 1200m",
+      "closingTime": "14:51",
       "dayPart": "day",
       "sourceStatus": "complete",
       "resultStatus": "missing",
@@ -18598,11 +20347,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -18729,8 +20478,8 @@
       "venueName": "宮島",
       "raceNo": 12,
       "raceKey": "2026-11-10:17:12",
-      "raceTitle": "モンタ特選",
-      "closingTime": "15:33",
+      "raceTitle": "モンタ特選 1200m",
+      "closingTime": "15:34",
       "dayPart": "day",
       "sourceStatus": "complete",
       "resultStatus": "missing",
@@ -18747,11 +20496,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "20°",
-        "windSpeed": "3.5m/s",
-        "waveHeight": "確認中",
-        "waterTemperature": "16.5℃"
+        "weather": "晴",
+        "windDirection": "東",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "19.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -20670,17 +22419,21 @@
       "closingTime": "08:35",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
+        "finishOrder": [
+          1,
+          2,
+          4
+        ],
         "trifecta": "1-2-4",
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "trifectaPayoutYen": 990,
+        "winningTechnique": "逃げ"
       },
       "exhibition": [
         {
@@ -20725,7 +22478,7 @@
         "windDirection": "南西",
         "windSpeed": "3m",
         "waveHeight": "3cm",
-        "waterTemperature": "15.4℃"
+        "waterTemperature": "15.6℃"
       },
       "waterCondition": null,
       "racers": [
@@ -20838,8 +22591,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -20856,61 +22609,65 @@
       "closingTime": "09:01",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
       "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          3,
+          4,
+          1
+        ],
+        "trifecta": "3-4-1",
+        "trifectaPayoutYen": 2030,
+        "winningTechnique": "まくり差し"
       },
       "exhibition": [
         {
           "lane": 1,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.71",
+          "startTiming": ".15",
+          "course": "1"
         },
         {
           "lane": 2,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.65",
+          "startTiming": ".27",
+          "course": "2"
         },
         {
           "lane": 3,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.64",
+          "startTiming": ".10",
+          "course": "3"
         },
         {
           "lane": 4,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.70",
+          "startTiming": ".16",
+          "course": "4"
         },
         {
           "lane": 5,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.69",
+          "startTiming": "F.02",
+          "course": "5"
         },
         {
           "lane": 6,
-          "exhibitionTime": null,
-          "startTiming": null,
-          "course": null
+          "exhibitionTime": "6.67",
+          "startTiming": ".13",
+          "course": "6"
         }
       ],
       "weather": {
         "weather": "晴",
         "windDirection": "南西",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
         "waterTemperature": "15.4℃"
       },
       "waterCondition": null,
@@ -21024,8 +22781,8 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
+        "result:available",
+        "payout:available",
         "exhibition:available",
         "weather:available",
         "water:not-supported",
@@ -21042,25 +22799,66 @@
       "closingTime": "09:27",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          5,
+          2
+        ],
+        "trifecta": "1-5-2",
+        "trifectaPayoutYen": 1680,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.67",
+          "startTiming": ".17",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.69",
+          "startTiming": ".30",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.73",
+          "startTiming": ".17",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.65",
+          "startTiming": ".10",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.77",
+          "startTiming": ".23",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.76",
+          "startTiming": ".39",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "晴",
         "windDirection": "南西",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
-        "waterTemperature": "15.4℃"
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "15.3℃"
       },
       "waterCondition": null,
       "racers": [
@@ -21173,9 +22971,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -21191,24 +22989,65 @@
       "closingTime": "09:53",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          4,
+          5,
+          6
+        ],
+        "trifecta": "4-5-6",
+        "trifectaPayoutYen": 24720,
+        "winningTechnique": "まくり"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.68",
+          "startTiming": ".01",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.79",
+          "startTiming": ".04",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.82",
+          "startTiming": "F.01",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.74",
+          "startTiming": ".18",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.68",
+          "startTiming": ".24",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.67",
+          "startTiming": ".14",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "晴",
-        "windDirection": "南西",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
+        "windDirection": "西",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
         "waterTemperature": "15.4℃"
       },
       "waterCondition": null,
@@ -21322,9 +23161,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -21340,24 +23179,65 @@
       "closingTime": "10:23",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          4,
+          6
+        ],
+        "trifecta": "1-4-6",
+        "trifectaPayoutYen": 1920,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.73",
+          "startTiming": ".13",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.69",
+          "startTiming": ".10",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.69",
+          "startTiming": ".16",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.70",
+          "startTiming": ".14",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.68",
+          "startTiming": ".13",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.68",
+          "startTiming": ".23",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "晴",
-        "windDirection": "南西",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
+        "windDirection": "西",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
         "waterTemperature": "15.4℃"
       },
       "waterCondition": null,
@@ -21471,9 +23351,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -21489,25 +23369,66 @@
       "closingTime": "10:53",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          4,
+          2
+        ],
+        "trifecta": "1-4-2",
+        "trifectaPayoutYen": 3070,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.63",
+          "startTiming": ".09",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.74",
+          "startTiming": ".13",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.74",
+          "startTiming": ".22",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.64",
+          "startTiming": "F.01",
+          "course": "5"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.70",
+          "startTiming": "F.05",
+          "course": "4"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.64",
+          "startTiming": ".06",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "晴",
         "windDirection": "南西",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
-        "waterTemperature": "15.4℃"
+        "windSpeed": "5m",
+        "waveHeight": "5cm",
+        "waterTemperature": "15.5℃"
       },
       "waterCondition": null,
       "racers": [
@@ -21620,9 +23541,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -21638,25 +23559,66 @@
       "closingTime": "11:24",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          2,
+          1,
+          5
+        ],
+        "trifecta": "2-1-5",
+        "trifectaPayoutYen": 930,
+        "winningTechnique": "差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.73",
+          "startTiming": ".07",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.68",
+          "startTiming": ".09",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.68",
+          "startTiming": "F.03",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.71",
+          "startTiming": "F.07",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.64",
+          "startTiming": "F.02",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.72",
+          "startTiming": ".05",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "晴",
         "windDirection": "南西",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
-        "waterTemperature": "15.4℃"
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "15.6℃"
       },
       "waterCondition": null,
       "racers": [
@@ -21769,9 +23731,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -21787,25 +23749,66 @@
       "closingTime": "11:53",
       "dayPart": "morning",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          3,
+          4,
+          2
+        ],
+        "trifecta": "3-4-2",
+        "trifectaPayoutYen": 6200,
+        "winningTechnique": "まくり差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.71",
+          "startTiming": ".03",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.69",
+          "startTiming": ".05",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.73",
+          "startTiming": ".09",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.69",
+          "startTiming": "F.03",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.76",
+          "startTiming": ".00",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.75",
+          "startTiming": ".26",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "晴",
         "windDirection": "南西",
-        "windSpeed": "3m",
-        "waveHeight": "3cm",
-        "waterTemperature": "15.4℃"
+        "windSpeed": "2m",
+        "waveHeight": "2cm",
+        "waterTemperature": "15.6℃"
       },
       "waterCondition": null,
       "racers": [
@@ -21918,9 +23921,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -21938,7 +23941,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -21948,13 +23951,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.73",
+          "startTiming": "F.04",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.70",
+          "startTiming": "F.14",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.71",
+          "startTiming": ".00",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.72",
+          "startTiming": "F.03",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.71",
+          "startTiming": "F.05",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.73",
+          "startTiming": ".03",
+          "course": "6"
+        }
+      ],
       "weather": {
         "weather": "晴",
         "windDirection": "南西",
         "windSpeed": "3m",
         "waveHeight": "3cm",
-        "waterTemperature": "15.4℃"
+        "waterTemperature": "15.6℃"
       },
       "waterCondition": null,
       "racers": [
@@ -22069,7 +24109,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -22087,7 +24127,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -22097,13 +24137,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
         "weather": "晴",
         "windDirection": "南西",
         "windSpeed": "3m",
         "waveHeight": "3cm",
-        "waterTemperature": "15.4℃"
+        "waterTemperature": "15.6℃"
       },
       "waterCondition": null,
       "racers": [
@@ -22218,7 +24295,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -22252,7 +24329,7 @@
         "windDirection": "南西",
         "windSpeed": "3m",
         "waveHeight": "3cm",
-        "waterTemperature": "15.4℃"
+        "waterTemperature": "15.6℃"
       },
       "waterCondition": null,
       "racers": [
@@ -22401,7 +24478,7 @@
         "windDirection": "南西",
         "windSpeed": "3m",
         "waveHeight": "3cm",
-        "waterTemperature": "15.4℃"
+        "waterTemperature": "15.6℃"
       },
       "waterCondition": null,
       "racers": [
@@ -22532,25 +24609,66 @@
       "closingTime": "10:46",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          3,
+          2
+        ],
+        "trifecta": "1-3-2",
+        "trifectaPayoutYen": 930,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.80",
+          "startTiming": "F.02",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.84",
+          "startTiming": ".03",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.81",
+          "startTiming": ".06",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.88",
+          "startTiming": ".02",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.89",
+          "startTiming": ".11",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.77",
+          "startTiming": ".10",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西南西",
+        "windSpeed": "5m",
+        "waveHeight": "5cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -22663,9 +24781,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -22681,25 +24799,66 @@
       "closingTime": "11:14",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          2,
+          3,
+          5
+        ],
+        "trifecta": "2-3-5",
+        "trifectaPayoutYen": 3110,
+        "winningTechnique": "差し"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.81",
+          "startTiming": ".11",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.78",
+          "startTiming": ".03",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.78",
+          "startTiming": ".03",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.86",
+          "startTiming": "F.05",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.85",
+          "startTiming": "F.07",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.98",
+          "startTiming": ".07",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西北西",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -22812,9 +24971,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -22830,25 +24989,66 @@
       "closingTime": "11:40",
       "dayPart": "day",
       "sourceStatus": "complete",
-      "resultStatus": "missing",
-      "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "resultStatus": "available",
+      "payoutStatus": "available",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
-        "finishOrder": [],
-        "trifecta": null,
-        "trifectaPayoutYen": null,
-        "winningTechnique": null
+        "finishOrder": [
+          1,
+          3,
+          2
+        ],
+        "trifecta": "1-3-2",
+        "trifectaPayoutYen": 1060,
+        "winningTechnique": "逃げ"
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.78",
+          "startTiming": ".13",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.83",
+          "startTiming": ".16",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.83",
+          "startTiming": ".18",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.78",
+          "startTiming": ".19",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.87",
+          "startTiming": ".35",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.81",
+          "startTiming": ".30",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西南西",
+        "windSpeed": "4m",
+        "waveHeight": "4cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -22961,9 +25161,9 @@
         "latestAnalysis": "public/data/boatrace-ex/derived/race-analysis/latest.json"
       },
       "analysisNotes": [
-        "result:missing",
-        "payout:missing",
-        "exhibition:missing",
+        "result:available",
+        "payout:available",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -22981,23 +25181,60 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
       "officialResult": {
         "finishOrder": [],
-        "trifecta": null,
+        "trifecta": "3-4-2",
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": "6.84",
+          "startTiming": ".09",
+          "course": "1"
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": "6.76",
+          "startTiming": ".15",
+          "course": "2"
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": "6.87",
+          "startTiming": ".11",
+          "course": "3"
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": "6.81",
+          "startTiming": ".07",
+          "course": "4"
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": "6.84",
+          "startTiming": ".31",
+          "course": "5"
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": "6.82",
+          "startTiming": ".07",
+          "course": "6"
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西南西",
+        "windSpeed": "5m",
+        "waveHeight": "5cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -23112,7 +25349,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -23130,7 +25367,7 @@
       "sourceStatus": "complete",
       "resultStatus": "missing",
       "payoutStatus": "missing",
-      "exhibitionStatus": "missing",
+      "exhibitionStatus": "available",
       "weatherStatus": "available",
       "waterStatus": "not-supported",
       "racerEvidenceStatus": "available",
@@ -23140,13 +25377,50 @@
         "trifectaPayoutYen": null,
         "winningTechnique": null
       },
-      "exhibition": [],
+      "exhibition": [
+        {
+          "lane": 1,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 2,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 3,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 4,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 5,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        },
+        {
+          "lane": 6,
+          "exhibitionTime": null,
+          "startTiming": null,
+          "course": null
+        }
+      ],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西南西",
+        "windSpeed": "5m",
+        "waveHeight": "5cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -23261,7 +25535,7 @@
       "analysisNotes": [
         "result:missing",
         "payout:missing",
-        "exhibition:missing",
+        "exhibition:available",
         "weather:available",
         "water:not-supported",
         "racer-linkage:official=6,exact-name=0,unresolved=0"
@@ -23291,11 +25565,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西南西",
+        "windSpeed": "5m",
+        "waveHeight": "5cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -23440,11 +25714,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西南西",
+        "windSpeed": "5m",
+        "waveHeight": "5cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -23589,11 +25863,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西南西",
+        "windSpeed": "5m",
+        "waveHeight": "5cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -23738,11 +26012,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西南西",
+        "windSpeed": "5m",
+        "waveHeight": "5cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -23887,11 +26161,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西南西",
+        "windSpeed": "5m",
+        "waveHeight": "5cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -24036,11 +26310,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西南西",
+        "windSpeed": "5m",
+        "waveHeight": "5cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
@@ -24185,11 +26459,11 @@
       },
       "exhibition": [],
       "weather": {
-        "weather": "確認中",
-        "windDirection": "確認中",
-        "windSpeed": "確認中",
-        "waveHeight": "確認中",
-        "waterTemperature": "確認中"
+        "weather": "晴",
+        "windDirection": "西南西",
+        "windSpeed": "5m",
+        "waveHeight": "5cm",
+        "waterTemperature": "21.0℃"
       },
       "waterCondition": null,
       "racers": [
