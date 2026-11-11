@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-current-day-registry-linkage-gap-audit",
+  "generatedAt": "2026-11-11T21:57:23.487Z",
+  "targetDate": "2026-11-12",
+  "policy": "registrationNo exact only; current-day supplement requires official source metadata and does not use name-only or fuzzy linkage",
+  "sourceFiles": [
+    "public/data/boatrace/today-race-details.generated.json",
+    "public/data/boatrace-ex/identity/registered-racers.generated.json",
+    "public/data/boatrace-ex/derived/racer-features/latest.json"
+  ],
+  "summary": {
+    "targetDate": "2026-11-12",
+    "venueCount": 13,
+    "raceCount": 156,
+    "slotCount": 852,
+    "registrationPresentCount": 852,
+    "beforeExactRegistryLinkedCount": 848,
+    "exactRegistryLinkedCount": 852,
+    "supplementedIdentityCount": 4,
+    "supplementedSlotCount": 4,
+    "unmatchedSlotCount": 0,
+    "unmatchedRegistrationNumberCount": 0,
+    "duplicateUnmatchedRegistrationNumbers": [],
+    "duplicateBaselineUnmatchedRegistrationNumbers": [],
+    "reasonCounts": {},
+    "baselineReasonCounts": {
+      "notInRegisteredIdentityRegistry": 4
+    }
+  },
+  "baselineUnmatchedExamples": [
+    {
+      "venueCode": "02",
+      "venueName": "戸田",
+      "raceNo": 3,
+      "frameNo": 6,
+      "racerName": "倉持 幸太郎",
+      "registrationNo": "5490",
+      "branch": "埼玉",
+      "age": "20",
+      "className": "B2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-11-12T06:52:07+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "02",
+      "venueName": "戸田",
+      "raceNo": 5,
+      "frameNo": 6,
+      "racerName": "坂村 凜",
+      "registrationNo": "5483",
+      "branch": "埼玉",
+      "age": "22",
+      "className": "B2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-11-12T06:52:07+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "raceNo": 2,
+      "frameNo": 6,
+      "racerName": "小紫 凌久",
+      "registrationNo": "5479",
+      "branch": "兵庫",
+      "age": "23",
+      "className": "B2",
+      "sourceName": "official:owpc-html+odds",
+      "sourceAcquiredAt": "2026-11-12T06:52:07+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    },
+    {
+      "venueCode": "23",
+      "venueName": "唐津",
+      "raceNo": 7,
+      "frameNo": 6,
+      "racerName": "伊藤 栞",
+      "registrationNo": "5305",
+      "branch": "愛知",
+      "age": "23",
+      "className": "B1",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-11-12T06:52:07+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    }
+  ],
+  "unmatchedExamples": [],
+  "venueSummary": [
+    {
+      "venueCode": "02",
+      "venueName": "戸田",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "04",
+      "venueName": "平和島",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "07",
+      "venueName": "蒲郡",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "10",
+      "venueName": "三国",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "16",
+      "venueName": "児島",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "17",
+      "venueName": "宮島",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "19",
+      "venueName": "下関",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "21",
+      "venueName": "芦屋",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "22",
+      "venueName": "福岡",
+      "slotCount": 24,
+      "exactLinkedCount": 24,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "23",
+      "venueName": "唐津",
+      "slotCount": 54,
+      "exactLinkedCount": 54,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "24",
+      "venueName": "大村",
+      "slotCount": 54,
+      "exactLinkedCount": 54,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    }
+  ]
+}
