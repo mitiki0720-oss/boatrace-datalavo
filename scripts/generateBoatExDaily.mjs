@@ -359,7 +359,12 @@ function main() {
 		existingHistory,
 		currentOfficialSource,
 	});
-	const shouldRefreshHistory = args.refreshHistory || lifecycleRefresh.shouldRefresh;
+	const shouldRefreshHistory = !lifecycleRefresh.blocked && (args.refreshHistory || lifecycleRefresh.shouldRefresh);
+	if (lifecycleRefresh.blocked) {
+		warnings.push(`EX history refresh held: ${lifecycleRefresh.reasons.join(", ")}; official results=${lifecycleRefresh.official.resultAvailableRaceCount}, history results=${lifecycleRefresh.history.resultAvailableRaceCount}, official payouts=${lifecycleRefresh.official.payoutAvailableRaceCount}, history payouts=${lifecycleRefresh.history.payoutAvailableRaceCount}`);
+		console.warn(`[boat-ex-daily] ${warnings.at(-1)}`);
+		if (!hadExistingHistory) throw new Error("EX history refresh held and no existing history is available");
+	}
 	const predictionShadowGeneration = runNode(
 		"scripts/generateBoatExPredictionShadowValidation.mjs", ["--phase", "generate", "--date", date, ...(args.dryRun ? ["--dry-run"] : [])],
 	);
