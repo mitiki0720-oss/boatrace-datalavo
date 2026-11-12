@@ -1,3 +1,5 @@
+import { hasExplicitOfficialResultInvalidation, hasOfficialResultIdentity } from "./boatExhibitionSnapshotPreservation.mjs";
+
 const text = (value) => String(value ?? "").trim();
 const array = (value) => Array.isArray(value) ? value : [];
 
@@ -20,6 +22,17 @@ const hasHistoryTrifectaPayout = (record) => array(record?.officialResult?.payou
 	return (betType.includes("3連単") || betType.includes("trifecta")) &&
 		isAvailable(payout?.payoutYen ?? payout?.payout ?? payout?.amount);
 });
+
+const trifectaPayoutText = (items) => {
+	const payout = array(items).find((item) => {
+		const type = text(item?.betType ?? item?.type ?? item?.label).toLowerCase();
+		return type.includes("3連単") || type.includes("trifecta");
+	});
+	return text(payout?.payoutYen ?? payout?.payout ?? payout?.amount);
+};
+
+const currentTrifectaPayoutText = (result) => text(result?.payout3tan?.payout ?? result?.payout3tan?.payoutYen) ||
+	trifectaPayoutText([...array(result?.payoutsFull), ...array(result?.payouts)]);
 
 const countDisplayTimes = (race) => array(race?.exhibitions).filter((entry) =>
 	isAvailable(entry?.exhibitionTime ?? entry?.displayTime)
@@ -82,10 +95,10 @@ export function evaluateBoatExCurrentDayHistoryRefresh({ targetDate, existingHis
 	const official = summarizeBoatExCurrentOfficialLifecycle(currentOfficialSource, targetDate);
 	const history = summarizeBoatExHistoryLifecycle(existingHistory, targetDate);
 	if (!official.dateMatches) {
-		return { shouldRefresh: false, reason: "current-source-date-mismatch", reasons: ["current-source-date-mismatch"], official, history };
+		return { shouldRefresh: false, blocked: true, reason: "current-source-date-mismatch", reasons: ["current-source-date-mismatch"], official, history };
 	}
 	if (official.raceCount === 0) {
-		return { shouldRefresh: false, reason: "current-source-empty", reasons: ["current-source-empty"], official, history };
+		return { shouldRefresh: false, blocked: true, reason: "current-source-empty", reasons: ["current-source-empty"], official, history };
 	}
 	if (!existingHistory) {
 		return { shouldRefresh: true, reason: "history-missing", reasons: ["history-missing"], official, history };
@@ -96,14 +109,69 @@ export function evaluateBoatExCurrentDayHistoryRefresh({ targetDate, existingHis
 	if (official.raceCount < history.raceCount) {
 		return {
 			shouldRefresh: false,
+			blocked: true,
 			reason: "current-source-race-coverage-smaller",
 			reasons: ["current-source-race-coverage-smaller"],
 			official,
 			history,
 		};
 	}
+	const currentRaces = new Map(array(currentOfficialSource.venues).flatMap((venue) =>
+		array(venue?.races).map((race) => [`${text(venue.venueCode)}:${Number(race.raceNo)}`, { venue, race }])));
+	const lostResults = [];
+	const lostPayouts = [];
+	let terminalCorrections = 0;
+	let confirmedCorrections = 0;
+	for (const record of array(existingHistory.records)) {
+		const key = `${text(record.venueCode)}:${Number(record.raceNo)}`;
+		const current = currentRaces.get(key);
+		const oldResult = record.coverage?.officialResult === "complete" && array(record.officialResult?.finishOrder).length >= 3;
+		const oldPayout = oldResult && hasHistoryTrifectaPayout(record);
+		if (!oldResult && !oldPayout) continue;
+		const newResult = current && hasCompleteOfficialResult(current.race);
+		const newPayout = newResult && hasOfficialTrifectaPayout(current.race);
+		const previousAt = latestTimestamp(array(record.sources).map((source) => source?.sourceFetchedAt ?? source?.generatedAt));
+		if (newResult && (!oldPayout || newPayout)) {
+			const oldOrder = array(record.officialResult?.finishOrder).slice(0, 3).map(String).join("-");
+			const newOrder = array(current.race.result?.finishOrder).slice(0, 3).map(String).join("-");
+			const oldPayoutText = trifectaPayoutText(record.officialResult?.payout);
+			const newPayoutText = currentTrifectaPayoutText(current.race.result);
+			if ((oldOrder !== newOrder || (oldPayoutText && newPayoutText && oldPayoutText !== newPayoutText)) &&
+				hasOfficialResultIdentity(current.race, targetDate, current.venue.venueCode, { finalizedAt: previousAt })) {
+				confirmedCorrections += 1;
+			}
+			continue;
+		}
+		const corrected = current && hasExplicitOfficialResultInvalidation(current.race, targetDate, current.venue.venueCode, {
+			finalizedAt: previousAt,
+		});
+		if (corrected) {
+			terminalCorrections += 1;
+			continue;
+		}
+		if (oldResult && !newResult) lostResults.push(key);
+		if (oldPayout && !newPayout) lostPayouts.push(key);
+	}
+	if (lostResults.length || lostPayouts.length ||
+		official.resultAvailableRaceCount + terminalCorrections < history.resultAvailableRaceCount ||
+		official.payoutAvailableRaceCount + terminalCorrections < history.payoutAvailableRaceCount) {
+		const reasons = [
+			...(lostResults.length || official.resultAvailableRaceCount + terminalCorrections < history.resultAvailableRaceCount ? ["result-coverage-regressed"] : []),
+			...(lostPayouts.length || official.payoutAvailableRaceCount + terminalCorrections < history.payoutAvailableRaceCount ? ["payout-coverage-regressed"] : []),
+		];
+		return {
+			shouldRefresh: false,
+			blocked: true,
+			reason: reasons[0],
+			reasons,
+			regressionDetails: { lostResults: lostResults.slice(0, 24), lostPayouts: lostPayouts.slice(0, 24) },
+			official,
+			history,
+		};
+	}
 
 	const reasons = [];
+	if (terminalCorrections || confirmedCorrections) reasons.push("explicit-official-result-correction");
 	for (const key of [
 		"raceCount",
 		"resultAvailableRaceCount",

@@ -298,6 +298,10 @@ function timeToMinutes(time) {
 }
 
 function isRaceDeadlinePassed(deadlineTime, timestamps) {
+const acquiredDate = String(timestamps.generatedAt ?? "").slice(0, 10);
+if (/^\d{4}-\d{2}-\d{2}$/.test(acquiredDate) && acquiredDate !== timestamps.date) {
+return timestamps.date < acquiredDate;
+}
 const deadlineMinutes = timeToMinutes(deadlineTime);
 
 if (!Number.isInteger(deadlineMinutes)) {
@@ -337,9 +341,15 @@ finalOdds: null,
 };
 }
 
-function sanitizeRaceResultByTimeline(result, deadlineTime, timestamps) {
+export function sanitizeRaceResultByTimeline(result, deadlineTime, timestamps) {
 if (!result || typeof result !== "object") {
 return result ?? null;
+}
+
+if (["cancelled", "canceled", "no-race", "invalid"].includes(String(result.status)) &&
+	String(result.source ?? "").startsWith("official:owpc-html+") &&
+	/中止|不成立|全額返還/.test(String(result.notes ?? result.remarks ?? ""))) {
+return result;
 }
 
 if (isRaceDeadlinePassed(deadlineTime, timestamps)) {
@@ -1243,12 +1253,14 @@ function normalizeResult(result, generatedAt) {
 		};
 	}
 
-	const payoutsFull = Array.isArray(result.payoutsFull)
+	const individualPayouts = [result.payout3tan, result.payout2tan, result.payout3fuku,
+		result.payout2fuku, result.payoutWide, result.payoutWin, result.payoutPlace].flat().filter(Boolean);
+	const payoutsFull = Array.isArray(result.payoutsFull) && result.payoutsFull.length
 		? result.payoutsFull
-		: Array.isArray(result.payouts)
+		: Array.isArray(result.payouts) && result.payouts.length
 			? result.payouts
-			: [];
-	const startInfos = Array.isArray(result.startInfos)
+			: individualPayouts;
+	const startInfos = Array.isArray(result.startInfos) && result.startInfos.length
 		? result.startInfos
 		: Array.isArray(result.startInfo)
 			? result.startInfo
@@ -1271,7 +1283,7 @@ function normalizeResult(result, generatedAt) {
 		payoutWide: Array.isArray(result.payoutWide) ? result.payoutWide : result.payoutWide ? [result.payoutWide] : null,
 		payoutWin: result.payoutWin ?? null,
 		payoutPlace: Array.isArray(result.payoutPlace) ? result.payoutPlace : result.payoutPlace ? [result.payoutPlace] : null,
-		payouts: Array.isArray(result.payouts) ? result.payouts : payoutsFull,
+		payouts: Array.isArray(result.payouts) && result.payouts.length ? result.payouts : payoutsFull,
 		payoutsFull,
 		refunds: Array.isArray(result.refunds) ? result.refunds : [],
 		refundText: result.refundText,
@@ -1279,6 +1291,9 @@ function normalizeResult(result, generatedAt) {
 		notes: result.notes ?? result.remarks,
 		weatherActual: result.weatherActual,
 		finalizedAt: result.finalizedAt ?? (isFinalizedResultStatus(status) ? generatedAt : undefined),
+		source: result.source,
+		sourceUrl: result.sourceUrl,
+		fetchedAt: result.fetchedAt,
 		finalOdds: result.finalOdds ?? null,
 	};
 }
@@ -1634,7 +1649,7 @@ function parseRaceListPage(html, currentRaceNo) {
 	};
 }
 
-function parseResultListPage(html) {
+function parseResultListPage(html, { sourceUrl = "", fetchedAt = "" } = {}) {
 	const $ = load(html);
 	const raceMap = new Map();
 
@@ -1658,14 +1673,18 @@ function parseResultListPage(html) {
 			const finishOrder = secondRow.find(".numberSet3_number").toArray().map((element) => compactText($(element).text())).filter(Boolean).slice(0, 3);
 			const kimarite = compactText(firstRowCells.eq(firstRowCells.length - 2).text()) || null;
 			const notes = compactText(firstRowCells.eq(firstRowCells.length - 1).text()) || undefined;
+			const cancelled = finishOrder.length < 3 && /中止|不成立|全額返還/.test(notes ?? "");
 
 			raceMap.set(raceNo, {
 				raceNo,
 				title: compactText(firstRowCells.eq(1).text()) || null,
 				resultUrl: toAbsoluteUrl(firstRow.find("a").first().attr("href")),
 				result: {
-					status: finishOrder.length >= 3 ? "confirmed" : "pending",
+					status: finishOrder.length >= 3 ? "confirmed" : cancelled ? "cancelled" : "pending",
 					finishOrder,
+					source: "official:owpc-html+resultlist",
+					sourceUrl,
+					fetchedAt,
 					kimarite,
 					winningMethod: kimarite,
 					notes,
@@ -2809,9 +2828,36 @@ function mergeOddsPreview(baseOddsPreview, officialOddsPreview) {
 	};
 }
 
-function mergeRaceResult(baseResult, officialResult) {
+export function mergeRaceResult(baseResult, officialResult) {
 	if (!officialResult) {
 		return baseResult ?? null;
+	}
+	if (["cancelled", "canceled", "no-race", "invalid"].includes(String(officialResult.status))) {
+		return officialResult;
+	}
+	const baseOrder = Array.isArray(baseResult?.finishOrder) ? baseResult.finishOrder.map(String).slice(0, 3) : [];
+	const officialOrder = Array.isArray(officialResult.finishOrder) ? officialResult.finishOrder.map(String).slice(0, 3) : [];
+	const sameOrder = officialOrder.length < 3 || baseOrder.join("-") === officialOrder.join("-");
+	const hasPayoutValue = (value) => Array.isArray(value) ? value.length > 0 : value !== null && value !== undefined && value !== "";
+	const payoutChanged = ["payout3tan", "payout2tan", "payout3fuku", "payout2fuku", "payoutWide", "payoutWin", "payoutPlace", "payouts", "payoutsFull"]
+		.some((field) => hasPayoutValue(officialResult[field]) && hasPayoutValue(baseResult?.[field]) &&
+			!isDeepStrictEqual(officialResult[field], baseResult[field]));
+	const basePayoutResult = sameOrder && !payoutChanged ? baseResult : null;
+	const transientAfterConfirmed = baseOrder.length === 3 &&
+		(baseResult?.status === "confirmed" || baseResult?.status === "finished") &&
+		officialOrder.length < 3 &&
+		!["cancelled", "canceled", "no-race", "invalid"].includes(String(officialResult.status));
+	if (transientAfterConfirmed) {
+		return mergeRaceResult(baseResult, {
+			...officialResult,
+			status: baseResult.status,
+			finishOrder: baseResult.finishOrder,
+			source: baseResult.source,
+			sourceUrl: baseResult.sourceUrl,
+			fetchedAt: baseResult.fetchedAt,
+			notes: /未取得|未公開|確認中/.test(String(officialResult.notes ?? ""))
+				? baseResult.notes : officialResult.notes ?? baseResult.notes,
+		});
 	}
 
 	const startInfos = officialResult.startInfos?.length
@@ -2825,9 +2871,9 @@ function mergeRaceResult(baseResult, officialResult) {
 		? officialResult.payouts
 		: officialResult.payoutsFull?.length
 			? officialResult.payoutsFull
-			: baseResult?.payouts?.length
-				? baseResult.payouts
-				: baseResult?.payoutsFull ?? [];
+		: basePayoutResult?.payouts?.length
+				? basePayoutResult.payouts
+				: basePayoutResult?.payoutsFull ?? [];
 
 	return {
 		...(baseResult ?? {}),
@@ -2836,17 +2882,17 @@ function mergeRaceResult(baseResult, officialResult) {
 		finishers: officialResult.finishers?.length ? officialResult.finishers : baseResult?.finishers ?? [],
 		startInfo: startInfos,
 		startInfos,
-		payout3tan: officialResult.payout3tan ?? baseResult?.payout3tan ?? null,
-		payout2tan: officialResult.payout2tan ?? baseResult?.payout2tan ?? null,
-		payout3fuku: officialResult.payout3fuku ?? baseResult?.payout3fuku ?? null,
-		payout2fuku: officialResult.payout2fuku ?? baseResult?.payout2fuku ?? null,
-		payoutWide: officialResult.payoutWide ?? baseResult?.payoutWide ?? null,
-		payoutWin: officialResult.payoutWin ?? baseResult?.payoutWin ?? null,
-		payoutPlace: officialResult.payoutPlace ?? baseResult?.payoutPlace ?? null,
+		payout3tan: officialResult.payout3tan ?? basePayoutResult?.payout3tan ?? null,
+		payout2tan: officialResult.payout2tan ?? basePayoutResult?.payout2tan ?? null,
+		payout3fuku: officialResult.payout3fuku ?? basePayoutResult?.payout3fuku ?? null,
+		payout2fuku: officialResult.payout2fuku ?? basePayoutResult?.payout2fuku ?? null,
+		payoutWide: officialResult.payoutWide ?? basePayoutResult?.payoutWide ?? null,
+		payoutWin: officialResult.payoutWin ?? basePayoutResult?.payoutWin ?? null,
+		payoutPlace: officialResult.payoutPlace ?? basePayoutResult?.payoutPlace ?? null,
 		payouts,
-		payoutsFull: officialResult.payoutsFull?.length ? officialResult.payoutsFull : baseResult?.payoutsFull ?? [],
-		refunds: officialResult.refunds?.length ? officialResult.refunds : baseResult?.refunds ?? [],
-		refundText: officialResult.refundText ?? baseResult?.refundText,
+		payoutsFull: officialResult.payoutsFull?.length ? officialResult.payoutsFull : basePayoutResult?.payoutsFull ?? [],
+		refunds: officialResult.refunds?.length ? officialResult.refunds : basePayoutResult?.refunds ?? [],
+		refundText: officialResult.refundText ?? basePayoutResult?.refundText,
 		remarks: officialResult.remarks ?? baseResult?.remarks,
 		notes: officialResult.notes ?? officialResult.remarks ?? baseResult?.notes,
 		winningMove: officialResult.winningMove ?? officialResult.winningMethod ?? officialResult.kimarite ?? baseResult?.winningMove ?? baseResult?.winningMethod ?? baseResult?.kimarite,
@@ -3121,7 +3167,7 @@ export async function fetchVenueRaceDetails(venue, { fallbackVenueByCode, venueE
 	const resultListUrl = venue?.links?.resultListUrl ?? OFFICIAL_ENDPOINTS.venueResultList(venue.venueCode, timestamps.dateKey);
 	const raceTitles = options.fetchSections.raceTitles ? await fetchRaceTitles(venue, timestamps) : [];
 	const resultListHtml = options.fetchSections.resultList ? await fetchOfficialHtml(resultListUrl) : null;
-let resultListRaces = resultListHtml ? parseResultListPage(resultListHtml) : [];
+let resultListRaces = resultListHtml ? parseResultListPage(resultListHtml, { sourceUrl: resultListUrl, fetchedAt: timestamps.generatedAt }) : [];
 
 resultListRaces = sanitizeResultListRacesForTimeline({
 races: resultListRaces,
@@ -3183,8 +3229,15 @@ const detailedHtml = await fetchOfficialHtml(OFFICIAL_ENDPOINTS.venueResult(venu
 
 		const detailedResult = parseDetailedResultPage(detailedHtml);
 		if (Object.keys(detailedResult).length > 0) {
-			detailedResult.status = detailedResult.status ?? "confirmed";
-			detailedResult.finalizedAt = detailedResult.finalizedAt ?? timestamps.generatedAt;
+			if (detailedResult.finishOrder?.length >= 3) {
+				detailedResult.status = "confirmed";
+				detailedResult.finalizedAt = timestamps.generatedAt;
+			} else if (/中止|不成立|全額返還/.test(String(detailedResult.notes ?? detailedResult.remarks ?? ""))) {
+				detailedResult.status = "cancelled";
+			}
+			detailedResult.source = "official:owpc-html+raceresult";
+			detailedResult.sourceUrl = OFFICIAL_ENDPOINTS.venueResult(venue.venueCode, timestamps.dateKey, raceNo);
+			detailedResult.fetchedAt = timestamps.generatedAt;
 		}
 
 		detailedRaceResults.push({ raceNo, result: detailedResult });
@@ -3369,6 +3422,10 @@ export async function main(rawOptions = {}) {
 
 	const feed = buildTodayRaceDetailsFeed({ raceIndex, venueDetails: normalizedVenueDetails, generatedAt: timestamps.generatedAt, date: timestamps.date });
 	const preservationResult = preserveTodayRaceDetailsFeed(feed, existingFeed, { generatedAt: timestamps.generatedAt });
+	console.log(`[boat details] preserved official results: ${preservationResult.preservedResultCount ?? 0}`);
+	for (const reason of (preservationResult.resultReasons ?? []).slice(0, 24)) {
+		console.log(`[boat details] result protection: ${reason}`);
+	}
 	const writtenPaths = await writeTodayRaceDetailsJson(feed);
 	for (const writtenPath of writtenPaths) {
 		console.log(`updated: ${writtenPath}`);

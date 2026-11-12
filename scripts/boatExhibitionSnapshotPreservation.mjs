@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { isDeepStrictEqual } from "node:util";
 
 const EXPLICIT_NO_PRESERVE_PATTERN =
 	/欠場|中止|不成立|返還|取消|艇変更|再展示|absence|cancel|cancelled|canceled|withdraw|withdrawn|scratch|scratched|refund|no[-\s]?race|re[-\s]?exhibition/i;
@@ -149,13 +150,89 @@ function markSourceAvailable(race, fields) {
 	}
 }
 
+const RESULT_INVALIDATION_STATUSES = new Set(["cancelled", "canceled", "no-race", "invalid"]);
+const RESULT_PAYOUT_FIELDS = [
+	"payout3tan", "payout2tan", "payout3fuku", "payout2fuku", "payoutWide",
+	"payoutWin", "payoutPlace", "payouts", "payoutsFull", "refunds", "refundText",
+];
+
+function isConfirmedResult(result) {
+	return toArray(result?.finishOrder).length >= 3 &&
+		(["confirmed", "finished"].includes(readText(result?.status)) || Boolean(result?.finalizedAt));
+}
+
+function finishOrderKey(result) {
+	return toArray(result?.finishOrder).slice(0, 3).map(String).join("-");
+}
+
+function hasValue(value) {
+	return Array.isArray(value) ? value.length > 0 : value !== null && value !== undefined && value !== "";
+}
+
+export function hasOfficialResultIdentity(race, date, venueCode, previousResult) {
+	const result = race?.result;
+	if (!readText(result?.source).startsWith("official:owpc-html+")) return false;
+	const fetchedAt = Date.parse(readText(result?.fetchedAt));
+	const previousAt = Date.parse(readText(previousResult?.finalizedAt));
+	if (!Number.isFinite(fetchedAt) || (Number.isFinite(previousAt) && fetchedAt <= previousAt)) return false;
+	try {
+		const url = new URL(readText(result?.sourceUrl));
+		return url.protocol === "https:" && url.hostname === "www.boatrace.jp" &&
+			["/owpc/pc/race/raceresult", "/owpc/pc/race/resultlist"].includes(url.pathname) &&
+			url.searchParams.get("hd") === date.replaceAll("-", "") &&
+			url.searchParams.get("jcd") === readText(venueCode).padStart(2, "0") &&
+			(url.pathname.endsWith("resultlist") || Number(url.searchParams.get("rno")) === normalizeRaceNo(race?.raceNo));
+	} catch {
+		return false;
+	}
+}
+
+export function hasExplicitOfficialResultInvalidation(race, date, venueCode, previousResult) {
+	const result = race?.result;
+	return RESULT_INVALIDATION_STATUSES.has(readText(result?.status)) &&
+		/中止|不成立|全額返還/.test(readText(result?.notes ?? result?.remarks)) &&
+		hasOfficialResultIdentity(race, date, venueCode, previousResult);
+}
+
+function preserveOfficialResult(race, previousRace, date, venueCode, generatedAt, previousFeed) {
+	const previousResult = previousRace?.result;
+	if (!isConfirmedResult(previousResult)) return null;
+	if (hasExplicitOfficialResultInvalidation(race, date, venueCode, previousResult)) return null;
+	const result = race?.result;
+	let preservedFields = [];
+	let reason = "";
+	if (!isConfirmedResult(result) || !["confirmed", "finished"].includes(readText(result?.status))) {
+		race.result = previousResult;
+		preservedFields = ["result"];
+		reason = "new official result is pending, unavailable, or incomplete";
+	} else if (finishOrderKey(result) === finishOrderKey(previousResult)) {
+		const payoutChanged = RESULT_PAYOUT_FIELDS.some((field) =>
+			hasValue(result[field]) && hasValue(previousResult[field]) && !isDeepStrictEqual(result[field], previousResult[field]));
+		if (!payoutChanged) {
+			copyIfMissing(result, previousResult, RESULT_PAYOUT_FIELDS, preservedFields, "result.");
+			if (preservedFields.length) reason = "same finish order but new official payout fields are missing";
+		}
+	}
+	if (!preservedFields.length) return null;
+	const previousCapturedAt = previousResult.finalizedAt ?? previousFeed?.generatedAt ?? null;
+		race.resultSnapshotPreservation = {
+		preservedFromPreviousSnapshot: true,
+		preservedAt: generatedAt,
+		previousCapturedAt,
+		preservedFields,
+		reason,
+	};
+	return `${venueCode}#${race.raceNo}: ${reason} (${preservedFields.join(", ")})`;
+}
+
 export function preserveTodayRaceDetailsFeed(feed, previousFeed, { generatedAt = feed?.generatedAt } = {}) {
 	if (!feed || !previousFeed || feed.date !== previousFeed.date) {
-		return { feed, preservedCount: 0 };
+		return { feed, preservedCount: 0, preservedResultCount: 0, resultReasons: [] };
 	}
 
 	const previousVenues = mapVenuesByKey(previousFeed);
 	let preservedCount = 0;
+	const resultReasons = [];
 
 	for (const venue of toArray(feed.venues)) {
 		const previousVenue = previousVenues.get(venueKey(venue));
@@ -163,7 +240,13 @@ export function preserveTodayRaceDetailsFeed(feed, previousFeed, { generatedAt =
 
 		for (const race of toArray(venue.races)) {
 			const previousRace = previousRaces.get(normalizeRaceNo(race?.raceNo));
-			if (!previousRace || hasExplicitExhibitionNoPreserveState(race)) {
+			if (!previousRace || (venue.date && venue.date !== feed.date) ||
+				(previousVenue?.date && previousVenue.date !== feed.date)) {
+				continue;
+			}
+			const resultReason = preserveOfficialResult(race, previousRace, feed.date, venue.venueCode, generatedAt, previousFeed);
+			if (resultReason) resultReasons.push(resultReason);
+			if (hasExplicitExhibitionNoPreserveState(race)) {
 				continue;
 			}
 			if (countDetailsExhibitionRows(race) > 0 || countDetailsExhibitionRows(previousRace) === 0) {
@@ -185,7 +268,7 @@ export function preserveTodayRaceDetailsFeed(feed, previousFeed, { generatedAt =
 		}
 	}
 
-	return { feed, preservedCount };
+	return { feed, preservedCount, preservedResultCount: resultReasons.length, resultReasons };
 }
 
 export function preserveVenueExtrasFeed(feed, previousFeed, { generatedAt = feed?.generatedAt } = {}) {
