@@ -42,11 +42,12 @@ on:
         required: false
         default: "false"
   schedule:
-    # 00:05 JST, 06:05 JST, and 23:30 JST. GitHub Actions schedules are UTC.
+    # 00:05, 06:05, 09:30-21:30 every 3 hours, and 23:30 JST. Schedules are UTC.
     # 06:05 JST refreshes all official pre-race material once after morning publication.
     # 23:30 JST runs final mode so result-backed BOATRACE EX analysis can settle the current day.
     - cron: "5 15 * * *"
     - cron: "5 21 * * *"
+    - cron: "30 0,3,6,9,12 * * *"
     - cron: "30 14 * * *"
 
 concurrency:
@@ -94,6 +95,9 @@ jobs:
           MODE="$REQUESTED_MODE"
           CURRENT_JST_DATE="$(TZ=Asia/Tokyo date +%F)"
           SCHEDULED_INTENDED_DATE=""
+          if [ "$EVENT_SCHEDULE" = "30 0,3,6,9,12 * * *" ]; then
+            MODE="results"
+          fi
           if [ "$EVENT_SCHEDULE" = "30 14 * * *" ]; then
             MODE="final"
             SCHEDULED_INTENDED_DATE="$(node scripts/boatUpdateScheduleDate.mjs --schedule "$EVENT_SCHEDULE")"

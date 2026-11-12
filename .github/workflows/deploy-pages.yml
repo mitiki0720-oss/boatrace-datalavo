@@ -8,6 +8,7 @@ on:
   workflow_run:
     workflows:
       - Update boat race data
+      - Update midnight boat venue data
     types:
       - completed
 
@@ -25,12 +26,18 @@ jobs:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    outputs:
+      source_sha: ${{ steps.source.outputs.sha }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: main
+
+      - name: Record main revision for this build
+        id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -58,6 +65,22 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
+      - name: Checkout main to verify build revision
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Reject a build superseded by newer data
+        env:
+          BUILT_SHA: ${{ needs.build.outputs.source_sha }}
+        run: |
+          git fetch origin main
+          CURRENT_SHA="$(git rev-parse FETCH_HEAD)"
+          if [ "$CURRENT_SHA" != "$BUILT_SHA" ]; then
+            echo "::error::main advanced after this Pages build; a newer run must deploy it"
+            exit 1
+          fi
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
