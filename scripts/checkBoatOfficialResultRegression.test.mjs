@@ -67,7 +67,8 @@ test("pendingの結果表と詳細表を結合しても確定着順・状態・�
 	assert.equal(result.status, "confirmed");
 	assert.deepEqual(result.finishOrder, confirmed().finishOrder);
 	assert.deepEqual(result.payout3tan, confirmed().payout3tan);
-	assert.deepEqual(result.startInfo, [{ frameNo: 2, stDisplay: ".13" }]);
+	assert.deepEqual(result.startInfo, confirmed().startInfo);
+	assert.deepEqual(result.startInfos, confirmed().startInfo);
 	assert.equal(result.fetchedAt, confirmed().fetchedAt);
 });
 
@@ -82,10 +83,82 @@ test("公式訂正で着順が変わった場合は新結果・新払戻を採�
 	const corrected = { ...confirmed(), finishOrder: ["2", "1", "3"],
 		payout3tan: { betType: "3連単", combination: "2-1-3", payout: "2,400円" },
 		payouts: [{ betType: "3連単", combination: "2-1-3", payout: "2,400円" }],
-		finalizedAt: "2026-11-12T09:00:00+09:00" };
+		finalizedAt: "2026-11-12T09:00:00+09:00", fetchedAt: "2026-11-12T09:00:00+09:00" };
 	const candidate = feed(corrected);
 	outcome(candidate, feed(confirmed()));
 	assert.deepEqual(candidate.venues[0].races[0].result, corrected);
+});
+
+test("取得証拠のない異なる着順と払戻を拒否", () => {
+	const changed = { ...confirmed(), finishOrder: ["2", "1", "3"], source: "unknown", sourceUrl: "", fetchedAt: "",
+		payout3tan: { betType: "3連単", combination: "2-1-3", payout: "2,400円" } };
+	const candidate = feed(changed);
+	const preservation = outcome(candidate, feed(confirmed()));
+	assert.deepEqual(candidate.venues[0].races[0].result, confirmed());
+	assert.match(preservation.resultReasons[0], /unverified/);
+});
+
+test("取得証拠のない払戻訂正を拒否", () => {
+	const changed = { ...confirmed(), source: "unknown", sourceUrl: "", fetchedAt: "",
+		payout3tan: { betType: "3連単", combination: "1-2-3", payout: "2,400円" } };
+	const candidate = feed(changed);
+	outcome(candidate, feed(confirmed()));
+	assert.deepEqual(candidate.venues[0].races[0].result, confirmed());
+});
+
+test("取得証拠のない訂正は展示増加や手動更新でもEX履歴を保留", () => {
+	const changed = { ...confirmed(), finishOrder: ["2", "1", "3"], source: "unknown", sourceUrl: "", fetchedAt: "" };
+	const candidate = feed(changed, date, 1, Array.from({ length: 6 }, (_, frameNo) => ({ frameNo: frameNo + 1, exhibitionTime: "6.80" })));
+	const decision = evaluateBoatExCurrentDayHistoryRefresh({ targetDate: date,
+		existingHistory: { date, records: [history(1).records[0]] }, currentOfficialSource: candidate });
+	assert.equal(decision.blocked, true);
+	assert.equal(decision.shouldRefresh, false);
+});
+
+test("取得証拠のない払戻訂正もEX履歴を保留", () => {
+	const changed = { ...confirmed(), payout3tan: { betType: "3連単", combination: "1-2-3", payout: "2,400円" },
+		source: "unknown", sourceUrl: "", fetchedAt: "" };
+	const decision = evaluateBoatExCurrentDayHistoryRefresh({ targetDate: date,
+		existingHistory: { date, records: [history(1).records[0]] }, currentOfficialSource: feed(changed) });
+	assert.equal(decision.blocked, true);
+	assert.ok(decision.reasons.includes("unverified-official-result-correction"));
+});
+
+test("R番号のない結果一覧URLや古い取得時刻は訂正根拠にしない", () => {
+	for (const changed of [
+		{ ...confirmed(), finishOrder: ["2", "1", "3"],
+			sourceUrl: "https://www.boatrace.jp/owpc/pc/race/resultlist?hd=20261111&jcd=01",
+			fetchedAt: "2026-11-12T09:00:00+09:00" },
+		{ ...confirmed(), finishOrder: ["2", "1", "3"], fetchedAt: "2026-11-11T19:00:00+09:00" },
+	]) {
+		const candidate = feed(changed);
+		outcome(candidate, feed(confirmed()));
+		assert.deepEqual(candidate.venues[0].races[0].result, confirmed());
+	}
+});
+
+test("公式取得根拠のある訂正STを採用し両フィールドを揃える", () => {
+	const newStart = [{ frameNo: 1, stDisplay: ".15" }];
+	const corrected = { ...confirmed(), finishOrder: ["2", "1", "3"], startInfo: newStart, startInfos: newStart,
+		fetchedAt: "2026-11-12T09:00:00+09:00" };
+	const result = mergeRaceResult(confirmed(), corrected);
+	assert.deepEqual(result.startInfo, newStart);
+	assert.deepEqual(result.startInfos, newStart);
+});
+
+test("不整合なstartInfoとstartInfosは確定STへ混ぜない", () => {
+	const candidate = { ...confirmed(), startInfo: [{ frameNo: 1, stDisplay: ".15" }],
+		startInfos: [{ frameNo: 1, stDisplay: ".18" }], fetchedAt: "2026-11-12T09:00:00+09:00" };
+	const result = mergeRaceResult(confirmed(), candidate);
+	assert.deepEqual(result.startInfo, confirmed().startInfo);
+	assert.deepEqual(result.startInfos, confirmed().startInfo);
+});
+
+test("異なるR番号の公式URLは確定STの訂正根拠にならない", () => {
+	const candidate = { ...confirmed(), startInfo: [{ frameNo: 1, stDisplay: ".15" }],
+		sourceUrl: "https://www.boatrace.jp/owpc/pc/race/raceresult?hd=20261111&jcd=01&rno=2",
+		fetchedAt: "2026-11-12T09:00:00+09:00" };
+	assert.deepEqual(mergeRaceResult(confirmed(), candidate).startInfo, confirmed().startInfo);
 });
 
 test("訂正された着順に古い払戻を流用しない", () => {
@@ -122,7 +195,8 @@ test("日付が違う公式URLを訂正根拠にせず旧確定結果を保持",
 });
 
 test("同一着順でも明示的に変わった払戻額を旧値で埋めない", () => {
-	const updated = { ...confirmed(), payout3tan: { betType: "3連単", combination: "1-2-3", payout: "1,500円" }, payouts: [] };
+	const updated = { ...confirmed(), payout3tan: { betType: "3連単", combination: "1-2-3", payout: "1,500円" }, payouts: [],
+		fetchedAt: "2026-11-12T09:00:00+09:00" };
 	const candidate = feed(updated);
 	outcome(candidate, feed(confirmed()));
 	assert.equal(candidate.venues[0].races[0].result.payout3tan.payout, "1,500円");

@@ -173,15 +173,18 @@ export function hasOfficialResultIdentity(race, date, venueCode, previousResult)
 	const result = race?.result;
 	if (!readText(result?.source).startsWith("official:owpc-html+")) return false;
 	const fetchedAt = Date.parse(readText(result?.fetchedAt));
-	const previousAt = Date.parse(readText(previousResult?.finalizedAt));
+	const previousAt = Math.max(
+		Date.parse(readText(previousResult?.finalizedAt)) || 0,
+		Date.parse(readText(previousResult?.fetchedAt)) || 0,
+	);
 	if (!Number.isFinite(fetchedAt) || (Number.isFinite(previousAt) && fetchedAt <= previousAt)) return false;
 	try {
 		const url = new URL(readText(result?.sourceUrl));
 		return url.protocol === "https:" && url.hostname === "www.boatrace.jp" &&
-			["/owpc/pc/race/raceresult", "/owpc/pc/race/resultlist"].includes(url.pathname) &&
+			url.pathname === "/owpc/pc/race/raceresult" &&
 			url.searchParams.get("hd") === date.replaceAll("-", "") &&
 			url.searchParams.get("jcd") === readText(venueCode).padStart(2, "0") &&
-			(url.pathname.endsWith("resultlist") || Number(url.searchParams.get("rno")) === normalizeRaceNo(race?.raceNo));
+			Number(url.searchParams.get("rno")) === normalizeRaceNo(race?.raceNo);
 	} catch {
 		return false;
 	}
@@ -208,10 +211,18 @@ function preserveOfficialResult(race, previousRace, date, venueCode, generatedAt
 	} else if (finishOrderKey(result) === finishOrderKey(previousResult)) {
 		const payoutChanged = RESULT_PAYOUT_FIELDS.some((field) =>
 			hasValue(result[field]) && hasValue(previousResult[field]) && !isDeepStrictEqual(result[field], previousResult[field]));
-		if (!payoutChanged) {
+		if (payoutChanged && !hasOfficialResultIdentity(race, date, venueCode, previousResult)) {
+			race.result = previousResult;
+			preservedFields = ["result"];
+			reason = "unverified official payout correction";
+		} else if (!payoutChanged) {
 			copyIfMissing(result, previousResult, RESULT_PAYOUT_FIELDS, preservedFields, "result.");
 			if (preservedFields.length) reason = "same finish order but new official payout fields are missing";
 		}
+	} else if (!hasOfficialResultIdentity(race, date, venueCode, previousResult)) {
+		race.result = previousResult;
+		preservedFields = ["result"];
+		reason = "unverified official finish-order correction";
 	}
 	if (!preservedFields.length) return null;
 	const previousCapturedAt = previousResult.finalizedAt ?? previousFeed?.generatedAt ?? null;

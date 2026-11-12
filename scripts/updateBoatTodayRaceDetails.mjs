@@ -3,7 +3,7 @@ import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { fileURLToPath } from "node:url";
 import { load } from "cheerio";
-import { preserveTodayRaceDetailsFeed } from "./boatExhibitionSnapshotPreservation.mjs";
+import { hasOfficialResultIdentity, preserveTodayRaceDetailsFeed } from "./boatExhibitionSnapshotPreservation.mjs";
 import { getJstTimestampParts, normalizeTargetDate, resolveJstTargetDate } from "./boatRaceDate.mjs";
 import { resolveOfficialVenueEventStatus } from "./boatVenueEventStatus.mjs";
 
@@ -2855,18 +2855,37 @@ export function mergeRaceResult(baseResult, officialResult) {
 			source: baseResult.source,
 			sourceUrl: baseResult.sourceUrl,
 			fetchedAt: baseResult.fetchedAt,
+			startInfo: baseResult.startInfo,
+			startInfos: baseResult.startInfos,
 			notes: /未取得|未公開|確認中/.test(String(officialResult.notes ?? ""))
 				? baseResult.notes : officialResult.notes ?? baseResult.notes,
 		});
 	}
 
-	const startInfos = officialResult.startInfos?.length
-		? officialResult.startInfos
-		: officialResult.startInfo?.length
-			? officialResult.startInfo
-			: baseResult?.startInfos?.length
-				? baseResult.startInfos
-				: baseResult?.startInfo ?? [];
+	const baseStartInfos = baseResult?.startInfos?.length ? baseResult.startInfos : baseResult?.startInfo ?? [];
+	const candidateStartInfos = officialResult.startInfos?.length ? officialResult.startInfos : officialResult.startInfo ?? [];
+	const startFieldsAgree = !officialResult.startInfos?.length || !officialResult.startInfo?.length ||
+		isDeepStrictEqual(officialResult.startInfos, officialResult.startInfo);
+	let trustworthyStartCorrection = false;
+	if (baseOrder.length === 3 && ["confirmed", "finished"].includes(String(baseResult?.status)) &&
+		["confirmed", "finished"].includes(String(officialResult.status)) && officialOrder.length === 3 &&
+		candidateStartInfos.length && startFieldsAgree) {
+		try {
+			const baseUrl = new URL(String(baseResult.sourceUrl ?? ""));
+			const raceNo = Number(baseUrl.searchParams.get("rno"));
+			const date = baseUrl.searchParams.get("hd");
+			const venueCode = baseUrl.searchParams.get("jcd");
+			trustworthyStartCorrection = baseUrl.hostname === "www.boatrace.jp" &&
+				baseUrl.pathname === "/owpc/pc/race/raceresult" && Number.isInteger(raceNo) && raceNo >= 1 && raceNo <= 12 &&
+				/^\d{8}$/.test(date ?? "") && Boolean(venueCode) &&
+				hasOfficialResultIdentity({ raceNo, result: officialResult },
+					`${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`, venueCode, baseResult);
+		} catch { /* A missing or malformed race identity cannot authorize an ST change. */ }
+	}
+	const baseConfirmed = baseOrder.length === 3 && ["confirmed", "finished"].includes(String(baseResult?.status));
+	const startInfos = baseConfirmed
+		? trustworthyStartCorrection ? candidateStartInfos : baseStartInfos
+		: startFieldsAgree && candidateStartInfos.length ? candidateStartInfos : baseStartInfos;
 	const payouts = officialResult.payouts?.length
 		? officialResult.payouts
 		: officialResult.payoutsFull?.length

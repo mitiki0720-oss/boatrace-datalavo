@@ -120,6 +120,7 @@ export function evaluateBoatExCurrentDayHistoryRefresh({ targetDate, existingHis
 		array(venue?.races).map((race) => [`${text(venue.venueCode)}:${Number(race.raceNo)}`, { venue, race }])));
 	const lostResults = [];
 	const lostPayouts = [];
+	const unverifiedCorrections = [];
 	let terminalCorrections = 0;
 	let confirmedCorrections = 0;
 	for (const record of array(existingHistory.records)) {
@@ -136,9 +137,12 @@ export function evaluateBoatExCurrentDayHistoryRefresh({ targetDate, existingHis
 			const newOrder = array(current.race.result?.finishOrder).slice(0, 3).map(String).join("-");
 			const oldPayoutText = trifectaPayoutText(record.officialResult?.payout);
 			const newPayoutText = currentTrifectaPayoutText(current.race.result);
-			if ((oldOrder !== newOrder || (oldPayoutText && newPayoutText && oldPayoutText !== newPayoutText)) &&
-				hasOfficialResultIdentity(current.race, targetDate, current.venue.venueCode, { finalizedAt: previousAt })) {
-				confirmedCorrections += 1;
+			if (oldOrder !== newOrder || (oldPayoutText && newPayoutText && oldPayoutText !== newPayoutText)) {
+				if (hasOfficialResultIdentity(current.race, targetDate, current.venue.venueCode, { finalizedAt: previousAt })) {
+					confirmedCorrections += 1;
+				} else {
+					unverifiedCorrections.push(key);
+				}
 			}
 			continue;
 		}
@@ -152,10 +156,11 @@ export function evaluateBoatExCurrentDayHistoryRefresh({ targetDate, existingHis
 		if (oldResult && !newResult) lostResults.push(key);
 		if (oldPayout && !newPayout) lostPayouts.push(key);
 	}
-	if (lostResults.length || lostPayouts.length ||
+	if (unverifiedCorrections.length || lostResults.length || lostPayouts.length ||
 		official.resultAvailableRaceCount + terminalCorrections < history.resultAvailableRaceCount ||
 		official.payoutAvailableRaceCount + terminalCorrections < history.payoutAvailableRaceCount) {
 		const reasons = [
+			...(unverifiedCorrections.length ? ["unverified-official-result-correction"] : []),
 			...(lostResults.length || official.resultAvailableRaceCount + terminalCorrections < history.resultAvailableRaceCount ? ["result-coverage-regressed"] : []),
 			...(lostPayouts.length || official.payoutAvailableRaceCount + terminalCorrections < history.payoutAvailableRaceCount ? ["payout-coverage-regressed"] : []),
 		];
@@ -164,7 +169,7 @@ export function evaluateBoatExCurrentDayHistoryRefresh({ targetDate, existingHis
 			blocked: true,
 			reason: reasons[0],
 			reasons,
-			regressionDetails: { lostResults: lostResults.slice(0, 24), lostPayouts: lostPayouts.slice(0, 24) },
+			regressionDetails: { unverifiedCorrections: unverifiedCorrections.slice(0, 24), lostResults: lostResults.slice(0, 24), lostPayouts: lostPayouts.slice(0, 24) },
 			official,
 			history,
 		};
