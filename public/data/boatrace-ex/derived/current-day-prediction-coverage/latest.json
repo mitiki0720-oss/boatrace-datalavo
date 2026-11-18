@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-current-day-prediction-coverage",
   "targetDate": "2026-11-18",
-  "generatedAt": "2026-11-18T08:00:10.916Z",
+  "generatedAt": "2026-11-18T13:41:35.078Z",
   "sourcePath": "public/data/boatrace/today-race-details.generated.json",
   "identityPolicy": "registrationNo exact registry lookup only; no name-only linkage",
   "venueCount": 11,
@@ -15,23 +15,23 @@
   "weatherAvailableRaceCount": 132,
   "windAvailableRaceCount": 120,
   "waveAvailableRaceCount": 120,
-  "exhibitionDisplayTimeCompleteRaceCount": 105,
+  "exhibitionDisplayTimeCompleteRaceCount": 120,
   "exhibitionDisplayTimePartialRaceCount": 1,
-  "exhibitionDisplayTimeMissingRaceCount": 26,
+  "exhibitionDisplayTimeMissingRaceCount": 11,
   "motorAvailableSlotCount": 792,
   "boatAvailableSlotCount": 792,
-  "resultAvailableRaceCount": 109,
-  "payoutAvailableRaceCount": 102,
+  "resultAvailableRaceCount": 132,
+  "payoutAvailableRaceCount": 120,
   "raceAnalysisAvailableRaceCount": 102,
   "raceAnalysisMissingRaceCount": 30,
-  "preRaceCount": 20,
-  "exhibitionReadyCount": 3,
+  "preRaceCount": 0,
+  "exhibitionReadyCount": 0,
   "exhibitionPartialCount": 0,
   "partialResultCount": 0,
-  "resultOnlyCount": 7,
-  "resultAndPayoutCount": 0,
+  "resultOnlyCount": 12,
+  "resultAndPayoutCount": 18,
   "inconsistentStatusCount": 0,
-  "rawPayoutWithoutCompleteResultCount": 2,
+  "rawPayoutWithoutCompleteResultCount": 0,
   "resultStatus": "partial-result",
   "sourceKinds": [
     "official:owpc-html+beforeinfo",
@@ -50,22 +50,22 @@
       "weatherAvailableRaceCount": 12,
       "windAvailableRaceCount": 12,
       "waveAvailableRaceCount": 12,
-      "exhibitionDisplayTimeCompleteRaceCount": 5,
+      "exhibitionDisplayTimeCompleteRaceCount": 12,
       "exhibitionDisplayTimePartialRaceCount": 0,
-      "exhibitionDisplayTimeMissingRaceCount": 7,
+      "exhibitionDisplayTimeMissingRaceCount": 0,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 3,
-      "payoutAvailableRaceCount": 3,
+      "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "raceAnalysisAvailableRaceCount": 3,
-      "preRaceCount": 7,
-      "exhibitionReadyCount": 2,
+      "preRaceCount": 0,
+      "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 0,
+      "resultAndPayoutCount": 9,
       "inconsistentStatusCount": 0,
-      "rawPayoutWithoutCompleteResultCount": 1,
+      "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
         {
           "venueCode": "01",
@@ -77,7 +77,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -90,7 +90,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -103,127 +103,143 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
           "venueCode": "01",
           "venueName": "桐生",
           "raceNo": 4,
-          "status": "exhibition-ready",
+          "status": "result-and-payout",
           "displayTimeCount": 6,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": [
-            "raw-payout-without-complete-result-suppressed"
+            "race-analysis-not-ready-for-current-result-state"
           ]
         },
         {
           "venueCode": "01",
           "venueName": "桐生",
           "raceNo": 5,
-          "status": "exhibition-ready",
+          "status": "result-and-payout",
           "displayTimeCount": 6,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "01",
           "venueName": "桐生",
           "raceNo": 6,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "01",
           "venueName": "桐生",
           "raceNo": 7,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "01",
           "venueName": "桐生",
           "raceNo": 8,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "01",
           "venueName": "桐生",
           "raceNo": 9,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "01",
           "venueName": "桐生",
           "raceNo": 10,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "01",
           "venueName": "桐生",
           "raceNo": 11,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "01",
           "venueName": "桐生",
           "raceNo": 12,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         }
       ]
     },
@@ -266,7 +282,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -279,7 +295,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -292,7 +308,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -305,7 +321,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -318,7 +334,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -331,7 +347,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -344,7 +360,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -357,7 +373,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -370,7 +386,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -383,7 +399,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -396,7 +412,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -409,7 +425,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         }
       ]
@@ -453,7 +469,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -466,7 +482,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -479,7 +495,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -492,7 +508,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -505,7 +521,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -518,7 +534,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -531,7 +547,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -544,7 +560,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -557,7 +573,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -570,7 +586,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -583,7 +599,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -596,7 +612,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         }
       ]
@@ -640,7 +656,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -653,7 +669,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -666,7 +682,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -679,7 +695,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -692,7 +708,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -705,7 +721,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -718,7 +734,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -731,7 +747,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -744,7 +760,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -757,7 +773,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -770,7 +786,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -783,7 +799,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         }
       ]
@@ -827,7 +843,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -840,7 +856,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -853,7 +869,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -866,7 +882,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -879,7 +895,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -892,7 +908,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -905,7 +921,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -918,7 +934,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -931,7 +947,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -944,7 +960,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -957,7 +973,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -970,7 +986,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         }
       ]
@@ -1014,7 +1030,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1027,7 +1043,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1040,7 +1056,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1053,7 +1069,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1066,7 +1082,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1079,7 +1095,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1092,7 +1108,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1105,7 +1121,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1118,7 +1134,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1131,7 +1147,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1144,7 +1160,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1157,7 +1173,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         }
       ]
@@ -1201,7 +1217,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1214,7 +1230,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1227,7 +1243,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1240,7 +1256,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1253,7 +1269,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1266,7 +1282,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1279,7 +1295,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1292,7 +1308,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1305,7 +1321,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1318,7 +1334,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1331,7 +1347,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1344,7 +1360,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         }
       ]
@@ -1361,22 +1377,22 @@
       "weatherAvailableRaceCount": 12,
       "windAvailableRaceCount": 12,
       "waveAvailableRaceCount": 12,
-      "exhibitionDisplayTimeCompleteRaceCount": 4,
+      "exhibitionDisplayTimeCompleteRaceCount": 12,
       "exhibitionDisplayTimePartialRaceCount": 0,
-      "exhibitionDisplayTimeMissingRaceCount": 8,
+      "exhibitionDisplayTimeMissingRaceCount": 0,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 3,
-      "payoutAvailableRaceCount": 3,
+      "resultAvailableRaceCount": 12,
+      "payoutAvailableRaceCount": 12,
       "raceAnalysisAvailableRaceCount": 3,
-      "preRaceCount": 8,
-      "exhibitionReadyCount": 1,
+      "preRaceCount": 0,
+      "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 0,
+      "resultAndPayoutCount": 9,
       "inconsistentStatusCount": 0,
-      "rawPayoutWithoutCompleteResultCount": 1,
+      "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
         {
           "venueCode": "15",
@@ -1388,7 +1404,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1401,7 +1417,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1414,127 +1430,143 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
           "venueCode": "15",
           "venueName": "丸亀",
           "raceNo": 4,
-          "status": "exhibition-ready",
+          "status": "result-and-payout",
           "displayTimeCount": 6,
-          "hasResult": false,
-          "hasPayout": false,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": [
-            "raw-payout-without-complete-result-suppressed"
+            "race-analysis-not-ready-for-current-result-state"
           ]
         },
         {
           "venueCode": "15",
           "venueName": "丸亀",
           "raceNo": 5,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "15",
           "venueName": "丸亀",
           "raceNo": 6,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "15",
           "venueName": "丸亀",
           "raceNo": 7,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "15",
           "venueName": "丸亀",
           "raceNo": 8,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "15",
           "venueName": "丸亀",
           "raceNo": 9,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "15",
           "venueName": "丸亀",
           "raceNo": 10,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "15",
           "venueName": "丸亀",
           "raceNo": 11,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         },
         {
           "venueCode": "15",
           "venueName": "丸亀",
           "raceNo": 12,
-          "status": "pre-race",
-          "displayTimeCount": 0,
-          "hasResult": false,
-          "hasPayout": false,
+          "status": "result-and-payout",
+          "displayTimeCount": 6,
+          "hasResult": true,
+          "hasPayout": true,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-          "warnings": []
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+          "warnings": [
+            "race-analysis-not-ready-for-current-result-state"
+          ]
         }
       ]
     },
@@ -1577,7 +1609,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1590,7 +1622,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1603,7 +1635,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1616,7 +1648,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1629,7 +1661,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1642,7 +1674,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1655,7 +1687,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1668,7 +1700,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1681,7 +1713,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1694,7 +1726,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1707,7 +1739,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1720,7 +1752,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         }
       ]
@@ -1764,7 +1796,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1777,7 +1809,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1790,7 +1822,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1803,7 +1835,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1816,7 +1848,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1829,7 +1861,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1842,7 +1874,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1855,7 +1887,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1868,7 +1900,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1881,7 +1913,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1894,7 +1926,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1907,7 +1939,7 @@
           "hasPayout": true,
           "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         }
       ]
@@ -1929,14 +1961,14 @@
       "exhibitionDisplayTimeMissingRaceCount": 11,
       "motorAvailableSlotCount": 72,
       "boatAvailableSlotCount": 72,
-      "resultAvailableRaceCount": 7,
+      "resultAvailableRaceCount": 12,
       "payoutAvailableRaceCount": 0,
       "raceAnalysisAvailableRaceCount": 0,
-      "preRaceCount": 5,
+      "preRaceCount": 0,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
-      "resultOnlyCount": 7,
+      "resultOnlyCount": 12,
       "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
@@ -1951,7 +1983,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1964,7 +1996,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1977,7 +2009,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -1990,7 +2022,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -2003,7 +2035,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -2016,7 +2048,7 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
@@ -2029,72 +2061,72 @@
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
           "venueCode": "20",
           "venueName": "若松",
           "raceNo": 8,
-          "status": "pre-race",
+          "status": "result-only",
           "displayTimeCount": 0,
-          "hasResult": false,
+          "hasResult": true,
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
           "venueCode": "20",
           "venueName": "若松",
           "raceNo": 9,
-          "status": "pre-race",
+          "status": "result-only",
           "displayTimeCount": 0,
-          "hasResult": false,
+          "hasResult": true,
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
           "venueCode": "20",
           "venueName": "若松",
           "raceNo": 10,
-          "status": "pre-race",
+          "status": "result-only",
           "displayTimeCount": 0,
-          "hasResult": false,
+          "hasResult": true,
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
           "venueCode": "20",
           "venueName": "若松",
           "raceNo": 11,
-          "status": "pre-race",
+          "status": "result-only",
           "displayTimeCount": 0,
-          "hasResult": false,
+          "hasResult": true,
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         },
         {
           "venueCode": "20",
           "venueName": "若松",
           "raceNo": 12,
-          "status": "pre-race",
+          "status": "result-only",
           "displayTimeCount": 0,
-          "hasResult": false,
+          "hasResult": true,
           "hasPayout": false,
           "hasRaceAnalysis": false,
           "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+          "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
           "warnings": []
         }
       ]
@@ -2111,7 +2143,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2124,7 +2156,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2137,127 +2169,143 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
       "venueCode": "01",
       "venueName": "桐生",
       "raceNo": 4,
-      "status": "exhibition-ready",
+      "status": "result-and-payout",
       "displayTimeCount": 6,
-      "hasResult": false,
-      "hasPayout": false,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": [
-        "raw-payout-without-complete-result-suppressed"
+        "race-analysis-not-ready-for-current-result-state"
       ]
     },
     {
       "venueCode": "01",
       "venueName": "桐生",
       "raceNo": 5,
-      "status": "exhibition-ready",
+      "status": "result-and-payout",
       "displayTimeCount": 6,
-      "hasResult": false,
-      "hasPayout": false,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "01",
       "venueName": "桐生",
       "raceNo": 6,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "01",
       "venueName": "桐生",
       "raceNo": 7,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "01",
       "venueName": "桐生",
       "raceNo": 8,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "01",
       "venueName": "桐生",
       "raceNo": 9,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "01",
       "venueName": "桐生",
       "raceNo": 10,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "01",
       "venueName": "桐生",
       "raceNo": 11,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "01",
       "venueName": "桐生",
       "raceNo": 12,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "02",
@@ -2269,7 +2317,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2282,7 +2330,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2295,7 +2343,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2308,7 +2356,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2321,7 +2369,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2334,7 +2382,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2347,7 +2395,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2360,7 +2408,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2373,7 +2421,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2386,7 +2434,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2399,7 +2447,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2412,7 +2460,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2425,7 +2473,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2438,7 +2486,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2451,7 +2499,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2464,7 +2512,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2477,7 +2525,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2490,7 +2538,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2503,7 +2551,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2516,7 +2564,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2529,7 +2577,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2542,7 +2590,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2555,7 +2603,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2568,7 +2616,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2581,7 +2629,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2594,7 +2642,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2607,7 +2655,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2620,7 +2668,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2633,7 +2681,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2646,7 +2694,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2659,7 +2707,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2672,7 +2720,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2685,7 +2733,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2698,7 +2746,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2711,7 +2759,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2724,7 +2772,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2737,7 +2785,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2750,7 +2798,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2763,7 +2811,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2776,7 +2824,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2789,7 +2837,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2802,7 +2850,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2815,7 +2863,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2828,7 +2876,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2841,7 +2889,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2854,7 +2902,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2867,7 +2915,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2880,7 +2928,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2893,7 +2941,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2906,7 +2954,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2919,7 +2967,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2932,7 +2980,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2945,7 +2993,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2958,7 +3006,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2971,7 +3019,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2984,7 +3032,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -2997,7 +3045,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3010,7 +3058,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3023,7 +3071,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3036,7 +3084,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3049,7 +3097,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3062,7 +3110,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3075,7 +3123,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3088,7 +3136,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3101,7 +3149,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3114,7 +3162,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3127,7 +3175,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3140,7 +3188,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3153,7 +3201,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3166,7 +3214,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3179,7 +3227,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3192,7 +3240,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3205,7 +3253,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3218,7 +3266,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3231,127 +3279,143 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
       "venueCode": "15",
       "venueName": "丸亀",
       "raceNo": 4,
-      "status": "exhibition-ready",
+      "status": "result-and-payout",
       "displayTimeCount": 6,
-      "hasResult": false,
-      "hasPayout": false,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": [
-        "raw-payout-without-complete-result-suppressed"
+        "race-analysis-not-ready-for-current-result-state"
       ]
     },
     {
       "venueCode": "15",
       "venueName": "丸亀",
       "raceNo": 5,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "15",
       "venueName": "丸亀",
       "raceNo": 6,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "15",
       "venueName": "丸亀",
       "raceNo": 7,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "15",
       "venueName": "丸亀",
       "raceNo": 8,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "15",
       "venueName": "丸亀",
       "raceNo": 9,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "15",
       "venueName": "丸亀",
       "raceNo": 10,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "15",
       "venueName": "丸亀",
       "raceNo": 11,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "15",
       "venueName": "丸亀",
       "raceNo": 12,
-      "status": "pre-race",
-      "displayTimeCount": 0,
-      "hasResult": false,
-      "hasPayout": false,
+      "status": "result-and-payout",
+      "displayTimeCount": 6,
+      "hasResult": true,
+      "hasPayout": true,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
-      "warnings": []
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
+      "warnings": [
+        "race-analysis-not-ready-for-current-result-state"
+      ]
     },
     {
       "venueCode": "17",
@@ -3363,7 +3427,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3376,7 +3440,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3389,7 +3453,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3402,7 +3466,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3415,7 +3479,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3428,7 +3492,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3441,7 +3505,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3454,7 +3518,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3467,7 +3531,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3480,7 +3544,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3493,7 +3557,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3506,7 +3570,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3519,7 +3583,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3532,7 +3596,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3545,7 +3609,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3558,7 +3622,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3571,7 +3635,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3584,7 +3648,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3597,7 +3661,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3610,7 +3674,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3623,7 +3687,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3636,7 +3700,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3649,7 +3713,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3662,7 +3726,7 @@
       "hasPayout": true,
       "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3675,7 +3739,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3688,7 +3752,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3701,7 +3765,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3714,7 +3778,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3727,7 +3791,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3740,7 +3804,7 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
@@ -3753,72 +3817,72 @@
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
       "venueCode": "20",
       "venueName": "若松",
       "raceNo": 8,
-      "status": "pre-race",
+      "status": "result-only",
       "displayTimeCount": 0,
-      "hasResult": false,
+      "hasResult": true,
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
       "venueCode": "20",
       "venueName": "若松",
       "raceNo": 9,
-      "status": "pre-race",
+      "status": "result-only",
       "displayTimeCount": 0,
-      "hasResult": false,
+      "hasResult": true,
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
       "venueCode": "20",
       "venueName": "若松",
       "raceNo": 10,
-      "status": "pre-race",
+      "status": "result-only",
       "displayTimeCount": 0,
-      "hasResult": false,
+      "hasResult": true,
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
       "venueCode": "20",
       "venueName": "若松",
       "raceNo": 11,
-      "status": "pre-race",
+      "status": "result-only",
       "displayTimeCount": 0,
-      "hasResult": false,
+      "hasResult": true,
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     },
     {
       "venueCode": "20",
       "venueName": "若松",
       "raceNo": 12,
-      "status": "pre-race",
+      "status": "result-only",
       "displayTimeCount": 0,
-      "hasResult": false,
+      "hasResult": true,
       "hasPayout": false,
       "hasRaceAnalysis": false,
       "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-18T16:58:04+09:00",
+      "sourceAcquiredAt": "2026-11-18T22:40:48+09:00",
       "warnings": []
     }
   ]
