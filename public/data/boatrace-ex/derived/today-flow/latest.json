@@ -1,329 +1,32 @@
 {
   "schemaVersion": "boat-ex-today-flow-v1",
-  "generatedAt": "2026-11-20T07:48:33.579Z",
+  "generatedAt": "2026-11-20T18:04:19.968Z",
   "status": "available",
   "readiness": {
-    "status": "available",
-    "reason": "Source-backed same-day result and payout facts are available."
+    "status": "insufficient-history",
+    "reason": "No result-backed races are available."
   },
-  "targetDate": "2026-11-20",
+  "targetDate": "2026-11-21",
   "dateRange": {
-    "from": "2026-11-20",
-    "to": "2026-11-20",
+    "from": "2026-11-21",
+    "to": "2026-11-21",
     "dateCount": 1
   },
   "summary": {
-    "venueCount": 12,
-    "raceCount": 144,
-    "resultAvailableRaceCount": 117,
-    "trifectaAvailableRaceCount": 96,
-    "payoutAvailableRaceCount": 96
+    "venueCount": 14,
+    "raceCount": 168,
+    "resultAvailableRaceCount": 0,
+    "trifectaAvailableRaceCount": 0,
+    "payoutAvailableRaceCount": 0
   },
   "venues": [
     {
       "venueCode": "01",
       "venueName": "桐生",
       "raceCount": 12,
-      "resultAvailableRaceCount": 3,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
-        "1": 1,
-        "2": 2,
-        "3": 0,
-        "4": 0,
-        "5": 0,
-        "6": 0
-      },
-      "firstPlaceBoatSequence": [
-        {
-          "raceNo": 1,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-4-3",
-          "payoutYen": 1150
-        },
-        {
-          "raceNo": 2,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-4-1",
-          "payoutYen": 2150
-        },
-        {
-          "raceNo": 3,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-3",
-          "payoutYen": 1840
-        },
-        {
-          "raceNo": 4,
-          "firstPlaceBoat": null,
-          "trifecta": "2-4-5",
-          "payoutYen": 1980
-        },
-        {
-          "raceNo": 5,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 6,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 7,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 8,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 9,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 10,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 11,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 12,
-          "firstPlaceBoat": null,
-          "trifecta": null,
-          "payoutYen": null
-        }
-      ],
-      "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "2",
-        "2",
-        "1"
-      ],
-      "insideWinCount": 3,
-      "outsideWinCount": 0,
-      "payoutAvailableRaceCount": 4,
-      "highPayoutRaceCount": 0,
-      "notes": []
-    },
-    {
-      "venueCode": "02",
-      "venueName": "戸田",
-      "raceCount": 12,
-      "resultAvailableRaceCount": 12,
-      "firstPlaceBoatCounts": {
-        "1": 11,
-        "2": 1,
-        "3": 0,
-        "4": 0,
-        "5": 0,
-        "6": 0
-      },
-      "firstPlaceBoatSequence": [
-        {
-          "raceNo": 1,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-1-5",
-          "payoutYen": 13870
-        },
-        {
-          "raceNo": 2,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-2",
-          "payoutYen": 4350
-        },
-        {
-          "raceNo": 3,
-          "firstPlaceBoat": "1",
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 4,
-          "firstPlaceBoat": "1",
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 5,
-          "firstPlaceBoat": "1",
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 6,
-          "firstPlaceBoat": "1",
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 7,
-          "firstPlaceBoat": "1",
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 8,
-          "firstPlaceBoat": "1",
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 9,
-          "firstPlaceBoat": "1",
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 10,
-          "firstPlaceBoat": "1",
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 11,
-          "firstPlaceBoat": "1",
-          "trifecta": null,
-          "payoutYen": null
-        },
-        {
-          "raceNo": 12,
-          "firstPlaceBoat": "1",
-          "trifecta": null,
-          "payoutYen": null
-        }
-      ],
-      "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "1",
-        "1",
-        "1"
-      ],
-      "insideWinCount": 12,
-      "outsideWinCount": 0,
-      "payoutAvailableRaceCount": 2,
-      "highPayoutRaceCount": 1,
-      "notes": []
-    },
-    {
-      "venueCode": "04",
-      "venueName": "平和島",
-      "raceCount": 12,
-      "resultAvailableRaceCount": 12,
-      "firstPlaceBoatCounts": {
-        "1": 6,
-        "2": 1,
-        "3": 3,
-        "4": 1,
-        "5": 0,
-        "6": 1
-      },
-      "firstPlaceBoatSequence": [
-        {
-          "raceNo": 1,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-1-4",
-          "payoutYen": 3760
-        },
-        {
-          "raceNo": 2,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-4-5",
-          "payoutYen": 990
-        },
-        {
-          "raceNo": 3,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-3",
-          "payoutYen": 1620
-        },
-        {
-          "raceNo": 4,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-6",
-          "payoutYen": 2480
-        },
-        {
-          "raceNo": 5,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-5-4",
-          "payoutYen": 1640
-        },
-        {
-          "raceNo": 6,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-4",
-          "payoutYen": 2220
-        },
-        {
-          "raceNo": 7,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-4-1",
-          "payoutYen": 830
-        },
-        {
-          "raceNo": 8,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-1-2",
-          "payoutYen": 1360
-        },
-        {
-          "raceNo": 9,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-4-2",
-          "payoutYen": 1650
-        },
-        {
-          "raceNo": 10,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-5-2",
-          "payoutYen": 8860
-        },
-        {
-          "raceNo": 11,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-4-5",
-          "payoutYen": 870
-        },
-        {
-          "raceNo": 12,
-          "firstPlaceBoat": "6",
-          "trifecta": "6-1-3",
-          "payoutYen": 60630
-        }
-      ],
-      "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "3",
-        "1",
-        "6"
-      ],
-      "insideWinCount": 10,
-      "outsideWinCount": 2,
-      "payoutAvailableRaceCount": 12,
-      "highPayoutRaceCount": 1,
-      "notes": []
-    },
-    {
-      "venueCode": "09",
-      "venueName": "津",
-      "raceCount": 12,
-      "resultAvailableRaceCount": 12,
-      "firstPlaceBoatCounts": {
-        "1": 12,
+        "1": 0,
         "2": 0,
         "3": 0,
         "4": 0,
@@ -333,88 +36,771 @@
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         },
         {
           "raceNo": 2,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         },
         {
           "raceNo": 3,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         },
         {
           "raceNo": 4,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         },
         {
           "raceNo": 5,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         },
         {
           "raceNo": 6,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         },
         {
           "raceNo": 7,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         },
         {
           "raceNo": 8,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         },
         {
           "raceNo": 9,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         },
         {
           "raceNo": 10,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         },
         {
           "raceNo": 11,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         },
         {
           "raceNo": 12,
-          "firstPlaceBoat": "1",
+          "firstPlaceBoat": null,
           "trifecta": null,
           "payoutYen": null
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "1",
-        "1",
-        "1"
-      ],
-      "insideWinCount": 12,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
       "outsideWinCount": 0,
       "payoutAvailableRaceCount": 0,
       "highPayoutRaceCount": 0,
       "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
+    },
+    {
+      "venueCode": "02",
+      "venueName": "戸田",
+      "raceCount": 12,
+      "resultAvailableRaceCount": 0,
+      "firstPlaceBoatCounts": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "firstPlaceBoatSequence": [
+        {
+          "raceNo": 1,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 2,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 3,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 4,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 5,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 6,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 7,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 8,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 9,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 10,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 11,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 12,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        }
+      ],
+      "latestKnownRaceNo": 12,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "highPayoutRaceCount": 0,
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
+    },
+    {
+      "venueCode": "04",
+      "venueName": "平和島",
+      "raceCount": 12,
+      "resultAvailableRaceCount": 0,
+      "firstPlaceBoatCounts": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "firstPlaceBoatSequence": [
+        {
+          "raceNo": 1,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 2,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 3,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 4,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 5,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 6,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 7,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 8,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 9,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 10,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 11,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 12,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        }
+      ],
+      "latestKnownRaceNo": 12,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "highPayoutRaceCount": 0,
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
+    },
+    {
+      "venueCode": "05",
+      "venueName": "多摩川",
+      "raceCount": 12,
+      "resultAvailableRaceCount": 0,
+      "firstPlaceBoatCounts": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "firstPlaceBoatSequence": [
+        {
+          "raceNo": 1,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 2,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 3,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 4,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 5,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 6,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 7,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 8,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 9,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 10,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 11,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 12,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        }
+      ],
+      "latestKnownRaceNo": 12,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "highPayoutRaceCount": 0,
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
+    },
+    {
+      "venueCode": "07",
+      "venueName": "蒲郡",
+      "raceCount": 12,
+      "resultAvailableRaceCount": 0,
+      "firstPlaceBoatCounts": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "firstPlaceBoatSequence": [
+        {
+          "raceNo": 1,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 2,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 3,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 4,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 5,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 6,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 7,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 8,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 9,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 10,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 11,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 12,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        }
+      ],
+      "latestKnownRaceNo": 12,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "highPayoutRaceCount": 0,
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
+    },
+    {
+      "venueCode": "09",
+      "venueName": "津",
+      "raceCount": 12,
+      "resultAvailableRaceCount": 0,
+      "firstPlaceBoatCounts": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "firstPlaceBoatSequence": [
+        {
+          "raceNo": 1,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 2,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 3,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 4,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 5,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 6,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 7,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 8,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 9,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 10,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 11,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 12,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        }
+      ],
+      "latestKnownRaceNo": 12,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "highPayoutRaceCount": 0,
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
+    },
+    {
+      "venueCode": "10",
+      "venueName": "三国",
+      "raceCount": 12,
+      "resultAvailableRaceCount": 0,
+      "firstPlaceBoatCounts": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "firstPlaceBoatSequence": [
+        {
+          "raceNo": 1,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 2,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 3,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 4,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 5,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 6,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 7,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 8,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 9,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 10,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 11,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 12,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        }
+      ],
+      "latestKnownRaceNo": 12,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "highPayoutRaceCount": 0,
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
+    },
+    {
+      "venueCode": "12",
+      "venueName": "住之江",
+      "raceCount": 12,
+      "resultAvailableRaceCount": 0,
+      "firstPlaceBoatCounts": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "firstPlaceBoatSequence": [
+        {
+          "raceNo": 1,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 2,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 3,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 4,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 5,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 6,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 7,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 8,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 9,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 10,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 11,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        },
+        {
+          "raceNo": 12,
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
+        }
+      ],
+      "latestKnownRaceNo": 12,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "highPayoutRaceCount": 0,
+      "notes": [
+        "No source-backed results are available for this venue.",
         "No source-backed trifecta payout values are available for this venue."
       ]
     },
@@ -422,231 +808,131 @@
       "venueCode": "13",
       "venueName": "尼崎",
       "raceCount": 12,
-      "resultAvailableRaceCount": 12,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
-        "1": 4,
-        "2": 2,
-        "3": 3,
-        "4": 2,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
         "5": 0,
-        "6": 1
+        "6": 0
       },
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-5-4",
-          "payoutYen": 1850
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 2,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-4-2",
-          "payoutYen": 10280
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 3,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-6",
-          "payoutYen": 1550
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 4,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-2-3",
-          "payoutYen": 38590
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 5,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-1-3",
-          "payoutYen": 950
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 6,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-4",
-          "payoutYen": 960
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 7,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-4",
-          "payoutYen": 1440
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 8,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-1-2",
-          "payoutYen": 2360
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 9,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-4-5",
-          "payoutYen": 1360
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 10,
-          "firstPlaceBoat": "6",
-          "trifecta": "6-1-2",
-          "payoutYen": 7710
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 11,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-5-3",
-          "payoutYen": 1380
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 12,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-1-5",
-          "payoutYen": 7400
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "6",
-        "1",
-        "3"
-      ],
-      "insideWinCount": 9,
-      "outsideWinCount": 3,
-      "payoutAvailableRaceCount": 12,
-      "highPayoutRaceCount": 2,
-      "notes": []
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "highPayoutRaceCount": 0,
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceCount": 12,
-      "resultAvailableRaceCount": 12,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
-        "1": 4,
-        "2": 3,
-        "3": 0,
-        "4": 4,
-        "5": 0,
-        "6": 1
-      },
-      "firstPlaceBoatSequence": [
-        {
-          "raceNo": 1,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-2",
-          "payoutYen": 1130
-        },
-        {
-          "raceNo": 2,
-          "firstPlaceBoat": "6",
-          "trifecta": "6-5-4",
-          "payoutYen": 83440
-        },
-        {
-          "raceNo": 3,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-5-3",
-          "payoutYen": 28420
-        },
-        {
-          "raceNo": 4,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-4-6",
-          "payoutYen": 2400
-        },
-        {
-          "raceNo": 5,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-3-4",
-          "payoutYen": 570
-        },
-        {
-          "raceNo": 6,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-3-4",
-          "payoutYen": 4260
-        },
-        {
-          "raceNo": 7,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-3-6",
-          "payoutYen": 41630
-        },
-        {
-          "raceNo": 8,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-5-2",
-          "payoutYen": 8080
-        },
-        {
-          "raceNo": 9,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-2-5",
-          "payoutYen": 7310
-        },
-        {
-          "raceNo": 10,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-4-1",
-          "payoutYen": 1250
-        },
-        {
-          "raceNo": 11,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-5",
-          "payoutYen": 910
-        },
-        {
-          "raceNo": 12,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-5-6",
-          "payoutYen": 3080
-        }
-      ],
-      "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "2",
-        "1",
-        "1"
-      ],
-      "insideWinCount": 7,
-      "outsideWinCount": 5,
-      "payoutAvailableRaceCount": 12,
-      "highPayoutRaceCount": 3,
-      "notes": []
-    },
-    {
-      "venueCode": "15",
-      "venueName": "丸亀",
-      "raceCount": 12,
-      "resultAvailableRaceCount": 3,
-      "firstPlaceBoatCounts": {
-        "1": 1,
+        "1": 0,
         "2": 0,
         "3": 0,
-        "4": 2,
+        "4": 0,
         "5": 0,
         "6": 0
       },
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-5-2",
-          "payoutYen": 23890
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 2,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-3",
-          "payoutYen": 1050
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 3,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-1-2",
-          "payoutYen": 4810
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 4,
@@ -704,444 +990,341 @@
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "4",
-        "1",
-        "4"
-      ],
-      "insideWinCount": 1,
-      "outsideWinCount": 2,
-      "payoutAvailableRaceCount": 3,
-      "highPayoutRaceCount": 1,
-      "notes": []
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "highPayoutRaceCount": 0,
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
     },
     {
       "venueCode": "17",
       "venueName": "宮島",
       "raceCount": 12,
-      "resultAvailableRaceCount": 12,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
-        "1": 7,
-        "2": 1,
-        "3": 2,
-        "4": 1,
-        "5": 1,
-        "6": 0
-      },
-      "firstPlaceBoatSequence": [
-        {
-          "raceNo": 1,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-2",
-          "payoutYen": 510
-        },
-        {
-          "raceNo": 2,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-4-6",
-          "payoutYen": 26140
-        },
-        {
-          "raceNo": 3,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-1-4",
-          "payoutYen": 940
-        },
-        {
-          "raceNo": 4,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-4-6",
-          "payoutYen": 22880
-        },
-        {
-          "raceNo": 5,
-          "firstPlaceBoat": "5",
-          "trifecta": "5-2-1",
-          "payoutYen": 2670
-        },
-        {
-          "raceNo": 6,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-3-5",
-          "payoutYen": 30030
-        },
-        {
-          "raceNo": 7,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-5",
-          "payoutYen": 1940
-        },
-        {
-          "raceNo": 8,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-4-1",
-          "payoutYen": 8990
-        },
-        {
-          "raceNo": 9,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-5",
-          "payoutYen": 840
-        },
-        {
-          "raceNo": 10,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-4-6",
-          "payoutYen": 5630
-        },
-        {
-          "raceNo": 11,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-5",
-          "payoutYen": 920
-        },
-        {
-          "raceNo": 12,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-6",
-          "payoutYen": 1520
-        }
-      ],
-      "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "1",
-        "1",
-        "1"
-      ],
-      "insideWinCount": 10,
-      "outsideWinCount": 2,
-      "payoutAvailableRaceCount": 12,
-      "highPayoutRaceCount": 3,
-      "notes": []
-    },
-    {
-      "venueCode": "18",
-      "venueName": "徳山",
-      "raceCount": 12,
-      "resultAvailableRaceCount": 12,
-      "firstPlaceBoatCounts": {
-        "1": 10,
+        "1": 0,
         "2": 0,
         "3": 0,
-        "4": 2,
+        "4": 0,
         "5": 0,
         "6": 0
       },
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-2",
-          "payoutYen": 760
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 2,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-6",
-          "payoutYen": 1000
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 3,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-1-5",
-          "payoutYen": 4370
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 4,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-3",
-          "payoutYen": 600
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 5,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-4",
-          "payoutYen": 640
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 6,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-5",
-          "payoutYen": 640
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 7,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-5-6",
-          "payoutYen": 1860
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 8,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-4-6",
-          "payoutYen": 840
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 9,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-2",
-          "payoutYen": 1220
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 10,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-4",
-          "payoutYen": 730
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 11,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-2",
-          "payoutYen": 1150
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 12,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-5",
-          "payoutYen": 1750
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "1",
-        "1",
-        "1"
-      ],
-      "insideWinCount": 10,
-      "outsideWinCount": 2,
-      "payoutAvailableRaceCount": 12,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
       "highPayoutRaceCount": 0,
-      "notes": []
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceCount": 12,
-      "resultAvailableRaceCount": 12,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
-        "1": 6,
-        "2": 4,
-        "3": 1,
-        "4": 1,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
         "5": 0,
         "6": 0
       },
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-4-5",
-          "payoutYen": 49340
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 2,
-          "firstPlaceBoat": "4",
-          "trifecta": "4-1-2",
-          "payoutYen": 1530
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 3,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-5-2",
-          "payoutYen": 4540
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 4,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-1-6",
-          "payoutYen": 2130
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 5,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-4",
-          "payoutYen": 1130
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 6,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-1-5",
-          "payoutYen": 3880
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 7,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-4",
-          "payoutYen": 1780
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 8,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-4-6",
-          "payoutYen": 3660
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 9,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-4-3",
-          "payoutYen": 3530
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 10,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-4-6",
-          "payoutYen": 9790
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 11,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-3",
-          "payoutYen": 1660
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 12,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-4-6",
-          "payoutYen": 3010
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "2",
-        "1",
-        "1"
-      ],
-      "insideWinCount": 11,
-      "outsideWinCount": 1,
-      "payoutAvailableRaceCount": 12,
-      "highPayoutRaceCount": 1,
-      "notes": []
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "highPayoutRaceCount": 0,
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceCount": 12,
-      "resultAvailableRaceCount": 12,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
-        "1": 8,
-        "2": 1,
-        "3": 1,
+        "1": 0,
+        "2": 0,
+        "3": 0,
         "4": 0,
-        "5": 2,
+        "5": 0,
         "6": 0
       },
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-5-2",
-          "payoutYen": 610
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 2,
-          "firstPlaceBoat": "5",
-          "trifecta": "5-2-1",
-          "payoutYen": 17550
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 3,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-2-5",
-          "payoutYen": 2050
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 4,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-5",
-          "payoutYen": 12250
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 5,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-3-6",
-          "payoutYen": 2820
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 6,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-1-6",
-          "payoutYen": 5830
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 7,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-2-3",
-          "payoutYen": 3180
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 8,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-6-2",
-          "payoutYen": 730
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 9,
-          "firstPlaceBoat": "5",
-          "trifecta": "5-1-3",
-          "payoutYen": 11330
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 10,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-4-6",
-          "payoutYen": 850
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 11,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-4-5",
-          "payoutYen": 1520
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 12,
-          "firstPlaceBoat": "1",
-          "trifecta": "1-4-6",
-          "payoutYen": 3650
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "1",
-        "1",
-        "1"
-      ],
-      "insideWinCount": 10,
-      "outsideWinCount": 2,
-      "payoutAvailableRaceCount": 12,
-      "highPayoutRaceCount": 3,
-      "notes": []
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
+      "highPayoutRaceCount": 0,
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
     },
     {
       "venueCode": "24",
       "venueName": "大村",
       "raceCount": 12,
-      "resultAvailableRaceCount": 3,
+      "resultAvailableRaceCount": 0,
       "firstPlaceBoatCounts": {
         "1": 0,
-        "2": 1,
-        "3": 1,
+        "2": 0,
+        "3": 0,
         "4": 0,
         "5": 0,
-        "6": 1
+        "6": 0
       },
       "firstPlaceBoatSequence": [
         {
           "raceNo": 1,
-          "firstPlaceBoat": "2",
-          "trifecta": "2-4-1",
-          "payoutYen": 7990
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 2,
-          "firstPlaceBoat": "3",
-          "trifecta": "3-2-5",
-          "payoutYen": 5090
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 3,
-          "firstPlaceBoat": "6",
-          "trifecta": "6-1-4",
-          "payoutYen": 1280
+          "firstPlaceBoat": null,
+          "trifecta": null,
+          "payoutYen": null
         },
         {
           "raceNo": 4,
@@ -1199,16 +1382,15 @@
         }
       ],
       "latestKnownRaceNo": 12,
-      "recentFirstPlaceBoats": [
-        "2",
-        "3",
-        "6"
-      ],
-      "insideWinCount": 2,
-      "outsideWinCount": 1,
-      "payoutAvailableRaceCount": 3,
+      "recentFirstPlaceBoats": [],
+      "insideWinCount": 0,
+      "outsideWinCount": 0,
+      "payoutAvailableRaceCount": 0,
       "highPayoutRaceCount": 0,
-      "notes": []
+      "notes": [
+        "No source-backed results are available for this venue.",
+        "No source-backed trifecta payout values are available for this venue."
+      ]
     }
   ],
   "sourceFiles": [
@@ -1219,11 +1401,14 @@
       "coverageStatus": "available"
     },
     {
-      "sourceName": "BOATRACE EX history 2026-11-20",
-      "sourcePath": "public/data/boatrace-ex/history/races/2026-11-20.json",
+      "sourceName": "BOATRACE EX history 2026-11-21",
+      "sourcePath": "public/data/boatrace-ex/history/races/2026-11-21.json",
       "sourceStatus": "available",
       "coverageStatus": "partial"
     }
   ],
-  "warnings": []
+  "warnings": [
+    "No source-backed same-day result facts are available.",
+    "Payout data is not available; payout-based flow facts are disabled."
+  ]
 }
