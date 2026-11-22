@@ -3,10 +3,10 @@ import { sampleBoatTodayFeed } from "../data/sampleBoatTodayFeed";
 import {
 	BOAT_TODAY_WAITING_MESSAGE_LINES,
 	createBoatTodayWaitingFeed,
-	filterBoatUpcomingScheduleByDateRange,
+	getBoatUpcomingScheduleDisplay,
 	loadBoatTodayFeed,
 	loadBoatUpcomingSchedule,
-	type BoatUpcomingScheduleItem,
+	type BoatUpcomingScheduleState,
 } from "../lib/boatDataFeed";
 import { withBasePath } from "../lib/assetPath";
 import { boatTheme } from "../lib/theme";
@@ -26,19 +26,6 @@ const venueNotes = [
 ];
 
 const dashboardPageBackgroundImageSrc = withBasePath("dashboard/dashboard-bg-water-sky-sparkle.png");
-
-const upcomingBoatSchedules: BoatUpcomingScheduleItem[] = [
-	{ id: "kiryu-20260505", venueName: "桐生", title: "ナイター一般戦", grade: "一般", startDate: "2026-05-05", endDate: "2026-05-08", dateRange: "05.05 - 05.08", session: "Night" },
-	{ id: "toda-20260507", venueName: "戸田", title: "ヴィーナスシリーズ", grade: "GIII", startDate: "2026-05-07", endDate: "2026-05-12", dateRange: "05.07 - 05.12", session: "Day" },
-	{ id: "omura-20260509", venueName: "大村", title: "ミッドナイトボート", grade: "一般", startDate: "2026-05-09", endDate: "2026-05-12", dateRange: "05.09 - 05.12", session: "Midnight" },
-	{ id: "heiwajima-20260510", venueName: "平和島", title: "GW Special Cup", grade: "GII", startDate: "2026-05-10", endDate: "2026-05-14", dateRange: "05.10 - 05.14", session: "Day" },
-	{ id: "tokoname-20260511", venueName: "常滑", title: "海風チャレンジ", grade: "一般", startDate: "2026-05-11", endDate: "2026-05-15", dateRange: "05.11 - 05.15", session: "Day" },
-	{ id: "suminoe-20260512", venueName: "住之江", title: "ナイタープレミア", grade: "GIII", startDate: "2026-05-12", endDate: "2026-05-16", dateRange: "05.12 - 05.16", session: "Night" },
-	{ id: "tamagawa-20260513", venueName: "多摩川", title: "オールレディース", grade: "GIII", startDate: "2026-05-13", endDate: "2026-05-18", dateRange: "05.13 - 05.18", session: "Day" },
-	{ id: "marugame-20260515", venueName: "丸亀", title: "サマー先取り戦", grade: "一般", startDate: "2026-05-15", endDate: "2026-05-19", dateRange: "05.15 - 05.19", session: "Night" },
-	{ id: "wakamatsu-20260516", venueName: "若松", title: "Blue Water Cup", grade: "GI", startDate: "2026-05-16", endDate: "2026-05-21", dateRange: "05.16 - 05.21", session: "Night" },
-	{ id: "fukuoka-20260518", venueName: "福岡", title: "都市圏シリーズ", grade: "GII", startDate: "2026-05-18", endDate: "2026-05-22", dateRange: "05.18 - 05.22", session: "Day" },
-];
 
 const sectionTitleStyle: CSSProperties = {
 	margin: 0,
@@ -516,8 +503,10 @@ function elevateCard(target: HTMLElement, active: boolean, options?: { borderCol
 export function DashboardPage() {
 	const [todayFeed, setTodayFeed] = useState(createBoatTodayWaitingFeed());
 	const [todayFeedUpdatedAt, setTodayFeedUpdatedAt] = useState("");
-	const [upcomingSchedules, setUpcomingSchedules] = useState<BoatUpcomingScheduleItem[]>(upcomingBoatSchedules);
-	const [upcomingUpdatedAt, setUpcomingUpdatedAt] = useState("");
+	const [upcomingState, setUpcomingState] = useState<BoatUpcomingScheduleState>({ status: "unavailable", items: [], reason: "loading" });
+	const scheduleView = useMemo(() => getBoatUpcomingScheduleDisplay(upcomingState), [upcomingState]);
+	const upcomingSchedules = scheduleView.items;
+	const upcomingUpdatedAt = scheduleView.updatedAt;
 
 	useEffect(() => {
 		let isActive = true;
@@ -540,10 +529,7 @@ export function DashboardPage() {
 				setTodayFeedUpdatedAt("");
 			}
 
-			if (scheduleResult) {
-				setUpcomingSchedules(filterBoatUpcomingScheduleByDateRange(scheduleResult.items ?? []));
-				setUpcomingUpdatedAt(scheduleResult.generatedAt ?? "");
-			}
+			setUpcomingState(scheduleResult);
 		};
 
 		void loadDashboardFeeds();
@@ -565,10 +551,10 @@ export function DashboardPage() {
 			},
 			{
 				label: "Upcoming Pickup",
-				value: `${upcomingSchedules.length} meets`,
+				value: scheduleView.metricValue,
 			},
 		],
-		[todayFeed, upcomingSchedules],
+		[todayFeed, scheduleView],
 	);
 
 	const featuredVenueNames = useMemo(() => new Set(["丸亀", "大村"]), []);
@@ -1031,7 +1017,7 @@ export function DashboardPage() {
 							<p style={{ margin: 0, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.14em", color: boatTheme.colors.aquaDeep, fontWeight: 800 }}>
 								Upcoming Pickup
 							</p>
-							<p style={{ margin: "10px 0 0", fontSize: "2rem", fontWeight: 800, color: boatTheme.colors.navy }}>{upcomingSchedules.length}開催</p>
+							<p style={{ margin: "10px 0 0", fontSize: "2rem", fontWeight: 800, color: boatTheme.colors.navy }}>{scheduleView.countLabel}</p>
 						</div>
 
 						<div style={{ ...sectionVisualStyle, minHeight: "132px", padding: "14px 16px" ,marginTop: "50px",}}>
@@ -1046,6 +1032,12 @@ export function DashboardPage() {
 						</div>
 					</div>
 				</div>
+
+				{scheduleView.message ? (
+					<p role="status" style={{ ...panelStyle, margin: 0, padding: "18px 20px", color: boatTheme.colors.navy, fontWeight: 700 }}>
+						{scheduleView.message}
+					</p>
+				) : null}
 
 				<div
 					style={{

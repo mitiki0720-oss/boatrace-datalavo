@@ -42,11 +42,13 @@ on:
         required: false
         default: "false"
   schedule:
-    # 00:05, 06:05, 09:43-21:43 every 3 hours, and 23:30 JST. Schedules are UTC.
+    # 00:05, 06:05, 08:00, 09:43-21:43 every 3 hours, and 23:30 JST. Schedules are UTC.
     # 06:05 JST refreshes all official pre-race material once after morning publication.
+    # 08:00 JST retries initial official data without the legacy EX pipeline.
     # 23:30 JST runs final mode so result-backed BOATRACE EX analysis can settle the current day.
     - cron: "5 15 * * *"
     - cron: "5 21 * * *"
+    - cron: "0 23 * * *"
     - cron: "43 0,3,6,9,12 * * *"
     - cron: "30 14 * * *"
 
@@ -98,6 +100,9 @@ jobs:
           if [ "$EVENT_SCHEDULE" = "43 0,3,6,9,12 * * *" ]; then
             MODE="results"
           fi
+          if [ "$EVENT_SCHEDULE" = "0 23 * * *" ]; then
+            MODE="initial"
+          fi
           if [ "$EVENT_SCHEDULE" = "30 14 * * *" ]; then
             MODE="final"
             SCHEDULED_INTENDED_DATE="$(node scripts/boatUpdateScheduleDate.mjs --schedule "$EVENT_SCHEDULE")"
@@ -112,6 +117,9 @@ jobs:
 
           ARGS=(--mode "$MODE" --target-session "${{ inputs.targetSession || 'auto' }}")
           ARGS+=(--target-date "$RESOLVED_TARGET_DATE")
+          if [ "$EVENT_SCHEDULE" = "0 23 * * *" ]; then
+            ARGS+=(--skip-boatrace-ex)
+          fi
 
           node scripts/updateBoatData.mjs "${ARGS[@]}"
 
@@ -132,7 +140,7 @@ jobs:
           head -n 20 public/data/boatrace/venue-extras.generated.json
 
       - name: Run BOATRACE EX daily pipeline
-        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_boatrace_ex == 'true') }}
+        if: ${{ (github.event_name == 'schedule' && github.event.schedule != '0 23 * * *') || (github.event_name == 'workflow_dispatch' && inputs.run_boatrace_ex == 'true') }}
         shell: bash
         run: |
           set -euo pipefail
@@ -164,6 +172,8 @@ jobs:
 
       - name: Commit generated data
         shell: bash
+        env:
+          EVENT_SCHEDULE: ${{ github.event.schedule || '' }}
         run: |
           timeout 5m bash -euo pipefail <<'BASH'
           git config user.name "github-actions[bot]"
@@ -177,8 +187,15 @@ jobs:
             public/data/boatrace/today-race-details.generated.json \
             public/data/boatrace/today.generated.json \
             public/data/boatrace/upcoming-schedule.generated.json \
-            public/data/boatrace/venue-extras.generated.json \
-            public/data/boatrace-ex
+            public/data/boatrace/venue-extras.generated.json
+
+          if [[ "$EVENT_SCHEDULE" != "0 23 * * *" ]]; then
+            git add -- public/data/boatrace-ex
+          elif [[ -n "$(git status --short --untracked-files=all -- public/data/boatrace-ex docs/boat-ex)" ]]; then
+            echo "::error::Unexpected BOATRACE EX changes during the 08:00 JST update"
+            git status --short --untracked-files=all -- public/data/boatrace-ex docs/boat-ex
+            exit 1
+          fi
 
           shopt -s nullglob
           generated_boat_ex_docs=(
@@ -192,7 +209,7 @@ jobs:
             docs/boat-ex/reviews-dog-history-backfill-*.md
           )
           shopt -u nullglob
-          if (( ${#generated_boat_ex_docs[@]} > 0 )); then
+          if [[ "$EVENT_SCHEDULE" != "0 23 * * *" ]] && (( ${#generated_boat_ex_docs[@]} > 0 )); then
             git add -- "${generated_boat_ex_docs[@]}"
           fi
 

@@ -11,6 +11,10 @@ const DEFAULT_OUTPUT_DIR = path.join(projectRoot, "public", "data", "boatrace");
 const OFFICIAL_ORIGIN = "https://www.boatrace.jp";
 const DEFAULT_DAYS = 31;
 
+export class ScheduleUnavailableError extends Error {
+	name = "ScheduleUnavailableError";
+}
+
 const VENUES = [
 	{ code: "01", slug: "kiryu", name: "桐生", session: "Night", sessionType: "ナイター" },
 	{ code: "02", slug: "toda", name: "戸田", session: "Day", sessionType: "デイ" },
@@ -39,7 +43,7 @@ const VENUES = [
 ];
 
 const VENUE_BY_CODE = new Map(VENUES.map((venue) => [venue.code, venue]));
-const VENUE_BY_COMPACT_NAME = new Map(VENUES.map((venue) => [compactText(venue.name), venue]));
+const VENUE_BY_COMPACT_NAME = new Map(VENUES.map((venue) => [compactText(venue.name).replace(/\s/g, ""), venue]));
 
 function parseCliArgs(argv = process.argv.slice(2)) {
 	const parsed = {};
@@ -99,32 +103,30 @@ function compactText(value) {
 		.trim();
 }
 
-function toDateKey(date) {
-	return new Intl.DateTimeFormat("sv-SE", {
-		timeZone: "Asia/Tokyo",
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-	}).format(date);
-}
-
-function addDays(dateKey, days) {
-	const date = new Date(`${dateKey}T00:00:00+09:00`);
-	date.setDate(date.getDate() + days);
-	return toDateKey(date);
+export function addDays(dateKey, days) {
+	const date = new Date(`${dateKey}T00:00:00.000Z`);
+	if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey) || Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== dateKey || !Number.isInteger(days)) {
+		throw new Error(`Invalid schedule date or day offset: ${dateKey}, ${days}`);
+	}
+	date.setUTCDate(date.getUTCDate() + days);
+	return date.toISOString().slice(0, 10);
 }
 
 function compareDate(left, right) {
 	return String(left).localeCompare(String(right));
 }
 
-function monthKeysBetween(startDate, endDate) {
+export function monthKeysBetween(startDate, endDate) {
+	if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate) || startDate > endDate) {
+		throw new Error(`Invalid schedule range: ${startDate}..${endDate}`);
+	}
+	addDays(startDate, 0);
+	addDays(endDate, 0);
 	const keys = [];
-	const cursor = new Date(`${startDate.slice(0, 7)}-01T00:00:00+09:00`);
-	const endMonth = `${endDate.slice(0, 7)}-01`;
-	while (toDateKey(cursor) <= endMonth) {
-		keys.push(`${cursor.getFullYear()}${String(cursor.getMonth() + 1).padStart(2, "0")}`);
-		cursor.setMonth(cursor.getMonth() + 1);
+	const first = Number(startDate.slice(0, 4)) * 12 + Number(startDate.slice(5, 7)) - 1;
+	const last = Number(endDate.slice(0, 4)) * 12 + Number(endDate.slice(5, 7)) - 1;
+	for (let index = first; index <= last; index += 1) {
+		keys.push(`${Math.floor(index / 12)}${String(index % 12 + 1).padStart(2, "0")}`);
 	}
 	return keys;
 }
@@ -145,7 +147,9 @@ function parseScheduleDate(monthKey, value) {
 	} else if (scheduleMonth === 12 && month === 1) {
 		year += 1;
 	}
-	return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+	const dateKey = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+	const parsed = new Date(`${dateKey}T00:00:00.000Z`);
+	return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === dateKey ? dateKey : null;
 }
 
 function parseDateRange(monthKey, value) {
@@ -155,7 +159,7 @@ function parseDateRange(monthKey, value) {
 	}
 	const startDate = parseScheduleDate(monthKey, match[1]);
 	const endDate = parseScheduleDate(monthKey, match[2]);
-	return startDate && endDate ? { startDate, endDate } : null;
+	return startDate && endDate && startDate <= endDate ? { startDate, endDate } : null;
 }
 
 function formatDateRange(startDate, endDate) {
@@ -220,8 +224,8 @@ async function readTodaySessionByVenue(outputDir, targetDate) {
 	const filePath = path.join(outputDir, "today.generated.json");
 	try {
 		const payload = JSON.parse((await readFile(filePath, "utf8")).replace(/^\uFEFF/, ""));
-		if (payload?.date !== targetDate) {
-			return new Map();
+		if (payload?.date !== targetDate || !Array.isArray(payload.venues)) {
+			throw new Error(`Invalid today feed date or venues: expected=${targetDate} actual=${payload?.date ?? "missing"}`);
 		}
 		return new Map((payload.venues ?? []).map((venue) => [
 			String(venue.venueCode ?? "").padStart(2, "0"),
@@ -230,8 +234,9 @@ async function readTodaySessionByVenue(outputDir, targetDate) {
 				sessionType: sessionTypeFromSession(venue.session),
 			},
 		]));
-	} catch {
-		return new Map();
+	} catch (error) {
+		if (error?.code === "ENOENT") return new Map();
+		throw error;
 	}
 }
 
@@ -288,36 +293,64 @@ export function resolveOfficialScheduleSession({ seriesName, todaySession, venue
 
 async function fetchMonthlySchedule(monthKey) {
 	const url = `${OFFICIAL_ORIGIN}/owsp/sp/race/monthlyschedule?ym=${monthKey}`;
-	const response = await fetch(url, {
-		headers: {
-			"user-agent": "boatrace-datalavo schedule updater",
-		},
-	});
-	if (!response.ok) {
-		throw new Error(`HTTP ${response.status} ${url}`);
+	let response;
+	try {
+		response = await fetch(url, {
+			headers: { "user-agent": "boatrace-datalavo schedule updater" },
+		});
+	} catch (error) {
+		throw new ScheduleUnavailableError(`Schedule fetch failed month=${monthKey} url=${url}: ${error instanceof Error ? error.message : String(error)}`);
 	}
-	return { monthKey, url, html: await response.text() };
+	if (!response.ok) {
+		throw new ScheduleUnavailableError(`HTTP ${response.status} month=${monthKey} url=${url}`);
+	}
+	if (!response.url) throw new ScheduleUnavailableError(`Missing response URL for month=${monthKey} url=${url}`);
+	try {
+		return { monthKey, url: response.url, html: await response.text() };
+	} catch (error) {
+		throw new ScheduleUnavailableError(`Schedule body read failed month=${monthKey} url=${url}: ${error instanceof Error ? error.message : String(error)}`);
+	}
 }
 
-function parseMonthlySchedule({ monthKey, url, html }, range, todaySessionByVenue, generatedAt) {
+export function parseMonthlySchedule({ monthKey, url, html }, range, todaySessionByVenue = new Map(), generatedAt = new Date().toISOString()) {
+	const responseUrl = new URL(url);
+	if (responseUrl.origin !== OFFICIAL_ORIGIN || responseUrl.pathname !== "/owsp/sp/race/monthlyschedule" ||
+		responseUrl.searchParams.getAll("ym").length !== 1 || responseUrl.searchParams.get("ym") !== monthKey) {
+		throw new Error(`Schedule URL/month mismatch: month=${monthKey} url=${url}`);
+	}
 	const $ = load(html);
+	const selected = $("select").toArray().map((select) => String($(select).find("option:selected").first().val() ?? "").normalize("NFKC"));
+	const selectedYears = selected.filter((value) => /^\d{4}$/.test(value));
+	const selectedMonths = selected.filter((value) => /^\d{1,2}$/.test(value));
+	const monthLabel = `${Number(monthKey.slice(4, 6))}月のスケジュール`;
+	const headings = $(".contHead__title").toArray().map((heading) => compactText($(heading).text()).normalize("NFKC"));
+	const tables = $(".scheduleTable");
+	if (!compactText($("title").text()).includes("月間スケジュール") ||
+		selectedYears.length !== 1 || selectedYears[0] !== monthKey.slice(0, 4) ||
+		selectedMonths.length !== 1 || Number(selectedMonths[0]) !== Number(monthKey.slice(4, 6)) ||
+		!headings.includes(monthLabel) || tables.length !== VENUES.length) {
+		throw new ScheduleUnavailableError(`Invalid official monthly schedule page: month=${monthKey} url=${url}`);
+	}
 	const items = [];
+	const seenVenues = new Set();
+	let eventCount = 0;
 
-	$(".scheduleTable").each((_, table) => {
+	tables.each((_, table) => {
 		const heading = compactText($(table).prev(".balTable__head").text());
-		const venue = VENUE_BY_COMPACT_NAME.get(compactText(heading));
-		if (!venue) {
-			return;
-		}
+		const venue = VENUE_BY_COMPACT_NAME.get(heading.replace(/\s/g, ""));
+		if (!venue || seenVenues.has(venue.code)) throw new Error(`Invalid schedule venue: month=${monthKey} heading=${heading}`);
+		seenVenues.add(venue.code);
 
 		$(table).find("li").each((__, item) => {
 			const rangeText = compactText($(item).find("dt").first().text());
 			const parsedRange = parseDateRange(monthKey, rangeText);
 			const link = $(item).find("dd a").first();
-			const seriesName = compactText(link.text());
-			if (!parsedRange || !seriesName) {
-				return;
-			}
+			const seriesName = compactText($(item).find("dd").first().text());
+			const href = link.attr("href");
+			if (!parsedRange || !seriesName) throw new Error(`Invalid schedule event: month=${monthKey} venue=${venue.code} range=${rangeText}`);
+			const sourceUrl = href ? new URL(href, OFFICIAL_ORIGIN) : responseUrl;
+			if (sourceUrl.origin !== OFFICIAL_ORIGIN) throw new Error(`Invalid schedule event URL: month=${monthKey} venue=${venue.code}`);
+			eventCount += 1;
 
 			if (compareDate(parsedRange.endDate, range.startDate) < 0 || compareDate(parsedRange.startDate, range.endDate) > 0) {
 				return;
@@ -334,8 +367,6 @@ function parseMonthlySchedule({ monthKey, url, html }, range, todaySessionByVenu
 				todaySession: todaySession?.session,
 				venueSession: venue.session,
 			});
-			const href = link.attr("href") || "";
-			const sourceUrl = href.startsWith("http") ? href : `${OFFICIAL_ORIGIN}${href}`;
 			const grade = readGrade($, item);
 			const note = readNote($, item);
 
@@ -354,7 +385,7 @@ function parseMonthlySchedule({ monthKey, url, html }, range, todaySessionByVenu
 				startDate: parsedRange.startDate,
 				endDate: parsedRange.endDate,
 				dateRange: formatDateRange(parsedRange.startDate, parsedRange.endDate),
-				sourceUrl,
+				sourceUrl: sourceUrl.href,
 				sourceMonthUrl: url,
 				updatedAt: generatedAt,
 				...(note ? { note } : {}),
@@ -362,6 +393,7 @@ function parseMonthlySchedule({ monthKey, url, html }, range, todaySessionByVenu
 		});
 	});
 
+	if (seenVenues.size !== VENUES.length || eventCount === 0) throw new ScheduleUnavailableError(`No verified schedule events: month=${monthKey} url=${url}`);
 	return items;
 }
 
@@ -369,9 +401,11 @@ function dedupeAndSort(items) {
 	const byKey = new Map();
 	for (const item of items) {
 		const key = `${item.date}-${item.venueCode}`;
-		if (!byKey.has(key)) {
-			byKey.set(key, item);
+		const previous = byKey.get(key);
+		if (previous && [previous.seriesName, previous.startDate, previous.endDate].join("|") !== [item.seriesName, item.startDate, item.endDate].join("|")) {
+			throw new Error(`Conflicting schedule event: ${key}`);
 		}
+		if (!previous) byKey.set(key, item);
 	}
 	return Array.from(byKey.values()).sort((left, right) =>
 		left.date.localeCompare(right.date)
@@ -411,8 +445,8 @@ function validateFeed(feed, range) {
 		keys.add(key);
 	}
 
-	if (feed.items.length <= 0 && feed.sourceStatus !== "no-schedule") {
-		throw new Error("schedule feed has zero items without sourceStatus=no-schedule");
+	if (feed.items.length <= 0 || feed.sourceStatus !== "ok") {
+		throw new Error("No verified schedule items in requested date range");
 	}
 }
 
@@ -449,11 +483,12 @@ export async function main(rawOptions = parseOptions()) {
 		}
 
 		const items = dedupeAndSort(monthlyPages.flatMap((page) => parseMonthlySchedule(page, range, todaySessionByVenue, timestamps.generatedAt)));
+		if (items.length === 0) throw new ScheduleUnavailableError(`No verified schedule items in requested date range: ${range.startDate}..${range.endDate}`);
 		const feed = {
 			version: 1,
 			generatedAt: timestamps.generatedAt,
 			source: "boatrace-official-monthly-schedule",
-			sourceStatus: items.length > 0 ? "ok" : "no-schedule",
+			sourceStatus: "ok",
 			range,
 			items,
 		};
@@ -465,7 +500,7 @@ export async function main(rawOptions = parseOptions()) {
 		console.log(`range: ${range.startDate}..${range.endDate}`);
 		return feed;
 	} catch (error) {
-		console.error("[update-boat-upcoming-schedule] failed to refresh official schedule");
+		console.error(`[update-boat-upcoming-schedule] ${error instanceof ScheduleUnavailableError ? "SCHEDULE_HOLD" : "SCHEDULE_ERROR"} failed to refresh official schedule`);
 		console.error(`[update-boat-upcoming-schedule] keep existing upcoming-schedule.generated.json`);
 		console.error(error instanceof Error ? error.message : String(error));
 		throw error;
@@ -475,7 +510,7 @@ export async function main(rawOptions = parseOptions()) {
 const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
 
 if (isDirectRun) {
-	main(parseOptions()).catch(() => {
-		process.exitCode = 1;
+	main(parseOptions()).catch((error) => {
+		process.exitCode = error instanceof ScheduleUnavailableError ? 2 : 1;
 	});
 }

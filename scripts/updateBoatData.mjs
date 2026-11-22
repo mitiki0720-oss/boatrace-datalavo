@@ -21,6 +21,10 @@ function parseCliArgs(argv = process.argv.slice(2)) {
 		const trimmed = token.slice(2);
 		const separatorIndex = trimmed.indexOf("=");
 		const key = separatorIndex >= 0 ? trimmed.slice(0, separatorIndex) : trimmed;
+		if (key === "skip-boatrace-ex" && separatorIndex < 0) {
+			parsed.skipBoatraceEx = true;
+			continue;
+		}
 		const value = separatorIndex >= 0 ? trimmed.slice(separatorIndex + 1) : argv[index + 1];
 
 		switch (key) {
@@ -171,7 +175,9 @@ function runNodeScript(args) {
 				return;
 			}
 
-			reject(new Error(`command failed with exit code ${code ?? "unknown"}: node ${args.join(" ")}`));
+			const error = new Error(`command failed with exit code ${code ?? "unknown"}: node ${args.join(" ")}`);
+			error.exitCode = code;
+			reject(error);
 		});
 	});
 }
@@ -183,10 +189,11 @@ export function parseUpdateBoatDataOptions(argv = process.argv.slice(2), env = p
 		targetSession: normalizeTargetSession(cliArgs.targetSession ?? env.BOAT_RACE_TARGET_SESSION),
 		targetDate: resolveJstTargetDate(cliArgs.targetDate ?? env.BOAT_RACE_TARGET_DATE),
 		outputDir: cliArgs.outputDir ?? env.BOAT_RACE_OUTPUT_DIR,
+		skipBoatraceEx: cliArgs.skipBoatraceEx === true,
 	};
 }
 
-export async function main(rawOptions = parseUpdateBoatDataOptions()) {
+export async function main(rawOptions = parseUpdateBoatDataOptions(), runScript = runNodeScript) {
 	const options = {
 		mode: normalizeMode(rawOptions.mode),
 		targetSession: normalizeTargetSession(rawOptions.targetSession),
@@ -203,38 +210,47 @@ export async function main(rawOptions = parseUpdateBoatDataOptions()) {
 		console.log("[update-boat-data] final mode runs all-race result completion, beforeinfo backfill, and a final venue-extras refresh.");
 	}
 
-	await runNodeScript(appendOutputDir(buildTodayDetailsArgs(options), rawOptions.outputDir));
+	await runScript(appendOutputDir(buildTodayDetailsArgs(options), rawOptions.outputDir));
 
 	const venueExtrasArgs = buildVenueExtrasArgs(options);
 	if (venueExtrasArgs) {
 		console.log(`[update-boat-data] venue extras update enabled for mode=${options.mode}`);
-		await runNodeScript(appendOutputDir(venueExtrasArgs, rawOptions.outputDir));
+		await runScript(appendOutputDir(venueExtrasArgs, rawOptions.outputDir));
 	} else {
 		console.log(`[update-boat-data] skipping venue extras for mode=${options.mode}`);
 	}
 
 	console.log("[update-boat-data] upcoming schedule update enabled");
-	await runNodeScript(appendOutputDir(buildUpcomingScheduleArgs(options), rawOptions.outputDir));
+	try {
+		await runScript(appendOutputDir(buildUpcomingScheduleArgs(options), rawOptions.outputDir));
+	} catch (error) {
+		if (error?.exitCode !== 2) throw error;
+		console.warn(`::warning::SCHEDULE_HOLD targetDate=${options.targetDate}; official schedule unavailable; existing schedule JSON retained. ${error.message}`);
+	}
 
-	console.log("[update-boat-data] BOATRACE EX historical source index enabled");
-	await runNodeScript(buildBoatExHistoricalSourceIndexArgs());
-	await runNodeScript(buildBoatExHistoricalSourceIndexCheckArgs());
-	console.log("[update-boat-data] BOATRACE EX current-day official registry supplement enabled");
-	await runNodeScript(buildBoatExRegisteredRacerIdentityRegistryArgs());
-	console.log("[update-boat-data] BOATRACE EX racer features enabled");
-	await runNodeScript(buildBoatExRacerFeaturesArgs());
-	await runNodeScript(buildBoatExRacerFeaturesCheckArgs());
-	await runNodeScript(buildBoatExRegistryLinkageGapWriteArgs());
-	await runNodeScript(buildBoatExRegistryLinkageGapCheckArgs());
-	console.log("[update-boat-data] BOATRACE EX current-day prediction coverage enabled");
-	await runNodeScript(buildBoatExCurrentDayPredictionCoverageArgs());
-	await runNodeScript(buildBoatExCurrentDayPredictionCoverageCheckArgs());
+	if (rawOptions.skipBoatraceEx === true) {
+		console.log("[update-boat-data] BOATRACE EX-only generation and checks skipped for this run");
+	} else {
+		console.log("[update-boat-data] BOATRACE EX historical source index enabled");
+		await runScript(buildBoatExHistoricalSourceIndexArgs());
+		await runScript(buildBoatExHistoricalSourceIndexCheckArgs());
+		console.log("[update-boat-data] BOATRACE EX current-day official registry supplement enabled");
+		await runScript(buildBoatExRegisteredRacerIdentityRegistryArgs());
+		console.log("[update-boat-data] BOATRACE EX racer features enabled");
+		await runScript(buildBoatExRacerFeaturesArgs());
+		await runScript(buildBoatExRacerFeaturesCheckArgs());
+		await runScript(buildBoatExRegistryLinkageGapWriteArgs());
+		await runScript(buildBoatExRegistryLinkageGapCheckArgs());
+		console.log("[update-boat-data] BOATRACE EX current-day prediction coverage enabled");
+		await runScript(buildBoatExCurrentDayPredictionCoverageArgs());
+		await runScript(buildBoatExCurrentDayPredictionCoverageCheckArgs());
+	}
 
 	if (venueExtrasArgs) {
 		console.log("[update-boat-data] exhibition gap check enabled");
-		await runNodeScript(appendOutputDir(buildExhibitionGapsCheckArgs(), rawOptions.outputDir));
+		await runScript(appendOutputDir(buildExhibitionGapsCheckArgs(), rawOptions.outputDir));
 		console.log("[update-boat-data] exhibition coverage check enabled");
-		await runNodeScript(appendOutputDir(buildExhibitionCoverageCheckArgs(), rawOptions.outputDir));
+		await runScript(appendOutputDir(buildExhibitionCoverageCheckArgs(), rawOptions.outputDir));
 	}
 }
 
