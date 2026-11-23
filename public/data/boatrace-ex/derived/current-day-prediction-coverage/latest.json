@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "boatrace-ex-current-day-prediction-coverage",
   "targetDate": "2026-11-23",
-  "generatedAt": "2026-11-23T08:02:33.439Z",
+  "generatedAt": "2026-11-23T08:17:43.415Z",
   "sourcePath": "public/data/boatrace/today-race-details.generated.json",
   "identityPolicy": "registrationNo exact registry lookup only; no name-only linkage",
   "venueCount": 13,
@@ -22,20 +22,22 @@
   "boatAvailableSlotCount": 936,
   "resultAvailableRaceCount": 122,
   "payoutAvailableRaceCount": 122,
-  "raceAnalysisAvailableRaceCount": 8,
-  "raceAnalysisMissingRaceCount": 148,
+  "raceAnalysisAvailableRaceCount": 122,
+  "raceAnalysisMissingRaceCount": 34,
   "preRaceCount": 29,
   "exhibitionReadyCount": 5,
   "exhibitionPartialCount": 0,
   "partialResultCount": 0,
   "resultOnlyCount": 0,
-  "resultAndPayoutCount": 114,
+  "resultAndPayoutCount": 0,
   "inconsistentStatusCount": 0,
   "rawPayoutWithoutCompleteResultCount": 2,
   "resultStatus": "partial-result",
   "sourceKinds": [
+    "official-beforeinfo-fetch-unavailable",
     "official:owpc-html+beforeinfo",
-    "official:owpc-html+odds+venue-weather"
+    "official:owpc-html+odds+venue-weather",
+    "venue-extras:official-beforeinfo"
   ],
   "venues": [
     {
@@ -57,13 +59,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 12,
       "payoutAvailableRaceCount": 12,
-      "raceAnalysisAvailableRaceCount": 0,
+      "raceAnalysisAvailableRaceCount": 12,
       "preRaceCount": 0,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 12,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -71,181 +73,157 @@
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 1,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 2,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 4,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 5,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 6,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 7,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 8,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 9,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 10,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 11,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "02",
           "venueName": "戸田",
           "raceNo": 12,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         }
       ]
     },
@@ -268,13 +246,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 12,
       "payoutAvailableRaceCount": 12,
-      "raceAnalysisAvailableRaceCount": 0,
+      "raceAnalysisAvailableRaceCount": 12,
       "preRaceCount": 0,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 12,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -282,181 +260,157 @@
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 1,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 2,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 4,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 5,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 6,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 7,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 8,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 9,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 10,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 11,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "05",
           "venueName": "多摩川",
           "raceNo": 12,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         }
       ]
     },
@@ -479,13 +433,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 4,
       "payoutAvailableRaceCount": 4,
-      "raceAnalysisAvailableRaceCount": 0,
+      "raceAnalysisAvailableRaceCount": 4,
       "preRaceCount": 7,
       "exhibitionReadyCount": 1,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 4,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -493,61 +447,53 @@
           "venueCode": "07",
           "venueName": "蒲郡",
           "raceNo": 1,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "07",
           "venueName": "蒲郡",
           "raceNo": 2,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "07",
           "venueName": "蒲郡",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "07",
           "venueName": "蒲郡",
           "raceNo": 4,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
+          "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
           "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "warnings": []
         },
         {
           "venueCode": "07",
@@ -571,8 +517,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -584,8 +530,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -597,8 +543,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -610,8 +556,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -623,8 +569,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -636,8 +582,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -649,8 +595,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         }
       ]
@@ -674,13 +620,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 12,
       "payoutAvailableRaceCount": 12,
-      "raceAnalysisAvailableRaceCount": 0,
+      "raceAnalysisAvailableRaceCount": 12,
       "preRaceCount": 0,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 12,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -688,181 +634,157 @@
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 1,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 2,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 4,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 5,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 6,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 7,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 8,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 9,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 10,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 11,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "09",
           "venueName": "津",
           "raceNo": 12,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         }
       ]
     },
@@ -885,13 +807,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 12,
       "payoutAvailableRaceCount": 12,
-      "raceAnalysisAvailableRaceCount": 4,
+      "raceAnalysisAvailableRaceCount": 12,
       "preRaceCount": 0,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 8,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -904,8 +826,8 @@
           "hasResult": true,
           "hasPayout": true,
           "hasRaceAnalysis": true,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
           "warnings": []
         },
         {
@@ -917,8 +839,8 @@
           "hasResult": true,
           "hasPayout": true,
           "hasRaceAnalysis": true,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
           "warnings": []
         },
         {
@@ -930,8 +852,8 @@
           "hasResult": true,
           "hasPayout": true,
           "hasRaceAnalysis": true,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
           "warnings": []
         },
         {
@@ -943,129 +865,113 @@
           "hasResult": true,
           "hasPayout": true,
           "hasRaceAnalysis": true,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
           "warnings": []
         },
         {
           "venueCode": "10",
           "venueName": "三国",
           "raceNo": 5,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "10",
           "venueName": "三国",
           "raceNo": 6,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "10",
           "venueName": "三国",
           "raceNo": 7,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "10",
           "venueName": "三国",
           "raceNo": 8,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "10",
           "venueName": "三国",
           "raceNo": 9,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "10",
           "venueName": "三国",
           "raceNo": 10,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "10",
           "venueName": "三国",
           "raceNo": 11,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "10",
           "venueName": "三国",
           "raceNo": 12,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         }
       ]
     },
@@ -1088,13 +994,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 12,
       "payoutAvailableRaceCount": 12,
-      "raceAnalysisAvailableRaceCount": 0,
+      "raceAnalysisAvailableRaceCount": 12,
       "preRaceCount": 0,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 12,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -1102,181 +1008,157 @@
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 1,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 2,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 4,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 5,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 6,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 7,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 8,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 9,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 10,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 11,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "11",
           "venueName": "びわこ",
           "raceNo": 12,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         }
       ]
     },
@@ -1299,13 +1181,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 3,
       "payoutAvailableRaceCount": 3,
-      "raceAnalysisAvailableRaceCount": 0,
+      "raceAnalysisAvailableRaceCount": 3,
       "preRaceCount": 7,
       "exhibitionReadyCount": 2,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 3,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 1,
       "lifecycle": [
@@ -1313,46 +1195,40 @@
           "venueCode": "12",
           "venueName": "住之江",
           "raceNo": 1,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "12",
           "venueName": "住之江",
           "raceNo": 2,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "12",
           "venueName": "住之江",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "12",
@@ -1391,8 +1267,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1404,8 +1280,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1417,8 +1293,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1430,8 +1306,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1443,8 +1319,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1456,8 +1332,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -1469,8 +1345,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         }
       ]
@@ -1494,13 +1370,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 12,
       "payoutAvailableRaceCount": 12,
-      "raceAnalysisAvailableRaceCount": 0,
+      "raceAnalysisAvailableRaceCount": 12,
       "preRaceCount": 0,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 12,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -1508,181 +1384,157 @@
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 1,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 2,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 4,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 5,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 6,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 7,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 8,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 9,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 10,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 11,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "13",
           "venueName": "尼崎",
           "raceNo": 12,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         }
       ]
     },
@@ -1705,13 +1557,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 12,
       "payoutAvailableRaceCount": 12,
-      "raceAnalysisAvailableRaceCount": 2,
+      "raceAnalysisAvailableRaceCount": 12,
       "preRaceCount": 0,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 10,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -1724,8 +1576,8 @@
           "hasResult": true,
           "hasPayout": true,
           "hasRaceAnalysis": true,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
           "warnings": []
         },
         {
@@ -1737,159 +1589,139 @@
           "hasResult": true,
           "hasPayout": true,
           "hasRaceAnalysis": true,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
           "warnings": []
         },
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "raceNo": 4,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "raceNo": 5,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "raceNo": 6,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "raceNo": 7,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "raceNo": 8,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "raceNo": 9,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "raceNo": 10,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "raceNo": 11,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "14",
           "venueName": "鳴門",
           "raceNo": 12,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         }
       ]
     },
@@ -1912,13 +1744,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 4,
       "payoutAvailableRaceCount": 4,
-      "raceAnalysisAvailableRaceCount": 0,
+      "raceAnalysisAvailableRaceCount": 4,
       "preRaceCount": 7,
       "exhibitionReadyCount": 1,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 4,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -1926,61 +1758,53 @@
           "venueCode": "19",
           "venueName": "下関",
           "raceNo": 1,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "19",
           "venueName": "下関",
           "raceNo": 2,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "19",
           "venueName": "下関",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "19",
           "venueName": "下関",
           "raceNo": 4,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
+          "hasRaceAnalysis": true,
           "sourceName": "official:owpc-html+beforeinfo",
           "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "warnings": []
         },
         {
           "venueCode": "19",
@@ -2004,8 +1828,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2017,8 +1841,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2030,8 +1854,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2043,8 +1867,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2056,8 +1880,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2069,8 +1893,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2082,8 +1906,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         }
       ]
@@ -2107,13 +1931,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 12,
       "payoutAvailableRaceCount": 12,
-      "raceAnalysisAvailableRaceCount": 2,
+      "raceAnalysisAvailableRaceCount": 12,
       "preRaceCount": 0,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 10,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -2126,8 +1950,8 @@
           "hasResult": true,
           "hasPayout": true,
           "hasRaceAnalysis": true,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
           "warnings": []
         },
         {
@@ -2139,159 +1963,139 @@
           "hasResult": true,
           "hasPayout": true,
           "hasRaceAnalysis": true,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
           "warnings": []
         },
         {
           "venueCode": "21",
           "venueName": "芦屋",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "21",
           "venueName": "芦屋",
           "raceNo": 4,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "21",
           "venueName": "芦屋",
           "raceNo": 5,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "21",
           "venueName": "芦屋",
           "raceNo": 6,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "21",
           "venueName": "芦屋",
           "raceNo": 7,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "21",
           "venueName": "芦屋",
           "raceNo": 8,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "21",
           "venueName": "芦屋",
           "raceNo": 9,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "21",
           "venueName": "芦屋",
           "raceNo": 10,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "21",
           "venueName": "芦屋",
           "raceNo": 11,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "21",
           "venueName": "芦屋",
           "raceNo": 12,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         }
       ]
     },
@@ -2314,13 +2118,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 12,
       "payoutAvailableRaceCount": 12,
-      "raceAnalysisAvailableRaceCount": 0,
+      "raceAnalysisAvailableRaceCount": 12,
       "preRaceCount": 0,
       "exhibitionReadyCount": 0,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 12,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 0,
       "lifecycle": [
@@ -2328,181 +2132,157 @@
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 1,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 2,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 5,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 4,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 5,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 6,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 7,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 8,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 9,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 10,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 11,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "22",
           "venueName": "福岡",
           "raceNo": 12,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         }
       ]
     },
@@ -2525,13 +2305,13 @@
       "boatAvailableSlotCount": 72,
       "resultAvailableRaceCount": 3,
       "payoutAvailableRaceCount": 3,
-      "raceAnalysisAvailableRaceCount": 0,
+      "raceAnalysisAvailableRaceCount": 3,
       "preRaceCount": 8,
       "exhibitionReadyCount": 1,
       "exhibitionPartialCount": 0,
       "partialResultCount": 0,
       "resultOnlyCount": 0,
-      "resultAndPayoutCount": 3,
+      "resultAndPayoutCount": 0,
       "inconsistentStatusCount": 0,
       "rawPayoutWithoutCompleteResultCount": 1,
       "lifecycle": [
@@ -2539,46 +2319,40 @@
           "venueCode": "24",
           "venueName": "大村",
           "raceNo": 1,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "24",
           "venueName": "大村",
           "raceNo": 2,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "24",
           "venueName": "大村",
           "raceNo": 3,
-          "status": "result-and-payout",
+          "status": "race-analysis-ready",
           "displayTimeCount": 6,
           "hasResult": true,
           "hasPayout": true,
-          "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-          "warnings": [
-            "race-analysis-not-ready-for-current-result-state"
-          ]
+          "hasRaceAnalysis": true,
+          "sourceName": "venue-extras:official-beforeinfo",
+          "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+          "warnings": []
         },
         {
           "venueCode": "24",
@@ -2604,8 +2378,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2617,8 +2391,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2630,8 +2404,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2643,8 +2417,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2656,8 +2430,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2669,8 +2443,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2682,8 +2456,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         },
         {
@@ -2695,8 +2469,8 @@
           "hasResult": false,
           "hasPayout": false,
           "hasRaceAnalysis": false,
-          "sourceName": "official:owpc-html+beforeinfo",
-          "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+          "sourceName": "official-beforeinfo-fetch-unavailable",
+          "sourceAcquiredAt": "",
           "warnings": []
         }
       ]
@@ -2707,421 +2481,365 @@
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 1,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 2,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 4,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 5,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 6,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 7,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 8,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 9,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 10,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 11,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "02",
       "venueName": "戸田",
       "raceNo": 12,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 1,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 2,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 4,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 5,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 6,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 7,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 8,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 9,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 10,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 11,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "05",
       "venueName": "多摩川",
       "raceNo": 12,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "07",
       "venueName": "蒲郡",
       "raceNo": 1,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "07",
       "venueName": "蒲郡",
       "raceNo": 2,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "07",
       "venueName": "蒲郡",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "07",
       "venueName": "蒲郡",
       "raceNo": 4,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
+      "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
       "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "warnings": []
     },
     {
       "venueCode": "07",
@@ -3145,8 +2863,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3158,8 +2876,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3171,8 +2889,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3184,8 +2902,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3197,8 +2915,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3210,8 +2928,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3223,189 +2941,165 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 1,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 2,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 4,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 5,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 6,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 7,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 8,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 9,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 10,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 11,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "09",
       "venueName": "津",
       "raceNo": 12,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "10",
@@ -3416,8 +3110,8 @@
       "hasResult": true,
       "hasPayout": true,
       "hasRaceAnalysis": true,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
       "warnings": []
     },
     {
@@ -3429,8 +3123,8 @@
       "hasResult": true,
       "hasPayout": true,
       "hasRaceAnalysis": true,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
       "warnings": []
     },
     {
@@ -3442,8 +3136,8 @@
       "hasResult": true,
       "hasPayout": true,
       "hasRaceAnalysis": true,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
       "warnings": []
     },
     {
@@ -3455,354 +3149,308 @@
       "hasResult": true,
       "hasPayout": true,
       "hasRaceAnalysis": true,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
       "warnings": []
     },
     {
       "venueCode": "10",
       "venueName": "三国",
       "raceNo": 5,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "10",
       "venueName": "三国",
       "raceNo": 6,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "10",
       "venueName": "三国",
       "raceNo": 7,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "10",
       "venueName": "三国",
       "raceNo": 8,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "10",
       "venueName": "三国",
       "raceNo": 9,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "10",
       "venueName": "三国",
       "raceNo": 10,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "10",
       "venueName": "三国",
       "raceNo": 11,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "10",
       "venueName": "三国",
       "raceNo": 12,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 1,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 2,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 4,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 5,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 6,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 7,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 8,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 9,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 10,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 11,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "11",
       "venueName": "びわこ",
       "raceNo": 12,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "12",
       "venueName": "住之江",
       "raceNo": 1,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "12",
       "venueName": "住之江",
       "raceNo": 2,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "12",
       "venueName": "住之江",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "12",
@@ -3841,8 +3489,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3854,8 +3502,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3867,8 +3515,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3880,8 +3528,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3893,8 +3541,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3906,8 +3554,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -3919,189 +3567,165 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 1,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 2,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 4,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 5,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 6,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 7,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 8,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 9,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 10,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 11,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "13",
       "venueName": "尼崎",
       "raceNo": 12,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "14",
@@ -4112,8 +3736,8 @@
       "hasResult": true,
       "hasPayout": true,
       "hasRaceAnalysis": true,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
       "warnings": []
     },
     {
@@ -4125,219 +3749,191 @@
       "hasResult": true,
       "hasPayout": true,
       "hasRaceAnalysis": true,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
       "warnings": []
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceNo": 4,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceNo": 5,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceNo": 6,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceNo": 7,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceNo": 8,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceNo": 9,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceNo": 10,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceNo": 11,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "14",
       "venueName": "鳴門",
       "raceNo": 12,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "19",
       "venueName": "下関",
       "raceNo": 1,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "19",
       "venueName": "下関",
       "raceNo": 2,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "19",
       "venueName": "下関",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "19",
       "venueName": "下関",
       "raceNo": 4,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
+      "hasRaceAnalysis": true,
       "sourceName": "official:owpc-html+beforeinfo",
       "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "warnings": []
     },
     {
       "venueCode": "19",
@@ -4361,8 +3957,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4374,8 +3970,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4387,8 +3983,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4400,8 +3996,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4413,8 +4009,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4426,8 +4022,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4439,8 +4035,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4452,8 +4048,8 @@
       "hasResult": true,
       "hasPayout": true,
       "hasRaceAnalysis": true,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
       "warnings": []
     },
     {
@@ -4465,384 +4061,334 @@
       "hasResult": true,
       "hasPayout": true,
       "hasRaceAnalysis": true,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
       "warnings": []
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceNo": 4,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceNo": 5,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceNo": 6,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceNo": 7,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceNo": 8,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceNo": 9,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceNo": 10,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceNo": 11,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "21",
       "venueName": "芦屋",
       "raceNo": 12,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 1,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 2,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 5,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 4,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 5,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 6,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 7,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 8,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 9,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 10,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 11,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "22",
       "venueName": "福岡",
       "raceNo": 12,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "24",
       "venueName": "大村",
       "raceNo": 1,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "24",
       "venueName": "大村",
       "raceNo": 2,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "24",
       "venueName": "大村",
       "raceNo": 3,
-      "status": "result-and-payout",
+      "status": "race-analysis-ready",
       "displayTimeCount": 6,
       "hasResult": true,
       "hasPayout": true,
-      "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
-      "warnings": [
-        "race-analysis-not-ready-for-current-result-state"
-      ]
+      "hasRaceAnalysis": true,
+      "sourceName": "venue-extras:official-beforeinfo",
+      "sourceAcquiredAt": "2026-11-23T17:16:07+09:00",
+      "warnings": []
     },
     {
       "venueCode": "24",
@@ -4868,8 +4414,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4881,8 +4427,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4894,8 +4440,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4907,8 +4453,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4920,8 +4466,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4933,8 +4479,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4946,8 +4492,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     },
     {
@@ -4959,8 +4505,8 @@
       "hasResult": false,
       "hasPayout": false,
       "hasRaceAnalysis": false,
-      "sourceName": "official:owpc-html+beforeinfo",
-      "sourceAcquiredAt": "2026-11-23T17:01:36+09:00",
+      "sourceName": "official-beforeinfo-fetch-unavailable",
+      "sourceAcquiredAt": "",
       "warnings": []
     }
   ]
