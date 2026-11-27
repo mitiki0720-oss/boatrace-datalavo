@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "kind": "boatrace-ex-current-day-registry-linkage-gap-audit",
+  "generatedAt": "2026-11-27T19:13:09.526Z",
+  "targetDate": "2026-11-28",
+  "policy": "registrationNo exact only; current-day supplement requires official source metadata and does not use name-only or fuzzy linkage",
+  "sourceFiles": [
+    "public/data/boatrace/today-race-details.generated.json",
+    "public/data/boatrace-ex/identity/registered-racers.generated.json",
+    "public/data/boatrace-ex/derived/racer-features/latest.json"
+  ],
+  "summary": {
+    "targetDate": "2026-11-28",
+    "venueCount": 14,
+    "raceCount": 168,
+    "slotCount": 1008,
+    "registrationPresentCount": 1008,
+    "beforeExactRegistryLinkedCount": 1007,
+    "exactRegistryLinkedCount": 1008,
+    "supplementedIdentityCount": 1,
+    "supplementedSlotCount": 1,
+    "unmatchedSlotCount": 0,
+    "unmatchedRegistrationNumberCount": 0,
+    "duplicateUnmatchedRegistrationNumbers": [],
+    "duplicateBaselineUnmatchedRegistrationNumbers": [],
+    "reasonCounts": {},
+    "baselineReasonCounts": {
+      "notInRegisteredIdentityRegistry": 1
+    }
+  },
+  "baselineUnmatchedExamples": [
+    {
+      "venueCode": "06",
+      "venueName": "浜名湖",
+      "raceNo": 4,
+      "frameNo": 6,
+      "racerName": "乾 仁平",
+      "registrationNo": "5475",
+      "branch": "静岡",
+      "age": "24",
+      "className": "B2",
+      "sourceName": "official:owpc-html",
+      "sourceAcquiredAt": "2026-11-28T04:12:09+09:00",
+      "reason": "notInRegisteredIdentityRegistry",
+      "registryLookupResult": "current-day-official-supplement",
+      "featureLookupResult": "no-history"
+    }
+  ],
+  "unmatchedExamples": [],
+  "venueSummary": [
+    {
+      "venueCode": "01",
+      "venueName": "桐生",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "02",
+      "venueName": "戸田",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "03",
+      "venueName": "江戸川",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "06",
+      "venueName": "浜名湖",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "07",
+      "venueName": "蒲郡",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "08",
+      "venueName": "常滑",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "13",
+      "venueName": "尼崎",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "14",
+      "venueName": "鳴門",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "15",
+      "venueName": "丸亀",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "17",
+      "venueName": "宮島",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "18",
+      "venueName": "徳山",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "20",
+      "venueName": "若松",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "23",
+      "venueName": "唐津",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    },
+    {
+      "venueCode": "24",
+      "venueName": "大村",
+      "slotCount": 72,
+      "exactLinkedCount": 72,
+      "unmatchedSlotCount": 0,
+      "unmatchedRegistrationNos": []
+    }
+  ]
+}
